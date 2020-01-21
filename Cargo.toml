@@ -1,0 +1,131 @@
+[build-dependencies]
+vergen = '3.0.4'
+
+[package]
+authors = ['MXC Foundation GmbH <https://t.me/mxcfoundation>', 'Luke Schoen <luke@mxc.org>']
+build = 'build.rs'
+edition = '2018'
+name = 'node'
+version = '2.0.0'
+
+[dependencies]
+derive_more = '0.15.0'
+futures01 = '0.1.29'
+futures = '0.3.1'
+log = '0.4.8'
+parking_lot = '0.9.0'
+tokio = '0.1.22'
+trie-root = '0.15.2'
+
+[dependencies.aura]
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-consensus-aura'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.aura-primitives]
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-consensus-aura-primitives'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.basic-authorship]
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-basic-authorship'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.substrate-client]
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-client'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.codec]
+package = 'parity-scale-codec'
+version = '1.0.0'
+
+[dependencies.ctrlc]
+features = ['termination']
+version = '3.1.3'
+
+[dependencies.runtime]
+package = 'node-runtime'
+path = 'runtime'
+
+[dependencies.grandpa]
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-finality-grandpa'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.grandpa-primitives]
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-finality-grandpa-primitives'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.sr-primitives]
+git = 'https://github.com/paritytech/substrate.git'
+package = 'sr-primitives'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.inherents]
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-inherents'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.network]
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-network'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.primitives]
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-primitives'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.sr-io]
+git = 'https://github.com/paritytech/substrate.git'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.substrate-cli]
+git = 'https://github.com/paritytech/substrate.git'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.sr-api]
+git = 'https://github.com/paritytech/substrate.git'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.substrate-executor]
+git = 'https://github.com/paritytech/substrate.git'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.substrate-service]
+git = 'https://github.com/paritytech/substrate.git'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.transaction-pool]
+git = 'https://github.com/paritytech/substrate.git'
+package = 'sc-transaction-pool'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[workspace]
+members = [
+  'runtime',
+  'packages/roaming/roaming-operators',
+  'packages/roaming/roaming-networks',
+  'packages/roaming/roaming-organizations',
+  'packages/roaming/roaming-network-servers',
+  'packages/roaming/roaming-devices',
+  'packages/roaming/roaming-routing-profiles',
+  'packages/roaming/roaming-service-profiles',
+  'packages/roaming/roaming-accounting-policies',
+  'packages/roaming/roaming-agreement-policies',
+  'packages/roaming/roaming-network-profiles',
+  'packages/roaming/roaming-device-profiles',
+  'packages/roaming/roaming-sessions',
+  'packages/roaming/roaming-billing-policies',
+  'packages/roaming/roaming-charging-policies',
+  'packages/roaming/roaming-packet-bundles'
+]
+[profile.release]
+panic = 'unwind'
+
+[[bin]]
+name = 'node'
+path = 'src/main.rs'

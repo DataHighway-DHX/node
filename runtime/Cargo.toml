@@ -1,0 +1,286 @@
+[features]
+default = ['std']
+std = [
+    'codec/std',
+    'block-builder-api/std',
+    'inherents/std',
+    'tx-pool-api/std',
+    'sr-api/std',
+    'rstd/std',
+    'runtime-io/std',
+    'support/std',
+    'balances/std',
+    'aura/std',
+    'aura-primitives/std',
+    'grandpa/std',
+    'executive/std',
+    'indices/std',
+    'primitives/std',
+    'sr-primitives/std',
+    'randomness-collective-flip/std',
+    'system/std',
+    'timestamp/std',
+    'sudo/std',
+    'transaction-payment/std',
+    'version/std',
+    'serde',
+    'safe-mix/std',
+    'offchain-primitives/std',
+    'substrate-session/std',
+    'roaming-operators/std',
+    'roaming-networks/std',
+    'roaming-organizations/std',
+    'roaming-network-servers/std',
+    'roaming-devices/std',
+    'roaming-routing-profiles/std',
+    'roaming-service-profiles/std',
+    'roaming-accounting-policies/std',
+    'roaming-network-profiles/std',
+    'roaming-device-profiles/std',
+    'roaming-sessions/std',
+    'roaming-billing-policies/std',
+    'roaming-charging-policies/std',
+    'roaming-packet-bundles/std'
+]
+
+[build-dependencies.wasm-builder-runner]
+package = 'substrate-wasm-builder-runner'
+version = '1.0.4'
+
+[package]
+authors = ['MXC Foundation GmbH <https://t.me/mxcfoundation>']
+edition = '2018'
+name = 'node-runtime'
+version = '2.0.0'
+
+[dependencies.sr-api]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'sr-api'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.block-builder-api]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-block-builder-runtime-api'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.inherents]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-inherents'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.tx-pool-api]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-transaction-pool-runtime-api'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.aura]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-aura'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.env]
+default_features = false
+package = 'env'
+path = '../packages/env'
+version = '0.1.0'
+
+[dependencies.roaming-operators]
+default_features = false
+package = 'roaming-operators'
+path = '../packages/roaming/roaming-operators'
+
+[dependencies.roaming-networks]
+default_features = false
+package = 'roaming-networks'
+path = '../packages/roaming/roaming-networks'
+
+[dependencies.roaming-organizations]
+default_features = false
+package = 'roaming-organizations'
+path = '../packages/roaming/roaming-organizations'
+
+[dependencies.roaming-network-servers]
+default_features = false
+package = 'roaming-network-servers'
+path = '../packages/roaming/roaming-network-servers'
+
+[dependencies.roaming-devices]
+default_features = false
+package = 'roaming-devices'
+path = '../packages/roaming/roaming-devices'
+
+[dependencies.roaming-routing-profiles]
+default_features = false
+package = 'roaming-routing-profiles'
+path = '../packages/roaming/roaming-routing-profiles'
+
+[dependencies.roaming-service-profiles]
+default_features = false
+package = 'roaming-service-profiles'
+path = '../packages/roaming/roaming-service-profiles'
+
+[dependencies.roaming-accounting-policies]
+default_features = false
+package = 'roaming-accounting-policies'
+path = '../packages/roaming/roaming-accounting-policies'
+
+[dependencies.roaming-agreement-policies]
+default_features = false
+package = 'roaming-agreement-policies'
+path = '../packages/roaming/roaming-agreement-policies'
+
+[dependencies.roaming-network-profiles]
+default_features = false
+package = 'roaming-network-profiles'
+path = '../packages/roaming/roaming-network-profiles'
+
+[dependencies.roaming-device-profiles]
+default_features = false
+package = 'roaming-device-profiles'
+path = '../packages/roaming/roaming-device-profiles'
+
+[dependencies.roaming-sessions]
+default_features = false
+package = 'roaming-sessions'
+path = '../packages/roaming/roaming-sessions'
+
+[dependencies.roaming-billing-policies]
+default_features = false
+package = 'roaming-billing-policies'
+path = '../packages/roaming/roaming-billing-policies'
+
+[dependencies.roaming-charging-policies]
+default_features = false
+package = 'roaming-charging-policies'
+path = '../packages/roaming/roaming-charging-policies'
+
+[dependencies.roaming-packet-bundles]
+default_features = false
+package = 'roaming-packet-bundles'
+path = '../packages/roaming/roaming-packet-bundles'
+
+[dependencies.aura-primitives]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-consensus-aura-primitives'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.balances]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-balances'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.codec]
+default-features = false
+features = ['derive']
+package = 'parity-scale-codec'
+version = '1.0.0'
+
+[dependencies.executive]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'frame-executive'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.grandpa]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-grandpa'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.indices]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-indices'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.offchain-primitives]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-offchain-primitives'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.primitives]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-primitives'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.randomness-collective-flip]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-randomness-collective-flip'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.rstd]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'sr-std'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.runtime-io]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'sr-io'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.safe-mix]
+default-features = false
+version = '1.0.0'
+
+[dependencies.serde]
+features = ['derive']
+optional = true
+version = '1.0.101'
+
+[dependencies.sr-primitives]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.substrate-session]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.sudo]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-sudo'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.support]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'frame-support'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.system]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'frame-system'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.timestamp]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-timestamp'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.transaction-payment]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-transaction-payment'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
+
+[dependencies.version]
+default_features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'sr-version'
+rev = '47b158b7a04bf0f5cd542a468076a7fda29648a4'
