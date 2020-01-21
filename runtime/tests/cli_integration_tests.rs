@@ -237,31 +237,40 @@ mod tests {
             assert_eq!(RoamingNetworkServerTestModule::roaming_network_servers_count(), 1);
 
             // Create Roaming Agreement Policy
-            //
-            // Create a roaming agreement policy.
 
             // Call Functions
             assert_ok!(RoamingAgreementPolicyTestModule::create(Origin::signed(0)));
+            // Note: This step is optional
+            assert_ok!(
+                RoamingAgreementPolicyTestModule::assign_agreement_policy_to_network(
+                    Origin::signed(0),
+                    0,
+                    0
+                )
+            );
             // assert_eq!(
             //     RoamingAgreementPolicyTestModule::exists_roaming_agreement_policy(0),
             //     Ok(RoamingAgreementPolicy([0; 16]))
             // );
-            // assert_ok!(RoamingAgreementPolicyTestModule::set_config(
-            //     Origin::signed(0),
-            //     0,
-            //     Some("passive".as_bytes().to_vec()),
-            //     Some(2019)
-            // ));
+            assert_eq!(RoamingAgreementPolicyTestModule::roaming_agreement_policy_owner(0), Some(0));
+            assert_ok!(
+                RoamingAgreementPolicyTestModule::set_config(
+                    Origin::signed(0),
+                    0,
+                    Some("passive".as_bytes().to_vec()),
+                    Some(2019)
+                )
+            );
 
             // Verify Storage
-            // assert_eq!(RoamingAgreementPolicyTestModule::roaming_agreement_policies_count(), 1);
-            // assert_eq!(
-            //     RoamingAgreementPolicyTestModule::roaming_agreement_policy_configs(0),
-            //     Some(RoamingAgreementPolicyConfig {
-            //         policy_activation_type: "passive".as_bytes().to_vec(),
-            //         policy_expiry: 123,
-            //     })
-            // ); 
+            assert_eq!(RoamingAgreementPolicyTestModule::roaming_agreement_policies_count(), 1);
+            assert_eq!(
+                RoamingAgreementPolicyTestModule::roaming_agreement_policy_configs(0),
+                Some(RoamingAgreementPolicyConfig {
+                    policy_activation_type: "passive".as_bytes().to_vec(),
+                    policy_expiry: 2019,
+                })
+            );
         });
     }
 }

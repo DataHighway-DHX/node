@@ -32,7 +32,7 @@ pub trait Trait: system::Trait +
 pub struct RoamingAgreementPolicy(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Debug, Decode, Default, Clone, PartialEq)]
 // Generic type parameters - Balance
 pub struct RoamingAgreementPolicyConfig<U, V> {
     pub policy_activation_type: U, // "passive" or "handover"
@@ -143,9 +143,6 @@ decl_module! {
             // Ensure that the caller is owner of the agreement policy config they are trying to change
             ensure!(Self::roaming_agreement_policy_owner(roaming_agreement_policy_id) == Some(sender.clone()), "Only owner can set config for roaming agreement_policy");
 
-            let is_owned_by_parent_relationship = Self::is_owned_by_required_parent_relationship(roaming_agreement_policy_id, sender.clone()).is_ok();
-            ensure!(is_owned_by_parent_relationship, "Ownership by parent does not exist");
-
             let policy_activation_type = match _policy_activation_type {
                 Some(value) => value,
                 None => Default::default() // Default
@@ -204,9 +201,9 @@ decl_module! {
             ));
         }
 
-        // FIXME - assigning to a network id may not be required, since we associate a
-        // roaming agreement policy with a roaming base profile, and the roaming base profile is
-        // assigned to a network id.
+        // Optional and only used for organizational purposes to know which networks may want to use it.
+        // Since we want users to be allowed to create and configure multiple policies and profiles for reuse.
+        // They will then be associated with any specific networks when the user creates each roaming base profile.
         pub fn assign_agreement_policy_to_network(
             origin,
             roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
@@ -290,23 +287,24 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn is_owned_by_required_parent_relationship(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex, sender: T::AccountId) -> Result<(), &'static str> {
-        debug::info!("Get the network id associated with the network of the given agreement policy id");
-        let agreement_policy_network_id = Self::roaming_agreement_policy_network(roaming_agreement_policy_id);
+    // Note: Not required
+    // pub fn is_owned_by_required_parent_relationship(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex, sender: T::AccountId) -> Result<(), &'static str> {
+    //     debug::info!("Get the network id associated with the network of the given agreement policy id");
+    //     let agreement_policy_network_id = Self::roaming_agreement_policy_network(roaming_agreement_policy_id);
 
-        if let Some(_agreement_policy_network_id) = agreement_policy_network_id {
-            // Ensure that the caller is owner of the network id associated with the agreement policy
-            ensure!((<roaming_networks::Module<T>>::is_roaming_network_owner(
-                    _agreement_policy_network_id.clone(),
-                    sender.clone()
-                )).is_ok(), "Only owner of the network id associated with the given agreement policy can set an associated roaming agreement policy config"
-            );
-        } else {
-            // There must be a network id associated with the agreement policy
-            return Err("RoamingAgreementPolicyNetwork does not exist");
-        }
-        Ok(())
-    }
+    //     if let Some(_agreement_policy_network_id) = agreement_policy_network_id {
+    //         // Ensure that the caller is owner of the network id associated with the agreement policy
+    //         ensure!((<roaming_networks::Module<T>>::is_roaming_network_owner(
+    //                 _agreement_policy_network_id.clone(),
+    //                 sender.clone()
+    //             )).is_ok(), "Only owner of the network id associated with the given agreement policy can set an associated roaming agreement policy config"
+    //         );
+    //     } else {
+    //         // There must be a network id associated with the agreement policy
+    //         return Err("RoamingAgreementPolicyNetwork does not exist");
+    //     }
+    //     Ok(())
+    // }
 
     pub fn exists_roaming_agreement_policy(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex) -> Result<RoamingAgreementPolicy, &'static str> {
         match Self::roaming_agreement_policy(roaming_agreement_policy_id) {
