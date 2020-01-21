@@ -138,7 +138,7 @@ decl_module! {
             Self::deposit_event(RawEvent::DownlinkRateSet(sender, roaming_service_profile_id, downlink_rate));
         }
 
-        // Optional: Service Profile is assigned to Roaming Base Profile, which is associated with a network.
+        // Optional: Service Profile is assigned to Network (Roaming Base) Profile, which is associated with a network.
         // This is an override to associate it with a specific Network Server rather than entire networks. 
         pub fn assign_service_profile_to_network_server(
             origin,

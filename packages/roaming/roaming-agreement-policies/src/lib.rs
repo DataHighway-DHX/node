@@ -203,7 +203,7 @@ decl_module! {
 
         // Optional and only used for organizational purposes to know which networks may want to use it.
         // Since we want users to be allowed to create and configure multiple policies and profiles for reuse.
-        // They will then be associated with any specific networks when the user creates each roaming base profile.
+        // They will then be associated with any specific networks when the user creates each network (roaming base) profile.
         pub fn assign_agreement_policy_to_network(
             origin,
             roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,

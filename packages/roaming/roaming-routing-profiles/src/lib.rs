@@ -116,7 +116,7 @@ decl_module! {
         // Note: This is wrong, routing profile shouldn't be assigned to a device.
         // Instead it should be "optionally" be assigned to a network server, which is the "home" network server
         // of one or more devices. But we associated the routing profile with a network server when
-        // we create a roaming base profile.
+        // we create a network (roaming base) profile.
         // pub fn assign_routing_profile_to_device(
         //     origin,
         //     roaming_routing_profile_id: T::RoamingRoutingProfileIndex,

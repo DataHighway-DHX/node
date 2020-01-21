@@ -10,6 +10,7 @@ extern crate roaming_devices as devices;
 extern crate roaming_service_profiles as service_profiles;
 extern crate roaming_billing_policies as billing_policies;
 extern crate roaming_charging_policies as charging_policies;
+extern crate roaming_network_profiles as network_profiles;
 
 #[cfg(test)]
 mod tests {
@@ -77,6 +78,11 @@ mod tests {
         RoamingChargingPolicy,
         RoamingChargingPolicyConfig,
         Trait as RoamingChargingPolicyTrait,
+    };
+    use roaming_network_profiles::{
+        Module as RoamingNetworkProfileModule,
+        RoamingNetworkProfile,
+        Trait as RoamingNetworkProfileTrait,
     };
 
     impl_outer_origin! {
@@ -189,6 +195,10 @@ mod tests {
         type RoamingChargingPolicyNextChargingAt = u64;
         type RoamingChargingPolicyDelayAfterBillingInDays = u64;
     }
+    impl RoamingNetworkProfileTrait for Test {
+        type Event = ();
+        type RoamingNetworkProfileIndex = u64;
+    }
 
     //type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
@@ -203,6 +213,7 @@ mod tests {
     type RoamingServiceProfileTestModule = RoamingServiceProfileModule<Test>;
     type RoamingBillingPolicyTestModule = RoamingBillingPolicyModule<Test>;
     type RoamingChargingPolicyTestModule = RoamingChargingPolicyModule<Test>;
+    type RoamingNetworkProfileTestModule = RoamingNetworkProfileModule<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
@@ -343,7 +354,7 @@ mod tests {
             // Call Functions
             assert_ok!(RoamingAgreementPolicyTestModule::create(Origin::signed(0)));
             // Note: This step is optional since it will be assigned to a network when
-            // a associated with a roaming base profile 
+            // a associated with a network (roaming base) profile 
             assert_ok!(
                 RoamingAgreementPolicyTestModule::assign_agreement_policy_to_network(
                     Origin::signed(0),
@@ -401,7 +412,7 @@ mod tests {
             assert_ok!(RoamingServiceProfileTestModule::create(Origin::signed(0)));
             assert_eq!(RoamingServiceProfileTestModule::roaming_service_profile_owner(0), Some(0));
             // Note: Optional since it will be assigned to a network when
-            // a associated with a roaming base profile, but we can override it to apply to specific
+            // a associated with a network (roaming base) profile, but we can override it to apply to specific
             // network server this way.
             assert_ok!(
                 RoamingServiceProfileTestModule::assign_service_profile_to_network_server(
@@ -441,7 +452,7 @@ mod tests {
             // Call Functions
             assert_ok!(RoamingBillingPolicyTestModule::create(Origin::signed(0)));
             // Note: This step is optional since it will be assigned to a network and operator when
-            // associated with a roaming base profile 
+            // associated with a network (roaming base) profile 
             // assert_ok!(
             //     RoamingBillingPolicyTestModule::assign_billing_policy_to_operator(
             //         Origin::signed(0),
@@ -450,7 +461,7 @@ mod tests {
             //     )
             // );
             // Note: This step is optional since it will be assigned to a network and operator when
-            // associated with a roaming base profile 
+            // associated with a network (roaming base) profile 
             // assert_ok!(
             //     RoamingBillingPolicyTestModule::assign_billing_policy_to_network(
             //         Origin::signed(0),
@@ -483,7 +494,7 @@ mod tests {
             // Call Functions
             assert_ok!(RoamingChargingPolicyTestModule::create(Origin::signed(0)));
             // Note: This step is optional since it will be assigned to a network and operator when
-            // associated with a roaming base profile 
+            // associated with a network (roaming base) profile 
             // assert_ok!(
             //     RoamingChargingPolicyTestModule::assign_charging_policy_to_operator(
             //         Origin::signed(0),
@@ -492,7 +503,7 @@ mod tests {
             //     )
             // );
             // Note: This step is optional since it will be assigned to a network and operator when
-            // associated with a roaming base profile 
+            // associated with a network (roaming base) profile 
             // assert_ok!(
             //     RoamingChargingPolicyTestModule::assign_charging_policy_to_network(
             //         Origin::signed(0),
@@ -518,6 +529,46 @@ mod tests {
                     policy_next_charging_at: 102020,
                     policy_delay_after_billing_in_days: 7,
                 })
+            );
+
+            // TODO - add Dispute Policy
+
+            // TODO - add Adjustment Policy
+
+            // Create Network Profile
+
+            // Call Functions
+            assert_ok!(RoamingNetworkProfileTestModule::create(Origin::signed(0)));
+            assert_eq!(RoamingNetworkProfileTestModule::roaming_network_profile_owner(0), Some(0));
+            assert_ok!(
+                RoamingNetworkProfileTestModule::assign_network_profile_to_network(
+                    Origin::signed(0),
+                    0,
+                    0
+                )
+            );
+            assert_ok!(
+                RoamingNetworkProfileTestModule::assign_network_profile_to_operator(
+                    Origin::signed(0),
+                    0,
+                    0
+                )
+            );
+            // If we know the whitelisted network then we know the whitelisted operator too
+            assert_ok!(
+                RoamingNetworkProfileTestModule::add_whitelisted_network(
+                    Origin::signed(0),
+                    0, // network_profile_id
+                    1, // network_id
+                    // FIXME - add all the policies and profiles that will be associated with this whitelisting
+                )
+            );
+
+            // Verify Storage
+            assert_eq!(RoamingNetworkProfileTestModule::roaming_network_profiles_count(), 1);
+            assert_eq!(
+                RoamingNetworkProfileTestModule::roaming_network_profile_whitelisted_networks(0),
+                Some([1].to_vec())
             );
         });
     }
