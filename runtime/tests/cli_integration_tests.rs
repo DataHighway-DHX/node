@@ -7,6 +7,7 @@ extern crate roaming_agreement_policies as agreement_policies;
 extern crate roaming_accounting_policies as accounting_policies;
 extern crate roaming_routing_profiles as routing_profiles;
 extern crate roaming_devices as devices;
+extern crate roaming_service_profiles as service_profiles;
 
 #[cfg(test)]
 mod tests {
@@ -58,6 +59,11 @@ mod tests {
         Module as RoamingDeviceModule,
         RoamingDevice,
         Trait as RoamingDeviceTrait,
+    };
+    use roaming_service_profiles::{
+        Module as RoamingServiceProfileModule,
+        RoamingServiceProfile,
+        Trait as RoamingServiceProfileTrait,
     };
 
     impl_outer_origin! {
@@ -152,6 +158,12 @@ mod tests {
         type Event = ();
         type RoamingDeviceIndex = u64;
     }
+    impl RoamingServiceProfileTrait for Test {
+        type Event = ();
+        type RoamingServiceProfileIndex = u64;
+        type RoamingServiceProfileUplinkRate = u32;
+        type RoamingServiceProfileDownlinkRate = u32;
+    }
 
     //type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
@@ -163,6 +175,7 @@ mod tests {
     type RoamingAccountingPolicyTestModule = RoamingAccountingPolicyModule<Test>;
     type RoamingRoutingProfileTestModule = RoamingRoutingProfileModule<Test>;
     type RoamingDeviceTestModule = RoamingDeviceModule<Test>;
+    type RoamingServiceProfileTestModule = RoamingServiceProfileModule<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
@@ -302,7 +315,8 @@ mod tests {
 
             // Call Functions
             assert_ok!(RoamingAgreementPolicyTestModule::create(Origin::signed(0)));
-            // Note: This step is optional
+            // Note: This step is optional since it will be assigned to a network when
+            // a associated with a roaming base profile 
             assert_ok!(
                 RoamingAgreementPolicyTestModule::assign_agreement_policy_to_network(
                     Origin::signed(0),
@@ -352,6 +366,47 @@ mod tests {
             assert_eq!(
                 RoamingRoutingProfileTestModule::roaming_routing_profile_app_server(0),
                 Some("10.0.0.1".as_bytes().to_vec())
+            );
+
+            // Create Service Profile
+
+            // Call Functions
+            assert_ok!(RoamingServiceProfileTestModule::create(Origin::signed(0)));
+            assert_eq!(RoamingServiceProfileTestModule::roaming_service_profile_owner(0), Some(0));
+            // Note: Optional since it will be assigned to a network when
+            // a associated with a roaming base profile, but we can override it to apply to specific
+            // network server this way.
+            assert_ok!(
+                RoamingServiceProfileTestModule::assign_service_profile_to_network_server(
+                    Origin::signed(0),
+                    0,
+                    0
+                )
+            );
+            assert_ok!(
+                RoamingServiceProfileTestModule::set_uplink_rate(
+                    Origin::signed(0),
+                    0, // service_profile_id
+                    Some(10), // uplink_rate
+                )
+            );
+            assert_ok!(
+                RoamingServiceProfileTestModule::set_downlink_rate(
+                    Origin::signed(0),
+                    0, // service_profile_id
+                    Some(5), // downlink_rate
+                )
+            );
+
+            // Verify Storage
+            assert_eq!(RoamingServiceProfileTestModule::roaming_service_profiles_count(), 1);
+            assert_eq!(
+                RoamingServiceProfileTestModule::roaming_service_profile_uplink_rate(0),
+                Some(10)
+            );
+            assert_eq!(
+                RoamingServiceProfileTestModule::roaming_service_profile_downlink_rate(0),
+                Some(5)
             );
         });
     }

@@ -108,8 +108,8 @@ decl_module! {
 
             ensure!(Self::roaming_service_profile_owner(roaming_service_profile_id) == Some(sender.clone()), "Only owner can set uplink_rate for roaming service_profile");
 
-            let is_owned_by_parent_relationship = Self::is_owned_by_required_parent_relationship(roaming_service_profile_id, sender.clone()).is_ok();
-            ensure!(is_owned_by_parent_relationship, "Ownership by parent does not exist");
+            // let is_owned_by_parent_relationship = Self::is_owned_by_required_parent_relationship(roaming_service_profile_id, sender.clone()).is_ok();
+            // ensure!(is_owned_by_parent_relationship, "Ownership by parent does not exist");
 
             if let Some(ref uplink_rate) = uplink_rate {
                 <RoamingServiceProfileUplinkRates<T>>::insert(roaming_service_profile_id, uplink_rate);
@@ -126,8 +126,8 @@ decl_module! {
 
             ensure!(Self::roaming_service_profile_owner(roaming_service_profile_id) == Some(sender.clone()), "Only owner can set downlink_rate for roaming service_profile");
 
-            let is_owned_by_parent_relationship = Self::is_owned_by_required_parent_relationship(roaming_service_profile_id, sender.clone()).is_ok();
-            ensure!(is_owned_by_parent_relationship, "Ownership by parent does not exist");
+            // let is_owned_by_parent_relationship = Self::is_owned_by_required_parent_relationship(roaming_service_profile_id, sender.clone()).is_ok();
+            // ensure!(is_owned_by_parent_relationship, "Ownership by parent does not exist");
 
             if let Some(ref downlink_rate) = downlink_rate {
                 <RoamingServiceProfileDownlinkRates<T>>::insert(roaming_service_profile_id, downlink_rate);
@@ -138,6 +138,8 @@ decl_module! {
             Self::deposit_event(RawEvent::DownlinkRateSet(sender, roaming_service_profile_id, downlink_rate));
         }
 
+        // Optional: Service Profile is assigned to Roaming Base Profile, which is associated with a network.
+        // This is an override to associate it with a specific Network Server rather than entire networks. 
         pub fn assign_service_profile_to_network_server(
             origin,
             roaming_service_profile_id: T::RoamingServiceProfileIndex,
@@ -183,23 +185,23 @@ impl<T: Trait> Module<T> {
         }
     }
 
-    pub fn is_owned_by_required_parent_relationship(roaming_service_profile_id: T::RoamingServiceProfileIndex, sender: T::AccountId) -> Result<(), &'static str> {
-        debug::info!("Get the network_server id associated with the network_server of the given service profile id");
-        let service_profile_network_server_id = Self::roaming_service_profile_network_server(roaming_service_profile_id);
+    // pub fn is_owned_by_required_parent_relationship(roaming_service_profile_id: T::RoamingServiceProfileIndex, sender: T::AccountId) -> Result<(), &'static str> {
+    //     debug::info!("Get the network_server id associated with the network_server of the given service profile id");
+    //     let service_profile_network_server_id = Self::roaming_service_profile_network_server(roaming_service_profile_id);
 
-        if let Some(_service_profile_network_server_id) = service_profile_network_server_id {
-            // Ensure that the caller is owner of the network_server id associated with the service profile
-            ensure!((<roaming_network_servers::Module<T>>::is_roaming_network_server_owner(
-                    _service_profile_network_server_id.clone(),
-                    sender.clone()
-                )).is_ok(), "Only owner of the network_server id associated with the given service profile can set an associated roaming service profile config"
-            );
-        } else {
-            // There must be a network_server id associated with the service profile
-            return Err("RoamingServiceProfileNetworkServer does not exist");
-        }
-        Ok(())
-    }
+    //     if let Some(_service_profile_network_server_id) = service_profile_network_server_id {
+    //         // Ensure that the caller is owner of the network_server id associated with the service profile
+    //         ensure!((<roaming_network_servers::Module<T>>::is_roaming_network_server_owner(
+    //                 _service_profile_network_server_id.clone(),
+    //                 sender.clone()
+    //             )).is_ok(), "Only owner of the network_server id associated with the given service profile can set an associated roaming service profile config"
+    //         );
+    //     } else {
+    //         // There must be a network_server id associated with the service profile
+    //         return Err("RoamingServiceProfileNetworkServer does not exist");
+    //     }
+    //     Ok(())
+    // }
 
     /// Only push the service_profile id onto the end of the vector if it does not already exist
     pub fn associate_service_profile_with_network_server(
