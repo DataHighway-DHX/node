@@ -535,42 +535,60 @@ mod tests {
 
             // TODO - add Adjustment Policy
 
-            // Create Network Profile
+            // Create Network Profiles
 
             // Call Functions
             assert_ok!(RoamingNetworkProfileTestModule::create(Origin::signed(0)));
+            assert_ok!(RoamingNetworkProfileTestModule::create(Origin::signed(0)));
+            assert_ok!(RoamingNetworkProfileTestModule::create(Origin::signed(1)));
             assert_eq!(RoamingNetworkProfileTestModule::roaming_network_profile_owner(0), Some(0));
-            assert_ok!(
-                RoamingNetworkProfileTestModule::assign_network_profile_to_network(
-                    Origin::signed(0),
-                    0,
-                    0
-                )
-            );
-            assert_ok!(
-                RoamingNetworkProfileTestModule::assign_network_profile_to_operator(
-                    Origin::signed(0),
-                    0,
-                    0
-                )
-            );
+            assert_eq!(RoamingNetworkProfileTestModule::roaming_network_profile_owner(1), Some(0));
+            assert_eq!(RoamingNetworkProfileTestModule::roaming_network_profile_owner(2), Some(1));
+            assert_ok!(RoamingNetworkProfileTestModule::assign_network_profile_to_network(Origin::signed(0), 0, 0));
+            assert_ok!(RoamingNetworkProfileTestModule::assign_network_profile_to_operator(Origin::signed(0), 0, 0));
+            assert_ok!(RoamingNetworkProfileTestModule::assign_network_profile_to_network(Origin::signed(0), 1, 0));
+            assert_ok!(RoamingNetworkProfileTestModule::assign_network_profile_to_operator(Origin::signed(0), 1, 0));
+            assert_ok!(RoamingNetworkProfileTestModule::assign_network_profile_to_network(Origin::signed(1), 2, 1));
+            assert_ok!(RoamingNetworkProfileTestModule::assign_network_profile_to_operator(Origin::signed(0), 2, 0));
             assert_ok!(RoamingNetworkProfileTestModule::set_device_access_allowed(Origin::signed(0), 0, true));
+            assert_ok!(RoamingNetworkProfileTestModule::set_device_access_allowed(Origin::signed(0), 1, true));
+            assert_ok!(RoamingNetworkProfileTestModule::set_device_access_allowed(Origin::signed(1), 2, false));
             // If we know the whitelisted network then we know the whitelisted operator too
+            // Network Profile 0 - Whitelist MXC
             assert_ok!(
                 RoamingNetworkProfileTestModule::add_whitelisted_network(
                     Origin::signed(0),
                     0, // network_profile_id
-                    1, // network_id
-                    // FIXME - add all the policies and profiles that will be associated with this whitelisting
+                    0, // network_id
                 )
             );
+            // assert_ok!(
+            //     RoamingNetworkProfileTestModule::add_whitelisted_network(
+            //         Origin::signed(0),
+            //         0, // network_profile_id
+            //         0, // operator_id
+            //     )
+            // );
+            // Network Profile 2 - Whitelist TEX (Any of its networks)
+            // assert_ok!(
+            //     RoamingNetworkProfileTestModule::add_whitelisted_operator(
+            //         Origin::signed(0),
+            //         1, // network_profile_id
+            //         1, // operator_id
+            //         // FIXME - add all the policies and profiles that will be associated with this whitelisting
+            //     )
+            // );
 
             // Verify Storage
-            assert_eq!(RoamingNetworkProfileTestModule::roaming_network_profiles_count(), 1);
+            assert_eq!(RoamingNetworkProfileTestModule::roaming_network_profiles_count(), 3);
             assert_eq!(
                 RoamingNetworkProfileTestModule::roaming_network_profile_whitelisted_networks(0),
-                Some([1].to_vec())
+                Some([0].to_vec())
             );
+            // TODO - validate whitelisted operators
+
+            // FIXME - we need to rethink storage of whitelisted networks and operator, storing together would
+            // work better since network id may not be unique across different operators.
         });
     }
 }
