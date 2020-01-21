@@ -298,10 +298,11 @@ mod tests {
             // Call Functions
             assert_ok!(RoamingOrganizationTestModule::create(Origin::signed(0)));
             assert_ok!(RoamingOrganizationTestModule::create(Origin::signed(1)));
+            assert_ok!(RoamingOrganizationTestModule::create(Origin::signed(2)));
             // FIXME - assign Users to the organizations
 
             // Verify Storage
-            assert_eq!(RoamingOrganizationTestModule::roaming_organizations_count(), 2);
+            assert_eq!(RoamingOrganizationTestModule::roaming_organizations_count(), 3);
 
             // Create Network Servers
             //
@@ -309,9 +310,10 @@ mod tests {
 
             // Call Functions
             assert_ok!(RoamingNetworkServerTestModule::create(Origin::signed(0)));
+            assert_ok!(RoamingNetworkServerTestModule::create(Origin::signed(1)));
 
             // Verify Storage
-            assert_eq!(RoamingNetworkServerTestModule::roaming_network_servers_count(), 1);
+            assert_eq!(RoamingNetworkServerTestModule::roaming_network_servers_count(), 2);
 
             // Create Roaming Accounting Policy
 
@@ -589,6 +591,17 @@ mod tests {
 
             // FIXME - we need to rethink storage of whitelisted networks and operator, storing together would
             // work better since network id may not be unique across different operators.
+
+            // Create Device
+
+            // Call Functions
+            assert_ok!(RoamingDeviceTestModule::create(Origin::signed(0)));
+            assert_eq!(RoamingDeviceTestModule::roaming_device_owner(0), Some(0));
+            assert_ok!(RoamingDeviceTestModule::assign_device_to_organization(Origin::signed(2), 0, 2));
+            assert_ok!(RoamingDeviceTestModule::assign_device_to_network_server(Origin::signed(1), 0, 1));
+
+            // Verify Storage
+            assert_eq!(RoamingDeviceTestModule::roaming_devices_count(), 1);
         });
     }
 }
