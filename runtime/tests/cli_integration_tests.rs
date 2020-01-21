@@ -5,6 +5,8 @@ extern crate roaming_organizations as organizations;
 extern crate roaming_network_servers as network_servers;
 extern crate roaming_agreement_policies as agreement_policies;
 extern crate roaming_accounting_policies as accounting_policies;
+extern crate roaming_routing_profiles as routing_profiles;
+extern crate roaming_devices as devices;
 
 #[cfg(test)]
 mod tests {
@@ -45,6 +47,17 @@ mod tests {
         RoamingAccountingPolicy,
         RoamingAccountingPolicyConfig,
         Trait as RoamingAccountingPolicyTrait,
+    };
+    use roaming_routing_profiles::{
+        Module as RoamingRoutingProfileModule,
+        RoamingRoutingProfile,
+        // RoamingRoutingProfileAppServer,
+        Trait as RoamingRoutingProfileTrait,
+    };
+    use roaming_devices::{
+        Module as RoamingDeviceModule,
+        RoamingDevice,
+        Trait as RoamingDeviceTrait,
     };
 
     impl_outer_origin! {
@@ -130,6 +143,15 @@ mod tests {
         type RoamingAccountingPolicyUplinkFeeFactor = u32;
         type RoamingAccountingPolicyDownlinkFeeFactor = u32;
     }
+    impl RoamingRoutingProfileTrait for Test {
+        type Event = ();
+        type RoamingRoutingProfileIndex = u64;
+        type RoamingRoutingProfileAppServer = Vec<u8>;
+    }
+    impl RoamingDeviceTrait for Test {
+        type Event = ();
+        type RoamingDeviceIndex = u64;
+    }
 
     //type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
@@ -139,6 +161,8 @@ mod tests {
     type RoamingNetworkServerTestModule = RoamingNetworkServerModule<Test>;
     type RoamingAgreementPolicyTestModule = RoamingAgreementPolicyModule<Test>;
     type RoamingAccountingPolicyTestModule = RoamingAccountingPolicyModule<Test>;
+    type RoamingRoutingProfileTestModule = RoamingRoutingProfileModule<Test>;
+    type RoamingDeviceTestModule = RoamingDeviceModule<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
@@ -308,6 +332,41 @@ mod tests {
                     policy_activation_type: "passive".as_bytes().to_vec(),
                     policy_expiry: 2019,
                 })
+            );
+
+            // Create Roaming Routing Profile
+
+            // Call Functions
+            assert_ok!(RoamingRoutingProfileTestModule::create(Origin::signed(0)));
+            // FIXME - this is wrong, routing profile should be optionally assignable to a network server, not a device
+            // // Note: This step is optional
+            // assert_ok!(
+            //     RoamingRoutingProfileTestModule::assign_routing_profile_to_device(
+            //         Origin::signed(0),
+            //         0,
+            //         0
+            //     )
+            // );
+            assert_eq!(RoamingRoutingProfileTestModule::roaming_routing_profile_owner(0), Some(0));
+            assert_ok!(
+                RoamingRoutingProfileTestModule::set_app_server(
+                    Origin::signed(0),
+                    0, // routing_profile_id
+                    Some("10.0.0.1".as_bytes().to_vec()), // app server
+                )
+            );
+
+            // Verify Storage
+            assert_eq!(RoamingRoutingProfileTestModule::roaming_routing_profiles_count(), 1);
+            assert_eq!(
+                RoamingRoutingProfileTestModule::roaming_routing_profile_app_server(0),
+                // Some(RoamingRoutingProfileAppServer {
+                //     policy_type: "subscription".as_bytes().to_vec(), // policy_type
+                //     subscription_fee: 200, // subscription_fee
+                //     uplink_fee_factor: 15, // uplink_fee_factor
+                //     downlink_fee_factor: 10, // downlink_fee_factor
+                // })
+                Some("10.0.0.1".as_bytes().to_vec())
             );
         });
     }

@@ -101,8 +101,8 @@ decl_module! {
 
             ensure!(Self::roaming_routing_profile_owner(roaming_routing_profile_id) == Some(sender.clone()), "Only owner can set app server for roaming routing_profile");
 
-            let is_owned_by_parent_relationship = Self::is_owned_by_required_parent_relationship(roaming_routing_profile_id, sender.clone()).is_ok();
-            ensure!(is_owned_by_parent_relationship, "Ownership by parent does not exist");
+            // let is_owned_by_parent_relationship = Self::is_owned_by_required_parent_relationship(roaming_routing_profile_id, sender.clone()).is_ok();
+            // ensure!(is_owned_by_parent_relationship, "Ownership by parent does not exist");
 
             if let Some(ref app_server) = app_server {
                 <RoamingRoutingProfileAppServers<T>>::insert(roaming_routing_profile_id, app_server);
@@ -158,23 +158,23 @@ impl<T: Trait> Module<T> {
         }
     }
 
-    pub fn is_owned_by_required_parent_relationship(roaming_routing_profile_id: T::RoamingRoutingProfileIndex, sender: T::AccountId) -> Result<(), &'static str> {
-        debug::info!("Get the device id associated with the device of the given routing profile id");
-        let routing_profile_device_id = Self::roaming_routing_profile_device(roaming_routing_profile_id);
+    // pub fn is_owned_by_required_parent_relationship(roaming_routing_profile_id: T::RoamingRoutingProfileIndex, sender: T::AccountId) -> Result<(), &'static str> {
+    //     debug::info!("Get the device id associated with the device of the given routing profile id");
+    //     let routing_profile_device_id = Self::roaming_routing_profile_device(roaming_routing_profile_id);
 
-        if let Some(_routing_profile_device_id) = routing_profile_device_id {
-            // Ensure that the caller is owner of the device id associated with the routing profile
-            ensure!((<roaming_devices::Module<T>>::is_roaming_device_owner(
-                    _routing_profile_device_id.clone(),
-                    sender.clone()
-                )).is_ok(), "Only owner of the device id associated with the given routing profile can set an associated roaming routing profile config"
-            );
-        } else {
-            // There must be a device id associated with the routing profile
-            return Err("RoamingRoutingProfileDevice does not exist");
-        }
-        Ok(())
-    }
+    //     if let Some(_routing_profile_device_id) = routing_profile_device_id {
+    //         // Ensure that the caller is owner of the device id associated with the routing profile
+    //         ensure!((<roaming_devices::Module<T>>::is_roaming_device_owner(
+    //                 _routing_profile_device_id.clone(),
+    //                 sender.clone()
+    //             )).is_ok(), "Only owner of the device id associated with the given routing profile can set an associated roaming routing profile config"
+    //         );
+    //     } else {
+    //         // There must be a device id associated with the routing profile
+    //         return Err("RoamingRoutingProfileDevice does not exist");
+    //     }
+    //     Ok(())
+    // }
 
     /// Only push the routing_profile id onto the end of the vector if it does not already exist
     pub fn associate_routing_profile_with_device(
