@@ -20,10 +20,10 @@ std = [
     'roaming-operators/std',
 ]
 
-# [dependencies.env]
-# default_features = false
-# package = 'env'
-# path = '../../env'
+[dependencies.env]
+default_features = false
+package = 'env'
+path = '../../env'
 
 [dependencies.roaming-networks]
 default_features = false

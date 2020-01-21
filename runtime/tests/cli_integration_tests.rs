@@ -1,4 +1,4 @@
-// extern crate env as env;
+extern crate env as env;
 extern crate roaming_operators as operators;
 extern crate roaming_networks as networks;
 extern crate roaming_organizations as organizations;
@@ -170,7 +170,7 @@ mod tests {
     #[test]
     fn integration_test() {
         new_test_ext().execute_with(|| {
-            // env::config::set_test_env();
+            env::config::set_test_env();
 
             // Create Network Operators
             //
@@ -242,10 +242,10 @@ mod tests {
 
             // Call Functions
             assert_ok!(RoamingAgreementPolicyTestModule::create(Origin::signed(0)));
-            // assert_eq!(
-            //     RoamingAgreementPolicyTestModule::exists_roaming_agreement_policy(0),
-            //     Ok(RoamingAgreementPolicy([0; 16]))
-            // );
+            assert_eq!(
+                RoamingAgreementPolicyTestModule::exists_roaming_agreement_policy(0),
+                Ok(RoamingAgreementPolicy([0; 16]))
+            );
             // assert_ok!(RoamingAgreementPolicyTestModule::set_config(
             //     Origin::signed(0),
             //     0,
@@ -254,7 +254,7 @@ mod tests {
             // ));
 
             // Verify Storage
-            // assert_eq!(RoamingAgreementPolicyTestModule::roaming_agreement_policies_count(), 1);
+            assert_eq!(RoamingAgreementPolicyTestModule::roaming_agreement_policies_count(), 1);
             // assert_eq!(
             //     RoamingAgreementPolicyTestModule::roaming_agreement_policy_configs(0),
             //     Some(RoamingAgreementPolicyConfig {

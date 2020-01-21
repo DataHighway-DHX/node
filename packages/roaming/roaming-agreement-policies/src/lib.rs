@@ -11,7 +11,7 @@ use rstd::prelude::*; // Imports Vec
 #[macro_use]
 extern crate alloc; // Required to use Vec
 
-// use env;
+use env;
 use roaming_operators;
 use roaming_networks;
 use roaming_accounting_policies;
@@ -102,12 +102,12 @@ decl_module! {
             let roaming_agreement_policy_id = Self::next_roaming_agreement_policy_id()?;
 
             let mut unique_id = Self::random_value(&sender);
-            // if env::config::get_env() == "TEST" {
-            //     unique_id = [0; 16];
-            // } else {
+            if env::config::get_env() == "TEST" {
+                unique_id = [0; 16];
+            } else {
                 // Generate a random 128bit value
                 unique_id = Self::random_value(&sender);
-            // }
+            }
 
             // Create and store roaming agreement_policy
             let roaming_agreement_policy = RoamingAgreementPolicy(unique_id);
