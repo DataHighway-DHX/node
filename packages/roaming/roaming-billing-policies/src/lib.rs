@@ -30,8 +30,8 @@ pub struct RoamingBillingPolicy(pub [u8; 16]);
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
 // Generic type parameters - Balance
 pub struct RoamingBillingPolicyConfig<U, V> {
-    policy_next_billing_at: U,
-    policy_frequency_in_days: V,
+    pub policy_next_billing_at: U,
+    pub policy_frequency_in_days: V,
 }
 
 decl_event!(
@@ -133,8 +133,8 @@ decl_module! {
             // Ensure that the caller is owner of the billing policy config they are trying to change
             ensure!(Self::roaming_billing_policy_owner(roaming_billing_policy_id) == Some(sender.clone()), "Only owner can set config for roaming billing_policy");
 
-            let is_owned_by_parent_relationship = Self::is_owned_by_required_parent_relationship(roaming_billing_policy_id, sender.clone()).is_ok();
-            ensure!(is_owned_by_parent_relationship, "Ownership by parent does not exist");
+            // let is_owned_by_parent_relationship = Self::is_owned_by_required_parent_relationship(roaming_billing_policy_id, sender.clone()).is_ok();
+            // ensure!(is_owned_by_parent_relationship, "Ownership by parent does not exist");
 
             let policy_next_billing_at = match _policy_next_billing_at {
                 Some(value) => value,
@@ -277,23 +277,23 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn is_owned_by_required_parent_relationship(roaming_billing_policy_id: T::RoamingBillingPolicyIndex, sender: T::AccountId) -> Result<(), &'static str> {
-        debug::info!("Get the billing policy operator id associated with the operator of the given billing policy id");
-        let billing_policy_operator_id = Self::roaming_billing_policy_operator(roaming_billing_policy_id);
+    // pub fn is_owned_by_required_parent_relationship(roaming_billing_policy_id: T::RoamingBillingPolicyIndex, sender: T::AccountId) -> Result<(), &'static str> {
+    //     debug::info!("Get the billing policy operator id associated with the operator of the given billing policy id");
+    //     let billing_policy_operator_id = Self::roaming_billing_policy_operator(roaming_billing_policy_id);
 
-        if let Some(_billing_policy_operator_id) = billing_policy_operator_id {
-            // Ensure that the caller is owner of the operator id associated with the billing policy
-            ensure!((<roaming_operators::Module<T>>::is_roaming_operator_owner(
-                    _billing_policy_operator_id.clone(),
-                    sender.clone()
-                )).is_ok(), "Only owner of the operator id associated with the given billing policy can set an associated roaming billing policy config"
-            );
-        } else {
-            // There must be a billing policy operator id associated with the billing policy 
-            return Err("RoamingBillingPolicyOperator does not exist");
-        }
-        Ok(())
-    }
+    //     if let Some(_billing_policy_operator_id) = billing_policy_operator_id {
+    //         // Ensure that the caller is owner of the operator id associated with the billing policy
+    //         ensure!((<roaming_operators::Module<T>>::is_roaming_operator_owner(
+    //                 _billing_policy_operator_id.clone(),
+    //                 sender.clone()
+    //             )).is_ok(), "Only owner of the operator id associated with the given billing policy can set an associated roaming billing policy config"
+    //         );
+    //     } else {
+    //         // There must be a billing policy operator id associated with the billing policy 
+    //         return Err("RoamingBillingPolicyOperator does not exist");
+    //     }
+    //     Ok(())
+    // }
 
     pub fn exists_roaming_billing_policy(roaming_billing_policy_id: T::RoamingBillingPolicyIndex) -> Result<RoamingBillingPolicy, &'static str> {
         match Self::roaming_billing_policy(roaming_billing_policy_id) {

@@ -8,6 +8,7 @@ extern crate roaming_accounting_policies as accounting_policies;
 extern crate roaming_routing_profiles as routing_profiles;
 extern crate roaming_devices as devices;
 extern crate roaming_service_profiles as service_profiles;
+extern crate roaming_billing_policies as billing_policies;
 
 #[cfg(test)]
 mod tests {
@@ -52,7 +53,6 @@ mod tests {
     use roaming_routing_profiles::{
         Module as RoamingRoutingProfileModule,
         RoamingRoutingProfile,
-        // RoamingRoutingProfileAppServer,
         Trait as RoamingRoutingProfileTrait,
     };
     use roaming_devices::{
@@ -64,6 +64,12 @@ mod tests {
         Module as RoamingServiceProfileModule,
         RoamingServiceProfile,
         Trait as RoamingServiceProfileTrait,
+    };
+    use roaming_billing_policies::{
+        Module as RoamingBillingPolicyModule,
+        RoamingBillingPolicy,
+        RoamingBillingPolicyConfig,
+        Trait as RoamingBillingPolicyTrait,
     };
 
     impl_outer_origin! {
@@ -164,6 +170,12 @@ mod tests {
         type RoamingServiceProfileUplinkRate = u32;
         type RoamingServiceProfileDownlinkRate = u32;
     }
+    impl RoamingBillingPolicyTrait for Test {
+        type Event = ();
+        type RoamingBillingPolicyIndex = u64;
+        type RoamingBillingPolicyNextBillingAt = u64;
+        type RoamingBillingPolicyFrequencyInDays = u64;
+    }
 
     //type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
@@ -176,6 +188,7 @@ mod tests {
     type RoamingRoutingProfileTestModule = RoamingRoutingProfileModule<Test>;
     type RoamingDeviceTestModule = RoamingDeviceModule<Test>;
     type RoamingServiceProfileTestModule = RoamingServiceProfileModule<Test>;
+    type RoamingBillingPolicyTestModule = RoamingBillingPolicyModule<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
@@ -407,6 +420,48 @@ mod tests {
             assert_eq!(
                 RoamingServiceProfileTestModule::roaming_service_profile_downlink_rate(0),
                 Some(5)
+            );
+
+            // Create Billing Policy
+
+            // Call Functions
+            assert_ok!(RoamingBillingPolicyTestModule::create(Origin::signed(0)));
+            // Note: This step is optional since it will be assigned to a network and operator when
+            // associated with a roaming base profile 
+            // assert_ok!(
+            //     RoamingBillingPolicyTestModule::assign_billing_policy_to_operator(
+            //         Origin::signed(0),
+            //         0,
+            //         0
+            //     )
+            // );
+            // Note: This step is optional since it will be assigned to a network and operator when
+            // associated with a roaming base profile 
+            // assert_ok!(
+            //     RoamingBillingPolicyTestModule::assign_billing_policy_to_network(
+            //         Origin::signed(0),
+            //         0,
+            //         0
+            //     )
+            // );
+            assert_eq!(RoamingBillingPolicyTestModule::roaming_billing_policy_owner(0), Some(0));
+            assert_ok!(
+                RoamingBillingPolicyTestModule::set_config(
+                    Origin::signed(0),
+                    0,
+                    Some(102020), // next_billing_at
+                    Some(30) // frequency_in_days
+                )
+            );
+
+            // Verify Storage
+            assert_eq!(RoamingBillingPolicyTestModule::roaming_billing_policies_count(), 1);
+            assert_eq!(
+                RoamingBillingPolicyTestModule::roaming_billing_policy_configs(0),
+                Some(RoamingBillingPolicyConfig {
+                    policy_next_billing_at: 102020,
+                    policy_frequency_in_days: 30,
+                })
             );
         });
     }
