@@ -554,6 +554,7 @@ mod tests {
                     0
                 )
             );
+            assert_ok!(RoamingNetworkProfileTestModule::set_device_access_allowed(Origin::signed(0), 0, true));
             // If we know the whitelisted network then we know the whitelisted operator too
             assert_ok!(
                 RoamingNetworkProfileTestModule::add_whitelisted_network(
