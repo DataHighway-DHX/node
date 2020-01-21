@@ -42,6 +42,8 @@ mod tests {
     };
     use roaming_accounting_policies::{
         Module as RoamingAccountingPolicyModule,
+        RoamingAccountingPolicy,
+        RoamingAccountingPolicyConfig,
         Trait as RoamingAccountingPolicyTrait,
     };
 
@@ -235,6 +237,42 @@ mod tests {
 
             // Verify Storage
             assert_eq!(RoamingNetworkServerTestModule::roaming_network_servers_count(), 1);
+
+            // Create Roaming Accounting Policy
+
+            // Call Functions
+            assert_ok!(RoamingAccountingPolicyTestModule::create(Origin::signed(0)));
+            // Note: This step is optional
+            assert_ok!(
+                RoamingAccountingPolicyTestModule::assign_accounting_policy_to_network(
+                    Origin::signed(0),
+                    0,
+                    0
+                )
+            );
+            assert_eq!(RoamingAccountingPolicyTestModule::roaming_accounting_policy_owner(0), Some(0));
+            assert_ok!(
+                RoamingAccountingPolicyTestModule::set_config(
+                    Origin::signed(0),
+                    0, // accounting_policy_id
+                    Some("subscription".as_bytes().to_vec()), // policy_type
+                    Some(200), // subscription_fee
+                    Some(15), // uplink_fee_factor
+                    Some(10), // downlink_fee_factor
+                )
+            );
+
+            // Verify Storage
+            assert_eq!(RoamingAccountingPolicyTestModule::roaming_accounting_policies_count(), 1);
+            assert_eq!(
+                RoamingAccountingPolicyTestModule::roaming_accounting_policy_configs(0),
+                Some(RoamingAccountingPolicyConfig {
+                    policy_type: "subscription".as_bytes().to_vec(), // policy_type
+                    subscription_fee: 200, // subscription_fee
+                    uplink_fee_factor: 15, // uplink_fee_factor
+                    downlink_fee_factor: 10, // downlink_fee_factor
+                })
+            );
 
             // Create Roaming Agreement Policy
 

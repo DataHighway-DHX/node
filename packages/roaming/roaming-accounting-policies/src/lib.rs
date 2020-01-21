@@ -31,10 +31,10 @@ pub struct RoamingAccountingPolicy(pub [u8; 16]);
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
 // Generic type parameters - Balance
 pub struct RoamingAccountingPolicyConfig<U, V, W, X> {
-    policy_type: U, // "adhoc" or "subscription"
-    subscription_fee: V,
-    uplink_fee_factor: W,
-    downlink_fee_factor: X,
+    pub policy_type: U, // "adhoc" or "subscription"
+    pub subscription_fee: V,
+    pub uplink_fee_factor: W,
+    pub downlink_fee_factor: X,
 }
 
 decl_event!(
@@ -131,8 +131,8 @@ decl_module! {
             // Ensure that the caller is owner of the accounting policy config they are trying to change
             ensure!(Self::roaming_accounting_policy_owner(roaming_accounting_policy_id) == Some(sender.clone()), "Only owner can set config for roaming accounting_policy");
 
-            let is_owned_by_parent_relationship = Self::is_owned_by_required_parent_relationship(roaming_accounting_policy_id, sender.clone()).is_ok();
-            ensure!(is_owned_by_parent_relationship, "Ownership by parent does not exist");
+            // let is_owned_by_parent_relationship = Self::is_owned_by_required_parent_relationship(roaming_accounting_policy_id, sender.clone()).is_ok();
+            // ensure!(is_owned_by_parent_relationship, "Ownership by parent does not exist");
 
             let policy_type = match _policy_type.clone() {
                 Some(value) => value,
@@ -258,23 +258,24 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn is_owned_by_required_parent_relationship(roaming_accounting_policy_id: T::RoamingAccountingPolicyIndex, sender: T::AccountId) -> Result<(), &'static str> {
-        debug::info!("Get the network id associated with the network of the given accounting policy id");
-        let accounting_policy_network_id = Self::roaming_accounting_policy_network(roaming_accounting_policy_id);
+    // Note: Not required
+    // pub fn is_owned_by_required_parent_relationship(roaming_accounting_policy_id: T::RoamingAccountingPolicyIndex, sender: T::AccountId) -> Result<(), &'static str> {
+    //     debug::info!("Get the network id associated with the network of the given accounting policy id");
+    //     let accounting_policy_network_id = Self::roaming_accounting_policy_network(roaming_accounting_policy_id);
     
-        if let Some(_accounting_policy_network_id) = accounting_policy_network_id {
-            // Ensure that the caller is owner of the network id associated with the accounting policy
-            ensure!((<roaming_networks::Module<T>>::is_roaming_network_owner(
-                    _accounting_policy_network_id.clone(),
-                    sender.clone()
-                )).is_ok(), "Only owner of the network id associated with the given accounting policy can set an associated roaming accounting policy config"
-            );
-        } else {
-            // There must be a network id associated with the accounting policy
-            return Err("RoamingAccountingPolicyNetwork does not exist");
-        }
-        Ok(())
-    }
+    //     if let Some(_accounting_policy_network_id) = accounting_policy_network_id {
+    //         // Ensure that the caller is owner of the network id associated with the accounting policy
+    //         ensure!((<roaming_networks::Module<T>>::is_roaming_network_owner(
+    //                 _accounting_policy_network_id.clone(),
+    //                 sender.clone()
+    //             )).is_ok(), "Only owner of the network id associated with the given accounting policy can set an associated roaming accounting policy config"
+    //         );
+    //     } else {
+    //         // There must be a network id associated with the accounting policy
+    //         return Err("RoamingAccountingPolicyNetwork does not exist");
+    //     }
+    //     Ok(())
+    // }
 
     pub fn exists_roaming_accounting_policy(roaming_accounting_policy_id: T::RoamingAccountingPolicyIndex) -> Result<RoamingAccountingPolicy, &'static str> {
         match Self::roaming_accounting_policy(roaming_accounting_policy_id) {
