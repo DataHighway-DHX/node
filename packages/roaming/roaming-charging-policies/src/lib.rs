@@ -30,8 +30,8 @@ pub struct RoamingChargingPolicy(pub [u8; 16]);
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
 // Generic type parameters - Balance
 pub struct RoamingChargingPolicyConfig<U, V> {
-    policy_next_charging_at: U,
-    policy_delay_after_billing_in_days: V,
+    pub policy_next_charging_at: U,
+    pub policy_delay_after_billing_in_days: V,
 }
 
 decl_event!(
@@ -62,8 +62,8 @@ decl_storage! {
         /// Stores all the roaming charging_policy, key is the roaming charging_policy id / index
         pub RoamingChargingPolicies get(fn roaming_charging_policy): map T::RoamingChargingPolicyIndex => Option<RoamingChargingPolicy>;
 
-        /// Stores the total number of roaming billing_policies. i.e. the next roaming charging_policy index
-        pub RoamingChargingPoliciesCount get(fn roaming_billing_policies_count): T::RoamingChargingPolicyIndex;
+        /// Stores the total number of roaming charging_policies. i.e. the next roaming charging_policy index
+        pub RoamingChargingPoliciesCount get(fn roaming_charging_policies_count): T::RoamingChargingPolicyIndex;
 
         /// Get roaming charging_policy owner
         pub RoamingChargingPolicyOwners get(fn roaming_charging_policy_owner): map T::RoamingChargingPolicyIndex => Option<T::AccountId>;
@@ -74,14 +74,14 @@ decl_storage! {
         /// Get roaming charging_policy network
         pub RoamingChargingPolicyNetwork get(fn roaming_charging_policy_network): map T::RoamingChargingPolicyIndex => Option<T::RoamingNetworkIndex>;
 
-        /// Get roaming network's billing policies
-        pub RoamingNetworkChargingPolicies get(fn roaming_network_billing_policies): map T::RoamingNetworkIndex => Option<Vec<T::RoamingChargingPolicyIndex>>;
+        /// Get roaming network's charging policies
+        pub RoamingNetworkChargingPolicies get(fn roaming_network_charging_policies): map T::RoamingNetworkIndex => Option<Vec<T::RoamingChargingPolicyIndex>>;
 
         /// Get roaming charging_policy operator
         pub RoamingChargingPolicyOperator get(fn roaming_charging_policy_operator): map T::RoamingChargingPolicyIndex => Option<T::RoamingOperatorIndex>;
 
-        /// Get roaming operator's billing policies
-        pub RoamingOperatorChargingPolicies get(fn roaming_operator_billing_policies): map T::RoamingOperatorIndex => Option<Vec<T::RoamingChargingPolicyIndex>>
+        /// Get roaming operator's charging policies
+        pub RoamingOperatorChargingPolicies get(fn roaming_operator_charging_policies): map T::RoamingOperatorIndex => Option<Vec<T::RoamingChargingPolicyIndex>>
     }
 }
 
@@ -133,8 +133,8 @@ decl_module! {
             // Ensure that the caller is owner of the charging policy config they are trying to change
             ensure!(Self::roaming_charging_policy_owner(roaming_charging_policy_id) == Some(sender.clone()), "Only owner can set config for roaming charging_policy");
 
-            let is_owned_by_parent_relationship = Self::is_owned_by_required_parent_relationship(roaming_charging_policy_id, sender.clone()).is_ok();
-            ensure!(is_owned_by_parent_relationship, "Ownership by parent does not exist");
+            // let is_owned_by_parent_relationship = Self::is_owned_by_required_parent_relationship(roaming_charging_policy_id, sender.clone()).is_ok();
+            // ensure!(is_owned_by_parent_relationship, "Ownership by parent does not exist");
 
             let policy_next_charging_at = match _policy_next_charging_at {
                 Some(value) => value,
@@ -329,9 +329,9 @@ impl<T: Trait> Module<T> {
     {
         // Early exit with error since do not want to append if the given network id already exists as a key,
         // and where its corresponding value is a vector that already contains the given charging policy id
-        if let Some(network_billing_policies) = Self::roaming_network_billing_policies(roaming_network_id) {
-            debug::info!("Network id key {:?} exists with value {:?}", roaming_network_id, network_billing_policies);
-            let not_network_contains_charging_policy = !network_billing_policies.contains(&roaming_charging_policy_id);
+        if let Some(network_charging_policies) = Self::roaming_network_charging_policies(roaming_network_id) {
+            debug::info!("Network id key {:?} exists with value {:?}", roaming_network_id, network_charging_policies);
+            let not_network_contains_charging_policy = !network_charging_policies.contains(&roaming_charging_policy_id);
             ensure!(not_network_contains_charging_policy, "Network already contains the given charging policy id");
             debug::info!("Network id key exists but its vector value does not contain the given charging policy id");
             <RoamingNetworkChargingPolicies<T>>::mutate(roaming_network_id, |v| {
@@ -356,9 +356,9 @@ impl<T: Trait> Module<T> {
     {
         // Early exit with error since do not want to append if the given operator id already exists as a key,
         // and where its corresponding value is a vector that already contains the given charging policy id
-        if let Some(operator_billing_policies) = Self::roaming_operator_billing_policies(roaming_operator_id) {
-            debug::info!("Operator id key {:?} exists with value {:?}", roaming_operator_id, operator_billing_policies);
-            let not_operator_contains_charging_policy = !operator_billing_policies.contains(&roaming_charging_policy_id);
+        if let Some(operator_charging_policies) = Self::roaming_operator_charging_policies(roaming_operator_id) {
+            debug::info!("Operator id key {:?} exists with value {:?}", roaming_operator_id, operator_charging_policies);
+            let not_operator_contains_charging_policy = !operator_charging_policies.contains(&roaming_charging_policy_id);
             ensure!(not_operator_contains_charging_policy, "Operator already contains the given charging policy id");
             debug::info!("Operator id key exists but its vector value does not contain the given charging policy id");
             <RoamingOperatorChargingPolicies<T>>::mutate(roaming_operator_id, |v| {
@@ -386,7 +386,7 @@ impl<T: Trait> Module<T> {
     }
 
     fn next_roaming_charging_policy_id() -> Result<T::RoamingChargingPolicyIndex, &'static str> {
-        let roaming_charging_policy_id = Self::roaming_billing_policies_count();
+        let roaming_charging_policy_id = Self::roaming_charging_policies_count();
         if roaming_charging_policy_id == <T::RoamingChargingPolicyIndex as Bounded>::max_value() {
             return Err("RoamingChargingPolicies count overflow");
         }
@@ -510,7 +510,7 @@ mod tests {
     fn basic_setup_works() {
         new_test_ext().execute_with(|| {
             // Verify Initial Storage
-            assert_eq!(RoamingChargingPolicyModule::roaming_billing_policies_count(), 0);
+            assert_eq!(RoamingChargingPolicyModule::roaming_charging_policies_count(), 0);
             assert!(RoamingChargingPolicyModule::roaming_charging_policy(0).is_none());
             assert_eq!(RoamingChargingPolicyModule::roaming_charging_policy_owner(0), None);
             assert_eq!(Balances::free_balance(1), 10);
@@ -524,7 +524,7 @@ mod tests {
             // Call Functions
             assert_ok!(RoamingChargingPolicyModule::create(Origin::signed(1)));
             // Verify Storage
-            assert_eq!(RoamingChargingPolicyModule::roaming_billing_policies_count(), 1);
+            assert_eq!(RoamingChargingPolicyModule::roaming_charging_policies_count(), 1);
             assert!(RoamingChargingPolicyModule::roaming_charging_policy(0).is_some());
             assert_eq!(RoamingChargingPolicyModule::roaming_charging_policy_owner(0), Some(1));
         });
@@ -541,7 +541,7 @@ mod tests {
                 "RoamingChargingPolicies count overflow"
             );
             // Verify Storage
-            assert_eq!(RoamingChargingPolicyModule::roaming_billing_policies_count(), u64::max_value());
+            assert_eq!(RoamingChargingPolicyModule::roaming_charging_policies_count(), u64::max_value());
             assert!(RoamingChargingPolicyModule::roaming_charging_policy(0).is_none());
             assert_eq!(RoamingChargingPolicyModule::roaming_charging_policy_owner(0), None);
         });
@@ -555,7 +555,7 @@ mod tests {
             // Call Functions
             assert_ok!(RoamingChargingPolicyModule::transfer(Origin::signed(1), 2, 0));
             // Verify Storage
-            assert_eq!(RoamingChargingPolicyModule::roaming_billing_policies_count(), 1);
+            assert_eq!(RoamingChargingPolicyModule::roaming_charging_policies_count(), 1);
             assert!(RoamingChargingPolicyModule::roaming_charging_policy(0).is_some());
             assert_eq!(RoamingChargingPolicyModule::roaming_charging_policy_owner(0), Some(2));
         });
@@ -576,7 +576,7 @@ mod tests {
                 "Only owner can transfer roaming charging_policy"
             );
             // Verify Storage
-            assert_eq!(RoamingChargingPolicyModule::roaming_billing_policies_count(), 1);
+            assert_eq!(RoamingChargingPolicyModule::roaming_charging_policies_count(), 1);
             assert!(RoamingChargingPolicyModule::roaming_charging_policy(0).is_some());
             assert_eq!(RoamingChargingPolicyModule::roaming_charging_policy_owner(0), Some(1));
         });
