@@ -338,15 +338,6 @@ mod tests {
 
             // Call Functions
             assert_ok!(RoamingRoutingProfileTestModule::create(Origin::signed(0)));
-            // FIXME - this is wrong, routing profile should be optionally assignable to a network server, not a device
-            // // Note: This step is optional
-            // assert_ok!(
-            //     RoamingRoutingProfileTestModule::assign_routing_profile_to_device(
-            //         Origin::signed(0),
-            //         0,
-            //         0
-            //     )
-            // );
             assert_eq!(RoamingRoutingProfileTestModule::roaming_routing_profile_owner(0), Some(0));
             assert_ok!(
                 RoamingRoutingProfileTestModule::set_app_server(
@@ -360,12 +351,6 @@ mod tests {
             assert_eq!(RoamingRoutingProfileTestModule::roaming_routing_profiles_count(), 1);
             assert_eq!(
                 RoamingRoutingProfileTestModule::roaming_routing_profile_app_server(0),
-                // Some(RoamingRoutingProfileAppServer {
-                //     policy_type: "subscription".as_bytes().to_vec(), // policy_type
-                //     subscription_fee: 200, // subscription_fee
-                //     uplink_fee_factor: 15, // uplink_fee_factor
-                //     downlink_fee_factor: 10, // downlink_fee_factor
-                // })
                 Some("10.0.0.1".as_bytes().to_vec())
             );
         });

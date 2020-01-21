@@ -113,40 +113,44 @@ decl_module! {
             Self::deposit_event(RawEvent::AppServerSet(sender, roaming_routing_profile_id, app_server));
         }
 
-        pub fn assign_routing_profile_to_device(
-            origin,
-            roaming_routing_profile_id: T::RoamingRoutingProfileIndex,
-            roaming_device_id: T::RoamingDeviceIndex
-        ) {
-            let sender = ensure_signed(origin)?;
+        // Note: This is wrong, routing profile shouldn't be assigned to a device.
+        // Instead it should be "optionally" be assigned to a network server, which is the "home" network server
+        // of one or more devices. But we associated the routing profile with a network server when
+        // we create a roaming base profile.
+        // pub fn assign_routing_profile_to_device(
+        //     origin,
+        //     roaming_routing_profile_id: T::RoamingRoutingProfileIndex,
+        //     roaming_device_id: T::RoamingDeviceIndex
+        // ) {
+        //     let sender = ensure_signed(origin)?;
 
-            // Ensure that the given device id already exists
-            let is_roaming_device = <roaming_devices::Module<T>>
-                ::exists_roaming_device(roaming_device_id).is_ok();
-            ensure!(is_roaming_device, "RoamingDevice does not exist");
+        //     // Ensure that the given device id already exists
+        //     let is_roaming_device = <roaming_devices::Module<T>>
+        //         ::exists_roaming_device(roaming_device_id).is_ok();
+        //     ensure!(is_roaming_device, "RoamingDevice does not exist");
 
-            // Ensure that caller of the function is the owner of the device id to assign the routing_profile to
-            ensure!(
-                <roaming_devices::Module<T>>::is_roaming_device_owner(roaming_device_id, sender.clone()).is_ok(),
-                "Only the roaming device owner can assign itself a roaming routing_profile"
-            );
+        //     // Ensure that caller of the function is the owner of the device id to assign the routing_profile to
+        //     ensure!(
+        //         <roaming_devices::Module<T>>::is_roaming_device_owner(roaming_device_id, sender.clone()).is_ok(),
+        //         "Only the roaming device owner can assign itself a roaming routing_profile"
+        //     );
 
-            Self::associate_routing_profile_with_device(roaming_routing_profile_id, roaming_device_id)
-                .expect("Unable to associate routing_profile with device");
+        //     Self::associate_routing_profile_with_device(roaming_routing_profile_id, roaming_device_id)
+        //         .expect("Unable to associate routing_profile with device");
 
-            // Ensure that the given routing_profile id already exists
-            let roaming_routing_profile = Self::roaming_routing_profile(roaming_routing_profile_id);
-            ensure!(roaming_routing_profile.is_some(), "Invalid roaming_routing_profile_id");
+        //     // Ensure that the given routing_profile id already exists
+        //     let roaming_routing_profile = Self::roaming_routing_profile(roaming_routing_profile_id);
+        //     ensure!(roaming_routing_profile.is_some(), "Invalid roaming_routing_profile_id");
 
-            // Ensure that the routing_profile is not already owned by a different device
-            // Unassign the routing_profile from any existing device since it may only be owned by one device
-            <RoamingRoutingProfileDevices<T>>::remove(roaming_routing_profile_id);
+        //     // Ensure that the routing_profile is not already owned by a different device
+        //     // Unassign the routing_profile from any existing device since it may only be owned by one device
+        //     <RoamingRoutingProfileDevices<T>>::remove(roaming_routing_profile_id);
 
-            // Assign the routing_profile owner to the given device (even if already belongs to them)
-            <RoamingRoutingProfileDevices<T>>::insert(roaming_routing_profile_id, roaming_device_id);
+        //     // Assign the routing_profile owner to the given device (even if already belongs to them)
+        //     <RoamingRoutingProfileDevices<T>>::insert(roaming_routing_profile_id, roaming_device_id);
 
-            Self::deposit_event(RawEvent::AssignedRoutingProfileToDevice(sender, roaming_routing_profile_id, roaming_device_id));
-        }
+        //     Self::deposit_event(RawEvent::AssignedRoutingProfileToDevice(sender, roaming_routing_profile_id, roaming_device_id));
+        // }
     }
 }
 
