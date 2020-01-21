@@ -29,10 +29,10 @@ pub struct RoamingDeviceProfile(pub [u8; 16]);
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
 // Generic type parameters - Balance
 pub struct RoamingDeviceProfileConfig<U, V, W, X> {
-    device_profile_devaddr: U,
-    device_profile_deveui: V,
-    device_profile_joineui: W,
-    device_profile_vendorid: X,
+    pub device_profile_devaddr: U,
+    pub device_profile_deveui: V,
+    pub device_profile_joineui: W,
+    pub device_profile_vendorid: X,
 }
 
 decl_event!(

@@ -11,6 +11,7 @@ extern crate roaming_service_profiles as service_profiles;
 extern crate roaming_billing_policies as billing_policies;
 extern crate roaming_charging_policies as charging_policies;
 extern crate roaming_network_profiles as network_profiles;
+extern crate roaming_device_profiles as device_profiles;
 
 #[cfg(test)]
 mod tests {
@@ -83,6 +84,12 @@ mod tests {
         Module as RoamingNetworkProfileModule,
         RoamingNetworkProfile,
         Trait as RoamingNetworkProfileTrait,
+    };
+    use roaming_device_profiles::{
+        Module as RoamingDeviceProfileModule,
+        RoamingDeviceProfile,
+        RoamingDeviceProfileConfig,
+        Trait as RoamingDeviceProfileTrait,
     };
 
     impl_outer_origin! {
@@ -199,6 +206,14 @@ mod tests {
         type Event = ();
         type RoamingNetworkProfileIndex = u64;
     }
+    impl RoamingDeviceProfileTrait for Test {
+        type Event = ();
+        type RoamingDeviceProfileIndex = u64;
+        type RoamingDeviceProfileDevAddr = Vec<u8>;
+        type RoamingDeviceProfileDevEUI = Vec<u8>;
+        type RoamingDeviceProfileJoinEUI = Vec<u8>;
+        type RoamingDeviceProfileVendorID = Vec<u8>;
+    }
 
     //type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
@@ -214,6 +229,7 @@ mod tests {
     type RoamingBillingPolicyTestModule = RoamingBillingPolicyModule<Test>;
     type RoamingChargingPolicyTestModule = RoamingChargingPolicyModule<Test>;
     type RoamingNetworkProfileTestModule = RoamingNetworkProfileModule<Test>;
+    type RoamingDeviceProfileTestModule = RoamingDeviceProfileModule<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
@@ -602,6 +618,41 @@ mod tests {
 
             // Verify Storage
             assert_eq!(RoamingDeviceTestModule::roaming_devices_count(), 1);
+
+            // Create Device Profile
+
+            // Call Functions
+            assert_ok!(RoamingDeviceProfileTestModule::create(Origin::signed(0)));
+            assert_ok!(
+                RoamingDeviceProfileTestModule::assign_device_profile_to_device(
+                    Origin::signed(0),
+                    0,
+                    0
+                )
+            );
+            assert_eq!(RoamingDeviceProfileTestModule::roaming_device_profile_owner(0), Some(0));
+            assert_ok!(
+                RoamingDeviceProfileTestModule::set_config(
+                    Origin::signed(0),
+                    0,
+                    Some("1234".as_bytes().to_vec()), // device_profile_devaddr
+                    Some("5678".as_bytes().to_vec()), // device_profile_deveui
+                    Some("6789".as_bytes().to_vec()), // device_profile_joineui
+                    Some("1000".as_bytes().to_vec()), // device_profile_vendorid
+                )
+            );
+
+            // Verify Storage
+            assert_eq!(RoamingDeviceProfileTestModule::roaming_device_profiles_count(), 1);
+            assert_eq!(
+                RoamingDeviceProfileTestModule::roaming_device_profile_configs(0),
+                Some(RoamingDeviceProfileConfig {
+                    device_profile_devaddr: "1234".as_bytes().to_vec(),
+                    device_profile_deveui: "5678".as_bytes().to_vec(),
+                    device_profile_joineui: "6789".as_bytes().to_vec(),
+                    device_profile_vendorid: "1000".as_bytes().to_vec(),
+                })
+            );
         });
     }
 }
