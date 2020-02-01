@@ -2,6 +2,8 @@
 
 The Data Highway Substrate-based blockchain node.
 
+__WARNING__: This implementation is a proof-of-concept prototype and is not ready for production use.
+
 # Table of contents
 
 * [Build and run blockchain](#chapter-5f0881)
