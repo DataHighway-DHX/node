@@ -156,6 +156,43 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
     "packet_bundle_received_ended_at": "Moment",
     "packet_bundle_external_data_storage_hash": "Hash"
   },
+  "MiningSpeedBoostRateTokenMining": "[u8; 16]",
+  "MiningSpeedBoostRatesTokenMiningIndex": "u64",
+  "MiningSpeedBoostRatesTokenMiningTokenMXC": "u32",
+  "MiningSpeedBoostRatesTokenMiningTokenIOTA": "u32",
+  "MiningSpeedBoostRatesTokenMiningMaxToken": "u32",
+  "MiningSpeedBoostRatesTokenMiningMaxLoyalty": "u32",
+  "MiningSpeedBoostRateHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostRatesHardwareMiningIndex": "u64",
+  "MiningSpeedBoostRatesHardwareMiningHardwareSecure": "u32",
+  "MiningSpeedBoostRatesHardwareMiningHardwareInsecure": "u32",
+  "MiningSpeedBoostRatesHardwareMiningMaxHardware": "u32",
+  "MiningSpeedBoostConfigurationTokenMining": "[u8; 16]",
+  "MiningSpeedBoostConfigurationTokenMiningIndex": "u64",
+  "MiningSpeedBoostConfigurationTokenMiningTokenType": "Text";
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount": "u64";
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod": "u32";
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate": "u64";
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate": "u64";
+  "MiningSpeedBoostConfigurationHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostConfigurationHardwareMiningIndex": "u64",
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareSecure": "bool";
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareType": "Text";
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareID": "u64";
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI": "u64";
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate": "u64";
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate": "u64";
+  "MiningSpeedBoostEligibility": "[u8; 16]",
+  "MiningSpeedBoostEligibilityIndex": "u64",
+  "MiningSpeedBoostEligibilityCalculated": "u64";
+  "MiningSpeedBoostEligibilityTokenLockedPercentage": "u32";
+  "MiningSpeedBoostEligibilityHardwareUptimePercentage": "u32";
+  "MiningSpeedBoostEligibilityDateAudited": "u64";
+  "MiningSpeedBoostEligibilityAuditorAccountID": "u64";
+  "MiningSpeedBoostReward": "[u8; 16]",
+  "MiningSpeedBoostRewardIndex": "u64",
+  "MiningSpeedBoostRewardAmount": "u64";
+  "MiningSpeedBoostRewardDateRedeemed": "u64";
 }
 ```
 
@@ -199,7 +236,11 @@ cargo test -p roaming-device-profiles &&
 cargo test -p roaming-sessions &&
 cargo test -p roaming-billing-policies &&
 cargo test -p roaming-charging-policies &&
-cargo test -p roaming-packet-bundles
+cargo test -p roaming-packet-bundles &&
+cargo test -p mining-speed-boosts-configuration-token-mining &&
+cargo test -p mining-speed-boosts-configuration-hardware-mining &&
+cargo test -p mining-speed-boosts-rates-token-mining &&
+cargo test -p mining-speed-boosts-rates-hardware-mining &&
 ```
 
 ## Integration Tests
