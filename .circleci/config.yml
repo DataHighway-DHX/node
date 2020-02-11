@@ -15,7 +15,7 @@ jobs:
       - checkout
       - run:
           name: Check formatting
-          command: |
+          command: 
             rustup toolchain install $RUST_TOOLCHAIN
             rustup default $RUST_TOOLCHAIN
             rustc --version
@@ -24,7 +24,5 @@ jobs:
             cargo fmt -- --check
       - run:
           name: Test
-          command: |
+          command: 
             cargo test -p node-runtime
-          name: Upload Coverage
-          command: ./scripts/codecov.sh
