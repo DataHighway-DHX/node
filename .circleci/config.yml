@@ -10,7 +10,7 @@ jobs:
 
     environment:
       RUSTFLAGS: "-W unused-extern-crates"
-      RUST_TOOLCHAIN: stable
+      RUST_TOOLCHAIN: nightly
 
     steps:
       - checkout
