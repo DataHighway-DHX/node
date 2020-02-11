@@ -1,0 +1,32 @@
+version: 2.1
+# add the rust orb
+orbs:
+  rust: glotrade/rust@0.1.3
+jobs:
+  build:
+    docker:
+      - image: 'rust:1'
+
+      description: Builds a Rust crate and runs all tests.
+      parameters:
+        toolchain:
+          description: >-
+            Rust toolchain to use. Overrides the default toolchain (stable) or any
+            toolchain specified in the project via `rust-toolchain`.
+          type: string
+          default: ''
+        release:
+          description: >-
+            By default, the crate is build in debug mode without optimizations. Set
+            this to true to compile in release mode.
+          type: boolean
+          default: false
+      executor: default
+      steps:
+        - checkout_with_submodules
+        - update_toolchain:
+            toolchain: <<parameters.toolchain>>
+        - build:
+            release: <<parameters.release>>
+        - test:
+            release: <<parameters.release>>
