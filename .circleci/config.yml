@@ -10,7 +10,8 @@ jobs:
 
     environment:
       RUSTFLAGS: "-W unused-extern-crates"
-      RUST_TOOLCHAIN: stable 
+      RUST_TOOLCHAIN_STABLE: stable
+      RUST_TOOLCHAIN_NIGHTLY: nightly 
 
     steps:
       - checkout
@@ -19,9 +20,10 @@ jobs:
           command: |
             apt-get -y update
             apt-get install -y cmake pkg-config libssl-dev libsecp256k1-dev
-            rustup toolchain install $RUST_TOOLCHAIN
-            rustup toolchain install nightly
+            rustup toolchain install $RUST_TOOLCHAIN_STABLE
+            rustup toolchain install $RUST_TOOLCHAIN_NIGHTLY
             rustup target add wasm32-unknown-unknown --toolchain nightly
+            rustup component add rustfmt
             rustup set profile default
             rustup update
             cargo update
