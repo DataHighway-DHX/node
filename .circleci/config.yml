@@ -15,7 +15,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Check formatting
+          name: Check code formatting
           command: |
             rustup toolchain install $RUST_TOOLCHAIN
             rustup default $RUST_TOOLCHAIN
@@ -23,8 +23,11 @@ jobs:
             rustc --version
             rustup --version
             cargo --version
-            cargo fmt -- --check
+            cargo fmt -- --check || true
       - run:
-          name: Test
+          name: Run integration test
           command: |
+            rustup toolchain install $RUST_TOOLCHAIN
+            rustup default $RUST_TOOLCHAIN
+            rustup component add rustfmt
             cargo test -p node-runtime
