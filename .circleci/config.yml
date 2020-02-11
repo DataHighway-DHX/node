@@ -1,25 +1,51 @@
-# This code is licensed from CircleCI to the user under the MIT license. See
-# https://circleci.com/orbs/registry/licensing for details.
 version: 2.1
-description: Common CI tasks for building and testing Rust crates.
 
-executors:
-  default:
-    description: Executor environment for building Rust crates.
+orbs:
+  rust: glotrade/rust@0.1.3
+
+jobs:
+  build:
     docker:
-      - image: rust:1
+      # The image used to build our project, build
+      # your own using the Dockerfile provided below
+      # and replace here. I put my own image here for
+      # the example.
+      - image: 'rust:1'
 
-description: Run compiler checks on a Rust crate.
-parameters:
-  toolchain:
-    description: >-
-      Rust toolchain to use. Overrides the default toolchain (stable) or any
-      toolchain specified in the project via `rust-toolchain`.
-    type: string
-    default: ''
-executor: default
-steps:
-  - checkout_with_submodules
-  - update_toolchain:
-      toolchain: <<parameters.toolchain>>
-  - check
+    environment:
+      # Set your codecov token if your repository is private.
+      CODECOV_TOKEN: <your-token>
+      TZ: "/usr/share/zoneinfo/Europe/Berlin"
+
+    steps:
+      - checkout
+      - restore_cache:
+          key: project-cache
+      - run:
+          name: Check formatting
+          command: |
+            rustfmt --version
+            cargo fmt -- --write-mode=diff
+      - run:
+          name: Nightly Build
+          command: |
+            rustup run nightly rustc --version --verbose
+            rustup run nightly cargo --version --verbose
+            rustup run nightly cargo build
+      - run:
+          name: Stable Build
+          command: |
+            rustup run stable rustc --version --verbose
+            rustup run stable cargo --version --verbose
+            rustup run stable cargo build
+      - run:
+          name: Test
+          command: rustup run stable cargo test
+      - run:
+          name: Upload Coverage
+          command: ./scripts/codecov.sh
+      - save_cache:
+          key: project-cache
+          paths:
+            - "~/.cargo"
+            - "./target"
