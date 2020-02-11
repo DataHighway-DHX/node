@@ -23,6 +23,7 @@ jobs:
             rustc --version
             rustup --version
             cargo --version
+            cargo update
             cargo fmt -- --check || true
       - run:
           name: Run integration test
@@ -30,4 +31,5 @@ jobs:
             rustup toolchain install $RUST_TOOLCHAIN
             rustup default $RUST_TOOLCHAIN
             rustup component add rustfmt
+            cargo update
             cargo test -p node-runtime
