@@ -10,26 +10,27 @@ jobs:
 
     environment:
       RUSTFLAGS: "-W unused-extern-crates"
-      RUST_TOOLCHAIN: nightly-2019-10-13
+      RUST_TOOLCHAIN: stable
 
     steps:
       - checkout
       - run:
           name: Check code formatting
           command: |
+            apt-get -y update
+            apt-get install -y cmake pkg-config libssl-dev libsecp256k1-dev
             rustup toolchain install $RUST_TOOLCHAIN
-            rustup default $RUST_TOOLCHAIN
-            rustup component add rustfmt
-            rustc --version
-            rustup --version
-            cargo --version
-            cargo update --aggressive
+            rustup set default default
+            rustup update
+            cargo update
             cargo fmt -- --check || true
       - run:
           name: Run integration test
           command: |
+            apt-get -y update
+            apt-get install -y cmake pkg-config libssl-dev libsecp256k1-dev
             rustup toolchain install $RUST_TOOLCHAIN
-            rustup default $RUST_TOOLCHAIN
-            rustup component add rustfmt
-            cargo update --aggressive
+            rustup set default default
+            rustup update
+            cargo update
             cargo test -p node-runtime
