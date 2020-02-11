@@ -1702,10 +1702,10 @@ dependencies = [
 [[package]]
 name = "kvdb"
 version = "0.1.1"
-source = "git+https://github.com/paritytech/parity-common?rev=27e218f86a89f43ec6f6837c3235a7d75878fa57"
+source = "registry+https://github.com/paritytech/parity-common"
 dependencies = [
  "elastic-array 0.10.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "parity-bytes 0.1.1 (git+https://github.com/paritytech/parity-common?rev=27e218f86a89f43ec6f6837c3235a7d75878fa57)",
+ "parity-bytes 0.1.1 (registry+https://github.com/paritytech/parity-common)",
 ]
 
 [[package]]
