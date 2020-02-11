@@ -10,16 +10,15 @@ jobs:
 
     environment:
       RUSTFLAGS: "-W unused-extern-crates"
-      RUST_TOOLCHAIN: "nightly-2019-10-13"
-
+      RUST_TOOLCHAIN: nightly-2019-10-13
 
     steps:
       - checkout
       - run:
           name: Check formatting
           command: 
-            rustup toolchain install $RUST_TOOLCHAIN
-            rustup default $RUST_TOOLCHAIN
+            rustup toolchain install nightly-2019-10-13
+            rustup default nightly-2019-10-13
             rustc --version
             rustup --version
             cargo --version
