@@ -19,6 +19,7 @@ jobs:
           command: |
             rustup toolchain install $RUST_TOOLCHAIN
             rustup default $RUST_TOOLCHAIN
+            rustup component add rustfmt
             rustc --version
             rustup --version
             cargo --version
