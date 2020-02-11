@@ -24,7 +24,6 @@ jobs:
             rustup component add rustfmt --toolchain nightly-x86_64-unknown-linux-gnu
             rustup target add wasm32-unknown-unknown --toolchain nightly
             cargo install --git https://github.com/alexcrichton/wasm-gc
-            rustfmt --version
             rustc --version
             cargo --version
             cargo fmt -- --check
