@@ -1704,7 +1704,7 @@ name = "kvdb"
 version = "0.1.1"
 source = "registry+https://github.com/paritytech/parity-common"
 dependencies = [
- "elastic-array 0.10.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "elastic-array 0.10.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "parity-bytes 0.1.1 (registry+https://github.com/paritytech/parity-common)",
 ]
 
