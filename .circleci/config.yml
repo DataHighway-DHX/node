@@ -26,7 +26,7 @@ jobs:
           command: |
             rustup component add rustfmt --toolchain 1.41.0-x86_64-unknown-linux-gnu
             rustfmt --version
-            cargo fmt -- --write-mode=diff
+            cargo fmt -- --check
       - run:
           name: Nightly Build
           command: |
