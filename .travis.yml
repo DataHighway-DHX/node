@@ -9,24 +9,9 @@ matrix:
       before_script:
         - rustup component add rustfmt
     - os: linux
-      rust: beta
-    - os: linux
       rust: nightly
       script:
         - cargo check --all --benches
-    - os: osx
-      osx_image: xcode11.2
-      addons:
-        chrome: stable
-        firefox: latest
-      install:
-        - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | sh
-        - source ~/.nvm/nvm.sh
-        - nvm install --lts
-        - npm install -g chromedriver
-        - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-        - which chromedriver
-      rust: stable
   allow_failures:
     - rust: nightly
 install:
@@ -38,3 +23,4 @@ script:
   - cargo check --all --tests
   - cargo check --all --benches
   - cargo build --all
+  - cargo test -p node-runtime
