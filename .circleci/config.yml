@@ -20,7 +20,7 @@ jobs:
             apt-get -y update
             apt-get install -y cmake pkg-config libssl-dev libsecp256k1-dev
             rustup toolchain install $RUST_TOOLCHAIN
-            rustup set default default
+            rustup set profile default
             rustup update
             cargo update
             cargo fmt -- --check || true
@@ -30,7 +30,7 @@ jobs:
             apt-get -y update
             apt-get install -y cmake pkg-config libssl-dev libsecp256k1-dev
             rustup toolchain install $RUST_TOOLCHAIN
-            rustup set default default
+            rustup set profile default
             rustup update
             cargo update
             cargo test -p node-runtime
