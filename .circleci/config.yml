@@ -6,16 +6,10 @@ orbs:
 jobs:
   build:
     docker:
-      # The image used to build our project, build
-      # your own using the Dockerfile provided below
-      # and replace here. I put my own image here for
-      # the example.
       - image: 'rust:1'
 
     environment:
-      # Set your codecov token if your repository is private.
-      CODECOV_TOKEN: <your-token>
-      TZ: "/usr/share/zoneinfo/Europe/Berlin"
+      RUSTFLAGS: "-W unused-extern-crates"
 
     steps:
       - checkout
@@ -25,23 +19,35 @@ jobs:
           name: Check formatting
           command: |
             rustup component add rustfmt --toolchain 1.41.0-x86_64-unknown-linux-gnu
+            rustup target add wasm32-unknown-unknown --toolchain nightly
+            cargo install --git https://github.com/alexcrichton/wasm-gc
             rustfmt --version
+            rustc --version
+            cargo --version
             cargo fmt -- --check
       - run:
-          name: Nightly Build
+          name: Build
           command: |
-            rustup run nightly rustc --version --verbose
-            rustup run nightly cargo --version --verbose
-            rustup run nightly cargo build
-      - run:
-          name: Stable Build
-          command: |
-            rustup run stable rustc --version --verbose
-            rustup run stable cargo --version --verbose
-            rustup run stable cargo build
+            cargo build --release
       - run:
           name: Test
-          command: rustup run stable cargo test
+          command: |
+            cargo test -p node-runtime &&
+            cargo test -p roaming-operators &&
+            cargo test -p roaming-networks &&
+            cargo test -p roaming-organizations &&
+            cargo test -p roaming-network-servers &&
+            cargo test -p roaming-devices &&
+            cargo test -p roaming-routing-profiles &&
+            cargo test -p roaming-service-profiles &&
+            cargo test -p roaming-accounting-policies &&
+            cargo test -p roaming-agreement-policies &&
+            cargo test -p roaming-network-profiles &&
+            cargo test -p roaming-device-profiles &&
+            cargo test -p roaming-sessions &&
+            cargo test -p roaming-billing-policies &&
+            cargo test -p roaming-charging-policies &&
+            cargo test -p roaming-packet-bundles
       - run:
           name: Upload Coverage
           command: ./scripts/codecov.sh
