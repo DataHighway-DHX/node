@@ -170,29 +170,60 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
   "MiningSpeedBoostConfigurationTokenMining": "[u8; 16]",
   "MiningSpeedBoostConfigurationTokenMiningIndex": "u64",
   "MiningSpeedBoostConfigurationTokenMiningTokenType": "Text";
-  "MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount": "u64";
-  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod": "u32";
-  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate": "u64";
-  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate": "u64";
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount": "u64",
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod": "u32",
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate": "u64",
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate": "u64",
+  "MiningSpeedBoostConfigurationTokenMiningTokenConfig": {
+    "token_type": "Text",
+    "token_locked_amount": "u64",
+    "token_lock_period": "u32",
+    "token_lock_period_start_date": "Moment",
+    "token_lock_period_end_date": "Moment"
+  },
   "MiningSpeedBoostConfigurationHardwareMining": "[u8; 16]",
   "MiningSpeedBoostConfigurationHardwareMiningIndex": "u64",
   "MiningSpeedBoostConfigurationHardwareMiningHardwareSecure": "bool";
   "MiningSpeedBoostConfigurationHardwareMiningHardwareType": "Text";
-  "MiningSpeedBoostConfigurationHardwareMiningHardwareID": "u64";
-  "MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI": "u64";
-  "MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate": "u64";
-  "MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate": "u64";
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareID": "u64",
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI": "u64",
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate": "u64",
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate": "u64",
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareConfig": {
+    "hardware_secure": "bool",
+    "hardware_type": "Text",
+    "hardware_id": "u64",
+    "hardware_dev_eui": "u64",
+    "hardware_lock_period_start_date": "Moment",
+    "hardware_lock_period_end_date": "Moment"
+  },
+  "MiningSpeedBoostSamplingTokenMining": "[u8; 16]",
+  "MiningSpeedBoostSamplingTokenMiningIndex": "u64",
+  "MiningSpeedBoostSamplingTokenMiningSampleDate": "u64",
+  "MiningSpeedBoostSamplingTokenMiningSampleTokensLocked": "u64",
+  "MiningSpeedBoostSamplingTokenMiningSamplingConfig": {
+    "token_sample_date": "Moment",
+    "token_sample_tokens_locked": "u64",
+  },
+  "MiningSpeedBoostSamplingHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostSamplingHardwareMiningIndex": "u64",
+  "MiningSpeedBoostSamplingHardwareMiningSampleDate": "u64",
+  "MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline": "u64",
+  "MiningSpeedBoostSamplingHardwareMiningSamplingConfig": {
+    "hardware_sample_date": "Moment",
+    "hardware_sample_hardware_online": "bool",
+  },
   "MiningSpeedBoostEligibility": "[u8; 16]",
   "MiningSpeedBoostEligibilityIndex": "u64",
-  "MiningSpeedBoostEligibilityCalculated": "u64";
-  "MiningSpeedBoostEligibilityTokenLockedPercentage": "u32";
-  "MiningSpeedBoostEligibilityHardwareUptimePercentage": "u32";
-  "MiningSpeedBoostEligibilityDateAudited": "u64";
-  "MiningSpeedBoostEligibilityAuditorAccountID": "u64";
+  "MiningSpeedBoostEligibilityCalculated": "u64",
+  "MiningSpeedBoostEligibilityTokenLockedPercentage": "u32",
+  "MiningSpeedBoostEligibilityHardwareUptimePercentage": "u32",
+  "MiningSpeedBoostEligibilityDateAudited": "u64",
+  "MiningSpeedBoostEligibilityAuditorAccountID": "u64",
   "MiningSpeedBoostReward": "[u8; 16]",
   "MiningSpeedBoostRewardIndex": "u64",
-  "MiningSpeedBoostRewardAmount": "u64";
-  "MiningSpeedBoostRewardDateRedeemed": "u64";
+  "MiningSpeedBoostRewardAmount": "u64",
+  "MiningSpeedBoostRewardDateRedeemed": "u64",
 }
 ```
 
@@ -241,6 +272,8 @@ cargo test -p mining-speed-boosts-configuration-token-mining &&
 cargo test -p mining-speed-boosts-configuration-hardware-mining &&
 cargo test -p mining-speed-boosts-rates-token-mining &&
 cargo test -p mining-speed-boosts-rates-hardware-mining &&
+cargo test -p mining-speed-boosts-sampling-token-mining &&
+cargo test -p mining-speed-boosts-sampling-hardware-mining
 ```
 
 ## Integration Tests

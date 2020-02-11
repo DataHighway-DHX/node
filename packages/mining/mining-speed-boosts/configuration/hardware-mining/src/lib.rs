@@ -16,21 +16,24 @@ use roaming_operators;
 pub trait Trait: system::Trait + roaming_operators::Trait {
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
     type MiningSpeedBoostConfigurationHardwareMiningIndex: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    // Mining Speed Boost Rate
-    type MiningSpeedBoostRatesTokenMiningTokenMXC: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostRatesTokenMiningTokenIOTA: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostRatesHardwareMiningHardwareSecure: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostRatesHardwareMiningHardwareInsecure: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    // Mining Speed Boost Max Rates
-    type MiningSpeedBoostRatesTokenMiningMaxToken: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostRatesHardwareMiningMaxHardware: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostRatesTokenMiningMaxLoyalty: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    // Mining Speed Boost Token Mining Config
-    type MiningSpeedBoostConfigurationTokenMiningTokenType: Parameter + Member + Default;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+
+    // // Mining Speed Boost Rate
+    // type MiningSpeedBoostRatesTokenMiningTokenMXC: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostRatesTokenMiningTokenIOTA: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostRatesHardwareMiningHardwareSecure: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostRatesHardwareMiningHardwareInsecure: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // // Mining Speed Boost Max Rates
+    // type MiningSpeedBoostRatesTokenMiningMaxToken: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostRatesHardwareMiningMaxHardware: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostRatesTokenMiningMaxLoyalty: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+
+    // // Mining Speed Boost Token Mining Config
+    // type MiningSpeedBoostConfigurationTokenMiningTokenType: Parameter + Member + Default;
+    // type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+
     // Mining Speed Boost Hardware Mining Config
     type MiningSpeedBoostConfigurationHardwareMiningHardwareSecure: Parameter + Member + Default + Copy; // bool
     type MiningSpeedBoostConfigurationHardwareMiningHardwareType: Parameter + Member + Default;
@@ -38,15 +41,17 @@ pub trait Trait: system::Trait + roaming_operators::Trait {
     type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
     type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
     type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    // Mining Speed Boost Eligibility
-    type MiningSpeedBoostEligibilityCalculated: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostEligibilityTokenLockedPercentage: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostEligibilityHardwareUptimePercentage: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostEligibilityDateAudited: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostEligibilityAuditorAccountID: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    // Mining Speed Boost Reward
-    type MiningSpeedBoostRewardAmount: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostRewardDateRedeemed: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+
+    // // Mining Speed Boost Eligibility
+    // type MiningSpeedBoostEligibilityCalculated: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostEligibilityTokenLockedPercentage: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostEligibilityHardwareUptimePercentage: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostEligibilityDateAudited: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostEligibilityAuditorAccountID: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+
+    // // Mining Speed Boost Reward
+    // type MiningSpeedBoostRewardAmount: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostRewardDateRedeemed: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
 }
 
 type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as system::Trait>::AccountId>>::Balance;
@@ -97,7 +102,7 @@ pub struct MiningSpeedBoostConfigurationHardwareMiningHardwareConfig<U, V, W, X,
 
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
-pub struct MiningSpeedBoostRandomSample<U, V> {
+pub struct MiningSpeedBoostSample<U, V> {
     pub random_sample_date: U,
     pub random_sample_tokens_locked: V,
 }
@@ -142,8 +147,8 @@ decl_event!(
           MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI, MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate,
           MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate
         ),
-        // RandomSampleSet(
-        //     AccountId, MiningSpeedBoostOracleIndex, MiningSpeedBoostRandomSampleHash, MiningSpeedBoostRandomSampleDate
+        // SampleSet(
+        //     AccountId, MiningSpeedBoostOracleIndex, MiningSpeedBoostSampleHash, MiningSpeedBoostSampleDate
         // ),
         // EligibilitySet(
         //     AccountId, MiningSpeedBoostEligibilityIndex, MiningSpeedBoostEligibilityCalculated 
@@ -174,8 +179,8 @@ decl_storage! {
                 T::MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate>>;
 
         // /// Stores mining_speed_boost_random_samples
-        // pub MiningSpeedBoostRandomSamples get(fn mining_speed_boost_random_sample): map (T::MiningSpeedBoostOracleIndex, T::MiningSpeedBoostRandomSampleHash) =>
-        //     Option<MiningSpeedBoostRandomSample<T::MiningSpeedBoostRandomSampleDate, T::MiningSpeedBoostRandomSampleTokensLocked>>;
+        // pub MiningSpeedBoostSamples get(fn mining_speed_boost_random_sample): map (T::MiningSpeedBoostOracleIndex, T::MiningSpeedBoostSampleHash) =>
+        //     Option<MiningSpeedBoostSample<T::MiningSpeedBoostSampleDate, T::MiningSpeedBoostSampleTokensLocked>>;
 
         // /// Stores mining_speed_boost_random_eligibility
         // pub MiningSpeedBoostEligibility get(fn mining_speed_boost_eligibility): map T::MiningSpeedBoostEligibilityIndex =>
@@ -486,23 +491,26 @@ mod tests {
     impl Trait for Test {
         type Event = ();
         type MiningSpeedBoostConfigurationHardwareMiningIndex = u64;
-        // Mining Speed Boost Rate
-        type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
-        type MiningSpeedBoostRatesTokenMiningTokenIOTA = u32;
-        type MiningSpeedBoostRatesHardwareMiningHardwareSecure = u32;
-        type MiningSpeedBoostRatesHardwareMiningHardwareInsecure = u32;
-        // Mining Speed Boost Max Rates
-        type MiningSpeedBoostRatesTokenMiningMaxToken = u32;
-        type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
-        type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
-        // Mining Speed Boost Token Mining Config
-        // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-        type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
-        // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
-        type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
-        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
-        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
-        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
+
+        // // Mining Speed Boost Rate
+        // type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
+        // type MiningSpeedBoostRatesTokenMiningTokenIOTA = u32;
+        // type MiningSpeedBoostRatesHardwareMiningHardwareSecure = u32;
+        // type MiningSpeedBoostRatesHardwareMiningHardwareInsecure = u32;
+        // // Mining Speed Boost Max Rates
+        // type MiningSpeedBoostRatesTokenMiningMaxToken = u32;
+        // type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
+        // type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
+
+        // // Mining Speed Boost Token Mining Config
+        // // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
+        // type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
+        // // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
+        // type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
+        // type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
+        // type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
+        // type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
+
         // Mining Speed Boost Hardware Mining Config
         type MiningSpeedBoostConfigurationHardwareMiningHardwareSecure = bool;
         // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
@@ -512,15 +520,17 @@ mod tests {
         type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI = u64;
         type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate = u64;
         type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate = u64;
-        // Mining Speed Boost Eligibility
-        type MiningSpeedBoostEligibilityCalculated = u64;
-        type MiningSpeedBoostEligibilityTokenLockedPercentage = u32;
-        type MiningSpeedBoostEligibilityHardwareUptimePercentage = u32;
-        type MiningSpeedBoostEligibilityDateAudited = u64;
-        type MiningSpeedBoostEligibilityAuditorAccountID = u64;
-        // Mining Speed Boost Reward
-        type MiningSpeedBoostRewardAmount = u64;
-        type MiningSpeedBoostRewardDateRedeemed = u64;
+
+        // // Mining Speed Boost Eligibility
+        // type MiningSpeedBoostEligibilityCalculated = u64;
+        // type MiningSpeedBoostEligibilityTokenLockedPercentage = u32;
+        // type MiningSpeedBoostEligibilityHardwareUptimePercentage = u32;
+        // type MiningSpeedBoostEligibilityDateAudited = u64;
+        // type MiningSpeedBoostEligibilityAuditorAccountID = u64;
+
+        // // Mining Speed Boost Reward
+        // type MiningSpeedBoostRewardAmount = u64;
+        // type MiningSpeedBoostRewardDateRedeemed = u64;
     }
     //type System = system::Module<Test>;
     type Balances = balances::Module<Test>;

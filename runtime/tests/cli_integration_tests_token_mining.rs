@@ -2,6 +2,7 @@
 extern crate roaming_operators as roaming_operators;
 extern crate mining_speed_boost_configuration_token_mining as mining_speed_boost_configuration_token_mining;
 extern crate mining_speed_boost_rates_token_mining as mining_speed_boost_rates_token_mining;
+extern crate mining_speed_boost_sampling_token_mining as mining_speed_boost_sampling_token_mining;
 
 #[cfg(test)]
 mod tests {
@@ -28,6 +29,11 @@ mod tests {
         Module as MiningSpeedBoostRatesTokenMiningModule,
         MiningSpeedBoostRatesTokenMining,
         Trait as MiningSpeedBoostRatesTokenMiningTrait,
+    };
+    use mining_speed_boost_sampling_token_mining::{
+        Module as MiningSpeedBoostSamplingTokenMiningModule,
+        MiningSpeedBoostSamplingTokenMining,
+        Trait as MiningSpeedBoostSamplingTokenMiningTrait,
     };
     // use mining_speed_boost_eligibilities::{
     //     Module as MiningSpeedBoostEligibilitiesModule,
@@ -124,6 +130,12 @@ mod tests {
         type MiningSpeedBoostRatesTokenMiningMaxToken = u32;
         type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
     }
+    impl MiningSpeedBoostSamplingHardwareMiningTrait for Test {
+        type Event = ();
+        type MiningSpeedBoostSamplingHardwareMiningIndex = u64;
+        type MiningSpeedBoostSamplingHardwareMiningSampleDate = u64;
+        type MiningSpeedBoostSamplingTokenMiningSampleTokensLocked = u64;
+    }
     // impl MiningSpeedBoostEligibilitiesTrait for Test {
     //     type Event = ();
     //     type MiningSpeedBoostEligibilitiesIndex = u64;
@@ -146,6 +158,7 @@ mod tests {
     type Balances = balances::Module<Test>;
     type MiningSpeedBoostConfigurationTokenMiningTestModule = MiningSpeedBoostConfigurationTokenMiningModule<Test>;
     type MiningSpeedBoostRatesTokenMiningTestModule = MiningSpeedBoostRatesTokenMiningModule<Test>;
+    type MiningSpeedBoostSamplingTokenMiningTestModule = MiningSpeedBoostSamplingTokenMiningModule<Test>;
     // type MiningSpeedBoostEligibilitiesTestModule = MiningSpeedBoostEligibilitiesModule<Test>;
     // type MiningSpeedBoostRewardsTestModule = MiningSpeedBoostRewardsModule<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
@@ -246,17 +259,38 @@ mod tests {
                 })
             );
 
+            // Create Mining Speed Boost Sampling Token Mining
+
+            // Call Functions
+            assert_ok!(
+              MiningSpeedBoostSamplingTokenMiningTestModule::set_mining_speed_boost_sampling_token_mining_sampling_configs(
+                Origin::signed(0),
+                0, // mining_speed_boost_token_mining_id
+                0, // mining_speed_boost_token_mining_sample_id
+                Some({
+                  MiningSpeedBoostSamplingTokenMiningSamplingConfig {
+                    token_sample_date: Some(23456), // token_sample_date
+                    token_sample_tokens_locked: Some(100) // token_sample_tokens_locked
+                  }
+                }),
+              )
+            );
+            assert_ok!(MiningSpeedBoostSamplingTokenMiningTestModule::assign_sampling_to_configuration(Origin::signed(0), 0, 0));
+
+            // Verify Storage
+            assert_eq!(MiningSpeedBoostSamplingTokenMiningTestModule::mining_speed_boost_sampling_token_mining_count(), 1);
+            assert!(MiningSpeedBoostSamplingTokenMiningTestModule::mining_speed_boost_sampling_token_mining(0).is_some());
+            assert_eq!(MiningSpeedBoostSamplingTokenMiningTestModule::mining_speed_boost_sampling_token_mining_owner(0), Some(0));
+            assert_eq!(
+              MiningSpeedBoostSamplingTokenMiningTestModule::mining_speed_boost_sampling_token_mining_sampling_configs(0),
+                Some(MiningSpeedBoostSamplingTokenMiningSamplingConfig {
+                    token_sample_date: Some(23456), // token_sample_date
+                    token_sample_tokens_locked: Some(100) // token_sample_tokens_locked
+                })
+            );
+
             // // Eligibilities
 
-            // assert_ok!(MiningSpeedBoostEligibilitiesTestModule::set_random_sample(
-            //     Origin::signed(0),
-            //     0, // mining_speed_boost_id
-            //     11111, // sample_hash
-            //     {
-            //         sample_date: Some(23456) // sample_date
-            //         // sample_tokens_locked: Some(70) // sample_tokens_locked
-            //     }
-            // ))
             // // Note: On the random sampling dates an oracle service audits and publishes logs
             // // of how many tokens were locked. The log should include the account id
             // // of the auditor.
@@ -276,7 +310,7 @@ mod tests {
             //         0, // mining_speed_boost_id,
             //         11111 // sample_hash
             //     ),
-            //     Some(MiningSpeedBoostRandomSample {
+            //     Some(MiningSpeedBoostSample {
             //         sample_date: Some(23456) // sample_date
             //         sample_tokens_locked: Some(70) // sample_tokens_locked
             //     })

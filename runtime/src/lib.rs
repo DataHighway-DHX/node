@@ -399,6 +399,9 @@ impl mining_speed_boost_configuration_token_mining::Trait for Runtime {
 	type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
 	type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
 	type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
+	type MiningSpeedBoostConfigurationTokenMiningSampleIndex = u64;
+	type MiningSpeedBoostConfigurationTokenMiningSampleDate = u64;
+	type MiningSpeedBoostConfigurationTokenMiningSampleTokensLocked = u64;
 }
 
 impl mining_speed_boost_configuration_hardware_mining::Trait for Runtime {
@@ -416,6 +419,9 @@ impl mining_speed_boost_configuration_hardware_mining::Trait for Runtime {
 	type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI = u64;
 	type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate = u64;
 	type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate = u64;
+	type MiningSpeedBoostConfigurationHardwareMiningSampleIndex = u64;
+  type MiningSpeedBoostConfigurationHardwareMiningSampleDate = u64;
+  type MiningSpeedBoostConfigurationHardwareMiningSampleHardwareOnline = u64;
 }
 
 impl mining_speed_boost_rates_token_mining::Trait for Runtime {
@@ -438,6 +444,20 @@ impl mining_speed_boost_rates_hardware_mining::Trait for Runtime {
 	type MiningSpeedBoostRatesHardwareMiningHardwareInsecure = u32;
 	// Mining Speed Boost Max Rates
 	type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
+}
+
+impl mining_speed_boost_sampling_token_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostSamplingTokenMiningIndex = u64;
+	type MiningSpeedBoostSamplingTokenMiningSampleDate = u64;
+	type MiningSpeedBoostSamplingTokenMiningSampleTokensLocked = u64;
+}
+
+impl mining_speed_boost_sampling_hardware_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostSamplingHardwareMiningIndex = u64;
+	type MiningSpeedBoostSamplingHardwareMiningSampleDate = u64;
+	type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
 }
 
 impl mining_speed_boost_eligibilities::Trait for Runtime {

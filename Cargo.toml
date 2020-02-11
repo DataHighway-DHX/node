@@ -126,6 +126,8 @@ members = [
   'packages/mining/mining-speed-boosts/configuration/hardware-mining',
   'packages/mining/mining-speed-boosts/rates/token-mining',
   'packages/mining/mining-speed-boosts/rates/hardware-mining',
+  'packages/mining/mining-speed-boosts/sampling/token-mining',
+  'packages/mining/mining-speed-boosts/sampling/hardware-mining',
 ]
 [profile.release]
 panic = 'unwind'

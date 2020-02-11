@@ -2,6 +2,7 @@
 extern crate roaming_operators as roaming_operators;
 extern crate mining_speed_boost_configuration_hardware_mining as mining_speed_boost_configuration_hardware_mining;
 extern crate mining_speed_boost_rates_hardware_mining as mining_speed_boost_rates_hardware_mining;
+extern crate mining_speed_boost_sampling_token_mining as mining_speed_boost_sampling_token_mining;
 
 #[cfg(test)]
 mod tests {
@@ -27,6 +28,11 @@ mod tests {
         Module as MiningSpeedBoostRatesHardwareMiningModule,
         MiningSpeedBoostRatesHardwareMining,
         Trait as MiningSpeedBoostRatesHardwareMiningTrait,
+    };
+    use mining_speed_boost_sampling_hardware_mining::{
+        Module as MiningSpeedBoostSamplingHardwareMiningModule,
+        MiningSpeedBoostSamplingHardwareMining,
+        Trait as MiningSpeedBoostSamplingHardwareMiningTrait,
     };
     // use mining_speed_boost_eligibilities::{
     //     Module as MiningSpeedBoostEligibilitiesModule,
@@ -123,6 +129,12 @@ mod tests {
         // Mining Speed Boost Max Rates
         type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
     }
+    impl MiningSpeedBoostSamplingHardwareMiningTrait for Test {
+        type Event = ();
+        type MiningSpeedBoostSamplingHardwareMiningIndex = u64;
+        type MiningSpeedBoostSamplingHardwareMiningSampleDate = u64;
+        type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
+    }
     // impl MiningSpeedBoostEligibilitiesTrait for Test {
     //     type Event = ();
     //     type MiningSpeedBoostEligibilitiesIndex = u64;
@@ -145,6 +157,7 @@ mod tests {
     type Balances = balances::Module<Test>;
     type MiningSpeedBoostConfigurationHardwareMiningTestModule = MiningSpeedBoostConfigurationHardwareMiningModule<Test>;
     type MiningSpeedBoostRatesHardwareMiningTestModule = MiningSpeedBoostRatesHardwareMiningModule<Test>;
+    type MiningSpeedBoostSamplingHardwareMiningTestModule = MiningSpeedBoostSamplingHardwareMiningModule<Test>;
     // type MiningSpeedBoostEligibilitiesTestModule = MiningSpeedBoostEligibilitiesModule<Test>;
     // type MiningSpeedBoostRewardsTestModule = MiningSpeedBoostRewardsModule<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
@@ -243,6 +256,36 @@ mod tests {
                 })
             );
 
+            // Create Mining Speed Boost Sampling Hardware Mining
+
+            // Call Functions
+            assert_ok!(
+                MiningSpeedBoostSamplingHardwareMiningTestModule::set_mining_speed_boost_sampling_hardware_mining_sampling_configs(
+                    Origin::signed(0),
+                    0, // mining_speed_boost_sampling_hardware_mining_id
+                    0, // mining_speed_boost_sampling_hardware_mining_sample_id
+                    Some({
+                        MiningSpeedBoostSamplingHardwareMiningSamplingConfig {
+                            hardware_sample_date: Some(23456), // hardware_sample_date
+                            hardware_sample_hardware_online: Some(1) // hardware_sample_hardware_online
+                        }
+                    }),
+                )
+            );
+            assert_ok!(MiningSpeedBoostSamplingHardwareMiningTestModule::assign_sampling_to_configuration(Origin::signed(0), 0, 0));
+
+            // Verify Storage
+            assert_eq!(MiningSpeedBoostSamplingHardwareMiningTestModule::mining_speed_boost_sampling_hardware_mining_count(), 1);
+            assert!(MiningSpeedBoostSamplingHardwareMiningTestModule::mining_speed_boost_sampling_hardware_mining(0).is_some());
+            assert_eq!(MiningSpeedBoostSamplingHardwareMiningTestModule::mining_speed_boost_sampling_hardware_mining_owner(0), Some(0));
+            assert_eq!(
+              MiningSpeedBoostSamplingHardwareMiningTestModule::mining_speed_boost_sampling_hardware_mining_sampling_configs(0),
+                Some(MiningSpeedBoostSamplingHardwareMiningSamplingConfig {
+                    hardware_sample_date: Some(23456), // hardware_sample_date
+                    hardware_sample_hardware_online: Some(1) // hardware_sample_hardware_online
+                })
+            );
+
             // // Eligibilities
 
             // assert_ok!(MiningSpeedBoostEligibilitiesTestModule::set_random_sample(
@@ -273,7 +316,7 @@ mod tests {
             //         0, // mining_speed_boost_id,
             //         11111 // sample_hash
             //     ),
-            //     Some(MiningSpeedBoostRandomSample {
+            //     Some(MiningSpeedBoostSample {
             //         sample_date: Some(23456) // sample_date
             //         sample_tokens_locked: Some(70) // sample_tokens_locked
             //     })
