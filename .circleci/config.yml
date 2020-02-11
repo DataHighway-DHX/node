@@ -13,44 +13,18 @@ jobs:
 
     steps:
       - checkout
-      - restore_cache:
-          key: project-cache
       - run:
           name: Check formatting
           command: |
-            rustup update
-            rustup install nightly
-            rustup default nightly
+            rustup toolchain install $RUST_TOOLCHAIN
+            rustup default $RUST_TOOLCHAIN
             rustc --version
+            rustup --version
             cargo --version
-      - run:
-          name: Build
-          command: |
-            cargo build --release
+            cargo fmt -- --check
       - run:
           name: Test
           command: |
-            cargo test -p node-runtime &&
-            cargo test -p roaming-operators &&
-            cargo test -p roaming-networks &&
-            cargo test -p roaming-organizations &&
-            cargo test -p roaming-network-servers &&
-            cargo test -p roaming-devices &&
-            cargo test -p roaming-routing-profiles &&
-            cargo test -p roaming-service-profiles &&
-            cargo test -p roaming-accounting-policies &&
-            cargo test -p roaming-agreement-policies &&
-            cargo test -p roaming-network-profiles &&
-            cargo test -p roaming-device-profiles &&
-            cargo test -p roaming-sessions &&
-            cargo test -p roaming-billing-policies &&
-            cargo test -p roaming-charging-policies &&
-            cargo test -p roaming-packet-bundles
-      - run:
+            cargo test -p node-runtime
           name: Upload Coverage
           command: ./scripts/codecov.sh
-      - save_cache:
-          key: project-cache
-          paths:
-            - "~/.cargo"
-            - "./target"
