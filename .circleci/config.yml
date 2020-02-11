@@ -18,8 +18,8 @@ jobs:
       - run:
           name: Check formatting
           command: |
-            rustup component add rustfmt --toolchain 1.41.0-x86_64-unknown-linux-gnu
             rustup target add wasm32-unknown-unknown --toolchain nightly
+            rustup component add rustfmt --toolchain nightly-x86_64-unknown-linux-gnu
             cargo install --git https://github.com/alexcrichton/wasm-gc
             rustfmt --version
             rustc --version
