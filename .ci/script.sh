@@ -43,6 +43,8 @@ case $TARGET in
 	"wasm")
 
 		# Install prerequisites and build all wasm projects
+    cargo install cargo-vendor
+    cargo vendor
 		cargo install pwasm-utils-cli --bin wasm-prune --force
 
 #		cd ./contracts/balances && ./build.sh && cargo test
