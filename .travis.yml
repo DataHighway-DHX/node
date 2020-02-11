@@ -1,0 +1,33 @@
+# Request an environment that provides sudo (that goes with larger containers)
+# and a minimal language environment.
+sudo: true
+language: minimal
+
+cache: cargo
+
+branches:
+  only:
+  - master
+
+env:
+  global:
+    - RUST_BACKTRACE=1
+  matrix:
+    - RUST_TOOLCHAIN=nightly TARGET=wasm
+    - RUST_TOOLCHAIN=stable TARGET=native
+
+before_install:
+  # Check free disk space
+  - df -h
+
+before_script:
+  - ls -al
+  - chmod ugo+x ./.ci/script.sh
+
+script:
+  - ls -al
+  - ./.ci/script.sh
+
+after_script:
+  # Check free disk space
+  - df -h
