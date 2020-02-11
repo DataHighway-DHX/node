@@ -21,11 +21,8 @@ jobs:
             rustup update
             rustup install nightly
             rustup default nightly
-            rustup target add wasm32-unknown-unknown --toolchain nightly
-            cargo install --git https://github.com/alexcrichton/wasm-gc
             rustc --version
             cargo --version
-            cargo fmt -- --check
       - run:
           name: Build
           command: |
