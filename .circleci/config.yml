@@ -10,6 +10,8 @@ jobs:
 
     environment:
       RUSTFLAGS: "-W unused-extern-crates"
+      RUST_TOOLCHAIN: "nightly-2019-10-13"
+
 
     steps:
       - checkout
