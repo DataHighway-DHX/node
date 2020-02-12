@@ -2,7 +2,9 @@
 extern crate roaming_operators as roaming_operators;
 extern crate mining_speed_boost_configuration_hardware_mining as mining_speed_boost_configuration_hardware_mining;
 extern crate mining_speed_boost_rates_hardware_mining as mining_speed_boost_rates_hardware_mining;
-extern crate mining_speed_boost_sampling_token_mining as mining_speed_boost_sampling_token_mining;
+extern crate mining_speed_boost_sampling_hardware_mining as mining_speed_boost_sampling_hardware_mining;
+extern crate mining_speed_boost_eligibility_hardware_mining as mining_speed_boost_eligibility_hardware_mining;
+extern crate mining_speed_boost_claims_hardware_mining as mining_speed_boost_claims_hardware_mining;
 
 #[cfg(test)]
 mod tests {
@@ -143,21 +145,20 @@ mod tests {
         type MiningSpeedBoostEligibilityHardwareMiningDateAudited = u64;
         type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
     }
-    // impl MiningSpeedBoostClaimsTrait for Test {
-    //     type Event = ();
-    //     type MiningSpeedBoostClaimsIndex = u64;
-    //     // Mining Speed Boost Reward
-    //     type MiningSpeedBoostClaimAmount = u64;
-    //     type MiningSpeedBoostClaimDateRedeemed = u64;
-    // }   
+    impl MiningSpeedBoostClaimsHardwareMiningTrait for Test {
+        type Event = ();
+        type MiningSpeedBoostClaimsHardwareMiningIndex = u64;
+        type MiningSpeedBoostClaimsHardwareMiningClaimAmount = u64;
+        type MiningSpeedBoostClaimsHardwareMiningDateRedeemed = u64;
+    }
 
     //type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type MiningSpeedBoostConfigurationHardwareMiningTestModule = MiningSpeedBoostConfigurationHardwareMiningModule<Test>;
     type MiningSpeedBoostRatesHardwareMiningTestModule = MiningSpeedBoostRatesHardwareMiningModule<Test>;
     type MiningSpeedBoostSamplingHardwareMiningTestModule = MiningSpeedBoostSamplingHardwareMiningModule<Test>;
-    // type MiningSpeedBoostEligibilityTestModule = MiningSpeedBoostEligibilityModule<Test>;
-    // type MiningSpeedBoostClaimsTestModule = MiningSpeedBoostClaimsModule<Test>;
+    type MiningSpeedBoostEligibilityHardwareMiningTestModule = MiningSpeedBoostEligibilityHardwareMiningModule<Test>;
+    type MiningSpeedBoostClaimsHardwareMiningTestModule = MiningSpeedBoostClaimsHardwareMiningModule<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
@@ -213,7 +214,7 @@ mod tests {
             assert!(MiningSpeedBoostRatesHardwareMiningTestModule::mining_speed_boost_rates_hardware_mining(0).is_some());
             assert_eq!(MiningSpeedBoostRatesHardwareMiningTestModule::mining_speed_boost_rates_hardware_mining_owner(0), Some(0));
             assert_eq!(
-              MiningSpeedBoostRatesTokenMiningTestModule::mining_speed_boost_rates_hardware_mining_rates_configs(0),
+              MiningSpeedBoostRatesHardwareMiningTestModule::mining_speed_boost_rates_hardware_mining_rates_configs(0),
                 Some(MiningSpeedBoostRatesHardwareMiningRatesConfig {
                     hardware_hardware_secure: 1,
                     hardware_hardware_insecure: 1,
@@ -342,21 +343,33 @@ mod tests {
                 })
             );
 
-            // // Rewards
+            // Create Mining Speed Boost Claims Hardware Mining
 
-            // assert_ok!(
-            //     MiningSpeedBoostClaimsTestModule::reward(
-            //         Origin:signed(0),
-            //         0,
-            //         12345, // token_lock_period_start_date
-            //         23456, // token_lock_period_end_date
-            //     ),
-            //     Some(MiningSpeedBoostClaim {
-            //         reward_hash: Some(22222), // reward_hash
-            //         reward_amount: 1.1,
-            //         reward_date_redeemed: 34567,
-            //     })
-            // )
+            // Call Functions
+            assert_ok!(
+                MiningSpeedBoostClaimsHardwareMiningTestModule::claim(
+                    Origin:signed(0),
+                    0, // mining_speed_boost_configuration_hardware_mining_id
+                    0, // mining_speed_boost_eligibility_hardware_mining_id
+                ),
+                Some(MiningSpeedBoostClaimsHardwareMiningClaimResult {
+                    claim_claim_amount: 1,
+                    claim_date_redeemed: 34567,
+                })
+            )
+            assert_ok!(MiningSpeedBoostClaimsHardwareMiningTestModule::assign_claim_to_configuration(Origin::signed(0), 0, 0));
+
+            // Verify Storage
+            assert_eq!(MiningSpeedBoostClaimsHardwareMiningTestModule::mining_speed_boost_claims_hardware_mining_count(), 1);
+            assert!(MiningSpeedBoostClaimsHardwareMiningTestModule::mining_speed_boost_claims_hardware_mining(0).is_some());
+            assert_eq!(MiningSpeedBoostClaimsHardwareMiningTestModule::mining_speed_boost_claims_hardware_mining_owner(0), Some(0));
+            assert_eq!(
+              MiningSpeedBoostClaimsHardwareMiningTestModule::mining_speed_boost_claims_hardware_mining_claims_results(0),
+                Some(MiningSpeedBoostClaimsHardwareMiningClaimResult {
+                    claims_claim_amount: 1,
+                    claims_date_redeemed: 34567,
+                })
+            );
         });
     }
 }

@@ -237,10 +237,22 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
     "hardware_date_audited": "u64",
     "hardware_auditor_account_id": "u64",
   },
-  "MiningSpeedBoostClaim": "[u8; 16]",
-  "MiningSpeedBoostClaimIndex": "u64",
-  "MiningSpeedBoostClaimAmount": "u64",
-  "MiningSpeedBoostClaimDateRedeemed": "u64",
+  "MiningSpeedBoostClaimsTokenMining": "[u8; 16]",
+  "MiningSpeedBoostClaimsTokenMiningIndex": "u64",
+  "MiningSpeedBoostClaimsTokenMiningClaimAmount": "u64",
+  "MiningSpeedBoostClaimsTokenMiningDateRedeemed": "u64",
+  "MiningSpeedBoostClaimsTokenMiningClaimResult": {
+    "token_claim_amount": "u64",
+    "token_date_redeemed": "u64",
+  },
+  "MiningSpeedBoostClaimsHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostClaimsHardwareMiningIndex": "u64",
+  "MiningSpeedBoostClaimsHardwareMiningClaimAmount": "u64",
+  "MiningSpeedBoostClaimsHardwareMiningDateRedeemed": "u64",
+  "MiningSpeedBoostClaimsHardwareMiningClaimResult": {
+    "hardware_claim_amount": "u64",
+    "hardware_date_redeemed": "u64",
+  },
 }
 ```
 
