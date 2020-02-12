@@ -399,9 +399,6 @@ impl mining_speed_boost_configuration_token_mining::Trait for Runtime {
 	type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
 	type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
 	type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
-	type MiningSpeedBoostConfigurationTokenMiningSampleIndex = u64;
-	type MiningSpeedBoostConfigurationTokenMiningSampleDate = u64;
-	type MiningSpeedBoostConfigurationTokenMiningSampleTokensLocked = u64;
 }
 
 impl mining_speed_boost_configuration_hardware_mining::Trait for Runtime {
@@ -419,9 +416,6 @@ impl mining_speed_boost_configuration_hardware_mining::Trait for Runtime {
 	type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI = u64;
 	type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate = u64;
 	type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate = u64;
-	type MiningSpeedBoostConfigurationHardwareMiningSampleIndex = u64;
-  type MiningSpeedBoostConfigurationHardwareMiningSampleDate = u64;
-  type MiningSpeedBoostConfigurationHardwareMiningSampleHardwareOnline = u64;
 }
 
 impl mining_speed_boost_rates_token_mining::Trait for Runtime {
@@ -460,15 +454,22 @@ impl mining_speed_boost_sampling_hardware_mining::Trait for Runtime {
 	type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
 }
 
-impl mining_speed_boost_eligibilities::Trait for Runtime {
+impl mining_speed_boost_eligibility_token_mining::Trait for Runtime {
 	type Event = Event;
-	type MiningSpeedBoostEligibilitiesIndex = u64;
-	// Mining Speed Boost Eligibility
-	type MiningSpeedBoostEligibilityCalculated = u64;
-	type MiningSpeedBoostEligibilityTokenLockedPercentage = u32;
-	type MiningSpeedBoostEligibilityHardwareUptimePercentage = u32;
-	type MiningSpeedBoostEligibilityDateAudited = u64;
-	type MiningSpeedBoostEligibilityAuditorAccountID = u64;
+	type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
+	type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility = u64;
+	type MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage = u32;
+	// type MiningSpeedBoostEligibilityTokenMiningDateAudited = u64;
+	// type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
+}
+
+impl mining_speed_boost_eligibility_hardware_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostEligibilityHardwareMiningIndex = u64;
+	type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility = u64;
+	type MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage = u32;
+	// type MiningSpeedBoostEligibilityHardwareMiningDateAudited = u64;
+	// type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
 }
 
 impl mining_speed_boost_rewards::Trait for Runtime {
@@ -513,7 +514,8 @@ construct_runtime!(
 		DataHighwayMiningSpeedBoostConfigurationHardwareMining: mining_speed_boost_configuration_hardware_mining::{Module, Call, Storage, Event<T>},
 		DataHighwayMiningSpeedBoostRatesTokenMining: mining_speed_boost_rates_token_mining::{Module, Call, Storage, Event<T>},
 		DataHighwayMiningSpeedBoostRatesHardwareMining: mining_speed_boost_rates_hardware_mining::{Module, Call, Storage, Event<T>},
-		DataHighwayMiningSpeedBoostEligibilities: mining_speed_boost_eligibilities::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostEligibilityTokenMining: mining_speed_boost_eligibility_token_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostEligibilityHardwareMining: mining_speed_boost_eligibility_hardware_mining::{Module, Call, Storage, Event<T>},
 		DataHighwayMiningSpeedBoostRewards: mining_speed_boost_rewards::{Module, Call, Storage, Event<T>},
 		RandomnessCollectiveFlip: randomness_collective_flip::{Module, Call, Storage},
 	}

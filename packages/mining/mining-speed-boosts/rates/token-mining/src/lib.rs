@@ -154,6 +154,14 @@ decl_module! {
                 None => 1.into() // Default
             };
 
+            // FIXME - how to use float and overcome error:
+            //  the trait `std::str::FromStr` is not implemented for `<T as Trait>::MiningSpeedBoostRatesTokenMiningMaxToken
+            // if token_token_mxc > "1.2".parse().unwrap() || token_token_iota > "1.2".parse().unwrap() || token_token_dot > "1.2".parse().unwrap() || token_max_token > "1.6".parse().unwrap() || token_max_loyalty > "1.2".parse().unwrap() {
+            //   debug::info!("Token rate cannot be this large");
+              
+            //   return Ok(());
+            // }
+
             // Check if a mining_speed_boost_rates_token_mining_rates_config already exists with the given mining_speed_boost_rates_token_mining_id
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_mining_speed_boost_rates_token_mining_rates_config_index(mining_speed_boost_rates_token_mining_id).is_ok() {

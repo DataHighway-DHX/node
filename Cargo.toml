@@ -128,6 +128,8 @@ members = [
   'packages/mining/mining-speed-boosts/rates/hardware-mining',
   'packages/mining/mining-speed-boosts/sampling/token-mining',
   'packages/mining/mining-speed-boosts/sampling/hardware-mining',
+  'packages/mining/mining-speed-boosts/eligibility/token-mining',
+  'packages/mining/mining-speed-boosts/eligibility/hardware-mining',
 ]
 [profile.release]
 panic = 'unwind'

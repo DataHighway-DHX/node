@@ -213,13 +213,30 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
     "hardware_sample_date": "Moment",
     "hardware_sample_hardware_online": "bool",
   },
-  "MiningSpeedBoostEligibility": "[u8; 16]",
-  "MiningSpeedBoostEligibilityIndex": "u64",
-  "MiningSpeedBoostEligibilityCalculated": "u64",
-  "MiningSpeedBoostEligibilityTokenLockedPercentage": "u32",
-  "MiningSpeedBoostEligibilityHardwareUptimePercentage": "u32",
-  "MiningSpeedBoostEligibilityDateAudited": "u64",
-  "MiningSpeedBoostEligibilityAuditorAccountID": "u64",
+  "MiningSpeedBoostEligibilityTokenMining": "[u8; 16]",
+  "MiningSpeedBoostEligibilityTokenMiningIndex": "u64",
+  "MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility": "u64",
+  "MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage": "u32",
+  "MiningSpeedBoostEligibilityTokenMiningDateAudited": "u64",
+  "MiningSpeedBoostEligibilityTokenMiningAuditorAccountID": "u64",
+  "MiningSpeedBoostEligibilityTokenMiningEligibilityResult": {
+    "token_calculated_eligibility": "u64",
+    "token_token_locked_percentage": "u32",
+    "token_date_audited": "u64",
+    "token_auditor_account_id": "u64",
+  },
+  "MiningSpeedBoostEligibilityHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostEligibilityHardwareMiningIndex": "u64",
+  "MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility": "u64",
+  "MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage": "u32",
+  "MiningSpeedBoostEligibilityHardwareMiningDateAudited": "u64",
+  "MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID": "u64",
+  "MiningSpeedBoostEligibilityHardwareMiningEligibilityResult": {
+    "hardware_calculated_eligibility": "u64",
+    "hardware_hardware_uptime_percentage": "u32",
+    "hardware_date_audited": "u64",
+    "hardware_auditor_account_id": "u64",
+  },
   "MiningSpeedBoostReward": "[u8; 16]",
   "MiningSpeedBoostRewardIndex": "u64",
   "MiningSpeedBoostRewardAmount": "u64",
@@ -273,7 +290,9 @@ cargo test -p mining-speed-boosts-configuration-hardware-mining &&
 cargo test -p mining-speed-boosts-rates-token-mining &&
 cargo test -p mining-speed-boosts-rates-hardware-mining &&
 cargo test -p mining-speed-boosts-sampling-token-mining &&
-cargo test -p mining-speed-boosts-sampling-hardware-mining
+cargo test -p mining-speed-boosts-sampling-hardware-mining &&
+cargo test -p mining-speed-boosts-eligibility-token-mining &&
+cargo test -p mining-speed-boosts-eligibility-hardware-mining
 ```
 
 ## Integration Tests
