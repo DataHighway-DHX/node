@@ -32,7 +32,7 @@ pub trait Trait: system::Trait +
 pub struct RoamingAgreementPolicy(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Debug, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq)]
 // Generic type parameters - Balance
 pub struct RoamingAgreementPolicyConfig<U, V> {
     pub policy_activation_type: U, // "passive" or "handover"

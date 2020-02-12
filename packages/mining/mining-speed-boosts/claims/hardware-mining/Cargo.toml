@@ -18,6 +18,8 @@ std = [
     'roaming-operators/std',
     'mining-speed-boosts-configuration-hardware-mining/std',
     'mining-speed-boosts-eligibility-hardware-mining/std',
+    'mining-speed-boosts-rates-hardware-mining/std',
+    'mining-speed-boosts-sampling-hardware-mining/std'
 ]
 
 [dependencies.rstd]
@@ -92,3 +94,13 @@ path = '../../../../mining/mining-speed-boosts/configuration/hardware-mining'
 default_features = false
 package = 'mining-speed-boosts-eligibility-hardware-mining'
 path = '../../../../mining/mining-speed-boosts/eligibility/hardware-mining'
+
+[dependencies.mining-speed-boosts-rates-hardware-mining]
+default_features = false
+package = 'mining-speed-boosts-rates-hardware-mining'
+path = '../../../../mining/mining-speed-boosts/rates/hardware-mining'
+
+[dependencies.mining-speed-boosts-sampling-hardware-mining]
+default_features = false
+package = 'mining-speed-boosts-sampling-hardware-mining'
+path = '../../../../mining/mining-speed-boosts/sampling/hardware-mining'

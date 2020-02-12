@@ -13,9 +13,17 @@ use rstd::prelude::*; // Imports Vec
 use roaming_operators;
 use mining_speed_boosts_configuration_hardware_mining;
 use mining_speed_boosts_eligibility_hardware_mining;
+use mining_speed_boosts_rates_hardware_mining;
+use mining_speed_boosts_sampling_hardware_mining;
 
 /// The module's trait.
-pub trait Trait: system::Trait + roaming_operators::Trait + mining_speed_boosts_configuration_hardware_mining::Trait + mining_speed_boosts_eligibility_hardware_mining::Trait {
+pub trait Trait: system::Trait +
+    roaming_operators::Trait +
+    mining_speed_boosts_configuration_hardware_mining::Trait +
+    mining_speed_boosts_eligibility_hardware_mining::Trait +
+    mining_speed_boosts_rates_hardware_mining::Trait +
+    mining_speed_boosts_sampling_hardware_mining::Trait
+{
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
     type MiningSpeedBoostClaimsHardwareMiningIndex: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
     type MiningSpeedBoostClaimsHardwareMiningClaimAmount: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
@@ -417,28 +425,43 @@ mod tests {
         type RoamingOperatorIndex = u64;
     }
     impl mining_speed_boosts_configuration_hardware_mining::Trait for Test {
-      type Event = ();
-      // FIXME - restore when stop temporarily using roaming-operators
-      // type Currency = Balances;
-      // type Randomness = RandomnessCollectiveFlip;
-      type MiningSpeedBoostConfigurationHardwareMiningIndex = u64;
-      // Mining Speed Boost Hardware Mining Config
-      type MiningSpeedBoostConfigurationHardwareMiningHardwareSecure = bool;
-      // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-      type MiningSpeedBoostConfigurationHardwareMiningHardwareType = Vec<u8>;
-      // type MiningSpeedBoostConfigurationHardwareMiningHardwareType = MiningSpeedBoostConfigurationHardwareMiningHardwareTypes;
-      type MiningSpeedBoostConfigurationHardwareMiningHardwareID = u64;
-      type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI = u64;
-      type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate = u64;
-      type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate = u64;
+        type Event = ();
+        // FIXME - restore when stop temporarily using roaming-operators
+        // type Currency = Balances;
+        // type Randomness = RandomnessCollectiveFlip;
+        type MiningSpeedBoostConfigurationHardwareMiningIndex = u64;
+        // Mining Speed Boost Hardware Mining Config
+        type MiningSpeedBoostConfigurationHardwareMiningHardwareSecure = bool;
+        // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
+        type MiningSpeedBoostConfigurationHardwareMiningHardwareType = Vec<u8>;
+        // type MiningSpeedBoostConfigurationHardwareMiningHardwareType = MiningSpeedBoostConfigurationHardwareMiningHardwareTypes;
+        type MiningSpeedBoostConfigurationHardwareMiningHardwareID = u64;
+        type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI = u64;
+        type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate = u64;
+        type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate = u64;
     }
     impl mining_speed_boosts_eligibility_hardware_mining::Trait for Test {
-      type Event = ();
-      type MiningSpeedBoostEligibilityHardwareMiningIndex = u64;
-      type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility = u64;
-      type MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage = u32;
-      // type MiningSpeedBoostEligibilityHardwareMiningDateAudited = u64;
-      // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
+        type Event = ();
+        type MiningSpeedBoostEligibilityHardwareMiningIndex = u64;
+        type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility = u64;
+        type MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage = u32;
+        // type MiningSpeedBoostEligibilityHardwareMiningDateAudited = u64;
+        // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
+    }
+    impl mining_speed_boosts_rates_hardware_mining::Trait for Test {
+        type Event = ();
+        type MiningSpeedBoostRatesHardwareMiningIndex = u64;
+        // Mining Speed Boost Rate
+        type MiningSpeedBoostRatesHardwareMiningHardwareSecure = u32;
+        type MiningSpeedBoostRatesHardwareMiningHardwareInsecure = u32;
+        // Mining Speed Boost Max Rates
+        type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
+    }
+    impl mining_speed_boosts_sampling_hardware_mining::Trait for Test {
+        type Event = ();
+        type MiningSpeedBoostSamplingHardwareMiningIndex = u64;
+        type MiningSpeedBoostSamplingHardwareMiningSampleDate = u64;
+        type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
     }
     impl Trait for Test {
         type Event = ();

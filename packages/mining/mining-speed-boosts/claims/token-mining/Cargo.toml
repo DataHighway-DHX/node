@@ -18,6 +18,8 @@ std = [
     'roaming-operators/std',
     'mining-speed-boosts-configuration-token-mining/std',
     'mining-speed-boosts-eligibility-token-mining/std',
+    'mining-speed-boosts-rates-token-mining/std',
+    'mining-speed-boosts-sampling-token-mining/std',
 ]
 
 [dependencies.rstd]
@@ -92,3 +94,13 @@ path = '../../../../mining/mining-speed-boosts/configuration/token-mining'
 default_features = false
 package = 'mining-speed-boosts-eligibility-token-mining'
 path = '../../../../mining/mining-speed-boosts/eligibility/token-mining'
+
+[dependencies.mining-speed-boosts-rates-token-mining]
+default_features = false
+package = 'mining-speed-boosts-rates-token-mining'
+path = '../../../../mining/mining-speed-boosts/rates/token-mining'
+
+[dependencies.mining-speed-boosts-sampling-token-mining]
+default_features = false
+package = 'mining-speed-boosts-sampling-token-mining'
+path = '../../../../mining/mining-speed-boosts/sampling/token-mining'
