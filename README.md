@@ -12,6 +12,7 @@ __WARNING__: This implementation is a proof-of-concept prototype and is not read
 * [Debugging](#chapter-93c645)
 * [Create custom blockchain configuration](#chapter-b1b53c)
 * [Run multiple node PoA testnet using custom blockchain configuration](#chapter-f21efd)
+* [Continuous integration](#chapter-27d8c5)
 
 Note: Generate a new chapter with `openssl rand -hex 3`
 
@@ -431,3 +432,11 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
 * Distribute the custom chain specification to allow others to synchronise and validate if they are an authority
 
 * Add session keys for other account(s) to be configured as authorities (validators)
+
+## Continuous integration<a id="chapter-27d8c5"></a>
+
+![](https://github.com/DataHighway-com/node/workflows/Lint/badge.svg?branch=master)
+
+![](https://github.com/DataHighway-com/node/workflows/Test/badge.svg?branch=master)
+
+* Reference: https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow
