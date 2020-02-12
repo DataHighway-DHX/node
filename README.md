@@ -240,7 +240,7 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
   "MiningSpeedBoostClaimsTokenMining": "[u8; 16]",
   "MiningSpeedBoostClaimsTokenMiningIndex": "u64",
   "MiningSpeedBoostClaimsTokenMiningClaimAmount": "u64",
-  "MiningSpeedBoostClaimsTokenMiningDateRedeemed": "u64",
+  "MiningSpeedBoostClaimsTokenMiningClaimDateRedeemed": "u64",
   "MiningSpeedBoostClaimsTokenMiningClaimResult": {
     "token_claim_amount": "u64",
     "token_date_redeemed": "u64",
@@ -248,7 +248,7 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
   "MiningSpeedBoostClaimsHardwareMining": "[u8; 16]",
   "MiningSpeedBoostClaimsHardwareMiningIndex": "u64",
   "MiningSpeedBoostClaimsHardwareMiningClaimAmount": "u64",
-  "MiningSpeedBoostClaimsHardwareMiningDateRedeemed": "u64",
+  "MiningSpeedBoostClaimsHardwareMiningClaimDateRedeemed": "u64",
   "MiningSpeedBoostClaimsHardwareMiningClaimResult": {
     "hardware_claim_amount": "u64",
     "hardware_date_redeemed": "u64",

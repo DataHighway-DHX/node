@@ -45,6 +45,12 @@ std = [
     'mining-speed-boosts-configuration-hardware-mining/std',
     'mining-speed-boosts-rates-token-mining/std',
     'mining-speed-boosts-rates-hardware-mining/std',
+    'mining-speed-boosts-sampling-token-mining/std',
+    'mining-speed-boosts-sampling-hardware-mining/std',
+    'mining-speed-boosts-eligibility-token-mining/std',
+    'mining-speed-boosts-eligibility-hardware-mining/std',
+    'mining-speed-boosts-claims-token-mining/std',
+    'mining-speed-boosts-claims-hardware-mining/std',
 ]
 
 [build-dependencies.wasm-builder-runner]
@@ -187,6 +193,36 @@ path = '../packages/mining/mining-speed-boosts/rates/token-mining'
 default_features = false
 package = 'mining-speed-boosts-rates-hardware-mining'
 path = '../packages/mining/mining-speed-boosts/rates/hardware-mining'
+
+[dependencies.mining-speed-boosts-sampling-token-mining]
+default_features = false
+package = 'mining-speed-boosts-sampling-token-mining'
+path = '../packages/mining/mining-speed-boosts/sampling/token-mining'
+
+[dependencies.mining-speed-boosts-sampling-hardware-mining]
+default_features = false
+package = 'mining-speed-boosts-sampling-hardware-mining'
+path = '../packages/mining/mining-speed-boosts/sampling/hardware-mining'
+
+[dependencies.mining-speed-boosts-eligibility-token-mining]
+default_features = false
+package = 'mining-speed-boosts-eligibility-token-mining'
+path = '../packages/mining/mining-speed-boosts/eligibility/token-mining'
+
+[dependencies.mining-speed-boosts-eligibility-hardware-mining]
+default_features = false
+package = 'mining-speed-boosts-eligibility-hardware-mining'
+path = '../packages/mining/mining-speed-boosts/eligibility/hardware-mining'
+
+[dependencies.mining-speed-boosts-claims-token-mining]
+default_features = false
+package = 'mining-speed-boosts-claims-token-mining'
+path = '../packages/mining/mining-speed-boosts/claims/token-mining'
+
+[dependencies.mining-speed-boosts-claims-hardware-mining]
+default_features = false
+package = 'mining-speed-boosts-claims-hardware-mining'
+path = '../packages/mining/mining-speed-boosts/claims/hardware-mining'
 
 [dependencies.aura-primitives]
 default_features = false

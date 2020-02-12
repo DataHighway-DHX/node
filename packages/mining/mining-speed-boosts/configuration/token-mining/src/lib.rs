@@ -112,9 +112,9 @@ decl_event!(
         <T as Trait>::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate,
         Balance = BalanceOf<T>,
     {
-        /// A mining_speed_boost_configuration_token_mining is created. (owner, mining_speed_boost_configuration_token_mining_id)
+        /// A mining_speed_boosts_configuration_token_mining is created. (owner, mining_speed_boosts_configuration_token_mining_id)
         Created(AccountId, MiningSpeedBoostConfigurationTokenMiningIndex),
-        /// A mining_speed_boost_configuration_token_mining is transferred. (from, to, mining_speed_boost_configuration_token_mining_id)
+        /// A mining_speed_boosts_configuration_token_mining is transferred. (from, to, mining_speed_boosts_configuration_token_mining_id)
         Transferred(AccountId, AccountId, MiningSpeedBoostConfigurationTokenMiningIndex),
         MiningSpeedBoostConfigurationTokenMiningTokenConfigSet(
             AccountId, MiningSpeedBoostConfigurationTokenMiningIndex, MiningSpeedBoostConfigurationTokenMiningTokenType, Balance,
@@ -136,33 +136,33 @@ decl_event!(
 // This module's storage items.
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostConfigurationTokenMining {
-        /// Stores all the mining_speed_boost_configuration_token_minings, key is the mining_speed_boost_configuration_token_mining id / index
-        pub MiningSpeedBoostConfigurationTokenMinings get(fn mining_speed_boost_configuration_token_mining): map T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<MiningSpeedBoostConfigurationTokenMining>;
+        /// Stores all the mining_speed_boosts_configuration_token_minings, key is the mining_speed_boosts_configuration_token_mining id / index
+        pub MiningSpeedBoostConfigurationTokenMinings get(fn mining_speed_boosts_configuration_token_mining): map T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<MiningSpeedBoostConfigurationTokenMining>;
 
-        /// Stores the total number of mining_speed_boost_configuration_token_minings. i.e. the next mining_speed_boost_configuration_token_mining index
-        pub MiningSpeedBoostConfigurationTokenMiningCount get(fn mining_speed_boost_configuration_token_mining_count): T::MiningSpeedBoostConfigurationTokenMiningIndex;
+        /// Stores the total number of mining_speed_boosts_configuration_token_minings. i.e. the next mining_speed_boosts_configuration_token_mining index
+        pub MiningSpeedBoostConfigurationTokenMiningCount get(fn mining_speed_boosts_configuration_token_mining_count): T::MiningSpeedBoostConfigurationTokenMiningIndex;
 
-        /// Stores mining_speed_boost_configuration_token_mining owner
-        pub MiningSpeedBoostConfigurationTokenMiningOwners get(fn mining_speed_boost_configuration_token_mining_owner): map T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<T::AccountId>;
+        /// Stores mining_speed_boosts_configuration_token_mining owner
+        pub MiningSpeedBoostConfigurationTokenMiningOwners get(fn mining_speed_boosts_configuration_token_mining_owner): map T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<T::AccountId>;
 
-        /// Stores mining_speed_boost_configuration_token_mining_token_config
-        pub MiningSpeedBoostConfigurationTokenMiningTokenConfigs get(fn mining_speed_boost_configuration_token_mining_token_configs): map T::MiningSpeedBoostConfigurationTokenMiningIndex =>
+        /// Stores mining_speed_boosts_configuration_token_mining_token_config
+        pub MiningSpeedBoostConfigurationTokenMiningTokenConfigs get(fn mining_speed_boosts_configuration_token_mining_token_configs): map T::MiningSpeedBoostConfigurationTokenMiningIndex =>
             Option<MiningSpeedBoostConfigurationTokenMiningTokenConfig<T::MiningSpeedBoostConfigurationTokenMiningTokenType, BalanceOf<T>, T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod,
                 T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate, T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate>>;
 
-        // /// Stores mining_speed_boost_random_samples
-        // pub MiningSpeedBoostSamples get(fn mining_speed_boost_random_sample): map (T::MiningSpeedBoostOracleIndex, T::MiningSpeedBoostSampleHash) =>
+        // /// Stores mining_speed_boosts_random_samples
+        // pub MiningSpeedBoostSamples get(fn mining_speed_boosts_random_sample): map (T::MiningSpeedBoostOracleIndex, T::MiningSpeedBoostSampleHash) =>
         //     Option<MiningSpeedBoostSample<T::MiningSpeedBoostSampleDate, T::MiningSpeedBoostSampleTokensLocked>>;
 
-        // /// Stores mining_speed_boost_random_eligibility
-        // pub MiningSpeedBoostEligibility get(fn mining_speed_boost_eligibility): map T::MiningSpeedBoostEligibilityTokenMiningIndex =>
+        // /// Stores mining_speed_boosts_random_eligibility
+        // pub MiningSpeedBoostEligibility get(fn mining_speed_boosts_eligibility): map T::MiningSpeedBoostEligibilityTokenMiningIndex =>
         //     Option<MiningSpeedBoostEligibilityResult<
         //         T::MiningSpeedBoostEligibilityCalculatedEligibility, T::MiningSpeedBoostEligibilityTokenLockedPercentage, T::MiningSpeedBoostEligibilityHardwareUptimePercentage
         //     >>;
         // }
 
-        // /// Stores mining_speed_boost_claim
-        // pub MiningSpeedBoostClaim get(fn mining_speed_boost_claim): map (T::MiningSpeedBoostClaimIndex, T::MiningSpeedBoostClaimHash) =>
+        // /// Stores mining_speed_boosts_claim
+        // pub MiningSpeedBoostClaim get(fn mining_speed_boosts_claim): map (T::MiningSpeedBoostClaimIndex, T::MiningSpeedBoostClaimHash) =>
         //     Option<MiningSpeedBoostClaim<
         //         T::MiningSpeedBoostClaimHash, T::MiningSpeedBoostClaimAmount, T::MiningSpeedBoostClaimDateRedeemed
         //     >>;
@@ -176,36 +176,36 @@ decl_module! {
     pub struct Module<T: Trait> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
-        /// Create a new mining mining_speed_boost_configuration_token_mining
+        /// Create a new mining mining_speed_boosts_configuration_token_mining
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
-            let mining_speed_boost_configuration_token_mining_id = Self::next_mining_speed_boost_configuration_token_mining_id()?;
+            let mining_speed_boosts_configuration_token_mining_id = Self::next_mining_speed_boosts_configuration_token_mining_id()?;
 
             // Generate a random 128bit value
             let unique_id = Self::random_value(&sender);
 
-            // Create and store mining_speed_boost_configuration_token_mining
-            let mining_speed_boost_configuration_token_mining = MiningSpeedBoostConfigurationTokenMining(unique_id);
-            Self::insert_mining_speed_boost_configuration_token_mining(&sender, mining_speed_boost_configuration_token_mining_id, mining_speed_boost_configuration_token_mining);
+            // Create and store mining_speed_boosts_configuration_token_mining
+            let mining_speed_boosts_configuration_token_mining = MiningSpeedBoostConfigurationTokenMining(unique_id);
+            Self::insert_mining_speed_boosts_configuration_token_mining(&sender, mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_configuration_token_mining);
 
-            Self::deposit_event(RawEvent::Created(sender, mining_speed_boost_configuration_token_mining_id));
+            Self::deposit_event(RawEvent::Created(sender, mining_speed_boosts_configuration_token_mining_id));
         }
 
-        /// Transfer a mining_speed_boost_configuration_token_mining to new owner
-        pub fn transfer(origin, to: T::AccountId, mining_speed_boost_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex) {
+        /// Transfer a mining_speed_boosts_configuration_token_mining to new owner
+        pub fn transfer(origin, to: T::AccountId, mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex) {
             let sender = ensure_signed(origin)?;
 
-            ensure!(Self::mining_speed_boost_configuration_token_mining_owner(mining_speed_boost_configuration_token_mining_id) == Some(sender.clone()), "Only owner can transfer mining mining_speed_boost_configuration_token_mining");
+            ensure!(Self::mining_speed_boosts_configuration_token_mining_owner(mining_speed_boosts_configuration_token_mining_id) == Some(sender.clone()), "Only owner can transfer mining mining_speed_boosts_configuration_token_mining");
 
-            Self::update_owner(&to, mining_speed_boost_configuration_token_mining_id);
+            Self::update_owner(&to, mining_speed_boosts_configuration_token_mining_id);
 
-            Self::deposit_event(RawEvent::Transferred(sender, to, mining_speed_boost_configuration_token_mining_id));
+            Self::deposit_event(RawEvent::Transferred(sender, to, mining_speed_boosts_configuration_token_mining_id));
         }
 
-        /// Set mining_speed_boost_configuration_token_mining_token_config
-        pub fn set_mining_speed_boost_configuration_token_mining_token_config(
+        /// Set mining_speed_boosts_configuration_token_mining_token_config
+        pub fn set_mining_speed_boosts_configuration_token_mining_token_config(
             origin,
-            mining_speed_boost_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
+            mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
             _token_type: Option<T::MiningSpeedBoostConfigurationTokenMiningTokenType>,
             _token_locked_amount: Option<BalanceOf<T>>,
             _token_lock_period: Option<T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod>,
@@ -214,12 +214,12 @@ decl_module! {
         ) {
             let sender = ensure_signed(origin)?;
 
-            // Ensure that the mining_speed_boost_configuration_token_mining_id whose config we want to change actually exists
-            let is_mining_speed_boost_configuration_token_mining = Self::exists_mining_speed_boost_configuration_token_mining(mining_speed_boost_configuration_token_mining_id).is_ok();
-            ensure!(is_mining_speed_boost_configuration_token_mining, "MiningSpeedBoostConfigurationTokenMining does not exist");
+            // Ensure that the mining_speed_boosts_configuration_token_mining_id whose config we want to change actually exists
+            let is_mining_speed_boosts_configuration_token_mining = Self::exists_mining_speed_boosts_configuration_token_mining(mining_speed_boosts_configuration_token_mining_id).is_ok();
+            ensure!(is_mining_speed_boosts_configuration_token_mining, "MiningSpeedBoostConfigurationTokenMining does not exist");
 
-            // Ensure that the caller is owner of the mining_speed_boost_configuration_token_mining_token_config they are trying to change
-            ensure!(Self::mining_speed_boost_configuration_token_mining_owner(mining_speed_boost_configuration_token_mining_id) == Some(sender.clone()), "Only owner can set mining_speed_boost_configuration_token_mining_token_config");
+            // Ensure that the caller is owner of the mining_speed_boosts_configuration_token_mining_token_config they are trying to change
+            ensure!(Self::mining_speed_boosts_configuration_token_mining_owner(mining_speed_boosts_configuration_token_mining_id) == Some(sender.clone()), "Only owner can set mining_speed_boosts_configuration_token_mining_token_config");
 
             let token_type = match _token_type.clone() {
                 Some(value) => value,
@@ -242,34 +242,34 @@ decl_module! {
                 None => Default::default() // Default
             };
 
-            // Check if a mining_speed_boost_configuration_token_mining_token_config already exists with the given mining_speed_boost_configuration_token_mining_id
+            // Check if a mining_speed_boosts_configuration_token_mining_token_config already exists with the given mining_speed_boosts_configuration_token_mining_id
             // to determine whether to insert new or mutate existing.
-            if Self::has_value_for_mining_speed_boost_configuration_token_mining_token_config_index(mining_speed_boost_configuration_token_mining_id).is_ok() {
+            if Self::has_value_for_mining_speed_boosts_configuration_token_mining_token_config_index(mining_speed_boosts_configuration_token_mining_id).is_ok() {
                 debug::info!("Mutating values");
-                <MiningSpeedBoostConfigurationTokenMiningTokenConfigs<T>>::mutate(mining_speed_boost_configuration_token_mining_id, |mining_speed_boost_configuration_token_mining_token_config| {
-                    if let Some(_mining_speed_boost_configuration_token_mining_token_config) = mining_speed_boost_configuration_token_mining_token_config {
+                <MiningSpeedBoostConfigurationTokenMiningTokenConfigs<T>>::mutate(mining_speed_boosts_configuration_token_mining_id, |mining_speed_boosts_configuration_token_mining_token_config| {
+                    if let Some(_mining_speed_boosts_configuration_token_mining_token_config) = mining_speed_boosts_configuration_token_mining_token_config {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-                        _mining_speed_boost_configuration_token_mining_token_config.token_type = token_type.clone();
-                        _mining_speed_boost_configuration_token_mining_token_config.token_locked_amount = token_locked_amount.clone();
-                        _mining_speed_boost_configuration_token_mining_token_config.token_lock_period = token_lock_period.clone();
-                        _mining_speed_boost_configuration_token_mining_token_config.token_lock_period_start_date = token_lock_period_start_date.clone();
-                        _mining_speed_boost_configuration_token_mining_token_config.token_lock_period_end_date = token_lock_period_end_date.clone();
+                        _mining_speed_boosts_configuration_token_mining_token_config.token_type = token_type.clone();
+                        _mining_speed_boosts_configuration_token_mining_token_config.token_locked_amount = token_locked_amount.clone();
+                        _mining_speed_boosts_configuration_token_mining_token_config.token_lock_period = token_lock_period.clone();
+                        _mining_speed_boosts_configuration_token_mining_token_config.token_lock_period_start_date = token_lock_period_start_date.clone();
+                        _mining_speed_boosts_configuration_token_mining_token_config.token_lock_period_end_date = token_lock_period_end_date.clone();
                     }
                 });
                 debug::info!("Checking mutated values");
-                let fetched_mining_speed_boost_configuration_token_mining_token_config = <MiningSpeedBoostConfigurationTokenMiningTokenConfigs<T>>::get(mining_speed_boost_configuration_token_mining_id);
-                if let Some(_mining_speed_boost_configuration_token_mining_token_config) = fetched_mining_speed_boost_configuration_token_mining_token_config {
-                    debug::info!("Latest field token_type {:#?}", _mining_speed_boost_configuration_token_mining_token_config.token_type);
-                    debug::info!("Latest field token_locked_amount {:#?}", _mining_speed_boost_configuration_token_mining_token_config.token_locked_amount);
-                    debug::info!("Latest field token_lock_period {:#?}", _mining_speed_boost_configuration_token_mining_token_config.token_lock_period);
-                    debug::info!("Latest field token_lock_period_start_date {:#?}", _mining_speed_boost_configuration_token_mining_token_config.token_lock_period_start_date);
-                    debug::info!("Latest field token_lock_period_end_date {:#?}", _mining_speed_boost_configuration_token_mining_token_config.token_lock_period_end_date);
+                let fetched_mining_speed_boosts_configuration_token_mining_token_config = <MiningSpeedBoostConfigurationTokenMiningTokenConfigs<T>>::get(mining_speed_boosts_configuration_token_mining_id);
+                if let Some(_mining_speed_boosts_configuration_token_mining_token_config) = fetched_mining_speed_boosts_configuration_token_mining_token_config {
+                    debug::info!("Latest field token_type {:#?}", _mining_speed_boosts_configuration_token_mining_token_config.token_type);
+                    debug::info!("Latest field token_locked_amount {:#?}", _mining_speed_boosts_configuration_token_mining_token_config.token_locked_amount);
+                    debug::info!("Latest field token_lock_period {:#?}", _mining_speed_boosts_configuration_token_mining_token_config.token_lock_period);
+                    debug::info!("Latest field token_lock_period_start_date {:#?}", _mining_speed_boosts_configuration_token_mining_token_config.token_lock_period_start_date);
+                    debug::info!("Latest field token_lock_period_end_date {:#?}", _mining_speed_boosts_configuration_token_mining_token_config.token_lock_period_end_date);
                 }
             } else {
                 debug::info!("Inserting values");
 
-                // Create a new mining mining_speed_boost_configuration_token_mining_token_config instance with the input params
-                let mining_speed_boost_configuration_token_mining_token_config_instance = MiningSpeedBoostConfigurationTokenMiningTokenConfig {
+                // Create a new mining mining_speed_boosts_configuration_token_mining_token_config instance with the input params
+                let mining_speed_boosts_configuration_token_mining_token_config_instance = MiningSpeedBoostConfigurationTokenMiningTokenConfig {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     token_type: token_type.clone(),
@@ -280,24 +280,24 @@ decl_module! {
                 };
 
                 <MiningSpeedBoostConfigurationTokenMiningTokenConfigs<T>>::insert(
-                    mining_speed_boost_configuration_token_mining_id,
-                    &mining_speed_boost_configuration_token_mining_token_config_instance
+                    mining_speed_boosts_configuration_token_mining_id,
+                    &mining_speed_boosts_configuration_token_mining_token_config_instance
                 );
 
                 debug::info!("Checking inserted values");
-                let fetched_mining_speed_boost_configuration_token_mining_token_config = <MiningSpeedBoostConfigurationTokenMiningTokenConfigs<T>>::get(mining_speed_boost_configuration_token_mining_id);
-                if let Some(_mining_speed_boost_configuration_token_mining_token_config) = fetched_mining_speed_boost_configuration_token_mining_token_config {
-                    debug::info!("Inserted field token_type {:#?}", _mining_speed_boost_configuration_token_mining_token_config.token_type);
-                    debug::info!("Inserted field token_locked_amount {:#?}", _mining_speed_boost_configuration_token_mining_token_config.token_locked_amount);
-                    debug::info!("Inserted field token_lock_period {:#?}", _mining_speed_boost_configuration_token_mining_token_config.token_lock_period);
-                    debug::info!("Inserted field token_lock_period_start_date {:#?}", _mining_speed_boost_configuration_token_mining_token_config.token_lock_period_start_date);
-                    debug::info!("Inserted field token_lock_period_end_date {:#?}", _mining_speed_boost_configuration_token_mining_token_config.token_lock_period_end_date);
+                let fetched_mining_speed_boosts_configuration_token_mining_token_config = <MiningSpeedBoostConfigurationTokenMiningTokenConfigs<T>>::get(mining_speed_boosts_configuration_token_mining_id);
+                if let Some(_mining_speed_boosts_configuration_token_mining_token_config) = fetched_mining_speed_boosts_configuration_token_mining_token_config {
+                    debug::info!("Inserted field token_type {:#?}", _mining_speed_boosts_configuration_token_mining_token_config.token_type);
+                    debug::info!("Inserted field token_locked_amount {:#?}", _mining_speed_boosts_configuration_token_mining_token_config.token_locked_amount);
+                    debug::info!("Inserted field token_lock_period {:#?}", _mining_speed_boosts_configuration_token_mining_token_config.token_lock_period);
+                    debug::info!("Inserted field token_lock_period_start_date {:#?}", _mining_speed_boosts_configuration_token_mining_token_config.token_lock_period_start_date);
+                    debug::info!("Inserted field token_lock_period_end_date {:#?}", _mining_speed_boosts_configuration_token_mining_token_config.token_lock_period_end_date);
                 }
             }
 
             Self::deposit_event(RawEvent::MiningSpeedBoostConfigurationTokenMiningTokenConfigSet(
                 sender,
-                mining_speed_boost_configuration_token_mining_id,
+                mining_speed_boosts_configuration_token_mining_id,
                 token_type,
                 token_locked_amount,
                 token_lock_period,
@@ -309,9 +309,9 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_mining_speed_boost_configuration_token_mining_owner(mining_speed_boost_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex, sender: T::AccountId) -> Result<(), &'static str> {
+	pub fn is_mining_speed_boosts_configuration_token_mining_owner(mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex, sender: T::AccountId) -> Result<(), &'static str> {
         ensure!(
-            Self::mining_speed_boost_configuration_token_mining_owner(&mining_speed_boost_configuration_token_mining_id)
+            Self::mining_speed_boosts_configuration_token_mining_owner(&mining_speed_boosts_configuration_token_mining_id)
                 .map(|owner| owner == sender)
                 .unwrap_or(false),
             "Sender is not owner of MiningSpeedBoost"
@@ -319,30 +319,30 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn exists_mining_speed_boost_configuration_token_mining(mining_speed_boost_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex) -> Result<MiningSpeedBoostConfigurationTokenMining, &'static str> {
-        match Self::mining_speed_boost_configuration_token_mining(mining_speed_boost_configuration_token_mining_id) {
+    pub fn exists_mining_speed_boosts_configuration_token_mining(mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex) -> Result<MiningSpeedBoostConfigurationTokenMining, &'static str> {
+        match Self::mining_speed_boosts_configuration_token_mining(mining_speed_boosts_configuration_token_mining_id) {
             Some(value) => Ok(value),
             None => Err("MiningSpeedBoostConfigurationTokenMining does not exist")
         }
     }
 
-    pub fn exists_mining_speed_boost_configuration_token_mining_token_config(mining_speed_boost_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex) -> Result<(), &'static str> {
-        match Self::mining_speed_boost_configuration_token_mining_token_configs(mining_speed_boost_configuration_token_mining_id) {
+    pub fn exists_mining_speed_boosts_configuration_token_mining_token_config(mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex) -> Result<(), &'static str> {
+        match Self::mining_speed_boosts_configuration_token_mining_token_configs(mining_speed_boosts_configuration_token_mining_id) {
             Some(value) => Ok(()),
             None => Err("MiningSpeedBoostConfigurationTokenMiningTokenConfig does not exist")
         }
     }
 
-    pub fn has_value_for_mining_speed_boost_configuration_token_mining_token_config_index(mining_speed_boost_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex)
+    pub fn has_value_for_mining_speed_boosts_configuration_token_mining_token_config_index(mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex)
         -> Result<(), &'static str> {
-        debug::info!("Checking if mining_speed_boost_configuration_token_mining_token_config has a value that is defined");
-        let fetched_mining_speed_boost_configuration_token_mining_token_config = <MiningSpeedBoostConfigurationTokenMiningTokenConfigs<T>>::get(mining_speed_boost_configuration_token_mining_id);
-        if let Some(value) = fetched_mining_speed_boost_configuration_token_mining_token_config {
-            debug::info!("Found value for mining_speed_boost_configuration_token_mining_token_config");
+        debug::info!("Checking if mining_speed_boosts_configuration_token_mining_token_config has a value that is defined");
+        let fetched_mining_speed_boosts_configuration_token_mining_token_config = <MiningSpeedBoostConfigurationTokenMiningTokenConfigs<T>>::get(mining_speed_boosts_configuration_token_mining_id);
+        if let Some(value) = fetched_mining_speed_boosts_configuration_token_mining_token_config {
+            debug::info!("Found value for mining_speed_boosts_configuration_token_mining_token_config");
             return Ok(());
         }
-        debug::info!("No value for mining_speed_boost_configuration_token_mining_token_config");
-        Err("No value for mining_speed_boost_configuration_token_mining_token_config")
+        debug::info!("No value for mining_speed_boosts_configuration_token_mining_token_config");
+        Err("No value for mining_speed_boosts_configuration_token_mining_token_config")
     }
 
     fn random_value(sender: &T::AccountId) -> [u8; 16] {
@@ -355,23 +355,23 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_mining_speed_boost_configuration_token_mining_id() -> Result<T::MiningSpeedBoostConfigurationTokenMiningIndex, &'static str> {
-        let mining_speed_boost_configuration_token_mining_id = Self::mining_speed_boost_configuration_token_mining_count();
-        if mining_speed_boost_configuration_token_mining_id == <T::MiningSpeedBoostConfigurationTokenMiningIndex as Bounded>::max_value() {
+    fn next_mining_speed_boosts_configuration_token_mining_id() -> Result<T::MiningSpeedBoostConfigurationTokenMiningIndex, &'static str> {
+        let mining_speed_boosts_configuration_token_mining_id = Self::mining_speed_boosts_configuration_token_mining_count();
+        if mining_speed_boosts_configuration_token_mining_id == <T::MiningSpeedBoostConfigurationTokenMiningIndex as Bounded>::max_value() {
             return Err("MiningSpeedBoostConfigurationTokenMining count overflow");
         }
-        Ok(mining_speed_boost_configuration_token_mining_id)
+        Ok(mining_speed_boosts_configuration_token_mining_id)
     }
 
-    fn insert_mining_speed_boost_configuration_token_mining(owner: &T::AccountId, mining_speed_boost_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex, mining_speed_boost_configuration_token_mining: MiningSpeedBoostConfigurationTokenMining) {
-        // Create and store mining mining_speed_boost_configuration_token_mining
-        <MiningSpeedBoostConfigurationTokenMinings<T>>::insert(mining_speed_boost_configuration_token_mining_id, mining_speed_boost_configuration_token_mining);
-        <MiningSpeedBoostConfigurationTokenMiningCount<T>>::put(mining_speed_boost_configuration_token_mining_id + One::one());
-        <MiningSpeedBoostConfigurationTokenMiningOwners<T>>::insert(mining_speed_boost_configuration_token_mining_id, owner.clone());
+    fn insert_mining_speed_boosts_configuration_token_mining(owner: &T::AccountId, mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex, mining_speed_boosts_configuration_token_mining: MiningSpeedBoostConfigurationTokenMining) {
+        // Create and store mining mining_speed_boosts_configuration_token_mining
+        <MiningSpeedBoostConfigurationTokenMinings<T>>::insert(mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_configuration_token_mining);
+        <MiningSpeedBoostConfigurationTokenMiningCount<T>>::put(mining_speed_boosts_configuration_token_mining_id + One::one());
+        <MiningSpeedBoostConfigurationTokenMiningOwners<T>>::insert(mining_speed_boosts_configuration_token_mining_id, owner.clone());
     }
 
-    fn update_owner(to: &T::AccountId, mining_speed_boost_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex) {
-        <MiningSpeedBoostConfigurationTokenMiningOwners<T>>::insert(mining_speed_boost_configuration_token_mining_id, to);
+    fn update_owner(to: &T::AccountId, mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex) {
+        <MiningSpeedBoostConfigurationTokenMiningOwners<T>>::insert(mining_speed_boosts_configuration_token_mining_id, to);
     }
 }
 
@@ -392,9 +392,6 @@ mod tests {
         pub enum Origin for Test {}
     }
 
-    // For testing the module, we construct most of a mock runtime. This means
-    // first constructing a configuration type (`Test`) which `impl`s each of the
-    // configuration traits of modules we want to use.
     #[derive(Clone, Eq, PartialEq)]
     pub struct Test;
     parameter_types! {
