@@ -154,9 +154,9 @@ decl_module! {
         //     ensure!(Self::mining_speed_boost_eligibility_token_mining_owner(mining_speed_boost_eligibility_token_mining_id) == Some(sender.clone()), "Only owner can set mining_speed_boost_eligibility_token_mining_result");
 
         //     let DEFAULT_RATE_CONFIG = 0; 
-        //     let mut token_calculated_eligibility = 0.into();
-        //     let mut part_token_calculated_eligibility = 0.into();
-        //     let mut token_token_locked_percentage = 0.into();
+        //     let mut eligibility_token_mining_calculated_eligibility = 0.into();
+        //     let mut part_eligibility_token_mining_calculated_eligibility = 0.into();
+        //     let mut eligibility_token_mining_token_locked_percentage = 0.into();
         //     let mut token_token_max_token = 0.into();
 
         //     let mut current_token_type;
@@ -207,9 +207,9 @@ decl_module! {
         //                         current_token_mining_rate = token_mining_rates_config.token_token_dot;
         //                       }
         //                       current_token_max_tokens = token_mining_rates_config.token_token_max_token;
-        //                       token_token_locked_percentage = current_token_mining_rate * (current_sample_tokens_locked / current_token_locked_amount);
+        //                       eligibility_token_mining_token_locked_percentage = current_token_mining_rate * (current_sample_tokens_locked / current_token_locked_amount);
                               
-        //                       part_token_calculated_eligibility = part_token_calculated_eligibility + token_token_locked_percentage * current_token_max_tokens;
+        //                       part_eligibility_token_mining_calculated_eligibility = part_eligibility_token_mining_calculated_eligibility + eligibility_token_mining_token_locked_percentage * current_token_max_tokens;
         //                     } else {
         //                       debug::info!("Token mining rate config missing");
         //                       break;
@@ -217,8 +217,8 @@ decl_module! {
         //                   }
         //                 }
         //               }
-        //               token_calculated_eligibility = part_token_calculated_eligibility / sample_count;
-        //               debug::info!("Calculate eligibilty based on average {:#?}", token_calculated_eligibility);
+        //               eligibility_token_mining_calculated_eligibility = part_eligibility_token_mining_calculated_eligibility / sample_count;
+        //               debug::info!("Calculate eligibilty based on average {:#?}", eligibility_token_mining_calculated_eligibility);
         //             }
         //           }
         //         }
@@ -232,19 +232,19 @@ decl_module! {
         //         <MiningSpeedBoostEligibilityTokenMiningResults<T>>::mutate((mining_speed_boost_configuration_token_mining_id, mining_speed_boost_eligibility_token_mining_id), |mining_speed_boost_eligibility_token_mining_result| {
         //             if let Some(_mining_speed_boost_eligibility_token_mining_result) = mining_speed_boost_eligibility_token_mining_result {
         //                 // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-        //                 _mining_speed_boost_eligibility_token_mining_result.token_calculated_eligibility = token_calculated_eligibility.clone();
-        //                 _mining_speed_boost_eligibility_token_mining_result.token_token_locked_percentage = token_token_locked_percentage.clone();
-        //                 // _mining_speed_boost_eligibility_token_mining_result.token_date_audited = token_date_audited.clone();
-        //                 // _mining_speed_boost_eligibility_token_mining_result.token_auditor_account_id = token_auditor_account_id.clone();
+        //                 _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_calculated_eligibility = eligibility_token_mining_calculated_eligibility.clone();
+        //                 _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_token_locked_percentage = eligibility_token_mining_token_locked_percentage.clone();
+        //                 // _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_date_audited = eligibility_token_mining_date_audited.clone();
+        //                 // _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_auditor_account_id = eligibility_token_mining_auditor_account_id.clone();
         //             }
         //         });
         //         debug::info!("Checking mutated values");
         //         let fetched_mining_speed_boost_eligibility_token_mining_result = <MiningSpeedBoostEligibilityTokenMiningResults<T>>::get((mining_speed_boost_configuration_token_mining_id, mining_speed_boost_eligibility_token_mining_id));
         //         if let Some(_mining_speed_boost_eligibility_token_mining_result) = fetched_mining_speed_boost_eligibility_token_mining_result {
-        //             debug::info!("Latest field token_calculated_eligibility {:#?}", _mining_speed_boost_eligibility_token_mining_result.token_calculated_eligibility);
-        //             debug::info!("Latest field token_token_locked_percentage {:#?}", _mining_speed_boost_eligibility_token_mining_result.token_token_locked_percentage);
-        //             // debug::info!("Latest field token_date_audited {:#?}", _mining_speed_boost_eligibility_token_mining_result.token_date_audited);
-        //             // debug::info!("Latest field token_auditor_account_id {:#?}", _mining_speed_boost_eligibility_token_mining_result.token_auditor_account_id);
+        //             debug::info!("Latest field eligibility_token_mining_calculated_eligibility {:#?}", _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_calculated_eligibility);
+        //             debug::info!("Latest field eligibility_token_mining_token_locked_percentage {:#?}", _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_token_locked_percentage);
+        //             // debug::info!("Latest field eligibility_token_mining_date_audited {:#?}", _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_date_audited);
+        //             // debug::info!("Latest field eligibility_token_mining_auditor_account_id {:#?}", _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_auditor_account_id);
         //         }
         //     } else {
         //         debug::info!("Inserting values");
@@ -253,10 +253,10 @@ decl_module! {
         //         let mining_speed_boost_eligibility_token_mining_result_instance = MiningSpeedBoostEligibilityTokenMiningResult {
         //             // Since each parameter passed into the function is optional (i.e. `Option`)
         //             // we will assign a default value if a parameter value is not provided.
-        //             token_calculated_eligibility: token_calculated_eligibility.clone(),
-        //             token_token_locked_percentage: token_token_locked_percentage.clone(),
-        //             // token_date_audited: token_date_audited.clone(),
-        //             // token_auditor_account_id: token_auditor_account_id.clone(),
+        //             eligibility_token_mining_calculated_eligibility: eligibility_token_mining_calculated_eligibility.clone(),
+        //             eligibility_token_mining_token_locked_percentage: eligibility_token_mining_token_locked_percentage.clone(),
+        //             // eligibility_token_mining_date_audited: eligibility_token_mining_date_audited.clone(),
+        //             // eligibility_token_mining_auditor_account_id: eligibility_token_mining_auditor_account_id.clone(),
         //         };
 
         //         <MiningSpeedBoostEligibilityTokenMiningResults<T>>::insert(
@@ -267,10 +267,10 @@ decl_module! {
         //         debug::info!("Checking inserted values");
         //         let fetched_mining_speed_boost_eligibility_token_mining_result = <MiningSpeedBoostEligibilityTokenMiningResults<T>>::get((mining_speed_boost_configuration_token_mining_id, mining_speed_boost_eligibility_token_mining_id));
         //         if let Some(_mining_speed_boost_eligibility_token_mining_result) = fetched_mining_speed_boost_eligibility_token_mining_result {
-        //             debug::info!("Inserted field token_calculated_eligibility {:#?}", _mining_speed_boost_eligibility_token_mining_result.token_calculated_eligibility);
-        //             debug::info!("Inserted field token_token_locked_percentage {:#?}", _mining_speed_boost_eligibility_token_mining_result.token_token_locked_percentage);
-        //             // debug::info!("Inserted field token_date_audited {:#?}", _mining_speed_boost_eligibility_token_mining_result.token_date_audited);
-        //             // debug::info!("Inserted field token_auditor_account_id {:#?}", _mining_speed_boost_eligibility_token_mining_result.token_auditor_account_id);
+        //             debug::info!("Inserted field eligibility_token_mining_calculated_eligibility {:#?}", _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_calculated_eligibility);
+        //             debug::info!("Inserted field eligibility_token_mining_token_locked_percentage {:#?}", _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_token_locked_percentage);
+        //             // debug::info!("Inserted field eligibility_token_mining_date_audited {:#?}", _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_date_audited);
+        //             // debug::info!("Inserted field eligibility_token_mining_auditor_account_id {:#?}", _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_auditor_account_id);
         //         }
         //     }
 
@@ -278,109 +278,110 @@ decl_module! {
         //       sender,
         //       mining_speed_boost_configuration_token_mining_id,
         //       mining_speed_boost_eligibility_token_mining_id,
-        //       token_calculated_eligibility,
-        //       token_token_locked_percentage,
-        //       // token_date_audited,
-        //       // token_auditor_account_id
+        //       eligibility_token_mining_calculated_eligibility,
+        //       eligibility_token_mining_token_locked_percentage,
+        //       // eligibility_token_mining_date_audited,
+        //       // eligibility_token_mining_auditor_account_id
         //     ));
         // }
 
-        // /// Set mining_speed_boost_eligibility_token_mining_result
-        // pub fn set_mining_speed_boost_eligibility_token_mining_result(
-        //     origin,
-        //     mining_speed_boost_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
-        //     mining_speed_boost_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
-        //     _token_calculated_eligibility: Option<T::MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility>,
-        //     _token_token_locked_percentage: Option<T::MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage>,
-        //     _token_date_audited: Option<T::MiningSpeedBoostEligibilityTokenMiningDateAudited>,
-        //     _token_auditor_account_id: Option<T::MiningSpeedBoostEligibilityTokenMiningAuditorAccountID>,
-        // ) {
-        //     let sender = ensure_signed(origin)?;
+        /// Set mining_speed_boost_eligibility_token_mining_result
+        pub fn set_mining_speed_boost_eligibility_token_mining_result(
+            origin,
+            mining_speed_boost_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
+            mining_speed_boost_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
+            _eligibility_token_mining_calculated_eligibility: Option<T::MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility>,
+            _eligibility_token_mining_token_locked_percentage: Option<T::MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage>,
+            // _eligibility_token_mining_date_audited: Option<T::MiningSpeedBoostEligibilityTokenMiningDateAudited>,
+            // _eligibility_token_mining_auditor_account_id: Option<T::MiningSpeedBoostEligibilityTokenMiningAuditorAccountID>,
+        ) {
+            let sender = ensure_signed(origin)?;
 
-        //     // Ensure that the mining_speed_boost_eligibility_token_mining_id whose config we want to change actually exists
-        //     let is_mining_speed_boost_eligibility_token_mining = Self::exists_mining_speed_boost_eligibility_token_mining(mining_speed_boost_eligibility_token_mining_id).is_ok();
-        //     ensure!(is_mining_speed_boost_eligibility_token_mining, "MiningSpeedBoostEligibilityTokenMining does not exist");
+            // Ensure that the mining_speed_boost_eligibility_token_mining_id whose config we want to change actually exists
+            let is_mining_speed_boost_eligibility_token_mining = Self::exists_mining_speed_boost_eligibility_token_mining(mining_speed_boost_eligibility_token_mining_id).is_ok();
+            ensure!(is_mining_speed_boost_eligibility_token_mining, "MiningSpeedBoostEligibilityTokenMining does not exist");
 
-        //     // Ensure that the caller is owner of the mining_speed_boost_eligibility_token_mining_result they are trying to change
-        //     ensure!(Self::mining_speed_boost_eligibility_token_mining_owner(mining_speed_boost_eligibility_token_mining_id) == Some(sender.clone()), "Only owner can set mining_speed_boost_eligibility_token_mining_result");
+            // Ensure that the caller is owner of the mining_speed_boost_eligibility_token_mining_result they are trying to change
+            ensure!(Self::mining_speed_boost_eligibility_token_mining_owner(mining_speed_boost_eligibility_token_mining_id) == Some(sender.clone()), "Only owner can set mining_speed_boost_eligibility_token_mining_result");
 
-        //     // TODO - adjust default eligibilitys
-        //     let token_calculated_eligibility = match _token_calculated_eligibility.clone() {
-        //         Some(value) => value,
-        //         None => 1.into() // Default
-        //     };
-        //     let token_token_locked_percentage = match _token_token_locked_percentage {
-        //         Some(value) => value,
-        //         None => 1.into() // Default
-        //     };
-        //     let token_date_audited = match _token_date_audited {
-        //       Some(value) => value,
-        //       None => 1.into() // Default
-        //     };
-        //     let token_auditor_account_id = match _token_auditor_account_id {
-        //       Some(value) => value,
-        //       None => 1.into() // Default
-        //     };
+            // TODO - adjust default eligibilitys
+            let eligibility_token_mining_calculated_eligibility = match _eligibility_token_mining_calculated_eligibility.clone() {
+                Some(value) => value,
+                None => 1.into() // Default
+            };
+            let eligibility_token_mining_token_locked_percentage = match _eligibility_token_mining_token_locked_percentage {
+                Some(value) => value,
+                None => 1.into() // Default
+            };
+            // let eligibility_token_mining_date_audited = match _eligibility_token_mining_date_audited {
+            //   Some(value) => value,
+            //   None => 1.into() // Default
+            // };
+            // let eligibility_token_mining_auditor_account_id = match _eligibility_token_mining_auditor_account_id {
+            //   Some(value) => value,
+            //   None => 1.into() // Default
+            // };
 
-        //     // Check if a mining_speed_boost_eligibility_token_mining_result already exists with the given mining_speed_boost_eligibility_token_mining_id
-        //     // to determine whether to insert new or mutate existing.
-        //     if Self::has_value_for_mining_speed_boost_eligibility_token_mining_result_index(mining_speed_boost_configuration_token_mining_id, mining_speed_boost_eligibility_token_mining_id).is_ok() {
-        //         debug::info!("Mutating values");
-        //         <MiningSpeedBoostEligibilityTokenMiningResults<T>>::mutate((mining_speed_boost_configuration_token_mining_id, mining_speed_boost_eligibility_token_mining_id), |mining_speed_boost_eligibility_token_mining_result| {
-        //             if let Some(_mining_speed_boost_eligibility_token_mining_result) = mining_speed_boost_eligibility_token_mining_result {
-        //                 // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-        //                 _mining_speed_boost_eligibility_token_mining_result.token_calculated_eligibility = token_calculated_eligibility.clone();
-        //                 _mining_speed_boost_eligibility_token_mining_result.token_token_locked_percentage = token_token_locked_percentage.clone();
-        //                 _mining_speed_boost_eligibility_token_mining_result.token_date_audited = token_date_audited.clone();
-        //                 _mining_speed_boost_eligibility_token_mining_result.token_auditor_account_id = token_auditor_account_id.clone();
-        //             }
-        //         });
-        //         debug::info!("Checking mutated values");
-        //         let fetched_mining_speed_boost_eligibility_token_mining_result = <MiningSpeedBoostEligibilityTokenMiningResults<T>>::get((mining_speed_boost_configuration_token_mining_id, mining_speed_boost_eligibility_token_mining_id));
-        //         if let Some(_mining_speed_boost_eligibility_token_mining_result) = fetched_mining_speed_boost_eligibility_token_mining_result {
-        //             debug::info!("Latest field token_calculated_eligibility {:#?}", _mining_speed_boost_eligibility_token_mining_result.token_calculated_eligibility);
-        //             debug::info!("Latest field token_token_locked_percentage {:#?}", _mining_speed_boost_eligibility_token_mining_result.token_token_locked_percentage);
-        //             debug::info!("Latest field token_date_audited {:#?}", _mining_speed_boost_eligibility_token_mining_result.token_date_audited);
-        //             debug::info!("Latest field token_auditor_account_id {:#?}", _mining_speed_boost_eligibility_token_mining_result.token_auditor_account_id);
-        //         }
-        //     } else {
-        //         debug::info!("Inserting values");
+            // Check if a mining_speed_boost_eligibility_token_mining_result already exists with the given mining_speed_boost_eligibility_token_mining_id
+            // to determine whether to insert new or mutate existing.
+            if Self::has_value_for_mining_speed_boost_eligibility_token_mining_result_index(mining_speed_boost_configuration_token_mining_id, mining_speed_boost_eligibility_token_mining_id).is_ok() {
+                debug::info!("Mutating values");
+                <MiningSpeedBoostEligibilityTokenMiningResults<T>>::mutate((mining_speed_boost_configuration_token_mining_id, mining_speed_boost_eligibility_token_mining_id), |mining_speed_boost_eligibility_token_mining_result| {
+                    if let Some(_mining_speed_boost_eligibility_token_mining_result) = mining_speed_boost_eligibility_token_mining_result {
+                        // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
+                        _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_calculated_eligibility = eligibility_token_mining_calculated_eligibility.clone();
+                        _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_token_locked_percentage = eligibility_token_mining_token_locked_percentage.clone();
+                        // _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_date_audited = eligibility_token_mining_date_audited.clone();
+                        // _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_auditor_account_id = eligibility_token_mining_auditor_account_id.clone();
+                    }
+                });
 
-        //         // Create a new mining mining_speed_boost_eligibility_token_mining_result instance with the input params
-        //         let mining_speed_boost_eligibility_token_mining_result_instance = MiningSpeedBoostEligibilityTokenMiningResult {
-        //             // Since each parameter passed into the function is optional (i.e. `Option`)
-        //             // we will assign a default value if a parameter value is not provided.
-        //             token_calculated_eligibility: token_calculated_eligibility.clone(),
-        //             token_token_locked_percentage: token_token_locked_percentage.clone(),
-        //             token_date_audited: token_date_audited.clone(),
-        //             token_auditor_account_id: token_auditor_account_id.clone(),
-        //         };
+                debug::info!("Checking mutated values");
+                let fetched_mining_speed_boost_eligibility_token_mining_result = <MiningSpeedBoostEligibilityTokenMiningResults<T>>::get((mining_speed_boost_configuration_token_mining_id, mining_speed_boost_eligibility_token_mining_id));
+                if let Some(_mining_speed_boost_eligibility_token_mining_result) = fetched_mining_speed_boost_eligibility_token_mining_result {
+                    debug::info!("Latest field eligibility_token_mining_calculated_eligibility {:#?}", _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_calculated_eligibility);
+                    debug::info!("Latest field eligibility_token_mining_token_locked_percentage {:#?}", _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_token_locked_percentage);
+                    // debug::info!("Latest field eligibility_token_mining_date_audited {:#?}", _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_date_audited);
+                    // debug::info!("Latest field eligibility_token_mining_auditor_account_id {:#?}", _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_auditor_account_id);
+                }
+            } else {
+                debug::info!("Inserting values");
 
-        //         <MiningSpeedBoostEligibilityTokenMiningResults<T>>::insert(
-        //             (mining_speed_boost_configuration_token_mining_id, mining_speed_boost_eligibility_token_mining_id),
-        //             &mining_speed_boost_eligibility_token_mining_result_instance
-        //         );
+                // Create a new mining mining_speed_boost_eligibility_token_mining_result instance with the input params
+                let mining_speed_boost_eligibility_token_mining_result_instance = MiningSpeedBoostEligibilityTokenMiningResult {
+                    // Since each parameter passed into the function is optional (i.e. `Option`)
+                    // we will assign a default value if a parameter value is not provided.
+                    eligibility_token_mining_calculated_eligibility: eligibility_token_mining_calculated_eligibility.clone(),
+                    eligibility_token_mining_token_locked_percentage: eligibility_token_mining_token_locked_percentage.clone(),
+                    // eligibility_token_mining_date_audited: eligibility_token_mining_date_audited.clone(),
+                    // eligibility_token_mining_auditor_account_id: eligibility_token_mining_auditor_account_id.clone(),
+                };
 
-        //         debug::info!("Checking inserted values");
-        //         let fetched_mining_speed_boost_eligibility_token_mining_result = <MiningSpeedBoostEligibilityTokenMiningResults<T>>::get((mining_speed_boost_configuration_token_mining_id, mining_speed_boost_eligibility_token_mining_id));
-        //         if let Some(_mining_speed_boost_eligibility_token_mining_result) = fetched_mining_speed_boost_eligibility_token_mining_result {
-        //             debug::info!("Inserted field token_calculated_eligibility {:#?}", _mining_speed_boost_eligibility_token_mining_result.token_calculated_eligibility);
-        //             debug::info!("Inserted field token_token_locked_percentage {:#?}", _mining_speed_boost_eligibility_token_mining_result.token_token_locked_percentage);
-        //             debug::info!("Inserted field token_date_audited {:#?}", _mining_speed_boost_eligibility_token_mining_result.token_date_audited);
-        //             debug::info!("Inserted field token_auditor_account_id {:#?}", _mining_speed_boost_eligibility_token_mining_result.token_auditor_account_id);
-        //         }
-        //     }
+                <MiningSpeedBoostEligibilityTokenMiningResults<T>>::insert(
+                    (mining_speed_boost_configuration_token_mining_id, mining_speed_boost_eligibility_token_mining_id),
+                    &mining_speed_boost_eligibility_token_mining_result_instance
+                );
 
-        //     Self::deposit_event(RawEvent::MiningSpeedBoostEligibilityTokenMiningResultSet(
-        //         sender,
-        //         mining_speed_boost_configuration_token_mining_id,
-        //         mining_speed_boost_eligibility_token_mining_id,
-        //         token_calculated_eligibility,
-        //         token_token_locked_percentage,
-        //         token_date_audited,
-        //         token_auditor_account_id
-        //     ));
-        // }
+                debug::info!("Checking inserted values");
+                let fetched_mining_speed_boost_eligibility_token_mining_result = <MiningSpeedBoostEligibilityTokenMiningResults<T>>::get((mining_speed_boost_configuration_token_mining_id, mining_speed_boost_eligibility_token_mining_id));
+                if let Some(_mining_speed_boost_eligibility_token_mining_result) = fetched_mining_speed_boost_eligibility_token_mining_result {
+                    debug::info!("Inserted field eligibility_token_mining_calculated_eligibility {:#?}", _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_calculated_eligibility);
+                    debug::info!("Inserted field eligibility_token_mining_token_locked_percentage {:#?}", _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_token_locked_percentage);
+                    // debug::info!("Inserted field eligibility_token_mining_date_audited {:#?}", _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_date_audited);
+                    // debug::info!("Inserted field eligibility_token_mining_auditor_account_id {:#?}", _mining_speed_boost_eligibility_token_mining_result.eligibility_token_mining_auditor_account_id);
+                }
+            }
+
+            Self::deposit_event(RawEvent::MiningSpeedBoostEligibilityTokenMiningResultSet(
+                sender,
+                mining_speed_boost_configuration_token_mining_id,
+                mining_speed_boost_eligibility_token_mining_id,
+                eligibility_token_mining_calculated_eligibility,
+                eligibility_token_mining_token_locked_percentage,
+                // eligibility_token_mining_date_audited,
+                // eligibility_token_mining_auditor_account_id
+            ));
+        }
 
         pub fn assign_eligibility_to_configuration(
           origin,

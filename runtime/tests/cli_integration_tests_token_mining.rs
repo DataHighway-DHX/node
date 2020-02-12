@@ -326,27 +326,27 @@ mod tests {
             //   )
             // ))
 
-            // // Override by DAO if necessary
-            // assert_ok!(
-            //   MiningSpeedBoostEligibilityTokenMiningTestModule::set_mining_speed_boost_eligibility_token_mining_eligibility_results(
-            //     Origin::signed(0),
-            //     0, // mining_speed_boost_configuration_token_mining_id
-            //     0, // mining_speed_boost_eligibility_token_mining_id
-            //     1.1, // mining_speed_boost_eligibility_calculated_eligibility
-            //     0.7, // mining_speed_boost_eligibility_token_locked_percentage
-            //     123, // mining_speed_boost_eligibility_date_audited
-            //     123, // mining_speed_boost_eligibility_auditor_account_id
-            //     Some({
-            //       MiningSpeedBoostEligibilityTokenMiningEligibilityResult {
-            //         eligibility_calculated_eligibility: 1.1
-            //         // to determine eligibility for proportion (incase user hardware is not online around during the whole lock period)
-            //         eligibility_token_locked_percentage: 0.7, // i.e. 70%
-            //         eligibility_date_audited: 123,
-            //         eligibility_auditor_account_id: 123
-            //       }
-            //     }),
-            //   )
-            // );
+            // Override by DAO if necessary
+            assert_ok!(
+              MiningSpeedBoostEligibilityTokenMiningTestModule::set_mining_speed_boost_eligibility_token_mining_eligibility_results(
+                Origin::signed(0),
+                0, // mining_speed_boost_configuration_token_mining_id
+                0, // mining_speed_boost_eligibility_token_mining_id
+                1, // mining_speed_boost_eligibility_calculated_eligibility
+                1, // mining_speed_boost_eligibility_token_locked_percentage
+                // 123, // mining_speed_boost_eligibility_date_audited
+                // 123, // mining_speed_boost_eligibility_auditor_account_id
+                Some({
+                  MiningSpeedBoostEligibilityTokenMiningEligibilityResult {
+                    eligibility_calculated_eligibility: 1, // i.e. 1.1
+                    // to determine eligibility for proportion (incase user hardware is not online around during the whole lock period)
+                    eligibility_token_locked_percentage: 1, // i.e. 0.7 for 70%
+                    // eligibility_date_audited: 123,
+                    // eligibility_auditor_account_id: 123
+                  }
+                }),
+              )
+            );
             assert_ok!(MiningSpeedBoostEligibilityTokenMiningTestModule::assign_eligibility_to_configuration(Origin::signed(0), 0, 0));
 
             // Verify Storage
