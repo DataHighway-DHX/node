@@ -19,8 +19,13 @@ case $TARGET in
 	"native")
 
 		sudo apt-get -y update
-		sudo apt-get install -y cmake libclang-dev
-		./scripts/init.sh
+		sudo apt-get install -y cmake libclang-dev pkg-config libssl-dev libsecp256k1-dev
+	  rustup toolchain install stable
+    rustup toolchain install nightly
+  	./scripts/init.sh
+    rustup set profile default
+    rustup update
+    cargo update
     cargo build --release &&
     cargo test -p node-runtime &&
     cargo test -p roaming-operators &&
