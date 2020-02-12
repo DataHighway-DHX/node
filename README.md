@@ -1,4 +1,4 @@
-# Data Highway
+# Data Highway [![GitHub license](https://img.shields.io/github/license/paritytech/substrate)](LICENSE) [![Build Status](https://travis-ci.org/DataHighway-com/node.svg?branch=master)](https://travis-ci.org/DataHighway-com/node)
 
 The Data Highway Substrate-based blockchain node.
 
