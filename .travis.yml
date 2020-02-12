@@ -1,21 +1,53 @@
 language: rust
-branches:
-  only:
-    - master
-    - os: linux
-      rust: stable
+cache: cargo
+env: # required for allow_failures
+rust:
+  - stable
+  - beta
+  - nightly
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: NAME='cargo-travis'
+  include:
+    - rust: stable
       before_script:
         - rustup component add rustfmt
-        - sudo apt-get -y update
-        - sudo apt-get install -y cmake libclang-dev pkg-config libssl-dev
-        - rustup toolchain install stable
-        - rustup toolchain install nightly
-        - rustup target add wasm32-unknown-unknown --toolchain nightly
-        - rustup component add rustfmt
-        - rustup set profile default
-        - rustup update
-        - cargo update
-script:
-  - cargo fmt -- --check || true
-  - cargo build --all
-  - cargo test -p node-runtime
+        - rustup component add clippy
+      script:
+        - cargo fmt -- --check
+        - cargo clippy -- -D clippy
+    - env: NAME='cargo-travis'
+      sudo: required # travis-ci/travis-ci#9061
+      before_script:
+        - cargo install cargo-update || echo "cargo-update already installed"
+        - cargo install cargo-travis || echo "cargo-travis already installed"
+        - cargo install-update -a
+      script:
+        - |
+          cargo build    --verbose &&
+          cargo coverage --verbose &&
+          bash <(curl -s https://codecov.io/bash) -s target/kcov
+        - |
+          cargo doc --verbose &&
+          cargo doc-upload
+      addons: # required for kcov
+        apt:
+          packages:
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+            - binutils-dev
+            - cmake
+
+script: |
+  cargo build --verbose &&
+  cargo test  --verbose &&
+  cargo doc   --verbose
+
+branches:
+  only:
+    - staging # bors r+
+    - trying  # bors try
+    - master
