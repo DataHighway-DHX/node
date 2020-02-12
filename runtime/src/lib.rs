@@ -472,12 +472,12 @@ impl mining_speed_boost_eligibility_hardware_mining::Trait for Runtime {
 	// type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
 }
 
-impl mining_speed_boost_rewards::Trait for Runtime {
+impl mining_speed_boost_claims::Trait for Runtime {
 	type Event = Event;
-	type MiningSpeedBoostRewardsIndex = u64;
+	type MiningSpeedBoostClaimsIndex = u64;
 	// Mining Speed Boost Reward
-	type MiningSpeedBoostRewardAmount = u64;
-	type MiningSpeedBoostRewardDateRedeemed = u64;
+	type MiningSpeedBoostClaimAmount = u64;
+	type MiningSpeedBoostClaimDateRedeemed = u64;
 }
 
 construct_runtime!(
@@ -516,7 +516,7 @@ construct_runtime!(
 		DataHighwayMiningSpeedBoostRatesHardwareMining: mining_speed_boost_rates_hardware_mining::{Module, Call, Storage, Event<T>},
 		DataHighwayMiningSpeedBoostEligibilityTokenMining: mining_speed_boost_eligibility_token_mining::{Module, Call, Storage, Event<T>},
 		DataHighwayMiningSpeedBoostEligibilityHardwareMining: mining_speed_boost_eligibility_hardware_mining::{Module, Call, Storage, Event<T>},
-		DataHighwayMiningSpeedBoostRewards: mining_speed_boost_rewards::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostClaims: mining_speed_boost_claims::{Module, Call, Storage, Event<T>},
 		RandomnessCollectiveFlip: randomness_collective_flip::{Module, Call, Storage},
 	}
 );

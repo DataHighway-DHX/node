@@ -24,8 +24,8 @@ pub trait Trait: system::Trait + roaming_operators::Trait {
     type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
     type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
     // // Mining Speed Boost Reward
-    // type MiningSpeedBoostRewardAmount: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    // type MiningSpeedBoostRewardDateRedeemed: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostClaimAmount: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostClaimDateRedeemed: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
 }
 
 type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as system::Trait>::AccountId>>::Balance;
@@ -94,7 +94,7 @@ pub struct MiningSpeedBoostConfigurationHardwareMiningHardwareConfig<U, V, W, X,
 
 // #[cfg_attr(feature = "std", derive(Debug))]
 // #[derive(Encode, Decode, Default, Clone, PartialEq)]
-// pub struct MiningSpeedBoostReward<U, V> {
+// pub struct MiningSpeedBoostClaim<U, V> {
 //     pub reward_amount: U,
 //     pub reward_date_redeemed: V,
 // }
@@ -128,7 +128,7 @@ decl_event!(
         //     AccountId, MiningSpeedBoostEligibilityHardwareMiningIndex, MiningSpeedBoostEligibilityCalculatedEligibility 
         // ),
         // RewardSet(
-        //     AccountId, MiningSpeedBoostRewardIndex, MiningSpeedBoostRewardHash, MiningSpeedBoostRewardAmount, MiningSpeedBoostRewardDateRedeemed
+        //     AccountId, MiningSpeedBoostClaimIndex, MiningSpeedBoostClaimHash, MiningSpeedBoostClaimAmount, MiningSpeedBoostClaimDateRedeemed
         // )
     }
 );
@@ -163,10 +163,10 @@ decl_storage! {
         //     >>;
         // }
 
-        // /// Stores mining_speed_boost_reward
-        // pub MiningSpeedBoostReward get(fn mining_speed_boost_reward): map (T::MiningSpeedBoostRewardIndex, T::MiningSpeedBoostRewardHash) =>
-        //     Option<MiningSpeedBoostReward<
-        //         T::MiningSpeedBoostRewardHash, T::MiningSpeedBoostRewardAmount, T::MiningSpeedBoostRewardDateRedeemed
+        // /// Stores mining_speed_boost_claim
+        // pub MiningSpeedBoostClaim get(fn mining_speed_boost_claim): map (T::MiningSpeedBoostClaimIndex, T::MiningSpeedBoostClaimHash) =>
+        //     Option<MiningSpeedBoostClaim<
+        //         T::MiningSpeedBoostClaimHash, T::MiningSpeedBoostClaimAmount, T::MiningSpeedBoostClaimDateRedeemed
         //     >>;
         // }
     }

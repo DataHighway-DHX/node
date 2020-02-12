@@ -39,10 +39,10 @@ mod tests {
         MiningSpeedBoostEligibilityHardwareMining,
         Trait as MiningSpeedBoostEligibilityHardwareMiningTrait,
     };
-    // use mining_speed_boost_rewards::{
-    //     Module as MiningSpeedBoostRewardsModule,
-    //     MiningSpeedBoostReward,
-    //     Trait as MiningSpeedBoostRewardsTrait,
+    // use mining_speed_boost_claims::{
+    //     Module as MiningSpeedBoostClaimsModule,
+    //     MiningSpeedBoostClaim,
+    //     Trait as MiningSpeedBoostClaimsTrait,
     // };
 
     impl_outer_origin! {
@@ -143,12 +143,12 @@ mod tests {
         type MiningSpeedBoostEligibilityHardwareMiningDateAudited = u64;
         type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
     }
-    // impl MiningSpeedBoostRewardsTrait for Test {
+    // impl MiningSpeedBoostClaimsTrait for Test {
     //     type Event = ();
-    //     type MiningSpeedBoostRewardsIndex = u64;
+    //     type MiningSpeedBoostClaimsIndex = u64;
     //     // Mining Speed Boost Reward
-    //     type MiningSpeedBoostRewardAmount = u64;
-    //     type MiningSpeedBoostRewardDateRedeemed = u64;
+    //     type MiningSpeedBoostClaimAmount = u64;
+    //     type MiningSpeedBoostClaimDateRedeemed = u64;
     // }   
 
     //type System = system::Module<Test>;
@@ -157,7 +157,7 @@ mod tests {
     type MiningSpeedBoostRatesHardwareMiningTestModule = MiningSpeedBoostRatesHardwareMiningModule<Test>;
     type MiningSpeedBoostSamplingHardwareMiningTestModule = MiningSpeedBoostSamplingHardwareMiningModule<Test>;
     // type MiningSpeedBoostEligibilityTestModule = MiningSpeedBoostEligibilityModule<Test>;
-    // type MiningSpeedBoostRewardsTestModule = MiningSpeedBoostRewardsModule<Test>;
+    // type MiningSpeedBoostClaimsTestModule = MiningSpeedBoostClaimsModule<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
@@ -287,44 +287,44 @@ mod tests {
             // Create Mining Speed Boost Eligibility Hardware Mining
 
             // Call Functions
-            assert_eq!(
-                MiningSpeedBoostEligibilityTestModule::calculate_mining_speed_boost_eligibility_hardware_mining_result(
-                    Origin::signed(0),
-                    0, // mining_speed_boost_configuration_hardware_mining_id
-                    0, // mining_speed_boost_eligibility_hardware_mining_id
-                ),
-                Some(
-                    MiningSpeedBoostEligibilityHardwareMiningEligibilityResult {
-                        eligibility_calculated_eligibility: 1.1
-                        // to determine eligibility for proportion (incase user moves funds around during lock period)
-                        eligibility_hardware_uptime_percentage: 0.3,
-                        // eligibility_date_audited: 123,
-                        // eligibility_auditor_account_id: 123
-                    }
-                )
-            ))
-
-            // // Override by DAO if necessary
-            // assert_ok!(
-            //     MiningSpeedBoostEligibilityHardwareMiningTestModule::set_mining_speed_boost_eligibility_hardware_mining_eligibility_results(
+            // assert_eq!(
+            //     MiningSpeedBoostEligibilityTestModule::calculate_mining_speed_boost_eligibility_hardware_mining_result(
             //         Origin::signed(0),
             //         0, // mining_speed_boost_configuration_hardware_mining_id
             //         0, // mining_speed_boost_eligibility_hardware_mining_id
-            //         1.1, // mining_speed_boost_eligibility_calculated_eligibility
-            //         0.7, // mining_speed_boost_eligibility_hardware_uptime_percentage
-            //         123, // mining_speed_boost_eligibility_date_audited
-            //         123, // mining_speed_boost_eligibility_auditor_account_id
-            //         Some({
-            //             MiningSpeedBoostEligibilityHardwareMiningEligibilityResult {
-            //                 eligibility_calculated_eligibility: 1.1
-            //                 // to determine eligibility for proportion (incase user moves funds around during lock period)
-            //                 eligibility_hardware_uptime_percentage: 0.3,
-            //                 eligibility_date_audited: 123,
-            //                 eligibility_auditor_account_id: 123
-            //             }
-            //         }),
+            //     ),
+            //     Some(
+            //         MiningSpeedBoostEligibilityHardwareMiningEligibilityResult {
+            //             eligibility_calculated_eligibility: 1.1
+            //             // to determine eligibility for proportion (incase user moves funds around during lock period)
+            //             eligibility_hardware_uptime_percentage: 0.3,
+            //             // eligibility_date_audited: 123,
+            //             // eligibility_auditor_account_id: 123
+            //         }
             //     )
-            // );
+            // ))
+
+            // Override by DAO if necessary
+            assert_ok!(
+                MiningSpeedBoostEligibilityHardwareMiningTestModule::set_mining_speed_boost_eligibility_hardware_mining_eligibility_results(
+                    Origin::signed(0),
+                    0, // mining_speed_boost_configuration_hardware_mining_id
+                    0, // mining_speed_boost_eligibility_hardware_mining_id
+                    1, // mining_speed_boost_eligibility_calculated_eligibility
+                    1, // mining_speed_boost_eligibility_hardware_uptime_percentage
+                    // 123, // mining_speed_boost_eligibility_date_audited
+                    // 123, // mining_speed_boost_eligibility_auditor_account_id
+                    Some({
+                        MiningSpeedBoostEligibilityHardwareMiningEligibilityResult {
+                            eligibility_calculated_eligibility: 1
+                            // to determine eligibility for proportion (incase user moves funds around during lock period)
+                            eligibility_hardware_uptime_percentage: 1,
+                            // eligibility_date_audited: 123,
+                            // eligibility_auditor_account_id: 123
+                        }
+                    }),
+                )
+            );
             assert_ok!(MiningSpeedBoostEligibilityHardwareMiningTestModule::assign_eligibility_to_configuration(Origin::signed(0), 0, 0));
   
             // Verify Storage
@@ -345,13 +345,13 @@ mod tests {
             // // Rewards
 
             // assert_ok!(
-            //     MiningSpeedBoostRewardsTestModule::reward(
+            //     MiningSpeedBoostClaimsTestModule::reward(
             //         Origin:signed(0),
             //         0,
             //         12345, // token_lock_period_start_date
             //         23456, // token_lock_period_end_date
             //     ),
-            //     Some(MiningSpeedBoostReward {
+            //     Some(MiningSpeedBoostClaim {
             //         reward_hash: Some(22222), // reward_hash
             //         reward_amount: 1.1,
             //         reward_date_redeemed: 34567,

@@ -237,10 +237,10 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
     "hardware_date_audited": "u64",
     "hardware_auditor_account_id": "u64",
   },
-  "MiningSpeedBoostReward": "[u8; 16]",
-  "MiningSpeedBoostRewardIndex": "u64",
-  "MiningSpeedBoostRewardAmount": "u64",
-  "MiningSpeedBoostRewardDateRedeemed": "u64",
+  "MiningSpeedBoostClaim": "[u8; 16]",
+  "MiningSpeedBoostClaimIndex": "u64",
+  "MiningSpeedBoostClaimAmount": "u64",
+  "MiningSpeedBoostClaimDateRedeemed": "u64",
 }
 ```
 
@@ -292,7 +292,9 @@ cargo test -p mining-speed-boosts-rates-hardware-mining &&
 cargo test -p mining-speed-boosts-sampling-token-mining &&
 cargo test -p mining-speed-boosts-sampling-hardware-mining &&
 cargo test -p mining-speed-boosts-eligibility-token-mining &&
-cargo test -p mining-speed-boosts-eligibility-hardware-mining
+cargo test -p mining-speed-boosts-eligibility-hardware-mining &&
+cargo test -p mining-speed-boosts-claims-token-mining &&
+cargo test -p mining-speed-boosts-claims-hardware-mining
 ```
 
 ## Integration Tests

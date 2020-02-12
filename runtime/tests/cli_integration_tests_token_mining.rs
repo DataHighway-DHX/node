@@ -22,7 +22,7 @@ mod tests {
         MiningSpeedBoostConfigurationTokenMining,
         MiningSpeedBoostConfigurationTokenMiningTokenConfig,
         // MiningSpeedBoostConfigurationTokenMiningTokenTypes,
-        MiningSpeedBoostReward,
+        MiningSpeedBoostClaim,
         Trait as MiningSpeedBoostConfigurationTokenMiningTrait,
     };
     use mining_speed_boost_rates_token_mining::{
@@ -40,10 +40,10 @@ mod tests {
         MiningSpeedBoostEligibilityTokenMining,
         Trait as MiningSpeedBoostEligibilityTokenMiningTrait,
     };
-    // use mining_speed_boost_rewards::{
-    //     Module as MiningSpeedBoostRewardsModule,
-    //     MiningSpeedBoostReward,
-    //     Trait as MiningSpeedBoostRewardsTrait,
+    // use mining_speed_boost_claims::{
+    //     Module as MiningSpeedBoostClaimsModule,
+    //     MiningSpeedBoostClaim,
+    //     Trait as MiningSpeedBoostClaimsTrait,
     // };
 
     impl_outer_origin! {
@@ -145,12 +145,12 @@ mod tests {
         // type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
     }
 
-    // impl MiningSpeedBoostRewardsTrait for Test {
+    // impl MiningSpeedBoostClaimsTrait for Test {
     //     type Event = ();
-    //     type MiningSpeedBoostRewardsIndex = u64;
+    //     type MiningSpeedBoostClaimsIndex = u64;
     //     // Mining Speed Boost Reward
-    //     type MiningSpeedBoostRewardAmount = u64;
-    //     type MiningSpeedBoostRewardDateRedeemed = u64;
+    //     type MiningSpeedBoostClaimAmount = u64;
+    //     type MiningSpeedBoostClaimDateRedeemed = u64;
     // }   
 
     //type System = system::Module<Test>;
@@ -159,7 +159,7 @@ mod tests {
     type MiningSpeedBoostRatesTokenMiningTestModule = MiningSpeedBoostRatesTokenMiningModule<Test>;
     type MiningSpeedBoostSamplingTokenMiningTestModule = MiningSpeedBoostSamplingTokenMiningModule<Test>;
     // type MiningSpeedBoostEligibilityTestModule = MiningSpeedBoostEligibilityModule<Test>;
-    // type MiningSpeedBoostRewardsTestModule = MiningSpeedBoostRewardsModule<Test>;
+    // type MiningSpeedBoostClaimsTestModule = MiningSpeedBoostClaimsModule<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
@@ -367,13 +367,13 @@ mod tests {
             // // Rewards
 
             // assert_ok!(
-            //     MiningSpeedBoostRewardsTestModule::reward(
+            //     MiningSpeedBoostClaimsTestModule::reward(
             //         Origin:signed(0),
             //         0,
             //         12345, // token_lock_period_start_date
             //         23456, // token_lock_period_end_date
             //     ),
-            //     Some(MiningSpeedBoostReward {
+            //     Some(MiningSpeedBoostClaim {
             //         reward_hash: Some(22222), // reward_hash
             //         reward_amount: 1.1,
             //         reward_date_redeemed: 34567,
