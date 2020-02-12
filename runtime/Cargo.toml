@@ -40,7 +40,17 @@ std = [
     'roaming-sessions/std',
     'roaming-billing-policies/std',
     'roaming-charging-policies/std',
-    'roaming-packet-bundles/std'
+    'roaming-packet-bundles/std',
+    'mining-speed-boosts-configuration-token-mining/std',
+    'mining-speed-boosts-configuration-hardware-mining/std',
+    'mining-speed-boosts-rates-token-mining/std',
+    'mining-speed-boosts-rates-hardware-mining/std',
+    'mining-speed-boosts-sampling-token-mining/std',
+    'mining-speed-boosts-sampling-hardware-mining/std',
+    'mining-speed-boosts-eligibility-token-mining/std',
+    'mining-speed-boosts-eligibility-hardware-mining/std',
+    'mining-speed-boosts-claims-token-mining/std',
+    'mining-speed-boosts-claims-hardware-mining/std',
 ]
 
 [build-dependencies.wasm-builder-runner]
@@ -163,6 +173,56 @@ path = '../packages/roaming/roaming-charging-policies'
 default_features = false
 package = 'roaming-packet-bundles'
 path = '../packages/roaming/roaming-packet-bundles'
+
+[dependencies.mining-speed-boosts-configuration-token-mining]
+default_features = false
+package = 'mining-speed-boosts-configuration-token-mining'
+path = '../packages/mining/mining-speed-boosts/configuration/token-mining'
+
+[dependencies.mining-speed-boosts-configuration-hardware-mining]
+default_features = false
+package = 'mining-speed-boosts-configuration-hardware-mining'
+path = '../packages/mining/mining-speed-boosts/configuration/hardware-mining'
+
+[dependencies.mining-speed-boosts-rates-token-mining]
+default_features = false
+package = 'mining-speed-boosts-rates-token-mining'
+path = '../packages/mining/mining-speed-boosts/rates/token-mining'
+
+[dependencies.mining-speed-boosts-rates-hardware-mining]
+default_features = false
+package = 'mining-speed-boosts-rates-hardware-mining'
+path = '../packages/mining/mining-speed-boosts/rates/hardware-mining'
+
+[dependencies.mining-speed-boosts-sampling-token-mining]
+default_features = false
+package = 'mining-speed-boosts-sampling-token-mining'
+path = '../packages/mining/mining-speed-boosts/sampling/token-mining'
+
+[dependencies.mining-speed-boosts-sampling-hardware-mining]
+default_features = false
+package = 'mining-speed-boosts-sampling-hardware-mining'
+path = '../packages/mining/mining-speed-boosts/sampling/hardware-mining'
+
+[dependencies.mining-speed-boosts-eligibility-token-mining]
+default_features = false
+package = 'mining-speed-boosts-eligibility-token-mining'
+path = '../packages/mining/mining-speed-boosts/eligibility/token-mining'
+
+[dependencies.mining-speed-boosts-eligibility-hardware-mining]
+default_features = false
+package = 'mining-speed-boosts-eligibility-hardware-mining'
+path = '../packages/mining/mining-speed-boosts/eligibility/hardware-mining'
+
+[dependencies.mining-speed-boosts-claims-token-mining]
+default_features = false
+package = 'mining-speed-boosts-claims-token-mining'
+path = '../packages/mining/mining-speed-boosts/claims/token-mining'
+
+[dependencies.mining-speed-boosts-claims-hardware-mining]
+default_features = false
+package = 'mining-speed-boosts-claims-hardware-mining'
+path = '../packages/mining/mining-speed-boosts/claims/hardware-mining'
 
 [dependencies.aura-primitives]
 default_features = false

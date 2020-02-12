@@ -32,7 +32,7 @@ pub trait Trait: system::Trait +
 pub struct RoamingAgreementPolicy(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Debug, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq)]
 // Generic type parameters - Balance
 pub struct RoamingAgreementPolicyConfig<U, V> {
     pub policy_activation_type: U, // "passive" or "handover"
@@ -433,9 +433,6 @@ mod tests {
         pub enum Origin for Test {}
     }
 
-    // For testing the module, we construct most of a mock runtime. This means
-    // first constructing a configuration type (`Test`) which `impl`s each of the
-    // configuration traits of modules we want to use.
     #[derive(Clone, Eq, PartialEq)]
     pub struct Test;
     parameter_types! {

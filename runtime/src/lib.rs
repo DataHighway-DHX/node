@@ -26,6 +26,7 @@ use tx_pool_api; // txpool
 use version::RuntimeVersion;
 #[cfg(feature = "std")]
 use version::NativeVersion;
+// use std::str::FromStr;
 
 // A few exports that help ease life for downstream crates.
 #[cfg(any(feature = "std", test))]
@@ -114,6 +115,50 @@ pub const DAYS: BlockNumber = HOURS * 24;
 
 // 1 in 4 blocks (on average, not counting collisions) will be primary babe blocks.
 pub const PRIMARY_PROBABILITY: (u64, u64) = (1, 4);
+
+// FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
+
+// /// Mining Speed Boost Token Types
+// #[derive(Debug, Clone, PartialEq)]
+// pub enum MiningSpeedBoostConfigurationTokenMiningTokenTypes {
+// 	MXC,
+// 	IOTA,
+// 	DOT
+// }
+
+// impl FromStr for MiningSpeedBoostConfigurationTokenMiningTokenTypes {
+// 	type Err = String;
+// 	fn from_str(mining_speed_boosts_configuration_token_mining_token_type: &str) -> Result<Self, Self::Err> {
+// 		match mining_speed_boosts_configuration_hardware_mining_hardware_type {
+// 			"MXC" => Ok(MiningSpeedBoostConfigurationTokenMiningTokenTypes::MXC),
+// 			"IOTA" => Ok(MiningSpeedBoostConfigurationTokenMiningTokenTypes::IOTA),
+// 			"DOT" => Ok(MiningSpeedBoostConfigurationTokenMiningTokenTypes::DOT),
+// 			_ => Err(format!("Invalid mining_speed_boosts_configuration_token_mining_token_type: {}", mining_speed_boosts_configuration_token_mining_token_type)),
+// 		}
+// 	}
+// }
+
+// /// Mining Speed Boost Hardware Types
+// #[derive(Debug, Clone, PartialEq)]
+// pub enum MiningSpeedBoostConfigurationHardwareMiningHardwareTypes {
+// 	EndDevice,
+// 	Gateway,
+// 	Supernode,
+// 	Collator
+// }
+
+// impl FromStr for MiningSpeedBoostConfigurationHardwareMiningHardwareTypes {
+// 	type Err = String;
+// 	fn from_str(mining_speed_boosts_configuration_hardware_mining_hardware_type: &str) -> Result<Self, Self::Err> {
+// 		match mining_speed_boosts_configuration_hardware_mining_hardware_type {
+// 			"EndDevice" => Ok(MiningSpeedBoostConfigurationHardwareMiningHardwareTypes::EndDevice),
+// 			"Gateway" => Ok(MiningSpeedBoostConfigurationHardwareMiningHardwareTypes::Gateway),
+// 			"Supernode" => Ok(MiningSpeedBoostConfigurationHardwareMiningHardwareTypes::Supernode),
+// 			"Collator" => Ok(MiningSpeedBoostConfigurationHardwareMiningHardwareTypes::Collator),
+// 			_ => Err(format!("Invalid mining_speed_boosts_configuration_hardware_mining_hardware_type: {}", mining_speed_boosts_configuration_hardware_mining_hardware_type)),
+// 		}
+// 	}
+// }
 
 /// The version infromation used to identify this runtime when compiled natively.
 #[cfg(feature = "std")]
@@ -340,6 +385,107 @@ impl roaming_packet_bundles::Trait for Runtime {
 	type RoamingPacketBundleExternalDataStorageHash = Hash;
 }
 
+impl mining_speed_boosts_configuration_token_mining::Trait for Runtime {
+	type Event = Event;
+	// FIXME - restore when stop temporarily using roaming-operators
+	// type Currency = Balances;
+	// type Randomness = RandomnessCollectiveFlip;
+	type MiningSpeedBoostConfigurationTokenMiningIndex = u64;
+	// Mining Speed Boost Token Mining Config
+	// FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
+	type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
+	// type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
+	type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
+	type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
+	type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
+	type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
+}
+
+impl mining_speed_boosts_configuration_hardware_mining::Trait for Runtime {
+	type Event = Event;
+	// FIXME - restore when stop temporarily using roaming-operators
+	// type Currency = Balances;
+	// type Randomness = RandomnessCollectiveFlip;
+	type MiningSpeedBoostConfigurationHardwareMiningIndex = u64;
+	// Mining Speed Boost Hardware Mining Config
+	type MiningSpeedBoostConfigurationHardwareMiningHardwareSecure = bool;
+	// FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
+	type MiningSpeedBoostConfigurationHardwareMiningHardwareType = Vec<u8>;
+	// type MiningSpeedBoostConfigurationHardwareMiningHardwareType = MiningSpeedBoostConfigurationHardwareMiningHardwareTypes;
+	type MiningSpeedBoostConfigurationHardwareMiningHardwareID = u64;
+	type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI = u64;
+	type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate = u64;
+	type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate = u64;
+}
+
+impl mining_speed_boosts_rates_token_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostRatesTokenMiningIndex = u64;
+	// Mining Speed Boost Rate
+	type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
+	type MiningSpeedBoostRatesTokenMiningTokenIOTA = u32;
+	type MiningSpeedBoostRatesTokenMiningTokenDOT = u32;
+	// Mining Speed Boost Max Rates
+	type MiningSpeedBoostRatesTokenMiningMaxToken = u32;
+	type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
+}
+
+impl mining_speed_boosts_rates_hardware_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostRatesHardwareMiningIndex = u64;
+	// Mining Speed Boost Rate
+	type MiningSpeedBoostRatesHardwareMiningHardwareSecure = u32;
+	type MiningSpeedBoostRatesHardwareMiningHardwareInsecure = u32;
+	// Mining Speed Boost Max Rates
+	type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
+}
+
+impl mining_speed_boosts_sampling_token_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostSamplingTokenMiningIndex = u64;
+	type MiningSpeedBoostSamplingTokenMiningSampleDate = u64;
+	type MiningSpeedBoostSamplingTokenMiningSampleTokensLocked = u64;
+}
+
+impl mining_speed_boosts_sampling_hardware_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostSamplingHardwareMiningIndex = u64;
+	type MiningSpeedBoostSamplingHardwareMiningSampleDate = u64;
+	type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
+}
+
+impl mining_speed_boosts_eligibility_token_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
+	type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility = u64;
+	type MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage = u32;
+	// type MiningSpeedBoostEligibilityTokenMiningDateAudited = u64;
+	// type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
+}
+
+impl mining_speed_boosts_eligibility_hardware_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostEligibilityHardwareMiningIndex = u64;
+	type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility = u64;
+	type MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage = u32;
+	// type MiningSpeedBoostEligibilityHardwareMiningDateAudited = u64;
+	// type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
+}
+
+impl mining_speed_boosts_claims_token_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostClaimsTokenMiningIndex = u64;
+	type MiningSpeedBoostClaimsTokenMiningClaimAmount = u64;
+	type MiningSpeedBoostClaimsTokenMiningClaimDateRedeemed = u64;
+}
+
+impl mining_speed_boosts_claims_hardware_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostClaimsHardwareMiningIndex = u64;
+	type MiningSpeedBoostClaimsHardwareMiningClaimAmount = u64;
+	type MiningSpeedBoostClaimsHardwareMiningClaimDateRedeemed = u64;
+}
+
 construct_runtime!(
 	pub enum Runtime where
 		Block = Block,
@@ -370,6 +516,16 @@ construct_runtime!(
 		DataHighwayRoamingBillingPolicies: roaming_billing_policies::{Module, Call, Storage, Event<T>},
 		DataHighwayRoamingChargingPolicies: roaming_charging_policies::{Module, Call, Storage, Event<T>},
 		DataHighwayRoamingPacketBundles: roaming_packet_bundles::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostConfigurationTokenMining: mining_speed_boosts_configuration_token_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostConfigurationHardwareMining: mining_speed_boosts_configuration_hardware_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostRatesTokenMining: mining_speed_boosts_rates_token_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostRatesHardwareMining: mining_speed_boosts_rates_hardware_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostSamplingTokenMining: mining_speed_boosts_sampling_token_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostSamplingHardwareMining: mining_speed_boosts_sampling_hardware_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostEligibilityTokenMining: mining_speed_boosts_eligibility_token_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostEligibilityHardwareMining: mining_speed_boosts_eligibility_hardware_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostClaimsTokenMining: mining_speed_boosts_claims_token_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostClaimsHardwareMining: mining_speed_boosts_claims_hardware_mining::{Module, Call, Storage, Event<T>},
 		RandomnessCollectiveFlip: randomness_collective_flip::{Module, Call, Storage},
 	}
 );
