@@ -28,6 +28,6 @@ script:
     cargo fmt -- --check;
     fi
   - cargo check --all --tests
-  - cargo check --all --benches
+#  - cargo check --all --benches
   - cargo build --all
   - cargo test -p node-runtime
