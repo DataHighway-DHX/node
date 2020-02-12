@@ -9,7 +9,7 @@ matrix:
       before_script:
         - rustup component add rustfmt
         - sudo apt-get -y update
-        - sudo apt-get install -y cmake libclang-dev pkg-config libssl-dev libsecp256k1-dev
+        - sudo apt-get install -y cmake libclang-dev pkg-config libssl-dev
         - rustup toolchain install stable
         - rustup update
         - cargo update
