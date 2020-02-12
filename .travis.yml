@@ -1,0 +1,33 @@
+language: rust
+branches:
+  only:
+    - master
+matrix:
+  include:
+    - os: linux
+      rust: stable
+      before_script:
+        - rustup component add rustfmt
+        - sudo apt-get -y update
+        - sudo apt-get install -y cmake libclang-dev pkg-config libssl-dev libsecp256k1-dev
+        - rustup toolchain install stable
+        - rustup update
+        - cargo update
+    - os: linux
+      rust: nightly
+      before_script:
+        - rustup toolchain install nightly
+        - cargo check --all --benches
+        - rustup target add wasm32-unknown-unknown --toolchain nightly
+        - rustup update
+        - cargo update
+  allow_failures:
+    - rust: nightly
+script:
+  - if [ "$TRAVIS_RUST_VERSION" == "stable" ] && [ "$TRAVIS_OS_NAME" == "linux" ]; then
+    cargo fmt -- --check;
+    fi
+  - cargo check --all --tests
+  - cargo check --all --benches
+  - cargo build --all
+  - cargo test -p node-runtime
