@@ -16,7 +16,6 @@ jobs:
           rustup toolchain update --no-self-update stable
           rustup default stable
           rustup component add clippy rustfmt
-          cargo update
 
       - name: Run rustfmt
         run: cargo fmt -- --check
@@ -48,7 +47,11 @@ jobs:
           rustup default stable
 
       - name: Build rustwide
-        run: cargo build --all ${{ matrix.cargo_flags }}
+        run: 
+          cargo update
+          cargo build --all ${{ matrix.cargo_flags }}
 
       - name: Test rustwide
-        run: cargo test --all ${{ matrix.cargo_flags }} -- ${{ matrix.test_flags }}
+        run: 
+          cargo update
+          cargo test --all ${{ matrix.cargo_flags }} -- ${{ matrix.test_flags }}
