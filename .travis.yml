@@ -9,10 +9,13 @@ branches:
         - sudo apt-get -y update
         - sudo apt-get install -y cmake libclang-dev pkg-config libssl-dev
         - rustup toolchain install stable
+        - rustup toolchain install nightly
+        - rustup target add wasm32-unknown-unknown --toolchain nightly
+        - rustup component add rustfmt
+        - rustup set profile default
         - rustup update
         - cargo update
 script:
-  - cargo fmt -- --check
-  - cargo check --all --tests
+  - cargo fmt -- --check || true
   - cargo build --all
   - cargo test -p node-runtime
