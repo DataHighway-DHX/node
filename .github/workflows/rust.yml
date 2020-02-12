@@ -16,12 +16,13 @@ jobs:
           rustup toolchain update --no-self-update stable
           rustup default stable
           rustup component add clippy rustfmt
+          cargo update
 
       - name: Run rustfmt
         run: cargo fmt -- --check
 
       - name: Run clippy
-        run: cargo clippy --all --all-features -- -Dwarnings
+        run: cargo clippy --all --all-features --
 
   test:
     name: Test
