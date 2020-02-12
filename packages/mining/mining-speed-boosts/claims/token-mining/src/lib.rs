@@ -12,9 +12,10 @@ use rstd::prelude::*; // Imports Vec
 // FIXME - remove this, only used this approach since do not know how to use BalanceOf using only mining-speed-boosts runtime module
 use roaming_operators;
 use mining_speed_boosts_configuration_token_mining;
+use mining_speed_boosts_eligibility_token_mining;
 
 /// The module's trait.
-pub trait Trait: system::Trait + roaming_operators::Trait + mining_speed_boosts_configuration_token_mining::Trait {
+pub trait Trait: system::Trait + roaming_operators::Trait + mining_speed_boosts_configuration_token_mining::Trait + mining_speed_boosts_eligibility_token_mining::Trait {
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
     type MiningSpeedBoostClaimsTokenMiningIndex: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
     type MiningSpeedBoostClaimsTokenMiningClaimAmount: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
@@ -116,12 +117,128 @@ decl_module! {
             Self::deposit_event(RawEvent::Transferred(sender, to, mining_speed_boosts_claims_token_mining_id));
         }
 
-        // TODO - claim()
+        pub fn claim(
+            origin,
+            mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
+            mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
+            mining_speed_boosts_claims_token_mining_id: T::MiningSpeedBoostClaimsTokenMiningIndex,
+        ) {
+            let sender = ensure_signed(origin)?;
+
+            // Ensure that the mining_speed_boosts_claims_token_mining_id whose config we want to change actually exists
+            let is_mining_speed_boosts_claims_token_mining = Self::exists_mining_speed_boosts_claims_token_mining(mining_speed_boosts_claims_token_mining_id).is_ok();
+            ensure!(is_mining_speed_boosts_claims_token_mining, "MiningSpeedBoostClaimsTokenMining does not exist");
+
+            // Ensure that the caller is owner of the mining_speed_boosts_claims_token_mining_claims_result they are trying to change
+            ensure!(Self::mining_speed_boosts_claims_token_mining_owner(mining_speed_boosts_claims_token_mining_id) == Some(sender.clone()), "Only owner can set mining_speed_boosts_claims_token_mining_claims_result");
+
+            // Check that only allow the owner of the configuration that the claim belongs to call this extrinsic
+            // and claim their eligibility
+            ensure!(
+              <mining_speed_boosts_configuration_token_mining::Module<T>>::is_mining_speed_boosts_configuration_token_mining_owner(
+                mining_speed_boosts_configuration_token_mining_id, sender.clone()
+              ).is_ok(),
+              "Only the configuration_token_mining owner can claim their associated eligibility"
+            );
+
+            // Check that the extrinsic call is made after the end date defined in the provided configuration
+
+            // FIXME - add system time now
+            let TIME_NOW = 123.into();
+            // Get the config associated with the given configuration_token_mining
+            if let Some(configuration_token_mining_config) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_configs(mining_speed_boosts_configuration_token_mining_id) {
+              if let token_lock_period_end_date = configuration_token_mining_config.token_lock_period_end_date {
+                // FIXME - get this to work when add system time
+                // ensure!(TIME_NOW > token_lock_period_end_date, "Claim may not be made until after the end date of the lock period");
+              } else {
+                return Err("Cannot find token_mining_config end_date associated with the claim");
+              }
+            } else {
+              return Err("Cannot find token_mining_config associated with the claim");
+            }
+
+            // Check that the provided eligibility amount has not already been claimed
+            // i.e. there should only be a single claim instance for each configuration and eligibility in the MVP
+            if let Some(token_mining_configuration_claims) = Self::token_mining_configuration_claims(mining_speed_boosts_configuration_token_mining_id) {
+              ensure!(token_mining_configuration_claims.len() == 1, "Cannot have zero or more than one claim associated with configuration/eligibility");
+            } else {
+              return Err("Cannot find configuration_claims associated with the claim");
+            }
+
+            // Record the claim associated with their configuration/eligibility
+            let token_claim_amount: T::MiningSpeedBoostClaimsTokenMiningClaimAmount = 0.into();
+            let token_claim_date_redeemed: T::MiningSpeedBoostClaimsTokenMiningClaimDateRedeemed = TIME_NOW;
+            if let Some(eligibility_token_mining) = <mining_speed_boosts_eligibility_token_mining::Module<T>>::mining_speed_boosts_eligibility_token_mining_eligibility_results((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id)) {
+              if let token_mining_calculated_eligibility = eligibility_token_mining.eligibility_token_mining_calculated_eligibility {
+                ensure!(token_mining_calculated_eligibility > 0.into(), "Calculated eligibility is zero. Nothing to claim.");
+                // FIXME - unable to figure out how to cast here!
+                // token_claim_amount = (token_mining_calculated_eligibility as T::MiningSpeedBoostClaimsTokenMiningClaimAmount).clone();
+              } else {
+                return Err("Cannot find token_mining_eligibility calculated_eligibility associated with the claim");
+              }
+            } else {
+              return Err("Cannot find token_mining_eligibility associated with the claim");
+            }
+
+            // Check if a mining_speed_boosts_claims_token_mining_claims_result already exists with the given mining_speed_boosts_claims_token_mining_id
+            // to determine whether to insert new or mutate existing.
+            if Self::has_value_for_mining_speed_boosts_claims_token_mining_claims_result_index(mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_claims_token_mining_id).is_ok() {
+                debug::info!("Mutating values");
+                <MiningSpeedBoostClaimsTokenMiningClaimResults<T>>::mutate((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_claims_token_mining_id), |mining_speed_boosts_claims_token_mining_claims_result| {
+                    if let Some(_mining_speed_boosts_claims_token_mining_claims_result) = mining_speed_boosts_claims_token_mining_claims_result {
+                        // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
+                        _mining_speed_boosts_claims_token_mining_claims_result.token_claim_amount = token_claim_amount.clone();
+                        _mining_speed_boosts_claims_token_mining_claims_result.token_claim_date_redeemed = token_claim_date_redeemed.clone();
+                    }
+                });
+                debug::info!("Checking mutated values");
+                let fetched_mining_speed_boosts_claims_token_mining_claims_result = <MiningSpeedBoostClaimsTokenMiningClaimResults<T>>::get((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_claims_token_mining_id));
+                if let Some(_mining_speed_boosts_claims_token_mining_claims_result) = fetched_mining_speed_boosts_claims_token_mining_claims_result {
+                    debug::info!("Latest field token_claim_amount {:#?}", _mining_speed_boosts_claims_token_mining_claims_result.token_claim_amount);
+                    debug::info!("Latest field token_claim_date_redeemed {:#?}", _mining_speed_boosts_claims_token_mining_claims_result.token_claim_date_redeemed);
+                }
+            } else {
+                debug::info!("Inserting values");
+
+                // Create a new mining mining_speed_boosts_claims_token_mining_claims_result instance with the input params
+                let mining_speed_boosts_claims_token_mining_claims_result_instance = MiningSpeedBoostClaimsTokenMiningClaimResult {
+                    // Since each parameter passed into the function is optional (i.e. `Option`)
+                    // we will assign a default value if a parameter value is not provided.
+                    token_claim_amount: token_claim_amount.clone(),
+                    token_claim_date_redeemed: token_claim_date_redeemed.clone(),
+                };
+
+                <MiningSpeedBoostClaimsTokenMiningClaimResults<T>>::insert(
+                    (mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_claims_token_mining_id),
+                    &mining_speed_boosts_claims_token_mining_claims_result_instance
+                );
+
+                debug::info!("Checking inserted values");
+                let fetched_mining_speed_boosts_claims_token_mining_claims_result = <MiningSpeedBoostClaimsTokenMiningClaimResults<T>>::get((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_claims_token_mining_id));
+                if let Some(_mining_speed_boosts_claims_token_mining_claims_result) = fetched_mining_speed_boosts_claims_token_mining_claims_result {
+                    debug::info!("Inserted field token_claim_amount {:#?}", _mining_speed_boosts_claims_token_mining_claims_result.token_claim_amount);
+                    debug::info!("Inserted field token_claim_date_redeemed {:#?}", _mining_speed_boosts_claims_token_mining_claims_result.token_claim_date_redeemed);
+                }
+            }
+
+            // Self::deposit_event(RawEvent::MiningSpeedBoostClaimsTokenMiningClaimResultSet(
+            //     sender,
+            //     mining_speed_boosts_configuration_token_mining_id,
+            //     mining_speed_boosts_claims_token_mining_id,
+            //     token_claim_amount,
+            //     token_claim_date_redeemed,
+            // ));
+
+            // After the claim is stored, then if the user wins a proportion of the block reward
+            // through validating or nominating, then we will multiply that reward by their
+            // claimed eligibility to determine what mining speed bonus they should be given.
+        }
 
         /// Set mining_speed_boosts_claims_token_mining_claims_result
         pub fn set_mining_speed_boosts_claims_token_mining_claims_result(
             origin,
             mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
+            mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
             mining_speed_boosts_claims_token_mining_id: T::MiningSpeedBoostClaimsTokenMiningIndex,
             _token_claim_amount: Option<T::MiningSpeedBoostClaimsTokenMiningClaimAmount>,
             _token_claim_date_redeemed: Option<T::MiningSpeedBoostClaimsTokenMiningClaimDateRedeemed>,
@@ -418,6 +535,14 @@ mod tests {
       type MiningSpeedBoostConfigurationTokenMiningTokenDevEUI = u64;
       type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
       type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
+    }
+    impl mining_speed_boosts_eligibility_token_mining::Trait for Test {
+      type Event = ();
+      type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
+      type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility = u64;
+      type MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage = u32;
+      // type MiningSpeedBoostEligibilityTokenMiningDateAudited = u64;
+      // type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
     }
     impl Trait for Test {
         type Event = ();

@@ -12,14 +12,15 @@ use rstd::prelude::*; // Imports Vec
 // FIXME - remove this, only used this approach since do not know how to use BalanceOf using only mining-speed-boosts runtime module
 use roaming_operators;
 use mining_speed_boosts_configuration_hardware_mining;
+use mining_speed_boosts_eligibility_hardware_mining;
 
 /// The module's trait.
-pub trait Trait: system::Trait + roaming_operators::Trait + mining_speed_boosts_configuration_hardware_mining::Trait {
+pub trait Trait: system::Trait + roaming_operators::Trait + mining_speed_boosts_configuration_hardware_mining::Trait + mining_speed_boosts_eligibility_hardware_mining::Trait {
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
     type MiningSpeedBoostClaimsHardwareMiningIndex: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
     type MiningSpeedBoostClaimsHardwareMiningClaimAmount: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
     type MiningSpeedBoostClaimsHardwareMiningClaimDateRedeemed: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-  }
+}
 
 // type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as system::Trait>::AccountId>>::Balance;
 
@@ -116,12 +117,23 @@ decl_module! {
             Self::deposit_event(RawEvent::Transferred(sender, to, mining_speed_boosts_claims_hardware_mining_id));
         }
 
-        // TODO - claim()
+        pub fn claim(
+            origin,
+            mining_speed_boosts_configuration_hardware_mining_id: T::MiningSpeedBoostConfigurationHardwareMiningIndex,
+            mining_speed_boosts_eligibility_hardware_mining_id: T::MiningSpeedBoostEligibilityHardwareMiningIndex,
+            mining_speed_boosts_claims_hardware_mining_id: T::MiningSpeedBoostClaimsHardwareMiningIndex,
+        ) {
+            let sender = ensure_signed(origin)?;
+
+            // TODO - implement similar to claims/token-mining when it is working and uncomment the integration tests
+            return Err("Not implemented");
+        }
 
         /// Set mining_speed_boosts_claims_hardware_mining_claims_result
         pub fn set_mining_speed_boosts_claims_hardware_mining_claims_result(
             origin,
             mining_speed_boosts_configuration_hardware_mining_id: T::MiningSpeedBoostConfigurationHardwareMiningIndex,
+            mining_speed_boosts_eligibility_hardware_mining_id: T::MiningSpeedBoostEligibilityHardwareMiningIndex,
             mining_speed_boosts_claims_hardware_mining_id: T::MiningSpeedBoostClaimsHardwareMiningIndex,
             _hardware_claim_amount: Option<T::MiningSpeedBoostClaimsHardwareMiningClaimAmount>,
             // FIXME - the date should be generated without the extrinsic itself, not passed as an argument like this
@@ -419,6 +431,14 @@ mod tests {
       type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI = u64;
       type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate = u64;
       type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate = u64;
+    }
+    impl mining_speed_boosts_eligibility_hardware_mining::Trait for Test {
+      type Event = ();
+      type MiningSpeedBoostEligibilityHardwareMiningIndex = u64;
+      type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility = u64;
+      type MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage = u32;
+      // type MiningSpeedBoostEligibilityHardwareMiningDateAudited = u64;
+      // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
     }
     impl Trait for Test {
         type Event = ();

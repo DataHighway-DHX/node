@@ -346,16 +346,14 @@ mod tests {
 
             // // Call Functions
             assert_ok!(MiningSpeedBoostClaimsHardwareMiningTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningSpeedBoostClaimsHardwareMiningTestModule::assign_claim_to_configuration(Origin::signed(0), 0, 0));
             // assert_ok!(
             //     MiningSpeedBoostClaimsHardwareMiningTestModule::claim(
-            //         Origin:signed(0),
+            //         Origin::signed(0),
             //         0, // mining_speed_boosts_configuration_hardware_mining_id
             //         0, // mining_speed_boosts_eligibility_hardware_mining_id
-            //     ),
-            //     Some(MiningSpeedBoostClaimsHardwareMiningClaimResult {
-            //         hardware_claim_amount: 1,
-            //         hardware_claim_date_redeemed: 34567,
-            //     })
+            //         0, // mining_speed_boosts_claims_hardware_mining_id
+            //     )
             // )
             // Override by DAO if necessary
             assert_ok!(
@@ -363,17 +361,11 @@ mod tests {
                     Origin::signed(0),
                     0, // mining_speed_boosts_configuration_hardware_mining_id
                     0, // mining_speed_boosts_eligibility_hardware_mining_id
+                    0, // mining_speed_boosts_claims_hardware_mining_id
                     Some(1), // hardware_claim_amount
                     Some(34567), // hardware_claim_date_redeemed
-                    // Some({
-                    //     MiningSpeedBoostClaimsHardwareMiningClaimResult {
-                    //         hardware_claim_amount: 1,
-                    //         hardware_claim_date_redeemed: 1,
-                    //     }
-                    // }),
                 )
             );
-            assert_ok!(MiningSpeedBoostClaimsHardwareMiningTestModule::assign_claim_to_configuration(Origin::signed(0), 0, 0));
 
             // Verify Storage
             assert_eq!(MiningSpeedBoostClaimsHardwareMiningTestModule::mining_speed_boosts_claims_hardware_mining_count(), 1);

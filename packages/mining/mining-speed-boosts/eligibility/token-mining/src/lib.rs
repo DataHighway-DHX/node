@@ -192,7 +192,7 @@ decl_module! {
         //                     sample_count += 1;
   
         //                     if tokens_locked == 0 {
-        //                       debug::info!("Token mining rate sample has no locked tokens. Skipping to next sampling.");
+        //                       debug::info!("Mining rate sample has nothing locked. Skipping to next sampling.");
         //                       continue;
         //                     }
         //                     current_sample_tokens_locked = tokens_locked;
@@ -211,9 +211,10 @@ decl_module! {
                               
         //                       part_eligibility_token_mining_calculated_eligibility = part_eligibility_token_mining_calculated_eligibility + eligibility_token_mining_token_locked_percentage * current_token_max_tokens;
         //                     } else {
-        //                       debug::info!("Token mining rate config missing");
-        //                       break;
-        //                     }                
+        //                       debug::info!("Mining rate config missing");
+        //                       // break;
+        //                       return Err("Mining rate config missing");
+        //                     }              
         //                   }
         //                 }
         //               }

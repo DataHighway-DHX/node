@@ -365,24 +365,26 @@ mod tests {
 
             // Call Functions
             assert_ok!(MiningSpeedBoostClaimsTokenMiningTestModule::create(Origin::signed(0)));
-            // assert_ok!(
-            //     MiningSpeedBoostClaimsTokenMiningTestModule::claim(
-            //         Origin:signed(0),
-            //         0, // mining_speed_boosts_configuration_token_mining_id
-            //         0, // mining_speed_boosts_eligibility_token_mining_id
-            //     )
-            // );
+            assert_ok!(MiningSpeedBoostClaimsTokenMiningTestModule::assign_claim_to_configuration(Origin::signed(0), 0, 0));
+            assert_ok!(
+                MiningSpeedBoostClaimsTokenMiningTestModule::claim(
+                    Origin::signed(0),
+                    0, // mining_speed_boosts_configuration_token_mining_id
+                    0, // mining_speed_boosts_eligibility_token_mining_id
+                    0, // mining_speed_boosts_claims_token_mining_id
+                )
+            );
             // Override by DAO if necessary
             assert_ok!(
               MiningSpeedBoostClaimsTokenMiningTestModule::set_mining_speed_boosts_claims_token_mining_claims_result(
                   Origin::signed(0),
                   0, // mining_speed_boosts_configuration_token_mining_id
                   0, // mining_speed_boosts_eligibility_token_mining_id
+                  0, // mining_speed_boosts_claims_token_mining_id
                   Some(1), // hardware_claim_amount
                   Some(34567) // hardware_claim_date_redeemed
               )
             );
-            assert_ok!(MiningSpeedBoostClaimsTokenMiningTestModule::assign_claim_to_configuration(Origin::signed(0), 0, 0));
 
             // Verify Storage
             assert_eq!(MiningSpeedBoostClaimsTokenMiningTestModule::mining_speed_boosts_claims_token_mining_count(), 1);

@@ -17,6 +17,7 @@ std = [
     'transaction-payment/std',
     'roaming-operators/std',
     'mining-speed-boosts-configuration-hardware-mining/std',
+    'mining-speed-boosts-eligibility-hardware-mining/std',
 ]
 
 [dependencies.rstd]
@@ -86,3 +87,8 @@ path = '../../../../roaming/roaming-operators'
 default_features = false
 package = 'mining-speed-boosts-configuration-hardware-mining'
 path = '../../../../mining/mining-speed-boosts/configuration/hardware-mining'
+
+[dependencies.mining-speed-boosts-eligibility-hardware-mining]
+default_features = false
+package = 'mining-speed-boosts-eligibility-hardware-mining'
+path = '../../../../mining/mining-speed-boosts/eligibility/hardware-mining'

@@ -17,6 +17,7 @@ std = [
     'transaction-payment/std',
     'roaming-operators/std',
     'mining-speed-boosts-configuration-token-mining/std',
+    'mining-speed-boosts-eligibility-token-mining/std',
 ]
 
 [dependencies.rstd]
@@ -86,3 +87,8 @@ path = '../../../../roaming/roaming-operators'
 default_features = false
 package = 'mining-speed-boosts-configuration-token-mining'
 path = '../../../../mining/mining-speed-boosts/configuration/token-mining'
+
+[dependencies.mining-speed-boosts-eligibility-token-mining]
+default_features = false
+package = 'mining-speed-boosts-eligibility-token-mining'
+path = '../../../../mining/mining-speed-boosts/eligibility/token-mining'
