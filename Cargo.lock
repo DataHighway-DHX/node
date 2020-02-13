@@ -2301,6 +2301,7 @@ dependencies = [
  "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "roaming-operators 0.1.0",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -2320,6 +2321,7 @@ dependencies = [
  "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "roaming-operators 0.1.0",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -2335,6 +2337,7 @@ dependencies = [
  "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "roaming-operators 0.1.0",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -2350,6 +2353,7 @@ dependencies = [
  "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "roaming-operators 0.1.0",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -2368,6 +2372,7 @@ dependencies = [
  "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "roaming-operators 0.1.0",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -2386,6 +2391,7 @@ dependencies = [
  "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "roaming-operators 0.1.0",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -2401,6 +2407,7 @@ dependencies = [
  "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "roaming-operators 0.1.0",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -2416,6 +2423,7 @@ dependencies = [
  "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "roaming-operators 0.1.0",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -2432,6 +2440,7 @@ dependencies = [
  "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "roaming-operators 0.1.0",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -2448,6 +2457,7 @@ dependencies = [
  "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "roaming-operators 0.1.0",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -3554,6 +3564,7 @@ dependencies = [
  "roaming-networks 0.1.0",
  "roaming-operators 0.1.0",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -3571,6 +3582,7 @@ dependencies = [
  "roaming-networks 0.1.0",
  "roaming-operators 0.1.0",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -3589,6 +3601,7 @@ dependencies = [
  "roaming-operators 0.1.0",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -3607,6 +3620,7 @@ dependencies = [
  "roaming-operators 0.1.0",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -3628,6 +3642,7 @@ dependencies = [
  "roaming-organizations 0.1.0",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -3648,6 +3663,7 @@ dependencies = [
  "roaming-organizations 0.1.0",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -3668,6 +3684,7 @@ dependencies = [
  "roaming-organizations 0.1.0",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -3686,6 +3703,7 @@ dependencies = [
  "roaming-operators 0.1.0",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -3703,6 +3721,7 @@ dependencies = [
  "roaming-operators 0.1.0",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -3718,6 +3737,7 @@ dependencies = [
  "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -3737,6 +3757,7 @@ dependencies = [
  "roaming-operators 0.1.0",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -3759,6 +3780,7 @@ dependencies = [
  "roaming-sessions 0.1.0",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -3780,6 +3802,7 @@ dependencies = [
  "roaming-organizations 0.1.0",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -3799,6 +3822,7 @@ dependencies = [
  "roaming-operators 0.1.0",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
@@ -3820,6 +3844,7 @@ dependencies = [
  "roaming-organizations 0.1.0",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
 ]
 
