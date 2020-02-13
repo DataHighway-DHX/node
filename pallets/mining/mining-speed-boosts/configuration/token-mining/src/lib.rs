@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128, blake2_256};
+use sp_io::hashing::{blake2_128};
 use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
-use frame_support::{decl_event, decl_error, dispatch, decl_module, decl_storage, ensure, Parameter, debug};
+use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
 use sp_std::prelude::*; // Imports Vec
 
