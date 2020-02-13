@@ -1,13 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
+use sp_io::hashing::{blake2_128, blake2_256};
 use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_error, dispatch, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
-use sp-std::prelude::*; // Imports Vec
+use sp_std::prelude::*; // Imports Vec
 
 use roaming_network_servers;
 
@@ -48,25 +48,25 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingServiceProfiles {
         /// Stores all the roaming service_profiles, key is the roaming service_profile id / index
-        pub RoamingServiceProfiles get(fn roaming_service_profile): map T::RoamingServiceProfileIndex => Option<RoamingServiceProfile>;
+        pub RoamingServiceProfiles get(fn roaming_service_profile): map hasher(blake2_256) T::RoamingServiceProfileIndex => Option<RoamingServiceProfile>;
 
         /// Stores the total number of roaming service_profiles. i.e. the next roaming service_profile index
         pub RoamingServiceProfilesCount get(fn roaming_service_profiles_count): T::RoamingServiceProfileIndex;
 
         /// Get roaming service_profile owner
-        pub RoamingServiceProfileOwners get(fn roaming_service_profile_owner): map T::RoamingServiceProfileIndex => Option<T::AccountId>;
+        pub RoamingServiceProfileOwners get(fn roaming_service_profile_owner): map hasher(blake2_256) T::RoamingServiceProfileIndex => Option<T::AccountId>;
 
         /// Get roaming service_profile uplink rate.
-        pub RoamingServiceProfileUplinkRates get(fn roaming_service_profile_uplink_rate): map T::RoamingServiceProfileIndex => Option<T::RoamingServiceProfileUplinkRate>;
+        pub RoamingServiceProfileUplinkRates get(fn roaming_service_profile_uplink_rate): map hasher(blake2_256) T::RoamingServiceProfileIndex => Option<T::RoamingServiceProfileUplinkRate>;
 
         /// Get roaming service_profile downlink rate.
-        pub RoamingServiceProfileDownlinkRates get(fn roaming_service_profile_downlink_rate): map T::RoamingServiceProfileIndex => Option<T::RoamingServiceProfileDownlinkRate>;
+        pub RoamingServiceProfileDownlinkRates get(fn roaming_service_profile_downlink_rate): map hasher(blake2_256) T::RoamingServiceProfileIndex => Option<T::RoamingServiceProfileDownlinkRate>;
 
         /// Get roaming service_profile network_server
-        pub RoamingServiceProfileNetworkServer get(fn roaming_service_profile_network_server): map T::RoamingServiceProfileIndex => Option<T::RoamingNetworkServerIndex>;
+        pub RoamingServiceProfileNetworkServer get(fn roaming_service_profile_network_server): map hasher(blake2_256) T::RoamingServiceProfileIndex => Option<T::RoamingNetworkServerIndex>;
 
         /// Get roaming network_server service_profiles
-        pub RoamingNetworkServerServiceProfiles get(fn roaming_network_server_service_profiles): map T::RoamingNetworkServerIndex => Option<Vec<T::RoamingServiceProfileIndex>>
+        pub RoamingNetworkServerServiceProfiles get(fn roaming_network_server_service_profiles): map hasher(blake2_256) T::RoamingNetworkServerIndex => Option<Vec<T::RoamingServiceProfileIndex>>
     }
 }
 

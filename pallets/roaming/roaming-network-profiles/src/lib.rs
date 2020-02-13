@@ -1,13 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
+use sp_io::hashing::{blake2_128, blake2_256};
 use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_error, dispatch, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
-use sp-std::prelude::*; // Imports Vec
+use sp_std::prelude::*; // Imports Vec
 
 use roaming_operators;
 use roaming_networks;
@@ -56,34 +56,34 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingNetworkProfiles {
         /// Stores all the roaming network_profiles, key is the roaming network_profile id / index
-        pub RoamingNetworkProfiles get(fn roaming_network_profile): map T::RoamingNetworkProfileIndex => Option<RoamingNetworkProfile>;
+        pub RoamingNetworkProfiles get(fn roaming_network_profile): map hasher(blake2_256) T::RoamingNetworkProfileIndex => Option<RoamingNetworkProfile>;
 
         /// Stores the total number of roaming network_profiles. i.e. the next roaming network_profile index
         pub RoamingNetworkProfilesCount get(fn roaming_network_profiles_count): T::RoamingNetworkProfileIndex;
 
         /// Get roaming network_profile owner
-        pub RoamingNetworkProfileOwners get(fn roaming_network_profile_owner): map T::RoamingNetworkProfileIndex => Option<T::AccountId>;
+        pub RoamingNetworkProfileOwners get(fn roaming_network_profile_owner): map hasher(blake2_256) T::RoamingNetworkProfileIndex => Option<T::AccountId>;
 
         /// Get roaming network_policy status of whether any device visitors are allowed to roam at all
-        pub RoamingNetworkProfileDeviceAccessAllowed get(fn roaming_network_profile_restricted_access): map T::RoamingNetworkProfileIndex => Option<bool>;
+        pub RoamingNetworkProfileDeviceAccessAllowed get(fn roaming_network_profile_restricted_access): map hasher(blake2_256) T::RoamingNetworkProfileIndex => Option<bool>;
 
         /// Get roaming network_policy whitelisted networks of visiting devices
-        pub RoamingNetworkProfileWhitelistedNetworks get(fn roaming_network_profile_whitelisted_networks): map T::RoamingNetworkProfileIndex => Option<Vec<T::RoamingNetworkIndex>>;
+        pub RoamingNetworkProfileWhitelistedNetworks get(fn roaming_network_profile_whitelisted_networks): map hasher(blake2_256) T::RoamingNetworkProfileIndex => Option<Vec<T::RoamingNetworkIndex>>;
 
         /// Get roaming network_policy blacklisted devices of that are visiting
-        pub RoamingNetworkProfileBlacklistedDevices get(fn roaming_network_profile_blacklisted_devices): map T::RoamingNetworkProfileIndex => Option<Vec<T::RoamingDeviceIndex>>;
+        pub RoamingNetworkProfileBlacklistedDevices get(fn roaming_network_profile_blacklisted_devices): map hasher(blake2_256) T::RoamingNetworkProfileIndex => Option<Vec<T::RoamingDeviceIndex>>;
 
         /// Get roaming network_profile network
-        pub RoamingNetworkProfileNetwork get(fn roaming_network_profile_network): map T::RoamingNetworkProfileIndex => Option<T::RoamingNetworkIndex>;
+        pub RoamingNetworkProfileNetwork get(fn roaming_network_profile_network): map hasher(blake2_256) T::RoamingNetworkProfileIndex => Option<T::RoamingNetworkIndex>;
 
         /// Get roaming network_profile operators
-        pub RoamingNetworkProfileOperator get(fn roaming_network_profile_operators): map T::RoamingNetworkProfileIndex => Option<T::RoamingOperatorIndex>;
+        pub RoamingNetworkProfileOperator get(fn roaming_network_profile_operators): map hasher(blake2_256) T::RoamingNetworkProfileIndex => Option<T::RoamingOperatorIndex>;
 
         /// Get roaming network's network profiles
-        pub RoamingNetworkNetworkProfiles get(fn roaming_network_network_profiles): map T::RoamingNetworkIndex => Option<Vec<T::RoamingNetworkProfileIndex>>;
+        pub RoamingNetworkNetworkProfiles get(fn roaming_network_network_profiles): map hasher(blake2_256) T::RoamingNetworkIndex => Option<Vec<T::RoamingNetworkProfileIndex>>;
 
         /// Get roaming operator's network profiles
-        pub RoamingOperatorNetworkProfiles get(fn roaming_operator_network_profiles): map T::RoamingOperatorIndex => Option<Vec<T::RoamingNetworkProfileIndex>>
+        pub RoamingOperatorNetworkProfiles get(fn roaming_operator_network_profiles): map hasher(blake2_256) T::RoamingOperatorIndex => Option<Vec<T::RoamingNetworkProfileIndex>>
     }
 }
 

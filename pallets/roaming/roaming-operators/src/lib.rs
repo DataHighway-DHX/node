@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
+use sp_io::hashing::{blake2_128, blake2_256};
 use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
@@ -43,16 +43,16 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingOperators {
         /// Stores all the roaming operators, key is the roaming operator id / index
-        pub RoamingOperators get(fn roaming_operator): map T::RoamingOperatorIndex => Option<RoamingOperator>;
+        pub RoamingOperators get(fn roaming_operator): map hasher(blake2_256) T::RoamingOperatorIndex => Option<RoamingOperator>;
 
         /// Stores the total number of roaming operators. i.e. the next roaming operator index
         pub RoamingOperatorsCount get(fn roaming_operators_count): T::RoamingOperatorIndex;
 
         /// Get roaming operator owner
-        pub RoamingOperatorOwners get(fn roaming_operator_owner): map T::RoamingOperatorIndex => Option<T::AccountId>;
+        pub RoamingOperatorOwners get(fn roaming_operator_owner): map hasher(blake2_256) T::RoamingOperatorIndex => Option<T::AccountId>;
 
         /// Get roaming operator price. None means not for sale.
-        pub RoamingOperatorPrices get(fn roaming_operator_price): map T::RoamingOperatorIndex => Option<BalanceOf<T>>
+        pub RoamingOperatorPrices get(fn roaming_operator_price): map hasher(blake2_256) T::RoamingOperatorIndex => Option<BalanceOf<T>>
     }
 }
 

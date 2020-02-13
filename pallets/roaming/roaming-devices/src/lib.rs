@@ -1,13 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
+use sp_io::hashing::{blake2_128, blake2_256};
 use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_error, dispatch, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
-use sp-std::prelude::*; // Imports Vec
+use sp_std::prelude::*; // Imports Vec
 
 use roaming_operators; // Only for access to Currency trait
 use roaming_network_servers;
@@ -52,28 +52,28 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingDevices {
         /// Stores all the roaming devices, key is the roaming device id / index
-        pub RoamingDevices get(fn roaming_device): map T::RoamingDeviceIndex => Option<RoamingDevice>;
+        pub RoamingDevices get(fn roaming_device): map hasher(blake2_256) T::RoamingDeviceIndex => Option<RoamingDevice>;
 
         /// Stores the total number of roaming devices. i.e. the next roaming device index
         pub RoamingDevicesCount get(fn roaming_devices_count): T::RoamingDeviceIndex;
 
         /// Get roaming device owner
-        pub RoamingDeviceOwners get(fn roaming_device_owner): map T::RoamingDeviceIndex => Option<T::AccountId>;
+        pub RoamingDeviceOwners get(fn roaming_device_owner): map hasher(blake2_256) T::RoamingDeviceIndex => Option<T::AccountId>;
 
         /// Get roaming device price. None means not for sale.
-        pub RoamingDevicePrices get(fn roaming_device_price): map T::RoamingDeviceIndex => Option<BalanceOf<T>>;
+        pub RoamingDevicePrices get(fn roaming_device_price): map hasher(blake2_256) T::RoamingDeviceIndex => Option<BalanceOf<T>>;
 
         /// Get roaming device network_server
-        pub RoamingDeviceNetworkServers get(fn roaming_device_network_server): map T::RoamingDeviceIndex => Option<T::RoamingNetworkServerIndex>;
+        pub RoamingDeviceNetworkServers get(fn roaming_device_network_server): map hasher(blake2_256) T::RoamingDeviceIndex => Option<T::RoamingNetworkServerIndex>;
 
         /// Get roaming device organization
-        pub RoamingDeviceOrganization get(fn roaming_device_organization): map T::RoamingDeviceIndex => Option<T::RoamingOrganizationIndex>;
+        pub RoamingDeviceOrganization get(fn roaming_device_organization): map hasher(blake2_256) T::RoamingDeviceIndex => Option<T::RoamingOrganizationIndex>;
 
         /// Get roaming network server's devices
-        pub RoamingNetworkServerDevices get(fn roaming_network_server_devices): map T::RoamingNetworkServerIndex => Option<Vec<T::RoamingDeviceIndex>>;
+        pub RoamingNetworkServerDevices get(fn roaming_network_server_devices): map hasher(blake2_256) T::RoamingNetworkServerIndex => Option<Vec<T::RoamingDeviceIndex>>;
 
         /// Get roaming organization's devices
-        pub RoamingOrganizationDevices get(fn roaming_organization_devices): map T::RoamingOrganizationIndex => Option<Vec<T::RoamingDeviceIndex>>
+        pub RoamingOrganizationDevices get(fn roaming_organization_devices): map hasher(blake2_256) T::RoamingOrganizationIndex => Option<Vec<T::RoamingDeviceIndex>>
     }
 }
 

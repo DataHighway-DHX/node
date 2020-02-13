@@ -1,13 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
+use sp_io::hashing::{blake2_128, blake2_256};
 use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_error, dispatch, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
-use sp-std::prelude::*; // Imports Vec
+use sp_std::prelude::*; // Imports Vec
 
 use roaming_devices;
 
@@ -60,22 +60,22 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingDeviceProfiles {
         /// Stores all the roaming device_profiles, key is the roaming device_profile id / index
-        pub RoamingDeviceProfiles get(fn roaming_device_profile): map T::RoamingDeviceProfileIndex => Option<RoamingDeviceProfile>;
+        pub RoamingDeviceProfiles get(fn roaming_device_profile): map hasher(blake2_256) T::RoamingDeviceProfileIndex => Option<RoamingDeviceProfile>;
 
         /// Stores the total number of roaming device_profiles. i.e. the next roaming device_profile index
         pub RoamingDeviceProfilesCount get(fn roaming_device_profiles_count): T::RoamingDeviceProfileIndex;
 
         /// Get roaming device_profile owner
-        pub RoamingDeviceProfileOwners get(fn roaming_device_profile_owner): map T::RoamingDeviceProfileIndex => Option<T::AccountId>;
+        pub RoamingDeviceProfileOwners get(fn roaming_device_profile_owner): map hasher(blake2_256) T::RoamingDeviceProfileIndex => Option<T::AccountId>;
 
         /// Get roaming device_profile config
-        pub RoamingDeviceProfileConfigs get(fn roaming_device_profile_configs): map T::RoamingDeviceProfileIndex => Option<RoamingDeviceProfileConfig<T::RoamingDeviceProfileDevAddr, T::RoamingDeviceProfileDevEUI, T::RoamingDeviceProfileJoinEUI, T::RoamingDeviceProfileVendorID>>;
+        pub RoamingDeviceProfileConfigs get(fn roaming_device_profile_configs): map hasher(blake2_256) T::RoamingDeviceProfileIndex => Option<RoamingDeviceProfileConfig<T::RoamingDeviceProfileDevAddr, T::RoamingDeviceProfileDevEUI, T::RoamingDeviceProfileJoinEUI, T::RoamingDeviceProfileVendorID>>;
 
         /// Get roaming device_profile device
-        pub RoamingDeviceProfileDevice get(fn roaming_device_profile_device): map T::RoamingDeviceProfileIndex => Option<T::RoamingDeviceIndex>;
+        pub RoamingDeviceProfileDevice get(fn roaming_device_profile_device): map hasher(blake2_256) T::RoamingDeviceProfileIndex => Option<T::RoamingDeviceIndex>;
 
         /// Get roaming device device_profiles
-        pub RoamingDeviceDeviceProfiles get(fn roaming_device_device_profiles): map T::RoamingDeviceIndex => Option<Vec<T::RoamingDeviceProfileIndex>>
+        pub RoamingDeviceDeviceProfiles get(fn roaming_device_device_profiles): map hasher(blake2_256) T::RoamingDeviceIndex => Option<Vec<T::RoamingDeviceProfileIndex>>
     }
 }
 

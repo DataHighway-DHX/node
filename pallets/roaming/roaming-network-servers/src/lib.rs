@@ -1,13 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
+use sp_io::hashing::{blake2_128, blake2_256};
 use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_error, dispatch, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
-use sp-std::prelude::*; // Imports Vec
+use sp_std::prelude::*; // Imports Vec
 
 use roaming_operators;
 use roaming_networks;
@@ -51,28 +51,28 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingNetworkServers {
         /// Stores all the roaming network_servers, key is the roaming network_server id / index
-        pub RoamingNetworkServers get(fn roaming_network_server): map T::RoamingNetworkServerIndex => Option<RoamingNetworkServer>;
+        pub RoamingNetworkServers get(fn roaming_network_server): map hasher(blake2_256) T::RoamingNetworkServerIndex => Option<RoamingNetworkServer>;
 
         /// Stores the total number of roaming network_servers. i.e. the next roaming network_server index
         pub RoamingNetworkServersCount get(fn roaming_network_servers_count): T::RoamingNetworkServerIndex;
 
         /// Get roaming network_server owner
-        pub RoamingNetworkServerOwners get(fn roaming_network_server_owner): map T::RoamingNetworkServerIndex => Option<T::AccountId>;
+        pub RoamingNetworkServerOwners get(fn roaming_network_server_owner): map hasher(blake2_256) T::RoamingNetworkServerIndex => Option<T::AccountId>;
 
         /// Get roaming network_server price. None means not for sale.
-        pub RoamingNetworkServerPrices get(fn roaming_network_server_price): map T::RoamingNetworkServerIndex => Option<BalanceOf<T>>;
+        pub RoamingNetworkServerPrices get(fn roaming_network_server_price): map hasher(blake2_256) T::RoamingNetworkServerIndex => Option<BalanceOf<T>>;
 
         /// Get roaming network_server network
-        pub RoamingNetworkServerNetwork get(fn roaming_network_server_network): map T::RoamingNetworkServerIndex => Option<T::RoamingNetworkIndex>;
+        pub RoamingNetworkServerNetwork get(fn roaming_network_server_network): map hasher(blake2_256) T::RoamingNetworkServerIndex => Option<T::RoamingNetworkIndex>;
 
         /// Get roaming network_server operators
-        pub RoamingNetworkServerOperator get(fn roaming_network_server_operators): map T::RoamingNetworkServerIndex => Option<T::RoamingOperatorIndex>;
+        pub RoamingNetworkServerOperator get(fn roaming_network_server_operators): map hasher(blake2_256) T::RoamingNetworkServerIndex => Option<T::RoamingOperatorIndex>;
 
         /// Get roaming network's network servers
-        pub RoamingNetworkNetworkServers get(fn roaming_network_network_servers): map T::RoamingNetworkIndex => Option<Vec<T::RoamingNetworkServerIndex>>;
+        pub RoamingNetworkNetworkServers get(fn roaming_network_network_servers): map hasher(blake2_256) T::RoamingNetworkIndex => Option<Vec<T::RoamingNetworkServerIndex>>;
 
         /// Get roaming operator's network servers
-        pub RoamingOperatorNetworkServers get(fn roaming_operator_network_servers): map T::RoamingOperatorIndex => Option<Vec<T::RoamingNetworkServerIndex>>
+        pub RoamingOperatorNetworkServers get(fn roaming_operator_network_servers): map hasher(blake2_256) T::RoamingOperatorIndex => Option<Vec<T::RoamingNetworkServerIndex>>
     }
 }
 

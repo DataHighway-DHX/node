@@ -1,13 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
+use sp_io::hashing::{blake2_128, blake2_256};
 use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_error, dispatch, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
-use sp-std::prelude::*; // Imports Vec
+use sp_std::prelude::*; // Imports Vec
 #[macro_use]
 extern crate alloc; // Required to use Vec
 
@@ -70,25 +70,25 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingSessions {
         /// Stores all the roaming sessions, key is the roaming session id / index
-        pub RoamingSessions get(fn roaming_session): map T::RoamingSessionIndex => Option<RoamingSession>;
+        pub RoamingSessions get(fn roaming_session): map hasher(blake2_256) T::RoamingSessionIndex => Option<RoamingSession>;
 
         /// Stores the total number of roaming sessions. i.e. the next roaming session index
         pub RoamingSessionsCount get(fn roaming_sessions_count): T::RoamingSessionIndex;
 
         /// Get roaming session owner
-        pub RoamingSessionOwners get(fn roaming_session_owner): map T::RoamingSessionIndex => Option<T::AccountId>;
+        pub RoamingSessionOwners get(fn roaming_session_owner): map hasher(blake2_256) T::RoamingSessionIndex => Option<T::AccountId>;
 
         /// Get roaming session join requests
-        pub RoamingSessionJoinRequests get(fn roaming_session_join_requests): map T::RoamingSessionIndex => Option<RoamingSessionJoinRequest<T::RoamingNetworkServerIndex, T::RoamingSessionJoinRequestRequestedAt>>;
+        pub RoamingSessionJoinRequests get(fn roaming_session_join_requests): map hasher(blake2_256) T::RoamingSessionIndex => Option<RoamingSessionJoinRequest<T::RoamingNetworkServerIndex, T::RoamingSessionJoinRequestRequestedAt>>;
 
         /// Get roaming session join accepts
-        pub RoamingSessionJoinAccepts get(fn roaming_session_join_accepts): map T::RoamingSessionIndex => Option<RoamingSessionJoinAccept<T::RoamingSessionJoinRequestAcceptExpiry, T::RoamingSessionJoinRequestAcceptAcceptedAt>>;
+        pub RoamingSessionJoinAccepts get(fn roaming_session_join_accepts): map hasher(blake2_256) T::RoamingSessionIndex => Option<RoamingSessionJoinAccept<T::RoamingSessionJoinRequestAcceptExpiry, T::RoamingSessionJoinRequestAcceptAcceptedAt>>;
 
         /// Get roaming session device
-        pub RoamingSessionDevices get(fn roaming_session_device): map T::RoamingSessionIndex => Option<T::RoamingDeviceIndex>;
+        pub RoamingSessionDevices get(fn roaming_session_device): map hasher(blake2_256) T::RoamingSessionIndex => Option<T::RoamingDeviceIndex>;
 
         /// Get roaming device sessions
-        pub RoamingDeviceSessions get(fn roaming_device_sessions): map T::RoamingDeviceIndex => Option<Vec<T::RoamingSessionIndex>>
+        pub RoamingDeviceSessions get(fn roaming_device_sessions): map hasher(blake2_256) T::RoamingDeviceIndex => Option<Vec<T::RoamingSessionIndex>>
     }
 }
 

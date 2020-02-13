@@ -1,13 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
+use sp_io::hashing::{blake2_128, blake2_256};
 use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_error, dispatch, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
-use sp-std::prelude::*; // Imports Vec
+use sp_std::prelude::*; // Imports Vec
 #[macro_use]
 extern crate alloc; // Required to use Vec
 
@@ -91,19 +91,19 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingPacketBundles {
         /// Stores all the roaming packet_bundle, key is the roaming packet_bundle id / index
-        pub RoamingPacketBundles get(fn roaming_packet_bundle): map T::RoamingPacketBundleIndex => Option<RoamingPacketBundle>;
+        pub RoamingPacketBundles get(fn roaming_packet_bundle): map hasher(blake2_256) T::RoamingPacketBundleIndex => Option<RoamingPacketBundle>;
 
         /// Stores the total number of roaming packet_bundles. i.e. the next roaming packet_bundle index
         pub RoamingPacketBundlesCount get(fn roaming_packet_bundles_count): T::RoamingPacketBundleIndex;
 
         /// Get roaming packet_bundle owner
-        pub RoamingPacketBundleOwners get(fn roaming_packet_bundle_owner): map T::RoamingPacketBundleIndex => Option<T::AccountId>;
+        pub RoamingPacketBundleOwners get(fn roaming_packet_bundle_owner): map hasher(blake2_256) T::RoamingPacketBundleIndex => Option<T::AccountId>;
 
         /// Get roaming packet_bundle price. None means not for sale.
-        pub RoamingPacketBundlePrices get(fn roaming_packet_bundle_price): map T::RoamingPacketBundleIndex => Option<BalanceOf<T>>;
+        pub RoamingPacketBundlePrices get(fn roaming_packet_bundle_price): map hasher(blake2_256) T::RoamingPacketBundleIndex => Option<BalanceOf<T>>;
 
         // /// Get roaming packet_bundle receiver
-        // pub RoamingPacketBundleReceivers get(fn roaming_packet_bundle_receivers): map T::RoamingPacketBundleIndex => Option<RoamingPacketBundleReceiver<T::RoamingPacketBundleNextBillingAt, T::RoamingPacketBundleFrequencyInDays>>;
+        // pub RoamingPacketBundleReceivers get(fn roaming_packet_bundle_receivers): map hasher(blake2_256) T::RoamingPacketBundleIndex => Option<RoamingPacketBundleReceiver<T::RoamingPacketBundleNextBillingAt, T::RoamingPacketBundleFrequencyInDays>>;
 
         /// Get roaming packet_bundle receiver
         pub RoamingPacketBundleReceivers get(fn roaming_packet_bundle_receivers): map (T::RoamingPacketBundleIndex, T::RoamingNetworkServerIndex) =>
@@ -117,27 +117,27 @@ decl_storage! {
             >>;
 
         /// NetworkServer to PacketBundles mapping
-        pub RoamingNetworkServerPacketBundles get(fn roaming_network_server_packet_bundles): map T::RoamingNetworkServerIndex => Option<Vec<T::RoamingPacketBundleIndex>>;
+        pub RoamingNetworkServerPacketBundles get(fn roaming_network_server_packet_bundles): map hasher(blake2_256) T::RoamingNetworkServerIndex => Option<Vec<T::RoamingPacketBundleIndex>>;
 
         // Device Session mapping
-        pub RoamingPacketBundleDeviceSession get(fn roaming_packet_bundle_device_sessions): map T::RoamingPacketBundleIndex => Option<(T::RoamingDeviceIndex, T::RoamingSessionIndex)>;
+        pub RoamingPacketBundleDeviceSession get(fn roaming_packet_bundle_device_sessions): map hasher(blake2_256) T::RoamingPacketBundleIndex => Option<(T::RoamingDeviceIndex, T::RoamingSessionIndex)>;
         
         pub RoamingDeviceSessionPacketBundles get(fn roaming_device_session_packet_bundles): map (T::RoamingDeviceIndex, T::RoamingSessionIndex) => Option<Vec<T::RoamingPacketBundleIndex>>;
         
         // IPFS
-        pub RoamingExternalDataStorageHashPacketBundle get(fn roaming_external_data_storage_hash_packet_bundle):  map T::RoamingPacketBundleExternalDataStorageHash => Option<Vec<T::RoamingPacketBundleIndex>>;
+        pub RoamingExternalDataStorageHashPacketBundle get(fn roaming_external_data_storage_hash_packet_bundle):  map hasher(blake2_256) T::RoamingPacketBundleExternalDataStorageHash => Option<Vec<T::RoamingPacketBundleIndex>>;
 
         /// Get roaming packet_bundle session
-        pub RoamingPacketBundleSession get(fn roaming_packet_bundle_session): map T::RoamingPacketBundleIndex => Option<T::RoamingSessionIndex>;
+        pub RoamingPacketBundleSession get(fn roaming_packet_bundle_session): map hasher(blake2_256) T::RoamingPacketBundleIndex => Option<T::RoamingSessionIndex>;
 
         /// Get roaming session's packet bundles
-        pub RoamingSessionPacketBundles get(fn roaming_session_packet_bundles): map T::RoamingSessionIndex => Option<Vec<T::RoamingPacketBundleIndex>>
+        pub RoamingSessionPacketBundles get(fn roaming_session_packet_bundles): map hasher(blake2_256) T::RoamingSessionIndex => Option<Vec<T::RoamingPacketBundleIndex>>
 
         // /// Get roaming packet_bundle operator
-        // pub RoamingPacketBundleOperator get(fn roaming_packet_bundle_operator): map T::RoamingPacketBundleIndex => Option<T::RoamingOperatorIndex>;
+        // pub RoamingPacketBundleOperator get(fn roaming_packet_bundle_operator): map hasher(blake2_256) T::RoamingPacketBundleIndex => Option<T::RoamingOperatorIndex>;
 
         // /// Get roaming operator's packet bundles
-        // pub RoamingOperatorPacketBundles get(fn roaming_operator_packet_bundles): map T::RoamingOperatorIndex => Option<Vec<T::RoamingPacketBundleIndex>>
+        // pub RoamingOperatorPacketBundles get(fn roaming_operator_packet_bundles): map hasher(blake2_256) T::RoamingOperatorIndex => Option<Vec<T::RoamingPacketBundleIndex>>
     }
 }
 

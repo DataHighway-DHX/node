@@ -1,13 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
+use sp_io::hashing::{blake2_128, blake2_256};
 use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_error, dispatch, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
-use sp-std::prelude::*; // Imports Vec
+use sp_std::prelude::*; // Imports Vec
 
 use roaming_operators;
 use roaming_network_servers;
@@ -48,22 +48,22 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingOrganizations {
         /// Stores all the roaming organizations, key is the roaming organization id / index
-        pub RoamingOrganizations get(fn roaming_organization): map T::RoamingOrganizationIndex => Option<RoamingOrganization>;
+        pub RoamingOrganizations get(fn roaming_organization): map hasher(blake2_256) T::RoamingOrganizationIndex => Option<RoamingOrganization>;
 
         /// Stores the total number of roaming organizations. i.e. the next roaming organization index
         pub RoamingOrganizationsCount get(fn roaming_organizations_count): T::RoamingOrganizationIndex;
 
         /// Get roaming organization owner
-        pub RoamingOrganizationOwners get(fn roaming_organization_owner): map T::RoamingOrganizationIndex => Option<T::AccountId>;
+        pub RoamingOrganizationOwners get(fn roaming_organization_owner): map hasher(blake2_256) T::RoamingOrganizationIndex => Option<T::AccountId>;
 
         /// Get roaming organization price. None means not for sale.
-        pub RoamingOrganizationPrices get(fn roaming_organization_price): map T::RoamingOrganizationIndex => Option<BalanceOf<T>>;
+        pub RoamingOrganizationPrices get(fn roaming_organization_price): map hasher(blake2_256) T::RoamingOrganizationIndex => Option<BalanceOf<T>>;
 
         /// Get roaming organization network server
-        pub RoamingOrganizationNetworkServers get(fn roaming_organization_network_server): map T::RoamingOrganizationIndex => Option<T::RoamingNetworkServerIndex>;
+        pub RoamingOrganizationNetworkServers get(fn roaming_organization_network_server): map hasher(blake2_256) T::RoamingOrganizationIndex => Option<T::RoamingNetworkServerIndex>;
 
         /// Get roaming network server organizations
-        pub RoamingNetworkServerOrganizations get(fn roaming_network_server_organizations): map T::RoamingNetworkServerIndex => Option<Vec<T::RoamingOrganizationIndex>>
+        pub RoamingNetworkServerOrganizations get(fn roaming_network_server_organizations): map hasher(blake2_256) T::RoamingNetworkServerIndex => Option<Vec<T::RoamingOrganizationIndex>>
     }
 }
 

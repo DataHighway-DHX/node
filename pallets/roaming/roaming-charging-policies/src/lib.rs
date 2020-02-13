@@ -1,13 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
+use sp_io::hashing::{blake2_128, blake2_256};
 use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_error, dispatch, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
-use sp-std::prelude::*; // Imports Vec
+use sp_std::prelude::*; // Imports Vec
 #[macro_use]
 extern crate alloc; // Required to use Vec
 
@@ -60,28 +60,28 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingChargingPolicies {
         /// Stores all the roaming charging_policy, key is the roaming charging_policy id / index
-        pub RoamingChargingPolicies get(fn roaming_charging_policy): map T::RoamingChargingPolicyIndex => Option<RoamingChargingPolicy>;
+        pub RoamingChargingPolicies get(fn roaming_charging_policy): map hasher(blake2_256) T::RoamingChargingPolicyIndex => Option<RoamingChargingPolicy>;
 
         /// Stores the total number of roaming charging_policies. i.e. the next roaming charging_policy index
         pub RoamingChargingPoliciesCount get(fn roaming_charging_policies_count): T::RoamingChargingPolicyIndex;
 
         /// Get roaming charging_policy owner
-        pub RoamingChargingPolicyOwners get(fn roaming_charging_policy_owner): map T::RoamingChargingPolicyIndex => Option<T::AccountId>;
+        pub RoamingChargingPolicyOwners get(fn roaming_charging_policy_owner): map hasher(blake2_256) T::RoamingChargingPolicyIndex => Option<T::AccountId>;
 
         /// Get roaming charging_policy config
-        pub RoamingChargingPolicyConfigs get(fn roaming_charging_policy_configs): map T::RoamingChargingPolicyIndex => Option<RoamingChargingPolicyConfig<T::RoamingChargingPolicyNextChargingAt, T::RoamingChargingPolicyDelayAfterBillingInDays>>;
+        pub RoamingChargingPolicyConfigs get(fn roaming_charging_policy_configs): map hasher(blake2_256) T::RoamingChargingPolicyIndex => Option<RoamingChargingPolicyConfig<T::RoamingChargingPolicyNextChargingAt, T::RoamingChargingPolicyDelayAfterBillingInDays>>;
 
         /// Get roaming charging_policy network
-        pub RoamingChargingPolicyNetwork get(fn roaming_charging_policy_network): map T::RoamingChargingPolicyIndex => Option<T::RoamingNetworkIndex>;
+        pub RoamingChargingPolicyNetwork get(fn roaming_charging_policy_network): map hasher(blake2_256) T::RoamingChargingPolicyIndex => Option<T::RoamingNetworkIndex>;
 
         /// Get roaming network's charging policies
-        pub RoamingNetworkChargingPolicies get(fn roaming_network_charging_policies): map T::RoamingNetworkIndex => Option<Vec<T::RoamingChargingPolicyIndex>>;
+        pub RoamingNetworkChargingPolicies get(fn roaming_network_charging_policies): map hasher(blake2_256) T::RoamingNetworkIndex => Option<Vec<T::RoamingChargingPolicyIndex>>;
 
         /// Get roaming charging_policy operator
-        pub RoamingChargingPolicyOperator get(fn roaming_charging_policy_operator): map T::RoamingChargingPolicyIndex => Option<T::RoamingOperatorIndex>;
+        pub RoamingChargingPolicyOperator get(fn roaming_charging_policy_operator): map hasher(blake2_256) T::RoamingChargingPolicyIndex => Option<T::RoamingOperatorIndex>;
 
         /// Get roaming operator's charging policies
-        pub RoamingOperatorChargingPolicies get(fn roaming_operator_charging_policies): map T::RoamingOperatorIndex => Option<Vec<T::RoamingChargingPolicyIndex>>
+        pub RoamingOperatorChargingPolicies get(fn roaming_operator_charging_policies): map hasher(blake2_256) T::RoamingOperatorIndex => Option<Vec<T::RoamingChargingPolicyIndex>>
     }
 }
 

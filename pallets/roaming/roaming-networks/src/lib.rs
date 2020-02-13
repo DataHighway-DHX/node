@@ -1,13 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
+use sp_io::hashing::{blake2_128, blake2_256};
 use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_error, dispatch, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
-use sp-std::prelude::*; // Imports Vec
+use sp_std::prelude::*; // Imports Vec
 
 use roaming_operators;
 
@@ -47,22 +47,22 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingNetworks {
         /// Stores all the roaming networks, key is the roaming network id / index
-        pub RoamingNetworks get(fn roaming_network): map T::RoamingNetworkIndex => Option<RoamingNetwork>;
+        pub RoamingNetworks get(fn roaming_network): map hasher(blake2_256) T::RoamingNetworkIndex => Option<RoamingNetwork>;
 
 		/// Stores the total number of roaming networks. i.e. the next roaming network index
         pub RoamingNetworksCount get(fn roaming_networks_count): T::RoamingNetworkIndex;
 
         /// Get roaming network owner
-        pub RoamingNetworkOwners get(fn roaming_network_owner): map T::RoamingNetworkIndex => Option<T::AccountId>;
+        pub RoamingNetworkOwners get(fn roaming_network_owner): map hasher(blake2_256) T::RoamingNetworkIndex => Option<T::AccountId>;
 
         /// Get roaming network price. None means not for sale.
-        pub RoamingNetworkPrices get(fn roaming_network_price): map T::RoamingNetworkIndex => Option<BalanceOf<T>>;
+        pub RoamingNetworkPrices get(fn roaming_network_price): map hasher(blake2_256) T::RoamingNetworkIndex => Option<BalanceOf<T>>;
 
         /// Get roaming operator belonging to a network
-        pub RoamingNetworkOperator get(fn roaming_network_operator): map T::RoamingNetworkIndex => Option<T::RoamingOperatorIndex>;
+        pub RoamingNetworkOperator get(fn roaming_network_operator): map hasher(blake2_256) T::RoamingNetworkIndex => Option<T::RoamingOperatorIndex>;
 
         /// Get roaming operator networks
-        pub RoamingOperatorNetworks get(fn roaming_operator_networks): map T::RoamingOperatorIndex => Option<Vec<T::RoamingNetworkIndex>>
+        pub RoamingOperatorNetworks get(fn roaming_operator_networks): map hasher(blake2_256) T::RoamingOperatorIndex => Option<Vec<T::RoamingNetworkIndex>>
     }
 }
 

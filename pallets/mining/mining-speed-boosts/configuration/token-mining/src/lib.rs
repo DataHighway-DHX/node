@@ -1,13 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
+use sp_io::hashing::{blake2_128, blake2_256};
 use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_error, dispatch, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
-use sp-std::prelude::*; // Imports Vec
+use sp_std::prelude::*; // Imports Vec
 
 // FIXME - remove this, only used this approach since do not know how to use BalanceOf using only mining-speed-boosts runtime module
 use roaming_operators;
@@ -137,16 +137,16 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostConfigurationTokenMining {
         /// Stores all the mining_speed_boosts_configuration_token_minings, key is the mining_speed_boosts_configuration_token_mining id / index
-        pub MiningSpeedBoostConfigurationTokenMinings get(fn mining_speed_boosts_configuration_token_mining): map T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<MiningSpeedBoostConfigurationTokenMining>;
+        pub MiningSpeedBoostConfigurationTokenMinings get(fn mining_speed_boosts_configuration_token_mining): map hasher(blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<MiningSpeedBoostConfigurationTokenMining>;
 
         /// Stores the total number of mining_speed_boosts_configuration_token_minings. i.e. the next mining_speed_boosts_configuration_token_mining index
         pub MiningSpeedBoostConfigurationTokenMiningCount get(fn mining_speed_boosts_configuration_token_mining_count): T::MiningSpeedBoostConfigurationTokenMiningIndex;
 
         /// Stores mining_speed_boosts_configuration_token_mining owner
-        pub MiningSpeedBoostConfigurationTokenMiningOwners get(fn mining_speed_boosts_configuration_token_mining_owner): map T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostConfigurationTokenMiningOwners get(fn mining_speed_boosts_configuration_token_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_configuration_token_mining_token_config
-        pub MiningSpeedBoostConfigurationTokenMiningTokenConfigs get(fn mining_speed_boosts_configuration_token_mining_token_configs): map T::MiningSpeedBoostConfigurationTokenMiningIndex =>
+        pub MiningSpeedBoostConfigurationTokenMiningTokenConfigs get(fn mining_speed_boosts_configuration_token_mining_token_configs): map hasher(blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex =>
             Option<MiningSpeedBoostConfigurationTokenMiningTokenConfig<T::MiningSpeedBoostConfigurationTokenMiningTokenType, BalanceOf<T>, T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod,
                 T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate, T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate>>;
 
@@ -155,7 +155,7 @@ decl_storage! {
         //     Option<MiningSpeedBoostSample<T::MiningSpeedBoostSampleDate, T::MiningSpeedBoostSampleTokensLocked>>;
 
         // /// Stores mining_speed_boosts_random_eligibility
-        // pub MiningSpeedBoostEligibility get(fn mining_speed_boosts_eligibility): map T::MiningSpeedBoostEligibilityTokenMiningIndex =>
+        // pub MiningSpeedBoostEligibility get(fn mining_speed_boosts_eligibility): map hasher(blake2_256) T::MiningSpeedBoostEligibilityTokenMiningIndex =>
         //     Option<MiningSpeedBoostEligibilityResult<
         //         T::MiningSpeedBoostEligibilityCalculatedEligibility, T::MiningSpeedBoostEligibilityTokenLockedPercentage, T::MiningSpeedBoostEligibilityHardwareUptimePercentage
         //     >>;
