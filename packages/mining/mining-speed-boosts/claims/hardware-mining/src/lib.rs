@@ -1,13 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::{Decode, Encode};
-use runtime_io::hashing::{blake2_128};
+use sp_io::hashing::{blake2_128};
 use sr_primitives::traits::{Bounded, Member, One, SimpleArithmetic};
-use support::traits::{Currency, ExistenceRequirement, Randomness};
+use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
-use support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
+use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
-use rstd::prelude::*; // Imports Vec
+use sp-std::prelude::*; // Imports Vec
 
 // FIXME - remove this, only used this approach since do not know how to use BalanceOf using only mining-speed-boosts runtime module
 use roaming_operators;
@@ -360,13 +360,11 @@ impl<T: Trait> Module<T> {
 mod tests {
     use super::*;
 
-    use primitives::{H256};
-    use sr_primitives::Perbill;
-    use sr_primitives::{
-        testing::Header,
-        traits::{BlakeTwo256, IdentityLookup},
+    use sp_core::H256;
+    use frame_support::{impl_outer_origin, assert_ok, parameter_types, weights::Weight};
+    use sp_runtime::{
+      traits::{BlakeTwo256, IdentityLookup}, testing::Header, Perbill,
     };
-    use support::{assert_noop, assert_ok, impl_outer_origin, parameter_types, weights::Weight};
 
     impl_outer_origin! {
         pub enum Origin for Test {}
@@ -397,6 +395,7 @@ mod tests {
         type MaximumBlockLength = MaximumBlockLength;
         type AvailableBlockRatio = AvailableBlockRatio;
         type Version = ();
+        type ModuleToIndex = ();
     }
     impl balances::Trait for Test {
         type Balance = u64;
@@ -476,7 +475,7 @@ mod tests {
 
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
-    fn new_test_ext() -> runtime_io::TestExternalities {
+    fn new_test_ext() -> sp_io::TestExternalities {
         let mut t = system::GenesisConfig::default()
             .build_storage::<Test>()
             .unwrap();
@@ -486,6 +485,6 @@ mod tests {
         }
         .assimilate_storage(&mut t)
         .unwrap();
-        runtime_io::TestExternalities::new(t)
+        sp_io::TestExternalities::new(t)
     }
 }
