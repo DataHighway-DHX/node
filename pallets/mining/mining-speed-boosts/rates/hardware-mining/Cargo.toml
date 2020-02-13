@@ -1,0 +1,32 @@
+[package]
+name = "mining-speed-boosts-rates-hardware-mining"
+version = "0.1.0"
+authors = ["Luke Schoen"]
+edition = "2018"
+
+[features]
+default = ['std']
+std = [
+    'codec/std',
+    'frame-support/std',
+    'randomness-collective-flip/std',
+    'sp-io/std',
+    'sp-std/std',
+    'system/std',
+    'transaction-payment/std',
+    'roaming-operators/std',
+]
+
+[dependencies]
+codec = { version = '1.0.0', default-features = false, features = ['derive'], package = 'parity-scale-codec' }
+frame-support = { default_features = false, package = 'frame-support', rev = '47076a93246de20cf35c655ddcde430306b33f9d', git = 'https://github.com/paritytech/substrate.git' }
+randomness-collective-flip = { default_features = false, package = 'pallet-randomness-collective-flip', rev = '47076a93246de20cf35c655ddcde430306b33f9d', git = 'https://github.com/paritytech/substrate.git' }
+sp-io = { version = '2.0.0', rev = '47076a93246de20cf35c655ddcde430306b33f9d', git = 'https://github.com/paritytech/substrate.git' }
+sp-std = { default_features = false, package = 'sp-std', rev = '47076a93246de20cf35c655ddcde430306b33f9d', git = 'https://github.com/paritytech/substrate.git' }
+system = { default_features = false, package = 'frame-system', rev = '47076a93246de20cf35c655ddcde430306b33f9d', git = 'https://github.com/paritytech/substrate.git' }
+transaction-payment = { default_features = false, package = 'pallet-transaction-payment', rev = '47076a93246de20cf35c655ddcde430306b33f9d', git = 'https://github.com/paritytech/substrate.git' }
+
+roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../../roaming/roaming-operators' }
+
+[dev-dependencies]
+balances = { package = 'pallet-balances', rev = '47076a93246de20cf35c655ddcde430306b33f9d', git = 'https://github.com/paritytech/substrate.git' }
