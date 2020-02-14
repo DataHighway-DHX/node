@@ -32,7 +32,7 @@ std = [
     "system/std",
     "timestamp/std",
     "transaction-payment/std",
-    # 'roaming-operators/std',
+    'roaming-operators/std',
     # 'roaming-networks/std',
     # 'roaming-organizations/std',
     # 'roaming-network-servers/std',
@@ -87,7 +87,7 @@ timestamp = { version = '2.0.0', default-features = false, package = 'pallet-tim
 transaction-payment = { version = '2.0.0', default-features = false, package = 'pallet-transaction-payment', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
 
 # env = { version = '0.1.0', default_features = false, package = 'env', path = '../pallets/env'}
-# roaming-operators = { default_features = false, package = 'roaming-operators', path = '../pallets/roaming/roaming-operators' }
+roaming-operators = { default_features = false, package = 'roaming-operators', path = '../pallets/roaming/roaming-operators' }
 # roaming-networks = { default_features = false, package = 'roaming-networks', path = '../pallets/roaming/roaming-networks' }
 # roaming-organizations = { default_features = false, package = 'roaming-organizations', path = '../pallets/roaming/roaming-organizations' }
 # roaming-network-servers = { default_features = false, package = 'roaming-network-servers', path = '../pallets/roaming/roaming-network-servers' }

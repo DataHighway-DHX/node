@@ -26,7 +26,7 @@ sc-service = { version = '0.8', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb'
 sc-transaction-pool = { version = '2.0.0', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
 sp-consensus-aura = { version = '0.8', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
 sp-consensus = { version = '0.8', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-sp-core = { version = '2.0.0', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
+sp-core = { version = '2.0.0', optional = true, rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
 sp-inherents = { version = '2.0.0', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
 sp-runtime = { version = '2.0.0', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
 sp-transaction-pool = { version = '2.0.0', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
@@ -40,7 +40,7 @@ build-script-utils = { version = '2.0.0', rev = 'b27d50c4c7b7137f2de04c31092f63a
 [workspace]
 members = [
     'runtime',
-    # 'pallets/roaming/roaming-operators',
+    'pallets/roaming/roaming-operators',
     # 'pallets/roaming/roaming-networks',
     # 'pallets/roaming/roaming-organizations',
     # 'pallets/roaming/roaming-network-servers',

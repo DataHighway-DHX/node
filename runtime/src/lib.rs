@@ -284,12 +284,12 @@ impl sudo::Trait for Runtime {
 	type Proposal = Call;
 }
 
-// impl roaming_operators::Trait for Runtime {
-// 	type Event = Event;
-// 	type RoamingOperatorIndex = u64;
-// 	type Currency = Balances;
-// 	type Randomness = RandomnessCollectiveFlip;
-// }
+impl roaming_operators::Trait for Runtime {
+	type Event = Event;
+	type RoamingOperatorIndex = u64;
+	type Currency = Balances;
+	type Randomness = RandomnessCollectiveFlip;
+}
 
 // impl roaming_networks::Trait for Runtime {
 // 	type Event = Event;
@@ -503,7 +503,7 @@ construct_runtime!(
 		TransactionPayment: transaction_payment::{Module, Storage},
 		Sudo: sudo,
 		// Used for the module template in `./template.rs`
-		// DataHighwayRoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
+		DataHighwayRoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingNetworks: roaming_networks::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingOrganizations: roaming_organizations::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingNetworkServers: roaming_network_servers::{Module, Call, Storage, Event<T>},
