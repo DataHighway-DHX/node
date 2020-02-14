@@ -2,7 +2,7 @@
 
 use codec::{Decode, Encode};
 use sp_io::hashing::{blake2_128};
-use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
+use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
@@ -14,7 +14,7 @@ use roaming_devices;
 /// The module's configuration trait.
 pub trait Trait: system::Trait + roaming_operators::Trait + roaming_devices::Trait {
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
-    type RoamingRoutingProfileIndex: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    type RoamingRoutingProfileIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingRoutingProfileAppServer: Parameter + Member + Default;
 }
 

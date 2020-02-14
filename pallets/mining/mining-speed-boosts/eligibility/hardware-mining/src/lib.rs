@@ -2,7 +2,7 @@
 
 use codec::{Decode, Encode};
 use sp_io::hashing::{blake2_128};
-use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
+use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
@@ -23,11 +23,11 @@ pub trait Trait: system::Trait +
     mining_speed_boosts_sampling_hardware_mining::Trait
   {
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
-    type MiningSpeedBoostEligibilityHardwareMiningIndex: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    // type MiningSpeedBoostEligibilityHardwareMiningDateAudited: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    type MiningSpeedBoostEligibilityHardwareMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    // type MiningSpeedBoostEligibilityHardwareMiningDateAudited: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
   }
 
 // type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as system::Trait>::AccountId>>::Balance;

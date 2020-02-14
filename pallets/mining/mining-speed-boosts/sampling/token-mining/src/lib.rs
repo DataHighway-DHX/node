@@ -2,7 +2,7 @@
 
 use codec::{Decode, Encode};
 use sp_io::hashing::{blake2_128};
-use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
+use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
@@ -16,9 +16,9 @@ use mining_speed_boosts_configuration_token_mining;
 /// The module's trait.
 pub trait Trait: system::Trait + roaming_operators::Trait + mining_speed_boosts_configuration_token_mining::Trait {
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
-    type MiningSpeedBoostSamplingTokenMiningIndex: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostSamplingTokenMiningSampleDate: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostSamplingTokenMiningSampleTokensLocked: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    type MiningSpeedBoostSamplingTokenMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSpeedBoostSamplingTokenMiningSampleDate: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSpeedBoostSamplingTokenMiningSampleTokensLocked: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
   }
 
 // type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as system::Trait>::AccountId>>::Balance;

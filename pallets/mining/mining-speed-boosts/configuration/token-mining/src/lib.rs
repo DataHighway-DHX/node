@@ -2,7 +2,7 @@
 
 use codec::{Decode, Encode};
 use sp_io::hashing::{blake2_128};
-use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
+use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
@@ -15,19 +15,19 @@ use roaming_operators;
 /// The module's configuration trait.
 pub trait Trait: system::Trait + roaming_operators::Trait {
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
-    type MiningSpeedBoostConfigurationTokenMiningIndex: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    type MiningSpeedBoostConfigurationTokenMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     // Mining Speed Boost Token Mining Config
     type MiningSpeedBoostConfigurationTokenMiningTokenType: Parameter + Member + Default;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     // // Mining Speed Boost Eligibility
-    // type MiningSpeedBoostEligibilityCalculatedEligibility: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    // type MiningSpeedBoostEligibilityTokenLockedPercentage: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    // type MiningSpeedBoostEligibilityHardwareUptimePercentage: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    // type MiningSpeedBoostEligibilityDateAudited: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    // type MiningSpeedBoostEligibilityAuditorAccountID: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostEligibilityCalculatedEligibility: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    // type MiningSpeedBoostEligibilityTokenLockedPercentage: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    // type MiningSpeedBoostEligibilityHardwareUptimePercentage: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    // type MiningSpeedBoostEligibilityDateAudited: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    // type MiningSpeedBoostEligibilityAuditorAccountID: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 
 }
 

@@ -2,7 +2,7 @@
 
 use codec::{Decode, Encode};
 use sp_io::hashing::{blake2_128};
-use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
+use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
@@ -23,7 +23,7 @@ pub trait Trait: system::Trait +
         roaming_devices::Trait +
         roaming_sessions::Trait {
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
-    type RoamingPacketBundleIndex: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    type RoamingPacketBundleIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 	type RoamingPacketBundleReceivedAtHome: Parameter + Member + Default;
     type RoamingPacketBundleReceivedPacketsCount: Parameter + Member + Default;
     type RoamingPacketBundleReceivedPacketsOkCount: Parameter + Member + Default;

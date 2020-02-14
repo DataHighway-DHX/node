@@ -2,7 +2,7 @@
 
 use codec::{Decode, Encode};
 use sp_io::hashing::{blake2_128};
-use sp_runtime::traits::{Bounded, Member, One, SimpleArithmetic};
+use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
@@ -15,17 +15,17 @@ use roaming_operators;
 /// The module's configuration trait.
 pub trait Trait: system::Trait + roaming_operators::Trait {
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
-    type MiningSpeedBoostConfigurationHardwareMiningIndex: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    type MiningSpeedBoostConfigurationHardwareMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     // Mining Speed Boost Hardware Mining Config
     type MiningSpeedBoostConfigurationHardwareMiningHardwareSecure: Parameter + Member + Default + Copy; // bool
     type MiningSpeedBoostConfigurationHardwareMiningHardwareType: Parameter + Member + Default;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareID: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    type MiningSpeedBoostConfigurationHardwareMiningHardwareID: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     // // Mining Speed Boost Reward
-    // type MiningSpeedBoostClaimAmount: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
-    // type MiningSpeedBoostClaimDateRedeemed: Parameter + Member + SimpleArithmetic + Bounded + Default + Copy;
+    // type MiningSpeedBoostClaimAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    // type MiningSpeedBoostClaimDateRedeemed: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
 type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as system::Trait>::AccountId>>::Balance;
