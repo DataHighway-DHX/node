@@ -340,10 +340,10 @@ impl roaming_agreement_policies::Trait for Runtime {
 	type RoamingAgreementPolicyExpiry = u64; // <pallet_timestamp::Module<Runtime> as Trait>::Moment` timestamp::Module<Runtime>::Moment;
 }
 
-// impl roaming_network_profiles::Trait for Runtime {
-// 	type Event = Event;
-// 	type RoamingNetworkProfileIndex = u64;
-// }
+impl roaming_network_profiles::Trait for Runtime {
+	type Event = Event;
+	type RoamingNetworkProfileIndex = u64;
+}
 
 // impl roaming_device_profiles::Trait for Runtime {
 // 	type Event = Event;
@@ -512,7 +512,7 @@ construct_runtime!(
 		DataHighwayRoamingServiceProfiles: roaming_service_profiles::{Module, Call, Storage, Event<T>},
 		DataHighwayRoamingAccountingPolicies: roaming_accounting_policies::{Module, Call, Storage, Event<T>},
 		DataHighwayRoamingAgreementPolicies: roaming_agreement_policies::{Module, Call, Storage, Event<T>},
-		// DataHighwayRoamingNetworkProfiles: roaming_network_profiles::{Module, Call, Storage, Event<T>},
+		DataHighwayRoamingNetworkProfiles: roaming_network_profiles::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingDeviceProfiles: roaming_device_profiles::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingSessions: roaming_sessions::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingBillingPolicies: roaming_billing_policies::{Module, Call, Storage, Event<T>},

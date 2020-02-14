@@ -49,7 +49,7 @@ members = [
     'pallets/roaming/roaming-service-profiles',
     'pallets/roaming/roaming-accounting-policies',
     'pallets/roaming/roaming-agreement-policies',
-    # 'pallets/roaming/roaming-network-profiles',
+    'pallets/roaming/roaming-network-profiles',
     # 'pallets/roaming/roaming-device-profiles',
     # 'pallets/roaming/roaming-sessions',
     # 'pallets/roaming/roaming-billing-policies',
