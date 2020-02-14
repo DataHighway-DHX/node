@@ -2408,6 +2408,7 @@ dependencies = [
  "pallet-transaction-payment 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
  "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "roaming-accounting-policies 0.1.0",
+ "roaming-agreement-policies 0.1.0",
  "roaming-devices 0.1.0",
  "roaming-network-servers 0.1.0",
  "roaming-networks 0.1.0",

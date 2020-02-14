@@ -333,12 +333,12 @@ impl roaming_accounting_policies::Trait for Runtime {
 	type RoamingAccountingPolicyDownlinkFeeFactor = u32;
 }
 
-// impl roaming_agreement_policies::Trait for Runtime {
-// 	type Event = Event;
-// 	type RoamingAgreementPolicyIndex = u64;
-// 	type RoamingAgreementPolicyActivationType = Vec<u8>;
-// 	type RoamingAgreementPolicyExpiry = u64; // <pallet_timestamp::Module<Runtime> as Trait>::Moment` timestamp::Module<Runtime>::Moment;
-// }
+impl roaming_agreement_policies::Trait for Runtime {
+	type Event = Event;
+	type RoamingAgreementPolicyIndex = u64;
+	type RoamingAgreementPolicyActivationType = Vec<u8>;
+	type RoamingAgreementPolicyExpiry = u64; // <pallet_timestamp::Module<Runtime> as Trait>::Moment` timestamp::Module<Runtime>::Moment;
+}
 
 // impl roaming_network_profiles::Trait for Runtime {
 // 	type Event = Event;
@@ -511,7 +511,7 @@ construct_runtime!(
 		DataHighwayRoamingRoutingProfiles: roaming_routing_profiles::{Module, Call, Storage, Event<T>},
 		DataHighwayRoamingServiceProfiles: roaming_service_profiles::{Module, Call, Storage, Event<T>},
 		DataHighwayRoamingAccountingPolicies: roaming_accounting_policies::{Module, Call, Storage, Event<T>},
-		// DataHighwayRoamingAgreementPolicies: roaming_agreement_policies::{Module, Call, Storage, Event<T>},
+		DataHighwayRoamingAgreementPolicies: roaming_agreement_policies::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingNetworkProfiles: roaming_network_profiles::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingDeviceProfiles: roaming_device_profiles::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingSessions: roaming_sessions::{Module, Call, Storage, Event<T>},

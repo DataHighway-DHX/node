@@ -40,7 +40,7 @@ std = [
     'roaming-routing-profiles/std',
     'roaming-service-profiles/std',
     'roaming-accounting-policies/std',
-    # 'roaming-agreement-policies/std',
+    'roaming-agreement-policies/std',
     # 'roaming-network-profiles/std',
     # 'roaming-device-profiles/std',
     # 'roaming-sessions/std',
@@ -96,7 +96,7 @@ roaming-devices = { default_features = false, package = 'roaming-devices', path 
 roaming-routing-profiles = { default_features = false, package = 'roaming-routing-profiles', path = '../pallets/roaming/roaming-routing-profiles' }
 roaming-service-profiles = { default_features = false, package = 'roaming-service-profiles', path = '../pallets/roaming/roaming-service-profiles' }
 roaming-accounting-policies = { default_features = false, package = 'roaming-accounting-policies', path = '../pallets/roaming/roaming-accounting-policies' }
-# roaming-agreement-policies = { default_features = false, package = 'roaming-agreement-policies', path = '../pallets/roaming/roaming-agreement-policies' }
+roaming-agreement-policies = { default_features = false, package = 'roaming-agreement-policies', path = '../pallets/roaming/roaming-agreement-policies' }
 # roaming-network-profiles = { default_features = false, package = 'roaming-network-profiles', path = '../pallets/roaming/roaming-network-profiles' }
 # roaming-device-profiles = { default_features = false, package = 'roaming-device-profiles', path = '../pallets/roaming/roaming-device-profiles' }
 # roaming-sessions = { default_features = false, package = 'roaming-sessions', path = '../pallets/roaming/roaming-sessions' }
