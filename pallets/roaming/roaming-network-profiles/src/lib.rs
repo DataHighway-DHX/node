@@ -7,6 +7,7 @@ use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
+use sp_runtime::DispatchError;
 use sp_std::prelude::*; // Imports Vec
 
 use roaming_operators;
@@ -145,7 +146,7 @@ decl_module! {
             origin,
             roaming_network_profile_id: T::RoamingNetworkProfileIndex,
             roaming_network_id: T::RoamingNetworkIndex
-        ) -> Result<(), &'static str> {
+        ) -> Result<(), DispatchError> {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the roaming network_profile id whose config we want to change actually exists
@@ -182,7 +183,7 @@ decl_module! {
                         found = true;
 
                         debug::info!("Provided network_id is already a whitelisted network");
-                        return Err("Provided network_id is already a whitelisted network");
+                        return Err(DispatchError::Other("Provided network_id is already a whitelisted network"));
                     }
 
                     // If it doesn't exist, but we still already have a vector with other whitelisted networks
@@ -243,7 +244,7 @@ decl_module! {
             origin,
             roaming_network_profile_id: T::RoamingNetworkProfileIndex,
             roaming_network_id: T::RoamingNetworkIndex
-        ) -> Result<(), &'static str> {
+        ) -> Result<(), DispatchError> {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the roaming network_profile id whose config we want to change actually exists
@@ -313,7 +314,7 @@ decl_module! {
             origin,
             roaming_network_profile_id: T::RoamingNetworkProfileIndex,
             roaming_device_id: T::RoamingDeviceIndex
-        ) -> Result<(), &'static str> {
+        ) -> Result<(), DispatchError> {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the roaming network_profile id whose config we want to change actually exists
@@ -350,7 +351,7 @@ decl_module! {
                         found = true;
 
                         debug::info!("Provided network_id is already a blacklisted device");
-                        return Err("Provided network_id is already a blacklisted device");
+                        return Err(DispatchError::Other("Provided network_id is already a blacklisted device"));
                     }
 
                     // If it doesn't exist, but we still already have a vector with other blacklisted devices
@@ -410,7 +411,7 @@ decl_module! {
             origin,
             roaming_network_profile_id: T::RoamingNetworkProfileIndex,
             roaming_device_id: T::RoamingDeviceIndex
-        ) -> Result<(), &'static str> {
+        ) -> Result<(), DispatchError> {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the roaming network_profile id whose config we want to change actually exists
@@ -549,7 +550,7 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_roaming_network_profile_owner(roaming_network_profile_id: T::RoamingNetworkProfileIndex, sender: T::AccountId) -> Result<(), &'static str> {
+	pub fn is_roaming_network_profile_owner(roaming_network_profile_id: T::RoamingNetworkProfileIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         ensure!(
             Self::roaming_network_profile_owner(&roaming_network_profile_id)
                 .map(|owner| owner == sender)
@@ -559,7 +560,7 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn is_owned_by_required_parent_relationship(roaming_network_profile_id: T::RoamingNetworkProfileIndex, sender: T::AccountId) -> Result<(), &'static str> {
+    pub fn is_owned_by_required_parent_relationship(roaming_network_profile_id: T::RoamingNetworkProfileIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         debug::info!("Get the network id associated with the network of the given network profile id");
         let network_profile_network_id = Self::roaming_network_profile_network(roaming_network_profile_id);
 
@@ -572,20 +573,20 @@ impl<T: Trait> Module<T> {
             );
         } else {
             // There must be a network id associated with the network profile
-            return Err("RoamingNetworkProfileNetwork does not exist");
+            return Err(DispatchError::Other("RoamingNetworkProfileNetwork does not exist"));
         }
         Ok(())
     }
 
-    pub fn exists_roaming_network_profile(roaming_network_profile_id: T::RoamingNetworkProfileIndex) -> Result<RoamingNetworkProfile, &'static str> {
+    pub fn exists_roaming_network_profile(roaming_network_profile_id: T::RoamingNetworkProfileIndex) -> Result<RoamingNetworkProfile, DispatchError> {
         match Self::roaming_network_profile(roaming_network_profile_id) {
             Some(roaming_network_profile) => Ok(roaming_network_profile),
-            None => Err("RoamingNetworkProfile does not exist")
+            None => Err(DispatchError::Other("RoamingNetworkProfile does not exist"))
         }
     }
 
     pub fn has_value_for_network_profile_whitelisted_networks(roaming_network_profile_id: T::RoamingNetworkProfileIndex)
-    -> Result<(), &'static str> {
+    -> Result<(), DispatchError> {
         debug::info!("Checking if network_profile whitelisted network has a value that is defined");
         let fetched_network_profile_whitelisted_network = <RoamingNetworkProfileWhitelistedNetworks<T>>::get(roaming_network_profile_id);
         if let Some(value) = fetched_network_profile_whitelisted_network {
@@ -593,11 +594,11 @@ impl<T: Trait> Module<T> {
             return Ok(());
         }
         debug::info!("No value for network_profile whitelisted network");
-        Err("No value for network_profile whitelisted network")
+        Err(DispatchError::Other("No value for network_profile whitelisted network"))
     }
 
     pub fn has_value_for_network_profile_blacklisted_devices(roaming_network_profile_id: T::RoamingNetworkProfileIndex)
-    -> Result<(), &'static str> {
+    -> Result<(), DispatchError> {
         debug::info!("Checking if network_profile blacklisted_devices has a value that is defined");
         let fetched_network_profile_blacklisted_devices = <RoamingNetworkProfileBlacklistedDevices<T>>::get(roaming_network_profile_id);
         if let Some(value) = fetched_network_profile_blacklisted_devices {
@@ -605,14 +606,14 @@ impl<T: Trait> Module<T> {
             return Ok(());
         }
         debug::info!("No value for network_profile blacklisted_devices");
-        Err("No value for network_profile blacklisted_devices")
+        Err(DispatchError::Other("No value for network_profile blacklisted_devices"))
     }
 
     /// Only push the network profile id onto the end of the vector if it does not already exist
     pub fn associate_network_profile_with_network(
         roaming_network_profile_id: T::RoamingNetworkProfileIndex,
         roaming_network_id: T::RoamingNetworkIndex
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given network id already exists as a key,
         // and where its corresponding value is a vector that already contains the given network profile id
@@ -639,7 +640,7 @@ impl<T: Trait> Module<T> {
     pub fn associate_network_profile_with_operator(
         roaming_network_profile_id: T::RoamingNetworkProfileIndex,
         roaming_operator_id: T::RoamingOperatorIndex
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given operator id already exists as a key,
         // and where its corresponding value is a vector that already contains the given network profile id
@@ -672,10 +673,10 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_roaming_network_profile_id() -> Result<T::RoamingNetworkProfileIndex, &'static str> {
+    fn next_roaming_network_profile_id() -> Result<T::RoamingNetworkProfileIndex, DispatchError> {
         let roaming_network_profile_id = Self::roaming_network_profiles_count();
         if roaming_network_profile_id == <T::RoamingNetworkProfileIndex as Bounded>::max_value() {
-            return Err("RoamingNetworkProfiles count overflow");
+            return Err(DispatchError::Other("RoamingNetworkProfiles count overflow"));
         }
         Ok(roaming_network_profile_id)
     }
