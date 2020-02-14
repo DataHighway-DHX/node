@@ -291,25 +291,25 @@ impl roaming_operators::Trait for Runtime {
 	type Randomness = RandomnessCollectiveFlip;
 }
 
-// impl roaming_networks::Trait for Runtime {
-// 	type Event = Event;
-// 	type RoamingNetworkIndex = u64;
-// }
+impl roaming_networks::Trait for Runtime {
+	type Event = Event;
+	type RoamingNetworkIndex = u64;
+}
 
-// impl roaming_organizations::Trait for Runtime {
-// 	type Event = Event;
-// 	type RoamingOrganizationIndex = u64;
-// }
+impl roaming_organizations::Trait for Runtime {
+	type Event = Event;
+	type RoamingOrganizationIndex = u64;
+}
 
-// impl roaming_network_servers::Trait for Runtime {
-// 	type Event = Event;
-// 	type RoamingNetworkServerIndex = u64;
-// }
+impl roaming_network_servers::Trait for Runtime {
+	type Event = Event;
+	type RoamingNetworkServerIndex = u64;
+}
 
-// impl roaming_devices::Trait for Runtime {
-// 	type Event = Event;
-// 	type RoamingDeviceIndex = u64;
-// }
+impl roaming_devices::Trait for Runtime {
+	type Event = Event;
+	type RoamingDeviceIndex = u64;
+}
 
 // impl roaming_routing_profiles::Trait for Runtime {
 // 	type Event = Event;
@@ -504,10 +504,10 @@ construct_runtime!(
 		Sudo: sudo,
 		// Used for the module template in `./template.rs`
 		DataHighwayRoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
-		// DataHighwayRoamingNetworks: roaming_networks::{Module, Call, Storage, Event<T>},
-		// DataHighwayRoamingOrganizations: roaming_organizations::{Module, Call, Storage, Event<T>},
-		// DataHighwayRoamingNetworkServers: roaming_network_servers::{Module, Call, Storage, Event<T>},
-		// DataHighwayRoamingDevices: roaming_devices::{Module, Call, Storage, Event<T>},
+		DataHighwayRoamingNetworks: roaming_networks::{Module, Call, Storage, Event<T>},
+		DataHighwayRoamingOrganizations: roaming_organizations::{Module, Call, Storage, Event<T>},
+		DataHighwayRoamingNetworkServers: roaming_network_servers::{Module, Call, Storage, Event<T>},
+		DataHighwayRoamingDevices: roaming_devices::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingRoutingProfiles: roaming_routing_profiles::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingServiceProfiles: roaming_service_profiles::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingAccountingPolicies: roaming_accounting_policies::{Module, Call, Storage, Event<T>},

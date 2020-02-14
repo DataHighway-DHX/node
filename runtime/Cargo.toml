@@ -33,10 +33,10 @@ std = [
     "timestamp/std",
     "transaction-payment/std",
     'roaming-operators/std',
-    # 'roaming-networks/std',
-    # 'roaming-organizations/std',
-    # 'roaming-network-servers/std',
-    # 'roaming-devices/std',
+    'roaming-networks/std',
+    'roaming-organizations/std',
+    'roaming-network-servers/std',
+    'roaming-devices/std',
     # 'roaming-routing-profiles/std',
     # 'roaming-service-profiles/std',
     # 'roaming-accounting-policies/std',
@@ -88,10 +88,10 @@ transaction-payment = { version = '2.0.0', default-features = false, package = '
 
 # env = { version = '0.1.0', default_features = false, package = 'env', path = '../pallets/env'}
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../pallets/roaming/roaming-operators' }
-# roaming-networks = { default_features = false, package = 'roaming-networks', path = '../pallets/roaming/roaming-networks' }
-# roaming-organizations = { default_features = false, package = 'roaming-organizations', path = '../pallets/roaming/roaming-organizations' }
-# roaming-network-servers = { default_features = false, package = 'roaming-network-servers', path = '../pallets/roaming/roaming-network-servers' }
-# roaming-devices = { default_features = false, package = 'roaming-devices', path = '../pallets/roaming/roaming-devices' }
+roaming-networks = { default_features = false, package = 'roaming-networks', path = '../pallets/roaming/roaming-networks' }
+roaming-organizations = { default_features = false, package = 'roaming-organizations', path = '../pallets/roaming/roaming-organizations' }
+roaming-network-servers = { default_features = false, package = 'roaming-network-servers', path = '../pallets/roaming/roaming-network-servers' }
+roaming-devices = { default_features = false, package = 'roaming-devices', path = '../pallets/roaming/roaming-devices' }
 # roaming-routing-profiles = { default_features = false, package = 'roaming-routing-profiles', path = '../pallets/roaming/roaming-routing-profiles' }
 # roaming-service-profiles = { default_features = false, package = 'roaming-service-profiles', path = '../pallets/roaming/roaming-service-profiles' }
 # roaming-accounting-policies = { default_features = false, package = 'roaming-accounting-policies', path = '../pallets/roaming/roaming-accounting-policies' }
