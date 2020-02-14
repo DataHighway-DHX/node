@@ -1,7 +1,7 @@
 use sp_core::{Pair, Public, sr25519};
 use node_runtime::{
 	AccountId, AuraConfig, BalancesConfig, GenesisConfig, GrandpaConfig,
-	SudoConfig, IndicesConfig, SystemConfig, WASM_BINARY, Signature
+	IndicesConfig, SudoConfig, SystemConfig, WASM_BINARY, Signature
 };
 use sp_consensus_aura::sr25519::{AuthorityId as AuraId};
 use grandpa_primitives::{AuthorityId as GrandpaId};
@@ -42,7 +42,7 @@ pub fn get_account_id_from_seed<TPublic: Public>(seed: &str) -> AccountId where
 }
 
 /// Helper function to generate an authority key for Aura
-pub fn get_authority_keys_from_seed(s: &str) -> (AuraId, GrandpaId) { 
+pub fn get_authority_keys_from_seed(s: &str) -> (AuraId, GrandpaId) {
 	(
 		get_from_seed::<AuraId>(s),
 		get_from_seed::<GrandpaId>(s),
@@ -67,7 +67,7 @@ impl Alternative {
 						get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
 						get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
 					],
-					true
+					true,
 				),
 				vec![],
 				None,
@@ -82,7 +82,7 @@ impl Alternative {
 					vec![
 						get_authority_keys_from_seed("Alice"),
 						get_authority_keys_from_seed("Bob"),
-					], 
+					],
 					get_account_id_from_seed::<sr25519::Public>("Alice"),
 					vec![
 						get_account_id_from_seed::<sr25519::Public>("Alice"),
@@ -98,7 +98,7 @@ impl Alternative {
 						get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
 						get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
 					],
-					true
+					true,
 				),
 				vec![],
 				None,
@@ -128,7 +128,7 @@ fn testnet_genesis(initial_authorities: Vec<(AuraId, GrandpaId)>,
 			changes_trie_config: Default::default(),
 		}),
 		indices: Some(IndicesConfig {
-			ids: endowed_accounts.clone(),
+			indices: vec![],
 		}),
 		balances: Some(BalancesConfig {
 			balances: endowed_accounts.iter().cloned().map(|k|(k, 1 << 60)).collect(),

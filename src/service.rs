@@ -41,10 +41,8 @@ macro_rules! new_full_start {
 			})?
 			.with_transaction_pool(|config, client, _fetcher| {
 				let pool_api = sc_transaction_pool::FullChainApi::new(client.clone());
-				let pool = sc_transaction_pool::BasicPool::new(config, pool_api);
-				let maintainer = sc_transaction_pool::FullBasicPoolMaintainer::new(pool.pool().clone(), client);
-				let maintainable_pool = sp_transaction_pool::MaintainableTransactionPool::new(pool, maintainer);
-				Ok(maintainable_pool)
+				let pool = sc_transaction_pool::BasicPool::new(config, std::sync::Arc::new(pool_api));
+				Ok(pool)
 			})?
 			.with_import_queue(|_config, client, mut select_chain, transaction_pool| {
 				let select_chain = select_chain.take()

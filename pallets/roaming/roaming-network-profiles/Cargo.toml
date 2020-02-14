@@ -9,7 +9,9 @@ default = ['std']
 std = [
     'codec/std',
     'frame-support/std',
+    'safe-mix/std',
     'randomness-collective-flip/std',
+    'sp-core',
     'sp-io/std',
     'sp-runtime/std',
     'sp-std/std',
@@ -24,13 +26,15 @@ std = [
 ]
 
 [dependencies]
-codec = { version = '1.0.0', default-features = false, features = ['derive'], package = 'parity-scale-codec' }
-frame-support = { default_features = false, package = 'frame-support', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
+codec = { package = 'parity-scale-codec', version = '1.0.0', default-features = false, features = ['derive'] }
+safe-mix = { default-features = false, version = '1.0.0' }
+frame-support = { version = '2.0.0', default_features = false, package = 'frame-support', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
 randomness-collective-flip = { default_features = false, package = 'pallet-randomness-collective-flip', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
+sp-core = { version = '2.0.0', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
 sp-io = { version = '2.0.0', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
 sp-runtime = { default_features = false, package = 'sp-runtime', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
 sp-std = { default_features = false, package = 'sp-std', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-system = { default_features = false, package = 'frame-system', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
+system = { version = '2.0.0', default_features = false, package = 'frame-system', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
 transaction-payment = { default_features = false, package = 'pallet-transaction-payment', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
 
 serde = { version = '1.0', optional = true }

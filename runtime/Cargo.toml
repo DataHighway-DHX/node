@@ -7,31 +7,31 @@ version = '2.0.0'
 [features]
 default = ['std']
 std = [
-    'aura/std',
-    'balances/std',
-    'codec/std',
-    'frame-executive/std',
-    'frame-support/std',
-    'grandpa/std',
-    'indices/std',
-    'randomness-collective-flip/std',
-    'serde',
-    'sp-api/std',
-    'sp-block-builder/std',
-    'sp-consensus-aura/std',
-    'sp-core/std',
-    'sp-inherents/std',
-    'sp-io/std',
-    'sp-offchain/std',
-    'sp-runtime/std',
-    'sp-session/std',
-    'sp-std/std',
-    'sp-transaction-pool/std',
-    'sp-version/std',
-    'sudo/std',
-    'system/std',
-    'timestamp/std',
-    'transaction-payment/std',
+    "aura/std",
+    "balances/std",
+    "codec/std",
+    "frame-executive/std",
+    "frame-support/std",
+    "grandpa/std",
+    "indices/std",
+    "randomness-collective-flip/std",
+    "serde",
+    "sp-api/std",
+    "sp-block-builder/std",
+    "sp-consensus-aura/std",
+    "sp-core/std",
+    "sp-inherents/std",
+    "sp-io/std",
+    "sp-offchain/std",
+    "sp-runtime/std",
+    "sp-session/std",
+    "sp-std/std",
+    "sp-transaction-pool/std",
+    "sp-version/std",
+    "sudo/std",
+    "system/std",
+    "timestamp/std",
+    "transaction-payment/std",
     # 'roaming-operators/std',
     # 'roaming-networks/std',
     # 'roaming-organizations/std',
@@ -59,7 +59,7 @@ std = [
 ]
 
 [dependencies]
-codec = { package = 'parity-scale-codec', version = '1.0.0', default-features = false, features = ['derive'] }
+codec = { package = "parity-scale-codec", version = "1.0.0", default-features = false, features = ["derive"] }
 
 aura = { version = '2.0.0', default-features = false, package = 'pallet-aura', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
 balances = { version = '2.0.0', default-features = false, package = 'pallet-balances', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
@@ -114,4 +114,4 @@ transaction-payment = { version = '2.0.0', default-features = false, package = '
 # mining-speed-boosts-claims-hardware-mining = { default_features = false, package = 'mining-speed-boosts-claims-hardware-mining', path = '../pallets/mining/mining-speed-boosts/claims/hardware-mining' }
 
 [build-dependencies]
-wasm-builder-runner = { version = '1.0.5', package = 'substrate-wasm-builder-runner', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
+wasm-builder-runner = { version = '1.0.4', package = 'substrate-wasm-builder-runner', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
