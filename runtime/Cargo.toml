@@ -33,30 +33,30 @@ std = [
     'system/std',
     'timestamp/std',
     'transaction-payment/std',
-    'roaming-operators/std',
-    'roaming-networks/std',
-    'roaming-organizations/std',
-    'roaming-network-servers/std',
-    'roaming-devices/std',
-    'roaming-routing-profiles/std',
-    'roaming-service-profiles/std',
-    'roaming-accounting-policies/std',
-    'roaming-network-profiles/std',
-    'roaming-device-profiles/std',
-    'roaming-sessions/std',
-    'roaming-billing-policies/std',
-    'roaming-charging-policies/std',
-    'roaming-packet-bundles/std',
-    'mining-speed-boosts-configuration-token-mining/std',
-    'mining-speed-boosts-configuration-hardware-mining/std',
-    'mining-speed-boosts-rates-token-mining/std',
-    'mining-speed-boosts-rates-hardware-mining/std',
-    'mining-speed-boosts-sampling-token-mining/std',
-    'mining-speed-boosts-sampling-hardware-mining/std',
-    'mining-speed-boosts-eligibility-token-mining/std',
-    'mining-speed-boosts-eligibility-hardware-mining/std',
-    'mining-speed-boosts-claims-token-mining/std',
-    'mining-speed-boosts-claims-hardware-mining/std',
+    # 'roaming-operators/std',
+    # 'roaming-networks/std',
+    # 'roaming-organizations/std',
+    # 'roaming-network-servers/std',
+    # 'roaming-devices/std',
+    # 'roaming-routing-profiles/std',
+    # 'roaming-service-profiles/std',
+    # 'roaming-accounting-policies/std',
+    # 'roaming-network-profiles/std',
+    # 'roaming-device-profiles/std',
+    # 'roaming-sessions/std',
+    # 'roaming-billing-policies/std',
+    # 'roaming-charging-policies/std',
+    # 'roaming-packet-bundles/std',
+    # 'mining-speed-boosts-configuration-token-mining/std',
+    # 'mining-speed-boosts-configuration-hardware-mining/std',
+    # 'mining-speed-boosts-rates-token-mining/std',
+    # 'mining-speed-boosts-rates-hardware-mining/std',
+    # 'mining-speed-boosts-sampling-token-mining/std',
+    # 'mining-speed-boosts-sampling-hardware-mining/std',
+    # 'mining-speed-boosts-eligibility-token-mining/std',
+    # 'mining-speed-boosts-eligibility-hardware-mining/std',
+    # 'mining-speed-boosts-claims-token-mining/std',
+    # 'mining-speed-boosts-claims-hardware-mining/std',
 ]
 
 [dependencies]
@@ -88,32 +88,32 @@ system = { version = '2.0.0', default-features = false, package = 'frame-system'
 timestamp = { version = '2.0.0', default-features = false, package = 'pallet-timestamp', rev = '47076a93246de20cf35c655ddcde430306b33f9d', git = 'https://github.com/paritytech/substrate.git' }
 transaction-payment = { version = '2.0.0', default-features = false, package = 'pallet-transaction-payment', rev = '47076a93246de20cf35c655ddcde430306b33f9d', git = 'https://github.com/paritytech/substrate.git' }
 
-env = { version = '0.1.0', default_features = false, package = 'env', path = '../pallets/env'}
-roaming-operators = { default_features = false, package = 'roaming-operators', path = '../pallets/roaming/roaming-operators' }
-roaming-networks = { default_features = false, package = 'roaming-networks', path = '../pallets/roaming/roaming-networks' }
-roaming-organizations = { default_features = false, package = 'roaming-organizations', path = '../pallets/roaming/roaming-organizations' }
-roaming-network-servers = { default_features = false, package = 'roaming-network-servers', path = '../pallets/roaming/roaming-network-servers' }
-roaming-devices = { default_features = false, package = 'roaming-devices', path = '../pallets/roaming/roaming-devices' }
-roaming-routing-profiles = { default_features = false, package = 'roaming-routing-profiles', path = '../pallets/roaming/roaming-routing-profiles' }
-roaming-service-profiles = { default_features = false, package = 'roaming-service-profiles', path = '../pallets/roaming/roaming-service-profiles' }
-roaming-accounting-policies = { default_features = false, package = 'roaming-accounting-policies', path = '../pallets/roaming/roaming-accounting-policies' }
-roaming-agreement-policies = { default_features = false, package = 'roaming-agreement-policies', path = '../pallets/roaming/roaming-agreement-policies' }
-roaming-network-profiles = { default_features = false, package = 'roaming-network-profiles', path = '../pallets/roaming/roaming-network-profiles' }
-roaming-device-profiles = { default_features = false, package = 'roaming-device-profiles', path = '../pallets/roaming/roaming-device-profiles' }
-roaming-sessions = { default_features = false, package = 'roaming-sessions', path = '../pallets/roaming/roaming-sessions' }
-roaming-billing-policies = { default_features = false, package = 'roaming-billing-policies', path = '../pallets/roaming/roaming-billing-policies' }
-roaming-charging-policies = { default_features = false, package = 'roaming-charging-policies', path = '../pallets/roaming/roaming-charging-policies' }
-roaming-packet-bundles = { default_features = false, package = 'roaming-packet-bundles', path = '../pallets/roaming/roaming-packet-bundles' }
-mining-speed-boosts-configuration-token-mining = { default_features = false, package = 'mining-speed-boosts-configuration-token-mining', path = '../pallets/mining/mining-speed-boosts/configuration/token-mining' }
-mining-speed-boosts-configuration-hardware-mining = { default_features = false, package = 'mining-speed-boosts-configuration-hardware-mining', path = '../pallets/mining/mining-speed-boosts/configuration/hardware-mining' }
-mining-speed-boosts-rates-token-mining = { default_features = false, package = 'mining-speed-boosts-rates-token-mining', path = '../pallets/mining/mining-speed-boosts/rates/token-mining' }
-mining-speed-boosts-rates-hardware-mining = { default_features = false, package = 'mining-speed-boosts-rates-hardware-mining', path = '../pallets/mining/mining-speed-boosts/rates/hardware-mining' }
-mining-speed-boosts-sampling-token-mining = { default_features = false, package = 'mining-speed-boosts-sampling-token-mining', path = '../pallets/mining/mining-speed-boosts/sampling/token-mining' }
-mining-speed-boosts-sampling-hardware-mining = { default_features = false, package = 'mining-speed-boosts-sampling-hardware-mining', path = '../pallets/mining/mining-speed-boosts/sampling/hardware-mining' }
-mining-speed-boosts-eligibility-token-mining = { default_features = false, package = 'mining-speed-boosts-eligibility-token-mining', path = '../pallets/mining/mining-speed-boosts/eligibility/token-mining' }
-mining-speed-boosts-eligibility-hardware-mining = { default_features = false, package = 'mining-speed-boosts-eligibility-hardware-mining', path = '../pallets/mining/mining-speed-boosts/eligibility/hardware-mining' }
-mining-speed-boosts-claims-token-mining = { default_features = false, package = 'mining-speed-boosts-claims-token-mining', path = '../pallets/mining/mining-speed-boosts/claims/token-mining' }
-mining-speed-boosts-claims-hardware-mining = { default_features = false, package = 'mining-speed-boosts-claims-hardware-mining', path = '../pallets/mining/mining-speed-boosts/claims/hardware-mining' }
+# env = { version = '0.1.0', default_features = false, package = 'env', path = '../pallets/env'}
+# roaming-operators = { default_features = false, package = 'roaming-operators', path = '../pallets/roaming/roaming-operators' }
+# roaming-networks = { default_features = false, package = 'roaming-networks', path = '../pallets/roaming/roaming-networks' }
+# roaming-organizations = { default_features = false, package = 'roaming-organizations', path = '../pallets/roaming/roaming-organizations' }
+# roaming-network-servers = { default_features = false, package = 'roaming-network-servers', path = '../pallets/roaming/roaming-network-servers' }
+# roaming-devices = { default_features = false, package = 'roaming-devices', path = '../pallets/roaming/roaming-devices' }
+# roaming-routing-profiles = { default_features = false, package = 'roaming-routing-profiles', path = '../pallets/roaming/roaming-routing-profiles' }
+# roaming-service-profiles = { default_features = false, package = 'roaming-service-profiles', path = '../pallets/roaming/roaming-service-profiles' }
+# roaming-accounting-policies = { default_features = false, package = 'roaming-accounting-policies', path = '../pallets/roaming/roaming-accounting-policies' }
+# roaming-agreement-policies = { default_features = false, package = 'roaming-agreement-policies', path = '../pallets/roaming/roaming-agreement-policies' }
+# roaming-network-profiles = { default_features = false, package = 'roaming-network-profiles', path = '../pallets/roaming/roaming-network-profiles' }
+# roaming-device-profiles = { default_features = false, package = 'roaming-device-profiles', path = '../pallets/roaming/roaming-device-profiles' }
+# roaming-sessions = { default_features = false, package = 'roaming-sessions', path = '../pallets/roaming/roaming-sessions' }
+# roaming-billing-policies = { default_features = false, package = 'roaming-billing-policies', path = '../pallets/roaming/roaming-billing-policies' }
+# roaming-charging-policies = { default_features = false, package = 'roaming-charging-policies', path = '../pallets/roaming/roaming-charging-policies' }
+# roaming-packet-bundles = { default_features = false, package = 'roaming-packet-bundles', path = '../pallets/roaming/roaming-packet-bundles' }
+# mining-speed-boosts-configuration-token-mining = { default_features = false, package = 'mining-speed-boosts-configuration-token-mining', path = '../pallets/mining/mining-speed-boosts/configuration/token-mining' }
+# mining-speed-boosts-configuration-hardware-mining = { default_features = false, package = 'mining-speed-boosts-configuration-hardware-mining', path = '../pallets/mining/mining-speed-boosts/configuration/hardware-mining' }
+# mining-speed-boosts-rates-token-mining = { default_features = false, package = 'mining-speed-boosts-rates-token-mining', path = '../pallets/mining/mining-speed-boosts/rates/token-mining' }
+# mining-speed-boosts-rates-hardware-mining = { default_features = false, package = 'mining-speed-boosts-rates-hardware-mining', path = '../pallets/mining/mining-speed-boosts/rates/hardware-mining' }
+# mining-speed-boosts-sampling-token-mining = { default_features = false, package = 'mining-speed-boosts-sampling-token-mining', path = '../pallets/mining/mining-speed-boosts/sampling/token-mining' }
+# mining-speed-boosts-sampling-hardware-mining = { default_features = false, package = 'mining-speed-boosts-sampling-hardware-mining', path = '../pallets/mining/mining-speed-boosts/sampling/hardware-mining' }
+# mining-speed-boosts-eligibility-token-mining = { default_features = false, package = 'mining-speed-boosts-eligibility-token-mining', path = '../pallets/mining/mining-speed-boosts/eligibility/token-mining' }
+# mining-speed-boosts-eligibility-hardware-mining = { default_features = false, package = 'mining-speed-boosts-eligibility-hardware-mining', path = '../pallets/mining/mining-speed-boosts/eligibility/hardware-mining' }
+# mining-speed-boosts-claims-token-mining = { default_features = false, package = 'mining-speed-boosts-claims-token-mining', path = '../pallets/mining/mining-speed-boosts/claims/token-mining' }
+# mining-speed-boosts-claims-hardware-mining = { default_features = false, package = 'mining-speed-boosts-claims-hardware-mining', path = '../pallets/mining/mining-speed-boosts/claims/hardware-mining' }
 
 [build-dependencies]
 wasm-builder-runner = { version = '1.0.5', package = 'substrate-wasm-builder-runner', rev = '47076a93246de20cf35c655ddcde430306b33f9d', git = 'https://github.com/paritytech/substrate.git' }
