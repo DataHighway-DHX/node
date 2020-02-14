@@ -3,7 +3,7 @@
 use std::sync::Arc;
 use std::time::Duration;
 use sc_client::LongestChain;
-use node_template_runtime::{self, GenesisConfig, opaque::Block, RuntimeApi};
+use node_runtime::{self, GenesisConfig, opaque::Block, RuntimeApi};
 use sc_service::{error::{Error as ServiceError}, AbstractService, Configuration, ServiceBuilder};
 use sp_inherents::InherentDataProviders;
 use sc_network::{construct_simple_protocol};
@@ -15,8 +15,8 @@ use grandpa::{self, FinalityProofProvider as GrandpaFinalityProofProvider};
 // Our native executor instance.
 native_executor_instance!(
 	pub Executor,
-	runtime::api::dispatch,
-	runtime::native_version,
+	node_runtime::api::dispatch,
+	node_runtime::native_version,
 );
 
 construct_simple_protocol! {
@@ -34,7 +34,7 @@ macro_rules! new_full_start {
 		let inherent_data_providers = sp_inherents::InherentDataProviders::new();
 
 		let builder = sc_service::ServiceBuilder::new_full::<
-			runtime::opaque::Block, runtime::RuntimeApi, crate::service::Executor
+			node_runtime::opaque::Block, node_runtime::RuntimeApi, crate::service::Executor
 		>($config)?
 			.with_select_chain(|_config, backend| {
 				Ok(sc_client::LongestChain::new(backend.clone()))
@@ -51,7 +51,7 @@ macro_rules! new_full_start {
 					.ok_or_else(|| sc_service::Error::SelectChainRequired)?;
 
 				let (grandpa_block_import, grandpa_link) =
-					grandpa::block_import::<_, _, _, runtime::RuntimeApi, _>(
+					grandpa::block_import::<_, _, _, node_runtime::RuntimeApi, _>(
 						client.clone(), &*client, select_chain
 					)?;
 
@@ -105,7 +105,7 @@ pub fn new_full(config: Configuration<GenesisConfig>)
 		.build()?;
 
 	if participates_in_consensus {
-		let proposer = sc_basic_authority::ProposerFactory {
+		let proposer = sc_basic_authorship::ProposerFactory {
 			client: service.client(),
 			transaction_pool: service.transaction_pool(),
 		};
@@ -117,7 +117,7 @@ pub fn new_full(config: Configuration<GenesisConfig>)
 		let can_author_with =
 			sp_consensus::CanAuthorWithNativeVersion::new(client.executor().clone());
 
-		let aura = sc_consensus_aura::start_aura::<_, _, _, _, _, AuraPair, _, _, _, _>(
+		let aura = sc_consensus_aura::start_aura::<_, _, _, _, _, AuraPair, _, _, _>(
 			sc_consensus_aura::SlotDuration::get_or_compute(&*client)?,
 			client,
 			select_chain,

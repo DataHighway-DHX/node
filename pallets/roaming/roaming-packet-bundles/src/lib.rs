@@ -106,7 +106,7 @@ decl_storage! {
         // pub RoamingPacketBundleReceivers get(fn roaming_packet_bundle_receivers): map hasher(blake2_256) T::RoamingPacketBundleIndex => Option<RoamingPacketBundleReceiver<T::RoamingPacketBundleNextBillingAt, T::RoamingPacketBundleFrequencyInDays>>;
 
         /// Get roaming packet_bundle receiver
-        pub RoamingPacketBundleReceivers get(fn roaming_packet_bundle_receivers): map (T::RoamingPacketBundleIndex, T::RoamingNetworkServerIndex) =>
+        pub RoamingPacketBundleReceivers get(fn roaming_packet_bundle_receivers): map hasher(blake2_256) (T::RoamingPacketBundleIndex, T::RoamingNetworkServerIndex) =>
             Option<RoamingPacketBundleReceiver<
                 T::RoamingPacketBundleReceivedAtHome,
                 T::RoamingPacketBundleReceivedPacketsCount,
@@ -122,7 +122,7 @@ decl_storage! {
         // Device Session mapping
         pub RoamingPacketBundleDeviceSession get(fn roaming_packet_bundle_device_sessions): map hasher(blake2_256) T::RoamingPacketBundleIndex => Option<(T::RoamingDeviceIndex, T::RoamingSessionIndex)>;
         
-        pub RoamingDeviceSessionPacketBundles get(fn roaming_device_session_packet_bundles): map (T::RoamingDeviceIndex, T::RoamingSessionIndex) => Option<Vec<T::RoamingPacketBundleIndex>>;
+        pub RoamingDeviceSessionPacketBundles get(fn roaming_device_session_packet_bundles): map hasher(blake2_256) (T::RoamingDeviceIndex, T::RoamingSessionIndex) => Option<Vec<T::RoamingPacketBundleIndex>>;
         
         // IPFS
         pub RoamingExternalDataStorageHashPacketBundle get(fn roaming_external_data_storage_hash_packet_bundle):  map hasher(blake2_256) T::RoamingPacketBundleExternalDataStorageHash => Option<Vec<T::RoamingPacketBundleIndex>>;
@@ -610,13 +610,11 @@ mod tests {
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type OnFreeBalanceZero = ();
         type OnNewAccount = ();
         type Event = ();
         type DustRemoval = ();
         type TransferPayment = ();
         type ExistentialDeposit = ();
-        type TransferFee = ();
         type CreationFee = ();
     }
     impl transaction_payment::Trait for Test {

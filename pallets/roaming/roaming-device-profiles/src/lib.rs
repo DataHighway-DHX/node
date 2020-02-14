@@ -391,13 +391,11 @@ mod tests {
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type OnFreeBalanceZero = ();
         type OnNewAccount = ();
         type Event = ();
         type DustRemoval = ();
         type TransferPayment = ();
         type ExistentialDeposit = ();
-        type TransferFee = ();
         type CreationFee = ();
     }
     impl transaction_payment::Trait for Test {

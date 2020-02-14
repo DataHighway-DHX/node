@@ -151,7 +151,7 @@ decl_storage! {
                 T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate, T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate>>;
 
         // /// Stores mining_speed_boosts_random_samples
-        // pub MiningSpeedBoostSamples get(fn mining_speed_boosts_random_sample): map (T::MiningSpeedBoostOracleIndex, T::MiningSpeedBoostSampleHash) =>
+        // pub MiningSpeedBoostSamples get(fn mining_speed_boosts_random_sample): map hasher(blake2_256) (T::MiningSpeedBoostOracleIndex, T::MiningSpeedBoostSampleHash) =>
         //     Option<MiningSpeedBoostSample<T::MiningSpeedBoostSampleDate, T::MiningSpeedBoostSampleTokensLocked>>;
 
         // /// Stores mining_speed_boosts_random_eligibility
@@ -162,7 +162,7 @@ decl_storage! {
         // }
 
         // /// Stores mining_speed_boosts_claim
-        // pub MiningSpeedBoostClaim get(fn mining_speed_boosts_claim): map (T::MiningSpeedBoostClaimIndex, T::MiningSpeedBoostClaimHash) =>
+        // pub MiningSpeedBoostClaim get(fn mining_speed_boosts_claim): map hasher(blake2_256) (T::MiningSpeedBoostClaimIndex, T::MiningSpeedBoostClaimHash) =>
         //     Option<MiningSpeedBoostClaim<
         //         T::MiningSpeedBoostClaimHash, T::MiningSpeedBoostClaimAmount, T::MiningSpeedBoostClaimDateRedeemed
         //     >>;
@@ -419,13 +419,11 @@ mod tests {
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type OnFreeBalanceZero = ();
         type OnNewAccount = ();
         type Event = ();
         type DustRemoval = ();
         type TransferPayment = ();
         type ExistentialDeposit = ();
-        type TransferFee = ();
         type CreationFee = ();
     }
     impl transaction_payment::Trait for Test {

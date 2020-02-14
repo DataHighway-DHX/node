@@ -79,7 +79,7 @@ decl_storage! {
         pub MiningSpeedBoostClaimsHardwareMiningOwners get(fn mining_speed_boosts_claims_hardware_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostClaimsHardwareMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_claims_hardware_mining_claims_result
-        pub MiningSpeedBoostClaimsHardwareMiningClaimResults get(fn mining_speed_boosts_claims_hardware_mining_claims_results): map (T::MiningSpeedBoostConfigurationHardwareMiningIndex, T::MiningSpeedBoostClaimsHardwareMiningIndex) =>
+        pub MiningSpeedBoostClaimsHardwareMiningClaimResults get(fn mining_speed_boosts_claims_hardware_mining_claims_results): map hasher(blake2_256) (T::MiningSpeedBoostConfigurationHardwareMiningIndex, T::MiningSpeedBoostClaimsHardwareMiningIndex) =>
             Option<MiningSpeedBoostClaimsHardwareMiningClaimResult<
                 T::MiningSpeedBoostClaimsHardwareMiningClaimAmount,
                 T::MiningSpeedBoostClaimsHardwareMiningClaimDateRedeemed
@@ -399,13 +399,11 @@ mod tests {
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type OnFreeBalanceZero = ();
         type OnNewAccount = ();
         type Event = ();
         type DustRemoval = ();
         type TransferPayment = ();
         type ExistentialDeposit = ();
-        type TransferFee = ();
         type CreationFee = ();
     }
     impl transaction_payment::Trait for Test {
