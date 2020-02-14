@@ -15,7 +15,6 @@ std = [
     'grandpa/std',
     'indices/std',
     'randomness-collective-flip/std',
-    'safe-mix/std',
     'serde',
     'sp-api/std',
     'sp-block-builder/std',
@@ -69,7 +68,6 @@ frame-support = { version = '2.0.0', default-features = false, rev = '47076a9324
 grandpa = { version = '2.0.0', default-features = false, package = 'pallet-grandpa', rev = '47076a93246de20cf35c655ddcde430306b33f9d', git = 'https://github.com/paritytech/substrate.git' }
 indices = { version = '2.0.0', default-features = false, package = 'pallet-indices', rev = '47076a93246de20cf35c655ddcde430306b33f9d', git = 'https://github.com/paritytech/substrate.git' }
 randomness-collective-flip = { version = '2.0.0', default-features = false, package = 'pallet-randomness-collective-flip', rev = '47076a93246de20cf35c655ddcde430306b33f9d', git = 'https://github.com/paritytech/substrate.git' }
-safe-mix = { version = '1.0.0', default-features = false }
 serde = { version = '1.0.101', optional = true, features = ['derive'] }
 sp-api = { version = '2.0.0', default-features = false, rev = '47076a93246de20cf35c655ddcde430306b33f9d', git = 'https://github.com/paritytech/substrate.git' }
 sp-block-builder = { default-features = false, rev = '47076a93246de20cf35c655ddcde430306b33f9d', git = 'https://github.com/paritytech/substrate.git' }

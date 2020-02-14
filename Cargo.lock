@@ -2407,7 +2407,6 @@ dependencies = [
  "pallet-timestamp 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "pallet-transaction-payment 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "safe-mix 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "sp-api 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
  "sp-block-builder 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=47076a93246de20cf35c655ddcde430306b33f9d)",
