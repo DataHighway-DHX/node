@@ -8,6 +8,8 @@ use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
 use sp_std::prelude::*; // Imports Vec
+#[macro_use]
+extern crate alloc; // Required to use Vec
 
 use roaming_devices;
 

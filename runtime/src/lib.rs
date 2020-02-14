@@ -311,12 +311,12 @@ impl roaming_devices::Trait for Runtime {
 	type RoamingDeviceIndex = u64;
 }
 
-// impl roaming_routing_profiles::Trait for Runtime {
-// 	type Event = Event;
-// 	type RoamingRoutingProfileIndex = u64;
-// 	// https://polkadot.js.org/api/types/#primitive-types
-// 	type RoamingRoutingProfileAppServer = Vec<u8>;
-// }
+impl roaming_routing_profiles::Trait for Runtime {
+	type Event = Event;
+	type RoamingRoutingProfileIndex = u64;
+	// https://polkadot.js.org/api/types/#primitive-types
+	type RoamingRoutingProfileAppServer = Vec<u8>;
+}
 
 // impl roaming_service_profiles::Trait for Runtime {
 // 	type Event = Event;
@@ -508,7 +508,7 @@ construct_runtime!(
 		DataHighwayRoamingOrganizations: roaming_organizations::{Module, Call, Storage, Event<T>},
 		DataHighwayRoamingNetworkServers: roaming_network_servers::{Module, Call, Storage, Event<T>},
 		DataHighwayRoamingDevices: roaming_devices::{Module, Call, Storage, Event<T>},
-		// DataHighwayRoamingRoutingProfiles: roaming_routing_profiles::{Module, Call, Storage, Event<T>},
+		DataHighwayRoamingRoutingProfiles: roaming_routing_profiles::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingServiceProfiles: roaming_service_profiles::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingAccountingPolicies: roaming_accounting_policies::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingAgreementPolicies: roaming_agreement_policies::{Module, Call, Storage, Event<T>},

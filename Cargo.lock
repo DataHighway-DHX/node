@@ -2412,6 +2412,7 @@ dependencies = [
  "roaming-networks 0.1.0",
  "roaming-operators 0.1.0",
  "roaming-organizations 0.1.0",
+ "roaming-routing-profiles 0.1.0",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "sp-api 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
  "sp-block-builder 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
@@ -3433,6 +3434,30 @@ dependencies = [
  "roaming-network-servers 0.1.0",
  "roaming-networks 0.1.0",
  "roaming-operators 0.1.0",
+ "safe-mix 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sp-core 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+]
+
+[[package]]
+name = "roaming-routing-profiles"
+version = "0.1.0"
+dependencies = [
+ "frame-support 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "frame-system 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pallet-balances 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-randomness-collective-flip 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-transaction-payment 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "roaming-devices 0.1.0",
+ "roaming-network-servers 0.1.0",
+ "roaming-networks 0.1.0",
+ "roaming-operators 0.1.0",
+ "roaming-organizations 0.1.0",
  "safe-mix 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "sp-core 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
