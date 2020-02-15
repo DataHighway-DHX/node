@@ -47,16 +47,16 @@ std = [
     'roaming-billing-policies/std',
     'roaming-charging-policies/std',
     'roaming-packet-bundles/std',
-    # 'mining-speed-boosts-configuration-token-mining/std',
-    # 'mining-speed-boosts-configuration-hardware-mining/std',
-    # 'mining-speed-boosts-rates-token-mining/std',
-    # 'mining-speed-boosts-rates-hardware-mining/std',
-    # 'mining-speed-boosts-sampling-token-mining/std',
-    # 'mining-speed-boosts-sampling-hardware-mining/std',
-    # 'mining-speed-boosts-eligibility-token-mining/std',
-    # 'mining-speed-boosts-eligibility-hardware-mining/std',
-    # 'mining-speed-boosts-claims-token-mining/std',
-    # 'mining-speed-boosts-claims-hardware-mining/std',
+    'mining-speed-boosts-configuration-token-mining/std',
+    'mining-speed-boosts-configuration-hardware-mining/std',
+    'mining-speed-boosts-rates-token-mining/std',
+    'mining-speed-boosts-rates-hardware-mining/std',
+    'mining-speed-boosts-sampling-token-mining/std',
+    'mining-speed-boosts-sampling-hardware-mining/std',
+    'mining-speed-boosts-eligibility-token-mining/std',
+    'mining-speed-boosts-eligibility-hardware-mining/std',
+    'mining-speed-boosts-claims-token-mining/std',
+    'mining-speed-boosts-claims-hardware-mining/std',
 ]
 
 [dependencies]
@@ -103,16 +103,16 @@ roaming-sessions = { default_features = false, package = 'roaming-sessions', pat
 roaming-billing-policies = { default_features = false, package = 'roaming-billing-policies', path = '../pallets/roaming/roaming-billing-policies' }
 roaming-charging-policies = { default_features = false, package = 'roaming-charging-policies', path = '../pallets/roaming/roaming-charging-policies' }
 roaming-packet-bundles = { default_features = false, package = 'roaming-packet-bundles', path = '../pallets/roaming/roaming-packet-bundles' }
-# mining-speed-boosts-configuration-token-mining = { default_features = false, package = 'mining-speed-boosts-configuration-token-mining', path = '../pallets/mining/mining-speed-boosts/configuration/token-mining' }
-# mining-speed-boosts-configuration-hardware-mining = { default_features = false, package = 'mining-speed-boosts-configuration-hardware-mining', path = '../pallets/mining/mining-speed-boosts/configuration/hardware-mining' }
-# mining-speed-boosts-rates-token-mining = { default_features = false, package = 'mining-speed-boosts-rates-token-mining', path = '../pallets/mining/mining-speed-boosts/rates/token-mining' }
-# mining-speed-boosts-rates-hardware-mining = { default_features = false, package = 'mining-speed-boosts-rates-hardware-mining', path = '../pallets/mining/mining-speed-boosts/rates/hardware-mining' }
-# mining-speed-boosts-sampling-token-mining = { default_features = false, package = 'mining-speed-boosts-sampling-token-mining', path = '../pallets/mining/mining-speed-boosts/sampling/token-mining' }
-# mining-speed-boosts-sampling-hardware-mining = { default_features = false, package = 'mining-speed-boosts-sampling-hardware-mining', path = '../pallets/mining/mining-speed-boosts/sampling/hardware-mining' }
-# mining-speed-boosts-eligibility-token-mining = { default_features = false, package = 'mining-speed-boosts-eligibility-token-mining', path = '../pallets/mining/mining-speed-boosts/eligibility/token-mining' }
-# mining-speed-boosts-eligibility-hardware-mining = { default_features = false, package = 'mining-speed-boosts-eligibility-hardware-mining', path = '../pallets/mining/mining-speed-boosts/eligibility/hardware-mining' }
-# mining-speed-boosts-claims-token-mining = { default_features = false, package = 'mining-speed-boosts-claims-token-mining', path = '../pallets/mining/mining-speed-boosts/claims/token-mining' }
-# mining-speed-boosts-claims-hardware-mining = { default_features = false, package = 'mining-speed-boosts-claims-hardware-mining', path = '../pallets/mining/mining-speed-boosts/claims/hardware-mining' }
+mining-speed-boosts-configuration-token-mining = { default_features = false, package = 'mining-speed-boosts-configuration-token-mining', path = '../pallets/mining/mining-speed-boosts/configuration/token-mining' }
+mining-speed-boosts-configuration-hardware-mining = { default_features = false, package = 'mining-speed-boosts-configuration-hardware-mining', path = '../pallets/mining/mining-speed-boosts/configuration/hardware-mining' }
+mining-speed-boosts-rates-token-mining = { default_features = false, package = 'mining-speed-boosts-rates-token-mining', path = '../pallets/mining/mining-speed-boosts/rates/token-mining' }
+mining-speed-boosts-rates-hardware-mining = { default_features = false, package = 'mining-speed-boosts-rates-hardware-mining', path = '../pallets/mining/mining-speed-boosts/rates/hardware-mining' }
+mining-speed-boosts-sampling-token-mining = { default_features = false, package = 'mining-speed-boosts-sampling-token-mining', path = '../pallets/mining/mining-speed-boosts/sampling/token-mining' }
+mining-speed-boosts-sampling-hardware-mining = { default_features = false, package = 'mining-speed-boosts-sampling-hardware-mining', path = '../pallets/mining/mining-speed-boosts/sampling/hardware-mining' }
+mining-speed-boosts-eligibility-token-mining = { default_features = false, package = 'mining-speed-boosts-eligibility-token-mining', path = '../pallets/mining/mining-speed-boosts/eligibility/token-mining' }
+mining-speed-boosts-eligibility-hardware-mining = { default_features = false, package = 'mining-speed-boosts-eligibility-hardware-mining', path = '../pallets/mining/mining-speed-boosts/eligibility/hardware-mining' }
+mining-speed-boosts-claims-token-mining = { default_features = false, package = 'mining-speed-boosts-claims-token-mining', path = '../pallets/mining/mining-speed-boosts/claims/token-mining' }
+mining-speed-boosts-claims-hardware-mining = { default_features = false, package = 'mining-speed-boosts-claims-hardware-mining', path = '../pallets/mining/mining-speed-boosts/claims/hardware-mining' }
 
 [build-dependencies]
 wasm-builder-runner = { version = '1.0.4', package = 'substrate-wasm-builder-runner', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }

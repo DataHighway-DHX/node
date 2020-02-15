@@ -2270,6 +2270,202 @@ dependencies = [
 ]
 
 [[package]]
+name = "mining-speed-boosts-claims-hardware-mining"
+version = "0.1.0"
+dependencies = [
+ "frame-support 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "frame-system 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "mining-speed-boosts-configuration-hardware-mining 0.1.0",
+ "mining-speed-boosts-eligibility-hardware-mining 0.1.0",
+ "mining-speed-boosts-rates-hardware-mining 0.1.0",
+ "mining-speed-boosts-sampling-hardware-mining 0.1.0",
+ "pallet-balances 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-randomness-collective-flip 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-transaction-payment 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "roaming-operators 0.1.0",
+ "safe-mix 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sp-core 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+]
+
+[[package]]
+name = "mining-speed-boosts-claims-token-mining"
+version = "0.1.0"
+dependencies = [
+ "frame-support 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "frame-system 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "mining-speed-boosts-configuration-token-mining 0.1.0",
+ "mining-speed-boosts-eligibility-token-mining 0.1.0",
+ "mining-speed-boosts-rates-token-mining 0.1.0",
+ "mining-speed-boosts-sampling-token-mining 0.1.0",
+ "pallet-balances 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-randomness-collective-flip 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-transaction-payment 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "roaming-operators 0.1.0",
+ "safe-mix 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sp-core 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+]
+
+[[package]]
+name = "mining-speed-boosts-configuration-hardware-mining"
+version = "0.1.0"
+dependencies = [
+ "frame-support 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "frame-system 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-balances 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-randomness-collective-flip 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-transaction-payment 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "roaming-operators 0.1.0",
+ "safe-mix 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sp-core 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+]
+
+[[package]]
+name = "mining-speed-boosts-configuration-token-mining"
+version = "0.1.0"
+dependencies = [
+ "frame-support 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "frame-system 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-balances 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-randomness-collective-flip 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-transaction-payment 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "roaming-operators 0.1.0",
+ "safe-mix 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sp-core 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+]
+
+[[package]]
+name = "mining-speed-boosts-eligibility-hardware-mining"
+version = "0.1.0"
+dependencies = [
+ "frame-support 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "frame-system 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "mining-speed-boosts-configuration-hardware-mining 0.1.0",
+ "mining-speed-boosts-rates-hardware-mining 0.1.0",
+ "mining-speed-boosts-sampling-hardware-mining 0.1.0",
+ "pallet-balances 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-randomness-collective-flip 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-transaction-payment 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "roaming-operators 0.1.0",
+ "safe-mix 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sp-core 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+]
+
+[[package]]
+name = "mining-speed-boosts-eligibility-token-mining"
+version = "0.1.0"
+dependencies = [
+ "frame-support 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "frame-system 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "mining-speed-boosts-configuration-token-mining 0.1.0",
+ "mining-speed-boosts-rates-token-mining 0.1.0",
+ "mining-speed-boosts-sampling-token-mining 0.1.0",
+ "pallet-balances 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-randomness-collective-flip 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-transaction-payment 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "roaming-operators 0.1.0",
+ "safe-mix 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sp-core 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+]
+
+[[package]]
+name = "mining-speed-boosts-rates-hardware-mining"
+version = "0.1.0"
+dependencies = [
+ "frame-support 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "frame-system 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-balances 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-randomness-collective-flip 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-transaction-payment 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "roaming-operators 0.1.0",
+ "safe-mix 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sp-core 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+]
+
+[[package]]
+name = "mining-speed-boosts-rates-token-mining"
+version = "0.1.0"
+dependencies = [
+ "frame-support 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "frame-system 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-balances 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-randomness-collective-flip 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-transaction-payment 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "roaming-operators 0.1.0",
+ "safe-mix 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sp-core 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+]
+
+[[package]]
+name = "mining-speed-boosts-sampling-hardware-mining"
+version = "0.1.0"
+dependencies = [
+ "frame-support 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "frame-system 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "mining-speed-boosts-configuration-hardware-mining 0.1.0",
+ "pallet-balances 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-randomness-collective-flip 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-transaction-payment 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "roaming-operators 0.1.0",
+ "safe-mix 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sp-core 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+]
+
+[[package]]
+name = "mining-speed-boosts-sampling-token-mining"
+version = "0.1.0"
+dependencies = [
+ "frame-support 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "frame-system 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "mining-speed-boosts-configuration-token-mining 0.1.0",
+ "pallet-balances 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-randomness-collective-flip 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "pallet-transaction-payment 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "parity-scale-codec 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "roaming-operators 0.1.0",
+ "safe-mix 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sp-core 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-io 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-runtime 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "sp-std 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+]
+
+[[package]]
 name = "miniz_oxide"
 version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2398,6 +2594,16 @@ dependencies = [
  "frame-executive 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
  "frame-support 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
  "frame-system 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
+ "mining-speed-boosts-claims-hardware-mining 0.1.0",
+ "mining-speed-boosts-claims-token-mining 0.1.0",
+ "mining-speed-boosts-configuration-hardware-mining 0.1.0",
+ "mining-speed-boosts-configuration-token-mining 0.1.0",
+ "mining-speed-boosts-eligibility-hardware-mining 0.1.0",
+ "mining-speed-boosts-eligibility-token-mining 0.1.0",
+ "mining-speed-boosts-rates-hardware-mining 0.1.0",
+ "mining-speed-boosts-rates-token-mining 0.1.0",
+ "mining-speed-boosts-sampling-hardware-mining 0.1.0",
+ "mining-speed-boosts-sampling-token-mining 0.1.0",
  "pallet-aura 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
  "pallet-balances 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
  "pallet-grandpa 2.0.0 (git+https://github.com/paritytech/substrate.git?rev=b27d50c4c7b7137f2de04c31092f63a58970d0cb)",
