@@ -362,30 +362,30 @@ impl roaming_sessions::Trait for Runtime {
 	type RoamingSessionJoinRequestAcceptAcceptedAt = u64;
 }
 
-// impl roaming_billing_policies::Trait for Runtime {
-// 	type Event = Event;
-// 	type RoamingBillingPolicyIndex = u64;
-// 	type RoamingBillingPolicyNextBillingAt = u64;
-// 	type RoamingBillingPolicyFrequencyInDays = u64;
-// }
+impl roaming_billing_policies::Trait for Runtime {
+	type Event = Event;
+	type RoamingBillingPolicyIndex = u64;
+	type RoamingBillingPolicyNextBillingAt = u64;
+	type RoamingBillingPolicyFrequencyInDays = u64;
+}
 
-// impl roaming_charging_policies::Trait for Runtime {
-// 	type Event = Event;
-// 	type RoamingChargingPolicyIndex = u64;
-// 	type RoamingChargingPolicyNextChargingAt = u64;
-// 	type RoamingChargingPolicyDelayAfterBillingInDays = u64;
-// }
+impl roaming_charging_policies::Trait for Runtime {
+	type Event = Event;
+	type RoamingChargingPolicyIndex = u64;
+	type RoamingChargingPolicyNextChargingAt = u64;
+	type RoamingChargingPolicyDelayAfterBillingInDays = u64;
+}
 
-// impl roaming_packet_bundles::Trait for Runtime {
-// 	type Event = Event;
-// 	type RoamingPacketBundleIndex = u64;
-// 	type RoamingPacketBundleReceivedAtHome = bool;
-// 	type RoamingPacketBundleReceivedPacketsCount = u64;
-// 	type RoamingPacketBundleReceivedPacketsOkCount = u64;
-// 	type RoamingPacketBundleReceivedStartedAt = u64;
-// 	type RoamingPacketBundleReceivedEndedAt = u64;
-// 	type RoamingPacketBundleExternalDataStorageHash = Hash;
-// }
+impl roaming_packet_bundles::Trait for Runtime {
+	type Event = Event;
+	type RoamingPacketBundleIndex = u64;
+	type RoamingPacketBundleReceivedAtHome = bool;
+	type RoamingPacketBundleReceivedPacketsCount = u64;
+	type RoamingPacketBundleReceivedPacketsOkCount = u64;
+	type RoamingPacketBundleReceivedStartedAt = u64;
+	type RoamingPacketBundleReceivedEndedAt = u64;
+	type RoamingPacketBundleExternalDataStorageHash = Hash;
+}
 
 // impl mining_speed_boosts_configuration_token_mining::Trait for Runtime {
 // 	type Event = Event;
@@ -515,9 +515,9 @@ construct_runtime!(
 		DataHighwayRoamingNetworkProfiles: roaming_network_profiles::{Module, Call, Storage, Event<T>},
 		DataHighwayRoamingDeviceProfiles: roaming_device_profiles::{Module, Call, Storage, Event<T>},
 		DataHighwayRoamingSessions: roaming_sessions::{Module, Call, Storage, Event<T>},
-		// DataHighwayRoamingBillingPolicies: roaming_billing_policies::{Module, Call, Storage, Event<T>},
-		// DataHighwayRoamingChargingPolicies: roaming_charging_policies::{Module, Call, Storage, Event<T>},
-		// DataHighwayRoamingPacketBundles: roaming_packet_bundles::{Module, Call, Storage, Event<T>},
+		DataHighwayRoamingBillingPolicies: roaming_billing_policies::{Module, Call, Storage, Event<T>},
+		DataHighwayRoamingChargingPolicies: roaming_charging_policies::{Module, Call, Storage, Event<T>},
+		DataHighwayRoamingPacketBundles: roaming_packet_bundles::{Module, Call, Storage, Event<T>},
 		// DataHighwayMiningSpeedBoostConfigurationTokenMining: mining_speed_boosts_configuration_token_mining::{Module, Call, Storage, Event<T>},
 		// DataHighwayMiningSpeedBoostConfigurationHardwareMining: mining_speed_boosts_configuration_hardware_mining::{Module, Call, Storage, Event<T>},
 		// DataHighwayMiningSpeedBoostRatesTokenMining: mining_speed_boosts_rates_token_mining::{Module, Call, Storage, Event<T>},

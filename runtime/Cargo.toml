@@ -44,9 +44,9 @@ std = [
     'roaming-network-profiles/std',
     'roaming-device-profiles/std',
     'roaming-sessions/std',
-    # 'roaming-billing-policies/std',
-    # 'roaming-charging-policies/std',
-    # 'roaming-packet-bundles/std',
+    'roaming-billing-policies/std',
+    'roaming-charging-policies/std',
+    'roaming-packet-bundles/std',
     # 'mining-speed-boosts-configuration-token-mining/std',
     # 'mining-speed-boosts-configuration-hardware-mining/std',
     # 'mining-speed-boosts-rates-token-mining/std',
@@ -100,9 +100,9 @@ roaming-agreement-policies = { default_features = false, package = 'roaming-agre
 roaming-network-profiles = { default_features = false, package = 'roaming-network-profiles', path = '../pallets/roaming/roaming-network-profiles' }
 roaming-device-profiles = { default_features = false, package = 'roaming-device-profiles', path = '../pallets/roaming/roaming-device-profiles' }
 roaming-sessions = { default_features = false, package = 'roaming-sessions', path = '../pallets/roaming/roaming-sessions' }
-# roaming-billing-policies = { default_features = false, package = 'roaming-billing-policies', path = '../pallets/roaming/roaming-billing-policies' }
-# roaming-charging-policies = { default_features = false, package = 'roaming-charging-policies', path = '../pallets/roaming/roaming-charging-policies' }
-# roaming-packet-bundles = { default_features = false, package = 'roaming-packet-bundles', path = '../pallets/roaming/roaming-packet-bundles' }
+roaming-billing-policies = { default_features = false, package = 'roaming-billing-policies', path = '../pallets/roaming/roaming-billing-policies' }
+roaming-charging-policies = { default_features = false, package = 'roaming-charging-policies', path = '../pallets/roaming/roaming-charging-policies' }
+roaming-packet-bundles = { default_features = false, package = 'roaming-packet-bundles', path = '../pallets/roaming/roaming-packet-bundles' }
 # mining-speed-boosts-configuration-token-mining = { default_features = false, package = 'mining-speed-boosts-configuration-token-mining', path = '../pallets/mining/mining-speed-boosts/configuration/token-mining' }
 # mining-speed-boosts-configuration-hardware-mining = { default_features = false, package = 'mining-speed-boosts-configuration-hardware-mining', path = '../pallets/mining/mining-speed-boosts/configuration/hardware-mining' }
 # mining-speed-boosts-rates-token-mining = { default_features = false, package = 'mining-speed-boosts-rates-token-mining', path = '../pallets/mining/mining-speed-boosts/rates/token-mining' }
