@@ -12,6 +12,7 @@ __WARNING__: This implementation is a proof-of-concept prototype and is not read
 * [Debugging](#chapter-93c645)
 * [Create custom blockchain configuration](#chapter-b1b53c)
 * [Run multiple node PoA testnet using custom blockchain configuration](#chapter-f21efd)
+* [Continuous integration](#chapter-27d8c5)
 
 Note: Generate a new chapter with `openssl rand -hex 3`
 
@@ -158,6 +159,103 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
     "packet_bundle_received_ended_at": "Moment",
     "packet_bundle_external_data_storage_hash": "Hash"
   },
+  "MiningSpeedBoostRateTokenMining": "[u8; 16]",
+  "MiningSpeedBoostRatesTokenMiningIndex": "u64",
+  "MiningSpeedBoostRatesTokenMiningTokenMXC": "u32",
+  "MiningSpeedBoostRatesTokenMiningTokenIOTA": "u32",
+  "MiningSpeedBoostRatesTokenMiningMaxToken": "u32",
+  "MiningSpeedBoostRatesTokenMiningMaxLoyalty": "u32",
+  "MiningSpeedBoostRateHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostRatesHardwareMiningIndex": "u64",
+  "MiningSpeedBoostRatesHardwareMiningHardwareSecure": "u32",
+  "MiningSpeedBoostRatesHardwareMiningHardwareInsecure": "u32",
+  "MiningSpeedBoostRatesHardwareMiningMaxHardware": "u32",
+  "MiningSpeedBoostConfigurationTokenMining": "[u8; 16]",
+  "MiningSpeedBoostConfigurationTokenMiningIndex": "u64",
+  "MiningSpeedBoostConfigurationTokenMiningTokenType": "Text";
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount": "u64",
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod": "u32",
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate": "u64",
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate": "u64",
+  "MiningSpeedBoostConfigurationTokenMiningTokenConfig": {
+    "token_type": "Text",
+    "token_locked_amount": "u64",
+    "token_lock_period": "u32",
+    "token_lock_period_start_date": "Moment",
+    "token_lock_period_end_date": "Moment"
+  },
+  "MiningSpeedBoostConfigurationHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostConfigurationHardwareMiningIndex": "u64",
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareSecure": "bool";
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareType": "Text";
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareID": "u64",
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI": "u64",
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate": "u64",
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate": "u64",
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareConfig": {
+    "hardware_secure": "bool",
+    "hardware_type": "Text",
+    "hardware_id": "u64",
+    "hardware_dev_eui": "u64",
+    "hardware_lock_period_start_date": "Moment",
+    "hardware_lock_period_end_date": "Moment"
+  },
+  "MiningSpeedBoostSamplingTokenMining": "[u8; 16]",
+  "MiningSpeedBoostSamplingTokenMiningIndex": "u64",
+  "MiningSpeedBoostSamplingTokenMiningSampleDate": "u64",
+  "MiningSpeedBoostSamplingTokenMiningSampleTokensLocked": "u64",
+  "MiningSpeedBoostSamplingTokenMiningSamplingConfig": {
+    "token_sample_date": "Moment",
+    "token_sample_tokens_locked": "u64",
+  },
+  "MiningSpeedBoostSamplingHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostSamplingHardwareMiningIndex": "u64",
+  "MiningSpeedBoostSamplingHardwareMiningSampleDate": "u64",
+  "MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline": "u64",
+  "MiningSpeedBoostSamplingHardwareMiningSamplingConfig": {
+    "hardware_sample_date": "Moment",
+    "hardware_sample_hardware_online": "bool",
+  },
+  "MiningSpeedBoostEligibilityTokenMining": "[u8; 16]",
+  "MiningSpeedBoostEligibilityTokenMiningIndex": "u64",
+  "MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility": "u64",
+  "MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage": "u32",
+  "MiningSpeedBoostEligibilityTokenMiningDateAudited": "u64",
+  "MiningSpeedBoostEligibilityTokenMiningAuditorAccountID": "u64",
+  "MiningSpeedBoostEligibilityTokenMiningEligibilityResult": {
+    "token_calculated_eligibility": "u64",
+    "token_token_locked_percentage": "u32",
+    "token_date_audited": "u64",
+    "token_auditor_account_id": "u64",
+  },
+  "MiningSpeedBoostEligibilityHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostEligibilityHardwareMiningIndex": "u64",
+  "MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility": "u64",
+  "MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage": "u32",
+  "MiningSpeedBoostEligibilityHardwareMiningDateAudited": "u64",
+  "MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID": "u64",
+  "MiningSpeedBoostEligibilityHardwareMiningEligibilityResult": {
+    "hardware_calculated_eligibility": "u64",
+    "hardware_hardware_uptime_percentage": "u32",
+    "hardware_date_audited": "u64",
+    "hardware_auditor_account_id": "u64",
+  },
+  "MiningSpeedBoostClaimsTokenMining": "[u8; 16]",
+  "MiningSpeedBoostClaimsTokenMiningIndex": "u64",
+  "MiningSpeedBoostClaimsTokenMiningClaimAmount": "u64",
+  "MiningSpeedBoostClaimsTokenMiningClaimDateRedeemed": "u64",
+  "MiningSpeedBoostClaimsTokenMiningClaimResult": {
+    "token_claim_amount": "u64",
+    "token_date_redeemed": "u64",
+  },
+  "MiningSpeedBoostClaimsHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostClaimsHardwareMiningIndex": "u64",
+  "MiningSpeedBoostClaimsHardwareMiningClaimAmount": "u64",
+  "MiningSpeedBoostClaimsHardwareMiningClaimDateRedeemed": "u64",
+  "MiningSpeedBoostClaimsHardwareMiningClaimResult": {
+    "hardware_claim_amount": "u64",
+    "hardware_date_redeemed": "u64",
+  },
 }
 ```
 
@@ -201,7 +299,17 @@ cargo test -p roaming-device-profiles &&
 cargo test -p roaming-sessions &&
 cargo test -p roaming-billing-policies &&
 cargo test -p roaming-charging-policies &&
-cargo test -p roaming-packet-bundles
+cargo test -p roaming-packet-bundles &&
+cargo test -p mining-speed-boosts-configuration-token-mining &&
+cargo test -p mining-speed-boosts-configuration-hardware-mining &&
+cargo test -p mining-speed-boosts-rates-token-mining &&
+cargo test -p mining-speed-boosts-rates-hardware-mining &&
+cargo test -p mining-speed-boosts-sampling-token-mining &&
+cargo test -p mining-speed-boosts-sampling-hardware-mining &&
+cargo test -p mining-speed-boosts-eligibility-token-mining &&
+cargo test -p mining-speed-boosts-eligibility-hardware-mining &&
+cargo test -p mining-speed-boosts-claims-token-mining &&
+cargo test -p mining-speed-boosts-claims-hardware-mining
 ```
 
 ## Integration Tests
@@ -324,3 +432,11 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
 * Distribute the custom chain specification to allow others to synchronise and validate if they are an authority
 
 * Add session keys for other account(s) to be configured as authorities (validators)
+
+## Continuous integration<a id="chapter-27d8c5"></a>
+
+![](https://github.com/DataHighway-com/node/workflows/Lint/badge.svg?branch=master)
+
+![](https://github.com/DataHighway-com/node/workflows/Test/badge.svg?branch=master)
+
+* Reference: https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow

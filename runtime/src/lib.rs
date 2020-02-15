@@ -8,37 +8,34 @@
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
-use rstd::prelude::*;
-use primitives::OpaqueMetadata;
-use sr_primitives::{
+use sp_std::prelude::*;
+use sp_core::OpaqueMetadata;
+use sp_runtime::{
 	ApplyExtrinsicResult, transaction_validity::TransactionValidity, generic, create_runtime_str,
-	impl_opaque_keys, MultiSignature
+	impl_opaque_keys, MultiSignature,
 };
-use sr_primitives::traits::{
-	NumberFor, BlakeTwo256, Block as BlockT, StaticLookup, Verify, ConvertInto, IdentifyAccount
+use sp_runtime::traits::{
+	BlakeTwo256, Block as BlockT, StaticLookup, Verify, ConvertInto, IdentifyAccount
 };
-use sr_api::impl_runtime_apis;
-use aura_primitives::sr25519::AuthorityId as AuraId;
+use sp_api::impl_runtime_apis;
+use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use grandpa::AuthorityList as GrandpaAuthorityList;
 use grandpa::fg_primitives;
-use block_builder_api;
-use tx_pool_api; // txpool
-use version::RuntimeVersion;
+use sp_version::RuntimeVersion;
 #[cfg(feature = "std")]
-use version::NativeVersion;
+use sp_version::NativeVersion;
+// use std::str::FromStr;
 
 // A few exports that help ease life for downstream crates.
 #[cfg(any(feature = "std", test))]
-pub use sr_primitives::BuildStorage;
+pub use sp_runtime::BuildStorage;
 pub use timestamp::Call as TimestampCall;
 pub use balances::Call as BalancesCall;
-pub use sr_primitives::{Permill, Perbill};
-pub use support::{
-	StorageValue,
-	construct_runtime,
-	parameter_types,
+pub use sp_runtime::{Permill, Perbill};
+pub use frame_support::{
+	StorageValue, construct_runtime, parameter_types,
 	traits::Randomness,
-	weights::Weight
+	weights::Weight,
 };
 
 /// An index to a block.
@@ -62,7 +59,7 @@ pub type Balance = u128;
 pub type Index = u32;
 
 /// A hash of some data used by the chain.
-pub type Hash = primitives::H256;
+pub type Hash = sp_core::H256;
 
 /// Digest item type.
 pub type DigestItem = generic::DigestItem<Hash>;
@@ -74,7 +71,7 @@ pub type DigestItem = generic::DigestItem<Hash>;
 pub mod opaque {
 	use super::*;
 
-	pub use sr_primitives::OpaqueExtrinsic as UncheckedExtrinsic;
+	pub use sp_runtime::OpaqueExtrinsic as UncheckedExtrinsic;
 
 	/// Opaque block header type.
 	pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
@@ -93,11 +90,11 @@ pub mod opaque {
 
 /// This runtime version.
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: create_runtime_str!("node-template"),
-	impl_name: create_runtime_str!("node-template"),
+	spec_name: create_runtime_str!("node"),
+	impl_name: create_runtime_str!("node"),
 	authoring_version: 3,
-	spec_version: 4,
-	impl_version: 4,
+	spec_version: 1,
+	impl_version: 1,
 	apis: RUNTIME_API_VERSIONS,
 };
 
@@ -114,6 +111,50 @@ pub const DAYS: BlockNumber = HOURS * 24;
 
 // 1 in 4 blocks (on average, not counting collisions) will be primary babe blocks.
 pub const PRIMARY_PROBABILITY: (u64, u64) = (1, 4);
+
+// FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
+
+// /// Mining Speed Boost Token Types
+// #[derive(Debug, Clone, PartialEq)]
+// pub enum MiningSpeedBoostConfigurationTokenMiningTokenTypes {
+// 	MXC,
+// 	IOTA,
+// 	DOT
+// }
+
+// impl FromStr for MiningSpeedBoostConfigurationTokenMiningTokenTypes {
+// 	type Err = String;
+// 	fn from_str(mining_speed_boosts_configuration_token_mining_token_type: &str) -> Result<Self, Self::Err> {
+// 		match mining_speed_boosts_configuration_hardware_mining_hardware_type {
+// 			"MXC" => Ok(MiningSpeedBoostConfigurationTokenMiningTokenTypes::MXC),
+// 			"IOTA" => Ok(MiningSpeedBoostConfigurationTokenMiningTokenTypes::IOTA),
+// 			"DOT" => Ok(MiningSpeedBoostConfigurationTokenMiningTokenTypes::DOT),
+// 			_ => Err(format!("Invalid mining_speed_boosts_configuration_token_mining_token_type: {}", mining_speed_boosts_configuration_token_mining_token_type)),
+// 		}
+// 	}
+// }
+
+// /// Mining Speed Boost Hardware Types
+// #[derive(Debug, Clone, PartialEq)]
+// pub enum MiningSpeedBoostConfigurationHardwareMiningHardwareTypes {
+// 	EndDevice,
+// 	Gateway,
+// 	Supernode,
+// 	Collator
+// }
+
+// impl FromStr for MiningSpeedBoostConfigurationHardwareMiningHardwareTypes {
+// 	type Err = String;
+// 	fn from_str(mining_speed_boosts_configuration_hardware_mining_hardware_type: &str) -> Result<Self, Self::Err> {
+// 		match mining_speed_boosts_configuration_hardware_mining_hardware_type {
+// 			"EndDevice" => Ok(MiningSpeedBoostConfigurationHardwareMiningHardwareTypes::EndDevice),
+// 			"Gateway" => Ok(MiningSpeedBoostConfigurationHardwareMiningHardwareTypes::Gateway),
+// 			"Supernode" => Ok(MiningSpeedBoostConfigurationHardwareMiningHardwareTypes::Supernode),
+// 			"Collator" => Ok(MiningSpeedBoostConfigurationHardwareMiningHardwareTypes::Collator),
+// 			_ => Err(format!("Invalid mining_speed_boosts_configuration_hardware_mining_hardware_type: {}", mining_speed_boosts_configuration_hardware_mining_hardware_type)),
+// 		}
+// 	}
+// }
 
 /// The version infromation used to identify this runtime when compiled natively.
 #[cfg(feature = "std")]
@@ -163,6 +204,16 @@ impl system::Trait for Runtime {
 	type AvailableBlockRatio = AvailableBlockRatio;
 	/// Version of the runtime.
 	type Version = Version;
+	/// Converts a module to the index of the module in `construct_runtime!`.
+	///
+	/// This type is being generated by `construct_runtime!`.
+	type ModuleToIndex = ModuleToIndex;
+	/// What to do if a new account is created.
+	type OnNewAccount = ();
+	/// What to do if an account is fully reaped from the system.
+	type OnReapAccount = Balances;
+	/// The data to be stored in an account.
+	type AccountData = balances::AccountData<Balance>;
 }
 
 impl aura::Trait for Runtime {
@@ -173,18 +224,22 @@ impl grandpa::Trait for Runtime {
 	type Event = Event;
 }
 
+parameter_types! {
+	/// How much an index costs.
+	pub const IndexDeposit: u128 = 100;
+}
+
 impl indices::Trait for Runtime {
 	/// The type for recording indexing into the account enumeration. If this ever overflows, there
 	/// will be problems!
 	type AccountIndex = AccountIndex;
-	/// Use the standard means of resolving an index hint from an id.
-	type ResolveHint = indices::SimpleResolveHint<Self::AccountId, Self::AccountIndex>;
-	/// Determine whether an account is dead.
-	type IsDeadAccount = Balances;
 	/// The ubiquitous event type.
 	type Event = Event;
+	/// The currency type.
+	type Currency = Balances;
+	/// How much an index costs.
+	type Deposit = IndexDeposit;
 }
-
 parameter_types! {
 	pub const MinimumPeriod: u64 = SLOT_DURATION / 2;
 }
@@ -198,24 +253,16 @@ impl timestamp::Trait for Runtime {
 
 parameter_types! {
 	pub const ExistentialDeposit: u128 = 500;
-	pub const TransferFee: u128 = 0;
-	pub const CreationFee: u128 = 0;
 }
 
 impl balances::Trait for Runtime {
 	/// The type for recording an account's balance.
 	type Balance = Balance;
-	/// What to do if an account's free balance gets zeroed.
-	type OnFreeBalanceZero = ();
-	/// What to do if a new account is created.
-	type OnNewAccount = Indices;
 	/// The ubiquitous event type.
 	type Event = Event;
 	type DustRemoval = ();
-	type TransferPayment = ();
 	type ExistentialDeposit = ExistentialDeposit;
-	type TransferFee = TransferFee;
-	type CreationFee = CreationFee;
+	type AccountStore = System;
 }
 
 parameter_types! {
@@ -340,18 +387,119 @@ impl roaming_packet_bundles::Trait for Runtime {
 	type RoamingPacketBundleExternalDataStorageHash = Hash;
 }
 
+impl mining_speed_boosts_configuration_token_mining::Trait for Runtime {
+	type Event = Event;
+	// FIXME - restore when stop temporarily using roaming-operators
+	// type Currency = Balances;
+	// type Randomness = RandomnessCollectiveFlip;
+	type MiningSpeedBoostConfigurationTokenMiningIndex = u64;
+	// Mining Speed Boost Token Mining Config
+	// FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
+	type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
+	// type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
+	type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
+	type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
+	type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
+	type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
+}
+
+impl mining_speed_boosts_configuration_hardware_mining::Trait for Runtime {
+	type Event = Event;
+	// FIXME - restore when stop temporarily using roaming-operators
+	// type Currency = Balances;
+	// type Randomness = RandomnessCollectiveFlip;
+	type MiningSpeedBoostConfigurationHardwareMiningIndex = u64;
+	// Mining Speed Boost Hardware Mining Config
+	type MiningSpeedBoostConfigurationHardwareMiningHardwareSecure = bool;
+	// FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
+	type MiningSpeedBoostConfigurationHardwareMiningHardwareType = Vec<u8>;
+	// type MiningSpeedBoostConfigurationHardwareMiningHardwareType = MiningSpeedBoostConfigurationHardwareMiningHardwareTypes;
+	type MiningSpeedBoostConfigurationHardwareMiningHardwareID = u64;
+	type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI = u64;
+	type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate = u64;
+	type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate = u64;
+}
+
+impl mining_speed_boosts_rates_token_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostRatesTokenMiningIndex = u64;
+	// Mining Speed Boost Rate
+	type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
+	type MiningSpeedBoostRatesTokenMiningTokenIOTA = u32;
+	type MiningSpeedBoostRatesTokenMiningTokenDOT = u32;
+	// Mining Speed Boost Max Rates
+	type MiningSpeedBoostRatesTokenMiningMaxToken = u32;
+	type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
+}
+
+impl mining_speed_boosts_rates_hardware_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostRatesHardwareMiningIndex = u64;
+	// Mining Speed Boost Rate
+	type MiningSpeedBoostRatesHardwareMiningHardwareSecure = u32;
+	type MiningSpeedBoostRatesHardwareMiningHardwareInsecure = u32;
+	// Mining Speed Boost Max Rates
+	type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
+}
+
+impl mining_speed_boosts_sampling_token_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostSamplingTokenMiningIndex = u64;
+	type MiningSpeedBoostSamplingTokenMiningSampleDate = u64;
+	type MiningSpeedBoostSamplingTokenMiningSampleTokensLocked = u64;
+}
+
+impl mining_speed_boosts_sampling_hardware_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostSamplingHardwareMiningIndex = u64;
+	type MiningSpeedBoostSamplingHardwareMiningSampleDate = u64;
+	type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
+}
+
+impl mining_speed_boosts_eligibility_token_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
+	type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility = u64;
+	type MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage = u32;
+	// type MiningSpeedBoostEligibilityTokenMiningDateAudited = u64;
+	// type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
+}
+
+impl mining_speed_boosts_eligibility_hardware_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostEligibilityHardwareMiningIndex = u64;
+	type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility = u64;
+	type MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage = u32;
+	// type MiningSpeedBoostEligibilityHardwareMiningDateAudited = u64;
+	// type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
+}
+
+impl mining_speed_boosts_claims_token_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostClaimsTokenMiningIndex = u64;
+	type MiningSpeedBoostClaimsTokenMiningClaimAmount = u64;
+	type MiningSpeedBoostClaimsTokenMiningClaimDateRedeemed = u64;
+}
+
+impl mining_speed_boosts_claims_hardware_mining::Trait for Runtime {
+	type Event = Event;
+	type MiningSpeedBoostClaimsHardwareMiningIndex = u64;
+	type MiningSpeedBoostClaimsHardwareMiningClaimAmount = u64;
+	type MiningSpeedBoostClaimsHardwareMiningClaimDateRedeemed = u64;
+}
+
 construct_runtime!(
 	pub enum Runtime where
 		Block = Block,
 		NodeBlock = opaque::Block,
 		UncheckedExtrinsic = UncheckedExtrinsic
 	{
-		System: system::{Module, Call, Storage, Config, Event},
+		System: system::{Module, Call, Config, Storage, Event<T>},
 		Timestamp: timestamp::{Module, Call, Storage, Inherent},
 		Aura: aura::{Module, Config<T>, Inherent(Timestamp)},
 		Grandpa: grandpa::{Module, Call, Storage, Config, Event},
-		Indices: indices,
-		Balances: balances::{default, Error},
+		Indices: indices::{Module, Call, Storage, Event<T>, Config<T>},
+		Balances: balances::{Module, Call, Storage, Config<T>, Event<T>},
 		TransactionPayment: transaction_payment::{Module, Storage},
 		Sudo: sudo,
 		// Used for the module template in `./template.rs`
@@ -370,6 +518,16 @@ construct_runtime!(
 		DataHighwayRoamingBillingPolicies: roaming_billing_policies::{Module, Call, Storage, Event<T>},
 		DataHighwayRoamingChargingPolicies: roaming_charging_policies::{Module, Call, Storage, Event<T>},
 		DataHighwayRoamingPacketBundles: roaming_packet_bundles::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostConfigurationTokenMining: mining_speed_boosts_configuration_token_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostConfigurationHardwareMining: mining_speed_boosts_configuration_hardware_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostRatesTokenMining: mining_speed_boosts_rates_token_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostRatesHardwareMining: mining_speed_boosts_rates_hardware_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostSamplingTokenMining: mining_speed_boosts_sampling_token_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostSamplingHardwareMining: mining_speed_boosts_sampling_hardware_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostEligibilityTokenMining: mining_speed_boosts_eligibility_token_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostEligibilityHardwareMining: mining_speed_boosts_eligibility_hardware_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostClaimsTokenMining: mining_speed_boosts_claims_token_mining::{Module, Call, Storage, Event<T>},
+		DataHighwayMiningSpeedBoostClaimsHardwareMining: mining_speed_boosts_claims_hardware_mining::{Module, Call, Storage, Event<T>},
 		RandomnessCollectiveFlip: randomness_collective_flip::{Module, Call, Storage},
 	}
 );
@@ -398,10 +556,10 @@ pub type UncheckedExtrinsic = generic::UncheckedExtrinsic<Address, Call, Signatu
 /// Extrinsic type that has already been checked.
 pub type CheckedExtrinsic = generic::CheckedExtrinsic<AccountId, Call, SignedExtra>;
 /// Executive: handles dispatch to the various modules.
-pub type Executive = executive::Executive<Runtime, Block, system::ChainContext<Runtime>, Runtime, AllModules>;
+pub type Executive = frame_executive::Executive<Runtime, Block, system::ChainContext<Runtime>, Runtime, AllModules>;
 
 impl_runtime_apis! {
-	impl sr_api::Core<Block> for Runtime {
+	impl sp_api::Core<Block> for Runtime {
 		fn version() -> RuntimeVersion {
 			VERSION
 		}
@@ -415,13 +573,13 @@ impl_runtime_apis! {
 		}
 	}
 
-	impl sr_api::Metadata<Block> for Runtime {
+	impl sp_api::Metadata<Block> for Runtime {
 		fn metadata() -> OpaqueMetadata {
 			Runtime::metadata().into()
 		}
 	}
 
-	impl block_builder_api::BlockBuilder<Block> for Runtime {
+	impl sp_block_builder::BlockBuilder<Block> for Runtime {
 		fn apply_extrinsic(extrinsic: <Block as BlockT>::Extrinsic) -> ApplyExtrinsicResult {
 			Executive::apply_extrinsic(extrinsic)
 		}
@@ -430,14 +588,14 @@ impl_runtime_apis! {
 			Executive::finalize_block()
 		}
 
-		fn inherent_extrinsics(data: inherents::InherentData) -> Vec<<Block as BlockT>::Extrinsic> {
+		fn inherent_extrinsics(data: sp_inherents::InherentData) -> Vec<<Block as BlockT>::Extrinsic> {
 			data.create_extrinsics()
 		}
 
 		fn check_inherents(
 			block: Block,
-			data: inherents::InherentData
-		) -> inherents::CheckInherentsResult {
+			data: sp_inherents::InherentData,
+		) -> sp_inherents::CheckInherentsResult {
 			data.check_extrinsics(&block)
 		}
 
@@ -446,31 +604,37 @@ impl_runtime_apis! {
 		}
 	}
 
-	impl tx_pool_api::TaggedTransactionQueue<Block> for Runtime {
+	impl sp_transaction_pool::runtime_api::TaggedTransactionQueue<Block> for Runtime {
 		fn validate_transaction(tx: <Block as BlockT>::Extrinsic) -> TransactionValidity {
 			Executive::validate_transaction(tx)
 		}
 	}
 
-	impl offchain_primitives::OffchainWorkerApi<Block> for Runtime {
-		fn offchain_worker(number: NumberFor<Block>) {
-			Executive::offchain_worker(number)
+	impl sp_offchain::OffchainWorkerApi<Block> for Runtime {
+		fn offchain_worker(header: &<Block as BlockT>::Header) {
+			Executive::offchain_worker(header)
 		}
 	}
 
-	impl aura_primitives::AuraApi<Block, AuraId> for Runtime {
+	impl sp_consensus_aura::AuraApi<Block, AuraId> for Runtime {
 		fn slot_duration() -> u64 {
 			Aura::slot_duration()
 		}
-		
+
 		fn authorities() -> Vec<AuraId> {
 			Aura::authorities()
 		}
 	}
 
-	impl substrate_session::SessionKeys<Block> for Runtime {
+	impl sp_session::SessionKeys<Block> for Runtime {
 		fn generate_session_keys(seed: Option<Vec<u8>>) -> Vec<u8> {
 			opaque::SessionKeys::generate(seed)
+		}
+
+		fn decode_session_keys(
+			encoded: Vec<u8>,
+		) -> Option<Vec<(Vec<u8>, sp_core::crypto::KeyTypeId)>> {
+			opaque::SessionKeys::decode_into_raw_public_keys(&encoded)
 		}
 	}
 
