@@ -390,14 +390,13 @@ mod tests {
 
             // Verify Storage
             assert_eq!(RoamingAgreementPolicyTestModule::roaming_agreement_policies_count(), 1);
-            // FIXME - see Issue #18 due to conflicting implementation of Debug
-            // assert_eq!(
-            //     RoamingAgreementPolicyTestModule::roaming_agreement_policy_configs(0),
-            //     Some(RoamingAgreementPolicyConfig {
-            //         policy_activation_type: "passive".as_bytes().to_vec(),
-            //         policy_expiry: 2019,
-            //     })
-            // );
+            assert_eq!(
+                RoamingAgreementPolicyTestModule::roaming_agreement_policy_configs(0),
+                Some(RoamingAgreementPolicyConfig {
+                    policy_activation_type: "passive".as_bytes().to_vec(),
+                    policy_expiry: 2019,
+                })
+            );
 
             // Create Roaming Routing Profile
 
