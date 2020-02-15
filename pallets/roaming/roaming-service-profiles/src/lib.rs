@@ -7,6 +7,7 @@ use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
+use sp_runtime::DispatchError;
 use sp_std::prelude::*; // Imports Vec
 
 use roaming_network_servers;
@@ -178,14 +179,14 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-    pub fn exists_roaming_service_profile(roaming_service_profile_id: T::RoamingServiceProfileIndex) -> Result<RoamingServiceProfile, &'static str> {
+    pub fn exists_roaming_service_profile(roaming_service_profile_id: T::RoamingServiceProfileIndex) -> Result<RoamingServiceProfile, DispatchError> {
         match Self::roaming_service_profile(roaming_service_profile_id) {
             Some(roaming_service_profile) => Ok(roaming_service_profile),
-            None => Err("RoamingServiceProfile does not exist")
+            None => Err(DispatchError::Other("RoamingServiceProfile does not exist"))
         }
     }
 
-    // pub fn is_owned_by_required_parent_relationship(roaming_service_profile_id: T::RoamingServiceProfileIndex, sender: T::AccountId) -> Result<(), &'static str> {
+    // pub fn is_owned_by_required_parent_relationship(roaming_service_profile_id: T::RoamingServiceProfileIndex, sender: T::AccountId) -> Result<(), DispatchError> {
     //     debug::info!("Get the network_server id associated with the network_server of the given service profile id");
     //     let service_profile_network_server_id = Self::roaming_service_profile_network_server(roaming_service_profile_id);
 
@@ -198,7 +199,7 @@ impl<T: Trait> Module<T> {
     //         );
     //     } else {
     //         // There must be a network_server id associated with the service profile
-    //         return Err("RoamingServiceProfileNetworkServer does not exist");
+    //         return Err(DispatchError::Other("RoamingServiceProfileNetworkServer does not exist"));
     //     }
     //     Ok(())
     // }
@@ -207,7 +208,7 @@ impl<T: Trait> Module<T> {
     pub fn associate_service_profile_with_network_server(
         roaming_service_profile_id: T::RoamingServiceProfileIndex,
         roaming_network_server_id: T::RoamingNetworkServerIndex,
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given network_server id already exists as a key,
         // and where its corresponding value is a vector that already contains the given service_profile id
@@ -240,10 +241,10 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_roaming_service_profile_id() -> Result<T::RoamingServiceProfileIndex, &'static str> {
+    fn next_roaming_service_profile_id() -> Result<T::RoamingServiceProfileIndex, DispatchError> {
         let roaming_service_profile_id = Self::roaming_service_profiles_count();
         if roaming_service_profile_id == <T::RoamingServiceProfileIndex as Bounded>::max_value() {
-            return Err("RoamingServiceProfiles count overflow");
+            return Err(DispatchError::Other("RoamingServiceProfiles count overflow"));
         }
         Ok(roaming_service_profile_id)
     }

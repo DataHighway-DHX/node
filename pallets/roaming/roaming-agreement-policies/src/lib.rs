@@ -7,6 +7,7 @@ use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
+use sp_runtime::DispatchError;
 use sp_std::prelude::*; // Imports Vec
 #[macro_use]
 extern crate alloc; // Required to use Vec
@@ -277,7 +278,7 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_roaming_agreement_policy_owner(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex, sender: T::AccountId) -> Result<(), &'static str> {
+	pub fn is_roaming_agreement_policy_owner(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         ensure!(
             Self::roaming_agreement_policy_owner(&roaming_agreement_policy_id)
                 .map(|owner| owner == sender)
@@ -288,7 +289,7 @@ impl<T: Trait> Module<T> {
     }
 
     // Note: Not required
-    // pub fn is_owned_by_required_parent_relationship(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex, sender: T::AccountId) -> Result<(), &'static str> {
+    // pub fn is_owned_by_required_parent_relationship(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex, sender: T::AccountId) -> Result<(), DispatchError> {
     //     debug::info!("Get the network id associated with the network of the given agreement policy id");
     //     let agreement_policy_network_id = Self::roaming_agreement_policy_network(roaming_agreement_policy_id);
 
@@ -301,27 +302,27 @@ impl<T: Trait> Module<T> {
     //         );
     //     } else {
     //         // There must be a network id associated with the agreement policy
-    //         return Err("RoamingAgreementPolicyNetwork does not exist");
+    //         return Err(DispatchError::Other("RoamingAgreementPolicyNetwork does not exist"));
     //     }
     //     Ok(())
     // }
 
-    pub fn exists_roaming_agreement_policy(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex) -> Result<RoamingAgreementPolicy, &'static str> {
+    pub fn exists_roaming_agreement_policy(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex) -> Result<RoamingAgreementPolicy, DispatchError> {
         match Self::roaming_agreement_policy(roaming_agreement_policy_id) {
             Some(value) => Ok(value),
-            None => Err("RoamingAgreementPolicy does not exist")
+            None => Err(DispatchError::Other("RoamingAgreementPolicy does not exist"))
         }
     }
 
-    pub fn exists_roaming_agreement_policy_config(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex) -> Result<(), &'static str> {
+    pub fn exists_roaming_agreement_policy_config(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex) -> Result<(), DispatchError> {
         match Self::roaming_agreement_policy_configs(roaming_agreement_policy_id) {
             Some(value) => Ok(()),
-            None => Err("RoamingAgreementPolicyConfig does not exist")
+            None => Err(DispatchError::Other("RoamingAgreementPolicyConfig does not exist"))
         }
     }
 
     pub fn has_value_for_agreement_policy_config_index(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex)
-        -> Result<(), &'static str> {
+        -> Result<(), DispatchError> {
         debug::info!("Checking if agreement policy config has a value that is defined");
         let fetched_policy_config = <RoamingAgreementPolicyConfigs<T>>::get(roaming_agreement_policy_id);
         if let Some(value) = fetched_policy_config {
@@ -329,14 +330,14 @@ impl<T: Trait> Module<T> {
             return Ok(());
         }
         debug::info!("No value for agreement policy config");
-        Err("No value for agreement policy config")
+        Err(DispatchError::Other("No value for agreement policy config"))
     }
 
     /// Only push the agreement policy id onto the end of the vector if it does not already exist
     pub fn associate_agreement_policy_with_network(
         roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
         roaming_network_id: T::RoamingNetworkIndex
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given network id already exists as a key,
         // and where its corresponding value is a vector that already contains the given agreement policy id
@@ -363,7 +364,7 @@ impl<T: Trait> Module<T> {
     pub fn associate_agreement_policy_with_accounting_policy(
         roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
         roaming_accounting_policy_id: T::RoamingAccountingPolicyIndex
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given accounting_policy id already exists as a key,
         // and where its corresponding value is a vector that already contains the given agreement policy id
@@ -396,10 +397,10 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_roaming_agreement_policy_id() -> Result<T::RoamingAgreementPolicyIndex, &'static str> {
+    fn next_roaming_agreement_policy_id() -> Result<T::RoamingAgreementPolicyIndex, DispatchError> {
         let roaming_agreement_policy_id = Self::roaming_agreement_policies_count();
         if roaming_agreement_policy_id == <T::RoamingAgreementPolicyIndex as Bounded>::max_value() {
-            return Err("RoamingAgreementPolicies count overflow");
+            return Err(DispatchError::Other("RoamingAgreementPolicies count overflow"));
         }
         Ok(roaming_agreement_policy_id)
     }

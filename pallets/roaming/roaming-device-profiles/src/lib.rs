@@ -7,6 +7,7 @@ use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
+use sp_runtime::DispatchError;
 use sp_std::prelude::*; // Imports Vec
 
 use roaming_devices;
@@ -246,14 +247,14 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-    pub fn exists_roaming_device_profile(roaming_device_profile_id: T::RoamingDeviceProfileIndex) -> Result<RoamingDeviceProfile, &'static str> {
+    pub fn exists_roaming_device_profile(roaming_device_profile_id: T::RoamingDeviceProfileIndex) -> Result<RoamingDeviceProfile, DispatchError> {
         match Self::roaming_device_profile(roaming_device_profile_id) {
             Some(roaming_device_profile) => Ok(roaming_device_profile),
-            None => Err("RoamingDeviceProfile does not exist")
+            None => Err(DispatchError::Other("RoamingDeviceProfile does not exist"))
         }
     }
 
-    pub fn is_owned_by_required_parent_relationship(roaming_device_profile_id: T::RoamingDeviceProfileIndex, sender: T::AccountId) -> Result<(), &'static str> {
+    pub fn is_owned_by_required_parent_relationship(roaming_device_profile_id: T::RoamingDeviceProfileIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         debug::info!("Get the device id associated with the device of the given device profile id");
         let device_profile_device_id = Self::roaming_device_profile_device(roaming_device_profile_id);
 
@@ -266,20 +267,20 @@ impl<T: Trait> Module<T> {
             );
         } else {
             // There must be a device id associated with the device profile
-            return Err("RoamingDeviceProfileDevice does not exist");
+            return Err(DispatchError::Other("RoamingDeviceProfileDevice does not exist"));
         }
         Ok(())
     }
 
-    pub fn exists_roaming_device_profile_config(roaming_device_profile_id: T::RoamingDeviceProfileIndex) -> Result<(), &'static str> {
+    pub fn exists_roaming_device_profile_config(roaming_device_profile_id: T::RoamingDeviceProfileIndex) -> Result<(), DispatchError> {
         match Self::roaming_device_profile_configs(roaming_device_profile_id) {
             Some(value) => Ok(()),
-            None => Err("RoamingDeviceProfileConfig does not exist")
+            None => Err(DispatchError::Other("RoamingDeviceProfileConfig does not exist"))
         }
     }
 
     pub fn has_value_for_device_profile_config_index(roaming_device_profile_id: T::RoamingDeviceProfileIndex)
-        -> Result<(), &'static str> {
+        -> Result<(), DispatchError> {
         debug::info!("Checking if device profile config has a value that is defined");
         let fetched_profile_config = <RoamingDeviceProfileConfigs<T>>::get(roaming_device_profile_id);
         if let Some(value) = fetched_profile_config {
@@ -287,14 +288,14 @@ impl<T: Trait> Module<T> {
             return Ok(());
         }
         debug::info!("No value for device profile config");
-        Err("No value for device profile config")
+        Err(DispatchError::Other("No value for device profile config"))
     }
 
     /// Only push the device_profile id onto the end of the vector if it does not already exist
     pub fn associate_device_profile_with_device(
         roaming_device_profile_id: T::RoamingDeviceProfileIndex,
         roaming_device_id: T::RoamingDeviceIndex,
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given device id already exists as a key,
         // and where its corresponding value is a vector that already contains the given device_profile id
@@ -327,10 +328,10 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_roaming_device_profile_id() -> Result<T::RoamingDeviceProfileIndex, &'static str> {
+    fn next_roaming_device_profile_id() -> Result<T::RoamingDeviceProfileIndex, DispatchError> {
         let roaming_device_profile_id = Self::roaming_device_profiles_count();
         if roaming_device_profile_id == <T::RoamingDeviceProfileIndex as Bounded>::max_value() {
-            return Err("RoamingDeviceProfiles count overflow");
+            return Err(DispatchError::Other("RoamingDeviceProfiles count overflow"));
         }
         Ok(roaming_device_profile_id)
     }

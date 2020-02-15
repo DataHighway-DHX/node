@@ -7,6 +7,7 @@ use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
+use sp_runtime::DispatchError;
 use sp_std::prelude::*; // Imports Vec
 
 use roaming_operators;
@@ -175,7 +176,7 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_roaming_network_owner(roaming_network_id: T::RoamingNetworkIndex, sender: T::AccountId) -> Result<(), &'static str> {
+	pub fn is_roaming_network_owner(roaming_network_id: T::RoamingNetworkIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         ensure!(
             Self::roaming_network_owner(&roaming_network_id)
                 .map(|owner| owner == sender)
@@ -185,10 +186,10 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-	pub fn exists_roaming_network(roaming_network_id: T::RoamingNetworkIndex) -> Result<RoamingNetwork, &'static str> {
+	pub fn exists_roaming_network(roaming_network_id: T::RoamingNetworkIndex) -> Result<RoamingNetwork, DispatchError> {
 		match Self::roaming_network(roaming_network_id) {
 			Some(roaming_network) => Ok(roaming_network),
-			None => Err("RoamingNetwork does not exist")
+			None => Err(DispatchError::Other("RoamingNetwork does not exist"))
 		}
     }
 
@@ -196,7 +197,7 @@ impl<T: Trait> Module<T> {
     pub fn associate_network_with_operator(
         roaming_network_id: T::RoamingNetworkIndex,
         roaming_operator_id: T::RoamingOperatorIndex
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given operator id already exists as a key,
         // and where its corresponding value is a vector that already contains the given network id
@@ -229,10 +230,10 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_roaming_network_id() -> Result<T::RoamingNetworkIndex, &'static str> {
+    fn next_roaming_network_id() -> Result<T::RoamingNetworkIndex, DispatchError> {
         let roaming_network_id = Self::roaming_networks_count();
         if roaming_network_id == <T::RoamingNetworkIndex as Bounded>::max_value() {
-            return Err("RoamingNetworks count overflow");
+            return Err(DispatchError::Other("RoamingNetworks count overflow"));
         }
         Ok(roaming_network_id)
     }

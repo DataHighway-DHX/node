@@ -7,6 +7,7 @@ use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
+use sp_runtime::DispatchError;
 use sp_std::prelude::*; // Imports Vec
 
 // FIXME - remove this, only used this approach since do not know how to use BalanceOf using only mining-speed-boosts runtime module
@@ -231,7 +232,7 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_mining_speed_boosts_samplings_hardware_mining_owner(mining_speed_boosts_samplings_hardware_mining_id: T::MiningSpeedBoostSamplingHardwareMiningIndex, sender: T::AccountId) -> Result<(), &'static str> {
+	pub fn is_mining_speed_boosts_samplings_hardware_mining_owner(mining_speed_boosts_samplings_hardware_mining_id: T::MiningSpeedBoostSamplingHardwareMiningIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         ensure!(
             Self::mining_speed_boosts_samplings_hardware_mining_owner(&mining_speed_boosts_samplings_hardware_mining_id)
                 .map(|owner| owner == sender)
@@ -241,22 +242,22 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn exists_mining_speed_boosts_samplings_hardware_mining(mining_speed_boosts_samplings_hardware_mining_id: T::MiningSpeedBoostSamplingHardwareMiningIndex) -> Result<MiningSpeedBoostSamplingHardwareMining, &'static str> {
+    pub fn exists_mining_speed_boosts_samplings_hardware_mining(mining_speed_boosts_samplings_hardware_mining_id: T::MiningSpeedBoostSamplingHardwareMiningIndex) -> Result<MiningSpeedBoostSamplingHardwareMining, DispatchError> {
         match Self::mining_speed_boosts_samplings_hardware_mining(mining_speed_boosts_samplings_hardware_mining_id) {
             Some(value) => Ok(value),
-            None => Err("MiningSpeedBoostSamplingHardwareMining does not exist")
+            None => Err(DispatchError::Other("MiningSpeedBoostSamplingHardwareMining does not exist"))
         }
     }
 
     pub fn exists_mining_speed_boosts_samplings_hardware_mining_samplings_config(
       mining_speed_boosts_configuration_hardware_mining_id: T::MiningSpeedBoostConfigurationHardwareMiningIndex,
       mining_speed_boosts_samplings_hardware_mining_id: T::MiningSpeedBoostSamplingHardwareMiningIndex
-    ) -> Result<(), &'static str> {
+    ) -> Result<(), DispatchError> {
         match Self::mining_speed_boosts_samplings_hardware_mining_samplings_configs(
           (mining_speed_boosts_configuration_hardware_mining_id, mining_speed_boosts_samplings_hardware_mining_id)
         ) {
             Some(value) => Ok(()),
-            None => Err("MiningSpeedBoostSamplingHardwareMiningSamplingConfig does not exist")
+            None => Err(DispatchError::Other("MiningSpeedBoostSamplingHardwareMiningSamplingConfig does not exist"))
         }
     }
 
@@ -264,7 +265,7 @@ impl<T: Trait> Module<T> {
       mining_speed_boosts_configuration_hardware_mining_id: T::MiningSpeedBoostConfigurationHardwareMiningIndex,
       mining_speed_boosts_samplings_hardware_mining_id: T::MiningSpeedBoostSamplingHardwareMiningIndex
     )
-        -> Result<(), &'static str> {
+        -> Result<(), DispatchError> {
         debug::info!("Checking if mining_speed_boosts_samplings_hardware_mining_samplings_config has a value that is defined");
         let fetched_mining_speed_boosts_samplings_hardware_mining_samplings_config = <MiningSpeedBoostSamplingHardwareMiningSamplingConfigs<T>>::get((mining_speed_boosts_configuration_hardware_mining_id, mining_speed_boosts_samplings_hardware_mining_id));
         if let Some(value) = fetched_mining_speed_boosts_samplings_hardware_mining_samplings_config {
@@ -272,14 +273,14 @@ impl<T: Trait> Module<T> {
             return Ok(());
         }
         debug::info!("No value for mining_speed_boosts_samplings_hardware_mining_samplings_config");
-        Err("No value for mining_speed_boosts_samplings_hardware_mining_samplings_config")
+        Err(DispatchError::Other("No value for mining_speed_boosts_samplings_hardware_mining_samplings_config"))
     }
 
     /// Only push the sampling id onto the end of the vector if it does not already exist
     pub fn associate_hardware_sampling_with_configuration(
         mining_speed_boosts_samplings_hardware_mining_id: T::MiningSpeedBoostSamplingHardwareMiningIndex,
         mining_speed_boosts_configuration_hardware_mining_id: T::MiningSpeedBoostConfigurationHardwareMiningIndex
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given sampling id
@@ -312,10 +313,10 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_mining_speed_boosts_samplings_hardware_mining_id() -> Result<T::MiningSpeedBoostSamplingHardwareMiningIndex, &'static str> {
+    fn next_mining_speed_boosts_samplings_hardware_mining_id() -> Result<T::MiningSpeedBoostSamplingHardwareMiningIndex, DispatchError> {
         let mining_speed_boosts_samplings_hardware_mining_id = Self::mining_speed_boosts_samplings_hardware_mining_count();
         if mining_speed_boosts_samplings_hardware_mining_id == <T::MiningSpeedBoostSamplingHardwareMiningIndex as Bounded>::max_value() {
-            return Err("MiningSpeedBoostSamplingHardwareMining count overflow");
+            return Err(DispatchError::Other("MiningSpeedBoostSamplingHardwareMining count overflow"));
         }
         Ok(mining_speed_boosts_samplings_hardware_mining_id)
     }

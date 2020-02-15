@@ -7,6 +7,7 @@ use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
+use sp_runtime::DispatchError;
 use sp_std::prelude::*; // Imports Vec
 
 // FIXME - remove this, only used this approach since do not know how to use BalanceOf using only mining-speed-boosts runtime module
@@ -159,10 +160,10 @@ decl_module! {
                 // FIXME - get this to work when add system time
                 // ensure!(TIME_NOW > token_lock_period_end_date, "Claim may not be made until after the end date of the lock period");
               } else {
-                return Err("Cannot find token_mining_config end_date associated with the claim");
+                return Err(DispatchError::Other("Cannot find token_mining_config end_date associated with the claim"));
               }
             } else {
-              return Err("Cannot find token_mining_config associated with the claim");
+              return Err(DispatchError::Other("Cannot find token_mining_config associated with the claim"));
             }
 
             // Check that the provided eligibility amount has not already been claimed
@@ -170,7 +171,7 @@ decl_module! {
             if let Some(token_mining_configuration_claims) = Self::token_mining_configuration_claims(mining_speed_boosts_configuration_token_mining_id) {
               ensure!(token_mining_configuration_claims.len() == 1, "Cannot have zero or more than one claim associated with configuration/eligibility");
             } else {
-              return Err("Cannot find configuration_claims associated with the claim");
+              return Err(DispatchError::Other("Cannot find configuration_claims associated with the claim"));
             }
 
             // Record the claim associated with their configuration/eligibility
@@ -182,10 +183,10 @@ decl_module! {
                 // FIXME - unable to figure out how to cast here!
                 // token_claim_amount = (token_mining_calculated_eligibility as T::MiningSpeedBoostClaimsTokenMiningClaimAmount).clone();
               } else {
-                return Err("Cannot find token_mining_eligibility calculated_eligibility associated with the claim");
+                return Err(DispatchError::Other("Cannot find token_mining_eligibility calculated_eligibility associated with the claim"));
               }
             } else {
-              return Err("Cannot find token_mining_eligibility associated with the claim");
+              return Err(DispatchError::Other("Cannot find token_mining_eligibility associated with the claim"));
             }
 
             // Check if a mining_speed_boosts_claims_token_mining_claims_result already exists with the given mining_speed_boosts_claims_token_mining_id
@@ -358,7 +359,7 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_mining_speed_boosts_claims_token_mining_owner(mining_speed_boosts_claims_token_mining_id: T::MiningSpeedBoostClaimsTokenMiningIndex, sender: T::AccountId) -> Result<(), &'static str> {
+	pub fn is_mining_speed_boosts_claims_token_mining_owner(mining_speed_boosts_claims_token_mining_id: T::MiningSpeedBoostClaimsTokenMiningIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         ensure!(
             Self::mining_speed_boosts_claims_token_mining_owner(&mining_speed_boosts_claims_token_mining_id)
                 .map(|owner| owner == sender)
@@ -368,22 +369,22 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn exists_mining_speed_boosts_claims_token_mining(mining_speed_boosts_claims_token_mining_id: T::MiningSpeedBoostClaimsTokenMiningIndex) -> Result<MiningSpeedBoostClaimsTokenMining, &'static str> {
+    pub fn exists_mining_speed_boosts_claims_token_mining(mining_speed_boosts_claims_token_mining_id: T::MiningSpeedBoostClaimsTokenMiningIndex) -> Result<MiningSpeedBoostClaimsTokenMining, DispatchError> {
         match Self::mining_speed_boosts_claims_token_mining(mining_speed_boosts_claims_token_mining_id) {
             Some(value) => Ok(value),
-            None => Err("MiningSpeedBoostClaimsTokenMining does not exist")
+            None => Err(DispatchError::Other("MiningSpeedBoostClaimsTokenMining does not exist"))
         }
     }
 
     pub fn exists_mining_speed_boosts_claims_token_mining_claims_result(
       mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
       mining_speed_boosts_claims_token_mining_id: T::MiningSpeedBoostClaimsTokenMiningIndex
-    ) -> Result<(), &'static str> {
+    ) -> Result<(), DispatchError> {
         match Self::mining_speed_boosts_claims_token_mining_claims_results(
           (mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_claims_token_mining_id)
         ) {
             Some(value) => Ok(()),
-            None => Err("MiningSpeedBoostClaimsTokenMiningClaimResult does not exist")
+            None => Err(DispatchError::Other("MiningSpeedBoostClaimsTokenMiningClaimResult does not exist"))
         }
     }
 
@@ -391,7 +392,7 @@ impl<T: Trait> Module<T> {
       mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
       mining_speed_boosts_claims_token_mining_id: T::MiningSpeedBoostClaimsTokenMiningIndex
     )
-        -> Result<(), &'static str> {
+        -> Result<(), DispatchError> {
         debug::info!("Checking if mining_speed_boosts_claims_token_mining_claims_result has a value that is defined");
         let fetched_mining_speed_boosts_claims_token_mining_claims_result = <MiningSpeedBoostClaimsTokenMiningClaimResults<T>>::get((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_claims_token_mining_id));
         if let Some(value) = fetched_mining_speed_boosts_claims_token_mining_claims_result {
@@ -399,14 +400,14 @@ impl<T: Trait> Module<T> {
             return Ok(());
         }
         debug::info!("No value for mining_speed_boosts_claims_token_mining_claims_result");
-        Err("No value for mining_speed_boosts_claims_token_mining_claims_result")
+        Err(DispatchError::Other("No value for mining_speed_boosts_claims_token_mining_claims_result"))
     }
 
     /// Only push the claim id onto the end of the vector if it does not already exist
     pub fn associate_token_claim_with_configuration(
         mining_speed_boosts_claims_token_mining_id: T::MiningSpeedBoostClaimsTokenMiningIndex,
         mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given claim id
@@ -439,10 +440,10 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_mining_speed_boosts_claims_token_mining_id() -> Result<T::MiningSpeedBoostClaimsTokenMiningIndex, &'static str> {
+    fn next_mining_speed_boosts_claims_token_mining_id() -> Result<T::MiningSpeedBoostClaimsTokenMiningIndex, DispatchError> {
         let mining_speed_boosts_claims_token_mining_id = Self::mining_speed_boosts_claims_token_mining_count();
         if mining_speed_boosts_claims_token_mining_id == <T::MiningSpeedBoostClaimsTokenMiningIndex as Bounded>::max_value() {
-            return Err("MiningSpeedBoostClaimsTokenMining count overflow");
+            return Err(DispatchError::Other("MiningSpeedBoostClaimsTokenMining count overflow"));
         }
         Ok(mining_speed_boosts_claims_token_mining_id)
     }

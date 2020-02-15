@@ -7,6 +7,7 @@ use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
+use sp_runtime::DispatchError;
 use sp_std::prelude::*; // Imports Vec
 
 // FIXME - remove this, only used this approach since do not know how to use BalanceOf using only mining-speed-boosts runtime module
@@ -134,7 +135,7 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // TODO - implement similar to claims/token-mining when it is working and uncomment the integration tests
-            return Err("Not implemented");
+            return Err(DispatchError::Other("Not implemented"));
         }
 
         /// Set mining_speed_boosts_claims_hardware_mining_claims_result
@@ -254,7 +255,7 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_mining_speed_boosts_claims_hardware_mining_owner(mining_speed_boosts_claims_hardware_mining_id: T::MiningSpeedBoostClaimsHardwareMiningIndex, sender: T::AccountId) -> Result<(), &'static str> {
+	pub fn is_mining_speed_boosts_claims_hardware_mining_owner(mining_speed_boosts_claims_hardware_mining_id: T::MiningSpeedBoostClaimsHardwareMiningIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         ensure!(
             Self::mining_speed_boosts_claims_hardware_mining_owner(&mining_speed_boosts_claims_hardware_mining_id)
                 .map(|owner| owner == sender)
@@ -264,22 +265,22 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn exists_mining_speed_boosts_claims_hardware_mining(mining_speed_boosts_claims_hardware_mining_id: T::MiningSpeedBoostClaimsHardwareMiningIndex) -> Result<MiningSpeedBoostClaimsHardwareMining, &'static str> {
+    pub fn exists_mining_speed_boosts_claims_hardware_mining(mining_speed_boosts_claims_hardware_mining_id: T::MiningSpeedBoostClaimsHardwareMiningIndex) -> Result<MiningSpeedBoostClaimsHardwareMining, DispatchError> {
         match Self::mining_speed_boosts_claims_hardware_mining(mining_speed_boosts_claims_hardware_mining_id) {
             Some(value) => Ok(value),
-            None => Err("MiningSpeedBoostClaimsHardwareMining does not exist")
+            None => Err(DispatchError::Other("MiningSpeedBoostClaimsHardwareMining does not exist"))
         }
     }
 
     pub fn exists_mining_speed_boosts_claims_hardware_mining_claims_result(
       mining_speed_boosts_configuration_hardware_mining_id: T::MiningSpeedBoostConfigurationHardwareMiningIndex,
       mining_speed_boosts_claims_hardware_mining_id: T::MiningSpeedBoostClaimsHardwareMiningIndex
-    ) -> Result<(), &'static str> {
+    ) -> Result<(), DispatchError> {
         match Self::mining_speed_boosts_claims_hardware_mining_claims_results(
           (mining_speed_boosts_configuration_hardware_mining_id, mining_speed_boosts_claims_hardware_mining_id)
         ) {
             Some(value) => Ok(()),
-            None => Err("MiningSpeedBoostClaimsHardwareMiningClaimResult does not exist")
+            None => Err(DispatchError::Other("MiningSpeedBoostClaimsHardwareMiningClaimResult does not exist"))
         }
     }
 
@@ -287,7 +288,7 @@ impl<T: Trait> Module<T> {
       mining_speed_boosts_configuration_hardware_mining_id: T::MiningSpeedBoostConfigurationHardwareMiningIndex,
       mining_speed_boosts_claims_hardware_mining_id: T::MiningSpeedBoostClaimsHardwareMiningIndex
     )
-        -> Result<(), &'static str> {
+        -> Result<(), DispatchError> {
         debug::info!("Checking if mining_speed_boosts_claims_hardware_mining_claims_result has a value that is defined");
         let fetched_mining_speed_boosts_claims_hardware_mining_claims_result = <MiningSpeedBoostClaimsHardwareMiningClaimResults<T>>::get((mining_speed_boosts_configuration_hardware_mining_id, mining_speed_boosts_claims_hardware_mining_id));
         if let Some(value) = fetched_mining_speed_boosts_claims_hardware_mining_claims_result {
@@ -295,14 +296,14 @@ impl<T: Trait> Module<T> {
             return Ok(());
         }
         debug::info!("No value for mining_speed_boosts_claims_hardware_mining_claims_result");
-        Err("No value for mining_speed_boosts_claims_hardware_mining_claims_result")
+        Err(DispatchError::Other("No value for mining_speed_boosts_claims_hardware_mining_claims_result"))
     }
 
     /// Only push the claim id onto the end of the vector if it does not already exist
     pub fn associate_hardware_claim_with_configuration(
         mining_speed_boosts_claims_hardware_mining_id: T::MiningSpeedBoostClaimsHardwareMiningIndex,
         mining_speed_boosts_configuration_hardware_mining_id: T::MiningSpeedBoostConfigurationHardwareMiningIndex
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given claim id
@@ -335,10 +336,10 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_mining_speed_boosts_claims_hardware_mining_id() -> Result<T::MiningSpeedBoostClaimsHardwareMiningIndex, &'static str> {
+    fn next_mining_speed_boosts_claims_hardware_mining_id() -> Result<T::MiningSpeedBoostClaimsHardwareMiningIndex, DispatchError> {
         let mining_speed_boosts_claims_hardware_mining_id = Self::mining_speed_boosts_claims_hardware_mining_count();
         if mining_speed_boosts_claims_hardware_mining_id == <T::MiningSpeedBoostClaimsHardwareMiningIndex as Bounded>::max_value() {
-            return Err("MiningSpeedBoostClaimsHardwareMining count overflow");
+            return Err(DispatchError::Other("MiningSpeedBoostClaimsHardwareMining count overflow"));
         }
         Ok(mining_speed_boosts_claims_hardware_mining_id)
     }

@@ -7,6 +7,7 @@ use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
+use sp_runtime::DispatchError;
 use sp_std::prelude::*; // Imports Vec
 #[macro_use]
 extern crate alloc; // Required to use Vec
@@ -215,7 +216,7 @@ decl_module! {
             _session_join_request_accept_expiry: Option<T::RoamingSessionJoinRequestAcceptExpiry>,
             // FIXME - we shouldn't be passing the accepted_at timestamp as an argument, it should be generated from the current time within this function
             _session_join_request_accept_accepted_at: Option<T::RoamingSessionJoinRequestAcceptAcceptedAt>,
-        ) -> Result<(), &'static str> {
+        ) -> Result<(), DispatchError> {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the roaming session id whose join accept we want to change actually exists
@@ -237,7 +238,7 @@ decl_module! {
                 );
             } else {
                 // There must be a session join request associated with the session join accept 
-                return Err("RoamingSessionJoinRequest does not exist");
+                return Err(DispatchError::Other("RoamingSessionJoinRequest does not exist"));
             }
 
             let session_join_request_accept_expiry = match _session_join_request_accept_expiry {
@@ -338,7 +339,7 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_roaming_session_owner(roaming_session_id: T::RoamingSessionIndex, sender: T::AccountId) -> Result<(), &'static str> {
+	pub fn is_roaming_session_owner(roaming_session_id: T::RoamingSessionIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         ensure!(
             Self::roaming_session_owner(&roaming_session_id)
                 .map(|owner| owner == sender)
@@ -348,29 +349,29 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn exists_roaming_session(roaming_session_id: T::RoamingSessionIndex) -> Result<RoamingSession, &'static str> {
+    pub fn exists_roaming_session(roaming_session_id: T::RoamingSessionIndex) -> Result<RoamingSession, DispatchError> {
         match Self::roaming_session(roaming_session_id) {
             Some(roaming_session) => Ok(roaming_session),
-            None => Err("RoamingSession does not exist")
+            None => Err(DispatchError::Other("RoamingSession does not exist"))
         }
     }
 
-    pub fn exists_roaming_session_join_request(roaming_session_id: T::RoamingSessionIndex) -> Result<(), &'static str> {
+    pub fn exists_roaming_session_join_request(roaming_session_id: T::RoamingSessionIndex) -> Result<(), DispatchError> {
         match Self::roaming_session_join_requests(roaming_session_id) {
             Some(_) => Ok(()),
-            None => Err("RoamingSessionJoinRequest does not exist")
+            None => Err(DispatchError::Other("RoamingSessionJoinRequest does not exist"))
         }
     }
 
-    pub fn exists_roaming_session_join_accept(roaming_session_id: T::RoamingSessionIndex) -> Result<(), &'static str> {
+    pub fn exists_roaming_session_join_accept(roaming_session_id: T::RoamingSessionIndex) -> Result<(), DispatchError> {
         match Self::roaming_session_join_accepts(roaming_session_id) {
             Some(_) => Ok(()),
-            None => Err("RoamingSessionJoinAccept does not exist")
+            None => Err(DispatchError::Other("RoamingSessionJoinAccept does not exist"))
         }
     }
 
     pub fn has_value_for_session_join_request_index(roaming_session_id: T::RoamingSessionIndex)
-        -> Result<(), &'static str> {
+        -> Result<(), DispatchError> {
         debug::info!("Checking if session join request has a value that is defined");
         let fetched_session_join_request = <RoamingSessionJoinRequests<T>>::get(roaming_session_id);
         if let Some(_) = fetched_session_join_request {
@@ -378,11 +379,11 @@ impl<T: Trait> Module<T> {
             return Ok(());
         }
         debug::info!("No value for session join request");
-        Err("No value for session join request")
+        Err(DispatchError::Other("No value for session join request"))
     }
 
     pub fn has_value_for_session_join_accept_index(roaming_session_id: T::RoamingSessionIndex)
-        -> Result<(), &'static str> {
+        -> Result<(), DispatchError> {
         debug::info!("Checking if session join accept has a value that is defined");
         let fetched_session_join_accept = <RoamingSessionJoinAccepts<T>>::get(roaming_session_id);
         if let Some(_) = fetched_session_join_accept {
@@ -390,14 +391,14 @@ impl<T: Trait> Module<T> {
             return Ok(());
         }
         debug::info!("No value for session join accept");
-        Err("No value for session join accept")
+        Err(DispatchError::Other("No value for session join accept"))
     }
 
     /// Only push the session id onto the end of the vector if it does not already exist
     pub fn associate_session_with_device(
         roaming_session_id: T::RoamingSessionIndex,
         roaming_device_id: T::RoamingDeviceIndex,
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given device id already exists as a key,
         // and where its corresponding value is a vector that already contains the given session id
@@ -430,10 +431,10 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_roaming_session_id() -> Result<T::RoamingSessionIndex, &'static str> {
+    fn next_roaming_session_id() -> Result<T::RoamingSessionIndex, DispatchError> {
         let roaming_session_id = Self::roaming_sessions_count();
         if roaming_session_id == <T::RoamingSessionIndex as Bounded>::max_value() {
-            return Err("RoamingSessions count overflow");
+            return Err(DispatchError::Other("RoamingSessions count overflow"));
         }
         Ok(roaming_session_id)
     }

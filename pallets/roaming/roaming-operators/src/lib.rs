@@ -6,6 +6,7 @@ use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
 use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter};
+use sp_runtime::DispatchError;
 use system::ensure_signed;
 
 /// The module's configuration trait.
@@ -130,7 +131,7 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_roaming_operator_owner(roaming_operator_id: T::RoamingOperatorIndex, sender: T::AccountId) -> Result<(), &'static str> {
+	pub fn is_roaming_operator_owner(roaming_operator_id: T::RoamingOperatorIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         ensure!(
             Self::roaming_operator_owner(&roaming_operator_id)
                 .map(|owner| owner == sender)
@@ -140,10 +141,10 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn exists_roaming_operator(roaming_operator_id: T::RoamingOperatorIndex) -> Result<RoamingOperator, &'static str> {
+    pub fn exists_roaming_operator(roaming_operator_id: T::RoamingOperatorIndex) -> Result<RoamingOperator, DispatchError> {
         match Self::roaming_operator(roaming_operator_id) {
             Some(roaming_operator) => Ok(roaming_operator),
-            None => Err("RoamingOperator does not exist")
+            None => Err(DispatchError::Other("RoamingOperator does not exist"))
         }
     }
 
@@ -157,10 +158,10 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_roaming_operator_id() -> Result<T::RoamingOperatorIndex, &'static str> {
+    fn next_roaming_operator_id() -> Result<T::RoamingOperatorIndex, DispatchError> {
         let roaming_operator_id = Self::roaming_operators_count();
         if roaming_operator_id == <T::RoamingOperatorIndex as Bounded>::max_value() {
-            return Err("RoamingOperators count overflow");
+            return Err(DispatchError::Other("RoamingOperators count overflow"));
         }
         Ok(roaming_operator_id)
     }

@@ -7,6 +7,7 @@ use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
+use sp_runtime::DispatchError;
 use sp_std::prelude::*; // Imports Vec
 
 // FIXME - remove this, only used this approach since do not know how to use BalanceOf using only mining-speed-boosts runtime module
@@ -309,7 +310,7 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_mining_speed_boosts_configuration_token_mining_owner(mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex, sender: T::AccountId) -> Result<(), &'static str> {
+	pub fn is_mining_speed_boosts_configuration_token_mining_owner(mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         ensure!(
             Self::mining_speed_boosts_configuration_token_mining_owner(&mining_speed_boosts_configuration_token_mining_id)
                 .map(|owner| owner == sender)
@@ -319,22 +320,22 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn exists_mining_speed_boosts_configuration_token_mining(mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex) -> Result<MiningSpeedBoostConfigurationTokenMining, &'static str> {
+    pub fn exists_mining_speed_boosts_configuration_token_mining(mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex) -> Result<MiningSpeedBoostConfigurationTokenMining, DispatchError> {
         match Self::mining_speed_boosts_configuration_token_mining(mining_speed_boosts_configuration_token_mining_id) {
             Some(value) => Ok(value),
-            None => Err("MiningSpeedBoostConfigurationTokenMining does not exist")
+            None => Err(DispatchError::Other("MiningSpeedBoostConfigurationTokenMining does not exist"))
         }
     }
 
-    pub fn exists_mining_speed_boosts_configuration_token_mining_token_config(mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex) -> Result<(), &'static str> {
+    pub fn exists_mining_speed_boosts_configuration_token_mining_token_config(mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex) -> Result<(), DispatchError> {
         match Self::mining_speed_boosts_configuration_token_mining_token_configs(mining_speed_boosts_configuration_token_mining_id) {
             Some(value) => Ok(()),
-            None => Err("MiningSpeedBoostConfigurationTokenMiningTokenConfig does not exist")
+            None => Err(DispatchError::Other("MiningSpeedBoostConfigurationTokenMiningTokenConfig does not exist"))
         }
     }
 
     pub fn has_value_for_mining_speed_boosts_configuration_token_mining_token_config_index(mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex)
-        -> Result<(), &'static str> {
+        -> Result<(), DispatchError> {
         debug::info!("Checking if mining_speed_boosts_configuration_token_mining_token_config has a value that is defined");
         let fetched_mining_speed_boosts_configuration_token_mining_token_config = <MiningSpeedBoostConfigurationTokenMiningTokenConfigs<T>>::get(mining_speed_boosts_configuration_token_mining_id);
         if let Some(value) = fetched_mining_speed_boosts_configuration_token_mining_token_config {
@@ -342,7 +343,7 @@ impl<T: Trait> Module<T> {
             return Ok(());
         }
         debug::info!("No value for mining_speed_boosts_configuration_token_mining_token_config");
-        Err("No value for mining_speed_boosts_configuration_token_mining_token_config")
+        Err(DispatchError::Other("No value for mining_speed_boosts_configuration_token_mining_token_config"))
     }
 
     fn random_value(sender: &T::AccountId) -> [u8; 16] {
@@ -355,10 +356,10 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_mining_speed_boosts_configuration_token_mining_id() -> Result<T::MiningSpeedBoostConfigurationTokenMiningIndex, &'static str> {
+    fn next_mining_speed_boosts_configuration_token_mining_id() -> Result<T::MiningSpeedBoostConfigurationTokenMiningIndex, DispatchError> {
         let mining_speed_boosts_configuration_token_mining_id = Self::mining_speed_boosts_configuration_token_mining_count();
         if mining_speed_boosts_configuration_token_mining_id == <T::MiningSpeedBoostConfigurationTokenMiningIndex as Bounded>::max_value() {
-            return Err("MiningSpeedBoostConfigurationTokenMining count overflow");
+            return Err(DispatchError::Other("MiningSpeedBoostConfigurationTokenMining count overflow"));
         }
         Ok(mining_speed_boosts_configuration_token_mining_id)
     }

@@ -7,6 +7,7 @@ use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
+use sp_runtime::DispatchError;
 use sp_std::prelude::*; // Imports Vec
 
 // FIXME - remove this, only used this approach since do not know how to use BalanceOf using only mining-speed-boosts runtime module
@@ -213,7 +214,7 @@ decl_module! {
         //                     } else {
         //                       debug::info!("Mining rate config missing");
         //                       // break;
-        //                       return Err("Mining rate config missing");
+        //                       return Err(DispatchError::Other("Mining rate config missing"));
         //                     }              
         //                   }
         //                 }
@@ -422,7 +423,7 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_mining_speed_boosts_eligibility_token_mining_owner(mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex, sender: T::AccountId) -> Result<(), &'static str> {
+	pub fn is_mining_speed_boosts_eligibility_token_mining_owner(mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         ensure!(
             Self::mining_speed_boosts_eligibility_token_mining_owner(&mining_speed_boosts_eligibility_token_mining_id)
                 .map(|owner| owner == sender)
@@ -432,29 +433,29 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn exists_mining_speed_boosts_eligibility_token_mining(mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex) -> Result<MiningSpeedBoostEligibilityTokenMining, &'static str> {
+    pub fn exists_mining_speed_boosts_eligibility_token_mining(mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex) -> Result<MiningSpeedBoostEligibilityTokenMining, DispatchError> {
         match Self::mining_speed_boosts_eligibility_token_mining(mining_speed_boosts_eligibility_token_mining_id) {
             Some(value) => Ok(value),
-            None => Err("MiningSpeedBoostEligibilityTokenMining does not exist")
+            None => Err(DispatchError::Other("MiningSpeedBoostEligibilityTokenMining does not exist"))
         }
     }
 
     pub fn exists_mining_speed_boosts_eligibility_token_mining_result(
         mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
         mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex
-    ) -> Result<(), &'static str> {
+    ) -> Result<(), DispatchError> {
         match Self::mining_speed_boosts_eligibility_token_mining_eligibility_results(
           (mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id)
         ) {
             Some(value) => Ok(()),
-            None => Err("MiningSpeedBoostEligibilityTokenMiningEligibilityResult does not exist")
+            None => Err(DispatchError::Other("MiningSpeedBoostEligibilityTokenMiningEligibilityResult does not exist"))
         }
     }
 
     pub fn has_value_for_mining_speed_boosts_eligibility_token_mining_result_index(
         mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
         mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex
-    ) -> Result<(), &'static str> {
+    ) -> Result<(), DispatchError> {
         debug::info!("Checking if mining_speed_boosts_eligibility_token_mining_result has a value that is defined");
         let fetched_mining_speed_boosts_eligibility_token_mining_result = <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::get((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id));
         if let Some(value) = fetched_mining_speed_boosts_eligibility_token_mining_result {
@@ -462,14 +463,14 @@ impl<T: Trait> Module<T> {
             return Ok(());
         }
         debug::info!("No value for mining_speed_boosts_eligibility_token_mining_result");
-        Err("No value for mining_speed_boosts_eligibility_token_mining_result")
+        Err(DispatchError::Other("No value for mining_speed_boosts_eligibility_token_mining_result"))
     }
 
     /// Only push the eligibility id onto the end of the vector if it does not already exist
     pub fn associate_token_eligibility_with_configuration(
         mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
         mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given eligibility id
@@ -502,10 +503,10 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_mining_speed_boosts_eligibility_token_mining_id() -> Result<T::MiningSpeedBoostEligibilityTokenMiningIndex, &'static str> {
+    fn next_mining_speed_boosts_eligibility_token_mining_id() -> Result<T::MiningSpeedBoostEligibilityTokenMiningIndex, DispatchError> {
         let mining_speed_boosts_eligibility_token_mining_id = Self::mining_speed_boosts_eligibility_token_mining_count();
         if mining_speed_boosts_eligibility_token_mining_id == <T::MiningSpeedBoostEligibilityTokenMiningIndex as Bounded>::max_value() {
-            return Err("MiningSpeedBoostEligibilityTokenMining count overflow");
+            return Err(DispatchError::Other("MiningSpeedBoostEligibilityTokenMining count overflow"));
         }
         Ok(mining_speed_boosts_eligibility_token_mining_id)
     }

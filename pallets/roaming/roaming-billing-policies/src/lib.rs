@@ -7,6 +7,7 @@ use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
+use sp_runtime::DispatchError;
 use sp_std::prelude::*; // Imports Vec
 #[macro_use]
 extern crate alloc; // Required to use Vec
@@ -267,7 +268,7 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_roaming_billing_policy_owner(roaming_billing_policy_id: T::RoamingBillingPolicyIndex, sender: T::AccountId) -> Result<(), &'static str> {
+	pub fn is_roaming_billing_policy_owner(roaming_billing_policy_id: T::RoamingBillingPolicyIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         ensure!(
             Self::roaming_billing_policy_owner(&roaming_billing_policy_id)
                 .map(|owner| owner == sender)
@@ -277,7 +278,7 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    // pub fn is_owned_by_required_parent_relationship(roaming_billing_policy_id: T::RoamingBillingPolicyIndex, sender: T::AccountId) -> Result<(), &'static str> {
+    // pub fn is_owned_by_required_parent_relationship(roaming_billing_policy_id: T::RoamingBillingPolicyIndex, sender: T::AccountId) -> Result<(), DispatchError> {
     //     debug::info!("Get the billing policy operator id associated with the operator of the given billing policy id");
     //     let billing_policy_operator_id = Self::roaming_billing_policy_operator(roaming_billing_policy_id);
 
@@ -290,27 +291,27 @@ impl<T: Trait> Module<T> {
     //         );
     //     } else {
     //         // There must be a billing policy operator id associated with the billing policy 
-    //         return Err("RoamingBillingPolicyOperator does not exist");
+    //         return Err(DispatchError::Other("RoamingBillingPolicyOperator does not exist"));
     //     }
     //     Ok(())
     // }
 
-    pub fn exists_roaming_billing_policy(roaming_billing_policy_id: T::RoamingBillingPolicyIndex) -> Result<RoamingBillingPolicy, &'static str> {
+    pub fn exists_roaming_billing_policy(roaming_billing_policy_id: T::RoamingBillingPolicyIndex) -> Result<RoamingBillingPolicy, DispatchError> {
         match Self::roaming_billing_policy(roaming_billing_policy_id) {
             Some(value) => Ok(value),
-            None => Err("RoamingBillingPolicy does not exist")
+            None => Err(DispatchError::Other("RoamingBillingPolicy does not exist"))
         }
     }
 
-    pub fn exists_roaming_billing_policy_config(roaming_billing_policy_id: T::RoamingBillingPolicyIndex) -> Result<(), &'static str> {
+    pub fn exists_roaming_billing_policy_config(roaming_billing_policy_id: T::RoamingBillingPolicyIndex) -> Result<(), DispatchError> {
         match Self::roaming_billing_policy_configs(roaming_billing_policy_id) {
             Some(_) => Ok(()),
-            None => Err("RoamingBillingPolicyConfig does not exist")
+            None => Err(DispatchError::Other("RoamingBillingPolicyConfig does not exist"))
         }
     }
 
     pub fn has_value_for_billing_policy_config_index(roaming_billing_policy_id: T::RoamingBillingPolicyIndex)
-        -> Result<(), &'static str> {
+        -> Result<(), DispatchError> {
         debug::info!("Checking if billing policy config has a value that is defined");
         let fetched_policy_config = <RoamingBillingPolicyConfigs<T>>::get(roaming_billing_policy_id);
         if let Some(_) = fetched_policy_config {
@@ -318,14 +319,14 @@ impl<T: Trait> Module<T> {
             return Ok(());
         }
         debug::info!("No value for billing policy config");
-        Err("No value for billing policy config")
+        Err(DispatchError::Other("No value for billing policy config"))
     }
 
     /// Only push the billing policy id onto the end of the vector if it does not already exist
     pub fn associate_billing_policy_with_network(
         roaming_billing_policy_id: T::RoamingBillingPolicyIndex,
         roaming_network_id: T::RoamingNetworkIndex
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given network id already exists as a key,
         // and where its corresponding value is a vector that already contains the given billing policy id
@@ -352,7 +353,7 @@ impl<T: Trait> Module<T> {
     pub fn associate_billing_policy_with_operator(
         roaming_billing_policy_id: T::RoamingBillingPolicyIndex,
         roaming_operator_id: T::RoamingOperatorIndex
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given operator id already exists as a key,
         // and where its corresponding value is a vector that already contains the given billing policy id
@@ -385,10 +386,10 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_roaming_billing_policy_id() -> Result<T::RoamingBillingPolicyIndex, &'static str> {
+    fn next_roaming_billing_policy_id() -> Result<T::RoamingBillingPolicyIndex, DispatchError> {
         let roaming_billing_policy_id = Self::roaming_billing_policies_count();
         if roaming_billing_policy_id == <T::RoamingBillingPolicyIndex as Bounded>::max_value() {
-            return Err("RoamingBillingPolicies count overflow");
+            return Err(DispatchError::Other("RoamingBillingPolicies count overflow"));
         }
         Ok(roaming_billing_policy_id)
     }

@@ -7,6 +7,7 @@ use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
+use sp_runtime::DispatchError;
 use sp_std::prelude::*; // Imports Vec
 #[macro_use]
 extern crate alloc; // Required to use Vec
@@ -412,7 +413,7 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_roaming_packet_bundle_owner(roaming_packet_bundle_id: T::RoamingPacketBundleIndex, sender: T::AccountId) -> Result<(), &'static str> {
+	pub fn is_roaming_packet_bundle_owner(roaming_packet_bundle_id: T::RoamingPacketBundleIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         ensure!(
             Self::roaming_packet_bundle_owner(&roaming_packet_bundle_id)
                 .map(|owner| owner == sender)
@@ -422,7 +423,7 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn is_owned_by_required_parent_relationship(roaming_packet_bundle_id: T::RoamingPacketBundleIndex, sender: T::AccountId) -> Result<(), &'static str> {
+    pub fn is_owned_by_required_parent_relationship(roaming_packet_bundle_id: T::RoamingPacketBundleIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         debug::info!("Get the packet bundle session id associated with the session of the given packet bundle id");
         let packet_bundle_session_id = Self::roaming_packet_bundle_session(roaming_packet_bundle_id);
 
@@ -435,43 +436,43 @@ impl<T: Trait> Module<T> {
             );
         } else {
             // There must be a packet bundle session id associated with the packet bundle 
-            return Err("RoamingPacketBundleSession does not exist");
+            return Err(DispatchError::Other("RoamingPacketBundleSession does not exist"));
         }
         Ok(())
     }
 
-    pub fn exists_roaming_packet_bundle(roaming_packet_bundle_id: T::RoamingPacketBundleIndex) -> Result<RoamingPacketBundle, &'static str> {
+    pub fn exists_roaming_packet_bundle(roaming_packet_bundle_id: T::RoamingPacketBundleIndex) -> Result<RoamingPacketBundle, DispatchError> {
         match Self::roaming_packet_bundle(roaming_packet_bundle_id) {
             Some(value) => Ok(value),
-            None => Err("RoamingPacketBundle does not exist")
+            None => Err(DispatchError::Other("RoamingPacketBundle does not exist"))
         }
     }
 
-    pub fn exists_roaming_packet_bundle_receiver(roaming_packet_bundle_id: T::RoamingPacketBundleIndex, roaming_network_server_id: T::RoamingNetworkServerIndex) -> Result<(), &'static str> {
+    pub fn exists_roaming_packet_bundle_receiver(roaming_packet_bundle_id: T::RoamingPacketBundleIndex, roaming_network_server_id: T::RoamingNetworkServerIndex) -> Result<(), DispatchError> {
         match Self::roaming_packet_bundle_receivers((roaming_packet_bundle_id, roaming_network_server_id)) {
             Some(_) => Ok(()),
-            None => Err("RoamingPacketBundleReceiver does not exist")
+            None => Err(DispatchError::Other("RoamingPacketBundleReceiver does not exist"))
         }
     }
 
-    pub fn exists_roaming_network_server(roaming_network_server_id: T::RoamingNetworkServerIndex) -> Result<(), &'static str> {
+    pub fn exists_roaming_network_server(roaming_network_server_id: T::RoamingNetworkServerIndex) -> Result<(), DispatchError> {
         debug::info!("Ensuring that the caller has provided a network server id that actually exists");
         match <roaming_network_servers::Module<T>>::exists_roaming_network_server(roaming_network_server_id) {
             Ok(_) => Ok(()),
-            Err(e) => Err("RoamingNetworkServer does not exist")
+            Err(e) => Err(DispatchError::Other("RoamingNetworkServer does not exist"))
         }
     }
 
-    pub fn is_owned_by_network_server(roaming_network_server_id: T::RoamingNetworkServerIndex, sender: T::AccountId) -> Result<(), &'static str> {
+    pub fn is_owned_by_network_server(roaming_network_server_id: T::RoamingNetworkServerIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         debug::info!("Ensuring that the caller is owner of the given network server id associated with the given packet bundle id");
         match <roaming_network_servers::Module<T>>::is_roaming_network_server_owner(roaming_network_server_id, sender) {
             Ok(_) => Ok(()),
-            Err(e) => Err("Only owner of the given network server id associated with the given packet bundle id can set it as an associated roaming packet bundle receiver")
+            Err(e) => Err(DispatchError::Other("Only owner of the given network server id associated with the given packet bundle id can set it as an associated roaming packet bundle receiver"))
         }
     }
 
     pub fn has_value_for_packet_bundle_receiver_index(roaming_packet_bundle_id: T::RoamingPacketBundleIndex, roaming_network_server_id: T::RoamingNetworkServerIndex)
-        -> Result<(), &'static str> {
+        -> Result<(), DispatchError> {
         debug::info!("Checking if packet bundle receiver has a value that is defined");
         let fetched_packet_bundle_receiver = <RoamingPacketBundleReceivers<T>>::get((roaming_packet_bundle_id, roaming_network_server_id));
         if let Some(_) = fetched_packet_bundle_receiver {
@@ -479,14 +480,14 @@ impl<T: Trait> Module<T> {
             return Ok(());
         }
         debug::info!("No value for packet bundle receiver");
-        Err("No value for packet bundle receiver")
+        Err(DispatchError::Other("No value for packet bundle receiver"))
     }
 
     /// Only push the packet bundle id onto the end of the vector if it does not already exist
     pub fn associate_packet_bundle_with_session(
         roaming_packet_bundle_id: T::RoamingPacketBundleIndex,
         roaming_session_id: T::RoamingSessionIndex
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given session id already exists as a key,
         // and where its corresponding value is a vector that already contains the given packet bundle id
@@ -513,7 +514,7 @@ impl<T: Trait> Module<T> {
     // pub fn associate_packet_bundle_with_operator(
     //     roaming_packet_bundle_id: T::RoamingPacketBundleIndex,
     //     roaming_operator_id: T::RoamingOperatorIndex
-    // ) -> Result<(), &'static str>
+    // ) -> Result<(), DispatchError>
     // {
     //     // Early exit with error since do not want to append if the given operator id already exists as a key,
     //     // and where its corresponding value is a vector that already contains the given packet bundle id
@@ -546,10 +547,10 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_roaming_packet_bundle_id() -> Result<T::RoamingPacketBundleIndex, &'static str> {
+    fn next_roaming_packet_bundle_id() -> Result<T::RoamingPacketBundleIndex, DispatchError> {
         let roaming_packet_bundle_id = Self::roaming_packet_bundles_count();
         if roaming_packet_bundle_id == <T::RoamingPacketBundleIndex as Bounded>::max_value() {
-            return Err("RoamingPacketBundles count overflow");
+            return Err(DispatchError::Other("RoamingPacketBundles count overflow"));
         }
         Ok(roaming_packet_bundle_id)
     }

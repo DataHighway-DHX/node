@@ -7,6 +7,7 @@ use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
+use sp_runtime::DispatchError;
 use sp_std::prelude::*; // Imports Vec
 
 use roaming_operators;
@@ -176,7 +177,7 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_roaming_organization_owner(roaming_organization_id: T::RoamingOrganizationIndex, sender: T::AccountId) -> Result<(), &'static str> {
+	pub fn is_roaming_organization_owner(roaming_organization_id: T::RoamingOrganizationIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         ensure!(
             Self::roaming_organization_owner(&roaming_organization_id)
                 .map(|owner| owner == sender)
@@ -186,10 +187,10 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn exists_roaming_organization(roaming_organization_id: T::RoamingOrganizationIndex) -> Result<RoamingOrganization, &'static str> {
+    pub fn exists_roaming_organization(roaming_organization_id: T::RoamingOrganizationIndex) -> Result<RoamingOrganization, DispatchError> {
         match Self::roaming_organization(roaming_organization_id) {
             Some(roaming_organization) => Ok(roaming_organization),
-            None => Err("RoamingOrganization does not exist")
+            None => Err(DispatchError::Other("RoamingOrganization does not exist"))
         }
     }
 
@@ -197,7 +198,7 @@ impl<T: Trait> Module<T> {
     pub fn associate_organization_with_network_server(
         roaming_organization_id: T::RoamingOrganizationIndex,
         roaming_network_server_id: T::RoamingNetworkServerIndex,
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given network server id already exists as a key,
         // and where its corresponding value is a vector that already contains the given organization id
@@ -230,10 +231,10 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_roaming_organization_id() -> Result<T::RoamingOrganizationIndex, &'static str> {
+    fn next_roaming_organization_id() -> Result<T::RoamingOrganizationIndex, DispatchError> {
         let roaming_organization_id = Self::roaming_organizations_count();
         if roaming_organization_id == <T::RoamingOrganizationIndex as Bounded>::max_value() {
-            return Err("RoamingOrganizations count overflow");
+            return Err(DispatchError::Other("RoamingOrganizations count overflow"));
         }
         Ok(roaming_organization_id)
     }

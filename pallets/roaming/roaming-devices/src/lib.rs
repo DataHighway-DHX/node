@@ -7,6 +7,7 @@ use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
 /// A runtime module for managing non-fungible tokens
 use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
 use system::ensure_signed;
+use sp_runtime::DispatchError;
 use sp_std::prelude::*; // Imports Vec
 
 use roaming_operators; // Only for access to Currency trait
@@ -221,7 +222,7 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_roaming_device_owner(roaming_device_id: T::RoamingDeviceIndex, sender: T::AccountId) -> Result<(), &'static str> {
+	pub fn is_roaming_device_owner(roaming_device_id: T::RoamingDeviceIndex, sender: T::AccountId) -> Result<(), DispatchError> {
         ensure!(
             Self::roaming_device_owner(&roaming_device_id)
                 .map(|owner| owner == sender)
@@ -231,10 +232,10 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn exists_roaming_device(roaming_device_id: T::RoamingDeviceIndex) -> Result<RoamingDevice, &'static str> {
+    pub fn exists_roaming_device(roaming_device_id: T::RoamingDeviceIndex) -> Result<RoamingDevice, DispatchError> {
         match Self::roaming_device(roaming_device_id) {
             Some(roaming_device) => Ok(roaming_device),
-            None => Err("RoamingDevice does not exist")
+            None => Err(DispatchError::Other("RoamingDevice does not exist"))
         }
     }
 
@@ -242,7 +243,7 @@ impl<T: Trait> Module<T> {
     pub fn associate_device_with_network_server(
         roaming_device_id: T::RoamingDeviceIndex,
         roaming_network_server_id: T::RoamingNetworkServerIndex,
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given network server id already exists as a key,
         // and where its corresponding value is a vector that already contains the given device id
@@ -269,7 +270,7 @@ impl<T: Trait> Module<T> {
     pub fn associate_device_with_organization(
         roaming_device_id: T::RoamingDeviceIndex,
         roaming_organization_id: T::RoamingOrganizationIndex,
-    ) -> Result<(), &'static str>
+    ) -> Result<(), DispatchError>
     {
         // Early exit with error since do not want to append if the given network server id already exists as a key,
         // and where its corresponding value is a vector that already contains the given device id
@@ -302,10 +303,10 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_roaming_device_id() -> Result<T::RoamingDeviceIndex, &'static str> {
+    fn next_roaming_device_id() -> Result<T::RoamingDeviceIndex, DispatchError> {
         let roaming_device_id = Self::roaming_devices_count();
         if roaming_device_id == <T::RoamingDeviceIndex as Bounded>::max_value() {
-            return Err("RoamingDevices count overflow");
+            return Err(DispatchError::Other("RoamingDevices count overflow"));
         }
         Ok(roaming_device_id)
     }
