@@ -345,22 +345,22 @@ impl roaming_network_profiles::Trait for Runtime {
 	type RoamingNetworkProfileIndex = u64;
 }
 
-// impl roaming_device_profiles::Trait for Runtime {
-// 	type Event = Event;
-// 	type RoamingDeviceProfileIndex = u64;
-// 	type RoamingDeviceProfileDevAddr = Vec<u8>;
-// 	type RoamingDeviceProfileDevEUI = Vec<u8>;
-// 	type RoamingDeviceProfileJoinEUI = Vec<u8>;
-// 	type RoamingDeviceProfileVendorID = Vec<u8>;
-// }
+impl roaming_device_profiles::Trait for Runtime {
+	type Event = Event;
+	type RoamingDeviceProfileIndex = u64;
+	type RoamingDeviceProfileDevAddr = Vec<u8>;
+	type RoamingDeviceProfileDevEUI = Vec<u8>;
+	type RoamingDeviceProfileJoinEUI = Vec<u8>;
+	type RoamingDeviceProfileVendorID = Vec<u8>;
+}
 
-// impl roaming_sessions::Trait for Runtime {
-// 	type Event = Event;
-// 	type RoamingSessionIndex = u64;
-// 	type RoamingSessionJoinRequestRequestedAt = u64;
-// 	type RoamingSessionJoinRequestAcceptExpiry = u64;
-// 	type RoamingSessionJoinRequestAcceptAcceptedAt = u64;
-// }
+impl roaming_sessions::Trait for Runtime {
+	type Event = Event;
+	type RoamingSessionIndex = u64;
+	type RoamingSessionJoinRequestRequestedAt = u64;
+	type RoamingSessionJoinRequestAcceptExpiry = u64;
+	type RoamingSessionJoinRequestAcceptAcceptedAt = u64;
+}
 
 // impl roaming_billing_policies::Trait for Runtime {
 // 	type Event = Event;
@@ -513,8 +513,8 @@ construct_runtime!(
 		DataHighwayRoamingAccountingPolicies: roaming_accounting_policies::{Module, Call, Storage, Event<T>},
 		DataHighwayRoamingAgreementPolicies: roaming_agreement_policies::{Module, Call, Storage, Event<T>},
 		DataHighwayRoamingNetworkProfiles: roaming_network_profiles::{Module, Call, Storage, Event<T>},
-		// DataHighwayRoamingDeviceProfiles: roaming_device_profiles::{Module, Call, Storage, Event<T>},
-		// DataHighwayRoamingSessions: roaming_sessions::{Module, Call, Storage, Event<T>},
+		DataHighwayRoamingDeviceProfiles: roaming_device_profiles::{Module, Call, Storage, Event<T>},
+		DataHighwayRoamingSessions: roaming_sessions::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingBillingPolicies: roaming_billing_policies::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingChargingPolicies: roaming_charging_policies::{Module, Call, Storage, Event<T>},
 		// DataHighwayRoamingPacketBundles: roaming_packet_bundles::{Module, Call, Storage, Event<T>},
