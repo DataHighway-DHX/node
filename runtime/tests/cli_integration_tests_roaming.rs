@@ -17,13 +17,11 @@ extern crate roaming_device_profiles as device_profiles;
 mod tests {
     use super::*;
 
-    use primitives::{H256};
-    use sr_primitives::Perbill;
-    use sr_primitives::{
-        testing::Header,
-        traits::{BlakeTwo256, IdentityLookup},
-    };
-    use support::{assert_noop, assert_ok, impl_outer_origin, parameter_types, weights::Weight};
+	use sp_core::H256;
+	use frame_support::{impl_outer_origin, assert_ok, parameter_types, weights::Weight};
+	use sp_runtime::{
+		traits::{BlakeTwo256, IdentityLookup}, testing::Header, Perbill,
+	};
     // Import Trait for each runtime module being tested
     use roaming_operators::{
         Module as RoamingOperatorModule,
@@ -121,16 +119,15 @@ mod tests {
         type MaximumBlockLength = MaximumBlockLength;
         type AvailableBlockRatio = AvailableBlockRatio;
         type Version = ();
+        type ModuleToIndex = ();
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type OnFreeBalanceZero = ();
         type OnNewAccount = ();
         type Event = ();
         type DustRemoval = ();
         type TransferPayment = ();
         type ExistentialDeposit = ();
-        type TransferFee = ();
         type CreationFee = ();
     }
     impl transaction_payment::Trait for Test {
@@ -231,7 +228,7 @@ mod tests {
 
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
-    fn new_test_ext() -> runtime_io::TestExternalities {
+    fn new_test_ext() -> sp_io::TestExternalities {
         let mut t = system::GenesisConfig::default()
             .build_storage::<Test>()
             .unwrap();
@@ -241,7 +238,7 @@ mod tests {
         }
         .assimilate_storage(&mut t)
         .unwrap();
-        runtime_io::TestExternalities::new(t)
+        sp_io::TestExternalities::new(t)
     }
 
     // Create Users on Data Highway

@@ -1,16 +1,15 @@
-//! Substrate Node Template CLI library.
-
+//! Substrate Node CLI library.
 #![warn(missing_docs)]
-#![warn(unused_extern_crates)]
 
 mod chain_spec;
 #[macro_use]
 mod service;
 mod cli;
+mod command;
 
-pub use substrate_cli::{VersionInfo, IntoExit, error};
+pub use sc_cli::{VersionInfo, error};
 
-fn main() -> Result<(), cli::error::Error> {
+fn main() -> Result<(), error::Error> {
 	let version = VersionInfo {
 		name: "Substrate Node",
 		commit: env!("VERGEN_SHA_SHORT"),
@@ -19,7 +18,8 @@ fn main() -> Result<(), cli::error::Error> {
 		author: "MXC Foundation gGmbH",
 		description: "node",
 		support_url: "https://t.me/mxcfoundation",
+		copyright_start_year: 2020,
 	};
 
-	cli::run(std::env::args(), cli::Exit, version)
+	command::run(version)
 }

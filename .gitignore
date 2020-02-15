@@ -6,6 +6,6 @@
 **/*.rs.bk
 
 .vscode/
-packages/.DS_Store
+pallets/.DS_Store
 .DS_Store
 
