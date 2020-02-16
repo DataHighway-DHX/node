@@ -47,11 +47,11 @@ jobs:
           rustup default stable
 
       - name: Build rustwide
-        run: 
+        run: |
           cargo update
           cargo build --all ${{ matrix.cargo_flags }}
 
       - name: Test rustwide
-        run: 
+        run: |
           cargo update
           cargo test --all ${{ matrix.cargo_flags }} -- ${{ matrix.test_flags }}
