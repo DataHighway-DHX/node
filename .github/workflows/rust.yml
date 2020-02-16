@@ -41,10 +41,13 @@ jobs:
       - name: Checkout the source code
         uses: actions/checkout@master
 
-      - name: Install Rust stable
+      - name: Install Rust
         run: |
           rustup toolchain update --no-self-update stable
           rustup default stable
+          rustup update nightly
+          rustup target add wasm32-unknown-unknown --toolchain nightly
+
 
       - name: Build rustwide
         run: 
