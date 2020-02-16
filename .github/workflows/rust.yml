@@ -24,10 +24,7 @@ jobs:
           toolchain: nightly
           
       - name: Install WASM toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: wasm32-unknown-unknown
+        run: rustup target add wasm32-unknown-unknown --toolchain nightly
 
       - name: Run cargo check
         uses: actions-rs/cargo@v1
@@ -53,6 +50,9 @@ jobs:
         with:
           profile: minimal
           toolchain: nightly
+          
+      - name: Install WASM toolchain
+        run: rustup target add wasm32-unknown-unknown --toolchain nightly
 
       - name: Run cargo test
         uses: actions-rs/cargo@v1
