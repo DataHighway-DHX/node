@@ -3,55 +3,85 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-
-  lint:
-    name: Lint
+  check:
+    name: Check
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the source code
+      - name: Checkout sources
         uses: actions/checkout@master
 
-      - name: Install Rust stable
-        run: |
-          rustup toolchain update --no-self-update stable
-          rustup default stable
-          rustup component add clippy rustfmt
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          
+      - name: Install WASM toolchain
+        run: rustup target add wasm32-unknown-unknown --toolchain nightly
 
-      - name: Run rustfmt
-        run: cargo fmt -- --check
-
-      - name: Run clippy
-        run: cargo clippy --all --all-features --
+      - name: Run cargo check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
 
   test:
-    name: Test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        cargo_flags:
-          - ""
-          - "--all-features"
-        include:
-          # Integration tests are disabled on Windows as they take *way* too
-          # long to pull the Docker image
-          - os: windows-latest
-            test_flags: --skip buildtest --skip integration
+    name: Test Suite
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout the source code
+      - name: Checkout sources
         uses: actions/checkout@master
 
-      - name: Install Rust stable
-        run: |
-          rustup toolchain update --no-self-update stable
-          rustup default stable
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          
+      - name: Install WASM toolchain
+        run: rustup target add wasm32-unknown-unknown --toolchain nightly
 
-      - name: Build rustwide
-        run: 
-          cargo update
-          cargo build --all ${{ matrix.cargo_flags }}
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
 
-      - name: Test rustwide
-        run: 
-          cargo update
-          cargo test --all ${{ matrix.cargo_flags }} -- ${{ matrix.test_flags }}
+  lints:
+    name: Lints
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@master
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+
+      - name: Run cargo fmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+
+      - name: Run cargo clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: -- -D warnings
