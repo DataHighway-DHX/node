@@ -331,7 +331,7 @@ mod tests {
                 )
             );
             assert_ok!(MiningSpeedBoostEligibilityHardwareMiningTestModule::assign_eligibility_to_configuration(Origin::signed(0), 0, 0));
-  
+
             // Verify Storage
             assert_eq!(MiningSpeedBoostEligibilityHardwareMiningTestModule::mining_speed_boosts_eligibility_hardware_mining_count(), 1);
             assert!(MiningSpeedBoostEligibilityHardwareMiningTestModule::mining_speed_boosts_eligibility_hardware_mining(0).is_some());
