@@ -444,7 +444,7 @@ The styles are defined in the rustfmt.toml configuration file, which was generat
 ### Install RustFmt
 
 ```bash
-rustup component add rustfmt
+rustup component add rustfmt --toolchain nightly
 ```
 
 ### Check Formating Changes that RustFmt before applying them
@@ -458,7 +458,7 @@ cargo fmt --all -- --check
 ### Apply Formating Changes
 
 ```bash
-cargo fmt
+cargo +nightly fmt
 ```
 
 ### Add Vertical Rulers in VS Code
