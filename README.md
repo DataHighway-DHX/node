@@ -12,6 +12,7 @@ __WARNING__: This implementation is a proof-of-concept prototype and is not read
 * [Debugging](#chapter-93c645)
 * [Create custom blockchain configuration](#chapter-b1b53c)
 * [Run multiple node PoA testnet using custom blockchain configuration](#chapter-f21efd)
+* [Linting](#chapter-c345d7)
 * [Continuous integration](#chapter-27d8c5)
 
 Note: Generate a new chapter with `openssl rand -hex 3`
@@ -401,7 +402,7 @@ mkdir -p ./src/chain-definition-custom
   * Use default accounts Alice and Bob as the two initial authorities of the genesis configuration that have been endowed with testnet units that will run validator nodes
   * Multiple authority nodes using the Aura consensus to produce blocks
 
-Terminal 1: Alice's Substrate-based node on default TCP port 30333 with her chain database stored locally at `/tmp/polkadot-chains/alice` and where the bootnode ID of her node is `Local node identity is: QmZ5kgdoLCx3Qfy8nJAiP1U9i6iY3qeiDNSCdHmHRJtSnF` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey -e inspect //Alice`, alternatively you could provide the private key to that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`. 
+Terminal 1: Alice's Substrate-based node on default TCP port 30333 with her chain database stored locally at `/tmp/polkadot-chains/alice` and where the bootnode ID of her node is `Local node identity is: QmZ5kgdoLCx3Qfy8nJAiP1U9i6iY3qeiDNSCdHmHRJtSnF` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey -e inspect //Alice`, alternatively you could provide the private key to that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`.
 If you explicitly specify a `--node-key` when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chainspec.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/node:
 
 ```bash
@@ -432,6 +433,37 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
 * Distribute the custom chain specification to allow others to synchronise and validate if they are an authority
 
 * Add session keys for other account(s) to be configured as authorities (validators)
+
+## Linting<a id="chapter-c345d7"></a>
+
+### Rust Format
+
+[RustFmt](https://github.com/rust-lang/rustfmt) should be used for styling Rust code.
+The styles are defined in the rustfmt.toml configuration file
+
+### Install RustFmt
+
+```bash
+rustup component add rustfmt
+```
+
+### Check Formating Changes that RustFmt before applying them
+
+Check that you agree with all the formating changes that RustFmt will apply to identify anything that you do not agree with.
+
+```bash
+cargo fmt --all -- --check
+```
+
+### Apply Formating Changes
+
+```bash
+cargo fmt
+```
+
+### EditorConfig
+
+Install an [EditorConfig Plugin](https://editorconfig.org/) for your code editor to detect and apply the configuration in .editorconfig.
 
 ## Continuous integration<a id="chapter-27d8c5"></a>
 
