@@ -1,4 +1,4 @@
-# Data Highway [![GitHub license](https://img.shields.io/github/license/paritytech/substrate)](LICENSE) [![Build Status](https://travis-ci.org/DataHighway-DHX/node.svg?branch=master)](https://travis-ci.org/DataHighway-DHX/node)
+# Data Highway [![GitHub license](https://img.shields.io/github/license/paritytech/substrate)](LICENSE) ![![Build Status](https://github.com/DataHighway-DHX/node/actions?query=workflow%3ACI+branch%3Amaster)](https://github.com/DataHighway-DHX/node/workflows/CI/badge.svg?branch=master)
 
 The Data Highway Substrate-based blockchain node.
 
@@ -470,9 +470,5 @@ Add the following to settings.json `"editor.rulers": [80,120]`, as recommended h
 Install an [EditorConfig Plugin](https://editorconfig.org/) for your code editor to detect and apply the configuration in .editorconfig.
 
 ## Continuous integration<a id="chapter-27d8c5"></a>
-
-![](https://github.com/DataHighway-DHX/node/workflows/Lint/badge.svg?branch=master)
-
-![](https://github.com/DataHighway-DHX/node/workflows/Test/badge.svg?branch=master)
 
 * Reference: https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow
