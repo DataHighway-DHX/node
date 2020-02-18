@@ -1,31 +1,51 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
-use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
-use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
+use codec::{
+    Decode,
+    Encode,
+};
+use frame_support::traits::{
+    Currency,
+    ExistenceRequirement,
+    Randomness,
+};
 /// A runtime module for managing non-fungible tokens
-use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
-use system::ensure_signed;
-use sp_runtime::DispatchError;
+use frame_support::{
+    debug,
+    decl_event,
+    decl_module,
+    decl_storage,
+    ensure,
+    Parameter,
+};
+use sp_io::hashing::blake2_128;
+use sp_runtime::{
+    traits::{
+        AtLeast32Bit,
+        Bounded,
+        Member,
+        One,
+    },
+    DispatchError,
+};
 use sp_std::prelude::*; // Imports Vec
+use system::ensure_signed;
 #[macro_use]
 extern crate alloc; // Required to use Vec
 
 // use env;
-use roaming_operators;
-use roaming_networks;
 use roaming_accounting_policies;
+use roaming_networks;
+use roaming_operators;
 
 /// The module's configuration trait.
-pub trait Trait: system::Trait +
-                 roaming_operators::Trait +
-                 roaming_networks::Trait +
-                 roaming_accounting_policies::Trait {
+pub trait Trait:
+    system::Trait + roaming_operators::Trait + roaming_networks::Trait + roaming_accounting_policies::Trait
+{
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
     type RoamingAgreementPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-	type RoamingAgreementPolicyActivationType: Parameter + Member + Default;
-	type RoamingAgreementPolicyExpiry: Parameter + Member + Default;
+    type RoamingAgreementPolicyActivationType: Parameter + Member + Default;
+    type RoamingAgreementPolicyExpiry: Parameter + Member + Default;
 }
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
@@ -40,25 +60,25 @@ pub struct RoamingAgreementPolicyConfig<U, V> {
 }
 
 decl_event!(
-	pub enum Event<T> where
-		<T as system::Trait>::AccountId,
+    pub enum Event<T> where
+        <T as system::Trait>::AccountId,
         <T as Trait>::RoamingAgreementPolicyIndex,
         <T as Trait>::RoamingAgreementPolicyActivationType,
         <T as Trait>::RoamingAgreementPolicyExpiry,
         <T as roaming_accounting_policies::Trait>::RoamingAccountingPolicyIndex,
         <T as roaming_networks::Trait>::RoamingNetworkIndex,
-	{
-		/// A roaming agreement_policy is created. (owner, roaming_agreement_policy_id)
-		Created(AccountId, RoamingAgreementPolicyIndex),
-		/// A roaming agreement_policy is transferred. (from, to, roaming_agreement_policy_id)
-		Transferred(AccountId, AccountId, RoamingAgreementPolicyIndex),
+    {
+        /// A roaming agreement_policy is created. (owner, roaming_agreement_policy_id)
+        Created(AccountId, RoamingAgreementPolicyIndex),
+        /// A roaming agreement_policy is transferred. (from, to, roaming_agreement_policy_id)
+        Transferred(AccountId, AccountId, RoamingAgreementPolicyIndex),
         /// A roaming agreement_policy configuration
         RoamingAgreementPolicyConfigSet(AccountId, RoamingAgreementPolicyIndex, RoamingAgreementPolicyActivationType, RoamingAgreementPolicyExpiry),
         /// A roaming agreement_policy is assigned to a accounting_policy. (owner of network, roaming_agreement_policy_id, roaming_accounting_policy_id)
         AssignedAgreementPolicyToAccountingPolicy(AccountId, RoamingAgreementPolicyIndex, RoamingAccountingPolicyIndex),
         /// A roaming agreement_policy is assigned to a network. (owner of network, roaming_agreement_policy_id, roaming_network_id)
         AssignedAgreementPolicyToNetwork(AccountId, RoamingAgreementPolicyIndex, RoamingNetworkIndex),
-	}
+    }
 );
 
 // This module's storage items.
@@ -277,7 +297,10 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_roaming_agreement_policy_owner(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex, sender: T::AccountId) -> Result<(), DispatchError> {
+    pub fn is_roaming_agreement_policy_owner(
+        roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
+        sender: T::AccountId,
+    ) -> Result<(), DispatchError> {
         ensure!(
             Self::roaming_agreement_policy_owner(&roaming_agreement_policy_id)
                 .map(|owner| owner == sender)
@@ -288,17 +311,18 @@ impl<T: Trait> Module<T> {
     }
 
     // Note: Not required
-    // pub fn is_owned_by_required_parent_relationship(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex, sender: T::AccountId) -> Result<(), DispatchError> {
-    //     debug::info!("Get the network id associated with the network of the given agreement policy id");
-    //     let agreement_policy_network_id = Self::roaming_agreement_policy_network(roaming_agreement_policy_id);
+    // pub fn is_owned_by_required_parent_relationship(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
+    // sender: T::AccountId) -> Result<(), DispatchError> {     debug::info!("Get the network id associated with the
+    // network of the given agreement policy id");     let agreement_policy_network_id =
+    // Self::roaming_agreement_policy_network(roaming_agreement_policy_id);
 
     //     if let Some(_agreement_policy_network_id) = agreement_policy_network_id {
     //         // Ensure that the caller is owner of the network id associated with the agreement policy
     //         ensure!((<roaming_networks::Module<T>>::is_roaming_network_owner(
     //                 _agreement_policy_network_id.clone(),
     //                 sender.clone()
-    //             )).is_ok(), "Only owner of the network id associated with the given agreement policy can set an associated roaming agreement policy config"
-    //         );
+    //             )).is_ok(), "Only owner of the network id associated with the given agreement policy can set an
+    // associated roaming agreement policy config"         );
     //     } else {
     //         // There must be a network id associated with the agreement policy
     //         return Err(DispatchError::Other("RoamingAgreementPolicyNetwork does not exist"));
@@ -306,22 +330,27 @@ impl<T: Trait> Module<T> {
     //     Ok(())
     // }
 
-    pub fn exists_roaming_agreement_policy(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex) -> Result<RoamingAgreementPolicy, DispatchError> {
+    pub fn exists_roaming_agreement_policy(
+        roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
+    ) -> Result<RoamingAgreementPolicy, DispatchError> {
         match Self::roaming_agreement_policy(roaming_agreement_policy_id) {
             Some(value) => Ok(value),
-            None => Err(DispatchError::Other("RoamingAgreementPolicy does not exist"))
+            None => Err(DispatchError::Other("RoamingAgreementPolicy does not exist")),
         }
     }
 
-    pub fn exists_roaming_agreement_policy_config(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex) -> Result<(), DispatchError> {
+    pub fn exists_roaming_agreement_policy_config(
+        roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
+    ) -> Result<(), DispatchError> {
         match Self::roaming_agreement_policy_configs(roaming_agreement_policy_id) {
             Some(value) => Ok(()),
-            None => Err(DispatchError::Other("RoamingAgreementPolicyConfig does not exist"))
+            None => Err(DispatchError::Other("RoamingAgreementPolicyConfig does not exist")),
         }
     }
 
-    pub fn has_value_for_agreement_policy_config_index(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex)
-        -> Result<(), DispatchError> {
+    pub fn has_value_for_agreement_policy_config_index(
+        roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
+    ) -> Result<(), DispatchError> {
         debug::info!("Checking if agreement policy config has a value that is defined");
         let fetched_policy_config = <RoamingAgreementPolicyConfigs<T>>::get(roaming_agreement_policy_id);
         if let Some(value) = fetched_policy_config {
@@ -335,14 +364,14 @@ impl<T: Trait> Module<T> {
     /// Only push the agreement policy id onto the end of the vector if it does not already exist
     pub fn associate_agreement_policy_with_network(
         roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
-        roaming_network_id: T::RoamingNetworkIndex
-    ) -> Result<(), DispatchError>
-    {
+        roaming_network_id: T::RoamingNetworkIndex,
+    ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given network id already exists as a key,
         // and where its corresponding value is a vector that already contains the given agreement policy id
         if let Some(network_agreement_policies) = Self::roaming_network_agreement_policies(roaming_network_id) {
             debug::info!("Network id key {:?} exists with value {:?}", roaming_network_id, network_agreement_policies);
-            let not_network_contains_agreement_policy = !network_agreement_policies.contains(&roaming_agreement_policy_id);
+            let not_network_contains_agreement_policy =
+                !network_agreement_policies.contains(&roaming_agreement_policy_id);
             ensure!(not_network_contains_agreement_policy, "Network already contains the given agreement policy id");
             debug::info!("Network id key exists but its vector value does not contain the given agreement policy id");
             <RoamingNetworkAgreementPolicies<T>>::mutate(roaming_network_id, |v| {
@@ -350,10 +379,19 @@ impl<T: Trait> Module<T> {
                     value.push(roaming_agreement_policy_id);
                 }
             });
-            debug::info!("Associated agreement policy {:?} with network {:?}", roaming_agreement_policy_id, roaming_network_id);
+            debug::info!(
+                "Associated agreement policy {:?} with network {:?}",
+                roaming_agreement_policy_id,
+                roaming_network_id
+            );
             Ok(())
         } else {
-            debug::info!("Network id key does not yet exist. Creating the network key {:?} and appending the agreement policy id {:?} to its vector value", roaming_network_id, roaming_agreement_policy_id);
+            debug::info!(
+                "Network id key does not yet exist. Creating the network key {:?} and appending the agreement policy \
+                 id {:?} to its vector value",
+                roaming_network_id,
+                roaming_agreement_policy_id
+            );
             <RoamingNetworkAgreementPolicies<T>>::insert(roaming_network_id, &vec![roaming_agreement_policy_id]);
             Ok(())
         }
@@ -362,26 +400,49 @@ impl<T: Trait> Module<T> {
     /// Only push the agreement policy id onto the end of the vector if it does not already exist
     pub fn associate_agreement_policy_with_accounting_policy(
         roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
-        roaming_accounting_policy_id: T::RoamingAccountingPolicyIndex
-    ) -> Result<(), DispatchError>
-    {
+        roaming_accounting_policy_id: T::RoamingAccountingPolicyIndex,
+    ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given accounting_policy id already exists as a key,
         // and where its corresponding value is a vector that already contains the given agreement policy id
-        if let Some(accounting_policy_agreement_policies) = Self::roaming_accounting_policy_agreement_policies(roaming_accounting_policy_id) {
-            debug::info!("AccountingPolicy id key {:?} exists with value {:?}", roaming_accounting_policy_id, accounting_policy_agreement_policies);
-            let not_accounting_policy_contains_agreement_policy = !accounting_policy_agreement_policies.contains(&roaming_agreement_policy_id);
-            ensure!(not_accounting_policy_contains_agreement_policy, "AccountingPolicy already contains the given agreement policy id");
-            debug::info!("AccountingPolicy id key exists but its vector value does not contain the given agreement policy id");
+        if let Some(accounting_policy_agreement_policies) =
+            Self::roaming_accounting_policy_agreement_policies(roaming_accounting_policy_id)
+        {
+            debug::info!(
+                "AccountingPolicy id key {:?} exists with value {:?}",
+                roaming_accounting_policy_id,
+                accounting_policy_agreement_policies
+            );
+            let not_accounting_policy_contains_agreement_policy =
+                !accounting_policy_agreement_policies.contains(&roaming_agreement_policy_id);
+            ensure!(
+                not_accounting_policy_contains_agreement_policy,
+                "AccountingPolicy already contains the given agreement policy id"
+            );
+            debug::info!(
+                "AccountingPolicy id key exists but its vector value does not contain the given agreement policy id"
+            );
             <RoamingAccountingPolicyAgreementPolicies<T>>::mutate(roaming_accounting_policy_id, |v| {
                 if let Some(value) = v {
                     value.push(roaming_agreement_policy_id);
                 }
             });
-            debug::info!("Associated agreement policy {:?} with accounting_policy {:?}", roaming_agreement_policy_id, roaming_accounting_policy_id);
+            debug::info!(
+                "Associated agreement policy {:?} with accounting_policy {:?}",
+                roaming_agreement_policy_id,
+                roaming_accounting_policy_id
+            );
             Ok(())
         } else {
-            debug::info!("AccountingPolicy id key does not yet exist. Creating the accounting_policy key {:?} and appending the agreement policy id {:?} to its vector value", roaming_accounting_policy_id, roaming_agreement_policy_id);
-            <RoamingAccountingPolicyAgreementPolicies<T>>::insert(roaming_accounting_policy_id, &vec![roaming_agreement_policy_id]);
+            debug::info!(
+                "AccountingPolicy id key does not yet exist. Creating the accounting_policy key {:?} and appending \
+                 the agreement policy id {:?} to its vector value",
+                roaming_accounting_policy_id,
+                roaming_agreement_policy_id
+            );
+            <RoamingAccountingPolicyAgreementPolicies<T>>::insert(
+                roaming_accounting_policy_id,
+                &vec![roaming_agreement_policy_id],
+            );
             Ok(())
         }
     }
@@ -404,7 +465,11 @@ impl<T: Trait> Module<T> {
         Ok(roaming_agreement_policy_id)
     }
 
-    fn insert_roaming_agreement_policy(owner: &T::AccountId, roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex, roaming_agreement_policy: RoamingAgreementPolicy) {
+    fn insert_roaming_agreement_policy(
+        owner: &T::AccountId,
+        roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
+        roaming_agreement_policy: RoamingAgreementPolicy,
+    ) {
         // Create and store roaming agreement_policy
         <RoamingAgreementPolicies<T>>::insert(roaming_agreement_policy_id, roaming_agreement_policy);
         <RoamingAgreementPoliciesCount<T>>::put(roaming_agreement_policy_id + One::one());
@@ -421,10 +486,20 @@ impl<T: Trait> Module<T> {
 mod tests {
     use super::*;
 
-	use sp_core::H256;
-	use frame_support::{impl_outer_origin, assert_ok, parameter_types, weights::Weight};
-	use sp_runtime::{
-		traits::{BlakeTwo256, IdentityLookup}, testing::Header, Perbill,
+    use frame_support::{
+        assert_ok,
+        impl_outer_origin,
+        parameter_types,
+        weights::Weight,
+    };
+    use sp_core::H256;
+    use sp_runtime::{
+        testing::Header,
+        traits::{
+            BlakeTwo256,
+            IdentityLookup,
+        },
+        Perbill,
     };
 
     impl_outer_origin! {
@@ -440,45 +515,45 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl system::Trait for Test {
-        type Origin = Origin;
-        type Call = ();
-        type Index = u64;
-        type BlockNumber = u64;
-        type Hash = H256;
-        type Hashing = BlakeTwo256;
         type AccountId = u64;
-        type Lookup = IdentityLookup<Self::AccountId>;
-        type Header = Header;
+        type AvailableBlockRatio = AvailableBlockRatio;
+        type BlockHashCount = BlockHashCount;
+        type BlockNumber = u64;
+        type Call = ();
         // type WeightMultiplierUpdate = ();
         type Event = ();
-        type BlockHashCount = BlockHashCount;
-        type MaximumBlockWeight = MaximumBlockWeight;
+        type Hash = H256;
+        type Hashing = BlakeTwo256;
+        type Header = Header;
+        type Index = u64;
+        type Lookup = IdentityLookup<Self::AccountId>;
         type MaximumBlockLength = MaximumBlockLength;
-        type AvailableBlockRatio = AvailableBlockRatio;
-        type Version = ();
+        type MaximumBlockWeight = MaximumBlockWeight;
         type ModuleToIndex = ();
+        type Origin = Origin;
+        type Version = ();
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type OnNewAccount = ();
-        type Event = ();
-        type DustRemoval = ();
-        type TransferPayment = ();
-        type ExistentialDeposit = ();
         type CreationFee = ();
+        type DustRemoval = ();
+        type Event = ();
+        type ExistentialDeposit = ();
+        type OnNewAccount = ();
+        type TransferPayment = ();
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;
+        type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
         type TransactionBaseFee = ();
         type TransactionByteFee = ();
         type WeightToFee = ();
-        type FeeMultiplierUpdate = ();
     }
 
     impl roaming_operators::Trait for Test {
-        type Event = ();
         type Currency = Balances;
+        type Event = ();
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
@@ -488,18 +563,18 @@ mod tests {
     }
     impl roaming_accounting_policies::Trait for Test {
         type Event = ();
+        type RoamingAccountingPolicyDownlinkFeeFactor = u32;
         type RoamingAccountingPolicyIndex = u64;
         type RoamingAccountingPolicyType = Vec<u8>;
         type RoamingAccountingPolicyUplinkFeeFactor = u32;
-        type RoamingAccountingPolicyDownlinkFeeFactor = u32;
     }
     impl Trait for Test {
         type Event = ();
-        type RoamingAgreementPolicyIndex = u64;
         type RoamingAgreementPolicyActivationType = Vec<u8>;
         type RoamingAgreementPolicyExpiry = u64;
+        type RoamingAgreementPolicyIndex = u64;
     }
-    //type System = system::Module<Test>;
+    // type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type RoamingAgreementPolicyModule = Module<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
@@ -507,9 +582,7 @@ mod tests {
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     fn new_test_ext() -> sp_io::TestExternalities {
-        let mut t = system::GenesisConfig::default()
-            .build_storage::<Test>()
-            .unwrap();
+        let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
         balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60)],
             vesting: vec![],

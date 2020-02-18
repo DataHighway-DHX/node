@@ -1,25 +1,46 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
-use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
-use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
+use codec::{
+    Decode,
+    Encode,
+};
+use frame_support::traits::{
+    Currency,
+    ExistenceRequirement,
+    Randomness,
+};
 /// A runtime module for managing non-fungible tokens
-use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
-use system::ensure_signed;
-use sp_runtime::DispatchError;
+use frame_support::{
+    debug,
+    decl_event,
+    decl_module,
+    decl_storage,
+    ensure,
+    Parameter,
+};
+use sp_io::hashing::blake2_128;
+use sp_runtime::{
+    traits::{
+        AtLeast32Bit,
+        Bounded,
+        Member,
+        One,
+    },
+    DispatchError,
+};
 use sp_std::prelude::*; // Imports Vec
+use system::ensure_signed;
 
 use roaming_devices;
 
 /// The module's configuration trait.
 pub trait Trait: system::Trait + roaming_operators::Trait + roaming_devices::Trait {
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
-	type RoamingDeviceProfileIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-	type RoamingDeviceProfileDevAddr: Parameter + Member + Default;
-	type RoamingDeviceProfileDevEUI: Parameter + Member + Default;
-	type RoamingDeviceProfileJoinEUI: Parameter + Member + Default;
-	type RoamingDeviceProfileVendorID: Parameter + Member + Default;
+    type RoamingDeviceProfileIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type RoamingDeviceProfileDevAddr: Parameter + Member + Default;
+    type RoamingDeviceProfileDevEUI: Parameter + Member + Default;
+    type RoamingDeviceProfileJoinEUI: Parameter + Member + Default;
+    type RoamingDeviceProfileVendorID: Parameter + Member + Default;
 }
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
@@ -37,24 +58,24 @@ pub struct RoamingDeviceProfileConfig<U, V, W, X> {
 }
 
 decl_event!(
-	pub enum Event<T> where
-		<T as system::Trait>::AccountId,
+    pub enum Event<T> where
+        <T as system::Trait>::AccountId,
         <T as Trait>::RoamingDeviceProfileIndex,
         <T as Trait>::RoamingDeviceProfileDevAddr,
         <T as Trait>::RoamingDeviceProfileDevEUI,
         <T as Trait>::RoamingDeviceProfileJoinEUI,
         <T as Trait>::RoamingDeviceProfileVendorID,
         <T as roaming_devices::Trait>::RoamingDeviceIndex,
-	{
-		/// A roaming device_profile is created. (owner, roaming_device_profile_id)
-		Created(AccountId, RoamingDeviceProfileIndex),
-		/// A roaming device_profile is transferred. (from, to, roaming_device_profile_id)
-		Transferred(AccountId, AccountId, RoamingDeviceProfileIndex),
+    {
+        /// A roaming device_profile is created. (owner, roaming_device_profile_id)
+        Created(AccountId, RoamingDeviceProfileIndex),
+        /// A roaming device_profile is transferred. (from, to, roaming_device_profile_id)
+        Transferred(AccountId, AccountId, RoamingDeviceProfileIndex),
         /// A roaming device_profile configuration
         RoamingDeviceProfileConfigSet(AccountId, RoamingDeviceProfileIndex, RoamingDeviceProfileDevAddr, RoamingDeviceProfileDevEUI, RoamingDeviceProfileJoinEUI, RoamingDeviceProfileVendorID),
-		/// A roaming device_profile is assigned to a device. (owner of device, roaming_device_profile_id, roaming_device_id)
+        /// A roaming device_profile is assigned to a device. (owner of device, roaming_device_profile_id, roaming_device_id)
         AssignedDeviceProfileToDevice(AccountId, RoamingDeviceProfileIndex, RoamingDeviceIndex),
-	}
+    }
 );
 
 // This module's storage items.
@@ -247,23 +268,32 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-    pub fn exists_roaming_device_profile(roaming_device_profile_id: T::RoamingDeviceProfileIndex) -> Result<RoamingDeviceProfile, DispatchError> {
+    pub fn exists_roaming_device_profile(
+        roaming_device_profile_id: T::RoamingDeviceProfileIndex,
+    ) -> Result<RoamingDeviceProfile, DispatchError> {
         match Self::roaming_device_profile(roaming_device_profile_id) {
             Some(roaming_device_profile) => Ok(roaming_device_profile),
-            None => Err(DispatchError::Other("RoamingDeviceProfile does not exist"))
+            None => Err(DispatchError::Other("RoamingDeviceProfile does not exist")),
         }
     }
 
-    pub fn is_owned_by_required_parent_relationship(roaming_device_profile_id: T::RoamingDeviceProfileIndex, sender: T::AccountId) -> Result<(), DispatchError> {
+    pub fn is_owned_by_required_parent_relationship(
+        roaming_device_profile_id: T::RoamingDeviceProfileIndex,
+        sender: T::AccountId,
+    ) -> Result<(), DispatchError> {
         debug::info!("Get the device id associated with the device of the given device profile id");
         let device_profile_device_id = Self::roaming_device_profile_device(roaming_device_profile_id);
 
         if let Some(_device_profile_device_id) = device_profile_device_id {
             // Ensure that the caller is owner of the device id associated with the device profile
-            ensure!((<roaming_devices::Module<T>>::is_roaming_device_owner(
+            ensure!(
+                (<roaming_devices::Module<T>>::is_roaming_device_owner(
                     _device_profile_device_id.clone(),
                     sender.clone()
-                )).is_ok(), "Only owner of the device id associated with the given device profile can set an associated roaming device profile config"
+                ))
+                .is_ok(),
+                "Only owner of the device id associated with the given device profile can set an associated roaming \
+                 device profile config"
             );
         } else {
             // There must be a device id associated with the device profile
@@ -272,15 +302,18 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn exists_roaming_device_profile_config(roaming_device_profile_id: T::RoamingDeviceProfileIndex) -> Result<(), DispatchError> {
+    pub fn exists_roaming_device_profile_config(
+        roaming_device_profile_id: T::RoamingDeviceProfileIndex,
+    ) -> Result<(), DispatchError> {
         match Self::roaming_device_profile_configs(roaming_device_profile_id) {
             Some(value) => Ok(()),
-            None => Err(DispatchError::Other("RoamingDeviceProfileConfig does not exist"))
+            None => Err(DispatchError::Other("RoamingDeviceProfileConfig does not exist")),
         }
     }
 
-    pub fn has_value_for_device_profile_config_index(roaming_device_profile_id: T::RoamingDeviceProfileIndex)
-        -> Result<(), DispatchError> {
+    pub fn has_value_for_device_profile_config_index(
+        roaming_device_profile_id: T::RoamingDeviceProfileIndex,
+    ) -> Result<(), DispatchError> {
         debug::info!("Checking if device profile config has a value that is defined");
         let fetched_profile_config = <RoamingDeviceProfileConfigs<T>>::get(roaming_device_profile_id);
         if let Some(value) = fetched_profile_config {
@@ -295,8 +328,7 @@ impl<T: Trait> Module<T> {
     pub fn associate_device_profile_with_device(
         roaming_device_profile_id: T::RoamingDeviceProfileIndex,
         roaming_device_id: T::RoamingDeviceIndex,
-    ) -> Result<(), DispatchError>
-    {
+    ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given device id already exists as a key,
         // and where its corresponding value is a vector that already contains the given device_profile id
         if let Some(device_device_profiles) = Self::roaming_device_device_profiles(roaming_device_id) {
@@ -309,10 +341,19 @@ impl<T: Trait> Module<T> {
                     value.push(roaming_device_profile_id);
                 }
             });
-            debug::info!("Associated device_profile {:?} with device {:?}", roaming_device_profile_id, roaming_device_id);
+            debug::info!(
+                "Associated device_profile {:?} with device {:?}",
+                roaming_device_profile_id,
+                roaming_device_id
+            );
             Ok(())
         } else {
-            debug::info!("Device id key does not yet exist. Creating the device key {:?} and appending the device_profile id {:?} to its vector value", roaming_device_id, roaming_device_profile_id);
+            debug::info!(
+                "Device id key does not yet exist. Creating the device key {:?} and appending the device_profile id \
+                 {:?} to its vector value",
+                roaming_device_id,
+                roaming_device_profile_id
+            );
             <RoamingDeviceDeviceProfiles<T>>::insert(roaming_device_id, &vec![roaming_device_profile_id]);
             Ok(())
         }
@@ -336,7 +377,11 @@ impl<T: Trait> Module<T> {
         Ok(roaming_device_profile_id)
     }
 
-    fn insert_roaming_device_profile(owner: &T::AccountId, roaming_device_profile_id: T::RoamingDeviceProfileIndex, roaming_device_profile: RoamingDeviceProfile) {
+    fn insert_roaming_device_profile(
+        owner: &T::AccountId,
+        roaming_device_profile_id: T::RoamingDeviceProfileIndex,
+        roaming_device_profile: RoamingDeviceProfile,
+    ) {
         // Create and store roaming device_profile
         <RoamingDeviceProfiles<T>>::insert(roaming_device_profile_id, roaming_device_profile);
         <RoamingDeviceProfilesCount<T>>::put(roaming_device_profile_id + One::one());
@@ -353,10 +398,20 @@ impl<T: Trait> Module<T> {
 mod tests {
     use super::*;
 
+    use frame_support::{
+        assert_ok,
+        impl_outer_origin,
+        parameter_types,
+        weights::Weight,
+    };
     use sp_core::H256;
-	use frame_support::{impl_outer_origin, assert_ok, parameter_types, weights::Weight};
-	use sp_runtime::{
-		traits::{BlakeTwo256, IdentityLookup}, testing::Header, Perbill,
+    use sp_runtime::{
+        testing::Header,
+        traits::{
+            BlakeTwo256,
+            IdentityLookup,
+        },
+        Perbill,
     };
 
     impl_outer_origin! {
@@ -372,44 +427,44 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl system::Trait for Test {
-        type Origin = Origin;
-        type Call = ();
-        type Index = u64;
-        type BlockNumber = u64;
-        type Hash = H256;
-        type Hashing = BlakeTwo256;
         type AccountId = u64;
-        type Lookup = IdentityLookup<Self::AccountId>;
-        type Header = Header;
+        type AvailableBlockRatio = AvailableBlockRatio;
+        type BlockHashCount = BlockHashCount;
+        type BlockNumber = u64;
+        type Call = ();
         // type WeightMultiplierUpdate = ();
         type Event = ();
-        type BlockHashCount = BlockHashCount;
-        type MaximumBlockWeight = MaximumBlockWeight;
+        type Hash = H256;
+        type Hashing = BlakeTwo256;
+        type Header = Header;
+        type Index = u64;
+        type Lookup = IdentityLookup<Self::AccountId>;
         type MaximumBlockLength = MaximumBlockLength;
-        type AvailableBlockRatio = AvailableBlockRatio;
-        type Version = ();
+        type MaximumBlockWeight = MaximumBlockWeight;
         type ModuleToIndex = ();
+        type Origin = Origin;
+        type Version = ();
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type OnNewAccount = ();
-        type Event = ();
-        type DustRemoval = ();
-        type TransferPayment = ();
-        type ExistentialDeposit = ();
         type CreationFee = ();
+        type DustRemoval = ();
+        type Event = ();
+        type ExistentialDeposit = ();
+        type OnNewAccount = ();
+        type TransferPayment = ();
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;
+        type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
         type TransactionBaseFee = ();
         type TransactionByteFee = ();
         type WeightToFee = ();
-        type FeeMultiplierUpdate = ();
     }
     impl roaming_operators::Trait for Test {
-        type Event = ();
         type Currency = Balances;
+        type Event = ();
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
@@ -431,13 +486,13 @@ mod tests {
     }
     impl Trait for Test {
         type Event = ();
-        type RoamingDeviceProfileIndex = u64;
         type RoamingDeviceProfileDevAddr = Vec<u8>;
         type RoamingDeviceProfileDevEUI = Vec<u8>;
+        type RoamingDeviceProfileIndex = u64;
         type RoamingDeviceProfileJoinEUI = Vec<u8>;
         type RoamingDeviceProfileVendorID = Vec<u8>;
     }
-    //type System = system::Module<Test>;
+    // type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type RoamingDeviceProfileModule = Module<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
@@ -445,9 +500,7 @@ mod tests {
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     fn new_test_ext() -> sp_io::TestExternalities {
-        let mut t = system::GenesisConfig::default()
-            .build_storage::<Test>()
-            .unwrap();
+        let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
         balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60)],
             vesting: vec![],
@@ -487,10 +540,7 @@ mod tests {
             // Setup
             <RoamingDeviceProfilesCount<Test>>::put(u64::max_value());
             // Call Functions
-            assert_noop!(
-                RoamingDeviceProfileModule::create(Origin::signed(1)),
-                "RoamingDeviceProfiles count overflow"
-            );
+            assert_noop!(RoamingDeviceProfileModule::create(Origin::signed(1)), "RoamingDeviceProfiles count overflow");
             // Verify Storage
             assert_eq!(RoamingDeviceProfileModule::roaming_device_profiles_count(), u64::max_value());
             assert!(RoamingDeviceProfileModule::roaming_device_profile(0).is_none());

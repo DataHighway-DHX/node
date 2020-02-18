@@ -1,12 +1,32 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
-use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
-use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
+use codec::{
+    Decode,
+    Encode,
+};
+use frame_support::traits::{
+    Currency,
+    ExistenceRequirement,
+    Randomness,
+};
 /// A runtime module for managing non-fungible tokens
-use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter};
-use sp_runtime::DispatchError;
+use frame_support::{
+    decl_event,
+    decl_module,
+    decl_storage,
+    ensure,
+    Parameter,
+};
+use sp_io::hashing::blake2_128;
+use sp_runtime::{
+    traits::{
+        AtLeast32Bit,
+        Bounded,
+        Member,
+        One,
+    },
+    DispatchError,
+};
 use system::ensure_signed;
 
 /// The module's configuration trait.
@@ -24,20 +44,20 @@ type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as system::Trait>::Ac
 pub struct RoamingOperator(pub [u8; 16]);
 
 decl_event!(
-	pub enum Event<T> where
-		<T as system::Trait>::AccountId,
+    pub enum Event<T> where
+        <T as system::Trait>::AccountId,
         <T as Trait>::RoamingOperatorIndex,
-		Balance = BalanceOf<T>,
-	{
-		/// A roaming operator is created. (owner, roaming_operator_id)
-		Created(AccountId, RoamingOperatorIndex),
-		/// A roaming operator is transferred. (from, to, roaming_operator_id)
-		Transferred(AccountId, AccountId, RoamingOperatorIndex),
-		/// A roaming operator is available for sale. (owner, roaming_operator_id, price)
-		PriceSet(AccountId, RoamingOperatorIndex, Option<Balance>),
-		/// A roaming operator is sold. (from, to, roaming_operator_id, price)
-		Sold(AccountId, AccountId, RoamingOperatorIndex, Balance),
-	}
+        Balance = BalanceOf<T>,
+    {
+        /// A roaming operator is created. (owner, roaming_operator_id)
+        Created(AccountId, RoamingOperatorIndex),
+        /// A roaming operator is transferred. (from, to, roaming_operator_id)
+        Transferred(AccountId, AccountId, RoamingOperatorIndex),
+        /// A roaming operator is available for sale. (owner, roaming_operator_id, price)
+        PriceSet(AccountId, RoamingOperatorIndex, Option<Balance>),
+        /// A roaming operator is sold. (from, to, roaming_operator_id, price)
+        Sold(AccountId, AccountId, RoamingOperatorIndex, Balance),
+    }
 );
 
 // This module's storage items.
@@ -131,20 +151,23 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_roaming_operator_owner(roaming_operator_id: T::RoamingOperatorIndex, sender: T::AccountId) -> Result<(), DispatchError> {
+    pub fn is_roaming_operator_owner(
+        roaming_operator_id: T::RoamingOperatorIndex,
+        sender: T::AccountId,
+    ) -> Result<(), DispatchError> {
         ensure!(
-            Self::roaming_operator_owner(&roaming_operator_id)
-                .map(|owner| owner == sender)
-                .unwrap_or(false),
+            Self::roaming_operator_owner(&roaming_operator_id).map(|owner| owner == sender).unwrap_or(false),
             "Sender is not owner of RoamingOperator"
         );
         Ok(())
     }
 
-    pub fn exists_roaming_operator(roaming_operator_id: T::RoamingOperatorIndex) -> Result<RoamingOperator, DispatchError> {
+    pub fn exists_roaming_operator(
+        roaming_operator_id: T::RoamingOperatorIndex,
+    ) -> Result<RoamingOperator, DispatchError> {
         match Self::roaming_operator(roaming_operator_id) {
             Some(roaming_operator) => Ok(roaming_operator),
-            None => Err(DispatchError::Other("RoamingOperator does not exist"))
+            None => Err(DispatchError::Other("RoamingOperator does not exist")),
         }
     }
 
@@ -166,7 +189,11 @@ impl<T: Trait> Module<T> {
         Ok(roaming_operator_id)
     }
 
-    fn insert_roaming_operator(owner: &T::AccountId, roaming_operator_id: T::RoamingOperatorIndex, roaming_operator: RoamingOperator) {
+    fn insert_roaming_operator(
+        owner: &T::AccountId,
+        roaming_operator_id: T::RoamingOperatorIndex,
+        roaming_operator: RoamingOperator,
+    ) {
         // Create and store roaming operator
         <RoamingOperators<T>>::insert(roaming_operator_id, roaming_operator);
         <RoamingOperatorsCount<T>>::put(roaming_operator_id + One::one());
@@ -183,10 +210,20 @@ impl<T: Trait> Module<T> {
 mod tests {
     use super::*;
 
-	use sp_core::H256;
-	use frame_support::{impl_outer_origin, assert_ok, parameter_types, weights::Weight};
-	use sp_runtime::{
-		traits::{BlakeTwo256, IdentityLookup}, testing::Header, Perbill,
+    use frame_support::{
+        assert_ok,
+        impl_outer_origin,
+        parameter_types,
+        weights::Weight,
+    };
+    use sp_core::H256;
+    use sp_runtime::{
+        testing::Header,
+        traits::{
+            BlakeTwo256,
+            IdentityLookup,
+        },
+        Perbill,
     };
 
     impl_outer_origin! {
@@ -202,48 +239,48 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl system::Trait for Test {
-        type Origin = Origin;
-        type Call = ();
-        type Index = u64;
-        type BlockNumber = u64;
-        type Hash = H256;
-        type Hashing = BlakeTwo256;
         type AccountId = u64;
-        type Lookup = IdentityLookup<Self::AccountId>;
-        type Header = Header;
+        type AvailableBlockRatio = AvailableBlockRatio;
+        type BlockHashCount = BlockHashCount;
+        type BlockNumber = u64;
+        type Call = ();
         // type WeightMultiplierUpdate = ();
         type Event = ();
-        type BlockHashCount = BlockHashCount;
-        type MaximumBlockWeight = MaximumBlockWeight;
+        type Hash = H256;
+        type Hashing = BlakeTwo256;
+        type Header = Header;
+        type Index = u64;
+        type Lookup = IdentityLookup<Self::AccountId>;
         type MaximumBlockLength = MaximumBlockLength;
-        type AvailableBlockRatio = AvailableBlockRatio;
-        type Version = ();
+        type MaximumBlockWeight = MaximumBlockWeight;
         type ModuleToIndex = ();
+        type Origin = Origin;
+        type Version = ();
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type OnNewAccount = ();
-        type Event = ();
-        type DustRemoval = ();
-        type TransferPayment = ();
-        type ExistentialDeposit = ();
         type CreationFee = ();
+        type DustRemoval = ();
+        type Event = ();
+        type ExistentialDeposit = ();
+        type OnNewAccount = ();
+        type TransferPayment = ();
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;
+        type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
         type TransactionBaseFee = ();
         type TransactionByteFee = ();
         type WeightToFee = ();
-        type FeeMultiplierUpdate = ();
     }
     impl Trait for Test {
-        type Event = ();
         type Currency = Balances;
+        type Event = ();
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
-    //type System = system::Module<Test>;
+    // type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type RoamingOperatorModule = Module<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
@@ -251,9 +288,7 @@ mod tests {
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     fn new_test_ext() -> sp_io::TestExternalities {
-        let mut t = system::GenesisConfig::default()
-            .build_storage::<Test>()
-            .unwrap();
+        let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
         balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60)],
             vesting: vec![],
@@ -295,10 +330,7 @@ mod tests {
             // Setup
             <RoamingOperatorsCount<Test>>::put(u64::max_value());
             // Call Functions
-            assert_noop!(
-                RoamingOperatorModule::create(Origin::signed(1)),
-                "RoamingOperators count overflow"
-            );
+            assert_noop!(RoamingOperatorModule::create(Origin::signed(1)), "RoamingOperators count overflow");
             // Verify Storage
             assert_eq!(RoamingOperatorModule::roaming_operators_count(), u64::max_value());
             assert!(RoamingOperatorModule::roaming_operator(0).is_none());

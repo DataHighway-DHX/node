@@ -16,13 +16,13 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-          
+
       - name: Install nightly toolchain
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: nightly
-          
+
       - name: Install WASM toolchain
         run: rustup target add wasm32-unknown-unknown --toolchain nightly
 
@@ -44,13 +44,13 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-      
+
       - name: Install nightly toolchain
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: nightly
-          
+
       - name: Install WASM toolchain
         run: rustup target add wasm32-unknown-unknown --toolchain nightly
 
@@ -74,14 +74,27 @@ jobs:
           override: true
           components: rustfmt, clippy
 
-      - name: Run cargo fmt
-        uses: actions-rs/cargo@v1
+      - name: Install nightly toolchain for rustfmt
+        uses: actions-rs/toolchain@v1
         with:
-          command: fmt
-          args: --all -- --check
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
+
+      - name: Initialize WASM build environment
+        run: |
+          rustup update nightly
+          rustup update stable
+          rustup target add wasm32-unknown-unknown --toolchain nightly
+
+      - name: Run cargo fmt
+        run: cargo +nightly fmt --all -- --check
 
       - name: Run cargo clippy
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: -- -D warnings
+        # uses: actions-rs/cargo@v1
+        # with:
+        #   command: clippy
+        #   args:  --release -- -D warnings
+        # FIXME - temporary fix below. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
+        run: cargo +nightly clippy-preview -Zunstable-options
