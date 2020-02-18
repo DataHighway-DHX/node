@@ -82,6 +82,11 @@ jobs:
           override: true
           components: rustfmt, clippy
 
+      - name: Initialize WASM build environment
+        run: rustup update nightly
+        run: rustup update stable
+        run: rustup target add wasm32-unknown-unknown --toolchain nightly
+
       - name: Run cargo fmt
         run: cargo +nightly fmt --all -- --check
 
