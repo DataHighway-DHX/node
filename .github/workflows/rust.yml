@@ -92,7 +92,9 @@ jobs:
         run: cargo +nightly fmt --all -- --check
 
       - name: Run cargo clippy
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args:  --release -- -D warnings
+        # uses: actions-rs/cargo@v1
+        # with:
+        #   command: clippy
+        #   args:  --release -- -D warnings
+        # FIXME - temporary fix below. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
+        run: cargo +nightly clippy-preview -Zunstable-options
