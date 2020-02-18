@@ -345,11 +345,11 @@ mod tests {
             assert_eq!(RoamingAccountingPolicyTestModule::roaming_accounting_policy_owner(0), Some(0));
             assert_ok!(RoamingAccountingPolicyTestModule::set_config(
                 Origin::signed(0),
-                0,                                        // accounting_policy_id
+                0,                              // accounting_policy_id
                 Some(b"subscription".to_vec()), // policy_type
-                Some(200),                                // subscription_fee
-                Some(15),                                 // uplink_fee_factor
-                Some(10),                                 // downlink_fee_factor
+                Some(200),                      // subscription_fee
+                Some(15),                       // uplink_fee_factor
+                Some(10),                       // downlink_fee_factor
             ));
 
             // Verify Storage
@@ -358,9 +358,9 @@ mod tests {
                 RoamingAccountingPolicyTestModule::roaming_accounting_policy_configs(0),
                 Some(RoamingAccountingPolicyConfig {
                     policy_type: b"subscription".to_vec(), // policy_type
-                    subscription_fee: 200,                           // subscription_fee
-                    uplink_fee_factor: 15,                           // uplink_fee_factor
-                    downlink_fee_factor: 10,                         // downlink_fee_factor
+                    subscription_fee: 200,                 // subscription_fee
+                    uplink_fee_factor: 15,                 // uplink_fee_factor
+                    downlink_fee_factor: 10,               // downlink_fee_factor
                 })
             );
 
@@ -400,7 +400,7 @@ mod tests {
             assert_eq!(RoamingRoutingProfileTestModule::roaming_routing_profile_owner(0), Some(0));
             assert_ok!(RoamingRoutingProfileTestModule::set_app_server(
                 Origin::signed(0),
-                0,                                    // routing_profile_id
+                0,                          // routing_profile_id
                 Some(b"10.0.0.1".to_vec()), // app server
             ));
 
