@@ -1,53 +1,62 @@
 // extern crate env as env;
-extern crate roaming_operators as roaming_operators;
+extern crate mining_speed_boosts_claims_token_mining as mining_speed_boosts_claims_token_mining;
 extern crate mining_speed_boosts_configuration_token_mining as mining_speed_boosts_configuration_token_mining;
+extern crate mining_speed_boosts_eligibility_token_mining as mining_speed_boosts_eligibility_token_mining;
 extern crate mining_speed_boosts_rates_token_mining as mining_speed_boosts_rates_token_mining;
 extern crate mining_speed_boosts_sampling_token_mining as mining_speed_boosts_sampling_token_mining;
-extern crate mining_speed_boosts_eligibility_token_mining as mining_speed_boosts_eligibility_token_mining;
-extern crate mining_speed_boosts_claims_token_mining as mining_speed_boosts_claims_token_mining;
+extern crate roaming_operators as roaming_operators;
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    use frame_support::{
+        assert_ok,
+        impl_outer_origin,
+        parameter_types,
+        weights::Weight,
+    };
     use sp_core::H256;
-    use frame_support::{impl_outer_origin, assert_ok, parameter_types, weights::Weight};
     use sp_runtime::{
-      traits::{BlakeTwo256, IdentityLookup}, testing::Header, Perbill,
+        testing::Header,
+        traits::{
+            BlakeTwo256,
+            IdentityLookup,
+        },
+        Perbill,
     };
     // Import Trait for each runtime module being tested
-    use roaming_operators;
+    use mining_speed_boosts_claims_token_mining::{
+        MiningSpeedBoostClaimsTokenMining,
+        MiningSpeedBoostClaimsTokenMiningClaimResult,
+        Module as MiningSpeedBoostClaimsTokenMiningModule,
+        Trait as MiningSpeedBoostClaimsTokenMiningTrait,
+    };
     use mining_speed_boosts_configuration_token_mining::{
-        Module as MiningSpeedBoostConfigurationTokenMiningModule,
         MiningSpeedBoostConfigurationTokenMining,
         MiningSpeedBoostConfigurationTokenMiningTokenConfig,
-        // MiningSpeedBoostConfigurationTokenMiningTokenTypes,
+        Module as MiningSpeedBoostConfigurationTokenMiningModule,
         Trait as MiningSpeedBoostConfigurationTokenMiningTrait,
     };
+    use mining_speed_boosts_eligibility_token_mining::{
+        MiningSpeedBoostEligibilityTokenMining,
+        MiningSpeedBoostEligibilityTokenMiningEligibilityResult,
+        Module as MiningSpeedBoostEligibilityTokenMiningModule,
+        Trait as MiningSpeedBoostEligibilityTokenMiningTrait,
+    };
     use mining_speed_boosts_rates_token_mining::{
-        Module as MiningSpeedBoostRatesTokenMiningModule,
         MiningSpeedBoostRatesTokenMining,
         MiningSpeedBoostRatesTokenMiningRatesConfig,
+        Module as MiningSpeedBoostRatesTokenMiningModule,
         Trait as MiningSpeedBoostRatesTokenMiningTrait,
     };
     use mining_speed_boosts_sampling_token_mining::{
-        Module as MiningSpeedBoostSamplingTokenMiningModule,
         MiningSpeedBoostSamplingTokenMining,
         MiningSpeedBoostSamplingTokenMiningSamplingConfig,
+        Module as MiningSpeedBoostSamplingTokenMiningModule,
         Trait as MiningSpeedBoostSamplingTokenMiningTrait,
     };
-    use mining_speed_boosts_eligibility_token_mining::{
-        Module as MiningSpeedBoostEligibilityTokenMiningModule,
-        MiningSpeedBoostEligibilityTokenMining,
-        MiningSpeedBoostEligibilityTokenMiningEligibilityResult,
-        Trait as MiningSpeedBoostEligibilityTokenMiningTrait,
-    };
-    use mining_speed_boosts_claims_token_mining::{
-        Module as MiningSpeedBoostClaimsTokenMiningModule,
-        MiningSpeedBoostClaimsTokenMining,
-        MiningSpeedBoostClaimsTokenMiningClaimResult,
-        Trait as MiningSpeedBoostClaimsTokenMiningTrait,
-    };
+    use roaming_operators;
 
     impl_outer_origin! {
         pub enum Origin for Test {}
@@ -62,45 +71,45 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl system::Trait for Test {
-        type Origin = Origin;
-        type Call = ();
-        type Index = u64;
-        type BlockNumber = u64;
-        type Hash = H256;
-        type Hashing = BlakeTwo256;
         type AccountId = u64;
-        type Lookup = IdentityLookup<Self::AccountId>;
-        type Header = Header;
+        type AvailableBlockRatio = AvailableBlockRatio;
+        type BlockHashCount = BlockHashCount;
+        type BlockNumber = u64;
+        type Call = ();
         // type WeightMultiplierUpdate = ();
         type Event = ();
-        type BlockHashCount = BlockHashCount;
-        type MaximumBlockWeight = MaximumBlockWeight;
+        type Hash = H256;
+        type Hashing = BlakeTwo256;
+        type Header = Header;
+        type Index = u64;
+        type Lookup = IdentityLookup<Self::AccountId>;
         type MaximumBlockLength = MaximumBlockLength;
-        type AvailableBlockRatio = AvailableBlockRatio;
-        type Version = ();
+        type MaximumBlockWeight = MaximumBlockWeight;
         type ModuleToIndex = ();
+        type Origin = Origin;
+        type Version = ();
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type OnNewAccount = ();
-        type Event = ();
-        type DustRemoval = ();
-        type TransferPayment = ();
-        type ExistentialDeposit = ();
         type CreationFee = ();
+        type DustRemoval = ();
+        type Event = ();
+        type ExistentialDeposit = ();
+        type OnNewAccount = ();
+        type TransferPayment = ();
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;
+        type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
         type TransactionBaseFee = ();
         type TransactionByteFee = ();
         type WeightToFee = ();
-        type FeeMultiplierUpdate = ();
     }
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
     impl roaming_operators::Trait for Test {
-        type Event = ();
         type Currency = Balances;
+        type Event = ();
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
@@ -109,25 +118,25 @@ mod tests {
         // type Currency = Balances;
         // type Randomness = Randomness;
         type MiningSpeedBoostConfigurationTokenMiningIndex = u64;
+        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
+        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
+        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
+        // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
+        type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
         // Mining Speed Boost Token Mining Config
         // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
         type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
-        // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
-        type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
-        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
-        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
-        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
     }
     impl MiningSpeedBoostRatesTokenMiningTrait for Test {
         type Event = ();
         type MiningSpeedBoostRatesTokenMiningIndex = u64;
-        // Mining Speed Boost Rate
-        type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
-        type MiningSpeedBoostRatesTokenMiningTokenIOTA = u32;
-        type MiningSpeedBoostRatesTokenMiningTokenDOT = u32;
+        type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
         // Mining Speed Boost Max Rates
         type MiningSpeedBoostRatesTokenMiningMaxToken = u32;
-        type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
+        type MiningSpeedBoostRatesTokenMiningTokenDOT = u32;
+        type MiningSpeedBoostRatesTokenMiningTokenIOTA = u32;
+        // Mining Speed Boost Rate
+        type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
     }
     impl MiningSpeedBoostSamplingTokenMiningTrait for Test {
         type Event = ();
@@ -137,20 +146,20 @@ mod tests {
     }
     impl MiningSpeedBoostEligibilityTokenMiningTrait for Test {
         type Event = ();
-        type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
         type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility = u64;
+        type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
         type MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage = u32;
         // type MiningSpeedBoostEligibilityTokenMiningDateAudited = u64;
         // type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
     }
     impl MiningSpeedBoostClaimsTokenMiningTrait for Test {
         type Event = ();
-        type MiningSpeedBoostClaimsTokenMiningIndex = u64;
         type MiningSpeedBoostClaimsTokenMiningClaimAmount = u64;
         type MiningSpeedBoostClaimsTokenMiningClaimDateRedeemed = u64;
+        type MiningSpeedBoostClaimsTokenMiningIndex = u64;
     }
 
-    //type System = system::Module<Test>;
+    // type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type MiningSpeedBoostConfigurationTokenMiningTestModule = MiningSpeedBoostConfigurationTokenMiningModule<Test>;
     type MiningSpeedBoostRatesTokenMiningTestModule = MiningSpeedBoostRatesTokenMiningModule<Test>;
@@ -162,9 +171,7 @@ mod tests {
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     fn new_test_ext() -> sp_io::TestExternalities {
-        let mut t = system::GenesisConfig::default()
-            .build_storage::<Test>()
-            .unwrap();
+        let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
         balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30)],
             vesting: vec![],

@@ -1,26 +1,47 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
-use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
-use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
+use codec::{
+    Decode,
+    Encode,
+};
+use frame_support::traits::{
+    Currency,
+    ExistenceRequirement,
+    Randomness,
+};
 /// A runtime module for managing non-fungible tokens
-use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
-use system::ensure_signed;
-use sp_runtime::DispatchError;
+use frame_support::{
+    debug,
+    decl_event,
+    decl_module,
+    decl_storage,
+    ensure,
+    Parameter,
+};
+use sp_io::hashing::blake2_128;
+use sp_runtime::{
+    traits::{
+        AtLeast32Bit,
+        Bounded,
+        Member,
+        One,
+    },
+    DispatchError,
+};
 use sp_std::prelude::*; // Imports Vec
+use system::ensure_signed;
 #[macro_use]
 extern crate alloc; // Required to use Vec
 
-use roaming_operators;
 use roaming_networks;
+use roaming_operators;
 
 /// The module's configuration trait.
-pub trait Trait: system::Trait + roaming_operators::Trait + roaming_networks::Trait + {
+pub trait Trait: system::Trait + roaming_operators::Trait + roaming_networks::Trait {
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
     type RoamingBillingPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-	type RoamingBillingPolicyNextBillingAt: Parameter + Member + Default;
-	type RoamingBillingPolicyFrequencyInDays: Parameter + Member + Default;
+    type RoamingBillingPolicyNextBillingAt: Parameter + Member + Default;
+    type RoamingBillingPolicyFrequencyInDays: Parameter + Member + Default;
 }
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
@@ -36,25 +57,25 @@ pub struct RoamingBillingPolicyConfig<U, V> {
 }
 
 decl_event!(
-	pub enum Event<T> where
-		<T as system::Trait>::AccountId,
+    pub enum Event<T> where
+        <T as system::Trait>::AccountId,
         <T as Trait>::RoamingBillingPolicyIndex,
         <T as Trait>::RoamingBillingPolicyNextBillingAt,
         <T as Trait>::RoamingBillingPolicyFrequencyInDays,
         <T as roaming_networks::Trait>::RoamingNetworkIndex,
         <T as roaming_operators::Trait>::RoamingOperatorIndex,
-	{
-		/// A roaming billing_policy is created. (owner, roaming_billing_policy_id)
-		Created(AccountId, RoamingBillingPolicyIndex),
-		/// A roaming billing_policy is transferred. (from, to, roaming_billing_policy_id)
-		Transferred(AccountId, AccountId, RoamingBillingPolicyIndex),
+    {
+        /// A roaming billing_policy is created. (owner, roaming_billing_policy_id)
+        Created(AccountId, RoamingBillingPolicyIndex),
+        /// A roaming billing_policy is transferred. (from, to, roaming_billing_policy_id)
+        Transferred(AccountId, AccountId, RoamingBillingPolicyIndex),
         /// A roaming billing_policy configuration
         RoamingBillingPolicyConfigSet(AccountId, RoamingBillingPolicyIndex, RoamingBillingPolicyNextBillingAt, RoamingBillingPolicyFrequencyInDays),
         /// A roaming billing_policy is assigned to a operator. (owner of network, roaming_billing_policy_id, roaming_operator_id)
         AssignedBillingPolicyToOperator(AccountId, RoamingBillingPolicyIndex, RoamingOperatorIndex),
         /// A roaming billing_policy is assigned to a network. (owner of network, roaming_billing_policy_id, roaming_network_id)
         AssignedBillingPolicyToNetwork(AccountId, RoamingBillingPolicyIndex, RoamingNetworkIndex),
-	}
+    }
 );
 
 // This module's storage items.
@@ -268,7 +289,10 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_roaming_billing_policy_owner(roaming_billing_policy_id: T::RoamingBillingPolicyIndex, sender: T::AccountId) -> Result<(), DispatchError> {
+    pub fn is_roaming_billing_policy_owner(
+        roaming_billing_policy_id: T::RoamingBillingPolicyIndex,
+        sender: T::AccountId,
+    ) -> Result<(), DispatchError> {
         ensure!(
             Self::roaming_billing_policy_owner(&roaming_billing_policy_id)
                 .map(|owner| owner == sender)
@@ -278,40 +302,46 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    // pub fn is_owned_by_required_parent_relationship(roaming_billing_policy_id: T::RoamingBillingPolicyIndex, sender: T::AccountId) -> Result<(), DispatchError> {
-    //     debug::info!("Get the billing policy operator id associated with the operator of the given billing policy id");
-    //     let billing_policy_operator_id = Self::roaming_billing_policy_operator(roaming_billing_policy_id);
+    // pub fn is_owned_by_required_parent_relationship(roaming_billing_policy_id: T::RoamingBillingPolicyIndex, sender:
+    // T::AccountId) -> Result<(), DispatchError> {     debug::info!("Get the billing policy operator id associated
+    // with the operator of the given billing policy id");     let billing_policy_operator_id =
+    // Self::roaming_billing_policy_operator(roaming_billing_policy_id);
 
     //     if let Some(_billing_policy_operator_id) = billing_policy_operator_id {
     //         // Ensure that the caller is owner of the operator id associated with the billing policy
     //         ensure!((<roaming_operators::Module<T>>::is_roaming_operator_owner(
     //                 _billing_policy_operator_id.clone(),
     //                 sender.clone()
-    //             )).is_ok(), "Only owner of the operator id associated with the given billing policy can set an associated roaming billing policy config"
-    //         );
+    //             )).is_ok(), "Only owner of the operator id associated with the given billing policy can set an
+    // associated roaming billing policy config"         );
     //     } else {
-    //         // There must be a billing policy operator id associated with the billing policy 
+    //         // There must be a billing policy operator id associated with the billing policy
     //         return Err(DispatchError::Other("RoamingBillingPolicyOperator does not exist"));
     //     }
     //     Ok(())
     // }
 
-    pub fn exists_roaming_billing_policy(roaming_billing_policy_id: T::RoamingBillingPolicyIndex) -> Result<RoamingBillingPolicy, DispatchError> {
+    pub fn exists_roaming_billing_policy(
+        roaming_billing_policy_id: T::RoamingBillingPolicyIndex,
+    ) -> Result<RoamingBillingPolicy, DispatchError> {
         match Self::roaming_billing_policy(roaming_billing_policy_id) {
             Some(value) => Ok(value),
-            None => Err(DispatchError::Other("RoamingBillingPolicy does not exist"))
+            None => Err(DispatchError::Other("RoamingBillingPolicy does not exist")),
         }
     }
 
-    pub fn exists_roaming_billing_policy_config(roaming_billing_policy_id: T::RoamingBillingPolicyIndex) -> Result<(), DispatchError> {
+    pub fn exists_roaming_billing_policy_config(
+        roaming_billing_policy_id: T::RoamingBillingPolicyIndex,
+    ) -> Result<(), DispatchError> {
         match Self::roaming_billing_policy_configs(roaming_billing_policy_id) {
             Some(_) => Ok(()),
-            None => Err(DispatchError::Other("RoamingBillingPolicyConfig does not exist"))
+            None => Err(DispatchError::Other("RoamingBillingPolicyConfig does not exist")),
         }
     }
 
-    pub fn has_value_for_billing_policy_config_index(roaming_billing_policy_id: T::RoamingBillingPolicyIndex)
-        -> Result<(), DispatchError> {
+    pub fn has_value_for_billing_policy_config_index(
+        roaming_billing_policy_id: T::RoamingBillingPolicyIndex,
+    ) -> Result<(), DispatchError> {
         debug::info!("Checking if billing policy config has a value that is defined");
         let fetched_policy_config = <RoamingBillingPolicyConfigs<T>>::get(roaming_billing_policy_id);
         if let Some(_) = fetched_policy_config {
@@ -325,9 +355,8 @@ impl<T: Trait> Module<T> {
     /// Only push the billing policy id onto the end of the vector if it does not already exist
     pub fn associate_billing_policy_with_network(
         roaming_billing_policy_id: T::RoamingBillingPolicyIndex,
-        roaming_network_id: T::RoamingNetworkIndex
-    ) -> Result<(), DispatchError>
-    {
+        roaming_network_id: T::RoamingNetworkIndex,
+    ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given network id already exists as a key,
         // and where its corresponding value is a vector that already contains the given billing policy id
         if let Some(network_billing_policies) = Self::roaming_network_billing_policies(roaming_network_id) {
@@ -340,10 +369,19 @@ impl<T: Trait> Module<T> {
                     value.push(roaming_billing_policy_id);
                 }
             });
-            debug::info!("Associated billing policy {:?} with network {:?}", roaming_billing_policy_id, roaming_network_id);
+            debug::info!(
+                "Associated billing policy {:?} with network {:?}",
+                roaming_billing_policy_id,
+                roaming_network_id
+            );
             Ok(())
         } else {
-            debug::info!("Network id key does not yet exist. Creating the network key {:?} and appending the billing policy id {:?} to its vector value", roaming_network_id, roaming_billing_policy_id);
+            debug::info!(
+                "Network id key does not yet exist. Creating the network key {:?} and appending the billing policy id \
+                 {:?} to its vector value",
+                roaming_network_id,
+                roaming_billing_policy_id
+            );
             <RoamingNetworkBillingPolicies<T>>::insert(roaming_network_id, &vec![roaming_billing_policy_id]);
             Ok(())
         }
@@ -352,9 +390,8 @@ impl<T: Trait> Module<T> {
     /// Only push the billing policy id onto the end of the vector if it does not already exist
     pub fn associate_billing_policy_with_operator(
         roaming_billing_policy_id: T::RoamingBillingPolicyIndex,
-        roaming_operator_id: T::RoamingOperatorIndex
-    ) -> Result<(), DispatchError>
-    {
+        roaming_operator_id: T::RoamingOperatorIndex,
+    ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given operator id already exists as a key,
         // and where its corresponding value is a vector that already contains the given billing policy id
         if let Some(operator_billing_policies) = Self::roaming_operator_billing_policies(roaming_operator_id) {
@@ -367,10 +404,19 @@ impl<T: Trait> Module<T> {
                     value.push(roaming_billing_policy_id);
                 }
             });
-            debug::info!("Associated billing policy {:?} with operator {:?}", roaming_billing_policy_id, roaming_operator_id);
+            debug::info!(
+                "Associated billing policy {:?} with operator {:?}",
+                roaming_billing_policy_id,
+                roaming_operator_id
+            );
             Ok(())
         } else {
-            debug::info!("Operator id key does not yet exist. Creating the operator key {:?} and appending the billing policy id {:?} to its vector value", roaming_operator_id, roaming_billing_policy_id);
+            debug::info!(
+                "Operator id key does not yet exist. Creating the operator key {:?} and appending the billing policy \
+                 id {:?} to its vector value",
+                roaming_operator_id,
+                roaming_billing_policy_id
+            );
             <RoamingOperatorBillingPolicies<T>>::insert(roaming_operator_id, &vec![roaming_billing_policy_id]);
             Ok(())
         }
@@ -394,7 +440,11 @@ impl<T: Trait> Module<T> {
         Ok(roaming_billing_policy_id)
     }
 
-    fn insert_roaming_billing_policy(owner: &T::AccountId, roaming_billing_policy_id: T::RoamingBillingPolicyIndex, roaming_billing_policy: RoamingBillingPolicy) {
+    fn insert_roaming_billing_policy(
+        owner: &T::AccountId,
+        roaming_billing_policy_id: T::RoamingBillingPolicyIndex,
+        roaming_billing_policy: RoamingBillingPolicy,
+    ) {
         // Create and store roaming billing_policy
         <RoamingBillingPolicies<T>>::insert(roaming_billing_policy_id, roaming_billing_policy);
         <RoamingBillingPoliciesCount<T>>::put(roaming_billing_policy_id + One::one());
@@ -411,10 +461,20 @@ impl<T: Trait> Module<T> {
 mod tests {
     use super::*;
 
-	use sp_core::H256;
-	use frame_support::{impl_outer_origin, assert_ok, parameter_types, weights::Weight};
-	use sp_runtime::{
-		traits::{BlakeTwo256, IdentityLookup}, testing::Header, Perbill,
+    use frame_support::{
+        assert_ok,
+        impl_outer_origin,
+        parameter_types,
+        weights::Weight,
+    };
+    use sp_core::H256;
+    use sp_runtime::{
+        testing::Header,
+        traits::{
+            BlakeTwo256,
+            IdentityLookup,
+        },
+        Perbill,
     };
 
     impl_outer_origin! {
@@ -430,44 +490,44 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl system::Trait for Test {
-        type Origin = Origin;
-        type Call = ();
-        type Index = u64;
-        type BlockNumber = u64;
-        type Hash = H256;
-        type Hashing = BlakeTwo256;
         type AccountId = u64;
-        type Lookup = IdentityLookup<Self::AccountId>;
-        type Header = Header;
+        type AvailableBlockRatio = AvailableBlockRatio;
+        type BlockHashCount = BlockHashCount;
+        type BlockNumber = u64;
+        type Call = ();
         // type WeightMultiplierUpdate = ();
         type Event = ();
-        type BlockHashCount = BlockHashCount;
-        type MaximumBlockWeight = MaximumBlockWeight;
+        type Hash = H256;
+        type Hashing = BlakeTwo256;
+        type Header = Header;
+        type Index = u64;
+        type Lookup = IdentityLookup<Self::AccountId>;
         type MaximumBlockLength = MaximumBlockLength;
-        type AvailableBlockRatio = AvailableBlockRatio;
-        type Version = ();
+        type MaximumBlockWeight = MaximumBlockWeight;
         type ModuleToIndex = ();
+        type Origin = Origin;
+        type Version = ();
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type OnNewAccount = ();
-        type Event = ();
-        type DustRemoval = ();
-        type TransferPayment = ();
-        type ExistentialDeposit = ();
         type CreationFee = ();
+        type DustRemoval = ();
+        type Event = ();
+        type ExistentialDeposit = ();
+        type OnNewAccount = ();
+        type TransferPayment = ();
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;
+        type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
         type TransactionBaseFee = ();
         type TransactionByteFee = ();
         type WeightToFee = ();
-        type FeeMultiplierUpdate = ();
     }
     impl roaming_operators::Trait for Test {
-        type Event = ();
         type Currency = Balances;
+        type Event = ();
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
@@ -477,11 +537,11 @@ mod tests {
     }
     impl Trait for Test {
         type Event = ();
+        type RoamingBillingPolicyFrequencyInDays = u64;
         type RoamingBillingPolicyIndex = u64;
         type RoamingBillingPolicyNextBillingAt = u64;
-        type RoamingBillingPolicyFrequencyInDays = u64;
     }
-    //type System = system::Module<Test>;
+    // type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type RoamingBillingPolicyModule = Module<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
@@ -489,9 +549,7 @@ mod tests {
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     fn new_test_ext() -> sp_io::TestExternalities {
-        let mut t = system::GenesisConfig::default()
-            .build_storage::<Test>()
-            .unwrap();
+        let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
         balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60)],
             vesting: vec![],

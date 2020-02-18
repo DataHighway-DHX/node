@@ -1,14 +1,35 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
-use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
-use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
+use codec::{
+    Decode,
+    Encode,
+};
+use frame_support::traits::{
+    Currency,
+    ExistenceRequirement,
+    Randomness,
+};
 /// A runtime module for managing non-fungible tokens
-use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
-use system::ensure_signed;
-use sp_runtime::DispatchError;
+use frame_support::{
+    debug,
+    decl_event,
+    decl_module,
+    decl_storage,
+    ensure,
+    Parameter,
+};
+use sp_io::hashing::blake2_128;
+use sp_runtime::{
+    traits::{
+        AtLeast32Bit,
+        Bounded,
+        Member,
+        One,
+    },
+    DispatchError,
+};
 use sp_std::prelude::*; // Imports Vec
+use system::ensure_signed;
 
 use roaming_operators;
 
@@ -25,23 +46,23 @@ type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
 pub struct RoamingNetwork(pub [u8; 16]);
 
 decl_event!(
-	pub enum Event<T> where
-		<T as system::Trait>::AccountId,
-		<T as Trait>::RoamingNetworkIndex,
-		<T as roaming_operators::Trait>::RoamingOperatorIndex,
-		Balance = BalanceOf<T>,
-	{
-		/// A roaming network is created. (owner, roaming_network_id)
-		Created(AccountId, RoamingNetworkIndex),
-		/// A roaming network is transferred. (from, to, roaming_network_id)
-		Transferred(AccountId, AccountId, RoamingNetworkIndex),
-		/// A roaming network is available for sale. (owner, roaming_network_id, price)
-		PriceSet(AccountId, RoamingNetworkIndex, Option<Balance>),
-		/// A roaming network is sold. (from, to, roaming_network_id, price)
-		Sold(AccountId, AccountId, RoamingNetworkIndex, Balance),
-		/// A roaming network is assigned to an operator. (owner of operator, roaming_network_id, roaming_operator_id)
-		AssignedNetworkToOperator(AccountId, RoamingNetworkIndex, RoamingOperatorIndex),
-	}
+    pub enum Event<T> where
+        <T as system::Trait>::AccountId,
+        <T as Trait>::RoamingNetworkIndex,
+        <T as roaming_operators::Trait>::RoamingOperatorIndex,
+        Balance = BalanceOf<T>,
+    {
+        /// A roaming network is created. (owner, roaming_network_id)
+        Created(AccountId, RoamingNetworkIndex),
+        /// A roaming network is transferred. (from, to, roaming_network_id)
+        Transferred(AccountId, AccountId, RoamingNetworkIndex),
+        /// A roaming network is available for sale. (owner, roaming_network_id, price)
+        PriceSet(AccountId, RoamingNetworkIndex, Option<Balance>),
+        /// A roaming network is sold. (from, to, roaming_network_id, price)
+        Sold(AccountId, AccountId, RoamingNetworkIndex, Balance),
+        /// A roaming network is assigned to an operator. (owner of operator, roaming_network_id, roaming_operator_id)
+        AssignedNetworkToOperator(AccountId, RoamingNetworkIndex, RoamingOperatorIndex),
+    }
 );
 
 // This module's storage items.
@@ -50,7 +71,7 @@ decl_storage! {
         /// Stores all the roaming networks, key is the roaming network id / index
         pub RoamingNetworks get(fn roaming_network): map hasher(blake2_256) T::RoamingNetworkIndex => Option<RoamingNetwork>;
 
-		/// Stores the total number of roaming networks. i.e. the next roaming network index
+        /// Stores the total number of roaming networks. i.e. the next roaming network index
         pub RoamingNetworksCount get(fn roaming_networks_count): T::RoamingNetworkIndex;
 
         /// Get roaming network owner
@@ -171,34 +192,34 @@ decl_module! {
             <RoamingNetworkOperator<T>>::insert(roaming_network_id, roaming_operator_id);
 
             Self::deposit_event(RawEvent::AssignedNetworkToOperator(sender, roaming_network_id, roaming_operator_id));
-		}
+        }
     }
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_roaming_network_owner(roaming_network_id: T::RoamingNetworkIndex, sender: T::AccountId) -> Result<(), DispatchError> {
+    pub fn is_roaming_network_owner(
+        roaming_network_id: T::RoamingNetworkIndex,
+        sender: T::AccountId,
+    ) -> Result<(), DispatchError> {
         ensure!(
-            Self::roaming_network_owner(&roaming_network_id)
-                .map(|owner| owner == sender)
-                .unwrap_or(false),
+            Self::roaming_network_owner(&roaming_network_id).map(|owner| owner == sender).unwrap_or(false),
             "Sender is not owner of RoamingNetwork"
         );
         Ok(())
     }
 
-	pub fn exists_roaming_network(roaming_network_id: T::RoamingNetworkIndex) -> Result<RoamingNetwork, DispatchError> {
-		match Self::roaming_network(roaming_network_id) {
-			Some(roaming_network) => Ok(roaming_network),
-			None => Err(DispatchError::Other("RoamingNetwork does not exist"))
-		}
+    pub fn exists_roaming_network(roaming_network_id: T::RoamingNetworkIndex) -> Result<RoamingNetwork, DispatchError> {
+        match Self::roaming_network(roaming_network_id) {
+            Some(roaming_network) => Ok(roaming_network),
+            None => Err(DispatchError::Other("RoamingNetwork does not exist")),
+        }
     }
 
     /// Only push the network id onto the end of the vector if it does not already exist
     pub fn associate_network_with_operator(
         roaming_network_id: T::RoamingNetworkIndex,
-        roaming_operator_id: T::RoamingOperatorIndex
-    ) -> Result<(), DispatchError>
-    {
+        roaming_operator_id: T::RoamingOperatorIndex,
+    ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given operator id already exists as a key,
         // and where its corresponding value is a vector that already contains the given network id
         if let Some(operator_networks) = Self::roaming_operator_networks(roaming_operator_id) {
@@ -214,7 +235,12 @@ impl<T: Trait> Module<T> {
             debug::info!("Associated network {:?} with operator {:?}", roaming_network_id, roaming_operator_id);
             Ok(())
         } else {
-            debug::info!("Operator id key does not yet exist. Creating the operator key {:?} and appending the network id {:?} to its vector value", roaming_operator_id, roaming_network_id);
+            debug::info!(
+                "Operator id key does not yet exist. Creating the operator key {:?} and appending the network id {:?} \
+                 to its vector value",
+                roaming_operator_id,
+                roaming_network_id
+            );
             <RoamingOperatorNetworks<T>>::insert(roaming_operator_id, &vec![roaming_network_id]);
             Ok(())
         }
@@ -238,7 +264,11 @@ impl<T: Trait> Module<T> {
         Ok(roaming_network_id)
     }
 
-    fn insert_roaming_network(owner: &T::AccountId, roaming_network_id: T::RoamingNetworkIndex, roaming_network: RoamingNetwork) {
+    fn insert_roaming_network(
+        owner: &T::AccountId,
+        roaming_network_id: T::RoamingNetworkIndex,
+        roaming_network: RoamingNetwork,
+    ) {
         // Create and store roaming network
         <RoamingNetworks<T>>::insert(roaming_network_id, roaming_network);
         <RoamingNetworksCount<T>>::put(roaming_network_id + One::one());
@@ -255,10 +285,20 @@ impl<T: Trait> Module<T> {
 mod tests {
     use super::*;
 
-	use sp_core::H256;
-	use frame_support::{impl_outer_origin, assert_ok, parameter_types, weights::Weight};
-	use sp_runtime::{
-		traits::{BlakeTwo256, IdentityLookup}, testing::Header, Perbill,
+    use frame_support::{
+        assert_ok,
+        impl_outer_origin,
+        parameter_types,
+        weights::Weight,
+    };
+    use sp_core::H256;
+    use sp_runtime::{
+        testing::Header,
+        traits::{
+            BlakeTwo256,
+            IdentityLookup,
+        },
+        Perbill,
     };
 
     impl_outer_origin! {
@@ -274,44 +314,44 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl system::Trait for Test {
-        type Origin = Origin;
-        type Call = ();
-        type Index = u64;
-        type BlockNumber = u64;
-        type Hash = H256;
-        type Hashing = BlakeTwo256;
         type AccountId = u64;
-        type Lookup = IdentityLookup<Self::AccountId>;
-        type Header = Header;
+        type AvailableBlockRatio = AvailableBlockRatio;
+        type BlockHashCount = BlockHashCount;
+        type BlockNumber = u64;
+        type Call = ();
         // type WeightMultiplierUpdate = ();
         type Event = ();
-        type BlockHashCount = BlockHashCount;
-        type MaximumBlockWeight = MaximumBlockWeight;
+        type Hash = H256;
+        type Hashing = BlakeTwo256;
+        type Header = Header;
+        type Index = u64;
+        type Lookup = IdentityLookup<Self::AccountId>;
         type MaximumBlockLength = MaximumBlockLength;
-        type AvailableBlockRatio = AvailableBlockRatio;
-        type Version = ();
+        type MaximumBlockWeight = MaximumBlockWeight;
         type ModuleToIndex = ();
+        type Origin = Origin;
+        type Version = ();
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type OnNewAccount = ();
-        type Event = ();
-        type DustRemoval = ();
-        type TransferPayment = ();
-        type ExistentialDeposit = ();
         type CreationFee = ();
+        type DustRemoval = ();
+        type Event = ();
+        type ExistentialDeposit = ();
+        type OnNewAccount = ();
+        type TransferPayment = ();
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;
+        type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
         type TransactionBaseFee = ();
         type TransactionByteFee = ();
         type WeightToFee = ();
-        type FeeMultiplierUpdate = ();
     }
     impl roaming_operators::Trait for Test {
-        type Event = ();
         type Currency = Balances;
+        type Event = ();
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
@@ -319,7 +359,7 @@ mod tests {
         type Event = ();
         type RoamingNetworkIndex = u64;
     }
-    //type System = system::Module<Test>;
+    // type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type RoamingNetworkModule = Module<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
@@ -327,9 +367,7 @@ mod tests {
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     fn new_test_ext() -> sp_io::TestExternalities {
-        let mut t = system::GenesisConfig::default()
-            .build_storage::<Test>()
-            .unwrap();
+        let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
         balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60)],
             vesting: vec![],
@@ -371,10 +409,7 @@ mod tests {
             // Setup
             <RoamingNetworksCount<Test>>::put(u64::max_value());
             // Call Functions
-            assert_noop!(
-                RoamingNetworkModule::create(Origin::signed(1)),
-                "RoamingNetworks count overflow"
-            );
+            assert_noop!(RoamingNetworkModule::create(Origin::signed(1)), "RoamingNetworks count overflow");
             // Verify Storage
             assert_eq!(RoamingNetworkModule::roaming_networks_count(), u64::max_value());
             assert!(RoamingNetworkModule::roaming_network(0).is_none());

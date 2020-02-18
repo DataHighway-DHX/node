@@ -1,14 +1,35 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
-use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
-use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
+use codec::{
+    Decode,
+    Encode,
+};
+use frame_support::traits::{
+    Currency,
+    ExistenceRequirement,
+    Randomness,
+};
 /// A runtime module for managing non-fungible tokens
-use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
-use system::ensure_signed;
-use sp_runtime::DispatchError;
+use frame_support::{
+    debug,
+    decl_event,
+    decl_module,
+    decl_storage,
+    ensure,
+    Parameter,
+};
+use sp_io::hashing::blake2_128;
+use sp_runtime::{
+    traits::{
+        AtLeast32Bit,
+        Bounded,
+        Member,
+        One,
+    },
+    DispatchError,
+};
 use sp_std::prelude::*; // Imports Vec
+use system::ensure_signed;
 #[macro_use]
 extern crate alloc; // Required to use Vec
 
@@ -16,12 +37,14 @@ use roaming_devices;
 use roaming_network_servers;
 
 /// The module's configuration trait.
-pub trait Trait: system::Trait + roaming_operators::Trait + roaming_devices::Trait + roaming_network_servers::Trait {
+pub trait Trait:
+    system::Trait + roaming_operators::Trait + roaming_devices::Trait + roaming_network_servers::Trait
+{
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
-	type RoamingSessionIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-	type RoamingSessionJoinRequestRequestedAt: Parameter + Member + Default;
-	type RoamingSessionJoinRequestAcceptExpiry: Parameter + Member + Default;
-	type RoamingSessionJoinRequestAcceptAcceptedAt: Parameter + Member + Default;
+    type RoamingSessionIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type RoamingSessionJoinRequestRequestedAt: Parameter + Member + Default;
+    type RoamingSessionJoinRequestAcceptExpiry: Parameter + Member + Default;
+    type RoamingSessionJoinRequestAcceptAcceptedAt: Parameter + Member + Default;
 }
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
@@ -45,26 +68,26 @@ pub struct RoamingSessionJoinAccept<U, V> {
 }
 
 decl_event!(
-	pub enum Event<T> where
-		<T as system::Trait>::AccountId,
+    pub enum Event<T> where
+        <T as system::Trait>::AccountId,
         <T as Trait>::RoamingSessionIndex,
         <T as Trait>::RoamingSessionJoinRequestRequestedAt,
         <T as Trait>::RoamingSessionJoinRequestAcceptExpiry,
         <T as Trait>::RoamingSessionJoinRequestAcceptAcceptedAt,
         <T as roaming_devices::Trait>::RoamingDeviceIndex,
         <T as roaming_network_servers::Trait>::RoamingNetworkServerIndex,
-	{
-		/// A roaming session is created. (owner, roaming_session_id)
-		Created(AccountId, RoamingSessionIndex),
-		/// A roaming session is transferred. (from, to, roaming_session_id)
-		Transferred(AccountId, AccountId, RoamingSessionIndex),
+    {
+        /// A roaming session is created. (owner, roaming_session_id)
+        Created(AccountId, RoamingSessionIndex),
+        /// A roaming session is transferred. (from, to, roaming_session_id)
+        Transferred(AccountId, AccountId, RoamingSessionIndex),
         /// A roaming session join request requested
         RoamingSessionJoinRequestRequested(AccountId, RoamingSessionIndex, RoamingNetworkServerIndex, RoamingSessionJoinRequestRequestedAt),
         /// A roaming session join request accepted
         RoamingSessionJoinRequestAccepted(AccountId, RoamingSessionIndex, RoamingSessionJoinRequestAcceptExpiry, RoamingSessionJoinRequestAcceptAcceptedAt),
         /// A roaming session is assigned to a device. (owner of device, roaming_session_id, roaming_device_id)
         AssignedSessionToDevice(AccountId, RoamingSessionIndex, RoamingDeviceIndex),
-	}
+    }
 );
 
 // This module's storage items.
@@ -237,7 +260,7 @@ decl_module! {
                     )).is_ok(), "Only owner of the given network server id that the device is trying to connect to can set an associated roaming session join accept"
                 );
             } else {
-                // There must be a session join request associated with the session join accept 
+                // There must be a session join request associated with the session join accept
                 return Err(DispatchError::Other("RoamingSessionJoinRequest does not exist"));
             }
 
@@ -339,11 +362,12 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_roaming_session_owner(roaming_session_id: T::RoamingSessionIndex, sender: T::AccountId) -> Result<(), DispatchError> {
+    pub fn is_roaming_session_owner(
+        roaming_session_id: T::RoamingSessionIndex,
+        sender: T::AccountId,
+    ) -> Result<(), DispatchError> {
         ensure!(
-            Self::roaming_session_owner(&roaming_session_id)
-                .map(|owner| owner == sender)
-                .unwrap_or(false),
+            Self::roaming_session_owner(&roaming_session_id).map(|owner| owner == sender).unwrap_or(false),
             "Sender is not owner of RoamingSession"
         );
         Ok(())
@@ -352,26 +376,29 @@ impl<T: Trait> Module<T> {
     pub fn exists_roaming_session(roaming_session_id: T::RoamingSessionIndex) -> Result<RoamingSession, DispatchError> {
         match Self::roaming_session(roaming_session_id) {
             Some(roaming_session) => Ok(roaming_session),
-            None => Err(DispatchError::Other("RoamingSession does not exist"))
+            None => Err(DispatchError::Other("RoamingSession does not exist")),
         }
     }
 
-    pub fn exists_roaming_session_join_request(roaming_session_id: T::RoamingSessionIndex) -> Result<(), DispatchError> {
+    pub fn exists_roaming_session_join_request(
+        roaming_session_id: T::RoamingSessionIndex,
+    ) -> Result<(), DispatchError> {
         match Self::roaming_session_join_requests(roaming_session_id) {
             Some(_) => Ok(()),
-            None => Err(DispatchError::Other("RoamingSessionJoinRequest does not exist"))
+            None => Err(DispatchError::Other("RoamingSessionJoinRequest does not exist")),
         }
     }
 
     pub fn exists_roaming_session_join_accept(roaming_session_id: T::RoamingSessionIndex) -> Result<(), DispatchError> {
         match Self::roaming_session_join_accepts(roaming_session_id) {
             Some(_) => Ok(()),
-            None => Err(DispatchError::Other("RoamingSessionJoinAccept does not exist"))
+            None => Err(DispatchError::Other("RoamingSessionJoinAccept does not exist")),
         }
     }
 
-    pub fn has_value_for_session_join_request_index(roaming_session_id: T::RoamingSessionIndex)
-        -> Result<(), DispatchError> {
+    pub fn has_value_for_session_join_request_index(
+        roaming_session_id: T::RoamingSessionIndex,
+    ) -> Result<(), DispatchError> {
         debug::info!("Checking if session join request has a value that is defined");
         let fetched_session_join_request = <RoamingSessionJoinRequests<T>>::get(roaming_session_id);
         if let Some(_) = fetched_session_join_request {
@@ -382,8 +409,9 @@ impl<T: Trait> Module<T> {
         Err(DispatchError::Other("No value for session join request"))
     }
 
-    pub fn has_value_for_session_join_accept_index(roaming_session_id: T::RoamingSessionIndex)
-        -> Result<(), DispatchError> {
+    pub fn has_value_for_session_join_accept_index(
+        roaming_session_id: T::RoamingSessionIndex,
+    ) -> Result<(), DispatchError> {
         debug::info!("Checking if session join accept has a value that is defined");
         let fetched_session_join_accept = <RoamingSessionJoinAccepts<T>>::get(roaming_session_id);
         if let Some(_) = fetched_session_join_accept {
@@ -398,8 +426,7 @@ impl<T: Trait> Module<T> {
     pub fn associate_session_with_device(
         roaming_session_id: T::RoamingSessionIndex,
         roaming_device_id: T::RoamingDeviceIndex,
-    ) -> Result<(), DispatchError>
-    {
+    ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given device id already exists as a key,
         // and where its corresponding value is a vector that already contains the given session id
         if let Some(device_sessions) = Self::roaming_device_sessions(roaming_device_id) {
@@ -415,7 +442,12 @@ impl<T: Trait> Module<T> {
             debug::info!("Associated session {:?} with device {:?}", roaming_session_id, roaming_device_id);
             Ok(())
         } else {
-            debug::info!("Device id key does not yet exist. Creating the device key {:?} and appending the session id {:?} to its vector value", roaming_device_id, roaming_session_id);
+            debug::info!(
+                "Device id key does not yet exist. Creating the device key {:?} and appending the session id {:?} to \
+                 its vector value",
+                roaming_device_id,
+                roaming_session_id
+            );
             <RoamingDeviceSessions<T>>::insert(roaming_device_id, &vec![roaming_session_id]);
             Ok(())
         }
@@ -439,7 +471,11 @@ impl<T: Trait> Module<T> {
         Ok(roaming_session_id)
     }
 
-    fn insert_roaming_session(owner: &T::AccountId, roaming_session_id: T::RoamingSessionIndex, roaming_session: RoamingSession) {
+    fn insert_roaming_session(
+        owner: &T::AccountId,
+        roaming_session_id: T::RoamingSessionIndex,
+        roaming_session: RoamingSession,
+    ) {
         // Create and store roaming session
         <RoamingSessions<T>>::insert(roaming_session_id, roaming_session);
         <RoamingSessionsCount<T>>::put(roaming_session_id + One::one());
@@ -456,10 +492,20 @@ impl<T: Trait> Module<T> {
 mod tests {
     use super::*;
 
-	use sp_core::H256;
-	use frame_support::{impl_outer_origin, assert_ok, parameter_types, weights::Weight};
-	use sp_runtime::{
-		traits::{BlakeTwo256, IdentityLookup}, testing::Header, Perbill,
+    use frame_support::{
+        assert_ok,
+        impl_outer_origin,
+        parameter_types,
+        weights::Weight,
+    };
+    use sp_core::H256;
+    use sp_runtime::{
+        testing::Header,
+        traits::{
+            BlakeTwo256,
+            IdentityLookup,
+        },
+        Perbill,
     };
 
     impl_outer_origin! {
@@ -475,44 +521,44 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl system::Trait for Test {
-        type Origin = Origin;
-        type Call = ();
-        type Index = u64;
-        type BlockNumber = u64;
-        type Hash = H256;
-        type Hashing = BlakeTwo256;
         type AccountId = u64;
-        type Lookup = IdentityLookup<Self::AccountId>;
-        type Header = Header;
+        type AvailableBlockRatio = AvailableBlockRatio;
+        type BlockHashCount = BlockHashCount;
+        type BlockNumber = u64;
+        type Call = ();
         // type WeightMultiplierUpdate = ();
         type Event = ();
-        type BlockHashCount = BlockHashCount;
-        type MaximumBlockWeight = MaximumBlockWeight;
+        type Hash = H256;
+        type Hashing = BlakeTwo256;
+        type Header = Header;
+        type Index = u64;
+        type Lookup = IdentityLookup<Self::AccountId>;
         type MaximumBlockLength = MaximumBlockLength;
-        type AvailableBlockRatio = AvailableBlockRatio;
-        type Version = ();
+        type MaximumBlockWeight = MaximumBlockWeight;
         type ModuleToIndex = ();
+        type Origin = Origin;
+        type Version = ();
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type OnNewAccount = ();
-        type Event = ();
-        type DustRemoval = ();
-        type TransferPayment = ();
-        type ExistentialDeposit = ();
         type CreationFee = ();
+        type DustRemoval = ();
+        type Event = ();
+        type ExistentialDeposit = ();
+        type OnNewAccount = ();
+        type TransferPayment = ();
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;
+        type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
         type TransactionBaseFee = ();
         type TransactionByteFee = ();
         type WeightToFee = ();
-        type FeeMultiplierUpdate = ();
     }
     impl roaming_operators::Trait for Test {
-        type Event = ();
         type Currency = Balances;
+        type Event = ();
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
@@ -535,11 +581,11 @@ mod tests {
     impl Trait for Test {
         type Event = ();
         type RoamingSessionIndex = u64;
-        type RoamingSessionJoinRequestRequestedAt = u64;
-        type RoamingSessionJoinRequestAcceptExpiry = u64;
         type RoamingSessionJoinRequestAcceptAcceptedAt = u64;
+        type RoamingSessionJoinRequestAcceptExpiry = u64;
+        type RoamingSessionJoinRequestRequestedAt = u64;
     }
-    //type System = system::Module<Test>;
+    // type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type RoamingSessionModule = Module<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
@@ -547,9 +593,7 @@ mod tests {
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     fn new_test_ext() -> sp_io::TestExternalities {
-        let mut t = system::GenesisConfig::default()
-            .build_storage::<Test>()
-            .unwrap();
+        let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
         balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60)],
             vesting: vec![],
@@ -589,10 +633,7 @@ mod tests {
             // Setup
             <RoamingSessionsCount<Test>>::put(u64::max_value());
             // Call Functions
-            assert_noop!(
-                RoamingSessionModule::create(Origin::signed(1)),
-                "RoamingSessions count overflow"
-            );
+            assert_noop!(RoamingSessionModule::create(Origin::signed(1)), "RoamingSessions count overflow");
             // Verify Storage
             assert_eq!(RoamingSessionModule::roaming_sessions_count(), u64::max_value());
             assert!(RoamingSessionModule::roaming_session(0).is_none());

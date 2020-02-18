@@ -1,37 +1,72 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
-use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
-use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
+use codec::{
+    Decode,
+    Encode,
+};
+use frame_support::traits::{
+    Currency,
+    ExistenceRequirement,
+    Randomness,
+};
 /// A runtime module for managing non-fungible tokens
-use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
-use system::ensure_signed;
-use sp_runtime::DispatchError;
+use frame_support::{
+    debug,
+    decl_event,
+    decl_module,
+    decl_storage,
+    ensure,
+    Parameter,
+};
+use sp_io::hashing::blake2_128;
+use sp_runtime::{
+    traits::{
+        AtLeast32Bit,
+        Bounded,
+        Member,
+        One,
+    },
+    DispatchError,
+};
 use sp_std::prelude::*; // Imports Vec
+use system::ensure_signed;
 
-// FIXME - remove this, only used this approach since do not know how to use BalanceOf using only mining-speed-boosts runtime module
-use roaming_operators;
-use mining_speed_boosts_rates_token_mining;
+// FIXME - remove roaming_operators here, only use this approach since do not know how to use BalanceOf using only
+// mining-speed-boosts runtime module
 use mining_speed_boosts_configuration_token_mining;
+use mining_speed_boosts_rates_token_mining;
 use mining_speed_boosts_sampling_token_mining;
+use roaming_operators;
 
 /// The module's eligibilitys trait.
-pub trait Trait: system::Trait +
-    roaming_operators::Trait +
-    mining_speed_boosts_rates_token_mining::Trait +
-    mining_speed_boosts_configuration_token_mining::Trait +
-    mining_speed_boosts_sampling_token_mining::Trait
-  {
+pub trait Trait:
+    system::Trait
+    + roaming_operators::Trait
+    + mining_speed_boosts_rates_token_mining::Trait
+    + mining_speed_boosts_configuration_token_mining::Trait
+    + mining_speed_boosts_sampling_token_mining::Trait
+{
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
     type MiningSpeedBoostEligibilityTokenMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    // type MiningSpeedBoostEligibilityTokenMiningDateAudited: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    // type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-  }
+    type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility: Parameter
+        + Member
+        + AtLeast32Bit
+        + Bounded
+        + Default
+        + Copy;
+    type MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage: Parameter
+        + Member
+        + AtLeast32Bit
+        + Bounded
+        + Default
+        + Copy;
+    // type MiningSpeedBoostEligibilityTokenMiningDateAudited: Parameter + Member + AtLeast32Bit + Bounded + Default +
+    // Copy; type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID: Parameter + Member + AtLeast32Bit +
+    // Bounded + Default + Copy;
+}
 
-// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as system::Trait>::AccountId>>::Balance;
+// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
+// system::Trait>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -42,8 +77,8 @@ pub struct MiningSpeedBoostEligibilityTokenMining(pub [u8; 16]);
 pub struct MiningSpeedBoostEligibilityTokenMiningEligibilityResult<U, V> {
     pub eligibility_token_mining_calculated_eligibility: U,
     pub eligibility_token_mining_token_locked_percentage: V,
-    // pub eligibility_token_mining_date_audited: W,
-    // pub eligibility_token_mining_auditor_account_id: X,
+    /* pub eligibility_token_mining_date_audited: W,
+     * pub eligibility_token_mining_auditor_account_id: X, */
 }
 
 decl_event!(
@@ -73,7 +108,7 @@ decl_event!(
         ),
         /// A mining_speed_boosts_eligibility_token_mining is assigned to an mining_speed_boosts_configuration_token_mining.
         /// (owner of mining_speed_boosts_token_mining, mining_speed_boosts_eligibility_token_mining_id, mining_speed_boosts_configuration_token_mining_id)
-		    AssignedTokenMiningEligibilityToConfiguration(AccountId, MiningSpeedBoostEligibilityTokenMiningIndex, MiningSpeedBoostConfigurationTokenMiningIndex),
+            AssignedTokenMiningEligibilityToConfiguration(AccountId, MiningSpeedBoostEligibilityTokenMiningIndex, MiningSpeedBoostConfigurationTokenMiningIndex),
     }
 );
 
@@ -145,8 +180,8 @@ decl_module! {
         //     mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
         //     mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
         // ) {
-        //     let sender = ensure_signed(origin)?; 
-            
+        //     let sender = ensure_signed(origin)?;
+
         //     // Ensure that the mining_speed_boosts_eligibility_token_mining_id whose config we want to change actually exists
         //     let is_mining_speed_boosts_eligibility_token_mining = Self::exists_mining_speed_boosts_eligibility_token_mining(mining_speed_boosts_eligibility_token_mining_id).is_ok();
         //     ensure!(is_mining_speed_boosts_eligibility_token_mining, "MiningSpeedBoostEligibilityTokenMining does not exist");
@@ -154,7 +189,7 @@ decl_module! {
         //     // Ensure that the caller is owner of the mining_speed_boosts_eligibility_token_mining_result they are trying to change
         //     ensure!(Self::mining_speed_boosts_eligibility_token_mining_owner(mining_speed_boosts_eligibility_token_mining_id) == Some(sender.clone()), "Only owner can set mining_speed_boosts_eligibility_token_mining_result");
 
-        //     let DEFAULT_RATE_CONFIG = 0; 
+        //     let DEFAULT_RATE_CONFIG = 0;
         //     let mut eligibility_token_mining_calculated_eligibility = 0.into();
         //     let mut part_eligibility_token_mining_calculated_eligibility = 0.into();
         //     let mut eligibility_token_mining_token_locked_percentage = 0.into();
@@ -167,16 +202,16 @@ decl_module! {
         //       if let token_type = configuration_token_mining_config.token_type {
         //         if token_type != "".to_string() {
         //           current_token_type = token_type.clone();
-  
+
         //           if let token_locked_amount = configuration_token_mining_config.token_locked_amount {
         //             if token_locked_amount != 0 {
         //               current_token_locked_amount = token_locked_amount;
-  
+
         //               // Get list of all sampling_token_mining_ids that correspond to the given mining_speed_boosts_configuration_token_mining_id
         //               // of type MiningSpeedBoostSamplingTokenMiningIndex
         //               let sampling_token_mining_ids = <mining_speed_boosts_sampling_token_mining::Module<T>>
         //                 ::token_mining_configuration_samplings(mining_speed_boosts_configuration_token_mining_id);
-      
+
         //               let mut sample_count = 0;
         //               let mut current_sample_tokens_locked = 0;
         //               let mut current_token_mining_rate = 0;
@@ -191,15 +226,15 @@ decl_module! {
         //                 ) {
         //                   if let tokens_locked = current_sampling_token_mining_config.token_sample_tokens_locked {
         //                     sample_count += 1;
-  
+
         //                     if tokens_locked == 0 {
         //                       debug::info!("Mining rate sample has nothing locked. Skipping to next sampling.");
         //                       continue;
         //                     }
         //                     current_sample_tokens_locked = tokens_locked;
-  
+
         //                     if let Some(token_mining_rates_config) = <mining_speed_boosts_rates_token_mining::Module<T>>::mining_speed_boosts_rates_token_mining_rates_configs(DEFAULT_RATE_CONFIG) {
-                              
+
         //                       if current_token_type == "MXC".to_string() {
         //                         current_token_mining_rate = token_mining_rates_config.token_token_mxc;
         //                       } else if current_token_type == "IOTA".to_string() {
@@ -209,13 +244,13 @@ decl_module! {
         //                       }
         //                       current_token_max_tokens = token_mining_rates_config.token_token_max_token;
         //                       eligibility_token_mining_token_locked_percentage = current_token_mining_rate * (current_sample_tokens_locked / current_token_locked_amount);
-                              
+
         //                       part_eligibility_token_mining_calculated_eligibility = part_eligibility_token_mining_calculated_eligibility + eligibility_token_mining_token_locked_percentage * current_token_max_tokens;
         //                     } else {
         //                       debug::info!("Mining rate config missing");
         //                       // break;
         //                       return Err(DispatchError::Other("Mining rate config missing"));
-        //                     }              
+        //                     }
         //                   }
         //                 }
         //               }
@@ -418,12 +453,15 @@ decl_module! {
             <TokenMiningEligibilityConfiguration<T>>::insert(mining_speed_boosts_eligibility_token_mining_id, mining_speed_boosts_configuration_token_mining_id);
 
             Self::deposit_event(RawEvent::AssignedTokenMiningEligibilityToConfiguration(sender, mining_speed_boosts_eligibility_token_mining_id, mining_speed_boosts_configuration_token_mining_id));
-		    }
+            }
     }
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_mining_speed_boosts_eligibility_token_mining_owner(mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex, sender: T::AccountId) -> Result<(), DispatchError> {
+    pub fn is_mining_speed_boosts_eligibility_token_mining_owner(
+        mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
+        sender: T::AccountId,
+    ) -> Result<(), DispatchError> {
         ensure!(
             Self::mining_speed_boosts_eligibility_token_mining_owner(&mining_speed_boosts_eligibility_token_mining_id)
                 .map(|owner| owner == sender)
@@ -433,31 +471,38 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn exists_mining_speed_boosts_eligibility_token_mining(mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex) -> Result<MiningSpeedBoostEligibilityTokenMining, DispatchError> {
+    pub fn exists_mining_speed_boosts_eligibility_token_mining(
+        mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
+    ) -> Result<MiningSpeedBoostEligibilityTokenMining, DispatchError> {
         match Self::mining_speed_boosts_eligibility_token_mining(mining_speed_boosts_eligibility_token_mining_id) {
             Some(value) => Ok(value),
-            None => Err(DispatchError::Other("MiningSpeedBoostEligibilityTokenMining does not exist"))
+            None => Err(DispatchError::Other("MiningSpeedBoostEligibilityTokenMining does not exist")),
         }
     }
 
     pub fn exists_mining_speed_boosts_eligibility_token_mining_result(
         mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
-        mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex
+        mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
     ) -> Result<(), DispatchError> {
-        match Self::mining_speed_boosts_eligibility_token_mining_eligibility_results(
-          (mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id)
-        ) {
+        match Self::mining_speed_boosts_eligibility_token_mining_eligibility_results((
+            mining_speed_boosts_configuration_token_mining_id,
+            mining_speed_boosts_eligibility_token_mining_id,
+        )) {
             Some(value) => Ok(()),
-            None => Err(DispatchError::Other("MiningSpeedBoostEligibilityTokenMiningEligibilityResult does not exist"))
+            None => Err(DispatchError::Other("MiningSpeedBoostEligibilityTokenMiningEligibilityResult does not exist")),
         }
     }
 
     pub fn has_value_for_mining_speed_boosts_eligibility_token_mining_result_index(
         mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
-        mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex
+        mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
     ) -> Result<(), DispatchError> {
         debug::info!("Checking if mining_speed_boosts_eligibility_token_mining_result has a value that is defined");
-        let fetched_mining_speed_boosts_eligibility_token_mining_result = <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::get((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id));
+        let fetched_mining_speed_boosts_eligibility_token_mining_result =
+            <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::get((
+                mining_speed_boosts_configuration_token_mining_id,
+                mining_speed_boosts_eligibility_token_mining_id,
+            ));
         if let Some(value) = fetched_mining_speed_boosts_eligibility_token_mining_result {
             debug::info!("Found value for mining_speed_boosts_eligibility_token_mining_result");
             return Ok(());
@@ -469,26 +514,47 @@ impl<T: Trait> Module<T> {
     /// Only push the eligibility id onto the end of the vector if it does not already exist
     pub fn associate_token_eligibility_with_configuration(
         mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
-        mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex
-    ) -> Result<(), DispatchError>
-    {
+        mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
+    ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given eligibility id
-        if let Some(configuration_eligibilities) = Self::token_mining_configuration_eligibilities(mining_speed_boosts_configuration_token_mining_id) {
-            debug::info!("Configuration id key {:?} exists with value {:?}", mining_speed_boosts_configuration_token_mining_id, configuration_eligibilities);
-            let not_configuration_contains_eligibility = !configuration_eligibilities.contains(&mining_speed_boosts_eligibility_token_mining_id);
+        if let Some(configuration_eligibilities) =
+            Self::token_mining_configuration_eligibilities(mining_speed_boosts_configuration_token_mining_id)
+        {
+            debug::info!(
+                "Configuration id key {:?} exists with value {:?}",
+                mining_speed_boosts_configuration_token_mining_id,
+                configuration_eligibilities
+            );
+            let not_configuration_contains_eligibility =
+                !configuration_eligibilities.contains(&mining_speed_boosts_eligibility_token_mining_id);
             ensure!(not_configuration_contains_eligibility, "Configuration already contains the given eligibility id");
             debug::info!("Configuration id key exists but its vector value does not contain the given eligibility id");
-            <TokenMiningConfigurationEligibilities<T>>::mutate(mining_speed_boosts_configuration_token_mining_id, |v| {
-                if let Some(value) = v {
-                    value.push(mining_speed_boosts_eligibility_token_mining_id);
-                }
-            });
-            debug::info!("Associated eligibility {:?} with configuration {:?}", mining_speed_boosts_eligibility_token_mining_id, mining_speed_boosts_configuration_token_mining_id);
+            <TokenMiningConfigurationEligibilities<T>>::mutate(
+                mining_speed_boosts_configuration_token_mining_id,
+                |v| {
+                    if let Some(value) = v {
+                        value.push(mining_speed_boosts_eligibility_token_mining_id);
+                    }
+                },
+            );
+            debug::info!(
+                "Associated eligibility {:?} with configuration {:?}",
+                mining_speed_boosts_eligibility_token_mining_id,
+                mining_speed_boosts_configuration_token_mining_id
+            );
             Ok(())
         } else {
-            debug::info!("Configuration id key does not yet exist. Creating the configuration key {:?} and appending the eligibility id {:?} to its vector value", mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id);
-            <TokenMiningConfigurationEligibilities<T>>::insert(mining_speed_boosts_configuration_token_mining_id, &vec![mining_speed_boosts_eligibility_token_mining_id]);
+            debug::info!(
+                "Configuration id key does not yet exist. Creating the configuration key {:?} and appending the \
+                 eligibility id {:?} to its vector value",
+                mining_speed_boosts_configuration_token_mining_id,
+                mining_speed_boosts_eligibility_token_mining_id
+            );
+            <TokenMiningConfigurationEligibilities<T>>::insert(
+                mining_speed_boosts_configuration_token_mining_id,
+                &vec![mining_speed_boosts_eligibility_token_mining_id],
+            );
             Ok(())
         }
     }
@@ -503,22 +569,41 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_mining_speed_boosts_eligibility_token_mining_id() -> Result<T::MiningSpeedBoostEligibilityTokenMiningIndex, DispatchError> {
-        let mining_speed_boosts_eligibility_token_mining_id = Self::mining_speed_boosts_eligibility_token_mining_count();
-        if mining_speed_boosts_eligibility_token_mining_id == <T::MiningSpeedBoostEligibilityTokenMiningIndex as Bounded>::max_value() {
+    fn next_mining_speed_boosts_eligibility_token_mining_id()
+    -> Result<T::MiningSpeedBoostEligibilityTokenMiningIndex, DispatchError> {
+        let mining_speed_boosts_eligibility_token_mining_id =
+            Self::mining_speed_boosts_eligibility_token_mining_count();
+        if mining_speed_boosts_eligibility_token_mining_id ==
+            <T::MiningSpeedBoostEligibilityTokenMiningIndex as Bounded>::max_value()
+        {
             return Err(DispatchError::Other("MiningSpeedBoostEligibilityTokenMining count overflow"));
         }
         Ok(mining_speed_boosts_eligibility_token_mining_id)
     }
 
-    fn insert_mining_speed_boosts_eligibility_token_mining(owner: &T::AccountId, mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex, mining_speed_boosts_eligibility_token_mining: MiningSpeedBoostEligibilityTokenMining) {
+    fn insert_mining_speed_boosts_eligibility_token_mining(
+        owner: &T::AccountId,
+        mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
+        mining_speed_boosts_eligibility_token_mining: MiningSpeedBoostEligibilityTokenMining,
+    ) {
         // Create and store mining mining_speed_boosts_eligibility_token_mining
-        <MiningSpeedBoostEligibilityTokenMinings<T>>::insert(mining_speed_boosts_eligibility_token_mining_id, mining_speed_boosts_eligibility_token_mining);
-        <MiningSpeedBoostEligibilityTokenMiningCount<T>>::put(mining_speed_boosts_eligibility_token_mining_id + One::one());
-        <MiningSpeedBoostEligibilityTokenMiningOwners<T>>::insert(mining_speed_boosts_eligibility_token_mining_id, owner.clone());
+        <MiningSpeedBoostEligibilityTokenMinings<T>>::insert(
+            mining_speed_boosts_eligibility_token_mining_id,
+            mining_speed_boosts_eligibility_token_mining,
+        );
+        <MiningSpeedBoostEligibilityTokenMiningCount<T>>::put(
+            mining_speed_boosts_eligibility_token_mining_id + One::one(),
+        );
+        <MiningSpeedBoostEligibilityTokenMiningOwners<T>>::insert(
+            mining_speed_boosts_eligibility_token_mining_id,
+            owner.clone(),
+        );
     }
 
-    fn update_owner(to: &T::AccountId, mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex) {
+    fn update_owner(
+        to: &T::AccountId,
+        mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
+    ) {
         <MiningSpeedBoostEligibilityTokenMiningOwners<T>>::insert(mining_speed_boosts_eligibility_token_mining_id, to);
     }
 }
@@ -528,10 +613,20 @@ impl<T: Trait> Module<T> {
 mod tests {
     use super::*;
 
+    use frame_support::{
+        assert_ok,
+        impl_outer_origin,
+        parameter_types,
+        weights::Weight,
+    };
     use sp_core::H256;
-    use frame_support::{impl_outer_origin, assert_ok, parameter_types, weights::Weight};
     use sp_runtime::{
-      traits::{BlakeTwo256, IdentityLookup}, testing::Header, Perbill,
+        testing::Header,
+        traits::{
+            BlakeTwo256,
+            IdentityLookup,
+        },
+        Perbill,
     };
 
     impl_outer_origin! {
@@ -547,87 +642,87 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl system::Trait for Test {
-        type Origin = Origin;
-        type Call = ();
-        type Index = u64;
-        type BlockNumber = u64;
-        type Hash = H256;
-        type Hashing = BlakeTwo256;
         type AccountId = u64;
-        type Lookup = IdentityLookup<Self::AccountId>;
-        type Header = Header;
+        type AvailableBlockRatio = AvailableBlockRatio;
+        type BlockHashCount = BlockHashCount;
+        type BlockNumber = u64;
+        type Call = ();
         // type WeightMultiplierUpdate = ();
         type Event = ();
-        type BlockHashCount = BlockHashCount;
-        type MaximumBlockWeight = MaximumBlockWeight;
+        type Hash = H256;
+        type Hashing = BlakeTwo256;
+        type Header = Header;
+        type Index = u64;
+        type Lookup = IdentityLookup<Self::AccountId>;
         type MaximumBlockLength = MaximumBlockLength;
-        type AvailableBlockRatio = AvailableBlockRatio;
-        type Version = ();
+        type MaximumBlockWeight = MaximumBlockWeight;
         type ModuleToIndex = ();
+        type Origin = Origin;
+        type Version = ();
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type OnNewAccount = ();
-        type Event = ();
-        type DustRemoval = ();
-        type TransferPayment = ();
-        type ExistentialDeposit = ();
         type CreationFee = ();
+        type DustRemoval = ();
+        type Event = ();
+        type ExistentialDeposit = ();
+        type OnNewAccount = ();
+        type TransferPayment = ();
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;
+        type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
         type TransactionBaseFee = ();
         type TransactionByteFee = ();
         type WeightToFee = ();
-        type FeeMultiplierUpdate = ();
     }
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
     impl roaming_operators::Trait for Test {
-        type Event = ();
         type Currency = Balances;
+        type Event = ();
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
     impl mining_speed_boosts_rates_token_mining::Trait for Test {
-      type Event = ();
-      type MiningSpeedBoostRatesTokenMiningIndex = u64;
-      type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
-      type MiningSpeedBoostRatesTokenMiningTokenIOTA = u32;
-      type MiningSpeedBoostRatesTokenMiningTokenDOT = u32;
-      type MiningSpeedBoostRatesTokenMiningMaxToken = u32;
-      type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
+        type Event = ();
+        type MiningSpeedBoostRatesTokenMiningIndex = u64;
+        type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
+        type MiningSpeedBoostRatesTokenMiningMaxToken = u32;
+        type MiningSpeedBoostRatesTokenMiningTokenDOT = u32;
+        type MiningSpeedBoostRatesTokenMiningTokenIOTA = u32;
+        type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
     }
     impl mining_speed_boosts_sampling_token_mining::Trait for Test {
-      type Event = ();
-      type MiningSpeedBoostSamplingTokenMiningIndex = u64;
-      type MiningSpeedBoostSamplingTokenMiningSampleDate = u64;
-      type MiningSpeedBoostSamplingTokenMiningSampleTokensLocked = u64;
+        type Event = ();
+        type MiningSpeedBoostSamplingTokenMiningIndex = u64;
+        type MiningSpeedBoostSamplingTokenMiningSampleDate = u64;
+        type MiningSpeedBoostSamplingTokenMiningSampleTokensLocked = u64;
     }
     impl mining_speed_boosts_configuration_token_mining::Trait for Test {
-      type Event = ();
-      // FIXME - restore when stop temporarily using roaming-operators
-      // type Currency = Balances;
-      // type Randomness = RandomnessCollectiveFlip;
-      type MiningSpeedBoostConfigurationTokenMiningIndex = u64;
-      // Mining Speed Boost Token Mining Config
-      // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-      type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
-      // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
-      type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
-      type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
-      type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
-      type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
+        type Event = ();
+        // FIXME - restore when stop temporarily using roaming-operators
+        // type Currency = Balances;
+        // type Randomness = RandomnessCollectiveFlip;
+        type MiningSpeedBoostConfigurationTokenMiningIndex = u64;
+        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
+        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
+        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
+        // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
+        type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
+        // Mining Speed Boost Token Mining Config
+        // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
+        type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
     }
     impl Trait for Test {
         type Event = ();
-        type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
         type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility = u64;
+        type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
         type MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage = u32;
         // type MiningSpeedBoostEligibilityTokenMiningDateAudited = u64;
         // type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
     }
-    //type System = system::Module<Test>;
+    // type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type MiningSpeedBoostEligibilityTokenMiningTestModule = Module<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
@@ -635,9 +730,7 @@ mod tests {
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     fn new_test_ext() -> sp_io::TestExternalities {
-        let mut t = system::GenesisConfig::default()
-            .build_storage::<Test>()
-            .unwrap();
+        let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
         balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60)],
             vesting: vec![],

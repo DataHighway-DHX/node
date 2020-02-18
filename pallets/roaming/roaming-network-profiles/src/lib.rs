@@ -1,18 +1,39 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
-use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
-use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
+use codec::{
+    Decode,
+    Encode,
+};
+use frame_support::traits::{
+    Currency,
+    ExistenceRequirement,
+    Randomness,
+};
 /// A runtime module for managing non-fungible tokens
-use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
-use system::ensure_signed;
-use sp_runtime::DispatchError;
+use frame_support::{
+    debug,
+    decl_event,
+    decl_module,
+    decl_storage,
+    ensure,
+    Parameter,
+};
+use sp_io::hashing::blake2_128;
+use sp_runtime::{
+    traits::{
+        AtLeast32Bit,
+        Bounded,
+        Member,
+        One,
+    },
+    DispatchError,
+};
 use sp_std::prelude::*; // Imports Vec
+use system::ensure_signed;
 
-use roaming_operators;
-use roaming_networks;
 use roaming_devices;
+use roaming_networks;
+use roaming_operators;
 
 /// The module's configuration trait.
 pub trait Trait: system::Trait + roaming_operators::Trait + roaming_networks::Trait + roaming_devices::Trait {
@@ -25,17 +46,17 @@ pub trait Trait: system::Trait + roaming_operators::Trait + roaming_networks::Tr
 pub struct RoamingNetworkProfile(pub [u8; 16]);
 
 decl_event!(
-	pub enum Event<T> where
-		<T as system::Trait>::AccountId,
+    pub enum Event<T> where
+        <T as system::Trait>::AccountId,
         <T as Trait>::RoamingNetworkProfileIndex,
         <T as roaming_networks::Trait>::RoamingNetworkIndex,
         <T as roaming_operators::Trait>::RoamingOperatorIndex,
         <T as roaming_devices::Trait>::RoamingDeviceIndex,
-	{
-		/// A roaming network_profile is created. (owner, roaming_network_profile_id)
-		Created(AccountId, RoamingNetworkProfileIndex),
-		/// A roaming network_profile is transferred. (from, to, roaming_network_profile_id)
-		Transferred(AccountId, AccountId, RoamingNetworkProfileIndex),
+    {
+        /// A roaming network_profile is created. (owner, roaming_network_profile_id)
+        Created(AccountId, RoamingNetworkProfileIndex),
+        /// A roaming network_profile is transferred. (from, to, roaming_network_profile_id)
+        Transferred(AccountId, AccountId, RoamingNetworkProfileIndex),
         /// A roaming network_profile restricted access to any devices
         RoamingNetworkProfileDeviceAccessAllowedSet(AccountId, RoamingNetworkProfileIndex, bool),
         /// A roaming network_profile whitelisted network for visiting devices was added
@@ -48,9 +69,9 @@ decl_event!(
         RemovedRoamingNetworkProfileBlacklistedDevice(AccountId, RoamingNetworkProfileIndex, RoamingDeviceIndex),
         /// A roaming network_profile is assigned to a network. (owner of network, roaming_network_profile_id, roaming_network_id)
         AssignedNetworkProfileToNetwork(AccountId, RoamingNetworkProfileIndex, RoamingNetworkIndex),
-		/// A roaming network_profile is assigned to an operator. (owner of network, roaming_network_profile_id, roaming_operator_id)
-		AssignedNetworkProfileToOperator(AccountId, RoamingNetworkProfileIndex, RoamingOperatorIndex),
-	}
+        /// A roaming network_profile is assigned to an operator. (owner of network, roaming_network_profile_id, roaming_operator_id)
+        AssignedNetworkProfileToOperator(AccountId, RoamingNetworkProfileIndex, RoamingOperatorIndex),
+    }
 );
 
 // This module's storage items.
@@ -550,7 +571,10 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_roaming_network_profile_owner(roaming_network_profile_id: T::RoamingNetworkProfileIndex, sender: T::AccountId) -> Result<(), DispatchError> {
+    pub fn is_roaming_network_profile_owner(
+        roaming_network_profile_id: T::RoamingNetworkProfileIndex,
+        sender: T::AccountId,
+    ) -> Result<(), DispatchError> {
         ensure!(
             Self::roaming_network_profile_owner(&roaming_network_profile_id)
                 .map(|owner| owner == sender)
@@ -560,16 +584,23 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn is_owned_by_required_parent_relationship(roaming_network_profile_id: T::RoamingNetworkProfileIndex, sender: T::AccountId) -> Result<(), DispatchError> {
+    pub fn is_owned_by_required_parent_relationship(
+        roaming_network_profile_id: T::RoamingNetworkProfileIndex,
+        sender: T::AccountId,
+    ) -> Result<(), DispatchError> {
         debug::info!("Get the network id associated with the network of the given network profile id");
         let network_profile_network_id = Self::roaming_network_profile_network(roaming_network_profile_id);
 
         if let Some(_network_profile_network_id) = network_profile_network_id {
             // Ensure that the caller is owner of the network id associated with the network profile
-            ensure!((<roaming_networks::Module<T>>::is_roaming_network_owner(
+            ensure!(
+                (<roaming_networks::Module<T>>::is_roaming_network_owner(
                     _network_profile_network_id.clone(),
                     sender.clone()
-                )).is_ok(), "Only owner of the network id associated with the given network profile can set an associated roaming network profile config"
+                ))
+                .is_ok(),
+                "Only owner of the network id associated with the given network profile can set an associated roaming \
+                 network profile config"
             );
         } else {
             // There must be a network id associated with the network profile
@@ -578,17 +609,21 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn exists_roaming_network_profile(roaming_network_profile_id: T::RoamingNetworkProfileIndex) -> Result<RoamingNetworkProfile, DispatchError> {
+    pub fn exists_roaming_network_profile(
+        roaming_network_profile_id: T::RoamingNetworkProfileIndex,
+    ) -> Result<RoamingNetworkProfile, DispatchError> {
         match Self::roaming_network_profile(roaming_network_profile_id) {
             Some(roaming_network_profile) => Ok(roaming_network_profile),
-            None => Err(DispatchError::Other("RoamingNetworkProfile does not exist"))
+            None => Err(DispatchError::Other("RoamingNetworkProfile does not exist")),
         }
     }
 
-    pub fn has_value_for_network_profile_whitelisted_networks(roaming_network_profile_id: T::RoamingNetworkProfileIndex)
-    -> Result<(), DispatchError> {
+    pub fn has_value_for_network_profile_whitelisted_networks(
+        roaming_network_profile_id: T::RoamingNetworkProfileIndex,
+    ) -> Result<(), DispatchError> {
         debug::info!("Checking if network_profile whitelisted network has a value that is defined");
-        let fetched_network_profile_whitelisted_network = <RoamingNetworkProfileWhitelistedNetworks<T>>::get(roaming_network_profile_id);
+        let fetched_network_profile_whitelisted_network =
+            <RoamingNetworkProfileWhitelistedNetworks<T>>::get(roaming_network_profile_id);
         if let Some(value) = fetched_network_profile_whitelisted_network {
             debug::info!("Found value for network_profile whitelisted network");
             return Ok(());
@@ -597,10 +632,12 @@ impl<T: Trait> Module<T> {
         Err(DispatchError::Other("No value for network_profile whitelisted network"))
     }
 
-    pub fn has_value_for_network_profile_blacklisted_devices(roaming_network_profile_id: T::RoamingNetworkProfileIndex)
-    -> Result<(), DispatchError> {
+    pub fn has_value_for_network_profile_blacklisted_devices(
+        roaming_network_profile_id: T::RoamingNetworkProfileIndex,
+    ) -> Result<(), DispatchError> {
         debug::info!("Checking if network_profile blacklisted_devices has a value that is defined");
-        let fetched_network_profile_blacklisted_devices = <RoamingNetworkProfileBlacklistedDevices<T>>::get(roaming_network_profile_id);
+        let fetched_network_profile_blacklisted_devices =
+            <RoamingNetworkProfileBlacklistedDevices<T>>::get(roaming_network_profile_id);
         if let Some(value) = fetched_network_profile_blacklisted_devices {
             debug::info!("Found value for network_profile blacklisted_devices");
             return Ok(());
@@ -612,9 +649,8 @@ impl<T: Trait> Module<T> {
     /// Only push the network profile id onto the end of the vector if it does not already exist
     pub fn associate_network_profile_with_network(
         roaming_network_profile_id: T::RoamingNetworkProfileIndex,
-        roaming_network_id: T::RoamingNetworkIndex
-    ) -> Result<(), DispatchError>
-    {
+        roaming_network_id: T::RoamingNetworkIndex,
+    ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given network id already exists as a key,
         // and where its corresponding value is a vector that already contains the given network profile id
         if let Some(network_network_profiles) = Self::roaming_network_network_profiles(roaming_network_id) {
@@ -627,10 +663,19 @@ impl<T: Trait> Module<T> {
                     value.push(roaming_network_profile_id);
                 }
             });
-            debug::info!("Associated network profile {:?} with network {:?}", roaming_network_profile_id, roaming_network_id);
+            debug::info!(
+                "Associated network profile {:?} with network {:?}",
+                roaming_network_profile_id,
+                roaming_network_id
+            );
             Ok(())
         } else {
-            debug::info!("Network id key does not yet exist. Creating the network key {:?} and appending the network profile id {:?} to its vector value", roaming_network_id, roaming_network_profile_id);
+            debug::info!(
+                "Network id key does not yet exist. Creating the network key {:?} and appending the network profile \
+                 id {:?} to its vector value",
+                roaming_network_id,
+                roaming_network_profile_id
+            );
             <RoamingNetworkNetworkProfiles<T>>::insert(roaming_network_id, &vec![roaming_network_profile_id]);
             Ok(())
         }
@@ -639,14 +684,14 @@ impl<T: Trait> Module<T> {
     /// Only push the network profile id onto the end of the vector if it does not already exist
     pub fn associate_network_profile_with_operator(
         roaming_network_profile_id: T::RoamingNetworkProfileIndex,
-        roaming_operator_id: T::RoamingOperatorIndex
-    ) -> Result<(), DispatchError>
-    {
+        roaming_operator_id: T::RoamingOperatorIndex,
+    ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given operator id already exists as a key,
         // and where its corresponding value is a vector that already contains the given network profile id
         if let Some(operator_network_profiles) = Self::roaming_operator_network_profiles(roaming_operator_id) {
             debug::info!("Operator id key {:?} exists with value {:?}", roaming_operator_id, operator_network_profiles);
-            let not_operator_contains_network_profile = !operator_network_profiles.contains(&roaming_network_profile_id);
+            let not_operator_contains_network_profile =
+                !operator_network_profiles.contains(&roaming_network_profile_id);
             ensure!(not_operator_contains_network_profile, "Operator already contains the given network profile id");
             debug::info!("Operator id key exists but its vector value does not contain the given network profile id");
             <RoamingOperatorNetworkProfiles<T>>::mutate(roaming_operator_id, |v| {
@@ -654,10 +699,19 @@ impl<T: Trait> Module<T> {
                     value.push(roaming_network_profile_id);
                 }
             });
-            debug::info!("Associated network profile {:?} with operator {:?}", roaming_network_profile_id, roaming_operator_id);
+            debug::info!(
+                "Associated network profile {:?} with operator {:?}",
+                roaming_network_profile_id,
+                roaming_operator_id
+            );
             Ok(())
         } else {
-            debug::info!("Operator id key does not yet exist. Creating the operator key {:?} and appending the network profile id {:?} to its vector value", roaming_operator_id, roaming_network_profile_id);
+            debug::info!(
+                "Operator id key does not yet exist. Creating the operator key {:?} and appending the network profile \
+                 id {:?} to its vector value",
+                roaming_operator_id,
+                roaming_network_profile_id
+            );
             <RoamingOperatorNetworkProfiles<T>>::insert(roaming_operator_id, &vec![roaming_network_profile_id]);
             Ok(())
         }
@@ -681,7 +735,11 @@ impl<T: Trait> Module<T> {
         Ok(roaming_network_profile_id)
     }
 
-    fn insert_roaming_network_profile(owner: &T::AccountId, roaming_network_profile_id: T::RoamingNetworkProfileIndex, roaming_network_profile: RoamingNetworkProfile) {
+    fn insert_roaming_network_profile(
+        owner: &T::AccountId,
+        roaming_network_profile_id: T::RoamingNetworkProfileIndex,
+        roaming_network_profile: RoamingNetworkProfile,
+    ) {
         // Create and store roaming network_profile
         <RoamingNetworkProfiles<T>>::insert(roaming_network_profile_id, roaming_network_profile);
         <RoamingNetworkProfilesCount<T>>::put(roaming_network_profile_id + One::one());
@@ -698,10 +756,20 @@ impl<T: Trait> Module<T> {
 mod tests {
     use super::*;
 
-	use sp_core::H256;
-	use frame_support::{impl_outer_origin, assert_ok, parameter_types, weights::Weight};
-	use sp_runtime::{
-		traits::{BlakeTwo256, IdentityLookup}, testing::Header, Perbill,
+    use frame_support::{
+        assert_ok,
+        impl_outer_origin,
+        parameter_types,
+        weights::Weight,
+    };
+    use sp_core::H256;
+    use sp_runtime::{
+        testing::Header,
+        traits::{
+            BlakeTwo256,
+            IdentityLookup,
+        },
+        Perbill,
     };
 
     impl_outer_origin! {
@@ -717,44 +785,44 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl system::Trait for Test {
-        type Origin = Origin;
-        type Call = ();
-        type Index = u64;
-        type BlockNumber = u64;
-        type Hash = H256;
-        type Hashing = BlakeTwo256;
         type AccountId = u64;
-        type Lookup = IdentityLookup<Self::AccountId>;
-        type Header = Header;
+        type AvailableBlockRatio = AvailableBlockRatio;
+        type BlockHashCount = BlockHashCount;
+        type BlockNumber = u64;
+        type Call = ();
         // type WeightMultiplierUpdate = ();
         type Event = ();
-        type BlockHashCount = BlockHashCount;
-        type MaximumBlockWeight = MaximumBlockWeight;
+        type Hash = H256;
+        type Hashing = BlakeTwo256;
+        type Header = Header;
+        type Index = u64;
+        type Lookup = IdentityLookup<Self::AccountId>;
         type MaximumBlockLength = MaximumBlockLength;
-        type AvailableBlockRatio = AvailableBlockRatio;
-        type Version = ();
+        type MaximumBlockWeight = MaximumBlockWeight;
         type ModuleToIndex = ();
+        type Origin = Origin;
+        type Version = ();
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type OnNewAccount = ();
-        type Event = ();
-        type DustRemoval = ();
-        type TransferPayment = ();
-        type ExistentialDeposit = ();
         type CreationFee = ();
+        type DustRemoval = ();
+        type Event = ();
+        type ExistentialDeposit = ();
+        type OnNewAccount = ();
+        type TransferPayment = ();
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;
+        type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
         type TransactionBaseFee = ();
         type TransactionByteFee = ();
         type WeightToFee = ();
-        type FeeMultiplierUpdate = ();
     }
     impl roaming_operators::Trait for Test {
-        type Event = ();
         type Currency = Balances;
+        type Event = ();
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
@@ -778,7 +846,7 @@ mod tests {
         type Event = ();
         type RoamingNetworkProfileIndex = u64;
     }
-    //type System = system::Module<Test>;
+    // type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type RoamingNetworkProfileModule = Module<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
@@ -786,9 +854,7 @@ mod tests {
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     fn new_test_ext() -> sp_io::TestExternalities {
-        let mut t = system::GenesisConfig::default()
-            .build_storage::<Test>()
-            .unwrap();
+        let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
         balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60)],
             vesting: vec![],

@@ -1,16 +1,38 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
-use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
-use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
+use codec::{
+    Decode,
+    Encode,
+};
+use frame_support::traits::{
+    Currency,
+    ExistenceRequirement,
+    Randomness,
+};
 /// A runtime module for managing non-fungible tokens
-use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
-use system::ensure_signed;
-use sp_runtime::DispatchError;
+use frame_support::{
+    debug,
+    decl_event,
+    decl_module,
+    decl_storage,
+    ensure,
+    Parameter,
+};
+use sp_io::hashing::blake2_128;
+use sp_runtime::{
+    traits::{
+        AtLeast32Bit,
+        Bounded,
+        Member,
+        One,
+    },
+    DispatchError,
+};
 use sp_std::prelude::*; // Imports Vec
+use system::ensure_signed;
 
-// FIXME - remove this, only used this approach since do not know how to use BalanceOf using only mining-speed-boosts runtime module
+// FIXME - remove roaming_operators here, only use this approach since do not know how to use BalanceOf using only
+// mining-speed-boosts runtime module
 use roaming_operators;
 
 /// The module's configuration trait.
@@ -19,17 +41,37 @@ pub trait Trait: system::Trait + roaming_operators::Trait {
     type MiningSpeedBoostConfigurationTokenMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     // Mining Speed Boost Token Mining Config
     type MiningSpeedBoostConfigurationTokenMiningTokenType: Parameter + Member + Default;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount: Parameter
+        + Member
+        + AtLeast32Bit
+        + Bounded
+        + Default
+        + Copy;
+    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod: Parameter
+        + Member
+        + AtLeast32Bit
+        + Bounded
+        + Default
+        + Copy;
+    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate: Parameter
+        + Member
+        + AtLeast32Bit
+        + Bounded
+        + Default
+        + Copy;
+    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate: Parameter
+        + Member
+        + AtLeast32Bit
+        + Bounded
+        + Default
+        + Copy;
     // // Mining Speed Boost Eligibility
-    // type MiningSpeedBoostEligibilityCalculatedEligibility: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    // type MiningSpeedBoostEligibilityTokenLockedPercentage: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    // type MiningSpeedBoostEligibilityHardwareUptimePercentage: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    // type MiningSpeedBoostEligibilityDateAudited: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    // type MiningSpeedBoostEligibilityAuditorAccountID: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-
+    // type MiningSpeedBoostEligibilityCalculatedEligibility: Parameter + Member + AtLeast32Bit + Bounded + Default +
+    // Copy; type MiningSpeedBoostEligibilityTokenLockedPercentage: Parameter + Member + AtLeast32Bit + Bounded +
+    // Default + Copy; type MiningSpeedBoostEligibilityHardwareUptimePercentage: Parameter + Member + AtLeast32Bit +
+    // Bounded + Default + Copy; type MiningSpeedBoostEligibilityDateAudited: Parameter + Member + AtLeast32Bit +
+    // Bounded + Default + Copy; type MiningSpeedBoostEligibilityAuditorAccountID: Parameter + Member + AtLeast32Bit
+    // + Bounded + Default + Copy;
 }
 
 type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as system::Trait>::AccountId>>::Balance;
@@ -126,7 +168,7 @@ decl_event!(
         //     AccountId, MiningSpeedBoostOracleIndex, MiningSpeedBoostSampleHash, MiningSpeedBoostSampleDate
         // ),
         // EligibilitySet(
-        //     AccountId, MiningSpeedBoostEligibilityTokenMiningIndex, MiningSpeedBoostEligibilityCalculatedEligibility 
+        //     AccountId, MiningSpeedBoostEligibilityTokenMiningIndex, MiningSpeedBoostEligibilityCalculatedEligibility
         // ),
         // RewardSet(
         //     AccountId, MiningSpeedBoostClaimIndex, MiningSpeedBoostClaimHash, MiningSpeedBoostClaimAmount, MiningSpeedBoostClaimDateRedeemed
@@ -310,34 +352,51 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_mining_speed_boosts_configuration_token_mining_owner(mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex, sender: T::AccountId) -> Result<(), DispatchError> {
+    pub fn is_mining_speed_boosts_configuration_token_mining_owner(
+        mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
+        sender: T::AccountId,
+    ) -> Result<(), DispatchError> {
         ensure!(
-            Self::mining_speed_boosts_configuration_token_mining_owner(&mining_speed_boosts_configuration_token_mining_id)
-                .map(|owner| owner == sender)
-                .unwrap_or(false),
+            Self::mining_speed_boosts_configuration_token_mining_owner(
+                &mining_speed_boosts_configuration_token_mining_id
+            )
+            .map(|owner| owner == sender)
+            .unwrap_or(false),
             "Sender is not owner of MiningSpeedBoost"
         );
         Ok(())
     }
 
-    pub fn exists_mining_speed_boosts_configuration_token_mining(mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex) -> Result<MiningSpeedBoostConfigurationTokenMining, DispatchError> {
+    pub fn exists_mining_speed_boosts_configuration_token_mining(
+        mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
+    ) -> Result<MiningSpeedBoostConfigurationTokenMining, DispatchError> {
         match Self::mining_speed_boosts_configuration_token_mining(mining_speed_boosts_configuration_token_mining_id) {
             Some(value) => Ok(value),
-            None => Err(DispatchError::Other("MiningSpeedBoostConfigurationTokenMining does not exist"))
+            None => Err(DispatchError::Other("MiningSpeedBoostConfigurationTokenMining does not exist")),
         }
     }
 
-    pub fn exists_mining_speed_boosts_configuration_token_mining_token_config(mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex) -> Result<(), DispatchError> {
-        match Self::mining_speed_boosts_configuration_token_mining_token_configs(mining_speed_boosts_configuration_token_mining_id) {
+    pub fn exists_mining_speed_boosts_configuration_token_mining_token_config(
+        mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
+    ) -> Result<(), DispatchError> {
+        match Self::mining_speed_boosts_configuration_token_mining_token_configs(
+            mining_speed_boosts_configuration_token_mining_id,
+        ) {
             Some(value) => Ok(()),
-            None => Err(DispatchError::Other("MiningSpeedBoostConfigurationTokenMiningTokenConfig does not exist"))
+            None => Err(DispatchError::Other("MiningSpeedBoostConfigurationTokenMiningTokenConfig does not exist")),
         }
     }
 
-    pub fn has_value_for_mining_speed_boosts_configuration_token_mining_token_config_index(mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex)
-        -> Result<(), DispatchError> {
-        debug::info!("Checking if mining_speed_boosts_configuration_token_mining_token_config has a value that is defined");
-        let fetched_mining_speed_boosts_configuration_token_mining_token_config = <MiningSpeedBoostConfigurationTokenMiningTokenConfigs<T>>::get(mining_speed_boosts_configuration_token_mining_id);
+    pub fn has_value_for_mining_speed_boosts_configuration_token_mining_token_config_index(
+        mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
+    ) -> Result<(), DispatchError> {
+        debug::info!(
+            "Checking if mining_speed_boosts_configuration_token_mining_token_config has a value that is defined"
+        );
+        let fetched_mining_speed_boosts_configuration_token_mining_token_config =
+            <MiningSpeedBoostConfigurationTokenMiningTokenConfigs<T>>::get(
+                mining_speed_boosts_configuration_token_mining_id,
+            );
         if let Some(value) = fetched_mining_speed_boosts_configuration_token_mining_token_config {
             debug::info!("Found value for mining_speed_boosts_configuration_token_mining_token_config");
             return Ok(());
@@ -356,23 +415,45 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_mining_speed_boosts_configuration_token_mining_id() -> Result<T::MiningSpeedBoostConfigurationTokenMiningIndex, DispatchError> {
-        let mining_speed_boosts_configuration_token_mining_id = Self::mining_speed_boosts_configuration_token_mining_count();
-        if mining_speed_boosts_configuration_token_mining_id == <T::MiningSpeedBoostConfigurationTokenMiningIndex as Bounded>::max_value() {
+    fn next_mining_speed_boosts_configuration_token_mining_id()
+    -> Result<T::MiningSpeedBoostConfigurationTokenMiningIndex, DispatchError> {
+        let mining_speed_boosts_configuration_token_mining_id =
+            Self::mining_speed_boosts_configuration_token_mining_count();
+        if mining_speed_boosts_configuration_token_mining_id ==
+            <T::MiningSpeedBoostConfigurationTokenMiningIndex as Bounded>::max_value()
+        {
             return Err(DispatchError::Other("MiningSpeedBoostConfigurationTokenMining count overflow"));
         }
         Ok(mining_speed_boosts_configuration_token_mining_id)
     }
 
-    fn insert_mining_speed_boosts_configuration_token_mining(owner: &T::AccountId, mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex, mining_speed_boosts_configuration_token_mining: MiningSpeedBoostConfigurationTokenMining) {
+    fn insert_mining_speed_boosts_configuration_token_mining(
+        owner: &T::AccountId,
+        mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
+        mining_speed_boosts_configuration_token_mining: MiningSpeedBoostConfigurationTokenMining,
+    ) {
         // Create and store mining mining_speed_boosts_configuration_token_mining
-        <MiningSpeedBoostConfigurationTokenMinings<T>>::insert(mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_configuration_token_mining);
-        <MiningSpeedBoostConfigurationTokenMiningCount<T>>::put(mining_speed_boosts_configuration_token_mining_id + One::one());
-        <MiningSpeedBoostConfigurationTokenMiningOwners<T>>::insert(mining_speed_boosts_configuration_token_mining_id, owner.clone());
+        <MiningSpeedBoostConfigurationTokenMinings<T>>::insert(
+            mining_speed_boosts_configuration_token_mining_id,
+            mining_speed_boosts_configuration_token_mining,
+        );
+        <MiningSpeedBoostConfigurationTokenMiningCount<T>>::put(
+            mining_speed_boosts_configuration_token_mining_id + One::one(),
+        );
+        <MiningSpeedBoostConfigurationTokenMiningOwners<T>>::insert(
+            mining_speed_boosts_configuration_token_mining_id,
+            owner.clone(),
+        );
     }
 
-    fn update_owner(to: &T::AccountId, mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex) {
-        <MiningSpeedBoostConfigurationTokenMiningOwners<T>>::insert(mining_speed_boosts_configuration_token_mining_id, to);
+    fn update_owner(
+        to: &T::AccountId,
+        mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
+    ) {
+        <MiningSpeedBoostConfigurationTokenMiningOwners<T>>::insert(
+            mining_speed_boosts_configuration_token_mining_id,
+            to,
+        );
     }
 }
 
@@ -381,10 +462,20 @@ impl<T: Trait> Module<T> {
 mod tests {
     use super::*;
 
-	use sp_core::H256;
-	use frame_support::{impl_outer_origin, assert_ok, parameter_types, weights::Weight};
-	use sp_runtime::{
-		traits::{BlakeTwo256, IdentityLookup}, testing::Header, Perbill,
+    use frame_support::{
+        assert_ok,
+        impl_outer_origin,
+        parameter_types,
+        weights::Weight,
+    };
+    use sp_core::H256;
+    use sp_runtime::{
+        testing::Header,
+        traits::{
+            BlakeTwo256,
+            IdentityLookup,
+        },
+        Perbill,
     };
 
     impl_outer_origin! {
@@ -400,61 +491,61 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl system::Trait for Test {
-        type Origin = Origin;
-        type Call = ();
-        type Index = u64;
-        type BlockNumber = u64;
-        type Hash = H256;
-        type Hashing = BlakeTwo256;
         type AccountId = u64;
-        type Lookup = IdentityLookup<Self::AccountId>;
-        type Header = Header;
+        type AvailableBlockRatio = AvailableBlockRatio;
+        type BlockHashCount = BlockHashCount;
+        type BlockNumber = u64;
+        type Call = ();
         // type WeightMultiplierUpdate = ();
         type Event = ();
-        type BlockHashCount = BlockHashCount;
-        type MaximumBlockWeight = MaximumBlockWeight;
+        type Hash = H256;
+        type Hashing = BlakeTwo256;
+        type Header = Header;
+        type Index = u64;
+        type Lookup = IdentityLookup<Self::AccountId>;
         type MaximumBlockLength = MaximumBlockLength;
-        type AvailableBlockRatio = AvailableBlockRatio;
-        type Version = ();
+        type MaximumBlockWeight = MaximumBlockWeight;
         type ModuleToIndex = ();
+        type Origin = Origin;
+        type Version = ();
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type OnNewAccount = ();
-        type Event = ();
-        type DustRemoval = ();
-        type TransferPayment = ();
-        type ExistentialDeposit = ();
         type CreationFee = ();
+        type DustRemoval = ();
+        type Event = ();
+        type ExistentialDeposit = ();
+        type OnNewAccount = ();
+        type TransferPayment = ();
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;
+        type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
         type TransactionBaseFee = ();
         type TransactionByteFee = ();
         type WeightToFee = ();
-        type FeeMultiplierUpdate = ();
     }
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
     impl roaming_operators::Trait for Test {
-        type Event = ();
         type Currency = Balances;
+        type Event = ();
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
     impl Trait for Test {
         type Event = ();
         type MiningSpeedBoostConfigurationTokenMiningIndex = u64;
+        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
+        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
+        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
+        // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
+        type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
         // Mining Speed Boost Token Mining Config
         // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
         type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
-        // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
-        type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
-        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
-        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
-        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
     }
-    //type System = system::Module<Test>;
+    // type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type MiningSpeedBoostConfigurationTokenMiningTestModule = Module<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
@@ -462,9 +553,7 @@ mod tests {
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     fn new_test_ext() -> sp_io::TestExternalities {
-        let mut t = system::GenesisConfig::default()
-            .build_storage::<Test>()
-            .unwrap();
+        let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
         balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60)],
             vesting: vec![],

@@ -1,16 +1,38 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Decode, Encode};
-use sp_io::hashing::{blake2_128};
-use sp_runtime::traits::{Bounded, Member, One, AtLeast32Bit};
-use frame_support::traits::{Currency, ExistenceRequirement, Randomness};
+use codec::{
+    Decode,
+    Encode,
+};
+use frame_support::traits::{
+    Currency,
+    ExistenceRequirement,
+    Randomness,
+};
 /// A runtime module for managing non-fungible tokens
-use frame_support::{decl_event, decl_module, decl_storage, ensure, Parameter, debug};
-use system::ensure_signed;
-use sp_runtime::DispatchError;
+use frame_support::{
+    debug,
+    decl_event,
+    decl_module,
+    decl_storage,
+    ensure,
+    Parameter,
+};
+use sp_io::hashing::blake2_128;
+use sp_runtime::{
+    traits::{
+        AtLeast32Bit,
+        Bounded,
+        Member,
+        One,
+    },
+    DispatchError,
+};
 use sp_std::prelude::*; // Imports Vec
+use system::ensure_signed;
 
-// FIXME - remove this, only used this approach since do not know how to use BalanceOf using only mining-speed-boosts runtime module
+// FIXME - remove roaming_operators here, only use this approach since do not know how to use BalanceOf using only
+// mining-speed-boosts runtime module
 use roaming_operators;
 
 /// The module's rates trait.
@@ -18,11 +40,17 @@ pub trait Trait: system::Trait + roaming_operators::Trait {
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
     type MiningSpeedBoostRatesHardwareMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningSpeedBoostRatesHardwareMiningHardwareSecure: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSpeedBoostRatesHardwareMiningHardwareInsecure: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSpeedBoostRatesHardwareMiningHardwareInsecure: Parameter
+        + Member
+        + AtLeast32Bit
+        + Bounded
+        + Default
+        + Copy;
     type MiningSpeedBoostRatesHardwareMiningMaxHardware: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
-// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as system::Trait>::AccountId>>::Balance;
+// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
+// system::Trait>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -195,7 +223,10 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-	pub fn is_mining_speed_boosts_rates_hardware_mining_owner(mining_speed_boosts_rates_hardware_mining_id: T::MiningSpeedBoostRatesHardwareMiningIndex, sender: T::AccountId) -> Result<(), DispatchError> {
+    pub fn is_mining_speed_boosts_rates_hardware_mining_owner(
+        mining_speed_boosts_rates_hardware_mining_id: T::MiningSpeedBoostRatesHardwareMiningIndex,
+        sender: T::AccountId,
+    ) -> Result<(), DispatchError> {
         ensure!(
             Self::mining_speed_boosts_rates_hardware_mining_owner(&mining_speed_boosts_rates_hardware_mining_id)
                 .map(|owner| owner == sender)
@@ -205,24 +236,32 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn exists_mining_speed_boosts_rates_hardware_mining(mining_speed_boosts_rates_hardware_mining_id: T::MiningSpeedBoostRatesHardwareMiningIndex) -> Result<MiningSpeedBoostRatesHardwareMining, DispatchError> {
+    pub fn exists_mining_speed_boosts_rates_hardware_mining(
+        mining_speed_boosts_rates_hardware_mining_id: T::MiningSpeedBoostRatesHardwareMiningIndex,
+    ) -> Result<MiningSpeedBoostRatesHardwareMining, DispatchError> {
         match Self::mining_speed_boosts_rates_hardware_mining(mining_speed_boosts_rates_hardware_mining_id) {
             Some(value) => Ok(value),
-            None => Err(DispatchError::Other("MiningSpeedBoostRatesHardwareMining does not exist"))
+            None => Err(DispatchError::Other("MiningSpeedBoostRatesHardwareMining does not exist")),
         }
     }
 
-    pub fn exists_mining_speed_boosts_rates_hardware_mining_rates_config(mining_speed_boosts_rates_hardware_mining_id: T::MiningSpeedBoostRatesHardwareMiningIndex) -> Result<(), DispatchError> {
-        match Self::mining_speed_boosts_rates_hardware_mining_rates_configs(mining_speed_boosts_rates_hardware_mining_id) {
+    pub fn exists_mining_speed_boosts_rates_hardware_mining_rates_config(
+        mining_speed_boosts_rates_hardware_mining_id: T::MiningSpeedBoostRatesHardwareMiningIndex,
+    ) -> Result<(), DispatchError> {
+        match Self::mining_speed_boosts_rates_hardware_mining_rates_configs(
+            mining_speed_boosts_rates_hardware_mining_id,
+        ) {
             Some(value) => Ok(()),
-            None => Err(DispatchError::Other("MiningSpeedBoostRatesHardwareMiningRatesConfig does not exist"))
+            None => Err(DispatchError::Other("MiningSpeedBoostRatesHardwareMiningRatesConfig does not exist")),
         }
     }
 
-    pub fn has_value_for_mining_speed_boosts_rates_hardware_mining_rates_config_index(mining_speed_boosts_rates_hardware_mining_id: T::MiningSpeedBoostRatesHardwareMiningIndex)
-        -> Result<(), DispatchError> {
+    pub fn has_value_for_mining_speed_boosts_rates_hardware_mining_rates_config_index(
+        mining_speed_boosts_rates_hardware_mining_id: T::MiningSpeedBoostRatesHardwareMiningIndex,
+    ) -> Result<(), DispatchError> {
         debug::info!("Checking if mining_speed_boosts_rates_hardware_mining_rates_config has a value that is defined");
-        let fetched_mining_speed_boosts_rates_hardware_mining_rates_config = <MiningSpeedBoostRatesHardwareMiningRatesConfigs<T>>::get(mining_speed_boosts_rates_hardware_mining_id);
+        let fetched_mining_speed_boosts_rates_hardware_mining_rates_config =
+            <MiningSpeedBoostRatesHardwareMiningRatesConfigs<T>>::get(mining_speed_boosts_rates_hardware_mining_id);
         if let Some(value) = fetched_mining_speed_boosts_rates_hardware_mining_rates_config {
             debug::info!("Found value for mining_speed_boosts_rates_hardware_mining_rates_config");
             return Ok(());
@@ -241,22 +280,38 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_mining_speed_boosts_rates_hardware_mining_id() -> Result<T::MiningSpeedBoostRatesHardwareMiningIndex, DispatchError> {
+    fn next_mining_speed_boosts_rates_hardware_mining_id()
+    -> Result<T::MiningSpeedBoostRatesHardwareMiningIndex, DispatchError> {
         let mining_speed_boosts_rates_hardware_mining_id = Self::mining_speed_boosts_rates_hardware_mining_count();
-        if mining_speed_boosts_rates_hardware_mining_id == <T::MiningSpeedBoostRatesHardwareMiningIndex as Bounded>::max_value() {
+        if mining_speed_boosts_rates_hardware_mining_id ==
+            <T::MiningSpeedBoostRatesHardwareMiningIndex as Bounded>::max_value()
+        {
             return Err(DispatchError::Other("MiningSpeedBoostRatesHardwareMining count overflow"));
         }
         Ok(mining_speed_boosts_rates_hardware_mining_id)
     }
 
-    fn insert_mining_speed_boosts_rates_hardware_mining(owner: &T::AccountId, mining_speed_boosts_rates_hardware_mining_id: T::MiningSpeedBoostRatesHardwareMiningIndex, mining_speed_boosts_rates_hardware_mining: MiningSpeedBoostRatesHardwareMining) {
+    fn insert_mining_speed_boosts_rates_hardware_mining(
+        owner: &T::AccountId,
+        mining_speed_boosts_rates_hardware_mining_id: T::MiningSpeedBoostRatesHardwareMiningIndex,
+        mining_speed_boosts_rates_hardware_mining: MiningSpeedBoostRatesHardwareMining,
+    ) {
         // Create and store mining mining_speed_boosts_rates_hardware_mining
-        <MiningSpeedBoostRatesHardwareMinings<T>>::insert(mining_speed_boosts_rates_hardware_mining_id, mining_speed_boosts_rates_hardware_mining);
+        <MiningSpeedBoostRatesHardwareMinings<T>>::insert(
+            mining_speed_boosts_rates_hardware_mining_id,
+            mining_speed_boosts_rates_hardware_mining,
+        );
         <MiningSpeedBoostRatesHardwareMiningCount<T>>::put(mining_speed_boosts_rates_hardware_mining_id + One::one());
-        <MiningSpeedBoostRatesHardwareMiningOwners<T>>::insert(mining_speed_boosts_rates_hardware_mining_id, owner.clone());
+        <MiningSpeedBoostRatesHardwareMiningOwners<T>>::insert(
+            mining_speed_boosts_rates_hardware_mining_id,
+            owner.clone(),
+        );
     }
 
-    fn update_owner(to: &T::AccountId, mining_speed_boosts_rates_hardware_mining_id: T::MiningSpeedBoostRatesHardwareMiningIndex) {
+    fn update_owner(
+        to: &T::AccountId,
+        mining_speed_boosts_rates_hardware_mining_id: T::MiningSpeedBoostRatesHardwareMiningIndex,
+    ) {
         <MiningSpeedBoostRatesHardwareMiningOwners<T>>::insert(mining_speed_boosts_rates_hardware_mining_id, to);
     }
 }
@@ -266,10 +321,20 @@ impl<T: Trait> Module<T> {
 mod tests {
     use super::*;
 
+    use frame_support::{
+        assert_ok,
+        impl_outer_origin,
+        parameter_types,
+        weights::Weight,
+    };
     use sp_core::H256;
-    use frame_support::{impl_outer_origin, assert_ok, parameter_types, weights::Weight};
     use sp_runtime::{
-      traits::{BlakeTwo256, IdentityLookup}, testing::Header, Perbill,
+        testing::Header,
+        traits::{
+            BlakeTwo256,
+            IdentityLookup,
+        },
+        Perbill,
     };
 
     impl_outer_origin! {
@@ -285,56 +350,56 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl system::Trait for Test {
-        type Origin = Origin;
-        type Call = ();
-        type Index = u64;
-        type BlockNumber = u64;
-        type Hash = H256;
-        type Hashing = BlakeTwo256;
         type AccountId = u64;
-        type Lookup = IdentityLookup<Self::AccountId>;
-        type Header = Header;
+        type AvailableBlockRatio = AvailableBlockRatio;
+        type BlockHashCount = BlockHashCount;
+        type BlockNumber = u64;
+        type Call = ();
         // type WeightMultiplierUpdate = ();
         type Event = ();
-        type BlockHashCount = BlockHashCount;
-        type MaximumBlockWeight = MaximumBlockWeight;
+        type Hash = H256;
+        type Hashing = BlakeTwo256;
+        type Header = Header;
+        type Index = u64;
+        type Lookup = IdentityLookup<Self::AccountId>;
         type MaximumBlockLength = MaximumBlockLength;
-        type AvailableBlockRatio = AvailableBlockRatio;
-        type Version = ();
+        type MaximumBlockWeight = MaximumBlockWeight;
         type ModuleToIndex = ();
+        type Origin = Origin;
+        type Version = ();
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type OnNewAccount = ();
-        type Event = ();
-        type DustRemoval = ();
-        type TransferPayment = ();
-        type ExistentialDeposit = ();
         type CreationFee = ();
+        type DustRemoval = ();
+        type Event = ();
+        type ExistentialDeposit = ();
+        type OnNewAccount = ();
+        type TransferPayment = ();
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;
+        type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
         type TransactionBaseFee = ();
         type TransactionByteFee = ();
         type WeightToFee = ();
-        type FeeMultiplierUpdate = ();
     }
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
     impl roaming_operators::Trait for Test {
-        type Event = ();
         type Currency = Balances;
+        type Event = ();
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
     impl Trait for Test {
         type Event = ();
-        type MiningSpeedBoostRatesHardwareMiningIndex = u64;
-        type MiningSpeedBoostRatesHardwareMiningHardwareSecure = u32;
         type MiningSpeedBoostRatesHardwareMiningHardwareInsecure = u32;
+        type MiningSpeedBoostRatesHardwareMiningHardwareSecure = u32;
+        type MiningSpeedBoostRatesHardwareMiningIndex = u64;
         type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
     }
-    //type System = system::Module<Test>;
+    // type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type MiningSpeedBoostRatesHardwareMiningTestModule = Module<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
@@ -342,9 +407,7 @@ mod tests {
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     fn new_test_ext() -> sp_io::TestExternalities {
-        let mut t = system::GenesisConfig::default()
-            .build_storage::<Test>()
-            .unwrap();
+        let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
         balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60)],
             vesting: vec![],
