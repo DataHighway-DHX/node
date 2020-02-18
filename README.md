@@ -1,4 +1,4 @@
-# Data Highway [![GitHub license](https://img.shields.io/github/license/paritytech/substrate)](LICENSE) [![Build Status](https://travis-ci.org/DataHighway-com/node.svg?branch=master)](https://travis-ci.org/DataHighway-com/node)
+# Data Highway [![GitHub license](https://img.shields.io/github/license/paritytech/substrate)](LICENSE) [![Build Status](https://travis-ci.org/DataHighway-DHX/node.svg?branch=master)](https://travis-ci.org/DataHighway-DHX/node)
 
 The Data Highway Substrate-based blockchain node.
 
@@ -435,8 +435,8 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
 
 ## Continuous integration<a id="chapter-27d8c5"></a>
 
-![](https://github.com/DataHighway-com/node/workflows/Lint/badge.svg?branch=master)
+![](https://github.com/DataHighway-DHX/node/workflows/Lint/badge.svg?branch=master)
 
-![](https://github.com/DataHighway-com/node/workflows/Test/badge.svg?branch=master)
+![](https://github.com/DataHighway-DHX/node/workflows/Test/badge.svg?branch=master)
 
 * Reference: https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow
