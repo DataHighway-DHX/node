@@ -458,7 +458,7 @@ cargo fmt --all -- --check
 ### Apply Formating Changes
 
 ```bash
-cargo +nightly fmt
+cargo +nightly fmt --all
 ```
 
 ### Add Vertical Rulers in VS Code
