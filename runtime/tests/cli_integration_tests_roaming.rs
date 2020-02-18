@@ -346,7 +346,7 @@ mod tests {
             assert_ok!(RoamingAccountingPolicyTestModule::set_config(
                 Origin::signed(0),
                 0,                                        // accounting_policy_id
-                Some("subscription".as_bytes().to_vec()), // policy_type
+                Some(b"subscription".to_vec()), // policy_type
                 Some(200),                                // subscription_fee
                 Some(15),                                 // uplink_fee_factor
                 Some(10),                                 // downlink_fee_factor
@@ -357,7 +357,7 @@ mod tests {
             assert_eq!(
                 RoamingAccountingPolicyTestModule::roaming_accounting_policy_configs(0),
                 Some(RoamingAccountingPolicyConfig {
-                    policy_type: "subscription".as_bytes().to_vec(), // policy_type
+                    policy_type: b"subscription".to_vec(), // policy_type
                     subscription_fee: 200,                           // subscription_fee
                     uplink_fee_factor: 15,                           // uplink_fee_factor
                     downlink_fee_factor: 10,                         // downlink_fee_factor
@@ -379,7 +379,7 @@ mod tests {
             assert_ok!(RoamingAgreementPolicyTestModule::set_config(
                 Origin::signed(0),
                 0,
-                Some("passive".as_bytes().to_vec()),
+                Some(b"passive".to_vec()),
                 Some(2019)
             ));
 
@@ -388,7 +388,7 @@ mod tests {
             assert_eq!(
                 RoamingAgreementPolicyTestModule::roaming_agreement_policy_configs(0),
                 Some(RoamingAgreementPolicyConfig {
-                    policy_activation_type: "passive".as_bytes().to_vec(),
+                    policy_activation_type: b"passive".to_vec(),
                     policy_expiry: 2019,
                 })
             );
@@ -401,14 +401,14 @@ mod tests {
             assert_ok!(RoamingRoutingProfileTestModule::set_app_server(
                 Origin::signed(0),
                 0,                                    // routing_profile_id
-                Some("10.0.0.1".as_bytes().to_vec()), // app server
+                Some(b"10.0.0.1".to_vec()), // app server
             ));
 
             // Verify Storage
             assert_eq!(RoamingRoutingProfileTestModule::roaming_routing_profiles_count(), 1);
             assert_eq!(
                 RoamingRoutingProfileTestModule::roaming_routing_profile_app_server(0),
-                Some("10.0.0.1".as_bytes().to_vec())
+                Some(b"10.0.0.1".to_vec())
             );
 
             // Create Service Profile
@@ -597,10 +597,10 @@ mod tests {
             assert_ok!(RoamingDeviceProfileTestModule::set_config(
                 Origin::signed(0),
                 0,
-                Some("1234".as_bytes().to_vec()), // device_profile_devaddr
-                Some("5678".as_bytes().to_vec()), // device_profile_deveui
-                Some("6789".as_bytes().to_vec()), // device_profile_joineui
-                Some("1000".as_bytes().to_vec()), // device_profile_vendorid
+                Some(b"1234".to_vec()), // device_profile_devaddr
+                Some(b"5678".to_vec()), // device_profile_deveui
+                Some(b"6789".to_vec()), // device_profile_joineui
+                Some(b"1000".to_vec()), // device_profile_vendorid
             ));
 
             // Verify Storage
@@ -608,10 +608,10 @@ mod tests {
             assert_eq!(
                 RoamingDeviceProfileTestModule::roaming_device_profile_configs(0),
                 Some(RoamingDeviceProfileConfig {
-                    device_profile_devaddr: "1234".as_bytes().to_vec(),
-                    device_profile_deveui: "5678".as_bytes().to_vec(),
-                    device_profile_joineui: "6789".as_bytes().to_vec(),
-                    device_profile_vendorid: "1000".as_bytes().to_vec(),
+                    device_profile_devaddr: b"1234".to_vec(),
+                    device_profile_deveui: b"5678".to_vec(),
+                    device_profile_joineui: b"6789".to_vec(),
+                    device_profile_vendorid: b"1000".to_vec(),
                 })
             );
         });

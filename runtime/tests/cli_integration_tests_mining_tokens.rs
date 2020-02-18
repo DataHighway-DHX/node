@@ -207,7 +207,7 @@ mod tests {
               MiningSpeedBoostRatesTokenMiningTestModule::set_mining_speed_boosts_rates_token_mining_rates_config(
                 Origin::signed(0),
                 0, // mining_speed_boosts_rates_token_mining_id
-                // FIXME - convert all below types to Vec<u8> since float values? i.e. "1.025".as_bytes().to_vec()
+                // FIXME - convert all below types to Vec<u8> since float values? i.e. b"1.025".to_vec()
                 Some(1), // token_token_mxc
                 Some(1), // token_token_iota
                 Some(1), // token_token_dot
@@ -239,7 +239,7 @@ mod tests {
               MiningSpeedBoostConfigurationTokenMiningTestModule::set_mining_speed_boosts_configuration_token_mining_token_config(
                 Origin::signed(0),
                 0, // mining_speed_boosts_token_mining_id
-                Some("MXC".as_bytes().to_vec()), // token_type
+                Some(b"MXC".to_vec()), // token_type
                 Some(100), // token_locked_amount
                 Some(15), // token_lock_period
                 Some(12345), // token_lock_period_start_date
@@ -254,7 +254,7 @@ mod tests {
             assert_eq!(
               MiningSpeedBoostConfigurationTokenMiningTestModule::mining_speed_boosts_configuration_token_mining_token_configs(0),
                 Some(MiningSpeedBoostConfigurationTokenMiningTokenConfig {
-                    token_type: "MXC".as_bytes().to_vec(), // token_type
+                    token_type: b"MXC".to_vec(), // token_type
                     token_locked_amount: 100, // token_locked_amount
                     token_lock_period: 15, // token_lock_period
                     token_lock_period_start_date: 12345, // token_lock_period_start_date

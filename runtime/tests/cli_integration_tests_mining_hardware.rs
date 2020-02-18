@@ -208,7 +208,7 @@ mod tests {
               MiningSpeedBoostRatesHardwareMiningTestModule::set_mining_speed_boosts_rates_hardware_mining_rates_config(
                 Origin::signed(0),
                 0, // mining_speed_boosts_rates_hardware_mining_id
-                // FIXME - convert all below types to Vec<u8> since float values? i.e. "1.025".as_bytes().to_vec()
+                // FIXME - convert all below types to Vec<u8> since float values? i.e. b"1.025".to_vec()
                 Some(1), // hardware_hardware_secure
                 Some(1), // hardware_hardware_insecure
                 Some(1), // hardware_max_hardware
@@ -237,7 +237,7 @@ mod tests {
                 Origin::signed(0),
                 0, // mining_speed_boosts_hardware_mining_id
                 Some(true), // hardware_secure
-                Some("gateway".as_bytes().to_vec()), // hardware_type
+                Some(b"gateway".to_vec()), // hardware_type
                 Some(1), // hardware_id
                 Some(12345), // hardware_dev_eui
                 Some(23456), // hardware_lock_period_start_date
@@ -253,7 +253,7 @@ mod tests {
               MiningSpeedBoostConfigurationHardwareMiningTestModule::mining_speed_boosts_configuration_hardware_mining_hardware_configs(0),
                 Some(MiningSpeedBoostConfigurationHardwareMiningHardwareConfig {
                     hardware_secure: true,
-                    hardware_type: "gateway".as_bytes().to_vec(),
+                    hardware_type: b"gateway".to_vec(),
                     hardware_id: 1,
                     hardware_dev_eui: 12345,
                     hardware_lock_period_start_date: 23456,

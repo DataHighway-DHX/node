@@ -192,7 +192,7 @@ decl_module! {
             let hardware_type = match _hardware_type {
                 Some(value) => value,
                 // FIXME - get this fallback to work!
-                // None => "gateway".as_bytes().to_vec() // Default
+                // None => b"gateway".to_vec() // Default
                 None => Default::default() // Default
             };
             let hardware_id = match _hardware_id {
