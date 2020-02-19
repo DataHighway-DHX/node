@@ -452,7 +452,7 @@ rustup component add rustfmt --toolchain nightly
 Check that you agree with all the formating changes that RustFmt will apply to identify anything that you do not agree with.
 
 ```bash
-cargo fmt --all -- --check
+cargo +nightly fmt --all -- --check
 ```
 
 ### Apply Formating Changes

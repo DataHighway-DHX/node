@@ -71,8 +71,8 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl system::Trait for Test {
+        type AccountData = ();
         type AccountId = u64;
-		type AccountData = ();
         type AvailableBlockRatio = AvailableBlockRatio;
         type BlockHashCount = BlockHashCount;
         type BlockNumber = u64;
@@ -86,15 +86,15 @@ mod tests {
         type Lookup = IdentityLookup<Self::AccountId>;
         type MaximumBlockLength = MaximumBlockLength;
         type MaximumBlockWeight = MaximumBlockWeight;
-		type ModuleToIndex = ();
-		type OnNewAccount = ();
-		type OnReapAccount = ();
+        type ModuleToIndex = ();
+        type OnNewAccount = ();
+        type OnReapAccount = ();
         type Origin = Origin;
         type Version = ();
     }
     impl balances::Trait for Test {
-		type AccountStore = ();
-		type AccountStore = u64;
+        type AccountStore = ();
+        type AccountStore = u64;
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();
