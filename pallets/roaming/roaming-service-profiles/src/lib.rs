@@ -347,6 +347,7 @@ mod tests {
     }
     impl system::Trait for Test {
         type AccountId = u64;
+		type AccountData = ();
         type AvailableBlockRatio = AvailableBlockRatio;
         type BlockHashCount = BlockHashCount;
         type BlockNumber = u64;
@@ -365,6 +366,7 @@ mod tests {
         type Version = ();
     }
     impl balances::Trait for Test {
+		type AccountStore = System;
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();

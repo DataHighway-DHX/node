@@ -114,6 +114,7 @@ mod tests {
     }
     impl system::Trait for Test {
         type AccountId = u64;
+		type AccountData = ();
         type AvailableBlockRatio = AvailableBlockRatio;
         type BlockHashCount = BlockHashCount;
         type BlockNumber = u64;
