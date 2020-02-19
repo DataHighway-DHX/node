@@ -86,7 +86,9 @@ mod tests {
         type Lookup = IdentityLookup<Self::AccountId>;
         type MaximumBlockLength = MaximumBlockLength;
         type MaximumBlockWeight = MaximumBlockWeight;
-        type ModuleToIndex = ();
+		type ModuleToIndex = ();
+		type OnNewAccount = ();
+		type OnReapAccount = ();
         type Origin = Origin;
         type Version = ();
     }

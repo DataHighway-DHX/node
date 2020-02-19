@@ -1,5 +1,6 @@
 // Tests to be written here
 
+use crate::{Module, Trait};
 use crate::{mock::*};
 use frame_support::{assert_ok, assert_noop};
 

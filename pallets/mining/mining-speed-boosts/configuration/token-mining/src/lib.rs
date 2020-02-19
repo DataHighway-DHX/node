@@ -506,12 +506,14 @@ mod tests {
         type Lookup = IdentityLookup<Self::AccountId>;
         type MaximumBlockLength = MaximumBlockLength;
         type MaximumBlockWeight = MaximumBlockWeight;
-        type ModuleToIndex = ();
+		type ModuleToIndex = ();
+		type OnNewAccount = ();
+		type OnReapAccount = ();
         type Origin = Origin;
         type Version = ();
     }
     impl balances::Trait for Test {
-		type AccountStore = System;
+		type AccountStore = ();
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();
