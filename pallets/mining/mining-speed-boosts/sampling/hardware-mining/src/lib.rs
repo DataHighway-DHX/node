@@ -469,13 +469,11 @@ mod tests {
         type Version = ();
     }
     impl balances::Trait for Test {
+		type AccountStore = System;
         type Balance = u64;
-        type CreationFee = ();
         type DustRemoval = ();
         type Event = ();
         type ExistentialDeposit = ();
-        type OnNewAccount = ();
-        type TransferPayment = ();
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;
@@ -515,7 +513,7 @@ mod tests {
         type MiningSpeedBoostSamplingHardwareMiningSampleDate = u64;
         type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
     }
-    // type System = system::Module<Test>;
+    type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type MiningSpeedBoostSamplingHardwareMiningTestModule = Module<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
