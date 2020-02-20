@@ -94,7 +94,6 @@ mod tests {
     }
     impl balances::Trait for Test {
         type AccountStore = ();
-        type AccountStore = u64;
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();
@@ -177,7 +176,6 @@ mod tests {
         let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
         balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30)],
-            vesting: vec![],
         }
         .assimilate_storage(&mut t)
         .unwrap();
