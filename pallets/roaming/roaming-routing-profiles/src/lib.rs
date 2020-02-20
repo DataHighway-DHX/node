@@ -332,14 +332,11 @@ mod tests {
         type Version = ();
     }
     impl balances::Trait for Test {
-        type AccountData = ();
         type AccountStore = ();
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();
         type ExistentialDeposit = ();
-        type OnNewAccount = ();
-        type OnReapAccount = ();
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;

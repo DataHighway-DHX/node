@@ -135,7 +135,7 @@ mod tests {
         type Version = ();
     }
     impl balances::Trait for Test {
-		type AccountStore = ();
+		type AccountStore = System; // balances::AccountData<u128>; // u128 is Balance
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();
