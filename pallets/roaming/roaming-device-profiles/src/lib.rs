@@ -447,12 +447,9 @@ mod tests {
     }
     impl balances::Trait for Test {
         type Balance = u64;
-        type CreationFee = ();
         type DustRemoval = ();
         type Event = ();
         type ExistentialDeposit = ();
-        type OnNewAccount = ();
-        type TransferPayment = ();
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;
