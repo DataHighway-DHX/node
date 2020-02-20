@@ -160,7 +160,7 @@ mod tests {
         type MiningSpeedBoostClaimsHardwareMiningIndex = u64;
     }
 
-    // type System = system::Module<Test>;
+    type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type MiningSpeedBoostConfigurationHardwareMiningTestModule =
         MiningSpeedBoostConfigurationHardwareMiningModule<Test>;

@@ -135,7 +135,7 @@ mod tests {
         type Version = ();
     }
     impl balances::Trait for Test {
-        type AccountStore = ();
+		type AccountStore = ();
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();
@@ -220,7 +220,7 @@ mod tests {
         type RoamingDeviceProfileVendorID = Vec<u8>;
     }
 
-    // type System = system::Module<Test>;
+    type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type RoamingOperatorTestModule = RoamingOperatorModule<Test>;
     type RoamingNetworkTestModule = RoamingNetworkModule<Test>;
