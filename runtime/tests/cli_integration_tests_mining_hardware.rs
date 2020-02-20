@@ -93,7 +93,7 @@ mod tests {
         type Version = ();
     }
     impl balances::Trait for Test {
-        type AccountStore = ();
+        type AccountStore = System;
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();
