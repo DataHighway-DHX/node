@@ -306,6 +306,7 @@ mod tests {
 
     use frame_support::{
         assert_ok,
+		assert_noop,
         impl_outer_origin,
         parameter_types,
         weights::Weight,
@@ -333,7 +334,7 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl system::Trait for Test {
-        type AccountData = ();
+        type AccountData = balances::AccountData<u64>;
         type AccountId = u64;
         type AvailableBlockRatio = AvailableBlockRatio;
         type BlockHashCount = BlockHashCount;
@@ -354,12 +355,15 @@ mod tests {
         type Origin = Origin;
         type Version = ();
     }
+	parameter_types! {
+		pub const ExistentialDeposit: u64 = 1;
+	}
     impl balances::Trait for Test {
-        type AccountStore = ();
+        type AccountStore = System;
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();
-        type ExistentialDeposit = ();
+        type ExistentialDeposit = ExistentialDeposit;
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;
@@ -387,7 +391,7 @@ mod tests {
         type Event = ();
         type RoamingOrganizationIndex = u64;
     }
-    // type System = system::Module<Test>;
+    type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type RoamingOrganizationModule = Module<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
