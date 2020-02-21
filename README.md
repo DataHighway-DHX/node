@@ -485,12 +485,15 @@ Install an [EditorConfig Plugin](https://editorconfig.org/) for your code editor
 
 * Question: Why do we need to install Rust Stable and Rust Nightly?
 	* Answer: In .github/workflows/rust.yml, we need to run the following,
-	becuase Substrate builds two binaries: 1) Wasm binary of your Runtime;
+	because Substrate builds two binaries: 1) Wasm binary of your Runtime;
 	and 2) Native executable containing all your other Substrate components
 	including your runtimes too. The Wasm build requires rust nightly and
-	wasm32-unknown-unknown to be installed.
+	wasm32-unknown-unknown to be installed. Note that we do not use
+	`rustup update nightly` since the latest Rust Nightly may break our build,
+	so we must manually change this to the latest Rust Nightly version only
+	when it is known to work.
 		```bash
-		rustup update nightly
+		rustup toolchain install nightly-2020-02-17
 		rustup update stable
 		rustup target add wasm32-unknown-unknown --toolchain nightly
 		```
