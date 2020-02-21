@@ -1,6 +1,6 @@
 name: CI
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   check:
@@ -23,8 +23,11 @@ jobs:
           profile: minimal
           toolchain: nightly
 
-      - name: Install WASM toolchain
-        run: rustup target add wasm32-unknown-unknown --toolchain nightly
+      - name: Initialize WASM build environment
+        run: |
+          rustup update nightly
+          rustup update stable
+          rustup target add wasm32-unknown-unknown --toolchain nightly
 
       - name: Run cargo check
         uses: actions-rs/cargo@v1
@@ -51,8 +54,11 @@ jobs:
           profile: minimal
           toolchain: nightly
 
-      - name: Install WASM toolchain
-        run: rustup target add wasm32-unknown-unknown --toolchain nightly
+      - name: Initialize WASM build environment
+        run: |
+          rustup update nightly
+          rustup update stable
+          rustup target add wasm32-unknown-unknown --toolchain nightly
 
       - name: Run cargo test
         uses: actions-rs/cargo@v1
