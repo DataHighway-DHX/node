@@ -494,3 +494,12 @@ Install an [EditorConfig Plugin](https://editorconfig.org/) for your code editor
 		rustup update stable
 		rustup target add wasm32-unknown-unknown --toolchain nightly
 		```
+
+* Question: Why do we install a specific version of Rust Nightly in the CI?
+	* Answer: Since the latest version of Rust Nightly may break our build,
+	and because developers may forget to update to the latest version of Rust
+	Nightly locally. So the solution is to install a specific version of
+	Rust Nightly in .github/workflows/rust.yml (i.e.
+	`rustup toolchain install nightly-2020-02-17`), since for example
+	the latest Rust Nightly version nightly-2020-02-20 may cause our CI tests
+	to fail (i.e. https://github.com/DataHighway-DHX/node/issues/32)
