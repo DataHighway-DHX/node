@@ -25,10 +25,11 @@ jobs:
 
       - name: Initialize WASM build environment
         run: |
+          curl https://getsubstrate.io -sSf | bash -s -- --fast
           rustup update stable
-          rustup default nightly
           rustup toolchain install nightly-2020-02-17
-          rustup target add wasm32-unknown-unknown --toolchain nightly
+          rustup default nightly
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
 
       - name: Run cargo check
         uses: actions-rs/cargo@v1
@@ -57,44 +58,45 @@ jobs:
 
       - name: Initialize WASM build environment
         run: |
+          curl https://getsubstrate.io -sSf | bash -s -- --fast
           rustup update stable
-          rustup default nightly
           rustup toolchain install nightly-2020-02-17
-          rustup target add wasm32-unknown-unknown --toolchain nightly
+          rustup default nightly
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
 
       # Runs integration tests in the runtime/tests folder
       - name: Run Integration Tests across all runtime modules
         run: |
-          cargo +nightly test -p node-runtime
+          cargo +nightly-2020-02-17 test -p node-runtime
 
       # Runs unit tests in each runtime module of the pallet folder
       - name: Run Unit Tests in each runtime module
         run: |
-          cargo +nightly test -p roaming-operators &&
-          cargo +nightly test -p roaming-networks &&
-          cargo +nightly test -p roaming-organizations &&
-          cargo +nightly test -p roaming-network-servers &&
-          cargo +nightly test -p roaming-devices &&
-          cargo +nightly test -p roaming-routing-profiles &&
-          cargo +nightly test -p roaming-service-profiles &&
-          cargo +nightly test -p roaming-accounting-policies &&
-          cargo +nightly test -p roaming-agreement-policies &&
-          cargo +nightly test -p roaming-network-profiles &&
-          cargo +nightly test -p roaming-device-profiles &&
-          cargo +nightly test -p roaming-sessions &&
-          cargo +nightly test -p roaming-billing-policies &&
-          cargo +nightly test -p roaming-charging-policies &&
-          cargo +nightly test -p roaming-packet-bundles &&
-          cargo +nightly test -p mining-speed-boosts-configuration-token-mining &&
-          cargo +nightly test -p mining-speed-boosts-configuration-hardware-mining &&
-          cargo +nightly test -p mining-speed-boosts-rates-token-mining &&
-          cargo +nightly test -p mining-speed-boosts-rates-hardware-mining &&
-          cargo +nightly test -p mining-speed-boosts-sampling-token-mining &&
-          cargo +nightly test -p mining-speed-boosts-sampling-hardware-mining &&
-          cargo +nightly test -p mining-speed-boosts-eligibility-token-mining &&
-          cargo +nightly test -p mining-speed-boosts-eligibility-hardware-mining &&
-          cargo +nightly test -p mining-speed-boosts-claims-token-mining &&
-          cargo +nightly test -p mining-speed-boosts-claims-hardware-mining
+          cargo +nightly-2020-02-17 test -p roaming-operators &&
+          cargo +nightly-2020-02-17 test -p roaming-networks &&
+          cargo +nightly-2020-02-17 test -p roaming-organizations &&
+          cargo +nightly-2020-02-17 test -p roaming-network-servers &&
+          cargo +nightly-2020-02-17 test -p roaming-devices &&
+          cargo +nightly-2020-02-17 test -p roaming-routing-profiles &&
+          cargo +nightly-2020-02-17 test -p roaming-service-profiles &&
+          cargo +nightly-2020-02-17 test -p roaming-accounting-policies &&
+          cargo +nightly-2020-02-17 test -p roaming-agreement-policies &&
+          cargo +nightly-2020-02-17 test -p roaming-network-profiles &&
+          cargo +nightly-2020-02-17 test -p roaming-device-profiles &&
+          cargo +nightly-2020-02-17 test -p roaming-sessions &&
+          cargo +nightly-2020-02-17 test -p roaming-billing-policies &&
+          cargo +nightly-2020-02-17 test -p roaming-charging-policies &&
+          cargo +nightly-2020-02-17 test -p roaming-packet-bundles &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-configuration-token-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-configuration-hardware-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-rates-token-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-rates-hardware-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-sampling-token-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-sampling-hardware-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-eligibility-token-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-eligibility-hardware-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-claims-token-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-claims-hardware-mining
 
   lints:
     name: Lints
@@ -121,13 +123,14 @@ jobs:
 
       - name: Initialize WASM build environment
         run: |
+          curl https://getsubstrate.io -sSf | bash -s -- --fast
           rustup update stable
-          rustup default nightly
           rustup toolchain install nightly-2020-02-17
-          rustup target add wasm32-unknown-unknown --toolchain nightly
+          rustup default nightly
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
 
       - name: Run cargo fmt
-        run: cargo +nightly fmt --all -- --check
+        run: cargo +nightly-2020-02-17 fmt --all -- --check
 
       - name: Run cargo clippy
         # uses: actions-rs/cargo@v1
@@ -135,4 +138,4 @@ jobs:
         #   command: clippy
         #   args:  --release -- -D warnings
         # FIXME - temporary fix below. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
-        run: cargo +nightly clippy-preview -Zunstable-options
+        run: cargo +nightly-2020-02-17 clippy-preview -Zunstable-options
