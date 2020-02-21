@@ -25,14 +25,13 @@ jobs:
 
       - name: Initialize WASM build environment
         run: |
-          rustup update nightly
           rustup update stable
-          rustup target add wasm32-unknown-unknown --toolchain nightly
+          rustup toolchain install nightly-2020-02-17
+          rustup default nightly-2020-02-17
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
 
       - name: Run cargo check
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
+        run: cargo +nightly-2020-02-17 check
 
   test:
     name: Test Suite
@@ -56,14 +55,44 @@ jobs:
 
       - name: Initialize WASM build environment
         run: |
-          rustup update nightly
           rustup update stable
-          rustup target add wasm32-unknown-unknown --toolchain nightly
+          rustup toolchain install nightly-2020-02-17
+          rustup default nightly-2020-02-17
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
 
-      - name: Run cargo test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
+      # Runs integration tests in the runtime/tests folder
+      - name: Run Integration Tests across all runtime modules
+        run: |
+          cargo +nightly-2020-02-17 test -p node-runtime
+
+      # Runs unit tests in each runtime module of the pallet folder
+      - name: Run Unit Tests in each runtime module
+        run: |
+          cargo +nightly-2020-02-17 test -p roaming-operators &&
+          cargo +nightly-2020-02-17 test -p roaming-networks &&
+          cargo +nightly-2020-02-17 test -p roaming-organizations &&
+          cargo +nightly-2020-02-17 test -p roaming-network-servers &&
+          cargo +nightly-2020-02-17 test -p roaming-devices &&
+          cargo +nightly-2020-02-17 test -p roaming-routing-profiles &&
+          cargo +nightly-2020-02-17 test -p roaming-service-profiles &&
+          cargo +nightly-2020-02-17 test -p roaming-accounting-policies &&
+          cargo +nightly-2020-02-17 test -p roaming-agreement-policies &&
+          cargo +nightly-2020-02-17 test -p roaming-network-profiles &&
+          cargo +nightly-2020-02-17 test -p roaming-device-profiles &&
+          cargo +nightly-2020-02-17 test -p roaming-sessions &&
+          cargo +nightly-2020-02-17 test -p roaming-billing-policies &&
+          cargo +nightly-2020-02-17 test -p roaming-charging-policies &&
+          cargo +nightly-2020-02-17 test -p roaming-packet-bundles &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-configuration-token-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-configuration-hardware-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-rates-token-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-rates-hardware-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-sampling-token-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-sampling-hardware-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-eligibility-token-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-eligibility-hardware-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-claims-token-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-claims-hardware-mining
 
   lints:
     name: Lints
@@ -88,14 +117,18 @@ jobs:
           override: true
           components: rustfmt, clippy
 
+      # nightly-2020-02-17-x86_64-unknown-linux-gnu
       - name: Initialize WASM build environment
         run: |
-          rustup update nightly
           rustup update stable
-          rustup target add wasm32-unknown-unknown --toolchain nightly
+          rustup toolchain install nightly-2020-02-17
+          rustup default nightly-2020-02-17
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
 
       - name: Run cargo fmt
-        run: cargo +nightly fmt --all -- --check
+        run: |
+          rustup component add rustfmt --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
+          cargo +nightly-2020-02-17 fmt --all -- --check
 
       - name: Run cargo clippy
         # uses: actions-rs/cargo@v1
@@ -103,4 +136,7 @@ jobs:
         #   command: clippy
         #   args:  --release -- -D warnings
         # FIXME - temporary fix below. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
-        run: cargo +nightly clippy-preview -Zunstable-options
+        run: |
+          rustup component add clippy --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
+          rustup component add clippy-preview --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
+          cargo +nightly-2020-02-17 clippy-preview -Zunstable-options

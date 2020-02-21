@@ -14,6 +14,7 @@ __WARNING__: This implementation is a proof-of-concept prototype and is not read
 * [Run multiple node PoA testnet using custom blockchain configuration](#chapter-f21efd)
 * [Linting](#chapter-c345d7)
 * [Continuous integration](#chapter-27d8c5)
+* [FAQ](#chapter-a0dda5)
 
 Note: Generate a new chapter with `openssl rand -hex 3`
 
@@ -319,6 +320,13 @@ cargo test -p mining-speed-boosts-claims-hardware-mining
 cargo test -p node-runtime
 ```
 
+#### Specific Integration Tests
+
+Example
+```
+cargo test -p node-runtime --test cli_integration_tests_mining_tokens
+```
+
 ### Check
 
 ```
@@ -452,7 +460,7 @@ rustup component add rustfmt --toolchain nightly
 Check that you agree with all the formating changes that RustFmt will apply to identify anything that you do not agree with.
 
 ```bash
-cargo fmt --all -- --check
+cargo +nightly fmt --all -- --check
 ```
 
 ### Apply Formating Changes
@@ -472,3 +480,29 @@ Install an [EditorConfig Plugin](https://editorconfig.org/) for your code editor
 ## Continuous integration<a id="chapter-27d8c5"></a>
 
 * Reference: https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow
+
+## FAQ<a id="chapter-a0dda5"></a>
+
+* Question: Why do we need to install Rust Stable and Rust Nightly?
+	* Answer: In .github/workflows/rust.yml, we need to run the following,
+	because Substrate builds two binaries: 1) Wasm binary of your Runtime;
+	and 2) Native executable containing all your other Substrate components
+	including your runtimes too. The Wasm build requires rust nightly and
+	wasm32-unknown-unknown to be installed. Note that we do not use
+	`rustup update nightly` since the latest Rust Nightly may break our build,
+	so we must manually change this to the latest Rust Nightly version only
+	when it is known to work.
+		```bash
+		rustup toolchain install nightly-2020-02-17
+		rustup update stable
+		rustup target add wasm32-unknown-unknown --toolchain nightly
+		```
+
+* Question: Why do we install a specific version of Rust Nightly in the CI?
+	* Answer: Since the latest version of Rust Nightly may break our build,
+	and because developers may forget to update to the latest version of Rust
+	Nightly locally. So the solution is to install a specific version of
+	Rust Nightly in .github/workflows/rust.yml (i.e.
+	`rustup toolchain install nightly-2020-02-17`), since for example
+	the latest Rust Nightly version nightly-2020-02-20 may cause our CI tests
+	to fail (i.e. https://github.com/DataHighway-DHX/node/issues/32)

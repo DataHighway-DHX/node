@@ -318,6 +318,7 @@ mod tests {
     use super::*;
 
     use frame_support::{
+        assert_noop,
         assert_ok,
         impl_outer_origin,
         parameter_types,
@@ -346,6 +347,7 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl system::Trait for Test {
+        type AccountData = balances::AccountData<u64>;
         type AccountId = u64;
         type AvailableBlockRatio = AvailableBlockRatio;
         type BlockHashCount = BlockHashCount;
@@ -361,17 +363,20 @@ mod tests {
         type MaximumBlockLength = MaximumBlockLength;
         type MaximumBlockWeight = MaximumBlockWeight;
         type ModuleToIndex = ();
+        type OnNewAccount = ();
+        type OnReapAccount = ();
         type Origin = Origin;
         type Version = ();
     }
+    parameter_types! {
+        pub const ExistentialDeposit: u64 = 1;
+    }
     impl balances::Trait for Test {
+        type AccountStore = System;
         type Balance = u64;
-        type CreationFee = ();
         type DustRemoval = ();
         type Event = ();
-        type ExistentialDeposit = ();
-        type OnNewAccount = ();
-        type TransferPayment = ();
+        type ExistentialDeposit = ExistentialDeposit;
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;
@@ -402,7 +407,7 @@ mod tests {
         type RoamingServiceProfileUplinkRate = u32;
     }
 
-    // type System = system::Module<Test>;
+    type System = system::Module<Test>;
     type Balances = balances::Module<Test>;
     type RoamingServiceProfileModule = Module<Test>;
     type RoamingNetworkServerModule = roaming_network_servers::Module<Test>;
@@ -414,7 +419,6 @@ mod tests {
         let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
         balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60)],
-            vesting: vec![],
         }
         .assimilate_storage(&mut t)
         .unwrap();
