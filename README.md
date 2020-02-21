@@ -14,6 +14,7 @@ __WARNING__: This implementation is a proof-of-concept prototype and is not read
 * [Run multiple node PoA testnet using custom blockchain configuration](#chapter-f21efd)
 * [Linting](#chapter-c345d7)
 * [Continuous integration](#chapter-27d8c5)
+* [FAQ](#chapter-a0dda5)
 
 Note: Generate a new chapter with `openssl rand -hex 3`
 
@@ -479,3 +480,17 @@ Install an [EditorConfig Plugin](https://editorconfig.org/) for your code editor
 ## Continuous integration<a id="chapter-27d8c5"></a>
 
 * Reference: https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow
+
+## FAQ<a id="chapter-a0dda5"></a>
+
+* Question: Why do we need to install Rust Stable and Rust Nightly?
+	* Answer: In .github/workflows/rust.yml, we need to run the following,
+	becuase Substrate builds two binaries: 1) Wasm binary of your Runtime;
+	and 2) Native executable containing all your other Substrate components
+	including your runtimes too. The Wasm build requires rust nightly and
+	wasm32-unknown-unknown to be installed.
+		```bash
+		rustup update nightly
+		rustup update stable
+		rustup target add wasm32-unknown-unknown --toolchain nightly
+		```
