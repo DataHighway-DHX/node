@@ -169,7 +169,8 @@ mod tests {
         MiningSpeedBoostConfigurationHardwareMiningModule<Test>;
     pub type MiningSpeedBoostRatesHardwareMiningTestModule = MiningSpeedBoostRatesHardwareMiningModule<Test>;
     pub type MiningSpeedBoostSamplingHardwareMiningTestModule = MiningSpeedBoostSamplingHardwareMiningModule<Test>;
-    pub type MiningSpeedBoostEligibilityHardwareMiningTestModule = MiningSpeedBoostEligibilityHardwareMiningModule<Test>;
+    pub type MiningSpeedBoostEligibilityHardwareMiningTestModule =
+        MiningSpeedBoostEligibilityHardwareMiningModule<Test>;
     pub type MiningSpeedBoostClaimsHardwareMiningTestModule = MiningSpeedBoostClaimsHardwareMiningModule<Test>;
     pub type Randomness = randomness_collective_flip::Module<Test>;
 
