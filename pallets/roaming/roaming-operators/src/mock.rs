@@ -83,13 +83,13 @@ impl Trait for Test {
 	type RoamingOperatorIndex = u64;
 }
 type System = system::Module<Test>;
-type Balances = balances::Module<Test>;
-type RoamingOperatorModule = Module<Test>;
+pub type Balances = balances::Module<Test>;
+pub type RoamingOperatorModule = Module<Test>;
 type Randomness = randomness_collective_flip::Module<Test>;
 
 // This function basically just builds a genesis storage key/value store according to
 // our desired mockup.
-fn new_test_ext() -> sp_io::TestExternalities {
+pub fn new_test_ext() -> sp_io::TestExternalities {
 	let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
 	balances::GenesisConfig::<Test> {
 		balances: vec![(1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60)],
