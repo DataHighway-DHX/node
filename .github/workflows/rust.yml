@@ -27,13 +27,11 @@ jobs:
         run: |
           rustup update stable
           rustup toolchain install nightly-2020-02-17
-          rustup default nightly
+          rustup default nightly-2020-02-17
           rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
 
       - name: Run cargo check
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
+        run: cargo +nightly-2020-02-17 check
 
   test:
     name: Test Suite
@@ -59,7 +57,7 @@ jobs:
         run: |
           rustup update stable
           rustup toolchain install nightly-2020-02-17
-          rustup default nightly
+          rustup default nightly-2020-02-17
           rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
 
       # Runs integration tests in the runtime/tests folder
@@ -119,12 +117,14 @@ jobs:
           override: true
           components: rustfmt, clippy
 
+      # nightly-2020-02-17-x86_64-unknown-linux-gnu
       - name: Initialize WASM build environment
         run: |
           rustup update stable
           rustup toolchain install nightly-2020-02-17
-          rustup default nightly
+          rustup default nightly-2020-02-17
           rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
+          rustup component add rustfmt --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
 
       - name: Run cargo fmt
         run: cargo +nightly-2020-02-17 fmt --all -- --check
