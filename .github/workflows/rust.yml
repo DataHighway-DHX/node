@@ -28,7 +28,7 @@ jobs:
           rustup update stable
           rustup default nightly
           rustup toolchain install nightly-2020-02-17
-          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
+          rustup target add wasm32-unknown-unknown --toolchain nightly
 
       - name: Run cargo check
         uses: actions-rs/cargo@v1
@@ -60,7 +60,7 @@ jobs:
           rustup update stable
           rustup default nightly
           rustup toolchain install nightly-2020-02-17
-          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
+          rustup target add wasm32-unknown-unknown --toolchain nightly
 
       # Runs integration tests in the runtime/tests folder
       - name: Run Integration Tests across all runtime modules
@@ -124,7 +124,7 @@ jobs:
           rustup update stable
           rustup default nightly
           rustup toolchain install nightly-2020-02-17
-          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
+          rustup target add wasm32-unknown-unknown --toolchain nightly
 
       - name: Run cargo fmt
         run: cargo +nightly fmt --all -- --check
