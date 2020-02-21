@@ -164,18 +164,18 @@ mod tests {
     }
 
     type System = system::Module<Test>;
-    type Balances = balances::Module<Test>;
-    type MiningSpeedBoostConfigurationHardwareMiningTestModule =
+    pub type Balances = balances::Module<Test>;
+    pub type MiningSpeedBoostConfigurationHardwareMiningTestModule =
         MiningSpeedBoostConfigurationHardwareMiningModule<Test>;
-    type MiningSpeedBoostRatesHardwareMiningTestModule = MiningSpeedBoostRatesHardwareMiningModule<Test>;
-    type MiningSpeedBoostSamplingHardwareMiningTestModule = MiningSpeedBoostSamplingHardwareMiningModule<Test>;
-    type MiningSpeedBoostEligibilityHardwareMiningTestModule = MiningSpeedBoostEligibilityHardwareMiningModule<Test>;
-    type MiningSpeedBoostClaimsHardwareMiningTestModule = MiningSpeedBoostClaimsHardwareMiningModule<Test>;
-    type Randomness = randomness_collective_flip::Module<Test>;
+    pub type MiningSpeedBoostRatesHardwareMiningTestModule = MiningSpeedBoostRatesHardwareMiningModule<Test>;
+    pub type MiningSpeedBoostSamplingHardwareMiningTestModule = MiningSpeedBoostSamplingHardwareMiningModule<Test>;
+    pub type MiningSpeedBoostEligibilityHardwareMiningTestModule = MiningSpeedBoostEligibilityHardwareMiningModule<Test>;
+    pub type MiningSpeedBoostClaimsHardwareMiningTestModule = MiningSpeedBoostClaimsHardwareMiningModule<Test>;
+    pub type Randomness = randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
-    fn new_test_ext() -> sp_io::TestExternalities {
+    pub fn new_test_ext() -> sp_io::TestExternalities {
         let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
         balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30)],
