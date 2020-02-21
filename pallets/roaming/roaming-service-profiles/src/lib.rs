@@ -318,8 +318,8 @@ mod tests {
     use super::*;
 
     use frame_support::{
+        assert_noop,
         assert_ok,
-		assert_noop,
         impl_outer_origin,
         parameter_types,
         weights::Weight,
@@ -368,9 +368,9 @@ mod tests {
         type Origin = Origin;
         type Version = ();
     }
-	parameter_types! {
-		pub const ExistentialDeposit: u64 = 1;
-	}
+    parameter_types! {
+        pub const ExistentialDeposit: u64 = 1;
+    }
     impl balances::Trait for Test {
         type AccountStore = System;
         type Balance = u64;

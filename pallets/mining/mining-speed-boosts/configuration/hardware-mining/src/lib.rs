@@ -449,9 +449,9 @@ mod tests {
         type Origin = Origin;
         type Version = ();
     }
-	parameter_types! {
-		pub const ExistentialDeposit: u64 = 1;
-	}
+    parameter_types! {
+        pub const ExistentialDeposit: u64 = 1;
+    }
     impl balances::Trait for Test {
         type AccountStore = System;
         type Balance = u64;
