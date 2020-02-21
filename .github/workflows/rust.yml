@@ -25,9 +25,10 @@ jobs:
 
       - name: Initialize WASM build environment
         run: |
-          rustup toolchain install nightly-2020-02-17
           rustup update stable
-          rustup target add wasm32-unknown-unknown --toolchain nightly
+          rustup default nightly
+          rustup toolchain install nightly-2020-02-17
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
 
       - name: Run cargo check
         uses: actions-rs/cargo@v1
@@ -56,43 +57,44 @@ jobs:
 
       - name: Initialize WASM build environment
         run: |
-          rustup toolchain install nightly-2020-02-17
-          rustup update stable
-          rustup target add wasm32-unknown-unknown --toolchain nightly
+        rustup update stable
+        rustup default nightly
+        rustup toolchain install nightly-2020-02-17
+        rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
 
       # Runs integration tests in the runtime/tests folder
       - name: Run Integration Tests across all runtime modules
         run: |
-          cargo test -p node-runtime
+          cargo +nightly test -p node-runtime
 
       # Runs unit tests in each runtime module of the pallet folder
       - name: Run Unit Tests in each runtime module
         run: |
-          cargo test -p roaming-operators &&
-          cargo test -p roaming-networks &&
-          cargo test -p roaming-organizations &&
-          cargo test -p roaming-network-servers &&
-          cargo test -p roaming-devices &&
-          cargo test -p roaming-routing-profiles &&
-          cargo test -p roaming-service-profiles &&
-          cargo test -p roaming-accounting-policies &&
-          cargo test -p roaming-agreement-policies &&
-          cargo test -p roaming-network-profiles &&
-          cargo test -p roaming-device-profiles &&
-          cargo test -p roaming-sessions &&
-          cargo test -p roaming-billing-policies &&
-          cargo test -p roaming-charging-policies &&
-          cargo test -p roaming-packet-bundles &&
-          cargo test -p mining-speed-boosts-configuration-token-mining &&
-          cargo test -p mining-speed-boosts-configuration-hardware-mining &&
-          cargo test -p mining-speed-boosts-rates-token-mining &&
-          cargo test -p mining-speed-boosts-rates-hardware-mining &&
-          cargo test -p mining-speed-boosts-sampling-token-mining &&
-          cargo test -p mining-speed-boosts-sampling-hardware-mining &&
-          cargo test -p mining-speed-boosts-eligibility-token-mining &&
-          cargo test -p mining-speed-boosts-eligibility-hardware-mining &&
-          cargo test -p mining-speed-boosts-claims-token-mining &&
-          cargo test -p mining-speed-boosts-claims-hardware-mining
+          cargo +nightly test -p roaming-operators &&
+          cargo +nightly test -p roaming-networks &&
+          cargo +nightly test -p roaming-organizations &&
+          cargo +nightly test -p roaming-network-servers &&
+          cargo +nightly test -p roaming-devices &&
+          cargo +nightly test -p roaming-routing-profiles &&
+          cargo +nightly test -p roaming-service-profiles &&
+          cargo +nightly test -p roaming-accounting-policies &&
+          cargo +nightly test -p roaming-agreement-policies &&
+          cargo +nightly test -p roaming-network-profiles &&
+          cargo +nightly test -p roaming-device-profiles &&
+          cargo +nightly test -p roaming-sessions &&
+          cargo +nightly test -p roaming-billing-policies &&
+          cargo +nightly test -p roaming-charging-policies &&
+          cargo +nightly test -p roaming-packet-bundles &&
+          cargo +nightly test -p mining-speed-boosts-configuration-token-mining &&
+          cargo +nightly test -p mining-speed-boosts-configuration-hardware-mining &&
+          cargo +nightly test -p mining-speed-boosts-rates-token-mining &&
+          cargo +nightly test -p mining-speed-boosts-rates-hardware-mining &&
+          cargo +nightly test -p mining-speed-boosts-sampling-token-mining &&
+          cargo +nightly test -p mining-speed-boosts-sampling-hardware-mining &&
+          cargo +nightly test -p mining-speed-boosts-eligibility-token-mining &&
+          cargo +nightly test -p mining-speed-boosts-eligibility-hardware-mining &&
+          cargo +nightly test -p mining-speed-boosts-claims-token-mining &&
+          cargo +nightly test -p mining-speed-boosts-claims-hardware-mining
 
   lints:
     name: Lints
@@ -119,9 +121,10 @@ jobs:
 
       - name: Initialize WASM build environment
         run: |
-          rustup toolchain install nightly-2020-02-17
           rustup update stable
-          rustup target add wasm32-unknown-unknown --toolchain nightly
+          rustup default nightly
+          rustup toolchain install nightly-2020-02-17
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
 
       - name: Run cargo fmt
         run: cargo +nightly fmt --all -- --check
