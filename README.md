@@ -319,6 +319,13 @@ cargo test -p mining-speed-boosts-claims-hardware-mining
 cargo test -p node-runtime
 ```
 
+#### Specific Integration Tests
+
+Example
+```
+cargo test -p node-runtime --test cli_integration_tests_mining_tokens
+```
+
 ### Check
 
 ```

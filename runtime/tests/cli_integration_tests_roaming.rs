@@ -133,13 +133,16 @@ mod tests {
         type OnReapAccount = ();
         type Origin = Origin;
         type Version = ();
-    }
+	}
+	parameter_types! {
+		pub const ExistentialDeposit: u64 = 1;
+	}
     impl balances::Trait for Test {
         type AccountStore = System;
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();
-        type ExistentialDeposit = ();
+        type ExistentialDeposit = ExistentialDeposit;
     }
     impl transaction_payment::Trait for Test {
         type Currency = Balances;
