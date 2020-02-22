@@ -1,4 +1,4 @@
-# Data Highway [![GitHub license](https://img.shields.io/github/license/paritytech/substrate)](LICENSE) [![Build Status](https://travis-ci.org/DataHighway-com/node.svg?branch=master)](https://travis-ci.org/DataHighway-com/node)
+# Data Highway [![GitHub license](https://img.shields.io/github/license/paritytech/substrate)](LICENSE) <a href="https://github.com/DataHighway-DHX/node/actions?query=workflow%3ACI+branch%3Adevelop" target="_blank"><img src="https://github.com/DataHighway-DHX/node/workflows/CI/badge.svg?branch=develop"></a>
 
 The Data Highway Substrate-based blockchain node.
 
@@ -6,14 +6,23 @@ __WARNING__: This implementation is a proof-of-concept prototype and is not read
 
 # Table of contents
 
+* [Contributing](#chapter-cb8b82)
 * [Build and run blockchain](#chapter-5f0881)
 * [Interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
 * [Maintain dependencies, rebuild, and add new runtime modules](#chapter-e16e68)
 * [Debugging](#chapter-93c645)
 * [Create custom blockchain configuration](#chapter-b1b53c)
 * [Run multiple node PoA testnet using custom blockchain configuration](#chapter-f21efd)
+* [Linting](#chapter-c345d7)
 
 Note: Generate a new chapter with `openssl rand -hex 3`
+
+## Contributing <a id="chapter-cb8b82"></a>
+
+Refer to [CONTRIBUTING.md] for contributing instructions, including:
+* Pull Requests
+* FAQ
+* Continuous Integration
 
 ## Build and run blockchain <a id="chapter-5f0881"></a>
 
@@ -158,6 +167,103 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
     "packet_bundle_received_ended_at": "Moment",
     "packet_bundle_external_data_storage_hash": "Hash"
   },
+  "MiningSpeedBoostRateTokenMining": "[u8; 16]",
+  "MiningSpeedBoostRatesTokenMiningIndex": "u64",
+  "MiningSpeedBoostRatesTokenMiningTokenMXC": "u32",
+  "MiningSpeedBoostRatesTokenMiningTokenIOTA": "u32",
+  "MiningSpeedBoostRatesTokenMiningMaxToken": "u32",
+  "MiningSpeedBoostRatesTokenMiningMaxLoyalty": "u32",
+  "MiningSpeedBoostRateHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostRatesHardwareMiningIndex": "u64",
+  "MiningSpeedBoostRatesHardwareMiningHardwareSecure": "u32",
+  "MiningSpeedBoostRatesHardwareMiningHardwareInsecure": "u32",
+  "MiningSpeedBoostRatesHardwareMiningMaxHardware": "u32",
+  "MiningSpeedBoostConfigurationTokenMining": "[u8; 16]",
+  "MiningSpeedBoostConfigurationTokenMiningIndex": "u64",
+  "MiningSpeedBoostConfigurationTokenMiningTokenType": "Text";
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount": "u64",
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod": "u32",
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate": "u64",
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate": "u64",
+  "MiningSpeedBoostConfigurationTokenMiningTokenConfig": {
+    "token_type": "Text",
+    "token_locked_amount": "u64",
+    "token_lock_period": "u32",
+    "token_lock_period_start_date": "Moment",
+    "token_lock_period_end_date": "Moment"
+  },
+  "MiningSpeedBoostConfigurationHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostConfigurationHardwareMiningIndex": "u64",
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareSecure": "bool";
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareType": "Text";
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareID": "u64",
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI": "u64",
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate": "u64",
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate": "u64",
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareConfig": {
+    "hardware_secure": "bool",
+    "hardware_type": "Text",
+    "hardware_id": "u64",
+    "hardware_dev_eui": "u64",
+    "hardware_lock_period_start_date": "Moment",
+    "hardware_lock_period_end_date": "Moment"
+  },
+  "MiningSpeedBoostSamplingTokenMining": "[u8; 16]",
+  "MiningSpeedBoostSamplingTokenMiningIndex": "u64",
+  "MiningSpeedBoostSamplingTokenMiningSampleDate": "u64",
+  "MiningSpeedBoostSamplingTokenMiningSampleTokensLocked": "u64",
+  "MiningSpeedBoostSamplingTokenMiningSamplingConfig": {
+    "token_sample_date": "Moment",
+    "token_sample_tokens_locked": "u64",
+  },
+  "MiningSpeedBoostSamplingHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostSamplingHardwareMiningIndex": "u64",
+  "MiningSpeedBoostSamplingHardwareMiningSampleDate": "u64",
+  "MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline": "u64",
+  "MiningSpeedBoostSamplingHardwareMiningSamplingConfig": {
+    "hardware_sample_date": "Moment",
+    "hardware_sample_hardware_online": "bool",
+  },
+  "MiningSpeedBoostEligibilityTokenMining": "[u8; 16]",
+  "MiningSpeedBoostEligibilityTokenMiningIndex": "u64",
+  "MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility": "u64",
+  "MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage": "u32",
+  "MiningSpeedBoostEligibilityTokenMiningDateAudited": "u64",
+  "MiningSpeedBoostEligibilityTokenMiningAuditorAccountID": "u64",
+  "MiningSpeedBoostEligibilityTokenMiningEligibilityResult": {
+    "token_calculated_eligibility": "u64",
+    "token_token_locked_percentage": "u32",
+    "token_date_audited": "u64",
+    "token_auditor_account_id": "u64",
+  },
+  "MiningSpeedBoostEligibilityHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostEligibilityHardwareMiningIndex": "u64",
+  "MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility": "u64",
+  "MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage": "u32",
+  "MiningSpeedBoostEligibilityHardwareMiningDateAudited": "u64",
+  "MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID": "u64",
+  "MiningSpeedBoostEligibilityHardwareMiningEligibilityResult": {
+    "hardware_calculated_eligibility": "u64",
+    "hardware_hardware_uptime_percentage": "u32",
+    "hardware_date_audited": "u64",
+    "hardware_auditor_account_id": "u64",
+  },
+  "MiningSpeedBoostClaimsTokenMining": "[u8; 16]",
+  "MiningSpeedBoostClaimsTokenMiningIndex": "u64",
+  "MiningSpeedBoostClaimsTokenMiningClaimAmount": "u64",
+  "MiningSpeedBoostClaimsTokenMiningClaimDateRedeemed": "u64",
+  "MiningSpeedBoostClaimsTokenMiningClaimResult": {
+    "token_claim_amount": "u64",
+    "token_date_redeemed": "u64",
+  },
+  "MiningSpeedBoostClaimsHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostClaimsHardwareMiningIndex": "u64",
+  "MiningSpeedBoostClaimsHardwareMiningClaimAmount": "u64",
+  "MiningSpeedBoostClaimsHardwareMiningClaimDateRedeemed": "u64",
+  "MiningSpeedBoostClaimsHardwareMiningClaimResult": {
+    "hardware_claim_amount": "u64",
+    "hardware_date_redeemed": "u64",
+  },
 }
 ```
 
@@ -201,13 +307,30 @@ cargo test -p roaming-device-profiles &&
 cargo test -p roaming-sessions &&
 cargo test -p roaming-billing-policies &&
 cargo test -p roaming-charging-policies &&
-cargo test -p roaming-packet-bundles
+cargo test -p roaming-packet-bundles &&
+cargo test -p mining-speed-boosts-configuration-token-mining &&
+cargo test -p mining-speed-boosts-configuration-hardware-mining &&
+cargo test -p mining-speed-boosts-rates-token-mining &&
+cargo test -p mining-speed-boosts-rates-hardware-mining &&
+cargo test -p mining-speed-boosts-sampling-token-mining &&
+cargo test -p mining-speed-boosts-sampling-hardware-mining &&
+cargo test -p mining-speed-boosts-eligibility-token-mining &&
+cargo test -p mining-speed-boosts-eligibility-hardware-mining &&
+cargo test -p mining-speed-boosts-claims-token-mining &&
+cargo test -p mining-speed-boosts-claims-hardware-mining
 ```
 
 ## Integration Tests
 
 ```
 cargo test -p node-runtime
+```
+
+#### Specific Integration Tests
+
+Example
+```
+cargo test -p node-runtime --test cli_integration_tests_mining_tokens
 ```
 
 ### Check
@@ -293,7 +416,7 @@ mkdir -p ./src/chain-definition-custom
   * Use default accounts Alice and Bob as the two initial authorities of the genesis configuration that have been endowed with testnet units that will run validator nodes
   * Multiple authority nodes using the Aura consensus to produce blocks
 
-Terminal 1: Alice's Substrate-based node on default TCP port 30333 with her chain database stored locally at `/tmp/polkadot-chains/alice` and where the bootnode ID of her node is `Local node identity is: QmZ5kgdoLCx3Qfy8nJAiP1U9i6iY3qeiDNSCdHmHRJtSnF` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey -e inspect //Alice`, alternatively you could provide the private key to that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`. 
+Terminal 1: Alice's Substrate-based node on default TCP port 30333 with her chain database stored locally at `/tmp/polkadot-chains/alice` and where the bootnode ID of her node is `Local node identity is: QmZ5kgdoLCx3Qfy8nJAiP1U9i6iY3qeiDNSCdHmHRJtSnF` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey -e inspect //Alice`, alternatively you could provide the private key to that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`.
 If you explicitly specify a `--node-key` when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chainspec.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/node:
 
 ```bash
@@ -324,3 +447,38 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
 * Distribute the custom chain specification to allow others to synchronise and validate if they are an authority
 
 * Add session keys for other account(s) to be configured as authorities (validators)
+
+## Linting<a id="chapter-c345d7"></a>
+
+### Rust Format
+
+[RustFmt](https://github.com/rust-lang/rustfmt) should be used for styling Rust code.
+The styles are defined in the rustfmt.toml configuration file, which was generated by running `rustfmt --print-config default rustfmt.toml` and making some custom tweaks according to https://rust-lang.github.io/rustfmt/
+
+### Install RustFmt
+
+```bash
+rustup component add rustfmt --toolchain nightly
+```
+
+### Check Formating Changes that RustFmt before applying them
+
+Check that you agree with all the formating changes that RustFmt will apply to identify anything that you do not agree with.
+
+```bash
+cargo +nightly fmt --all -- --check
+```
+
+### Apply Formating Changes
+
+```bash
+cargo +nightly fmt --all
+```
+
+### Add Vertical Rulers in VS Code
+
+Add the following to settings.json `"editor.rulers": [80,120]`, as recommended here https://stackoverflow.com/a/45951311/3208553
+
+### EditorConfig
+
+Install an [EditorConfig Plugin](https://editorconfig.org/) for your code editor to detect and apply the configuration in .editorconfig.

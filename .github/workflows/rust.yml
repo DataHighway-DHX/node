@@ -1,57 +1,142 @@
 name: CI
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
-
-  lint:
-    name: Lint
+  check:
+    name: Check
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the source code
+      - name: Checkout sources
         uses: actions/checkout@master
 
-      - name: Install Rust stable
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+
+      - name: Initialize WASM build environment
         run: |
-          rustup toolchain update --no-self-update stable
-          rustup default stable
-          rustup component add clippy rustfmt
+          rustup update stable
+          rustup toolchain install nightly-2020-02-17
+          rustup default nightly-2020-02-17
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
 
-      - name: Run rustfmt
-        run: cargo fmt -- --check
-
-      - name: Run clippy
-        run: cargo clippy --all --all-features --
+      - name: Run cargo check
+        run: cargo +nightly-2020-02-17 check
 
   test:
-    name: Test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        cargo_flags:
-          - ""
-          - "--all-features"
-        include:
-          # Integration tests are disabled on Windows as they take *way* too
-          # long to pull the Docker image
-          - os: windows-latest
-            test_flags: --skip buildtest --skip integration
+    name: Test Suite
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout the source code
+      - name: Checkout sources
         uses: actions/checkout@master
 
-      - name: Install Rust stable
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+
+      - name: Initialize WASM build environment
         run: |
-          rustup toolchain update --no-self-update stable
-          rustup default stable
+          rustup update stable
+          rustup toolchain install nightly-2020-02-17
+          rustup default nightly-2020-02-17
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
 
-      - name: Build rustwide
-        run: 
-          cargo update
-          cargo build --all ${{ matrix.cargo_flags }}
+      # Runs integration tests in the runtime/tests folder
+      - name: Run Integration Tests across all runtime modules
+        run: |
+          cargo +nightly-2020-02-17 test -p node-runtime
 
-      - name: Test rustwide
-        run: 
-          cargo update
-          cargo test --all ${{ matrix.cargo_flags }} -- ${{ matrix.test_flags }}
+      # Runs unit tests in each runtime module of the pallet folder
+      - name: Run Unit Tests in each runtime module
+        run: |
+          cargo +nightly-2020-02-17 test -p roaming-operators &&
+          cargo +nightly-2020-02-17 test -p roaming-networks &&
+          cargo +nightly-2020-02-17 test -p roaming-organizations &&
+          cargo +nightly-2020-02-17 test -p roaming-network-servers &&
+          cargo +nightly-2020-02-17 test -p roaming-devices &&
+          cargo +nightly-2020-02-17 test -p roaming-routing-profiles &&
+          cargo +nightly-2020-02-17 test -p roaming-service-profiles &&
+          cargo +nightly-2020-02-17 test -p roaming-accounting-policies &&
+          cargo +nightly-2020-02-17 test -p roaming-agreement-policies &&
+          cargo +nightly-2020-02-17 test -p roaming-network-profiles &&
+          cargo +nightly-2020-02-17 test -p roaming-device-profiles &&
+          cargo +nightly-2020-02-17 test -p roaming-sessions &&
+          cargo +nightly-2020-02-17 test -p roaming-billing-policies &&
+          cargo +nightly-2020-02-17 test -p roaming-charging-policies &&
+          cargo +nightly-2020-02-17 test -p roaming-packet-bundles &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-configuration-token-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-configuration-hardware-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-rates-token-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-rates-hardware-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-sampling-token-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-sampling-hardware-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-eligibility-token-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-eligibility-hardware-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-claims-token-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-claims-hardware-mining
+
+  lints:
+    name: Lints
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@master
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+
+      - name: Install nightly toolchain for rustfmt
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
+
+      # nightly-2020-02-17-x86_64-unknown-linux-gnu
+      - name: Initialize WASM build environment
+        run: |
+          rustup update stable
+          rustup toolchain install nightly-2020-02-17
+          rustup default nightly-2020-02-17
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
+
+      - name: Run cargo fmt
+        run: |
+          rustup component add rustfmt --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
+          cargo +nightly-2020-02-17 fmt --all -- --check
+
+      - name: Run cargo clippy
+        # uses: actions-rs/cargo@v1
+        # with:
+        #   command: clippy
+        #   args:  --release -- -D warnings
+        # FIXME - temporary fix below. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
+        run: |
+          rustup component add clippy --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
+          rustup component add clippy-preview --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
+          cargo +nightly-2020-02-17 clippy-preview -Zunstable-options
