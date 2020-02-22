@@ -1,4 +1,4 @@
-# Data Highway [![GitHub license](https://img.shields.io/github/license/paritytech/substrate)](LICENSE) <a href="https://github.com/DataHighway-DHX/node/actions?query=workflow%3ACI+branch%3Amaster" target="_blank"><img src="https://github.com/DataHighway-DHX/node/workflows/CI/badge.svg?branch=master"></a>
+# Data Highway [![GitHub license](https://img.shields.io/github/license/paritytech/substrate)](LICENSE) <a href="https://github.com/DataHighway-DHX/node/actions?query=workflow%3ACI+branch%3Adevelop" target="_blank"><img src="https://github.com/DataHighway-DHX/node/workflows/CI/badge.svg?branch=develop"></a>
 
 The Data Highway Substrate-based blockchain node.
 
@@ -6,6 +6,7 @@ __WARNING__: This implementation is a proof-of-concept prototype and is not read
 
 # Table of contents
 
+* [Contributing](#chapter-cb8b82)
 * [Build and run blockchain](#chapter-5f0881)
 * [Interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
 * [Maintain dependencies, rebuild, and add new runtime modules](#chapter-e16e68)
@@ -13,10 +14,15 @@ __WARNING__: This implementation is a proof-of-concept prototype and is not read
 * [Create custom blockchain configuration](#chapter-b1b53c)
 * [Run multiple node PoA testnet using custom blockchain configuration](#chapter-f21efd)
 * [Linting](#chapter-c345d7)
-* [Continuous integration](#chapter-27d8c5)
-* [FAQ](#chapter-a0dda5)
 
 Note: Generate a new chapter with `openssl rand -hex 3`
+
+## Contributing <a id="chapter-cb8b82"></a>
+
+Refer to [CONTRIBUTING.md] for contributing instructions, including:
+* Pull Requests
+* FAQ
+* Continuous Integration
 
 ## Build and run blockchain <a id="chapter-5f0881"></a>
 
@@ -476,33 +482,3 @@ Add the following to settings.json `"editor.rulers": [80,120]`, as recommended h
 ### EditorConfig
 
 Install an [EditorConfig Plugin](https://editorconfig.org/) for your code editor to detect and apply the configuration in .editorconfig.
-
-## Continuous integration<a id="chapter-27d8c5"></a>
-
-* Reference: https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow
-
-## FAQ<a id="chapter-a0dda5"></a>
-
-* Question: Why do we need to install Rust Stable and Rust Nightly?
-	* Answer: In .github/workflows/rust.yml, we need to run the following,
-	because Substrate builds two binaries: 1) Wasm binary of your Runtime;
-	and 2) Native executable containing all your other Substrate components
-	including your runtimes too. The Wasm build requires rust nightly and
-	wasm32-unknown-unknown to be installed. Note that we do not use
-	`rustup update nightly` since the latest Rust Nightly may break our build,
-	so we must manually change this to the latest Rust Nightly version only
-	when it is known to work.
-		```bash
-		rustup toolchain install nightly-2020-02-17
-		rustup update stable
-		rustup target add wasm32-unknown-unknown --toolchain nightly
-		```
-
-* Question: Why do we install a specific version of Rust Nightly in the CI?
-	* Answer: Since the latest version of Rust Nightly may break our build,
-	and because developers may forget to update to the latest version of Rust
-	Nightly locally. So the solution is to install a specific version of
-	Rust Nightly in .github/workflows/rust.yml (i.e.
-	`rustup toolchain install nightly-2020-02-17`), since for example
-	the latest Rust Nightly version nightly-2020-02-20 may cause our CI tests
-	to fail (i.e. https://github.com/DataHighway-DHX/node/issues/32)
