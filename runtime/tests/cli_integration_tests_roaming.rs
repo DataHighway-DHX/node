@@ -224,25 +224,25 @@ mod tests {
     }
 
     type System = system::Module<Test>;
-    type Balances = balances::Module<Test>;
-    type RoamingOperatorTestModule = RoamingOperatorModule<Test>;
-    type RoamingNetworkTestModule = RoamingNetworkModule<Test>;
-    type RoamingOrganizationTestModule = RoamingOrganizationModule<Test>;
-    type RoamingNetworkServerTestModule = RoamingNetworkServerModule<Test>;
-    type RoamingAgreementPolicyTestModule = RoamingAgreementPolicyModule<Test>;
-    type RoamingAccountingPolicyTestModule = RoamingAccountingPolicyModule<Test>;
-    type RoamingRoutingProfileTestModule = RoamingRoutingProfileModule<Test>;
-    type RoamingDeviceTestModule = RoamingDeviceModule<Test>;
-    type RoamingServiceProfileTestModule = RoamingServiceProfileModule<Test>;
-    type RoamingBillingPolicyTestModule = RoamingBillingPolicyModule<Test>;
-    type RoamingChargingPolicyTestModule = RoamingChargingPolicyModule<Test>;
-    type RoamingNetworkProfileTestModule = RoamingNetworkProfileModule<Test>;
-    type RoamingDeviceProfileTestModule = RoamingDeviceProfileModule<Test>;
+    pub type Balances = balances::Module<Test>;
+    pub type RoamingOperatorTestModule = RoamingOperatorModule<Test>;
+    pub type RoamingNetworkTestModule = RoamingNetworkModule<Test>;
+    pub type RoamingOrganizationTestModule = RoamingOrganizationModule<Test>;
+    pub type RoamingNetworkServerTestModule = RoamingNetworkServerModule<Test>;
+    pub type RoamingAgreementPolicyTestModule = RoamingAgreementPolicyModule<Test>;
+    pub type RoamingAccountingPolicyTestModule = RoamingAccountingPolicyModule<Test>;
+    pub type RoamingRoutingProfileTestModule = RoamingRoutingProfileModule<Test>;
+    pub type RoamingDeviceTestModule = RoamingDeviceModule<Test>;
+    pub type RoamingServiceProfileTestModule = RoamingServiceProfileModule<Test>;
+    pub type RoamingBillingPolicyTestModule = RoamingBillingPolicyModule<Test>;
+    pub type RoamingChargingPolicyTestModule = RoamingChargingPolicyModule<Test>;
+    pub type RoamingNetworkProfileTestModule = RoamingNetworkProfileModule<Test>;
+    pub type RoamingDeviceProfileTestModule = RoamingDeviceProfileModule<Test>;
     type Randomness = randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
-    fn new_test_ext() -> sp_io::TestExternalities {
+    pub fn new_test_ext() -> sp_io::TestExternalities {
         let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
         balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30)],
