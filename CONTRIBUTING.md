@@ -7,6 +7,8 @@ All Pull Requests should first be made into the 'develop' branch, since the Gith
 Github Actions are used for Continuous Integration.
 View the latest [CI Build Status](https://github.com/DataHighway-DHX/node/actions?query=workflow%3ACI+branch%3Adevelop) of the 'develop' branch, from which all Pull Requests are made into the 'master' branch.
 
+Note: We do not watch Pull Requests from the 'master' branch, as they would come from Forked repos.
+
 Reference: https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow
 
 ## FAQ
