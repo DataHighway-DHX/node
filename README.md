@@ -7,6 +7,7 @@ __WARNING__: This implementation is a proof-of-concept prototype and is not read
 # Table of contents
 
 * [Contributing](#chapter-cb8b82)
+* [Documentation](#chapter-888ccd)
 * [Build and run blockchain](#chapter-5f0881)
 * [Interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
 * [Maintain dependencies, rebuild, and add new runtime modules](#chapter-e16e68)
@@ -19,10 +20,14 @@ Note: Generate a new chapter with `openssl rand -hex 3`
 
 ## Contributing <a id="chapter-cb8b82"></a>
 
-Refer to [CONTRIBUTING.md] for contributing instructions, including:
+Refer to [CONTRIBUTING.md](./CONTRIBUTING.md) for contributing instructions, including:
 * Pull Requests
 * FAQ
 * Continuous Integration
+
+## Documentation <a id="chapter-888ccd"></a>
+
+Refer to the [DataHighway Developer Hub](https://github.com/DataHighway-DHX/documentation).
 
 ## Build and run blockchain <a id="chapter-5f0881"></a>
 
