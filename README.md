@@ -359,6 +359,8 @@ https://www.youtube.com/watch?v=0aTnxHrV_j4&list=PLOyWqupZ-WGt3mA_d9wu74vVe0bM37
 
 ### Simple Debugging
 
+**TODO** - Replace with use of log::debug with native::debug. See https://github.com/DataHighway-DHX/node/issues/41
+
 * Add to Cargo.toml of runtime module:
 ```yaml
 ...
@@ -390,7 +392,7 @@ RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/node ...
 ```bash
 mkdir -p ./src/chain-spec-templates
 ./target/release/node build-spec \
-  --chain=local > ./src/chain-spec-templates/chainspec_latest.json
+  --chain=local > ./src/chain-spec-templates/chainspec_testnet_poa_local_v0.1.0.json
 ```
 
 * Create template chain specification from default local chain
@@ -403,15 +405,15 @@ mkdir -p ./src/chain-spec-templates
 
 * Edit chain specification according to cryptocurrency design requirements
 
-* Edit WebAssembly code blob with latest chain changes by copying the "code" section from chainspec_latest.json and pasting it into the "code" field of chainspec_dh.json
+* Edit WebAssembly code blob with latest chain changes by copying the "code" section from chainspec_latest.json and pasting it into the "code" field of chainspec_testnet_poa_local_v0.1.0.json
 
 * Build "raw" chain definition for the new chain
 
 ```bash
 mkdir -p ./src/chain-definition-custom
 ./target/release/node build-spec \
-  --chain ./src/chain-spec-templates/chainspec_dh.json \
-  --raw > ./src/chain-definition-custom/chain.json
+  --chain ./src/chain-spec-templates/chainspec_testnet_poa_local_v0.1.0.json \
+  --raw > ./src/chain-definition-custom/chaindef_testnet_poa_local_v0.1.0.json
 ```
 
 ## Run multiple node PoA testnet using custom blockchain configuration <a id="chapter-f21efd"></a>
@@ -421,16 +423,15 @@ mkdir -p ./src/chain-definition-custom
   * Use default accounts Alice and Bob as the two initial authorities of the genesis configuration that have been endowed with testnet units that will run validator nodes
   * Multiple authority nodes using the Aura consensus to produce blocks
 
-Terminal 1: Alice's Substrate-based node on default TCP port 30333 with her chain database stored locally at `/tmp/polkadot-chains/alice` and where the bootnode ID of her node is `Local node identity is: QmZ5kgdoLCx3Qfy8nJAiP1U9i6iY3qeiDNSCdHmHRJtSnF` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey -e inspect //Alice`, alternatively you could provide the private key to that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`.
+Terminal 1: Alice's Substrate-based node on default TCP port 30333 with her chain database stored locally at `/tmp/polkadot-chains/alice` and where the bootnode ID of her node is `Local node identity is: QmRBstyt3VCF1ZShsiR62kPLwAG6R3n5XmdaDktYojTHtg` (peer id) and account id `5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY`, which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey -e inspect //Alice`, alternatively you could provide the private key to that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`.
 If you explicitly specify a `--node-key` when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chainspec.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/node:
 
 ```bash
 ./target/release/node --validator \
   --base-path /tmp/polkadot-chains/alice \
   --keystore-path "/tmp/polkadot-chains/alice/keys" \
-  --chain ./src/chain-definition-custom/chain.json \
-  --key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice" \
-  --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee \
+  --chain ./src/chain-definition-custom/chaindef_testnet_poa_local_v0.1.0.json \
+  --alice \
   --port 30333 \
   --telemetry-url ws://telemetry.polkadot.io:1024
 ```
@@ -440,16 +441,16 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
 ```bash
 ./target/release/node --validator \
   --base-path /tmp/polkadot-chains/bob \
-  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmZ5kgdoLCx3Qfy8nJAiP1U9i6iY3qeiDNSCdHmHRJtSnF \
-  --chain ./src/chain-definition-custom/chain.json \
+  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmRBstyt3VCF1ZShsiR62kPLwAG6R3n5XmdaDktYojTHtg \
+  --chain ./src/chain-definition-custom/chaindef_testnet_poa_local_v0.1.0.json \
   --bob \
   --port 30334 \
   --telemetry-url ws://telemetry.polkadot.io:1024
 ```
 
-* View on [Polkadot Telemetry](https://telemetry.polkadot.io/#list/My%20Testnet)
+* View on [Polkadot Telemetry](https://telemetry.polkadot.io/#list/DataHighway%20Local%20PoA%20Testnet%20v0.1.0)
 
-* Distribute the custom chain specification to allow others to synchronise and validate if they are an authority
+* Distribute the custom chain definition (i.e. chaindef_testnet_poa_local_v0.1.0.json) to allow others to synchronise and validate if they are an authority
 
 * Add session keys for other account(s) to be configured as authorities (validators)
 
