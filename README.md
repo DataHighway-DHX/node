@@ -392,7 +392,7 @@ RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/node ...
 ```bash
 mkdir -p ./src/chain-spec-templates
 ./target/release/node build-spec \
-  --chain=local > ./src/chain-spec-templates/chainspec_testnet_poa_local_v0.1.0.json
+  --chain=local > ./src/chain-spec-templates/chainspec_testnet_poa_v0.1.0.json
 ```
 
 * Create template chain specification from default local chain
@@ -405,15 +405,15 @@ mkdir -p ./src/chain-spec-templates
 
 * Edit chain specification according to cryptocurrency design requirements
 
-* Edit WebAssembly code blob with latest chain changes by copying the "code" section from chainspec_latest.json and pasting it into the "code" field of chainspec_testnet_poa_local_v0.1.0.json
+* Edit WebAssembly code blob with latest chain changes by copying the "code" section from chainspec_latest.json and pasting it into the "code" field of chainspec_testnet_poa_v0.1.0.json
 
 * Build "raw" chain definition for the new chain
 
 ```bash
 mkdir -p ./src/chain-definition-custom
 ./target/release/node build-spec \
-  --chain ./src/chain-spec-templates/chainspec_testnet_poa_local_v0.1.0.json \
-  --raw > ./src/chain-definition-custom/chaindef_testnet_poa_local_v0.1.0.json
+  --chain ./src/chain-spec-templates/chainspec_testnet_poa_v0.1.0.json \
+  --raw > ./src/chain-definition-custom/chaindef_testnet_poa_v0.1.0.json
 ```
 
 ## Run multiple node PoA testnet using custom blockchain configuration <a id="chapter-f21efd"></a>
@@ -430,7 +430,7 @@ If you explicitly specify a `--node-key` when you start your validator node, the
 ./target/release/node --validator \
   --base-path /tmp/polkadot-chains/alice \
   --keystore-path "/tmp/polkadot-chains/alice/keys" \
-  --chain ./src/chain-definition-custom/chaindef_testnet_poa_local_v0.1.0.json \
+  --chain ./src/chain-definition-custom/chaindef_testnet_poa_v0.1.0.json \
   --alice \
   --port 30333 \
   --telemetry-url ws://telemetry.polkadot.io:1024
@@ -442,7 +442,7 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
 ./target/release/node --validator \
   --base-path /tmp/polkadot-chains/bob \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmRBstyt3VCF1ZShsiR62kPLwAG6R3n5XmdaDktYojTHtg \
-  --chain ./src/chain-definition-custom/chaindef_testnet_poa_local_v0.1.0.json \
+  --chain ./src/chain-definition-custom/chaindef_testnet_poa_v0.1.0.json \
   --bob \
   --port 30334 \
   --telemetry-url ws://telemetry.polkadot.io:1024
@@ -450,7 +450,7 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
 
 * View on [Polkadot Telemetry](https://telemetry.polkadot.io/#list/DataHighway%20Local%20PoA%20Testnet%20v0.1.0)
 
-* Distribute the custom chain definition (i.e. chaindef_testnet_poa_local_v0.1.0.json) to allow others to synchronise and validate if they are an authority
+* Distribute the custom chain definition (i.e. chaindef_testnet_poa_v0.1.0.json) to allow others to synchronise and validate if they are an authority
 
 * Add session keys for other account(s) to be configured as authorities (validators)
 

@@ -1,6 +1,6 @@
 {
-  "name": "DataHighway Testnet PoA Local v0.1.0",
-  "id": "datahighway_testnet_poa_local_v0.1.0",
+  "name": "DataHighway Testnet PoA v0.1.0",
+  "id": "datahighway_testnet_poa_v0.1.0",
   "bootNodes": [
     "/ip4/127.0.0.1/tcp/30333/p2p/QmRBstyt3VCF1ZShsiR62kPLwAG6R3n5XmdaDktYojTHtg"
   ],
