@@ -48,13 +48,13 @@ cargo build --release
 * Remove all existing blockchain testnet database and keys
 
 ```bash
-./target/release/node purge-chain --dev --base-path /tmp/polkadot-chains/alice
+./target/release/datahighway purge-chain --dev --base-path /tmp/polkadot-chains/alice
 ```
 
 * Connect to development testnet (`--chain development`)
 
 ```bash
-./target/release/node \
+./target/release/datahighway \
   --base-path /tmp/polkadot-chains/alice \
   --name "Data Highway Testnet" \
   --dev \
@@ -290,14 +290,14 @@ curl https://getsubstrate.io -sSf | bash && \
 ### Re-build runtime after purge chain database of all blocks.
 
 ```bash
-./target/release/node purge-chain --dev
+./target/release/datahighway purge-chain --dev
 cargo build --release
 ```
 
 ### All Tests
 
 ```bash
-cargo test -p node-runtime &&
+cargo test -p datahighway-runtime &&
 cargo test -p roaming-operators &&
 cargo test -p roaming-networks &&
 cargo test -p roaming-organizations &&
@@ -328,14 +328,14 @@ cargo test -p mining-speed-boosts-claims-hardware-mining
 ## Integration Tests
 
 ```
-cargo test -p node-runtime
+cargo test -p datahighway-runtime
 ```
 
 #### Specific Integration Tests
 
 Example
 ```
-cargo test -p node-runtime --test cli_integration_tests_mining_tokens
+cargo test -p datahighway-runtime --test cli_integration_tests_mining_tokens
 ```
 
 ### Check
@@ -379,7 +379,7 @@ log::info!("hello {:?}", world); // Shows in terminal in release mode
 ### Detailed Debugging
 
 ```bash
-RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/node ...
+RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/datahighway ...
 ```
 
 
@@ -389,7 +389,7 @@ RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/node ...
 
 ```bash
 mkdir -p ./src/chain-spec-templates
-./target/release/node build-spec \
+./target/release/datahighway build-spec \
   --chain=local > ./src/chain-spec-templates/chainspec_latest.json
 ```
 
@@ -397,7 +397,7 @@ mkdir -p ./src/chain-spec-templates
 
 ```bash
 mkdir -p ./src/chain-spec-templates
-./target/release/node build-spec \
+./target/release/datahighway build-spec \
   --chain=local > ./src/chain-spec-templates/chainspec_default.json
 ```
 
@@ -409,7 +409,7 @@ mkdir -p ./src/chain-spec-templates
 
 ```bash
 mkdir -p ./src/chain-definition-custom
-./target/release/node build-spec \
+./target/release/datahighway build-spec \
   --chain ./src/chain-spec-templates/chainspec_dh.json \
   --raw > ./src/chain-definition-custom/chain.json
 ```
@@ -422,10 +422,10 @@ mkdir -p ./src/chain-definition-custom
   * Multiple authority nodes using the Aura consensus to produce blocks
 
 Terminal 1: Alice's Substrate-based node on default TCP port 30333 with her chain database stored locally at `/tmp/polkadot-chains/alice` and where the bootnode ID of her node is `Local node identity is: QmZ5kgdoLCx3Qfy8nJAiP1U9i6iY3qeiDNSCdHmHRJtSnF` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey -e inspect //Alice`, alternatively you could provide the private key to that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`.
-If you explicitly specify a `--node-key` when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chainspec.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/node:
+If you explicitly specify a `--node-key` when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chainspec.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/datahighway:
 
 ```bash
-./target/release/node --validator \
+./target/release/datahighway --validator \
   --base-path /tmp/polkadot-chains/alice \
   --keystore-path "/tmp/polkadot-chains/alice/keys" \
   --chain ./src/chain-definition-custom/chain.json \
@@ -438,7 +438,7 @@ If you explicitly specify a `--node-key` when you start your validator node, the
 Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and with his chain database stored locally at `/tmp/polkadot-chains/alice`. We'll specify a value for the `--bootnodes` option that will connect his node to Alice's bootnode ID on TCP port 30333:
 
 ```bash
-./target/release/node --validator \
+./target/release/datahighway --validator \
   --base-path /tmp/polkadot-chains/bob \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmZ5kgdoLCx3Qfy8nJAiP1U9i6iY3qeiDNSCdHmHRJtSnF \
   --chain ./src/chain-definition-custom/chain.json \

@@ -2,11 +2,11 @@
 authors = ['MXC Foundation GmbH <https://t.me/mxcfoundation>', 'Luke Schoen <luke@mxc.org>']
 build = 'build.rs'
 edition = '2018'
-name = 'node'
+name = 'datahighway'
 version = '2.0.0'
 
 [[bin]]
-name = 'node'
+name = 'datahighway'
 path = 'src/main.rs'
 
 [dependencies]
@@ -31,7 +31,7 @@ sp-inherents = { version = '2.0.0', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d
 sp-runtime = { version = '2.0.0', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
 sp-transaction-pool = { version = '2.0.0', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
 
-node-runtime = { version = '2.0.0', path = 'runtime' }
+datahighway-runtime = { version = '2.0.0', path = 'runtime' }
 
 [build-dependencies]
 vergen = '3.0.4'
