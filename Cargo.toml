@@ -54,7 +54,6 @@ sp-runtime = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d92
 sp-transaction-pool = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
 frame-rpc-system = { version = '2.0.0-alpha.1', package = 'substrate-frame-rpc-system', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
 pallet-transaction-payment-rpc = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
-pallet-im-online = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
 
 datahighway-runtime = { version = '0.0.1', path = 'runtime' }
 

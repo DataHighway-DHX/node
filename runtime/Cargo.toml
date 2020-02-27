@@ -14,7 +14,6 @@ std = [
     "frame-support/std",
     "module-primitives/std",
     "pallet-grandpa/std",
-    "pallet-im-online/std",
     "pallet-indices/std",
     "pallet-collective/std",
     "pallet-membership/std",
@@ -103,7 +102,6 @@ pallet-staking = { version = '2.0.0-alpha.1', default-features = false, package 
 pallet-staking-reward-curve = { version = '2.0.0-alpha.1', default-features = false, package = 'pallet-staking-reward-curve', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
 pallet-session = { version = '2.0.0-alpha.1', default-features = false, package = 'pallet-session', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
 pallet-babe = { version = '2.0.0-alpha.1', default-features = false, package = 'pallet-babe', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
-pallet-im-online = { version = '2.0.0-alpha.1', default-features = false, package = 'pallet-im-online', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
 
 # env = { version = '0.1.0', default_features = false, package = 'env', path = '../pallets/env'}
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../pallets/roaming/roaming-operators' }

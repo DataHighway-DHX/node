@@ -743,7 +743,6 @@ dependencies = [
  "hex-literal",
  "jsonrpc-core",
  "log",
- "pallet-im-online",
  "pallet-transaction-payment-rpc",
  "parity-scale-codec",
  "sc-authority-discovery",
@@ -807,7 +806,6 @@ dependencies = [
  "pallet-balances",
  "pallet-collective",
  "pallet-grandpa",
- "pallet-im-online",
  "pallet-indices",
  "pallet-membership",
  "pallet-randomness-collective-flip",
@@ -3096,25 +3094,6 @@ dependencies = [
  "serde",
  "sp-core",
  "sp-finality-grandpa",
- "sp-runtime",
- "sp-staking",
- "sp-std 2.0.0-alpha.1",
-]
-
-[[package]]
-name = "pallet-im-online"
-version = "2.0.0-alpha.1"
-source = "git+https://github.com/paritytech/substrate.git?rev=5b41575012e935ffefee03d39ae5d925ac7992fd#5b41575012e935ffefee03d39ae5d925ac7992fd"
-dependencies = [
- "frame-support",
- "frame-system",
- "pallet-authorship",
- "pallet-session",
- "parity-scale-codec",
- "serde",
- "sp-application-crypto",
- "sp-core",
- "sp-io",
  "sp-runtime",
  "sp-staking",
  "sp-std 2.0.0-alpha.1",
