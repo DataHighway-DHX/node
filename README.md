@@ -443,6 +443,40 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
 
 ## Linting<a id="chapter-c345d7"></a>
 
+### Clippy
+
+#### Run Manually
+
+##### Stable
+```rust
+cargo clippy --release -- -D warnings
+```
+
+##### Nightly
+
+The following is a temporary fix. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
+
+```
+rustup component add clippy --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
+rustup component add clippy-preview --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
+cargo +nightly-2020-02-17 clippy-preview -Zunstable-options
+```
+
+#### Continuous Integration (CI)
+
+Clippy is currently disabled in CI for the following reasons.
+
+A configuration file clippy.toml to accept or ignore different types of Clippy errors
+is not available (see https://github.com/rust-lang/cargo/issues/5034). So it
+currenty takes a long time to manually ignore each type of Clippy error in each file.
+
+To manually ignore a clippy error it is necessary to do the following,
+where `redundant_pattern_matching` is the clippy error type in this example:
+
+```rust
+#![cfg_attr(feature = "cargo-clippy", allow(clippy::redundant_pattern_matching))]
+```
+
 ### Rust Format
 
 [RustFmt](https://github.com/rust-lang/rustfmt) should be used for styling Rust code.

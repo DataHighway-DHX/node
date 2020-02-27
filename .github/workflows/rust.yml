@@ -130,13 +130,14 @@ jobs:
           rustup component add rustfmt --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
           cargo +nightly-2020-02-17 fmt --all -- --check
 
-      - name: Run cargo clippy
-        # uses: actions-rs/cargo@v1
-        # with:
-        #   command: clippy
-        #   args:  --release -- -D warnings
-        # FIXME - temporary fix below. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
-        run: |
-          rustup component add clippy --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
-          rustup component add clippy-preview --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
-          cargo +nightly-2020-02-17 clippy-preview -Zunstable-options
+      # Ignore use of Clippy until a clippy.toml file may be used. See README.md
+      # - name: Run cargo clippy
+      #   # uses: actions-rs/cargo@v1
+      #   # with:
+      #   #   command: clippy
+      #   #   args:  --release -- -D warnings
+      #   # FIXME - temporary fix below. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
+      #   run: |
+      #     rustup component add clippy --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
+      #     rustup component add clippy-preview --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
+      #     cargo +nightly-2020-02-17 clippy-preview -Zunstable-options
