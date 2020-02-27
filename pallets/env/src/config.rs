@@ -24,7 +24,7 @@ pub fn set_test_env() {
     let value_test = "TEST";
     let value_development = "DEVELOPMENT";
     if let Some(arg0) = env::args().nth(0) {
-        if arg0 == "target/debug/dh_node" {
+        if arg0 == "target/debug/datahighway" {
             env::set_var(key, value_development);
             assert_eq!(env::var(key), Ok(value_development.to_string()));
         } else {

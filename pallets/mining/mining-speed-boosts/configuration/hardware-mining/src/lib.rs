@@ -4,11 +4,7 @@ use codec::{
     Decode,
     Encode,
 };
-use frame_support::traits::{
-    Currency,
-    ExistenceRequirement,
-    Randomness,
-};
+use frame_support::traits::Randomness;
 /// A runtime module for managing non-fungible tokens
 use frame_support::{
     debug,
@@ -33,7 +29,6 @@ use system::ensure_signed;
 
 // FIXME - remove roaming_operators here, only use this approach since do not know how to use BalanceOf using only
 // mining-speed-boosts runtime module
-use roaming_operators;
 
 #[cfg(test)]
 mod mock;
@@ -77,7 +72,8 @@ pub trait Trait: system::Trait + roaming_operators::Trait {
     // type MiningSpeedBoostClaimDateRedeemed: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
-type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as system::Trait>::AccountId>>::Balance;
+// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
+// system::Trait>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]

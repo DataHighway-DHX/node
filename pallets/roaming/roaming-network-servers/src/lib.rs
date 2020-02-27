@@ -31,9 +31,6 @@ use sp_runtime::{
 use sp_std::prelude::*; // Imports Vec
 use system::ensure_signed;
 
-use roaming_networks;
-use roaming_operators;
-
 #[cfg(test)]
 mod mock;
 
