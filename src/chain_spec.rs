@@ -63,6 +63,10 @@ pub fn get_authority_keys_from_seed(s: &str) -> (AuraId, GrandpaId) {
 impl Alternative {
     /// Get an actual chain config from one of the alternatives.
     pub(crate) fn load(self) -> Result<ChainSpec, String> {
+        let mut properties = Map::new();
+        properties.insert("tokenSymbol".into(), "DHX".into());
+        properties.insert("tokenDecimals".into(), 18.into());
+
         Ok(match self {
             Alternative::Development => {
                 ChainSpec::from_genesis(
@@ -81,11 +85,15 @@ impl Alternative {
                             true,
                         )
                     },
-                    vec![],
+                    // bootnodes
+                    vec![
+                        // Alice
+                        "/ip4/127.0.0.1/tcp/30333/p2p/Qma68PCzu2xt2SctTBk6q6pLep6wAxRr6FpziQYwhsMCK6".to_string(),
+                    ],
                     None,
                     None,
-                    None,
-                    None,
+                    Some(properties),
+                    Default::default(),
                 )
             }
             Alternative::LocalTestnet => {
@@ -113,11 +121,15 @@ impl Alternative {
                             true,
                         )
                     },
-                    vec![],
+                    // bootnodes
+                    vec![
+                        // Alice
+                        "/ip4/127.0.0.1/tcp/30333/p2p/Qma68PCzu2xt2SctTBk6q6pLep6wAxRr6FpziQYwhsMCK6".to_string(),
+                    ],
                     None,
                     None,
-                    None,
-                    None,
+                    Some(properties),
+                    Default::default(),
                 )
             }
         })
