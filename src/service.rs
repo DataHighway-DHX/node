@@ -1,14 +1,14 @@
 //! Service and ServiceFactory implementation. Specialized wrapper over substrate service.
 
-use grandpa::{
-    self,
-    FinalityProofProvider as GrandpaFinalityProofProvider,
-};
 use datahighway_runtime::{
     self,
     opaque::Block,
     GenesisConfig,
     RuntimeApi,
+};
+use grandpa::{
+    self,
+    FinalityProofProvider as GrandpaFinalityProofProvider,
 };
 use sc_client::LongestChain;
 use sc_executor::native_executor_instance;
@@ -63,7 +63,11 @@ macro_rules! new_full_start {
             let select_chain = select_chain.take().ok_or_else(|| sc_service::Error::SelectChainRequired)?;
 
             let (grandpa_block_import, grandpa_link) =
-                grandpa::block_import::<_, _, _, datahighway_runtime::RuntimeApi, _>(client.clone(), &*client, select_chain)?;
+                grandpa::block_import::<_, _, _, datahighway_runtime::RuntimeApi, _>(
+                    client.clone(),
+                    &*client,
+                    select_chain,
+                )?;
 
             let aura_block_import = sc_consensus_aura::AuraBlockImport::<_, _, _, AuraPair>::new(
                 grandpa_block_import.clone(),

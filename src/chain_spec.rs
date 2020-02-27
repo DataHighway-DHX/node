@@ -1,4 +1,3 @@
-use grandpa_primitives::AuthorityId as GrandpaId;
 use datahighway_runtime::{
     AccountId,
     AuraConfig,
@@ -11,6 +10,7 @@ use datahighway_runtime::{
     SystemConfig,
     WASM_BINARY,
 };
+use grandpa_primitives::AuthorityId as GrandpaId;
 use sc_service;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_core::{
