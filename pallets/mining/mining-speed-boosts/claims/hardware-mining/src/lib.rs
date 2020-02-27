@@ -4,11 +4,7 @@ use codec::{
     Decode,
     Encode,
 };
-use frame_support::traits::{
-    Currency,
-    ExistenceRequirement,
-    Randomness,
-};
+use frame_support::traits::Randomness;
 /// A runtime module for managing non-fungible tokens
 use frame_support::{
     debug,
@@ -37,7 +33,6 @@ use mining_speed_boosts_configuration_hardware_mining;
 use mining_speed_boosts_eligibility_hardware_mining;
 use mining_speed_boosts_rates_hardware_mining;
 use mining_speed_boosts_sampling_hardware_mining;
-use roaming_operators;
 
 #[cfg(test)]
 mod mock;

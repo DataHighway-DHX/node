@@ -48,13 +48,13 @@ cargo build --release
 * Remove all existing blockchain testnet database and keys
 
 ```bash
-./target/release/node purge-chain --dev --base-path /tmp/polkadot-chains/alice
+./target/release/datahighway purge-chain --dev --base-path /tmp/polkadot-chains/alice
 ```
 
 * Connect to development testnet (`--chain development`)
 
 ```bash
-./target/release/node \
+./target/release/datahighway \
   --base-path /tmp/polkadot-chains/alice \
   --name "Data Highway Testnet" \
   --dev \
@@ -290,14 +290,14 @@ curl https://getsubstrate.io -sSf | bash && \
 ### Re-build runtime after purge chain database of all blocks.
 
 ```bash
-./target/release/node purge-chain --dev
+./target/release/datahighway purge-chain --dev
 cargo build --release
 ```
 
 ### All Tests
 
 ```bash
-cargo test -p node-runtime &&
+cargo test -p datahighway-runtime &&
 cargo test -p roaming-operators &&
 cargo test -p roaming-networks &&
 cargo test -p roaming-organizations &&
@@ -328,14 +328,14 @@ cargo test -p mining-speed-boosts-claims-hardware-mining
 ## Integration Tests
 
 ```
-cargo test -p node-runtime
+cargo test -p datahighway-runtime
 ```
 
 #### Specific Integration Tests
 
 Example
 ```
-cargo test -p node-runtime --test cli_integration_tests_mining_tokens
+cargo test -p datahighway-runtime --test cli_integration_tests_mining_tokens
 ```
 
 ### Check
@@ -381,9 +381,8 @@ log::info!("hello {:?}", world); // Shows in terminal in release mode
 ### Detailed Debugging
 
 ```bash
-RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/node ...
+RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/datahighway ...
 ```
-
 
 ## Create custom blockchain configuration <a id="chapter-b1b53c"></a>
 
@@ -391,28 +390,16 @@ RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/node ...
 
 ```bash
 mkdir -p ./src/chain-spec-templates
-./target/release/node build-spec \
-  --chain=local > ./src/chain-spec-templates/chainspec_testnet_poa_v0.1.0.json
+./target/release/datahighway build-spec \
+  --chain=local > ./src/chain-spec-templates/chainspec_testnet_poa_latest.json
 ```
-
-* Create template chain specification from default local chain
-
-```bash
-mkdir -p ./src/chain-spec-templates
-./target/release/node build-spec \
-  --chain=local > ./src/chain-spec-templates/chainspec_default.json
-```
-
-* Edit chain specification according to cryptocurrency design requirements
-
-* Edit WebAssembly code blob with latest chain changes by copying the "code" section from chainspec_latest.json and pasting it into the "code" field of chainspec_testnet_poa_v0.1.0.json
 
 * Build "raw" chain definition for the new chain
 
 ```bash
 mkdir -p ./src/chain-definition-custom
-./target/release/node build-spec \
-  --chain ./src/chain-spec-templates/chainspec_testnet_poa_v0.1.0.json \
+./target/release/datahighway build-spec \
+  --chain ./src/chain-spec-templates/chainspec_testnet_poa_latest.json \
   --raw > ./src/chain-definition-custom/chaindef_testnet_poa_v0.1.0.json
 ```
 
@@ -423,11 +410,11 @@ mkdir -p ./src/chain-definition-custom
   * Use default accounts Alice and Bob as the two initial authorities of the genesis configuration that have been endowed with testnet units that will run validator nodes
   * Multiple authority nodes using the Aura consensus to produce blocks
 
-Terminal 1: Alice's Substrate-based node on default TCP port 30333 with her chain database stored locally at `/tmp/polkadot-chains/alice` and where the bootnode ID of her node is `Local node identity is: QmRBstyt3VCF1ZShsiR62kPLwAG6R3n5XmdaDktYojTHtg` (peer id) and account id `5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY`, which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey -e inspect //Alice`, alternatively you could provide the private key to that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`.
-If you explicitly specify a `--node-key` when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chainspec.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/node:
+Terminal 1: Alice's Substrate-based node on default TCP port 30333 with her chain database stored locally at `/tmp/polkadot-chains/alice` and where the bootnode ID of her node is `Local node identity is: Qma68PCzu2xt2SctTBk6q6pLep6wAxRr6FpziQYwhsMCK6` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey -e inspect //Alice`, alternatively you could provide the private key to that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`.
+If you explicitly specify a `--node-key` when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chainspec.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/datahighway:
 
 ```bash
-./target/release/node --validator \
+./target/release/datahighway --validator \
   --base-path /tmp/polkadot-chains/alice \
   --keystore-path "/tmp/polkadot-chains/alice/keys" \
   --chain ./src/chain-definition-custom/chaindef_testnet_poa_v0.1.0.json \
@@ -439,9 +426,9 @@ If you explicitly specify a `--node-key` when you start your validator node, the
 Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and with his chain database stored locally at `/tmp/polkadot-chains/alice`. We'll specify a value for the `--bootnodes` option that will connect his node to Alice's bootnode ID on TCP port 30333:
 
 ```bash
-./target/release/node --validator \
+./target/release/datahighway --validator \
   --base-path /tmp/polkadot-chains/bob \
-  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmRBstyt3VCF1ZShsiR62kPLwAG6R3n5XmdaDktYojTHtg \
+  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/Qma68PCzu2xt2SctTBk6q6pLep6wAxRr6FpziQYwhsMCK6 \
   --chain ./src/chain-definition-custom/chaindef_testnet_poa_v0.1.0.json \
   --bob \
   --port 30334 \
@@ -455,6 +442,40 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
 * Add session keys for other account(s) to be configured as authorities (validators)
 
 ## Linting<a id="chapter-c345d7"></a>
+
+### Clippy
+
+#### Run Manually
+
+##### Stable
+```rust
+cargo clippy --release -- -D warnings
+```
+
+##### Nightly
+
+The following is a temporary fix. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
+
+```
+rustup component add clippy --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
+rustup component add clippy-preview --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
+cargo +nightly-2020-02-17 clippy-preview -Zunstable-options
+```
+
+#### Continuous Integration (CI)
+
+Clippy is currently disabled in CI for the following reasons.
+
+A configuration file clippy.toml to accept or ignore different types of Clippy errors
+is not available (see https://github.com/rust-lang/cargo/issues/5034). So it
+currenty takes a long time to manually ignore each type of Clippy error in each file.
+
+To manually ignore a clippy error it is necessary to do the following,
+where `redundant_pattern_matching` is the clippy error type in this example:
+
+```rust
+#![cfg_attr(feature = "cargo-clippy", allow(clippy::redundant_pattern_matching))]
+```
 
 ### Rust Format
 

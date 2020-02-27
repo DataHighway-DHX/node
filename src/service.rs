@@ -1,14 +1,14 @@
 //! Service and ServiceFactory implementation. Specialized wrapper over substrate service.
 
-use grandpa::{
-    self,
-    FinalityProofProvider as GrandpaFinalityProofProvider,
-};
-use node_runtime::{
+use datahighway_runtime::{
     self,
     opaque::Block,
     GenesisConfig,
     RuntimeApi,
+};
+use grandpa::{
+    self,
+    FinalityProofProvider as GrandpaFinalityProofProvider,
 };
 use sc_client::LongestChain;
 use sc_executor::native_executor_instance;
@@ -30,8 +30,8 @@ use std::{
 // Our native executor instance.
 native_executor_instance!(
     pub Executor,
-    node_runtime::api::dispatch,
-    node_runtime::native_version,
+    datahighway_runtime::api::dispatch,
+    datahighway_runtime::native_version,
 );
 
 construct_simple_protocol! {
@@ -49,8 +49,8 @@ macro_rules! new_full_start {
         let inherent_data_providers = sp_inherents::InherentDataProviders::new();
 
         let builder = sc_service::ServiceBuilder::new_full::<
-            node_runtime::opaque::Block,
-            node_runtime::RuntimeApi,
+            datahighway_runtime::opaque::Block,
+            datahighway_runtime::RuntimeApi,
             crate::service::Executor,
         >($config)?
         .with_select_chain(|_config, backend| Ok(sc_client::LongestChain::new(backend.clone())))?
@@ -63,7 +63,11 @@ macro_rules! new_full_start {
             let select_chain = select_chain.take().ok_or_else(|| sc_service::Error::SelectChainRequired)?;
 
             let (grandpa_block_import, grandpa_link) =
-                grandpa::block_import::<_, _, _, node_runtime::RuntimeApi, _>(client.clone(), &*client, select_chain)?;
+                grandpa::block_import::<_, _, _, datahighway_runtime::RuntimeApi, _>(
+                    client.clone(),
+                    &*client,
+                    select_chain,
+                )?;
 
             let aura_block_import = sc_consensus_aura::AuraBlockImport::<_, _, _, AuraPair>::new(
                 grandpa_block_import.clone(),

@@ -4,11 +4,7 @@ use codec::{
     Decode,
     Encode,
 };
-use frame_support::traits::{
-    Currency,
-    ExistenceRequirement,
-    Randomness,
-};
+use frame_support::traits::Randomness;
 /// A runtime module for managing non-fungible tokens
 use frame_support::{
     debug,
@@ -32,8 +28,6 @@ use sp_std::prelude::*; // Imports Vec
 use system::ensure_signed;
 #[macro_use]
 extern crate alloc; // Required to use Vec
-
-use roaming_devices;
 
 #[cfg(test)]
 mod mock;

@@ -1,5 +1,7 @@
 //! The Substrate Node Template runtime. This can be compiled with `#[no_std]`, ready for Wasm.
 
+// Ignore clippy error error: this public function dereferences a raw pointer but is not marked `unsafe`
+#![cfg_attr(feature = "cargo-clippy", allow(clippy::not_unsafe_ptr_arg_deref))]
 #![cfg_attr(not(feature = "std"), no_std)]
 // `construct_runtime!` does a lot of recursion and requires us to increase the limit to 256.
 #![recursion_limit = "256"]
@@ -106,8 +108,8 @@ pub mod opaque {
 
 /// This runtime version.
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-    spec_name: create_runtime_str!("node"),
-    impl_name: create_runtime_str!("node"),
+    spec_name: create_runtime_str!("datahighway"),
+    impl_name: create_runtime_str!("datahighway"),
     authoring_version: 3,
     spec_version: 1,
     impl_version: 1,
