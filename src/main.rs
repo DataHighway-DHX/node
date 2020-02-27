@@ -17,9 +17,9 @@ fn main() -> Result<(), error::Error> {
         name: "Substrate Node",
         commit: env!("VERGEN_SHA_SHORT"),
         version: env!("CARGO_PKG_VERSION"),
-        executable_name: "node",
+        executable_name: "datahighway",
         author: "MXC Foundation gGmbH",
-        description: "node",
+        description: "datahighway",
         support_url: "https://t.me/mxcfoundation",
         copyright_start_year: 2020,
     };

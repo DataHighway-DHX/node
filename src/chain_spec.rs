@@ -1,5 +1,5 @@
 use grandpa_primitives::AuthorityId as GrandpaId;
-use node_runtime::{
+use datahighway_runtime::{
     AccountId,
     AuraConfig,
     BalancesConfig,
