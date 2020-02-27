@@ -1,4 +1,4 @@
-//! The Substrate Node Template runtime. This can be compiled with `#[no_std]`, ready for Wasm.
+//! The DataHighway runtime. This can be compiled with `#[no_std]`, ready for Wasm.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 // `construct_runtime!` does a lot of recursion and requires us to increase the limit to 256.
@@ -8,28 +8,38 @@
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
-use grandpa::{
+mod constants;
+mod types;
+
+use pallet_grandpa::{
     fg_primitives,
     AuthorityList as GrandpaAuthorityList,
 };
 use sp_api::impl_runtime_apis;
-use sp_consensus_aura::sr25519::AuthorityId as AuraId;
-use sp_core::OpaqueMetadata;
+use sp_core::{
+    u32_trait::{
+        _1,
+        _2,
+        _3,
+        _4,
+    },
+    OpaqueMetadata,
+};
 use sp_runtime::{
     create_runtime_str,
+    curve::PiecewiseLinear,
     generic,
     impl_opaque_keys,
     traits::{
         BlakeTwo256,
         Block as BlockT,
+        Convert,
         ConvertInto,
-        IdentifyAccount,
+        OpaqueKeys,
         StaticLookup,
-        Verify,
     },
     transaction_validity::TransactionValidity,
     ApplyExtrinsicResult,
-    MultiSignature,
 };
 use sp_std::prelude::*; // Imports Vec
 #[cfg(feature = "std")]
@@ -38,47 +48,29 @@ use sp_version::RuntimeVersion;
 // use std::str::FromStr;
 
 // A few exports that help ease life for downstream crates.
-pub use balances::Call as BalancesCall;
 pub use frame_support::{
     construct_runtime,
     parameter_types,
-    traits::Randomness,
+    traits::{
+        Contains,
+        Randomness,
+    },
     weights::Weight,
     StorageValue,
 };
+pub use module_primitives::Balance;
+pub use pallet_balances::Call as BalancesCall; // TODO: remove?
+pub use pallet_staking::StakerStatus;
+pub use pallet_timestamp::Call as TimestampCall;
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{
     Perbill,
+    Percent,
     Permill,
-};
-pub use timestamp::Call as TimestampCall;
+}; // TODO: remove?
 
-/// An index to a block.
-pub type BlockNumber = u32;
-
-/// Alias to 512-bit hash when used in the context of a transaction signature on the chain.
-pub type Signature = MultiSignature; // previously AnySignature
-
-/// Some way of identifying an account on the chain. We intentionally make it equivalent
-/// to the public key of our transaction signing scheme.
-pub type AccountId = <<Signature as Verify>::Signer as IdentifyAccount>::AccountId;
-
-/// The type for looking up accounts. We don't expect more than 4 billion of them, but you
-/// never know...
-pub type AccountIndex = u32;
-
-/// Balance of an account.
-pub type Balance = u128;
-
-/// Index of a transaction in the chain.
-pub type Index = u32;
-
-/// A hash of some data used by the chain.
-pub type Hash = sp_core::H256;
-
-/// Digest item type.
-pub type DigestItem = generic::DigestItem<Hash>;
+// TODO: Balance type of u128 was replaced with Amount type of i128
 
 /// Opaque types. These are used by the CLI to instantiate machinery that don't need to know
 /// the specifics of the runtime. They can then be made to be agnostic over specific formats
@@ -98,35 +90,25 @@ pub mod opaque {
 
     impl_opaque_keys! {
         pub struct SessionKeys {
-            pub aura: Aura,
+            pub babe: Babe,
             pub grandpa: Grandpa,
         }
     }
 }
 
+pub use constants::time::*;
+pub use types::*;
+
 /// This runtime version.
 pub const VERSION: RuntimeVersion = RuntimeVersion {
+    // TODO: rename to datahighway-chain, and elsewhere?
     spec_name: create_runtime_str!("datahighway"),
     impl_name: create_runtime_str!("datahighway"),
-    authoring_version: 3,
-    spec_version: 1,
+    authoring_version: 1,
+    spec_version: 3,
     impl_version: 1,
     apis: RUNTIME_API_VERSIONS,
 };
-
-pub const MILLISECS_PER_BLOCK: u64 = 6000;
-
-pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
-
-pub const EPOCH_DURATION_IN_BLOCKS: u32 = 10 * MINUTES;
-
-// These time units are defined in number of blocks.
-pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
-pub const HOURS: BlockNumber = MINUTES * 60;
-pub const DAYS: BlockNumber = HOURS * 24;
-
-// 1 in 4 blocks (on average, not counting collisions) will be primary babe blocks.
-pub const PRIMARY_PROBABILITY: (u64, u64) = (1, 4);
 
 // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
 
@@ -191,7 +173,7 @@ parameter_types! {
 
 impl system::Trait for Runtime {
     /// The data to be stored in an account.
-    type AccountData = balances::AccountData<Balance>;
+    type AccountData = pallet_balances::AccountData<Balance>;
     /// The identifier used to distinguish between accounts.
     type AccountId = AccountId;
     /// Portion of the block weight that is available to all normal transactions.
@@ -222,21 +204,28 @@ impl system::Trait for Runtime {
     ///
     /// This type is being generated by `construct_runtime!`.
     type ModuleToIndex = ModuleToIndex;
+    /// What to do if an account is fully reaped from the system.
+    type OnKilledAccount = Balances;
     /// What to do if a new account is created.
     type OnNewAccount = ();
-    /// What to do if an account is fully reaped from the system.
-    type OnReapAccount = Balances;
     /// The ubiquitous origin type.
     type Origin = Origin;
     /// Version of the runtime.
     type Version = Version;
 }
 
-impl aura::Trait for Runtime {
-    type AuthorityId = AuraId;
+parameter_types! {
+    pub const EpochDuration: u64 = EPOCH_DURATION_IN_SLOTS;
+    pub const ExpectedBlockTime: Moment = MILLISECS_PER_BLOCK;
 }
 
-impl grandpa::Trait for Runtime {
+impl pallet_babe::Trait for Runtime {
+    type EpochChangeTrigger = pallet_babe::ExternalTrigger;
+    type EpochDuration = EpochDuration;
+    type ExpectedBlockTime = ExpectedBlockTime;
+}
+
+impl pallet_grandpa::Trait for Runtime {
     type Event = Event;
 }
 
@@ -245,7 +234,7 @@ parameter_types! {
     pub const IndexDeposit: u128 = 100;
 }
 
-impl indices::Trait for Runtime {
+impl pallet_indices::Trait for Runtime {
     /// The type for recording indexing into the account enumeration. If this ever overflows, there
     /// will be problems!
     type AccountIndex = AccountIndex;
@@ -260,18 +249,18 @@ parameter_types! {
     pub const MinimumPeriod: u64 = SLOT_DURATION / 2;
 }
 
-impl timestamp::Trait for Runtime {
+impl pallet_timestamp::Trait for Runtime {
     type MinimumPeriod = MinimumPeriod;
     /// A timestamp: milliseconds since the unix epoch.
     type Moment = u64;
-    type OnTimestampSet = Aura;
+    type OnTimestampSet = Babe;
 }
 
 parameter_types! {
     pub const ExistentialDeposit: u128 = 500;
 }
 
-impl balances::Trait for Runtime {
+impl pallet_balances::Trait for Runtime {
     type AccountStore = System;
     /// The type for recording an account's balance.
     type Balance = Balance;
@@ -286,8 +275,8 @@ parameter_types! {
     pub const TransactionByteFee: Balance = 1;
 }
 
-impl transaction_payment::Trait for Runtime {
-    type Currency = balances::Module<Runtime>;
+impl pallet_transaction_payment::Trait for Runtime {
+    type Currency = pallet_balances::Module<Runtime>;
     type FeeMultiplierUpdate = ();
     type OnTransactionPayment = ();
     type TransactionBaseFee = TransactionBaseFee;
@@ -295,9 +284,145 @@ impl transaction_payment::Trait for Runtime {
     type WeightToFee = ConvertInto;
 }
 
-impl sudo::Trait for Runtime {
+impl pallet_sudo::Trait for Runtime {
+    type Call = Call;
     type Event = Event;
+}
+
+type GeneralCouncilInstance = pallet_collective::Instance1;
+impl pallet_collective::Trait<GeneralCouncilInstance> for Runtime {
+    type Event = Event;
+    type Origin = Origin;
     type Proposal = Call;
+}
+
+type GeneralCouncilMembershipInstance = pallet_membership::Instance1;
+impl pallet_membership::Trait<GeneralCouncilMembershipInstance> for Runtime {
+    type AddOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
+    type Event = Event;
+    type MembershipChanged = GeneralCouncil;
+    type MembershipInitialized = GeneralCouncil;
+    type RemoveOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
+    type ResetOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
+    type SwapOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
+}
+
+pub struct GeneralCouncilProvider;
+impl Contains<AccountId> for GeneralCouncilProvider {
+    fn contains(who: &AccountId) -> bool {
+        GeneralCouncil::is_member(who)
+    }
+
+    fn sorted_members() -> Vec<AccountId> {
+        GeneralCouncil::members()
+    }
+}
+
+parameter_types! {
+    pub const ProposalBond: Permill = Permill::from_percent(5);
+    pub const ProposalBondMinimum: Balance = 1_000_000_000_000_000_000;
+    pub const SpendPeriod: BlockNumber = 1 * DAYS;
+    pub const Burn: Permill = Permill::from_percent(0);
+    pub const TipCountdown: BlockNumber = 1 * DAYS;
+    pub const TipFindersFee: Percent = Percent::from_percent(20);
+    pub const TipReportDepositBase: Balance = 1_000_000_000_000_000_000;
+    pub const TipReportDepositPerByte: Balance = 1_000_000_000_000_000;
+}
+
+impl pallet_treasury::Trait for Runtime {
+    type ApproveOrigin = pallet_collective::EnsureMembers<_4, AccountId, GeneralCouncilInstance>;
+    type Burn = Burn;
+    type Currency = Balances;
+    type Event = Event;
+    type ProposalBond = ProposalBond;
+    type ProposalBondMinimum = ProposalBondMinimum;
+    type ProposalRejection = ();
+    type RejectOrigin = pallet_collective::EnsureMembers<_2, AccountId, GeneralCouncilInstance>;
+    type SpendPeriod = SpendPeriod;
+    type TipCountdown = TipCountdown;
+    type TipFindersFee = TipFindersFee;
+    type TipReportDepositBase = TipReportDepositBase;
+    type TipReportDepositPerByte = TipReportDepositPerByte;
+    type Tippers = GeneralCouncilProvider;
+}
+
+parameter_types! {
+    pub const DisabledValidatorsThreshold: Perbill = Perbill::from_percent(17);
+}
+
+impl pallet_session::Trait for Runtime {
+    type DisabledValidatorsThreshold = DisabledValidatorsThreshold;
+    type Event = Event;
+    type Keys = opaque::SessionKeys;
+    type SessionHandler = <opaque::SessionKeys as OpaqueKeys>::KeyTypeIdProviders;
+    type SessionManager = Staking;
+    type ShouldEndSession = Babe;
+    type ValidatorId = <Self as system::Trait>::AccountId;
+    type ValidatorIdOf = pallet_staking::StashOf<Self>;
+}
+
+impl pallet_session::historical::Trait for Runtime {
+    type FullIdentification = pallet_staking::Exposure<AccountId, Balance>;
+    type FullIdentificationOf = pallet_staking::ExposureOf<Runtime>;
+}
+
+pallet_staking_reward_curve::build! {
+    const REWARD_CURVE: PiecewiseLinear<'static> = curve!(
+        min_inflation: 0_025_000,
+        max_inflation: 0_100_000,
+        ideal_stake: 0_500_000,
+        falloff: 0_050_000,
+        max_piece_count: 40,
+        test_precision: 0_005_000,
+    );
+}
+
+/// Struct that handles the conversion of Balance -> `u64`. This is used for staking's election
+/// calculation.
+pub struct CurrencyToVoteHandler;
+
+impl CurrencyToVoteHandler {
+    fn factor() -> Balance {
+        (Balances::total_issuance() / u64::max_value() as Balance).max(1)
+    }
+}
+
+impl Convert<Balance, u64> for CurrencyToVoteHandler {
+    fn convert(x: Balance) -> u64 {
+        (x / Self::factor()) as u64
+    }
+}
+
+impl Convert<u128, Balance> for CurrencyToVoteHandler {
+    fn convert(x: u128) -> Balance {
+        x * Self::factor()
+    }
+}
+
+parameter_types! {
+    pub const SessionsPerEra: sp_staking::SessionIndex = 6;
+    pub const BondingDuration: pallet_staking::EraIndex = 24 * 28;
+    pub const SlashDeferDuration: pallet_staking::EraIndex = 24 * 7; // 1/4 the bonding duration.
+    pub const RewardCurve: &'static PiecewiseLinear<'static> = &REWARD_CURVE;
+}
+
+impl pallet_staking::Trait for Runtime {
+    type BondingDuration = BondingDuration;
+    type Currency = Balances;
+    type CurrencyToVote = CurrencyToVoteHandler;
+    type Event = Event;
+    // send the slashed funds to the pallet treasury.
+    type Reward = ();
+    type RewardCurve = RewardCurve;
+    type RewardRemainder = PalletTreasury;
+    type SessionInterface = Self;
+    // rewards are minted from the void
+    type SessionsPerEra = SessionsPerEra;
+    type Slash = PalletTreasury;
+    /// A super-majority of the council can cancel the slash.
+    type SlashCancelOrigin = pallet_collective::EnsureProportionAtLeast<_3, _4, AccountId, GeneralCouncilInstance>;
+    type SlashDeferDuration = SlashDeferDuration;
+    type Time = Timestamp;
 }
 
 impl roaming_operators::Trait for Runtime {
@@ -512,14 +637,19 @@ construct_runtime!(
         UncheckedExtrinsic = UncheckedExtrinsic
     {
         System: system::{Module, Call, Config, Storage, Event<T>},
-        Timestamp: timestamp::{Module, Call, Storage, Inherent},
-        Aura: aura::{Module, Config<T>, Inherent(Timestamp)},
-        Grandpa: grandpa::{Module, Call, Storage, Config, Event},
-        Indices: indices::{Module, Call, Storage, Event<T>, Config<T>},
-        Balances: balances::{Module, Call, Storage, Config<T>, Event<T>},
-        TransactionPayment: transaction_payment::{Module, Storage},
-        Sudo: sudo,
-        // Used for the module template in `./template.rs`
+        Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
+        Babe: pallet_babe::{Module, Call, Storage, Config, Inherent(Timestamp)},
+        Grandpa: pallet_grandpa::{Module, Call, Storage, Config, Event},
+        Indices: pallet_indices::{Module, Call, Storage, Event<T>, Config<T>},
+        Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
+        TransactionPayment: pallet_transaction_payment::{Module, Storage},
+        Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
+        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
+        GeneralCouncil: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
+        GeneralCouncilMembership: pallet_membership::<Instance1>::{Module, Call, Storage, Event<T>, Config<T>},
+        PalletTreasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
+        Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>},
+        Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
         DataHighwayRoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
         DataHighwayRoamingNetworks: roaming_networks::{Module, Call, Storage, Event<T>},
         DataHighwayRoamingOrganizations: roaming_organizations::{Module, Call, Storage, Event<T>},
@@ -545,7 +675,6 @@ construct_runtime!(
         DataHighwayMiningSpeedBoostEligibilityHardwareMining: mining_speed_boosts_eligibility_hardware_mining::{Module, Call, Storage, Event<T>},
         DataHighwayMiningSpeedBoostClaimsTokenMining: mining_speed_boosts_claims_token_mining::{Module, Call, Storage, Event<T>},
         DataHighwayMiningSpeedBoostClaimsHardwareMining: mining_speed_boosts_claims_hardware_mining::{Module, Call, Storage, Event<T>},
-        RandomnessCollectiveFlip: randomness_collective_flip::{Module, Call, Storage},
     }
 );
 
@@ -566,7 +695,7 @@ pub type SignedExtra = (
     system::CheckEra<Runtime>,
     system::CheckNonce<Runtime>,
     system::CheckWeight<Runtime>,
-    transaction_payment::ChargeTransactionPayment<Runtime>,
+    pallet_transaction_payment::ChargeTransactionPayment<Runtime>,
 );
 /// Unchecked extrinsic type as expected by this runtime.
 pub type UncheckedExtrinsic = generic::UncheckedExtrinsic<Address, Call, Signature, SignedExtra>;
@@ -601,6 +730,10 @@ impl_runtime_apis! {
             Executive::apply_extrinsic(extrinsic)
         }
 
+        fn apply_trusted_extrinsic(extrinsic: <Block as BlockT>::Extrinsic) -> ApplyExtrinsicResult {
+            Executive::apply_trusted_extrinsic(extrinsic)
+        }
+
         fn finalize_block() -> <Block as BlockT>::Header {
             Executive::finalize_block()
         }
@@ -633,13 +766,25 @@ impl_runtime_apis! {
         }
     }
 
-    impl sp_consensus_aura::AuraApi<Block, AuraId> for Runtime {
-        fn slot_duration() -> u64 {
-            Aura::slot_duration()
+    impl sp_consensus_babe::BabeApi<Block> for Runtime {
+        fn configuration() -> sp_consensus_babe::BabeConfiguration {
+            // The choice of `c` parameter (where `1 - c` represents the
+            // probability of a slot being empty), is done in accordance to the
+            // slot duration and expected target block time, for safely
+            // resisting network delays of maximum two seconds.
+            // <https://research.web3.foundation/en/latest/polkadot/BABE/Babe/#6-practical-results>
+            sp_consensus_babe::BabeConfiguration {
+                slot_duration: Babe::slot_duration(),
+                epoch_length: EpochDuration::get(),
+                c: PRIMARY_PROBABILITY,
+                genesis_authorities: Babe::authorities(),
+                randomness: Babe::randomness(),
+                secondary_slots: true,
+            }
         }
 
-        fn authorities() -> Vec<AuraId> {
-            Aura::authorities()
+        fn current_epoch_start() -> sp_consensus_babe::SlotNumber {
+            Babe::current_epoch_start()
         }
     }
 
@@ -658,6 +803,22 @@ impl_runtime_apis! {
     impl fg_primitives::GrandpaApi<Block> for Runtime {
         fn grandpa_authorities() -> GrandpaAuthorityList {
             Grandpa::grandpa_authorities()
+        }
+    }
+
+    impl system_rpc_runtime_api::AccountNonceApi<Block, AccountId, Index> for Runtime {
+        fn account_nonce(account: AccountId) -> Index {
+            System::account_nonce(account)
+        }
+    }
+
+    impl pallet_transaction_payment_rpc_runtime_api::TransactionPaymentApi<
+        Block,
+        Balance,
+        UncheckedExtrinsic,
+    > for Runtime {
+        fn query_info(uxt: UncheckedExtrinsic, len: u32) -> pallet_transaction_payment_rpc_runtime_api::RuntimeDispatchInfo<Balance> {
+            TransactionPayment::query_info(uxt, len)
         }
     }
 }

@@ -13,7 +13,7 @@ __WARNING__: This implementation is a proof-of-concept prototype and is not read
 * [Maintain dependencies, rebuild, and add new runtime modules](#chapter-e16e68)
 * [Debugging](#chapter-93c645)
 * [Create custom blockchain configuration](#chapter-b1b53c)
-* [Run multiple node PoA testnet using custom blockchain configuration](#chapter-f21efd)
+* [Run multiple node PoS testnet using custom blockchain configuration](#chapter-f21efd)
 * [Linting](#chapter-c345d7)
 
 Note: Generate a new chapter with `openssl rand -hex 3`
@@ -185,7 +185,7 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
   "MiningSpeedBoostRatesHardwareMiningMaxHardware": "u32",
   "MiningSpeedBoostConfigurationTokenMining": "[u8; 16]",
   "MiningSpeedBoostConfigurationTokenMiningIndex": "u64",
-  "MiningSpeedBoostConfigurationTokenMiningTokenType": "Text";
+  "MiningSpeedBoostConfigurationTokenMiningTokenType": "Text",
   "MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount": "u64",
   "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod": "u32",
   "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate": "u64",
@@ -199,8 +199,8 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
   },
   "MiningSpeedBoostConfigurationHardwareMining": "[u8; 16]",
   "MiningSpeedBoostConfigurationHardwareMiningIndex": "u64",
-  "MiningSpeedBoostConfigurationHardwareMiningHardwareSecure": "bool";
-  "MiningSpeedBoostConfigurationHardwareMiningHardwareType": "Text";
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareSecure": "bool",
+  "MiningSpeedBoostConfigurationHardwareMiningHardwareType": "Text",
   "MiningSpeedBoostConfigurationHardwareMiningHardwareID": "u64",
   "MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI": "u64",
   "MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate": "u64",
@@ -219,7 +219,7 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
   "MiningSpeedBoostSamplingTokenMiningSampleTokensLocked": "u64",
   "MiningSpeedBoostSamplingTokenMiningSamplingConfig": {
     "token_sample_date": "Moment",
-    "token_sample_tokens_locked": "u64",
+    "token_sample_tokens_locked": "u64"
   },
   "MiningSpeedBoostSamplingHardwareMining": "[u8; 16]",
   "MiningSpeedBoostSamplingHardwareMiningIndex": "u64",
@@ -227,7 +227,7 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
   "MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline": "u64",
   "MiningSpeedBoostSamplingHardwareMiningSamplingConfig": {
     "hardware_sample_date": "Moment",
-    "hardware_sample_hardware_online": "bool",
+    "hardware_sample_hardware_online": "bool"
   },
   "MiningSpeedBoostEligibilityTokenMining": "[u8; 16]",
   "MiningSpeedBoostEligibilityTokenMiningIndex": "u64",
@@ -239,7 +239,7 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
     "token_calculated_eligibility": "u64",
     "token_token_locked_percentage": "u32",
     "token_date_audited": "u64",
-    "token_auditor_account_id": "u64",
+    "token_auditor_account_id": "u64"
   },
   "MiningSpeedBoostEligibilityHardwareMining": "[u8; 16]",
   "MiningSpeedBoostEligibilityHardwareMiningIndex": "u64",
@@ -251,7 +251,7 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
     "hardware_calculated_eligibility": "u64",
     "hardware_hardware_uptime_percentage": "u32",
     "hardware_date_audited": "u64",
-    "hardware_auditor_account_id": "u64",
+    "hardware_auditor_account_id": "u64"
   },
   "MiningSpeedBoostClaimsTokenMining": "[u8; 16]",
   "MiningSpeedBoostClaimsTokenMiningIndex": "u64",
@@ -259,7 +259,7 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
   "MiningSpeedBoostClaimsTokenMiningClaimDateRedeemed": "u64",
   "MiningSpeedBoostClaimsTokenMiningClaimResult": {
     "token_claim_amount": "u64",
-    "token_date_redeemed": "u64",
+    "token_date_redeemed": "u64"
   },
   "MiningSpeedBoostClaimsHardwareMining": "[u8; 16]",
   "MiningSpeedBoostClaimsHardwareMiningIndex": "u64",
@@ -267,8 +267,8 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
   "MiningSpeedBoostClaimsHardwareMiningClaimDateRedeemed": "u64",
   "MiningSpeedBoostClaimsHardwareMiningClaimResult": {
     "hardware_claim_amount": "u64",
-    "hardware_date_redeemed": "u64",
-  },
+    "hardware_date_redeemed": "u64"
+  }
 }
 ```
 
@@ -385,51 +385,40 @@ RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/datahighway ...
 
 ## Create custom blockchain configuration <a id="chapter-b1b53c"></a>
 
-* Create latest chain specification code changes of local chain
+* Create latest chain specification code changes of <CHAIN_ID> (i.e. dev, local, testnet, or testnet-latest)
 
 ```bash
-mkdir -p ./src/chain-spec-templates
+mkdir -p ./src/chainspec-templates
 ./target/release/datahighway build-spec \
-  --chain=local > ./src/chain-spec-templates/chainspec_latest.json
-```
-
-* Create template chain specification from default local chain
-
-```bash
-mkdir -p ./src/chain-spec-templates
-./target/release/datahighway build-spec \
-  --chain=local > ./src/chain-spec-templates/chainspec_default.json
+  --chain=<CHAIN_ID> > ./src/chainspec-templates/chainspec_latest.json
 ```
 
 * Edit chain specification according to cryptocurrency design requirements
-
-* Edit WebAssembly code blob with latest chain changes by copying the "code" section from chainspec_latest.json and pasting it into the "code" field of chainspec_dh.json
 
 * Build "raw" chain definition for the new chain
 
 ```bash
 mkdir -p ./src/chain-definition-custom
 ./target/release/datahighway build-spec \
-  --chain ./src/chain-spec-templates/chainspec_dh.json \
-  --raw > ./src/chain-definition-custom/chain.json
+  --chain ./src/chainspec-templates/chainspec_latest.json \
+  --raw > ./src/chain-definition-custom/chaindef_testnet_v0.1.0.json
 ```
 
-## Run multiple node PoA testnet using custom blockchain configuration <a id="chapter-f21efd"></a>
+## Run multiple nodes in PoS testnet using custom blockchain configuration <a id="chapter-f21efd"></a>
 
 * Run custom Substrate-based blockchain on local machine testnet with multiple terminals:
   * Imported custom chain definition for custom testnet
   * Use default accounts Alice and Bob as the two initial authorities of the genesis configuration that have been endowed with testnet units that will run validator nodes
   * Multiple authority nodes using the Aura consensus to produce blocks
 
-Terminal 1: Alice's Substrate-based node on default TCP port 30333 with her chain database stored locally at `/tmp/polkadot-chains/alice` and where the bootnode ID of her node is `Local node identity is: QmZ5kgdoLCx3Qfy8nJAiP1U9i6iY3qeiDNSCdHmHRJtSnF` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey -e inspect //Alice`, alternatively you could provide the private key to that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`.
+Terminal 1: Alice's Substrate-based node on default TCP port 30333 with her chain database stored locally at `/tmp/polkadot-chains/alice` and where the bootnode ID of her node is `Local node identity is: Qma68PCzu2xt2SctTBk6q6pLep6wAxRr6FpziQYwhsMCK6` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey -e inspect //Alice`, alternatively you could provide the private key to that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`.
 If you explicitly specify a `--node-key` when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chainspec.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/datahighway:
 
 ```bash
 ./target/release/datahighway --validator \
   --base-path /tmp/polkadot-chains/alice \
   --keystore-path "/tmp/polkadot-chains/alice/keys" \
-  --chain ./src/chain-definition-custom/chain.json \
-  --key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice" \
+  --chain ./src/chain-definition-custom/chaindef_testnet_v0.1.0.json \
   --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee \
   --port 30333 \
   --telemetry-url ws://telemetry.polkadot.io:1024
@@ -440,12 +429,14 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
 ```bash
 ./target/release/datahighway --validator \
   --base-path /tmp/polkadot-chains/bob \
-  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmZ5kgdoLCx3Qfy8nJAiP1U9i6iY3qeiDNSCdHmHRJtSnF \
-  --chain ./src/chain-definition-custom/chain.json \
+  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/Qma68PCzu2xt2SctTBk6q6pLep6wAxRr6FpziQYwhsMCK6 \
+  --chain ./src/chain-definition-custom/chaindef_testnet_v0.1.0.json \
   --bob \
   --port 30334 \
   --telemetry-url ws://telemetry.polkadot.io:1024
 ```
+
+* Configure settings to view at [Polkadot.js Apps](#chapter-6d9058)
 
 * View on [Polkadot Telemetry](https://telemetry.polkadot.io/#list/My%20Testnet)
 

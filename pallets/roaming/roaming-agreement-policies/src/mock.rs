@@ -51,8 +51,8 @@ impl system::Trait for Test {
     type MaximumBlockLength = MaximumBlockLength;
     type MaximumBlockWeight = MaximumBlockWeight;
     type ModuleToIndex = ();
+    type OnKilledAccount = ();
     type OnNewAccount = ();
-    type OnReapAccount = ();
     type Origin = Origin;
     type Version = ();
 }
@@ -66,7 +66,7 @@ impl balances::Trait for Test {
     type Event = ();
     type ExistentialDeposit = ExistentialDeposit;
 }
-impl transaction_payment::Trait for Test {
+impl pallet_transaction_payment::Trait for Test {
     type Currency = Balances;
     type FeeMultiplierUpdate = ();
     type OnTransactionPayment = ();

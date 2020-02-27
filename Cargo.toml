@@ -3,7 +3,10 @@ authors = ['MXC Foundation GmbH <https://t.me/mxcfoundation>', 'Luke Schoen <luk
 build = 'build.rs'
 edition = '2018'
 name = 'datahighway'
-version = '2.0.0'
+version = '0.0.1'
+
+[profile.release]
+panic = "unwind"
 
 [[bin]]
 name = 'datahighway'
@@ -13,29 +16,50 @@ path = 'src/main.rs'
 futures = '0.3.1'
 log = '0.4.8'
 structopt = '0.3.8'
+hex-literal = "0.2.1"
+serde_json = "1.0.41"
+codec = { package = "parity-scale-codec", version = "1.0.0" }
+jsonrpc-core = "14.0.3"
+serde = { version = "1.0.102", features = ["derive"] }
 
-grandpa = { version = '0.8', package = 'sc-finality-grandpa', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-grandpa-primitives = { version = '2.0.0', package = 'sp-finality-grandpa', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-sc-basic-authorship = { rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-sc-cli = { version = '0.8.0', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-sc-client = { version = '0.8', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-sc-consensus-aura = { version = '0.8', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-sc-executor = { version = '0.8', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-sc-network = { version = '0.8', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-sc-service = { version = '0.8', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-sc-transaction-pool = { version = '2.0.0', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-sp-consensus-aura = { version = '0.8', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-sp-consensus = { version = '0.8', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-sp-core = { version = '2.0.0', default_features = false, rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-sp-inherents = { version = '2.0.0', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-sp-runtime = { version = '2.0.0', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
-sp-transaction-pool = { version = '2.0.0', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', git = 'https://github.com/paritytech/substrate.git' }
+grandpa = { version = '0.8.0-alpha.1', package = 'sc-finality-grandpa', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+grandpa-primitives = { version = '2.0.0-alpha.1', package = 'sp-finality-grandpa', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-basic-authorship = { rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-cli = { version = '0.8.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-client = { version = '0.8.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-client-db = { version = '0.8.0-alpha.1', default-features = false, rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-chain-spec = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-client-api = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-authority-discovery = { version = '0.8.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-consensus-epochs = { version = '0.8.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-consensus-aura = { version = '0.8.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-consensus-babe = { version = '0.8.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-consensus-babe-rpc = { version = '0.8.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-executor = { version = '0.8.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-keystore = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-network = { version = '0.8.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-offchain = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-rpc = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-service = { version = '0.8.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-telemetry = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sc-transaction-pool = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sp-api = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sp-consensus-babe = { version = '0.8.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sp-consensus-aura = { version = '0.8.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sp-consensus = { version = '0.8.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sp-core = { version = '2.0.0-alpha.1', default_features = false, rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sp-inherents = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sp-io = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sp-runtime = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+sp-transaction-pool = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+frame-rpc-system = { version = '2.0.0-alpha.1', package = 'substrate-frame-rpc-system', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+pallet-transaction-payment-rpc = { version = '2.0.0-alpha.1', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
 
-datahighway-runtime = { version = '2.0.0', path = 'runtime' }
+datahighway-runtime = { version = '0.0.1', path = 'runtime' }
 
 [build-dependencies]
 vergen = '3.0.4'
-build-script-utils = { version = '2.0.0', rev = 'b27d50c4c7b7137f2de04c31092f63a58970d0cb', package = 'substrate-build-script-utils', git = 'https://github.com/paritytech/substrate.git' }
+build-script-utils = { version = '2.0.0-alpha.1', package = 'substrate-build-script-utils', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
 
 [workspace]
 members = [
@@ -66,3 +90,4 @@ members = [
     'pallets/mining/mining-speed-boosts/claims/token-mining',
     'pallets/mining/mining-speed-boosts/claims/hardware-mining',
 ]
+exclude = [ "runtime/wasm" ]

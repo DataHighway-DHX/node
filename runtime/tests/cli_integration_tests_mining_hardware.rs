@@ -11,6 +11,7 @@ mod tests {
     use super::*;
 
     use frame_support::{
+        assert_noop,
         assert_ok,
         impl_outer_origin,
         parameter_types,
@@ -22,8 +23,12 @@ mod tests {
         traits::{
             BlakeTwo256,
             IdentityLookup,
+            OnFinalize,
+            Zero,
         },
+        DispatchResult,
         Perbill,
+        Permill,
     };
     // Import Trait for each runtime module being tested
     use mining_speed_boosts_claims_hardware_mining::{
@@ -58,6 +63,10 @@ mod tests {
     };
     use roaming_operators;
 
+    // pub fn origin_of(who: &AccountId) -> <Runtime as system::Trait>::Origin {
+    // 	<Runtime as system::Trait>::Origin::signed((*who).clone())
+    // }
+
     impl_outer_origin! {
         pub enum Origin for Test {}
     }
@@ -87,8 +96,8 @@ mod tests {
         type MaximumBlockLength = MaximumBlockLength;
         type MaximumBlockWeight = MaximumBlockWeight;
         type ModuleToIndex = ();
+        type OnKilledAccount = ();
         type OnNewAccount = ();
-        type OnReapAccount = ();
         type Origin = Origin;
         type Version = ();
     }
@@ -102,7 +111,7 @@ mod tests {
         type Event = ();
         type ExistentialDeposit = ExistentialDeposit;
     }
-    impl transaction_payment::Trait for Test {
+    impl pallet_transaction_payment::Trait for Test {
         type Currency = Balances;
         type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
