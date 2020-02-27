@@ -30,6 +30,10 @@ jobs:
           rustup default nightly-2020-02-17
           rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
 
+      - name: Initialize Git submodules
+        run: |
+          git submodule update --init --recursive
+          
       - name: Run cargo check
         run: cargo +nightly-2020-02-17 check
 
@@ -59,6 +63,10 @@ jobs:
           rustup toolchain install nightly-2020-02-17
           rustup default nightly-2020-02-17
           rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
+
+      - name: Initialize Git submodules
+        run: |
+          git submodule update --init --recursive
 
       # Runs integration tests in the runtime/tests folder
       - name: Run Integration Tests across all runtime modules
@@ -124,6 +132,10 @@ jobs:
           rustup toolchain install nightly-2020-02-17
           rustup default nightly-2020-02-17
           rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
+
+      - name: Initialize Git submodules
+        run: |
+          git submodule update --init --recursive
 
       - name: Run cargo fmt
         run: |

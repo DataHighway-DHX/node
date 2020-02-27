@@ -65,4 +65,5 @@ members = [
     'pallets/mining/mining-speed-boosts/eligibility/hardware-mining',
     'pallets/mining/mining-speed-boosts/claims/token-mining',
     'pallets/mining/mining-speed-boosts/claims/hardware-mining',
+    'pallets/orml/oracle',
 ]
