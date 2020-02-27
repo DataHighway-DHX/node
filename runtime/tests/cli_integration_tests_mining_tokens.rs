@@ -80,7 +80,7 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl system::Trait for Test {
-        type AccountData = balances::AccountData<u64>;
+        type AccountData = pallet_balances::AccountData<u64>;
         type AccountId = u64;
         type AvailableBlockRatio = AvailableBlockRatio;
         type BlockHashCount = BlockHashCount;
@@ -104,7 +104,7 @@ mod tests {
     parameter_types! {
         pub const ExistentialDeposit: u64 = 1;
     }
-    impl balances::Trait for Test {
+    impl pallet_balances::Trait for Test {
         type AccountStore = System;
         type Balance = u64;
         type DustRemoval = ();
@@ -173,19 +173,19 @@ mod tests {
     }
 
     type System = system::Module<Test>;
-    pub type Balances = balances::Module<Test>;
+    pub type Balances = pallet_balances::Module<Test>;
     pub type MiningSpeedBoostConfigurationTokenMiningTestModule = MiningSpeedBoostConfigurationTokenMiningModule<Test>;
     pub type MiningSpeedBoostRatesTokenMiningTestModule = MiningSpeedBoostRatesTokenMiningModule<Test>;
     pub type MiningSpeedBoostSamplingTokenMiningTestModule = MiningSpeedBoostSamplingTokenMiningModule<Test>;
     pub type MiningSpeedBoostEligibilityTokenMiningTestModule = MiningSpeedBoostEligibilityTokenMiningModule<Test>;
     pub type MiningSpeedBoostClaimsTokenMiningTestModule = MiningSpeedBoostClaimsTokenMiningModule<Test>;
-    type Randomness = randomness_collective_flip::Module<Test>;
+    type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     pub fn new_test_ext() -> sp_io::TestExternalities {
         let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
-        balances::GenesisConfig::<Test> {
+        pallet_balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30)],
         }
         .assimilate_storage(&mut t)
