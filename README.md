@@ -75,6 +75,13 @@ Detailed logs output by prefixing the above with: `RUST_LOG=debug RUST_BACKTRACE
   * Input parameter quirk: Sometimes it is necessary to modify the value of one of the input parameters to allow you to click "Submit Transaction" (i.e. if the first arguments input value is already 0 and appears valid, but the "Submit Transaction" button appears disabled, just delete the 0 value and re-enter 0 again)
   * Prior to being able to submit extrinics at https://polkadot.js.org/apps/#/extrinsics (i.e. roaming > createNetwork()) or to view StorageMap values, it is necessary to add the Custom Types to https://polkadot.js.org/apps/#/settings/developer, which are included in [custom_types.json](./custom_types.json), otherwise the "Submit Transaction" button will not work.
 
+### Troubleshooting
+
+If you encounter any UI errors or any errors in the browser console using https://polkadot.js.org/apps, then you may be able to contribute to Polkadot.js Apps. If you run Polkadot.js Apps locally from your machine then the errors are easier to debug.
+
+Follow the instructions at https://github.com/polkadot-js/apps, including cloning it, and running it.
+Try to identify and fix the error, and raise an issue in that repository if necessary.  
+
 ## Maintain dependencies, rebuild, and add new runtime modules <a id="chapter-e16e68"></a>
 
 ### Add new runtime module
@@ -194,7 +201,7 @@ RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/datahighway ...
 ```bash
 mkdir -p ./src/chain-spec-templates
 ./target/release/datahighway build-spec \
-  --chain=local > ./src/chain-spec-templates/chain_spec_testnet_poa_latest.json
+  --chain=testnet-latest > ./src/chain-spec-templates/chain_spec_testnet_poa_latest.json
 ```
 
 * Build "raw" chain definition for the new chain
