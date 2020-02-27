@@ -6,7 +6,6 @@ use codec::{
 };
 use frame_support::traits::{
     Currency,
-    ExistenceRequirement,
     Randomness,
 };
 /// A runtime module for managing non-fungible tokens
@@ -33,7 +32,6 @@ use system::ensure_signed;
 
 // FIXME - remove roaming_operators here, only use this approach since do not know how to use BalanceOf using only
 // mining-speed-boosts runtime module
-use roaming_operators;
 
 #[cfg(test)]
 mod mock;

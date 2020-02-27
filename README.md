@@ -359,6 +359,8 @@ https://www.youtube.com/watch?v=0aTnxHrV_j4&list=PLOyWqupZ-WGt3mA_d9wu74vVe0bM37
 
 ### Simple Debugging
 
+**TODO** - Replace with use of log::debug with native::debug. See https://github.com/DataHighway-DHX/node/issues/41
+
 * Add to Cargo.toml of runtime module:
 ```yaml
 ...
@@ -382,26 +384,23 @@ log::info!("hello {:?}", world); // Shows in terminal in release mode
 RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/datahighway ...
 ```
 
-
 ## Create custom blockchain configuration <a id="chapter-b1b53c"></a>
 
 * Create latest chain specification code changes of <CHAIN_ID> (i.e. dev, local, testnet, or testnet-latest)
 
 ```bash
-mkdir -p ./src/chainspec-templates
+mkdir -p ./src/chain-spec-templates
 ./target/release/datahighway build-spec \
-  --chain=<CHAIN_ID> > ./src/chainspec-templates/chainspec_latest.json
+  --chain=local > ./src/chain-spec-templates/chain_spec_testnet_poa_latest.json
 ```
-
-* Edit chain specification according to cryptocurrency design requirements
 
 * Build "raw" chain definition for the new chain
 
 ```bash
 mkdir -p ./src/chain-definition-custom
 ./target/release/datahighway build-spec \
-  --chain ./src/chainspec-templates/chainspec_latest.json \
-  --raw > ./src/chain-definition-custom/chaindef_testnet_v0.1.0.json
+  --chain ./src/chain-spec-templates/chain_spec_testnet_poa_latest.json \
+  --raw > ./src/chain-definition-custom/chain_def_testnet_poa_v0.1.0.json
 ```
 
 ## Run multiple nodes in PoS testnet using custom blockchain configuration <a id="chapter-f21efd"></a>
@@ -412,25 +411,28 @@ mkdir -p ./src/chain-definition-custom
   * Multiple authority nodes using the Aura consensus to produce blocks
 
 Terminal 1: Alice's Substrate-based node on default TCP port 30333 with her chain database stored locally at `/tmp/polkadot-chains/alice` and where the bootnode ID of her node is `Local node identity is: Qma68PCzu2xt2SctTBk6q6pLep6wAxRr6FpziQYwhsMCK6` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey -e inspect //Alice`, alternatively you could provide the private key to that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`.
-If you explicitly specify a `--node-key` when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chainspec.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/datahighway:
+If you explicitly specify a `--node-key` (i.e. `--node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee`) when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chainspec.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/datahighway:
 
 ```bash
 ./target/release/datahighway --validator \
   --base-path /tmp/polkadot-chains/alice \
   --keystore-path "/tmp/polkadot-chains/alice/keys" \
-  --chain ./src/chain-definition-custom/chaindef_testnet_v0.1.0.json \
+  --chain ./src/chain-definition-custom/chain_def_testnet_poa_v0.1.0.json \
   --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee \
+  --alice \
   --port 30333 \
   --telemetry-url ws://telemetry.polkadot.io:1024
 ```
+
+When the node is started, copy the address of the node, and paste in the `bootNodes` of chain_def_testnet_poa_v0.1.0.json
 
 Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and with his chain database stored locally at `/tmp/polkadot-chains/alice`. We'll specify a value for the `--bootnodes` option that will connect his node to Alice's bootnode ID on TCP port 30333:
 
 ```bash
 ./target/release/datahighway --validator \
   --base-path /tmp/polkadot-chains/bob \
-  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/Qma68PCzu2xt2SctTBk6q6pLep6wAxRr6FpziQYwhsMCK6 \
-  --chain ./src/chain-definition-custom/chaindef_testnet_v0.1.0.json \
+  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
+  --chain ./src/chain-definition-custom/chain_def_testnet_poa_v0.1.0.json \
   --bob \
   --port 30334 \
   --telemetry-url ws://telemetry.polkadot.io:1024
@@ -438,13 +440,47 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
 
 * Configure settings to view at [Polkadot.js Apps](#chapter-6d9058)
 
-* View on [Polkadot Telemetry](https://telemetry.polkadot.io/#list/My%20Testnet)
+* View on [Polkadot Telemetry](https://telemetry.polkadot.io/#list/DataHighway%20Local%20PoA%20Testnet%20v0.1.0)
 
-* Distribute the custom chain specification to allow others to synchronise and validate if they are an authority
+* Distribute the custom chain definition (i.e. chain_def_testnet_poa_v0.1.0.json) to allow others to synchronise and validate if they are an authority
 
 * Add session keys for other account(s) to be configured as authorities (validators)
 
 ## Linting<a id="chapter-c345d7"></a>
+
+### Clippy
+
+#### Run Manually
+
+##### Stable
+```rust
+cargo clippy --release -- -D warnings
+```
+
+##### Nightly
+
+The following is a temporary fix. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
+
+```
+rustup component add clippy --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
+rustup component add clippy-preview --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
+cargo +nightly-2020-02-17 clippy-preview -Zunstable-options
+```
+
+#### Continuous Integration (CI)
+
+Clippy is currently disabled in CI for the following reasons.
+
+A configuration file clippy.toml to accept or ignore different types of Clippy errors
+is not available (see https://github.com/rust-lang/cargo/issues/5034). So it
+currenty takes a long time to manually ignore each type of Clippy error in each file.
+
+To manually ignore a clippy error it is necessary to do the following,
+where `redundant_pattern_matching` is the clippy error type in this example:
+
+```rust
+#![cfg_attr(feature = "cargo-clippy", allow(clippy::redundant_pattern_matching))]
+```
 
 ### Rust Format
 
