@@ -184,6 +184,7 @@ impl Alternative {
                     &include_bytes!("./chain-definition-custom/chaindef_testnet_v0.1.0.json")[..],
                 )?
             }
+            // FIXME: Not working for some reason. Only 'local' works (error insufficient balance to bond)
             Alternative::DataHighwayTestnetLatest => {
                 ChainSpec::from_genesis(
                     "DataHighway Testnet",
