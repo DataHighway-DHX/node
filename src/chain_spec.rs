@@ -130,7 +130,7 @@ impl Alternative {
                     // bootnodes
                     vec![
                         // Alice
-                        "/ip4/127.0.0.1/tcp/30333/p2p/Qma68PCzu2xt2SctTBk6q6pLep6wAxRr6FpziQYwhsMCK6".to_string(),
+                        "/ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".to_string(),
                     ],
                     None,
                     None,
@@ -146,9 +146,9 @@ impl Alternative {
                         dev_genesis(
                             vec![
                                 get_authority_keys_from_seed("Alice"),
-                                get_authority_keys_from_seed("Alice"),
-                                get_authority_keys_from_seed("Alice"),
                                 get_authority_keys_from_seed("Bob"),
+                                get_authority_keys_from_seed("Charlie"),
+                                get_authority_keys_from_seed("Dave"),
                             ],
                             get_account_id_from_seed::<sr25519::Public>("Alice"),
                             vec![
@@ -171,7 +171,7 @@ impl Alternative {
                     // bootnodes
                     vec![
                         // Alice
-                        "/ip4/127.0.0.1/tcp/30333/p2p/Qma68PCzu2xt2SctTBk6q6pLep6wAxRr6FpziQYwhsMCK6".to_string(),
+                        "/ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".to_string(),
                     ],
                     None,
                     None,
@@ -200,9 +200,9 @@ impl Alternative {
                         testnet_genesis(
                             vec![
                                 get_authority_keys_from_seed("Alice"),
-                                get_authority_keys_from_seed("Alice"),
-                                get_authority_keys_from_seed("Alice"),
                                 get_authority_keys_from_seed("Bob"),
+                                get_authority_keys_from_seed("Charlie"),
+                                get_authority_keys_from_seed("Dave"),
                             ],
                             get_account_id_from_seed::<sr25519::Public>("Alice"),
                             vec![
@@ -224,7 +224,7 @@ impl Alternative {
                     // bootnodes
                     vec![
                         // Alice
-                        "/ip4/127.0.0.1/tcp/30333/p2p/Qma68PCzu2xt2SctTBk6q6pLep6wAxRr6FpziQYwhsMCK6".to_string(),
+                        "/ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".to_string(),
                     ],
                     // telemetry endpoints
                     Some(TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])),

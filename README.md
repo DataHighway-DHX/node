@@ -219,6 +219,8 @@ mkdir -p ./src/chain-definition-custom
   --raw > ./src/chain-definition-custom/chain_def_testnet_poa_v0.1.0.json
 ```
 
+> Remember to purge the chain state if you change anything
+
 ## Run multiple nodes in PoS testnet using custom blockchain configuration <a id="chapter-f21efd"></a>
 
 * Run custom Substrate-based blockchain on local machine testnet with multiple terminals:
