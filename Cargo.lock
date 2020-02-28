@@ -1468,7 +1468,7 @@ dependencies = [
  "indexmap",
  "log",
  "slab",
- "tokio 0.2.11",
+ "tokio 0.2.12",
  "tokio-util",
 ]
 
@@ -1669,7 +1669,7 @@ dependencies = [
  "net2",
  "pin-project",
  "time",
- "tokio 0.2.11",
+ "tokio 0.2.12",
  "tower-service",
  "want 0.3.0",
 ]
@@ -1686,7 +1686,7 @@ dependencies = [
  "hyper 0.13.2",
  "rustls",
  "rustls-native-certs",
- "tokio 0.2.11",
+ "tokio 0.2.12",
  "tokio-rustls",
  "webpki",
 ]
@@ -2840,7 +2840,7 @@ dependencies = [
  "parity-scale-codec",
  "serde",
  "sp-runtime",
- "sp-std 2.0.0-alpha.2",
+ "sp-std 2.0.0-alpha.3",
 ]
 
 [[package]]
@@ -3673,7 +3673,7 @@ dependencies = [
  "hyper 0.13.2",
  "log",
  "prometheus",
- "tokio 0.2.11",
+ "tokio 0.2.12",
 ]
 
 [[package]]
@@ -4592,7 +4592,7 @@ dependencies = [
  "sp-state-machine",
  "structopt",
  "time",
- "tokio 0.2.11",
+ "tokio 0.2.12",
 ]
 
 [[package]]
@@ -5984,8 +5984,8 @@ source = "git+https://github.com/paritytech/substrate.git?rev=5b41575012e935ffef
 
 [[package]]
 name = "sp-std"
-version = "2.0.0-alpha.2"
-source = "git+https://github.com/paritytech/substrate.git#f41677d00a51acfc9179917624ac8703658f81ea"
+version = "2.0.0-alpha.3"
+source = "git+https://github.com/paritytech/substrate.git#013c1ee167354a08283fb69915fda56a62fee943"
 
 [[package]]
 name = "sp-storage"
@@ -6396,9 +6396,9 @@ dependencies = [
 
 [[package]]
 name = "tokio"
-version = "0.2.11"
+version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fdd17989496f49cdc57978c96f0c9fe5e4a58a8bddc6813c449a4624f6a030b"
+checksum = "b34bee1facdc352fba10c9c58b654e6ecb6a2250167772bf86071f7c5f2f5061"
 dependencies = [
  "bytes 0.5.4",
  "fnv",
@@ -6517,7 +6517,7 @@ checksum = "141afec0978abae6573065a48882c6bae44c5cc61db9b511ac4abf6a09bfd9cc"
 dependencies = [
  "futures-core",
  "rustls",
- "tokio 0.2.11",
+ "tokio 0.2.12",
  "webpki",
 ]
 
@@ -6629,7 +6629,7 @@ dependencies = [
  "futures-sink",
  "log",
  "pin-project-lite",
- "tokio 0.2.11",
+ "tokio 0.2.12",
 ]
 
 [[package]]

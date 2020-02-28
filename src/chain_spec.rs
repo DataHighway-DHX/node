@@ -73,7 +73,7 @@ pub enum Alternative {
     Development,
     /// Whatever the current runtime is, with simple Alice/Bob auths.
     LocalTestnet,
-    DataHighwayTestnet,
+    // DataHighwayTestnet,
     DataHighwayTestnetLatest,
 }
 
@@ -141,7 +141,7 @@ impl Alternative {
             Alternative::LocalTestnet => {
                 ChainSpec::from_genesis(
                     "Local Testnet",
-                    "local_testnet",
+                    "local",
                     || {
                         dev_genesis(
                             vec![
@@ -179,16 +179,16 @@ impl Alternative {
                     Default::default(),
                 )
             }
-            Alternative::DataHighwayTestnet => {
-                ChainSpec::from_json_bytes(
-                    &include_bytes!("./chain-definition-custom/chain_def_testnet_poa_v0.1.0.json")[..],
-                )?
-            }
+            // Alternative::DataHighwayTestnet => {
+            //     ChainSpec::from_json_bytes(
+            //         &include_bytes!("./chain-definition-custom/chain_def_testnet_poa_v0.1.0.json")[..],
+            //     )?
+            // }
             // FIXME: Not working for some reason. Only 'local' works (error insufficient balance to bond)
             Alternative::DataHighwayTestnetLatest => {
                 ChainSpec::from_genesis(
                     "DataHighway Testnet",
-                    "datahighway-testnet",
+                    "testnet-latest",
                     || {
                         // TODO: regenerate alphanet according to babe-grandpa consensus
                         // export SECRET=test && echo $SECRET
@@ -198,7 +198,6 @@ impl Alternative {
                         // ./target/release/subkey --ed25519 inspect "$SECRET//datahighway//grandpa"
                         // ./target/release/subkey inspect "$SECRET//datahighway//root"
                         testnet_genesis(
-                            // TODO: regenerate alphanet according to babe-grandpa consensus
                             vec![
                                 get_authority_keys_from_seed("Alice"),
                                 get_authority_keys_from_seed("Alice"),
@@ -208,7 +207,17 @@ impl Alternative {
                             get_account_id_from_seed::<sr25519::Public>("Alice"),
                             vec![
                                 get_account_id_from_seed::<sr25519::Public>("Alice"),
+                                get_account_id_from_seed::<sr25519::Public>("Bob"),
                                 get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                                get_account_id_from_seed::<sr25519::Public>("Dave"),
+                                get_account_id_from_seed::<sr25519::Public>("Eve"),
+                                get_account_id_from_seed::<sr25519::Public>("Ferdie"),
+                                get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
+                                get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+                                get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
+                                get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
+                                get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
+                                get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                             ],
                         )
                     },
@@ -234,7 +243,7 @@ impl Alternative {
         match s {
             "dev" => Some(Alternative::Development),
             "local" => Some(Alternative::LocalTestnet),
-            "" | "testnet" => Some(Alternative::DataHighwayTestnet),
+            // "" | "testnet" => Some(Alternative::DataHighwayTestnet),
             "testnet-latest" => Some(Alternative::DataHighwayTestnetLatest),
             _ => None,
         }

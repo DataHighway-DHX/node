@@ -198,6 +198,12 @@ RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/datahighway ...
 
 * Create latest chain specification code changes of <CHAIN_ID> (i.e. dev, local, testnet, or testnet-latest)
 
+> Remember to build your chain first with:
+
+```bash
+cargo build --release
+```
+
 ```bash
 mkdir -p ./src/chain-spec-templates
 ./target/release/datahighway build-spec \
