@@ -11,6 +11,7 @@ mod tests {
     use super::*;
 
     use frame_support::{
+        assert_noop,
         assert_ok,
         impl_outer_origin,
         parameter_types,
@@ -22,8 +23,12 @@ mod tests {
         traits::{
             BlakeTwo256,
             IdentityLookup,
+            OnFinalize,
+            Zero,
         },
+        DispatchResult,
         Perbill,
+        Permill,
     };
     // Import Trait for each runtime module being tested
     use mining_speed_boosts_claims_token_mining::{
@@ -58,6 +63,10 @@ mod tests {
     };
     use roaming_operators;
 
+    // pub fn origin_of(who: &AccountId) -> <Runtime as system::Trait>::Origin {
+    // 	<Runtime as system::Trait>::Origin::signed((*who).clone())
+    // }
+
     impl_outer_origin! {
         pub enum Origin for Test {}
     }
@@ -71,7 +80,7 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl system::Trait for Test {
-        type AccountData = balances::AccountData<u64>;
+        type AccountData = pallet_balances::AccountData<u64>;
         type AccountId = u64;
         type AvailableBlockRatio = AvailableBlockRatio;
         type BlockHashCount = BlockHashCount;
@@ -87,22 +96,22 @@ mod tests {
         type MaximumBlockLength = MaximumBlockLength;
         type MaximumBlockWeight = MaximumBlockWeight;
         type ModuleToIndex = ();
+        type OnKilledAccount = ();
         type OnNewAccount = ();
-        type OnReapAccount = ();
         type Origin = Origin;
         type Version = ();
     }
     parameter_types! {
         pub const ExistentialDeposit: u64 = 1;
     }
-    impl balances::Trait for Test {
+    impl pallet_balances::Trait for Test {
         type AccountStore = System;
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();
         type ExistentialDeposit = ExistentialDeposit;
     }
-    impl transaction_payment::Trait for Test {
+    impl pallet_transaction_payment::Trait for Test {
         type Currency = Balances;
         type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
@@ -164,19 +173,19 @@ mod tests {
     }
 
     type System = system::Module<Test>;
-    pub type Balances = balances::Module<Test>;
+    pub type Balances = pallet_balances::Module<Test>;
     pub type MiningSpeedBoostConfigurationTokenMiningTestModule = MiningSpeedBoostConfigurationTokenMiningModule<Test>;
     pub type MiningSpeedBoostRatesTokenMiningTestModule = MiningSpeedBoostRatesTokenMiningModule<Test>;
     pub type MiningSpeedBoostSamplingTokenMiningTestModule = MiningSpeedBoostSamplingTokenMiningModule<Test>;
     pub type MiningSpeedBoostEligibilityTokenMiningTestModule = MiningSpeedBoostEligibilityTokenMiningModule<Test>;
     pub type MiningSpeedBoostClaimsTokenMiningTestModule = MiningSpeedBoostClaimsTokenMiningModule<Test>;
-    type Randomness = randomness_collective_flip::Module<Test>;
+    type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     pub fn new_test_ext() -> sp_io::TestExternalities {
         let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
-        balances::GenesisConfig::<Test> {
+        pallet_balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30)],
         }
         .assimilate_storage(&mut t)
