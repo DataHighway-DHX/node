@@ -40,6 +40,7 @@ Refer to the [DataHighway Developer Hub](https://github.com/DataHighway-DHX/docu
 ```bash
 curl https://getsubstrate.io -sSf | bash -s -- --fast && \
 ./scripts/init.sh && \
+git submodule add --force --name orml -- https://github.com/DataHighway-DHX/open-runtime-module-library && \
 cargo build --release
 ```
 

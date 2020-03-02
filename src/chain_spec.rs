@@ -6,16 +6,20 @@ use datahighway_runtime::{
     AccountId,
     BabeConfig,
     BalancesConfig,
+    CurrencyId,
+    FinancialCouncilMembershipConfig,
     GeneralCouncilMembershipConfig,
     GenesisConfig,
     GrandpaConfig,
     IndicesConfig,
+    OperatorMembershipConfig,
     SessionConfig,
     Signature,
     StakerStatus,
     StakingConfig,
     SudoConfig,
     SystemConfig,
+    TokensConfig,
     WASM_BINARY,
 };
 use grandpa_primitives::AuthorityId as GrandpaId;
@@ -79,7 +83,9 @@ pub enum Alternative {
 
 /// Helper function to generate a crypto pair from seed
 pub fn get_from_seed<TPublic: Public>(seed: &str) -> <TPublic::Pair as Pair>::Public {
-    TPublic::Pair::from_string(&format!("//{}", seed), None).expect("static values are valid; qed").public()
+    TPublic::Pair::from_string(&format!("//{}", seed), None)
+        .expect("static values are valid; qed")
+        .public()
 }
 
 type AccountPublic = <Signature as Verify>::Signer;
@@ -272,7 +278,11 @@ fn dev_genesis(
             changes_trie_config: Default::default(),
         }),
         pallet_indices: Some(IndicesConfig {
-            indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
+            indices: endowed_accounts
+                .iter()
+                .enumerate()
+                .map(|(index, x)| (index as u32, (*x).clone()))
+                .collect(),
         }),
         pallet_balances: Some(BalancesConfig {
             balances: endowed_accounts.iter().cloned().map(|k| (k, INITIAL_BALANCE)).collect(),
@@ -309,7 +319,28 @@ fn dev_genesis(
             members: vec![root_key.clone()],
             phantom: Default::default(),
         }),
+		pallet_collective_Instance2: Some(Default::default()),
+		pallet_membership_Instance2: Some(FinancialCouncilMembershipConfig {
+			members: vec![root_key.clone()],
+			phantom: Default::default(),
+		}),
+		pallet_collective_Instance3: Some(Default::default()),
+		pallet_membership_Instance3: Some(OperatorMembershipConfig {
+			members: vec![root_key.clone()],
+			phantom: Default::default(),
+		}),
         pallet_treasury: Some(Default::default()),
+		orml_tokens: Some(TokensConfig {
+			endowed_accounts: endowed_accounts
+				.iter()
+				.flat_map(|x| {
+					vec![
+						(x.clone(), CurrencyId::DHX, INITIAL_BALANCE),
+						(x.clone(), CurrencyId::AUSD, INITIAL_BALANCE),
+					]
+				})
+				.collect(),
+		}),
     }
 }
 
@@ -362,7 +393,28 @@ fn testnet_genesis(
             members: vec![root_key.clone()],
             phantom: Default::default(),
         }),
+		pallet_collective_Instance2: Some(Default::default()),
+		pallet_membership_Instance2: Some(FinancialCouncilMembershipConfig {
+			members: vec![root_key.clone()],
+			phantom: Default::default(),
+		}),
+		pallet_collective_Instance3: Some(Default::default()),
+		pallet_membership_Instance3: Some(OperatorMembershipConfig {
+			members: vec![root_key.clone()],
+			phantom: Default::default(),
+		}),
         pallet_treasury: Some(Default::default()),
+		orml_tokens: Some(TokensConfig {
+			endowed_accounts: endowed_accounts
+				.iter()
+				.flat_map(|x| {
+					vec![
+						(x.clone(), CurrencyId::DHX, INITIAL_BALANCE),
+						(x.clone(), CurrencyId::AUSD, INITIAL_BALANCE),
+					]
+				})
+				.collect(),
+		}),
     }
 }
 

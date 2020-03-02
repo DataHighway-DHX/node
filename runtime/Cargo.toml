@@ -64,6 +64,13 @@ std = [
     'mining-speed-boosts-eligibility-hardware-mining/std',
     'mining-speed-boosts-claims-token-mining/std',
     'mining-speed-boosts-claims-hardware-mining/std',
+    # 'orml-oracle/std',
+    'orml-traits/std',
+    'orml-tokens/std',
+    'orml-currencies/std',
+    'orml-prices/std',
+    'orml-utilities/std',
+    'orml-oracle-rpc-runtime-api/std',
 ]
 
 [dependencies]
@@ -130,6 +137,13 @@ mining-speed-boosts-eligibility-hardware-mining = { default_features = false, pa
 mining-speed-boosts-claims-token-mining = { default_features = false, package = 'mining-speed-boosts-claims-token-mining', path = '../pallets/mining/mining-speed-boosts/claims/token-mining' }
 mining-speed-boosts-claims-hardware-mining = { default_features = false, package = 'mining-speed-boosts-claims-hardware-mining', path = '../pallets/mining/mining-speed-boosts/claims/hardware-mining' }
 module-primitives = { default-features = false, path = '../pallets/primitives' }
+# orml-oracle = { path = '../open-runtime-module-library/oracle', default-features = false }
+orml-tokens = { path = '../open-runtime-module-library/tokens', default-features = false }
+orml-currencies = { path = '../open-runtime-module-library/currencies', default-features = false }
+orml-prices = { path = '../open-runtime-module-library/prices', default-features = false }
+orml-traits = { path = '../open-runtime-module-library/traits', default-features = false }
+orml-utilities = { path = '../open-runtime-module-library/utilities', default-features = false }
+orml-oracle-rpc-runtime-api = { path = '../open-runtime-module-library/oracle/rpc/runtime-api', default-features = false }
 
 [build-dependencies]
 wasm-builder-runner = { version = '1.0.4', package = 'substrate-wasm-builder-runner', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }

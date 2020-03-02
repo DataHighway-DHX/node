@@ -36,3 +36,11 @@ Reference: https://help.github.com/en/actions/configuring-and-managing-workflows
 	`rustup toolchain install nightly-2020-02-17`), since for example
 	the latest Rust Nightly version nightly-2020-02-20 may cause our CI tests
 	to fail (i.e. https://github.com/DataHighway-DHX/node/issues/32)
+
+* What does this kind of error message mean? ANS: It likely means `default-features = false` is missing somewhere in Cargo.toml (Credit: Bryan Chen @ laminar.one)
+
+	```
+	error: duplicate lang item in crate `sp_io` (which `frame_support` depends on): `panic_impl`.
+		|
+		= note: the lang item is first defined in crate `sp_io` (which `sp_application_crypto` depends on)
+	```

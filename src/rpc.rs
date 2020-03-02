@@ -73,8 +73,7 @@ where
     C::Api: AccountNonceApi<Block, AccountId, Index>,
     C::Api: pallet_transaction_payment_rpc::TransactionPaymentRuntimeApi<Block, Balance, UncheckedExtrinsic>,
     C::Api: BabeApi<Block>,
-    // TODO
-    // C::Api: orml_oracle_rpc::OracleRuntimeApi<Block, CurrencyId, TimeStampedPrice>,
+    C::Api: orml_oracle_rpc::OracleRuntimeApi<Block, CurrencyId, TimeStampedPrice>,
     <C::Api as sp_api::ApiErrorExt>::Error: fmt::Debug,
     P: TransactionPool + 'static,
     M: jsonrpc_core::Metadata + Default,
@@ -84,8 +83,7 @@ where
         FullSystem,
         SystemApi,
     };
-    // TODO
-    // use orml_oracle_rpc::{Oracle, OracleApi};
+    use orml_oracle_rpc::{Oracle, OracleApi};
     use pallet_transaction_payment_rpc::{
         TransactionPayment,
         TransactionPaymentApi,
@@ -113,8 +111,7 @@ where
         babe_config,
         select_chain,
     )));
-    // TODO: Add Oracle
-    // io.extend_with(OracleApi::to_delegate(Oracle::new(client)));
+    io.extend_with(OracleApi::to_delegate(Oracle::new(client)));
 
     io
 }

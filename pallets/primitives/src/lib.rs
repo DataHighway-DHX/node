@@ -24,6 +24,15 @@ use serde::{
     Serialize,
 };
 
+pub use orml_prices::Price;
+
+#[derive(Encode, Decode, Eq, PartialEq, Copy, Clone, RuntimeDebug, PartialOrd, Ord)]
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+pub enum CurrencyId {
+  DHX = 0,
+  AUSD,
+}
+
 pub type Balance = u128;
 
 #[cfg(test)]
