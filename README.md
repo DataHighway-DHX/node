@@ -264,6 +264,10 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
 ```bash
 docker-compose up -d
 ```
+- Check the logs
+```bash
+docker-compose logs (-f to follow)
+```
 
 * Configure settings to view at [Polkadot.js Apps](#chapter-6d9058)
 
