@@ -259,7 +259,8 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
 # Run the testnet chain in docker containers
 - Checkout this repo on the test node
 - Update docker-compose.yml with the role (Alice/Bob)
-- Update the chain definition file with the node IP
+- Update ./scripts/docker-entrypoint.sh with the role specific information
+- Update ./src/chain-definition-custom/chain_def_testnet_poa_v0.1.0.json with the role specific information
 - Start the container (the image will be build on first run based on Dockerfile)
 ```bash
 docker-compose up -d
