@@ -10,7 +10,6 @@ RUN apt-get update && apt-get install -y build-essential wget cmake pkg-config l
 	&& cargo version \
 	&& cargo build --release
 
-WORKDIR /dhx/scripts
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["./scripts/docker-entrypoint.sh"]
 
 

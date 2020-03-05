@@ -7,5 +7,5 @@ services:
     ports:
       - 30333:30333
     volumes:
-      - ./src/chain-definition-customer:/dhx/src/chain-definition-custom
+      - ./src/chain-definition-custom:/dhx/src/chain-definition-custom
 
