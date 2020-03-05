@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  alice:
+    build: .
+    image: datahighway:latest
+    ports:
+      - 30333:30333
+    volumes:
+      - ./src/chain-definition-customer:/dhx/src/chain-definition-custom
+
