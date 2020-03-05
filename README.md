@@ -256,6 +256,15 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
   --telemetry-url ws://telemetry.polkadot.io:1024
 ```
 
+# Run the testnet chain in docker containers
+- Checkout this repo on the test node
+- Update docker-compose.yml with the role (Alice/Bob)
+- Update the chain definition file with the node IP
+- Start the container (the image will be build on first run based on Dockerfile)
+```bash
+docker-compose up -d
+```
+
 * Configure settings to view at [Polkadot.js Apps](#chapter-6d9058)
 
 * View on [Polkadot Telemetry](https://telemetry.polkadot.io/#list/DataHighway%20Local%20PoA%20Testnet%20v0.1.0)
