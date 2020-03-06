@@ -141,17 +141,3 @@ jobs:
       #     rustup component add clippy --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
       #     rustup component add clippy-preview --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
       #     cargo +nightly-2020-02-17 clippy-preview -Zunstable-options
-
-  Publish:
-    name: Publish Docker
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout sources
-      uses: actions/checkout@master
-
-    - name: Publish image to Dockerhub    
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: dhxdocker/node
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
