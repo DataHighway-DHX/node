@@ -6,6 +6,8 @@ services:
     image: datahighway:latest
     ports:
       - 30333:30333
+      - 9944:9944
+      - 9933:9933
     volumes:
       - ./src/chain-definition-custom:/dhx/src/chain-definition-custom
 
