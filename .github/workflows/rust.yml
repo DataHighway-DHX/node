@@ -144,6 +144,7 @@ jobs:
 
   Publish:
     name: Publish Docker
+    runs-on: ubuntu-latest
     on:
       push:
         branches:
@@ -155,14 +156,11 @@ jobs:
           - master
           - develop
           - testnet/christian/DHX-145
-      jobs:
-        build:
-          runs-on: ubuntu-latest
-          steps:
-          - uses: actions/checkout@master
-          - name: Publish to Registry
-            uses: elgohr/Publish-Docker-Github-Action@master
-            with:
-              name: mxcdocker/datahighway
-              username: ${{ secrets.DOCKER_USERNAME }}
-              password: ${{ secrets.DOCKER_PASSWORD }}
+    steps:
+    - uses: actions/checkout@master
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: mxcdocker/datahighway
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
