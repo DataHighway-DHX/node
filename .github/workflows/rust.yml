@@ -144,17 +144,17 @@ jobs:
 
   Publish:
     name: Publish Docker
-      on:
-        push:
-          branches:
-            - master
-            - develop
-            - testnet/christian/DHX-145
-        pull_request:
-          branches:
-            - master
-            - develop
-            - testnet/christian/DHX-145
+    on:
+      push:
+        branches:
+          - master
+          - develop
+          - testnet/christian/DHX-145
+      pull_request:
+        branches:
+          - master
+          - develop
+          - testnet/christian/DHX-145
       jobs:
         build:
           runs-on: ubuntu-latest
