@@ -146,8 +146,10 @@ jobs:
     name: Publish Docker
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - name: Publish to Registry
+    - name: Checkout sources
+      uses: actions/checkout@master
+
+    - name: Publish image to Dockerhub    
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
         name: dhxdocker/node
