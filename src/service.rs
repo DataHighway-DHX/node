@@ -51,9 +51,7 @@ macro_rules! new_full_start {
             Ok(pool)
         })?
         .with_import_queue(|_config, client, mut select_chain, _transaction_pool| {
-            let select_chain = select_chain.
-                take()
-                .ok_or_else(|| sc_service::Error::SelectChainRequired)?;
+            let select_chain = select_chain.take().ok_or_else(|| sc_service::Error::SelectChainRequired)?;
             let (grandpa_block_import, grandpa_link) =
                 sc_finality_grandpa::block_import(client.clone(), &*client, select_chain)?;
             let justification_import = grandpa_block_import.clone();
@@ -130,7 +128,7 @@ pub fn new_full(config: NodeConfiguration) -> Result<impl AbstractService, Servi
         .build()?;
 
     if participates_in_consensus {
-		let proposer = sc_basic_authorship::ProposerFactory::new(service.client(), service.transaction_pool());
+        let proposer = sc_basic_authorship::ProposerFactory::new(service.client(), service.transaction_pool());
 
         let client = service.client();
         let select_chain = service.select_chain().ok_or(ServiceError::SelectChainRequired)?;
@@ -252,12 +250,9 @@ pub fn new_light(config: NodeConfiguration) -> Result<impl AbstractService, Serv
             Ok(Arc::new(GrandpaFinalityProofProvider::new(backend, client)) as _)
         })?
         .with_rpc_extensions(|builder| -> Result<RpcExtension, _> {
-            let fetcher = builder
-                .fetcher()
-                .ok_or_else(|| "Trying to start node RPC without active fetcher")?;
-            let remote_blockchain = builder
-                .remote_backend()
-                .ok_or_else(|| "Trying to start node RPC without active remote blockchain")?;
+            let fetcher = builder.fetcher().ok_or_else(|| "Trying to start node RPC without active fetcher")?;
+            let remote_blockchain =
+                builder.remote_backend().ok_or_else(|| "Trying to start node RPC without active remote blockchain")?;
 
             let light_deps = rpc::LightDeps {
                 remote_blockchain,
