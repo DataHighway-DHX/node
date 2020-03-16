@@ -51,7 +51,12 @@ pub trait Trait:
 {
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
     type MiningSpeedBoostLodgementsHardwareMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSpeedBoostLodgementsHardwareMiningLodgementAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSpeedBoostLodgementsHardwareMiningLodgementAmount: Parameter
+        + Member
+        + AtLeast32Bit
+        + Bounded
+        + Default
+        + Copy;
     type MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed: Parameter
         + Member
         + AtLeast32Bit
@@ -290,9 +295,11 @@ impl<T: Trait> Module<T> {
         sender: T::AccountId,
     ) -> Result<(), DispatchError> {
         ensure!(
-            Self::mining_speed_boosts_lodgements_hardware_mining_owner(&mining_speed_boosts_lodgements_hardware_mining_id)
-                .map(|owner| owner == sender)
-                .unwrap_or(false),
+            Self::mining_speed_boosts_lodgements_hardware_mining_owner(
+                &mining_speed_boosts_lodgements_hardware_mining_id
+            )
+            .map(|owner| owner == sender)
+            .unwrap_or(false),
             "Sender is not owner of MiningSpeedBoostLodgementsHardwareMining"
         );
         Ok(())
@@ -359,11 +366,14 @@ impl<T: Trait> Module<T> {
                 !configuration_lodgements.contains(&mining_speed_boosts_lodgements_hardware_mining_id);
             ensure!(not_configuration_contains_claim, "Configuration already contains the given claim id");
             debug::info!("Configuration id key exists but its vector value does not contain the given claim id");
-            <HardwareMiningConfigurationLodgements<T>>::mutate(mining_speed_boosts_configuration_hardware_mining_id, |v| {
-                if let Some(value) = v {
-                    value.push(mining_speed_boosts_lodgements_hardware_mining_id);
-                }
-            });
+            <HardwareMiningConfigurationLodgements<T>>::mutate(
+                mining_speed_boosts_configuration_hardware_mining_id,
+                |v| {
+                    if let Some(value) = v {
+                        value.push(mining_speed_boosts_lodgements_hardware_mining_id);
+                    }
+                },
+            );
             debug::info!(
                 "Associated claim {:?} with configuration {:?}",
                 mining_speed_boosts_lodgements_hardware_mining_id,
@@ -397,7 +407,8 @@ impl<T: Trait> Module<T> {
 
     fn next_mining_speed_boosts_lodgements_hardware_mining_id()
     -> Result<T::MiningSpeedBoostLodgementsHardwareMiningIndex, DispatchError> {
-        let mining_speed_boosts_lodgements_hardware_mining_id = Self::mining_speed_boosts_lodgements_hardware_mining_count();
+        let mining_speed_boosts_lodgements_hardware_mining_id =
+            Self::mining_speed_boosts_lodgements_hardware_mining_count();
         if mining_speed_boosts_lodgements_hardware_mining_id ==
             <T::MiningSpeedBoostLodgementsHardwareMiningIndex as Bounded>::max_value()
         {
@@ -416,7 +427,9 @@ impl<T: Trait> Module<T> {
             mining_speed_boosts_lodgements_hardware_mining_id,
             mining_speed_boosts_lodgements_hardware_mining,
         );
-        <MiningSpeedBoostLodgementsHardwareMiningCount<T>>::put(mining_speed_boosts_lodgements_hardware_mining_id + One::one());
+        <MiningSpeedBoostLodgementsHardwareMiningCount<T>>::put(
+            mining_speed_boosts_lodgements_hardware_mining_id + One::one(),
+        );
         <MiningSpeedBoostLodgementsHardwareMiningOwners<T>>::insert(
             mining_speed_boosts_lodgements_hardware_mining_id,
             owner.clone(),
@@ -427,6 +440,9 @@ impl<T: Trait> Module<T> {
         to: &T::AccountId,
         mining_speed_boosts_lodgements_hardware_mining_id: T::MiningSpeedBoostLodgementsHardwareMiningIndex,
     ) {
-        <MiningSpeedBoostLodgementsHardwareMiningOwners<T>>::insert(mining_speed_boosts_lodgements_hardware_mining_id, to);
+        <MiningSpeedBoostLodgementsHardwareMiningOwners<T>>::insert(
+            mining_speed_boosts_lodgements_hardware_mining_id,
+            to,
+        );
     }
 }

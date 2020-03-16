@@ -620,16 +620,16 @@ impl mining_speed_boosts_eligibility_hardware_mining::Trait for Runtime {
 
 impl mining_speed_boosts_lodgements_token_mining::Trait for Runtime {
     type Event = Event;
+    type MiningSpeedBoostLodgementsTokenMiningIndex = u64;
     type MiningSpeedBoostLodgementsTokenMiningLodgementAmount = u64;
     type MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = u64;
-    type MiningSpeedBoostLodgementsTokenMiningIndex = u64;
 }
 
 impl mining_speed_boosts_lodgements_hardware_mining::Trait for Runtime {
     type Event = Event;
+    type MiningSpeedBoostLodgementsHardwareMiningIndex = u64;
     type MiningSpeedBoostLodgementsHardwareMiningLodgementAmount = u64;
     type MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed = u64;
-    type MiningSpeedBoostLodgementsHardwareMiningIndex = u64;
 }
 
 construct_runtime!(
