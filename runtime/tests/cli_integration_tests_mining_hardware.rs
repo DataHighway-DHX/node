@@ -1,7 +1,7 @@
 // extern crate env as env;
-extern crate mining_speed_boosts_lodgements_hardware_mining as mining_speed_boosts_lodgements_hardware_mining;
 extern crate mining_speed_boosts_configuration_hardware_mining as mining_speed_boosts_configuration_hardware_mining;
 extern crate mining_speed_boosts_eligibility_hardware_mining as mining_speed_boosts_eligibility_hardware_mining;
+extern crate mining_speed_boosts_lodgements_hardware_mining as mining_speed_boosts_lodgements_hardware_mining;
 extern crate mining_speed_boosts_rates_hardware_mining as mining_speed_boosts_rates_hardware_mining;
 extern crate mining_speed_boosts_sampling_hardware_mining as mining_speed_boosts_sampling_hardware_mining;
 extern crate roaming_operators as roaming_operators;
@@ -31,12 +31,6 @@ mod tests {
         Permill,
     };
     // Import Trait for each runtime module being tested
-    use mining_speed_boosts_lodgements_hardware_mining::{
-        MiningSpeedBoostLodgementsHardwareMining,
-        MiningSpeedBoostLodgementsHardwareMiningLodgementResult,
-        Module as MiningSpeedBoostLodgementsHardwareMiningModule,
-        Trait as MiningSpeedBoostLodgementsHardwareMiningTrait,
-    };
     use mining_speed_boosts_configuration_hardware_mining::{
         MiningSpeedBoostConfigurationHardwareMining,
         MiningSpeedBoostConfigurationHardwareMiningHardwareConfig,
@@ -48,6 +42,12 @@ mod tests {
         MiningSpeedBoostEligibilityHardwareMiningEligibilityResult,
         Module as MiningSpeedBoostEligibilityHardwareMiningModule,
         Trait as MiningSpeedBoostEligibilityHardwareMiningTrait,
+    };
+    use mining_speed_boosts_lodgements_hardware_mining::{
+        MiningSpeedBoostLodgementsHardwareMining,
+        MiningSpeedBoostLodgementsHardwareMiningLodgementResult,
+        Module as MiningSpeedBoostLodgementsHardwareMiningModule,
+        Trait as MiningSpeedBoostLodgementsHardwareMiningTrait,
     };
     use mining_speed_boosts_rates_hardware_mining::{
         MiningSpeedBoostRatesHardwareMining,
@@ -167,9 +167,9 @@ mod tests {
     }
     impl MiningSpeedBoostLodgementsHardwareMiningTrait for Test {
         type Event = ();
+        type MiningSpeedBoostLodgementsHardwareMiningIndex = u64;
         type MiningSpeedBoostLodgementsHardwareMiningLodgementAmount = u64;
         type MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed = u64;
-        type MiningSpeedBoostLodgementsHardwareMiningIndex = u64;
     }
 
     type System = system::Module<Test>;

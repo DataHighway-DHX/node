@@ -122,9 +122,9 @@ impl mining_speed_boosts_sampling_token_mining::Trait for Test {
 }
 impl Trait for Test {
     type Event = ();
+    type MiningSpeedBoostLodgementsTokenMiningIndex = u64;
     type MiningSpeedBoostLodgementsTokenMiningLodgementAmount = u64;
     type MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = u64;
-    type MiningSpeedBoostLodgementsTokenMiningIndex = u64;
 }
 type System = system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;
