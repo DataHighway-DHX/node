@@ -18,7 +18,7 @@ use datahighway_runtime::{
     SystemConfig,
     WASM_BINARY,
 };
-use grandpa_primitives::AuthorityId as GrandpaId;
+use sp_finality_grandpa::AuthorityId as GrandpaId;
 use hex_literal::hex;
 use sc_chain_spec::ChainSpecExtension;
 use sc_service;
