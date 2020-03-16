@@ -24,7 +24,7 @@ mod tests {
         parameter_types,
         weights::Weight,
     };
-    use frame_system::{self as system};
+    use frame_system::{self as system,};
     use sp_core::H256;
     use sp_runtime::{
         testing::Header,
