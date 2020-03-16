@@ -363,8 +363,8 @@ impl<T: Trait> Module<T> {
         let payload = (
             T::Randomness::random(&[0]),
             sender,
-            <system::Module<T>>::extrinsic_index(),
-            <system::Module<T>>::block_number(),
+            <frame_system::Module<T>>::extrinsic_index(),
+            <frame_system::Module<T>>::block_number(),
         );
         payload.using_encoded(blake2_128)
     }
