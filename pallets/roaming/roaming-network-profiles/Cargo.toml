@@ -16,7 +16,7 @@ std = [
     'sp-io/std',
     'sp-runtime/std',
     'sp-std/std',
-    'system/std',
+    'frame-system/std',
     'pallet-transaction-payment/std',
     'serde',
     'roaming-operators/std',

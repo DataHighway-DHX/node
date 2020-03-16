@@ -14,6 +14,7 @@ use frame_support::{
     ensure,
     Parameter,
 };
+use frame_system::ensure_signed;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -25,7 +26,6 @@ use sp_runtime::{
     DispatchError,
 };
 use sp_std::prelude::*; // Imports Vec
-use system::ensure_signed;
 #[macro_use]
 extern crate alloc; // Required to use Vec
 
@@ -37,9 +37,9 @@ mod tests;
 
 /// The module's configuration trait.
 pub trait Trait:
-    system::Trait + roaming_operators::Trait + roaming_devices::Trait + roaming_network_servers::Trait
+    frame_system::Trait + roaming_operators::Trait + roaming_devices::Trait + roaming_network_servers::Trait
 {
-    type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type RoamingSessionIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingSessionJoinRequestRequestedAt: Parameter + Member + Default;
     type RoamingSessionJoinRequestAcceptExpiry: Parameter + Member + Default;
@@ -68,7 +68,7 @@ pub struct RoamingSessionJoinAccept<U, V> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as system::Trait>::AccountId,
+        <T as frame_system::Trait>::AccountId,
         <T as Trait>::RoamingSessionIndex,
         <T as Trait>::RoamingSessionJoinRequestRequestedAt,
         <T as Trait>::RoamingSessionJoinRequestAcceptExpiry,

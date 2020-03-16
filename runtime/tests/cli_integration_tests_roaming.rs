@@ -105,8 +105,8 @@ mod tests {
         Trait as RoamingServiceProfileTrait,
     };
 
-    // pub fn origin_of(who: &AccountId) -> <Runtime as system::Trait>::Origin {
-    // 	<Runtime as system::Trait>::Origin::signed((*who).clone())
+    // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Trait>::Origin {
+    // 	<Runtime as frame_system::Trait>::Origin::signed((*who).clone())
     // }
 
     impl_outer_origin! {
@@ -121,7 +121,7 @@ mod tests {
         pub const MaximumBlockLength: u32 = 2 * 1024;
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
-    impl system::Trait for Test {
+    impl frame_system::Trait for Test {
         type AccountData = pallet_balances::AccountData<u64>;
         type AccountId = u64;
         type AvailableBlockRatio = AvailableBlockRatio;
@@ -232,7 +232,7 @@ mod tests {
         type RoamingDeviceProfileVendorID = Vec<u8>;
     }
 
-    type System = system::Module<Test>;
+    type System = frame_system::Module<Test>;
     pub type Balances = pallet_balances::Module<Test>;
     pub type RoamingOperatorTestModule = RoamingOperatorModule<Test>;
     pub type RoamingNetworkTestModule = RoamingNetworkModule<Test>;
@@ -252,7 +252,7 @@ mod tests {
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     pub fn new_test_ext() -> sp_io::TestExternalities {
-        let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
+        let mut t = frame_system::GenesisConfig::default().build_storage::<Test>().unwrap();
         pallet_balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30)],
         }

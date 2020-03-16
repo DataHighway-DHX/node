@@ -14,6 +14,7 @@ use frame_support::{
     ensure,
     Parameter,
 };
+use frame_system::ensure_signed;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -25,7 +26,6 @@ use sp_runtime::{
     DispatchError,
 };
 use sp_std::prelude::*; // Imports Vec
-use system::ensure_signed;
 #[macro_use]
 extern crate alloc; // Required to use Vec
 
@@ -36,8 +36,8 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: system::Trait + roaming_operators::Trait + roaming_networks::Trait {
-    type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
+pub trait Trait: frame_system::Trait + roaming_operators::Trait + roaming_networks::Trait {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type RoamingBillingPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingBillingPolicyNextBillingAt: Parameter + Member + Default;
     type RoamingBillingPolicyFrequencyInDays: Parameter + Member + Default;
@@ -57,7 +57,7 @@ pub struct RoamingBillingPolicyConfig<U, V> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as system::Trait>::AccountId,
+        <T as frame_system::Trait>::AccountId,
         <T as Trait>::RoamingBillingPolicyIndex,
         <T as Trait>::RoamingBillingPolicyNextBillingAt,
         <T as Trait>::RoamingBillingPolicyFrequencyInDays,

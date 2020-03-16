@@ -7,15 +7,15 @@ use datahighway_runtime::{
     GenesisConfig,
     RuntimeApi,
 };
-use sc_finality_grandpa::{
-    self,
-    FinalityProofProvider as GrandpaFinalityProofProvider,
-};
 use sc_client::{
     self,
     LongestChain,
 };
 use sc_consensus_babe;
+use sc_finality_grandpa::{
+    self,
+    FinalityProofProvider as GrandpaFinalityProofProvider,
+};
 use sc_service::{
     config::Configuration,
     error::Error as ServiceError,
@@ -52,7 +52,8 @@ macro_rules! new_full_start {
         })?
         .with_import_queue(|_config, client, mut select_chain, _transaction_pool| {
             let select_chain = select_chain.take().ok_or_else(|| sc_service::Error::SelectChainRequired)?;
-            let (grandpa_block_import, grandpa_link) = sc_finality_grandpa::block_import(client.clone(), &*client, select_chain)?;
+            let (grandpa_block_import, grandpa_link) =
+                sc_finality_grandpa::block_import(client.clone(), &*client, select_chain)?;
             let justification_import = grandpa_block_import.clone();
 
             let (block_import, babe_link) = sc_consensus_babe::block_import(

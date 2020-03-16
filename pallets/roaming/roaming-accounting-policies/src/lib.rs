@@ -17,6 +17,7 @@ use frame_support::{
     ensure,
     Parameter,
 };
+use frame_system::ensure_signed;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -28,7 +29,6 @@ use sp_runtime::{
     DispatchError,
 };
 use sp_std::prelude::*; // Imports Vec
-use system::ensure_signed;
 
 #[cfg(test)]
 mod mock;
@@ -37,15 +37,16 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: system::Trait + roaming_operators::Trait + roaming_networks::Trait {
-    type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
+pub trait Trait: frame_system::Trait + roaming_operators::Trait + roaming_networks::Trait {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type RoamingAccountingPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingAccountingPolicyType: Parameter + Member + Default;
     type RoamingAccountingPolicyUplinkFeeFactor: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingAccountingPolicyDownlinkFeeFactor: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
-type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as system::Trait>::AccountId>>::Balance;
+type BalanceOf<T> =
+    <<T as roaming_operators::Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -63,7 +64,7 @@ pub struct RoamingAccountingPolicyConfig<U, V, W, X> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as system::Trait>::AccountId,
+        <T as frame_system::Trait>::AccountId,
         <T as Trait>::RoamingAccountingPolicyIndex,
         <T as Trait>::RoamingAccountingPolicyType,
         <T as Trait>::RoamingAccountingPolicyUplinkFeeFactor,
