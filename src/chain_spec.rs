@@ -267,7 +267,7 @@ fn dev_genesis(
     _enable_println: bool,
 ) -> GenesisConfig {
     GenesisConfig {
-        system: Some(SystemConfig {
+        frame_system: Some(SystemConfig {
             code: WASM_BINARY.to_vec(),
             changes_trie_config: Default::default(),
         }),
@@ -320,7 +320,7 @@ fn testnet_genesis(
     // No println
 ) -> GenesisConfig {
     GenesisConfig {
-        system: Some(SystemConfig {
+        frame_system: Some(SystemConfig {
             code: WASM_BINARY.to_vec(),
             changes_trie_config: Default::default(),
         }),
