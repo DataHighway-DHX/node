@@ -144,7 +144,7 @@ pub struct MiningSpeedBoostConfigurationTokenMiningTokenConfig<U, V, W, X, Y> {
 
 // #[cfg_attr(feature = "std", derive(Debug))]
 // #[derive(Encode, Decode, Default, Clone, PartialEq)]
-// pub struct MiningSpeedBoostClaim<U, V> {
+// pub struct MiningSpeedBoostLodgement<U, V> {
 //     pub reward_amount: U,
 //     pub reward_date_redeemed: V,
 // }
@@ -175,7 +175,7 @@ decl_event!(
         //     AccountId, MiningSpeedBoostEligibilityTokenMiningIndex, MiningSpeedBoostEligibilityCalculatedEligibility
         // ),
         // RewardSet(
-        //     AccountId, MiningSpeedBoostClaimIndex, MiningSpeedBoostClaimHash, MiningSpeedBoostClaimAmount, MiningSpeedBoostClaimDateRedeemed
+        //     AccountId, MiningSpeedBoostLodgementIndex, MiningSpeedBoostLodgementHash, MiningSpeedBoostLodgementAmount, MiningSpeedBoostLodgementDateRedeemed
         // )
     }
 );
@@ -209,9 +209,9 @@ decl_storage! {
         // }
 
         // /// Stores mining_speed_boosts_claim
-        // pub MiningSpeedBoostClaim get(fn mining_speed_boosts_claim): map hasher(blake2_256) (T::MiningSpeedBoostClaimIndex, T::MiningSpeedBoostClaimHash) =>
-        //     Option<MiningSpeedBoostClaim<
-        //         T::MiningSpeedBoostClaimHash, T::MiningSpeedBoostClaimAmount, T::MiningSpeedBoostClaimDateRedeemed
+        // pub MiningSpeedBoostLodgement get(fn mining_speed_boosts_claim): map hasher(blake2_256) (T::MiningSpeedBoostLodgementIndex, T::MiningSpeedBoostLodgementHash) =>
+        //     Option<MiningSpeedBoostLodgement<
+        //         T::MiningSpeedBoostLodgementHash, T::MiningSpeedBoostLodgementAmount, T::MiningSpeedBoostLodgementDateRedeemed
         //     >>;
         // }
     }

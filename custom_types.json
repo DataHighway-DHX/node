@@ -175,19 +175,19 @@
     "hardware_date_audited": "u64",
     "hardware_auditor_account_id": "u64"
   },
-  "MiningSpeedBoostClaimsTokenMining": "[u8; 16]",
-  "MiningSpeedBoostClaimsTokenMiningIndex": "u64",
-  "MiningSpeedBoostClaimsTokenMiningClaimAmount": "u64",
-  "MiningSpeedBoostClaimsTokenMiningClaimDateRedeemed": "u64",
-  "MiningSpeedBoostClaimsTokenMiningClaimResult": {
+  "MiningSpeedBoostLodgementsTokenMining": "[u8; 16]",
+  "MiningSpeedBoostLodgementsTokenMiningIndex": "u64",
+  "MiningSpeedBoostLodgementsTokenMiningLodgementAmount": "u64",
+  "MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed": "u64",
+  "MiningSpeedBoostLodgementsTokenMiningLodgementResult": {
     "token_claim_amount": "u64",
     "token_date_redeemed": "u64"
   },
-  "MiningSpeedBoostClaimsHardwareMining": "[u8; 16]",
-  "MiningSpeedBoostClaimsHardwareMiningIndex": "u64",
-  "MiningSpeedBoostClaimsHardwareMiningClaimAmount": "u64",
-  "MiningSpeedBoostClaimsHardwareMiningClaimDateRedeemed": "u64",
-  "MiningSpeedBoostClaimsHardwareMiningClaimResult": {
+  "MiningSpeedBoostLodgementsHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostLodgementsHardwareMiningIndex": "u64",
+  "MiningSpeedBoostLodgementsHardwareMiningLodgementAmount": "u64",
+  "MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed": "u64",
+  "MiningSpeedBoostLodgementsHardwareMiningLodgementResult": {
     "hardware_claim_amount": "u64",
     "hardware_date_redeemed": "u64"
   }

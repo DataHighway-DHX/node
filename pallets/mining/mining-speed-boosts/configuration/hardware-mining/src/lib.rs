@@ -68,8 +68,8 @@ pub trait Trait: system::Trait + roaming_operators::Trait {
         + Default
         + Copy;
     // // Mining Speed Boost Reward
-    // type MiningSpeedBoostClaimAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    // type MiningSpeedBoostClaimDateRedeemed: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    // type MiningSpeedBoostLodgementAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    // type MiningSpeedBoostLodgementDateRedeemed: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
 // type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as

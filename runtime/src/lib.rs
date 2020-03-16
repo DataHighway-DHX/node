@@ -618,18 +618,18 @@ impl mining_speed_boosts_eligibility_hardware_mining::Trait for Runtime {
     // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
 }
 
-impl mining_speed_boosts_claims_token_mining::Trait for Runtime {
+impl mining_speed_boosts_lodgements_token_mining::Trait for Runtime {
     type Event = Event;
-    type MiningSpeedBoostClaimsTokenMiningClaimAmount = u64;
-    type MiningSpeedBoostClaimsTokenMiningClaimDateRedeemed = u64;
-    type MiningSpeedBoostClaimsTokenMiningIndex = u64;
+    type MiningSpeedBoostLodgementsTokenMiningLodgementAmount = u64;
+    type MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = u64;
+    type MiningSpeedBoostLodgementsTokenMiningIndex = u64;
 }
 
-impl mining_speed_boosts_claims_hardware_mining::Trait for Runtime {
+impl mining_speed_boosts_lodgements_hardware_mining::Trait for Runtime {
     type Event = Event;
-    type MiningSpeedBoostClaimsHardwareMiningClaimAmount = u64;
-    type MiningSpeedBoostClaimsHardwareMiningClaimDateRedeemed = u64;
-    type MiningSpeedBoostClaimsHardwareMiningIndex = u64;
+    type MiningSpeedBoostLodgementsHardwareMiningLodgementAmount = u64;
+    type MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed = u64;
+    type MiningSpeedBoostLodgementsHardwareMiningIndex = u64;
 }
 
 construct_runtime!(
@@ -675,8 +675,8 @@ construct_runtime!(
         DataHighwayMiningSpeedBoostSamplingHardwareMining: mining_speed_boosts_sampling_hardware_mining::{Module, Call, Storage, Event<T>},
         DataHighwayMiningSpeedBoostEligibilityTokenMining: mining_speed_boosts_eligibility_token_mining::{Module, Call, Storage, Event<T>},
         DataHighwayMiningSpeedBoostEligibilityHardwareMining: mining_speed_boosts_eligibility_hardware_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostClaimsTokenMining: mining_speed_boosts_claims_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostClaimsHardwareMining: mining_speed_boosts_claims_hardware_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostLodgementsTokenMining: mining_speed_boosts_lodgements_token_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostLodgementsHardwareMining: mining_speed_boosts_lodgements_hardware_mining::{Module, Call, Storage, Event<T>},
     }
 );
 
