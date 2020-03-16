@@ -51,7 +51,12 @@ pub trait Trait:
 {
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
     type MiningSpeedBoostLodgementsTokenMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSpeedBoostLodgementsTokenMiningLodgementAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSpeedBoostLodgementsTokenMiningLodgementAmount: Parameter
+        + Member
+        + AtLeast32Bit
+        + Bounded
+        + Default
+        + Copy;
     type MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed: Parameter
         + Member
         + AtLeast32Bit
@@ -428,7 +433,9 @@ impl<T: Trait> Module<T> {
         mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
         mining_speed_boosts_lodgements_token_mining_id: T::MiningSpeedBoostLodgementsTokenMiningIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if mining_speed_boosts_lodgements_token_mining_lodgements_result has a value that is defined");
+        debug::info!(
+            "Checking if mining_speed_boosts_lodgements_token_mining_lodgements_result has a value that is defined"
+        );
         let fetched_mining_speed_boosts_lodgements_token_mining_lodgements_result =
             <MiningSpeedBoostLodgementsTokenMiningLodgementResults<T>>::get((
                 mining_speed_boosts_configuration_token_mining_id,
@@ -518,8 +525,13 @@ impl<T: Trait> Module<T> {
             mining_speed_boosts_lodgements_token_mining_id,
             mining_speed_boosts_lodgements_token_mining,
         );
-        <MiningSpeedBoostLodgementsTokenMiningCount<T>>::put(mining_speed_boosts_lodgements_token_mining_id + One::one());
-        <MiningSpeedBoostLodgementsTokenMiningOwners<T>>::insert(mining_speed_boosts_lodgements_token_mining_id, owner.clone());
+        <MiningSpeedBoostLodgementsTokenMiningCount<T>>::put(
+            mining_speed_boosts_lodgements_token_mining_id + One::one(),
+        );
+        <MiningSpeedBoostLodgementsTokenMiningOwners<T>>::insert(
+            mining_speed_boosts_lodgements_token_mining_id,
+            owner.clone(),
+        );
     }
 
     fn update_owner(

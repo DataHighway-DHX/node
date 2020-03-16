@@ -1,7 +1,7 @@
 // extern crate env as env;
-extern crate mining_speed_boosts_lodgements_token_mining as mining_speed_boosts_lodgements_token_mining;
 extern crate mining_speed_boosts_configuration_token_mining as mining_speed_boosts_configuration_token_mining;
 extern crate mining_speed_boosts_eligibility_token_mining as mining_speed_boosts_eligibility_token_mining;
+extern crate mining_speed_boosts_lodgements_token_mining as mining_speed_boosts_lodgements_token_mining;
 extern crate mining_speed_boosts_rates_token_mining as mining_speed_boosts_rates_token_mining;
 extern crate mining_speed_boosts_sampling_token_mining as mining_speed_boosts_sampling_token_mining;
 extern crate roaming_operators as roaming_operators;
@@ -31,12 +31,6 @@ mod tests {
         Permill,
     };
     // Import Trait for each runtime module being tested
-    use mining_speed_boosts_lodgements_token_mining::{
-        MiningSpeedBoostLodgementsTokenMining,
-        MiningSpeedBoostLodgementsTokenMiningLodgementResult,
-        Module as MiningSpeedBoostLodgementsTokenMiningModule,
-        Trait as MiningSpeedBoostLodgementsTokenMiningTrait,
-    };
     use mining_speed_boosts_configuration_token_mining::{
         MiningSpeedBoostConfigurationTokenMining,
         MiningSpeedBoostConfigurationTokenMiningTokenConfig,
@@ -48,6 +42,12 @@ mod tests {
         MiningSpeedBoostEligibilityTokenMiningEligibilityResult,
         Module as MiningSpeedBoostEligibilityTokenMiningModule,
         Trait as MiningSpeedBoostEligibilityTokenMiningTrait,
+    };
+    use mining_speed_boosts_lodgements_token_mining::{
+        MiningSpeedBoostLodgementsTokenMining,
+        MiningSpeedBoostLodgementsTokenMiningLodgementResult,
+        Module as MiningSpeedBoostLodgementsTokenMiningModule,
+        Trait as MiningSpeedBoostLodgementsTokenMiningTrait,
     };
     use mining_speed_boosts_rates_token_mining::{
         MiningSpeedBoostRatesTokenMining,
@@ -167,9 +167,9 @@ mod tests {
     }
     impl MiningSpeedBoostLodgementsTokenMiningTrait for Test {
         type Event = ();
+        type MiningSpeedBoostLodgementsTokenMiningIndex = u64;
         type MiningSpeedBoostLodgementsTokenMiningLodgementAmount = u64;
         type MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = u64;
-        type MiningSpeedBoostLodgementsTokenMiningIndex = u64;
     }
 
     type System = system::Module<Test>;
