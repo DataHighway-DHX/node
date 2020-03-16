@@ -51,6 +51,7 @@ sp-runtime = { version = '2.0.0-alpha.3' }
 sp-transaction-pool = { version = '2.0.0-alpha.3' }
 substrate-frame-rpc-system = { version = '2.0.0-alpha.3' }
 pallet-transaction-payment-rpc = { version = '2.0.0-alpha.3' }
+parity-util-mem = { version = "0.5.1", default-features = false, features = ["jemalloc-global"] }
 
 datahighway-runtime = { version = '0.1.0', path = 'runtime' }
 
