@@ -91,8 +91,8 @@ jobs:
           cargo +nightly-2020-02-17 test -p mining-speed-boosts-sampling-hardware-mining &&
           cargo +nightly-2020-02-17 test -p mining-speed-boosts-eligibility-token-mining &&
           cargo +nightly-2020-02-17 test -p mining-speed-boosts-eligibility-hardware-mining &&
-          cargo +nightly-2020-02-17 test -p mining-speed-boosts-claims-token-mining &&
-          cargo +nightly-2020-02-17 test -p mining-speed-boosts-claims-hardware-mining
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-lodgements-token-mining &&
+          cargo +nightly-2020-02-17 test -p mining-speed-boosts-lodgements-hardware-mining
 
   lints:
     name: Lints

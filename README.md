@@ -131,8 +131,8 @@ cargo test -p mining-speed-boosts-sampling-token-mining &&
 cargo test -p mining-speed-boosts-sampling-hardware-mining &&
 cargo test -p mining-speed-boosts-eligibility-token-mining &&
 cargo test -p mining-speed-boosts-eligibility-hardware-mining &&
-cargo test -p mining-speed-boosts-claims-token-mining &&
-cargo test -p mining-speed-boosts-claims-hardware-mining
+cargo test -p mining-speed-boosts-lodgements-token-mining &&
+cargo test -p mining-speed-boosts-lodgements-hardware-mining
 ```
 
 ## Integration Tests

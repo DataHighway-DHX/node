@@ -1,5 +1,5 @@
 // extern crate env as env;
-extern crate mining_speed_boosts_claims_hardware_mining as mining_speed_boosts_claims_hardware_mining;
+extern crate mining_speed_boosts_lodgements_hardware_mining as mining_speed_boosts_lodgements_hardware_mining;
 extern crate mining_speed_boosts_configuration_hardware_mining as mining_speed_boosts_configuration_hardware_mining;
 extern crate mining_speed_boosts_eligibility_hardware_mining as mining_speed_boosts_eligibility_hardware_mining;
 extern crate mining_speed_boosts_rates_hardware_mining as mining_speed_boosts_rates_hardware_mining;
@@ -31,11 +31,11 @@ mod tests {
         Permill,
     };
     // Import Trait for each runtime module being tested
-    use mining_speed_boosts_claims_hardware_mining::{
-        MiningSpeedBoostClaimsHardwareMining,
-        MiningSpeedBoostClaimsHardwareMiningClaimResult,
-        Module as MiningSpeedBoostClaimsHardwareMiningModule,
-        Trait as MiningSpeedBoostClaimsHardwareMiningTrait,
+    use mining_speed_boosts_lodgements_hardware_mining::{
+        MiningSpeedBoostLodgementsHardwareMining,
+        MiningSpeedBoostLodgementsHardwareMiningLodgementResult,
+        Module as MiningSpeedBoostLodgementsHardwareMiningModule,
+        Trait as MiningSpeedBoostLodgementsHardwareMiningTrait,
     };
     use mining_speed_boosts_configuration_hardware_mining::{
         MiningSpeedBoostConfigurationHardwareMining,
@@ -165,11 +165,11 @@ mod tests {
         // type MiningSpeedBoostEligibilityHardwareMiningDateAudited = u64;
         // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
     }
-    impl MiningSpeedBoostClaimsHardwareMiningTrait for Test {
+    impl MiningSpeedBoostLodgementsHardwareMiningTrait for Test {
         type Event = ();
-        type MiningSpeedBoostClaimsHardwareMiningClaimAmount = u64;
-        type MiningSpeedBoostClaimsHardwareMiningClaimDateRedeemed = u64;
-        type MiningSpeedBoostClaimsHardwareMiningIndex = u64;
+        type MiningSpeedBoostLodgementsHardwareMiningLodgementAmount = u64;
+        type MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed = u64;
+        type MiningSpeedBoostLodgementsHardwareMiningIndex = u64;
     }
 
     type System = system::Module<Test>;
@@ -180,7 +180,7 @@ mod tests {
     pub type MiningSpeedBoostSamplingHardwareMiningTestModule = MiningSpeedBoostSamplingHardwareMiningModule<Test>;
     pub type MiningSpeedBoostEligibilityHardwareMiningTestModule =
         MiningSpeedBoostEligibilityHardwareMiningModule<Test>;
-    pub type MiningSpeedBoostClaimsHardwareMiningTestModule = MiningSpeedBoostClaimsHardwareMiningModule<Test>;
+    pub type MiningSpeedBoostLodgementsHardwareMiningTestModule = MiningSpeedBoostLodgementsHardwareMiningModule<Test>;
     pub type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
@@ -360,38 +360,38 @@ mod tests {
                 })
             );
 
-            // Create Mining Speed Boost Claims Hardware Mining
+            // Create Mining Speed Boost Lodgements Hardware Mining
 
             // // Call Functions
-            assert_ok!(MiningSpeedBoostClaimsHardwareMiningTestModule::create(Origin::signed(0)));
-            assert_ok!(MiningSpeedBoostClaimsHardwareMiningTestModule::assign_claim_to_configuration(Origin::signed(0), 0, 0));
+            assert_ok!(MiningSpeedBoostLodgementsHardwareMiningTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningSpeedBoostLodgementsHardwareMiningTestModule::assign_claim_to_configuration(Origin::signed(0), 0, 0));
             // assert_ok!(
-            //     MiningSpeedBoostClaimsHardwareMiningTestModule::claim(
+            //     MiningSpeedBoostLodgementsHardwareMiningTestModule::claim(
             //         Origin::signed(0),
             //         0, // mining_speed_boosts_configuration_hardware_mining_id
             //         0, // mining_speed_boosts_eligibility_hardware_mining_id
-            //         0, // mining_speed_boosts_claims_hardware_mining_id
+            //         0, // mining_speed_boosts_lodgements_hardware_mining_id
             //     )
             // )
             // Override by DAO if necessary
             assert_ok!(
-                MiningSpeedBoostClaimsHardwareMiningTestModule::set_mining_speed_boosts_claims_hardware_mining_claims_result(
+                MiningSpeedBoostLodgementsHardwareMiningTestModule::set_mining_speed_boosts_lodgements_hardware_mining_lodgements_result(
                     Origin::signed(0),
                     0, // mining_speed_boosts_configuration_hardware_mining_id
                     0, // mining_speed_boosts_eligibility_hardware_mining_id
-                    0, // mining_speed_boosts_claims_hardware_mining_id
+                    0, // mining_speed_boosts_lodgements_hardware_mining_id
                     Some(1), // hardware_claim_amount
                     Some(34567), // hardware_claim_date_redeemed
                 )
             );
 
             // Verify Storage
-            assert_eq!(MiningSpeedBoostClaimsHardwareMiningTestModule::mining_speed_boosts_claims_hardware_mining_count(), 1);
-            assert!(MiningSpeedBoostClaimsHardwareMiningTestModule::mining_speed_boosts_claims_hardware_mining(0).is_some());
-            assert_eq!(MiningSpeedBoostClaimsHardwareMiningTestModule::mining_speed_boosts_claims_hardware_mining_owner(0), Some(0));
+            assert_eq!(MiningSpeedBoostLodgementsHardwareMiningTestModule::mining_speed_boosts_lodgements_hardware_mining_count(), 1);
+            assert!(MiningSpeedBoostLodgementsHardwareMiningTestModule::mining_speed_boosts_lodgements_hardware_mining(0).is_some());
+            assert_eq!(MiningSpeedBoostLodgementsHardwareMiningTestModule::mining_speed_boosts_lodgements_hardware_mining_owner(0), Some(0));
             assert_eq!(
-              MiningSpeedBoostClaimsHardwareMiningTestModule::mining_speed_boosts_claims_hardware_mining_claims_results((0, 0)),
-                Some(MiningSpeedBoostClaimsHardwareMiningClaimResult {
+              MiningSpeedBoostLodgementsHardwareMiningTestModule::mining_speed_boosts_lodgements_hardware_mining_lodgements_results((0, 0)),
+                Some(MiningSpeedBoostLodgementsHardwareMiningLodgementResult {
                     hardware_claim_amount: 1,
                     hardware_claim_date_redeemed: 34567,
                 })
