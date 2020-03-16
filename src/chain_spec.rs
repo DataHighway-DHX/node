@@ -181,7 +181,7 @@ impl Alternative {
             }
             // Alternative::DataHighwayTestnet => {
             //     ChainSpec::from_json_bytes(
-            //         &include_bytes!("./chain-definition-custom/chain_def_testnet_poa_v0.1.0.json")[..],
+            //         &include_bytes!("./chain-definition-custom/chain_def_testnet_v0.1.0.json")[..],
             //     )?
             // }
             // FIXME: Not working for some reason. Only 'local' works (error insufficient balance to bond)

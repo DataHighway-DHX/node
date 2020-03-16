@@ -207,7 +207,7 @@ cargo build --release
 ```bash
 mkdir -p ./src/chain-spec-templates
 ./target/release/datahighway build-spec \
-  --chain=testnet-latest > ./src/chain-spec-templates/chain_spec_testnet_poa_latest.json
+  --chain=testnet-latest > ./src/chain-spec-templates/chain_spec_testnet_latest.json
 ```
 
 * Build "raw" chain definition for the new chain
@@ -215,8 +215,8 @@ mkdir -p ./src/chain-spec-templates
 ```bash
 mkdir -p ./src/chain-definition-custom
 ./target/release/datahighway build-spec \
-  --chain ./src/chain-spec-templates/chain_spec_testnet_poa_latest.json \
-  --raw > ./src/chain-definition-custom/chain_def_testnet_poa_v0.1.0.json
+  --chain ./src/chain-spec-templates/chain_spec_testnet_latest.json \
+  --raw > ./src/chain-definition-custom/chain_def_testnet_v0.1.0.json
 ```
 
 > Remember to purge the chain state if you change anything
@@ -235,14 +235,14 @@ If you explicitly specify a `--node-key` (i.e. `--node-key 88dc3417d5058ec4b4503
 ./target/release/datahighway --validator \
   --base-path /tmp/polkadot-chains/alice \
   --keystore-path "/tmp/polkadot-chains/alice/keys" \
-  --chain ./src/chain-definition-custom/chain_def_testnet_poa_v0.1.0.json \
+  --chain ./src/chain-definition-custom/chain_def_testnet_v0.1.0.json \
   --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee \
   --alice \
   --port 30333 \
   --telemetry-url ws://telemetry.polkadot.io:1024
 ```
 
-When the node is started, copy the address of the node, and paste in the `bootNodes` of chain_def_testnet_poa_v0.1.0.json.
+When the node is started, copy the address of the node, and paste in the `bootNodes` of chain_def_testnet_v0.1.0.json.
 
 Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and with his chain database stored locally at `/tmp/polkadot-chains/alice`. We'll specify a value for the `--bootnodes` option that will connect his node to Alice's bootnode ID on TCP port 30333:
 
@@ -250,7 +250,7 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
 ./target/release/datahighway --validator \
   --base-path /tmp/polkadot-chains/bob \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
-  --chain ./src/chain-definition-custom/chain_def_testnet_poa_v0.1.0.json \
+  --chain ./src/chain-definition-custom/chain_def_testnet_v0.1.0.json \
   --bob \
   --port 30334 \
   --telemetry-url ws://telemetry.polkadot.io:1024
@@ -260,7 +260,7 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
 
 * View on [Polkadot Telemetry](https://telemetry.polkadot.io/#list/DataHighway%20Local%20PoA%20Testnet%20v0.1.0)
 
-* Distribute the custom chain definition (i.e. chain_def_testnet_poa_v0.1.0.json) to allow others to synchronise and validate if they are an authority
+* Distribute the custom chain definition (i.e. chain_def_testnet_v0.1.0.json) to allow others to synchronise and validate if they are an authority
 
 * Add session keys for other account(s) to be configured as authorities (validators)
 
