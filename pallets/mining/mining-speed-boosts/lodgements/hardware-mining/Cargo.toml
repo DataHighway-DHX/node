@@ -1,5 +1,5 @@
 [package]
-name = "mining-speed-boosts-claims-token-mining"
+name = "mining-speed-boosts-lodgements-hardware-mining"
 version = "0.1.0"
 authors = ["Luke Schoen"]
 edition = "2018"
@@ -19,17 +19,17 @@ std = [
     'system/std',
     'pallet-transaction-payment/std',
     'roaming-operators/std',
-    'mining-speed-boosts-configuration-token-mining/std',
-    'mining-speed-boosts-eligibility-token-mining/std',
-    'mining-speed-boosts-rates-token-mining/std',
-    'mining-speed-boosts-sampling-token-mining/std',
+    'mining-speed-boosts-configuration-hardware-mining/std',
+    'mining-speed-boosts-eligibility-hardware-mining/std',
+    'mining-speed-boosts-rates-hardware-mining/std',
+    'mining-speed-boosts-sampling-hardware-mining/std'
 ]
 
 [dependencies]
 codec = { version = '1.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
 safe-mix = { version = '1.0.0', default-features = false }
 frame-support = { version = '2.0.0-alpha.1', default_features = false, package = 'frame-support', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
-pallet-randomness-collective-flip = { default_features = false, package = 'pallet-randomness-collective-flip', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
+pallet-randomness-collective-flip = { version = '2.0.0-alpha.1', default_features = false, package = 'pallet-randomness-collective-flip', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
 sp-core = { version = '2.0.0-alpha.1', default_features = false, optional = true, rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
 sp-io = { version = '2.0.0-alpha.1', default_features = false, rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
 sp-runtime = { version = '2.0.0-alpha.1', default_features = false, package = 'sp-runtime', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
@@ -39,9 +39,9 @@ pallet-transaction-payment = { version = '2.0.0-alpha.1', default_features = fal
 pallet-balances = { version = '2.0.0-alpha.1', default_features = false, package = 'pallet-balances', rev = '5b41575012e935ffefee03d39ae5d925ac7992fd', git = 'https://github.com/paritytech/substrate.git' }
 
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../../roaming/roaming-operators' }
-mining-speed-boosts-configuration-token-mining = { default_features = false, package = 'mining-speed-boosts-configuration-token-mining', path = '../../../../mining/mining-speed-boosts/configuration/token-mining' }
-mining-speed-boosts-eligibility-token-mining = { default_features = false, package = 'mining-speed-boosts-eligibility-token-mining', path = '../../../../mining/mining-speed-boosts/eligibility/token-mining' }
-mining-speed-boosts-rates-token-mining = { default_features = false, package = 'mining-speed-boosts-rates-token-mining', path = '../../../../mining/mining-speed-boosts/rates/token-mining' }
-mining-speed-boosts-sampling-token-mining = { default_features = false, package = 'mining-speed-boosts-sampling-token-mining', path = '../../../../mining/mining-speed-boosts/sampling/token-mining' }
+mining-speed-boosts-configuration-hardware-mining = { default_features = false, package = 'mining-speed-boosts-configuration-hardware-mining', path = '../../../../mining/mining-speed-boosts/configuration/hardware-mining' }
+mining-speed-boosts-eligibility-hardware-mining = { default_features = false, package = 'mining-speed-boosts-eligibility-hardware-mining', path = '../../../../mining/mining-speed-boosts/eligibility/hardware-mining' }
+mining-speed-boosts-rates-hardware-mining = { default_features = false, package = 'mining-speed-boosts-rates-hardware-mining', path = '../../../../mining/mining-speed-boosts/rates/hardware-mining' }
+mining-speed-boosts-sampling-hardware-mining = { default_features = false, package = 'mining-speed-boosts-sampling-hardware-mining', path = '../../../../mining/mining-speed-boosts/sampling/hardware-mining' }
 
 [dev-dependencies]

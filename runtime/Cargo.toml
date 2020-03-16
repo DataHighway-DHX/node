@@ -62,8 +62,8 @@ std = [
     'mining-speed-boosts-sampling-hardware-mining/std',
     'mining-speed-boosts-eligibility-token-mining/std',
     'mining-speed-boosts-eligibility-hardware-mining/std',
-    'mining-speed-boosts-claims-token-mining/std',
-    'mining-speed-boosts-claims-hardware-mining/std',
+    'mining-speed-boosts-lodgements-token-mining/std',
+    'mining-speed-boosts-lodgements-hardware-mining/std',
 ]
 
 [dependencies]
@@ -127,8 +127,8 @@ mining-speed-boosts-sampling-token-mining = { default_features = false, package 
 mining-speed-boosts-sampling-hardware-mining = { default_features = false, package = 'mining-speed-boosts-sampling-hardware-mining', path = '../pallets/mining/mining-speed-boosts/sampling/hardware-mining' }
 mining-speed-boosts-eligibility-token-mining = { default_features = false, package = 'mining-speed-boosts-eligibility-token-mining', path = '../pallets/mining/mining-speed-boosts/eligibility/token-mining' }
 mining-speed-boosts-eligibility-hardware-mining = { default_features = false, package = 'mining-speed-boosts-eligibility-hardware-mining', path = '../pallets/mining/mining-speed-boosts/eligibility/hardware-mining' }
-mining-speed-boosts-claims-token-mining = { default_features = false, package = 'mining-speed-boosts-claims-token-mining', path = '../pallets/mining/mining-speed-boosts/claims/token-mining' }
-mining-speed-boosts-claims-hardware-mining = { default_features = false, package = 'mining-speed-boosts-claims-hardware-mining', path = '../pallets/mining/mining-speed-boosts/claims/hardware-mining' }
+mining-speed-boosts-lodgements-token-mining = { default_features = false, package = 'mining-speed-boosts-lodgements-token-mining', path = '../pallets/mining/mining-speed-boosts/lodgements/token-mining' }
+mining-speed-boosts-lodgements-hardware-mining = { default_features = false, package = 'mining-speed-boosts-lodgements-hardware-mining', path = '../pallets/mining/mining-speed-boosts/lodgements/hardware-mining' }
 module-primitives = { default-features = false, path = '../pallets/primitives' }
 
 [build-dependencies]
