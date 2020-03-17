@@ -71,22 +71,22 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingRoutingProfiles {
         /// Stores all the roaming routing_profiles, key is the roaming routing_profile id / index
-        pub RoamingRoutingProfiles get(fn roaming_routing_profile): map hasher(blake2_256) T::RoamingRoutingProfileIndex => Option<RoamingRoutingProfile>;
+        pub RoamingRoutingProfiles get(fn roaming_routing_profile): map hasher(blake2_128_concat) T::RoamingRoutingProfileIndex => Option<RoamingRoutingProfile>;
 
         /// Stores the total number of roaming routing_profiles. i.e. the next roaming routing_profile index
         pub RoamingRoutingProfilesCount get(fn roaming_routing_profiles_count): T::RoamingRoutingProfileIndex;
 
         /// Get roaming routing_profile owner
-        pub RoamingRoutingProfileOwners get(fn roaming_routing_profile_owner): map hasher(blake2_256) T::RoamingRoutingProfileIndex => Option<T::AccountId>;
+        pub RoamingRoutingProfileOwners get(fn roaming_routing_profile_owner): map hasher(blake2_128_concat) T::RoamingRoutingProfileIndex => Option<T::AccountId>;
 
         /// Get roaming routing_profile app server.
-        pub RoamingRoutingProfileAppServers get(fn roaming_routing_profile_app_server): map hasher(blake2_256) T::RoamingRoutingProfileIndex => Option<T::RoamingRoutingProfileAppServer>;
+        pub RoamingRoutingProfileAppServers get(fn roaming_routing_profile_app_server): map hasher(blake2_128_concat) T::RoamingRoutingProfileIndex => Option<T::RoamingRoutingProfileAppServer>;
 
         /// Get roaming routing_profile device
-        pub RoamingRoutingProfileDevices get(fn roaming_routing_profile_device): map hasher(blake2_256) T::RoamingRoutingProfileIndex => Option<T::RoamingDeviceIndex>;
+        pub RoamingRoutingProfileDevices get(fn roaming_routing_profile_device): map hasher(blake2_128_concat) T::RoamingRoutingProfileIndex => Option<T::RoamingDeviceIndex>;
 
         /// Get roaming device routing_profiles
-        pub RoamingDeviceRoutingProfiles get(fn roaming_device_routing_profiles): map hasher(blake2_256) T::RoamingDeviceIndex => Option<Vec<T::RoamingRoutingProfileIndex>>
+        pub RoamingDeviceRoutingProfiles get(fn roaming_device_routing_profiles): map hasher(blake2_128_concat) T::RoamingDeviceIndex => Option<Vec<T::RoamingRoutingProfileIndex>>
     }
 }
 

@@ -96,26 +96,26 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostSamplingTokenMining {
         /// Stores all the mining_speed_boosts_samplings_token_minings, key is the mining_speed_boosts_samplings_token_mining id / index
-        pub MiningSpeedBoostSamplingTokenMinings get(fn mining_speed_boosts_samplings_token_mining): map hasher(blake2_256) T::MiningSpeedBoostSamplingTokenMiningIndex => Option<MiningSpeedBoostSamplingTokenMining>;
+        pub MiningSpeedBoostSamplingTokenMinings get(fn mining_speed_boosts_samplings_token_mining): map hasher(blake2_128_concat) T::MiningSpeedBoostSamplingTokenMiningIndex => Option<MiningSpeedBoostSamplingTokenMining>;
 
         /// Stores the total number of mining_speed_boosts_samplings_token_minings. i.e. the next mining_speed_boosts_samplings_token_mining index
         pub MiningSpeedBoostSamplingTokenMiningCount get(fn mining_speed_boosts_samplings_token_mining_count): T::MiningSpeedBoostSamplingTokenMiningIndex;
 
         /// Stores mining_speed_boosts_samplings_token_mining owner
-        pub MiningSpeedBoostSamplingTokenMiningOwners get(fn mining_speed_boosts_samplings_token_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostSamplingTokenMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostSamplingTokenMiningOwners get(fn mining_speed_boosts_samplings_token_mining_owner): map hasher(blake2_128_concat) T::MiningSpeedBoostSamplingTokenMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_samplings_token_mining_samplings_config
-        pub MiningSpeedBoostSamplingTokenMiningSamplingConfigs get(fn mining_speed_boosts_samplings_token_mining_samplings_configs): map hasher(blake2_256) (T::MiningSpeedBoostConfigurationTokenMiningIndex, T::MiningSpeedBoostSamplingTokenMiningIndex) =>
+        pub MiningSpeedBoostSamplingTokenMiningSamplingConfigs get(fn mining_speed_boosts_samplings_token_mining_samplings_configs): map hasher(blake2_128_concat) (T::MiningSpeedBoostConfigurationTokenMiningIndex, T::MiningSpeedBoostSamplingTokenMiningIndex) =>
             Option<MiningSpeedBoostSamplingTokenMiningSamplingConfig<
                 T::MiningSpeedBoostSamplingTokenMiningSampleDate,
                 T::MiningSpeedBoostSamplingTokenMiningSampleTokensLocked
             >>;
 
         /// Get mining_speed_boosts_configuration_token_mining_id belonging to a mining_speed_boosts_samplings_token_mining_id
-        pub TokenMiningSamplingConfiguration get(fn token_mining_sampling_configuration): map hasher(blake2_256) T::MiningSpeedBoostSamplingTokenMiningIndex => Option<T::MiningSpeedBoostConfigurationTokenMiningIndex>;
+        pub TokenMiningSamplingConfiguration get(fn token_mining_sampling_configuration): map hasher(blake2_128_concat) T::MiningSpeedBoostSamplingTokenMiningIndex => Option<T::MiningSpeedBoostConfigurationTokenMiningIndex>;
 
         /// Get mining_speed_boosts_samplings_token_mining_id's belonging to a mining_speed_boosts_configuration_token_mining_id
-        pub TokenMiningConfigurationSamplings get(fn token_mining_configuration_samplings): map hasher(blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<Vec<T::MiningSpeedBoostSamplingTokenMiningIndex>>
+        pub TokenMiningConfigurationSamplings get(fn token_mining_configuration_samplings): map hasher(blake2_128_concat) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<Vec<T::MiningSpeedBoostSamplingTokenMiningIndex>>
     }
 }
 

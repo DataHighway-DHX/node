@@ -92,16 +92,16 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostRatesHardwareMining {
         /// Stores all the mining_speed_boosts_rates_hardware_minings, key is the mining_speed_boosts_rates_hardware_mining id / index
-        pub MiningSpeedBoostRatesHardwareMinings get(fn mining_speed_boosts_rates_hardware_mining): map hasher(blake2_256) T::MiningSpeedBoostRatesHardwareMiningIndex => Option<MiningSpeedBoostRatesHardwareMining>;
+        pub MiningSpeedBoostRatesHardwareMinings get(fn mining_speed_boosts_rates_hardware_mining): map hasher(blake2_128_concat) T::MiningSpeedBoostRatesHardwareMiningIndex => Option<MiningSpeedBoostRatesHardwareMining>;
 
         /// Stores the total number of mining_speed_boosts_rates_hardware_minings. i.e. the next mining_speed_boosts_rates_hardware_mining index
         pub MiningSpeedBoostRatesHardwareMiningCount get(fn mining_speed_boosts_rates_hardware_mining_count): T::MiningSpeedBoostRatesHardwareMiningIndex;
 
         /// Stores mining_speed_boosts_rates_hardware_mining owner
-        pub MiningSpeedBoostRatesHardwareMiningOwners get(fn mining_speed_boosts_rates_hardware_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostRatesHardwareMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostRatesHardwareMiningOwners get(fn mining_speed_boosts_rates_hardware_mining_owner): map hasher(blake2_128_concat) T::MiningSpeedBoostRatesHardwareMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_rates_hardware_mining_rates_config
-        pub MiningSpeedBoostRatesHardwareMiningRatesConfigs get(fn mining_speed_boosts_rates_hardware_mining_rates_configs): map hasher(blake2_256) T::MiningSpeedBoostRatesHardwareMiningIndex =>
+        pub MiningSpeedBoostRatesHardwareMiningRatesConfigs get(fn mining_speed_boosts_rates_hardware_mining_rates_configs): map hasher(blake2_128_concat) T::MiningSpeedBoostRatesHardwareMiningIndex =>
             Option<MiningSpeedBoostRatesHardwareMiningRatesConfig<T::MiningSpeedBoostRatesHardwareMiningHardwareSecure,
             T::MiningSpeedBoostRatesHardwareMiningHardwareInsecure, T::MiningSpeedBoostRatesHardwareMiningMaxHardware>>;
     }

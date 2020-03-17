@@ -122,16 +122,16 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostConfigurationHardwareMining {
         /// Stores all the mining_speed_boosts_configuration_hardware_minings, key is the mining_speed_boosts_configuration_hardware_mining id / index
-        pub MiningSpeedBoostConfigurationHardwareMinings get(fn mining_speed_boosts_configuration_hardware_mining): map hasher(blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<MiningSpeedBoostConfigurationHardwareMining>;
+        pub MiningSpeedBoostConfigurationHardwareMinings get(fn mining_speed_boosts_configuration_hardware_mining): map hasher(blake2_128_concat) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<MiningSpeedBoostConfigurationHardwareMining>;
 
         /// Stores the total number of mining_speed_boosts_configuration_hardware_minings. i.e. the next mining_speed_boosts_configuration_hardware_mining index
         pub MiningSpeedBoostConfigurationHardwareMiningCount get(fn mining_speed_boosts_configuration_hardware_mining_count): T::MiningSpeedBoostConfigurationHardwareMiningIndex;
 
         /// Stores mining_speed_boosts_configuration_hardware_mining owner
-        pub MiningSpeedBoostConfigurationHardwareMiningOwners get(fn mining_speed_boosts_configuration_hardware_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostConfigurationHardwareMiningOwners get(fn mining_speed_boosts_configuration_hardware_mining_owner): map hasher(blake2_128_concat) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_configuration_hardware_mining_hardware_config
-        pub MiningSpeedBoostConfigurationHardwareMiningHardwareConfigs get(fn mining_speed_boosts_configuration_hardware_mining_hardware_configs): map hasher(blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex =>
+        pub MiningSpeedBoostConfigurationHardwareMiningHardwareConfigs get(fn mining_speed_boosts_configuration_hardware_mining_hardware_configs): map hasher(blake2_128_concat) T::MiningSpeedBoostConfigurationHardwareMiningIndex =>
             Option<MiningSpeedBoostConfigurationHardwareMiningHardwareConfig<T::MiningSpeedBoostConfigurationHardwareMiningHardwareSecure, T::MiningSpeedBoostConfigurationHardwareMiningHardwareType,
                 T::MiningSpeedBoostConfigurationHardwareMiningHardwareID, T::MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI, T::MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate,
                 T::MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate>>;

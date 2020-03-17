@@ -73,16 +73,16 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingOperators {
         /// Stores all the roaming operators, key is the roaming operator id / index
-        pub RoamingOperators get(fn roaming_operator): map hasher(blake2_256) T::RoamingOperatorIndex => Option<RoamingOperator>;
+        pub RoamingOperators get(fn roaming_operator): map hasher(blake2_128_concat) T::RoamingOperatorIndex => Option<RoamingOperator>;
 
         /// Stores the total number of roaming operators. i.e. the next roaming operator index
         pub RoamingOperatorsCount get(fn roaming_operators_count): T::RoamingOperatorIndex;
 
         /// Get roaming operator owner
-        pub RoamingOperatorOwners get(fn roaming_operator_owner): map hasher(blake2_256) T::RoamingOperatorIndex => Option<T::AccountId>;
+        pub RoamingOperatorOwners get(fn roaming_operator_owner): map hasher(blake2_128_concat) T::RoamingOperatorIndex => Option<T::AccountId>;
 
         /// Get roaming operator price. None means not for sale.
-        pub RoamingOperatorPrices get(fn roaming_operator_price): map hasher(blake2_256) T::RoamingOperatorIndex => Option<BalanceOf<T>>
+        pub RoamingOperatorPrices get(fn roaming_operator_price): map hasher(blake2_128_concat) T::RoamingOperatorIndex => Option<BalanceOf<T>>
     }
 }
 

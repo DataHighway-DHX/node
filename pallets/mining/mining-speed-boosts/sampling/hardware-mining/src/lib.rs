@@ -96,26 +96,26 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostSamplingHardwareMining {
         /// Stores all the mining_speed_boosts_samplings_hardware_minings, key is the mining_speed_boosts_samplings_hardware_mining id / index
-        pub MiningSpeedBoostSamplingHardwareMinings get(fn mining_speed_boosts_samplings_hardware_mining): map hasher(blake2_256) T::MiningSpeedBoostSamplingHardwareMiningIndex => Option<MiningSpeedBoostSamplingHardwareMining>;
+        pub MiningSpeedBoostSamplingHardwareMinings get(fn mining_speed_boosts_samplings_hardware_mining): map hasher(blake2_128_concat) T::MiningSpeedBoostSamplingHardwareMiningIndex => Option<MiningSpeedBoostSamplingHardwareMining>;
 
         /// Stores the total number of mining_speed_boosts_samplings_hardware_minings. i.e. the next mining_speed_boosts_samplings_hardware_mining index
         pub MiningSpeedBoostSamplingHardwareMiningCount get(fn mining_speed_boosts_samplings_hardware_mining_count): T::MiningSpeedBoostSamplingHardwareMiningIndex;
 
         /// Stores mining_speed_boosts_samplings_hardware_mining owner
-        pub MiningSpeedBoostSamplingHardwareMiningOwners get(fn mining_speed_boosts_samplings_hardware_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostSamplingHardwareMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostSamplingHardwareMiningOwners get(fn mining_speed_boosts_samplings_hardware_mining_owner): map hasher(blake2_128_concat) T::MiningSpeedBoostSamplingHardwareMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_samplings_hardware_mining_samplings_config
-        pub MiningSpeedBoostSamplingHardwareMiningSamplingConfigs get(fn mining_speed_boosts_samplings_hardware_mining_samplings_configs): map hasher(blake2_256) (T::MiningSpeedBoostConfigurationHardwareMiningIndex, T::MiningSpeedBoostSamplingHardwareMiningIndex) =>
+        pub MiningSpeedBoostSamplingHardwareMiningSamplingConfigs get(fn mining_speed_boosts_samplings_hardware_mining_samplings_configs): map hasher(blake2_128_concat) (T::MiningSpeedBoostConfigurationHardwareMiningIndex, T::MiningSpeedBoostSamplingHardwareMiningIndex) =>
             Option<MiningSpeedBoostSamplingHardwareMiningSamplingConfig<
                 T::MiningSpeedBoostSamplingHardwareMiningSampleDate,
                 T::MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline
             >>;
 
         /// Get mining_speed_boosts_configuration_hardware_mining_id belonging to a mining_speed_boosts_samplings_hardware_mining_id
-        pub HardwareMiningSamplingConfiguration get(fn hardware_mining_sampling_configuration): map hasher(blake2_256) T::MiningSpeedBoostSamplingHardwareMiningIndex => Option<T::MiningSpeedBoostConfigurationHardwareMiningIndex>;
+        pub HardwareMiningSamplingConfiguration get(fn hardware_mining_sampling_configuration): map hasher(blake2_128_concat) T::MiningSpeedBoostSamplingHardwareMiningIndex => Option<T::MiningSpeedBoostConfigurationHardwareMiningIndex>;
 
         /// Get mining_speed_boosts_samplings_hardware_mining_id's belonging to a mining_speed_boosts_configuration_hardware_mining_id
-        pub HardwareMiningConfigurationSamplings get(fn hardware_mining_configuration_samplings): map hasher(blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<Vec<T::MiningSpeedBoostSamplingHardwareMiningIndex>>
+        pub HardwareMiningConfigurationSamplings get(fn hardware_mining_configuration_samplings): map hasher(blake2_128_concat) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<Vec<T::MiningSpeedBoostSamplingHardwareMiningIndex>>
     }
 }
 

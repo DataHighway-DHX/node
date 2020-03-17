@@ -120,16 +120,16 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostEligibilityTokenMining {
         /// Stores all the mining_speed_boosts_eligibility_token_minings, key is the mining_speed_boosts_eligibility_token_mining id / index
-        pub MiningSpeedBoostEligibilityTokenMinings get(fn mining_speed_boosts_eligibility_token_mining): map hasher(blake2_256) T::MiningSpeedBoostEligibilityTokenMiningIndex => Option<MiningSpeedBoostEligibilityTokenMining>;
+        pub MiningSpeedBoostEligibilityTokenMinings get(fn mining_speed_boosts_eligibility_token_mining): map hasher(blake2_128_concat) T::MiningSpeedBoostEligibilityTokenMiningIndex => Option<MiningSpeedBoostEligibilityTokenMining>;
 
         /// Stores the total number of mining_speed_boosts_eligibility_token_minings. i.e. the next mining_speed_boosts_eligibility_token_mining index
         pub MiningSpeedBoostEligibilityTokenMiningCount get(fn mining_speed_boosts_eligibility_token_mining_count): T::MiningSpeedBoostEligibilityTokenMiningIndex;
 
         /// Stores mining_speed_boosts_eligibility_token_mining owner
-        pub MiningSpeedBoostEligibilityTokenMiningOwners get(fn mining_speed_boosts_eligibility_token_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostEligibilityTokenMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostEligibilityTokenMiningOwners get(fn mining_speed_boosts_eligibility_token_mining_owner): map hasher(blake2_128_concat) T::MiningSpeedBoostEligibilityTokenMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_eligibility_token_mining_result
-        pub MiningSpeedBoostEligibilityTokenMiningEligibilityResults get(fn mining_speed_boosts_eligibility_token_mining_eligibility_results): map hasher(blake2_256) (T::MiningSpeedBoostConfigurationTokenMiningIndex, T::MiningSpeedBoostEligibilityTokenMiningIndex) =>
+        pub MiningSpeedBoostEligibilityTokenMiningEligibilityResults get(fn mining_speed_boosts_eligibility_token_mining_eligibility_results): map hasher(blake2_128_concat) (T::MiningSpeedBoostConfigurationTokenMiningIndex, T::MiningSpeedBoostEligibilityTokenMiningIndex) =>
             Option<MiningSpeedBoostEligibilityTokenMiningEligibilityResult<
                 T::MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility,
                 T::MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage,
@@ -138,10 +138,10 @@ decl_storage! {
             >>;
 
         /// Get mining_speed_boosts_configuration_token_mining_id belonging to a mining_speed_boosts_eligibility_token_mining_id
-        pub TokenMiningEligibilityConfiguration get(fn token_mining_resulturation): map hasher(blake2_256) T::MiningSpeedBoostEligibilityTokenMiningIndex => Option<T::MiningSpeedBoostConfigurationTokenMiningIndex>;
+        pub TokenMiningEligibilityConfiguration get(fn token_mining_resulturation): map hasher(blake2_128_concat) T::MiningSpeedBoostEligibilityTokenMiningIndex => Option<T::MiningSpeedBoostConfigurationTokenMiningIndex>;
 
         /// Get mining_speed_boosts_eligibility_token_mining_id's belonging to a mining_speed_boosts_configuration_token_mining_id
-        pub TokenMiningConfigurationEligibilities get(fn token_mining_configuration_eligibilities): map hasher(blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<Vec<T::MiningSpeedBoostEligibilityTokenMiningIndex>>
+        pub TokenMiningConfigurationEligibilities get(fn token_mining_configuration_eligibilities): map hasher(blake2_128_concat) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<Vec<T::MiningSpeedBoostEligibilityTokenMiningIndex>>
     }
 }
 

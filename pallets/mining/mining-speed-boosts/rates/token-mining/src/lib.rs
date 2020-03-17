@@ -94,16 +94,16 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostRatesTokenMining {
         /// Stores all the mining_speed_boosts_rates_token_minings, key is the mining_speed_boosts_rates_token_mining id / index
-        pub MiningSpeedBoostRatesTokenMinings get(fn mining_speed_boosts_rates_token_mining): map hasher(blake2_256) T::MiningSpeedBoostRatesTokenMiningIndex => Option<MiningSpeedBoostRatesTokenMining>;
+        pub MiningSpeedBoostRatesTokenMinings get(fn mining_speed_boosts_rates_token_mining): map hasher(blake2_128_concat) T::MiningSpeedBoostRatesTokenMiningIndex => Option<MiningSpeedBoostRatesTokenMining>;
 
         /// Stores the total number of mining_speed_boosts_rates_token_minings. i.e. the next mining_speed_boosts_rates_token_mining index
         pub MiningSpeedBoostRatesTokenMiningCount get(fn mining_speed_boosts_rates_token_mining_count): T::MiningSpeedBoostRatesTokenMiningIndex;
 
         /// Stores mining_speed_boosts_rates_token_mining owner
-        pub MiningSpeedBoostRatesTokenMiningOwners get(fn mining_speed_boosts_rates_token_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostRatesTokenMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostRatesTokenMiningOwners get(fn mining_speed_boosts_rates_token_mining_owner): map hasher(blake2_128_concat) T::MiningSpeedBoostRatesTokenMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_rates_token_mining_rates_config
-        pub MiningSpeedBoostRatesTokenMiningRatesConfigs get(fn mining_speed_boosts_rates_token_mining_rates_configs): map hasher(blake2_256) T::MiningSpeedBoostRatesTokenMiningIndex =>
+        pub MiningSpeedBoostRatesTokenMiningRatesConfigs get(fn mining_speed_boosts_rates_token_mining_rates_configs): map hasher(blake2_128_concat) T::MiningSpeedBoostRatesTokenMiningIndex =>
             Option<MiningSpeedBoostRatesTokenMiningRatesConfig<T::MiningSpeedBoostRatesTokenMiningTokenMXC, T::MiningSpeedBoostRatesTokenMiningTokenIOTA,
             T::MiningSpeedBoostRatesTokenMiningTokenDOT, T::MiningSpeedBoostRatesTokenMiningMaxToken, T::MiningSpeedBoostRatesTokenMiningMaxLoyalty>>;
     }

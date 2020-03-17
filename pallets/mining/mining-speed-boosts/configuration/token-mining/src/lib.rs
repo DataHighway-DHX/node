@@ -188,32 +188,32 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostConfigurationTokenMining {
         /// Stores all the mining_speed_boosts_configuration_token_minings, key is the mining_speed_boosts_configuration_token_mining id / index
-        pub MiningSpeedBoostConfigurationTokenMinings get(fn mining_speed_boosts_configuration_token_mining): map hasher(blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<MiningSpeedBoostConfigurationTokenMining>;
+        pub MiningSpeedBoostConfigurationTokenMinings get(fn mining_speed_boosts_configuration_token_mining): map hasher(blake2_128_concat) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<MiningSpeedBoostConfigurationTokenMining>;
 
         /// Stores the total number of mining_speed_boosts_configuration_token_minings. i.e. the next mining_speed_boosts_configuration_token_mining index
         pub MiningSpeedBoostConfigurationTokenMiningCount get(fn mining_speed_boosts_configuration_token_mining_count): T::MiningSpeedBoostConfigurationTokenMiningIndex;
 
         /// Stores mining_speed_boosts_configuration_token_mining owner
-        pub MiningSpeedBoostConfigurationTokenMiningOwners get(fn mining_speed_boosts_configuration_token_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostConfigurationTokenMiningOwners get(fn mining_speed_boosts_configuration_token_mining_owner): map hasher(blake2_128_concat) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_configuration_token_mining_token_config
-        pub MiningSpeedBoostConfigurationTokenMiningTokenConfigs get(fn mining_speed_boosts_configuration_token_mining_token_configs): map hasher(blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex =>
+        pub MiningSpeedBoostConfigurationTokenMiningTokenConfigs get(fn mining_speed_boosts_configuration_token_mining_token_configs): map hasher(blake2_128_concat) T::MiningSpeedBoostConfigurationTokenMiningIndex =>
             Option<MiningSpeedBoostConfigurationTokenMiningTokenConfig<T::MiningSpeedBoostConfigurationTokenMiningTokenType, BalanceOf<T>, T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod,
                 T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate, T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate>>;
 
         // /// Stores mining_speed_boosts_random_samples
-        // pub MiningSpeedBoostSamples get(fn mining_speed_boosts_random_sample): map hasher(blake2_256) (T::MiningSpeedBoostOracleIndex, T::MiningSpeedBoostSampleHash) =>
+        // pub MiningSpeedBoostSamples get(fn mining_speed_boosts_random_sample): map hasher(blake2_128_concat) (T::MiningSpeedBoostOracleIndex, T::MiningSpeedBoostSampleHash) =>
         //     Option<MiningSpeedBoostSample<T::MiningSpeedBoostSampleDate, T::MiningSpeedBoostSampleTokensLocked>>;
 
         // /// Stores mining_speed_boosts_random_eligibility
-        // pub MiningSpeedBoostEligibility get(fn mining_speed_boosts_eligibility): map hasher(blake2_256) T::MiningSpeedBoostEligibilityTokenMiningIndex =>
+        // pub MiningSpeedBoostEligibility get(fn mining_speed_boosts_eligibility): map hasher(blake2_128_concat) T::MiningSpeedBoostEligibilityTokenMiningIndex =>
         //     Option<MiningSpeedBoostEligibilityResult<
         //         T::MiningSpeedBoostEligibilityCalculatedEligibility, T::MiningSpeedBoostEligibilityTokenLockedPercentage, T::MiningSpeedBoostEligibilityHardwareUptimePercentage
         //     >>;
         // }
 
         // /// Stores mining_speed_boosts_claim
-        // pub MiningSpeedBoostLodgement get(fn mining_speed_boosts_claim): map hasher(blake2_256) (T::MiningSpeedBoostLodgementIndex, T::MiningSpeedBoostLodgementHash) =>
+        // pub MiningSpeedBoostLodgement get(fn mining_speed_boosts_claim): map hasher(blake2_128_concat) (T::MiningSpeedBoostLodgementIndex, T::MiningSpeedBoostLodgementHash) =>
         //     Option<MiningSpeedBoostLodgement<
         //         T::MiningSpeedBoostLodgementHash, T::MiningSpeedBoostLodgementAmount, T::MiningSpeedBoostLodgementDateRedeemed
         //     >>;

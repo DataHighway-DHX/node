@@ -109,26 +109,26 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostLodgementsHardwareMining {
         /// Stores all the mining_speed_boosts_lodgements_hardware_minings, key is the mining_speed_boosts_lodgements_hardware_mining id / index
-        pub MiningSpeedBoostLodgementsHardwareMinings get(fn mining_speed_boosts_lodgements_hardware_mining): map hasher(blake2_256) T::MiningSpeedBoostLodgementsHardwareMiningIndex => Option<MiningSpeedBoostLodgementsHardwareMining>;
+        pub MiningSpeedBoostLodgementsHardwareMinings get(fn mining_speed_boosts_lodgements_hardware_mining): map hasher(blake2_128_concat) T::MiningSpeedBoostLodgementsHardwareMiningIndex => Option<MiningSpeedBoostLodgementsHardwareMining>;
 
         /// Stores the total number of mining_speed_boosts_lodgements_hardware_minings. i.e. the next mining_speed_boosts_lodgements_hardware_mining index
         pub MiningSpeedBoostLodgementsHardwareMiningCount get(fn mining_speed_boosts_lodgements_hardware_mining_count): T::MiningSpeedBoostLodgementsHardwareMiningIndex;
 
         /// Stores mining_speed_boosts_lodgements_hardware_mining owner
-        pub MiningSpeedBoostLodgementsHardwareMiningOwners get(fn mining_speed_boosts_lodgements_hardware_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostLodgementsHardwareMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostLodgementsHardwareMiningOwners get(fn mining_speed_boosts_lodgements_hardware_mining_owner): map hasher(blake2_128_concat) T::MiningSpeedBoostLodgementsHardwareMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_lodgements_hardware_mining_lodgements_result
-        pub MiningSpeedBoostLodgementsHardwareMiningLodgementResults get(fn mining_speed_boosts_lodgements_hardware_mining_lodgements_results): map hasher(blake2_256) (T::MiningSpeedBoostConfigurationHardwareMiningIndex, T::MiningSpeedBoostLodgementsHardwareMiningIndex) =>
+        pub MiningSpeedBoostLodgementsHardwareMiningLodgementResults get(fn mining_speed_boosts_lodgements_hardware_mining_lodgements_results): map hasher(blake2_128_concat) (T::MiningSpeedBoostConfigurationHardwareMiningIndex, T::MiningSpeedBoostLodgementsHardwareMiningIndex) =>
             Option<MiningSpeedBoostLodgementsHardwareMiningLodgementResult<
                 T::MiningSpeedBoostLodgementsHardwareMiningLodgementAmount,
                 T::MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed
             >>;
 
         /// Get mining_speed_boosts_configuration_hardware_mining_id belonging to a mining_speed_boosts_lodgements_hardware_mining_id
-        pub HardwareMiningLodgementConfiguration get(fn hardware_mining_claim_configuration): map hasher(blake2_256) T::MiningSpeedBoostLodgementsHardwareMiningIndex => Option<T::MiningSpeedBoostConfigurationHardwareMiningIndex>;
+        pub HardwareMiningLodgementConfiguration get(fn hardware_mining_claim_configuration): map hasher(blake2_128_concat) T::MiningSpeedBoostLodgementsHardwareMiningIndex => Option<T::MiningSpeedBoostConfigurationHardwareMiningIndex>;
 
         /// Get mining_speed_boosts_lodgements_hardware_mining_id's belonging to a mining_speed_boosts_configuration_hardware_mining_id
-        pub HardwareMiningConfigurationLodgements get(fn hardware_mining_configuration_lodgements): map hasher(blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<Vec<T::MiningSpeedBoostLodgementsHardwareMiningIndex>>
+        pub HardwareMiningConfigurationLodgements get(fn hardware_mining_configuration_lodgements): map hasher(blake2_128_concat) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<Vec<T::MiningSpeedBoostLodgementsHardwareMiningIndex>>
     }
 }
 

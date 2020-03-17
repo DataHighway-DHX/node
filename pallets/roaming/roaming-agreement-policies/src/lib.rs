@@ -85,28 +85,28 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingAgreementPolicies {
         /// Stores all the roaming agreement_policy, key is the roaming agreement_policy id / index
-        pub RoamingAgreementPolicies get(fn roaming_agreement_policy): map hasher(blake2_256) T::RoamingAgreementPolicyIndex => Option<RoamingAgreementPolicy>;
+        pub RoamingAgreementPolicies get(fn roaming_agreement_policy): map hasher(blake2_128_concat) T::RoamingAgreementPolicyIndex => Option<RoamingAgreementPolicy>;
 
         /// Stores the total number of roaming agreement_policies. i.e. the next roaming agreement_policy index
         pub RoamingAgreementPoliciesCount get(fn roaming_agreement_policies_count): T::RoamingAgreementPolicyIndex;
 
         /// Get roaming agreement_policy owner
-        pub RoamingAgreementPolicyOwners get(fn roaming_agreement_policy_owner): map hasher(blake2_256) T::RoamingAgreementPolicyIndex => Option<T::AccountId>;
+        pub RoamingAgreementPolicyOwners get(fn roaming_agreement_policy_owner): map hasher(blake2_128_concat) T::RoamingAgreementPolicyIndex => Option<T::AccountId>;
 
         /// Get roaming agreement_policy config
-        pub RoamingAgreementPolicyConfigs get(fn roaming_agreement_policy_configs): map hasher(blake2_256) T::RoamingAgreementPolicyIndex => Option<RoamingAgreementPolicyConfig<T::RoamingAgreementPolicyActivationType, T::RoamingAgreementPolicyExpiry>>;
+        pub RoamingAgreementPolicyConfigs get(fn roaming_agreement_policy_configs): map hasher(blake2_128_concat) T::RoamingAgreementPolicyIndex => Option<RoamingAgreementPolicyConfig<T::RoamingAgreementPolicyActivationType, T::RoamingAgreementPolicyExpiry>>;
 
         /// Get roaming agreement_policy network
-        pub RoamingAgreementPolicyNetwork get(fn roaming_agreement_policy_network): map hasher(blake2_256) T::RoamingAgreementPolicyIndex => Option<T::RoamingNetworkIndex>;
+        pub RoamingAgreementPolicyNetwork get(fn roaming_agreement_policy_network): map hasher(blake2_128_concat) T::RoamingAgreementPolicyIndex => Option<T::RoamingNetworkIndex>;
 
         /// Get roaming network's agreement policies
-        pub RoamingNetworkAgreementPolicies get(fn roaming_network_agreement_policies): map hasher(blake2_256) T::RoamingNetworkIndex => Option<Vec<T::RoamingAgreementPolicyIndex>>;
+        pub RoamingNetworkAgreementPolicies get(fn roaming_network_agreement_policies): map hasher(blake2_128_concat) T::RoamingNetworkIndex => Option<Vec<T::RoamingAgreementPolicyIndex>>;
 
         /// Get roaming agreement_policy accounting_policy
-        pub RoamingAgreementPolicyAccountingPolicy get(fn roaming_agreement_policy_accounting_policy): map hasher(blake2_256) T::RoamingAgreementPolicyIndex => Option<T::RoamingAccountingPolicyIndex>;
+        pub RoamingAgreementPolicyAccountingPolicy get(fn roaming_agreement_policy_accounting_policy): map hasher(blake2_128_concat) T::RoamingAgreementPolicyIndex => Option<T::RoamingAccountingPolicyIndex>;
 
         /// Get roaming accounting_policy's agreement policies
-        pub RoamingAccountingPolicyAgreementPolicies get(fn roaming_accounting_policy_agreement_policies): map hasher(blake2_256) T::RoamingAccountingPolicyIndex => Option<Vec<T::RoamingAgreementPolicyIndex>>
+        pub RoamingAccountingPolicyAgreementPolicies get(fn roaming_accounting_policy_agreement_policies): map hasher(blake2_128_concat) T::RoamingAccountingPolicyIndex => Option<Vec<T::RoamingAgreementPolicyIndex>>
     }
 }
 

@@ -120,16 +120,16 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostEligibilityHardwareMining {
         /// Stores all the mining_speed_boosts_eligibility_hardware_minings, key is the mining_speed_boosts_eligibility_hardware_mining id / index
-        pub MiningSpeedBoostEligibilityHardwareMinings get(fn mining_speed_boosts_eligibility_hardware_mining): map hasher(blake2_256) T::MiningSpeedBoostEligibilityHardwareMiningIndex => Option<MiningSpeedBoostEligibilityHardwareMining>;
+        pub MiningSpeedBoostEligibilityHardwareMinings get(fn mining_speed_boosts_eligibility_hardware_mining): map hasher(blake2_128_concat) T::MiningSpeedBoostEligibilityHardwareMiningIndex => Option<MiningSpeedBoostEligibilityHardwareMining>;
 
         /// Stores the total number of mining_speed_boosts_eligibility_hardware_minings. i.e. the next mining_speed_boosts_eligibility_hardware_mining index
         pub MiningSpeedBoostEligibilityHardwareMiningCount get(fn mining_speed_boosts_eligibility_hardware_mining_count): T::MiningSpeedBoostEligibilityHardwareMiningIndex;
 
         /// Stores mining_speed_boosts_eligibility_hardware_mining owner
-        pub MiningSpeedBoostEligibilityHardwareMiningOwners get(fn mining_speed_boosts_eligibility_hardware_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostEligibilityHardwareMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostEligibilityHardwareMiningOwners get(fn mining_speed_boosts_eligibility_hardware_mining_owner): map hasher(blake2_128_concat) T::MiningSpeedBoostEligibilityHardwareMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_eligibility_hardware_mining_result
-        pub MiningSpeedBoostEligibilityHardwareMiningEligibilityResults get(fn mining_speed_boosts_eligibility_hardware_mining_eligibility_results): map hasher(blake2_256) (T::MiningSpeedBoostConfigurationHardwareMiningIndex, T::MiningSpeedBoostEligibilityHardwareMiningIndex) =>
+        pub MiningSpeedBoostEligibilityHardwareMiningEligibilityResults get(fn mining_speed_boosts_eligibility_hardware_mining_eligibility_results): map hasher(blake2_128_concat) (T::MiningSpeedBoostConfigurationHardwareMiningIndex, T::MiningSpeedBoostEligibilityHardwareMiningIndex) =>
             Option<MiningSpeedBoostEligibilityHardwareMiningEligibilityResult<
                 T::MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility,
                 T::MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage,
@@ -138,10 +138,10 @@ decl_storage! {
             >>;
 
         /// Get mining_speed_boosts_configuration_hardware_mining_id belonging to a mining_speed_boosts_eligibility_hardware_mining_id
-        pub HardwareMiningEligibilityConfiguration get(fn hardware_mining_resulturation): map hasher(blake2_256) T::MiningSpeedBoostEligibilityHardwareMiningIndex => Option<T::MiningSpeedBoostConfigurationHardwareMiningIndex>;
+        pub HardwareMiningEligibilityConfiguration get(fn hardware_mining_resulturation): map hasher(blake2_128_concat) T::MiningSpeedBoostEligibilityHardwareMiningIndex => Option<T::MiningSpeedBoostConfigurationHardwareMiningIndex>;
 
         /// Get mining_speed_boosts_eligibility_hardware_mining_id's belonging to a mining_speed_boosts_configuration_hardware_mining_id
-        pub HardwareMiningConfigurationEligibilities get(fn hardware_mining_configuration_eligibilities): map hasher(blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<Vec<T::MiningSpeedBoostEligibilityHardwareMiningIndex>>
+        pub HardwareMiningConfigurationEligibilities get(fn hardware_mining_configuration_eligibilities): map hasher(blake2_128_concat) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<Vec<T::MiningSpeedBoostEligibilityHardwareMiningIndex>>
     }
 }
 

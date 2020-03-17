@@ -90,22 +90,22 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingAccountingPolicies {
         /// Stores all the roaming accounting_policies, key is the roaming accounting_policy id / index
-        pub RoamingAccountingPolicies get(fn roaming_accounting_policy): map hasher(blake2_256) T::RoamingAccountingPolicyIndex => Option<RoamingAccountingPolicy>;
+        pub RoamingAccountingPolicies get(fn roaming_accounting_policy): map hasher(blake2_128_concat) T::RoamingAccountingPolicyIndex => Option<RoamingAccountingPolicy>;
 
         /// Stores the total number of roaming accounting_policies. i.e. the next roaming accounting_policy index
         pub RoamingAccountingPoliciesCount get(fn roaming_accounting_policies_count): T::RoamingAccountingPolicyIndex;
 
         /// Get roaming accounting_policy owner
-        pub RoamingAccountingPolicyOwners get(fn roaming_accounting_policy_owner): map hasher(blake2_256) T::RoamingAccountingPolicyIndex => Option<T::AccountId>;
+        pub RoamingAccountingPolicyOwners get(fn roaming_accounting_policy_owner): map hasher(blake2_128_concat) T::RoamingAccountingPolicyIndex => Option<T::AccountId>;
 
         /// Get roaming accounting_policy config
-        pub RoamingAccountingPolicyConfigs get(fn roaming_accounting_policy_configs): map hasher(blake2_256) T::RoamingAccountingPolicyIndex => Option<RoamingAccountingPolicyConfig<T::RoamingAccountingPolicyType, BalanceOf<T>, T::RoamingAccountingPolicyUplinkFeeFactor, T::RoamingAccountingPolicyDownlinkFeeFactor>>;
+        pub RoamingAccountingPolicyConfigs get(fn roaming_accounting_policy_configs): map hasher(blake2_128_concat) T::RoamingAccountingPolicyIndex => Option<RoamingAccountingPolicyConfig<T::RoamingAccountingPolicyType, BalanceOf<T>, T::RoamingAccountingPolicyUplinkFeeFactor, T::RoamingAccountingPolicyDownlinkFeeFactor>>;
 
         /// Get roaming accounting_policy network
-        pub RoamingAccountingPolicyNetwork get(fn roaming_accounting_policy_network): map hasher(blake2_256) T::RoamingAccountingPolicyIndex => Option<T::RoamingNetworkIndex>;
+        pub RoamingAccountingPolicyNetwork get(fn roaming_accounting_policy_network): map hasher(blake2_128_concat) T::RoamingAccountingPolicyIndex => Option<T::RoamingNetworkIndex>;
 
         /// Get roaming network's accounting policies
-        pub RoamingNetworkAccountingPolicies get(fn roaming_network_accounting_policies): map hasher(blake2_256) T::RoamingNetworkIndex => Option<Vec<T::RoamingAccountingPolicyIndex>>
+        pub RoamingNetworkAccountingPolicies get(fn roaming_network_accounting_policies): map hasher(blake2_128_concat) T::RoamingNetworkIndex => Option<Vec<T::RoamingAccountingPolicyIndex>>
     }
 }
 
