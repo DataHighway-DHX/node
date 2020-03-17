@@ -4,7 +4,7 @@ use datahighway_runtime::{
         SessionKeys,
     },
     AccountId,
-    BabeConfig,
+    AuraConfig,
     BalancesConfig,
     GeneralCouncilMembershipConfig,
     GenesisConfig,
@@ -27,7 +27,7 @@ use serde::{
     Serialize,
 };
 use serde_json::map::Map;
-use sp_consensus_babe::AuthorityId as BabeId;
+use sp_consensus_aura::sr25519::{AuthorityId as AuraId};
 use sp_finality_grandpa::AuthorityId as GrandpaId;
 
 use sp_core::{
@@ -93,12 +93,12 @@ where
 }
 
 /// Helper function to generate an authority key from seed
-pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, GrandpaId, BabeId) {
+pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, AuraId, GrandpaId) {
     (
         get_account_id_from_seed::<sr25519::Public>(&format!("{}//stash", seed)),
         get_account_id_from_seed::<sr25519::Public>(seed),
+        get_from_seed::<AuraId>(seed),
         get_from_seed::<GrandpaId>(seed),
-        get_from_seed::<BabeId>(seed),
     )
 }
 
@@ -116,7 +116,9 @@ impl Alternative {
                     "dev",
                     || {
                         dev_genesis(
-                            vec![get_authority_keys_from_seed("Alice")],
+                            vec![
+                                get_authority_keys_from_seed("Alice")
+                            ],
                             get_account_id_from_seed::<sr25519::Public>("Alice"),
                             vec![
                                 get_account_id_from_seed::<sr25519::Public>("Alice"),
@@ -244,16 +246,16 @@ impl Alternative {
             "dev" => Some(Alternative::Development),
             "local" => Some(Alternative::LocalTestnet),
             // "" | "testnet" => Some(Alternative::DataHighwayTestnet),
-            "testnet-latest" => Some(Alternative::DataHighwayTestnetLatest),
+            "" | "testnet-latest" => Some(Alternative::DataHighwayTestnetLatest),
             _ => None,
         }
     }
 }
 
-fn session_keys(grandpa: GrandpaId, babe: BabeId) -> SessionKeys {
+fn session_keys(grandpa: GrandpaId, aura: AuraId) -> SessionKeys {
     SessionKeys {
         grandpa,
-        babe,
+        aura,
     }
 }
 
@@ -261,7 +263,7 @@ const INITIAL_BALANCE: u128 = 1_000_000_000_000_000_000_000_u128; // $1M
 const INITIAL_STAKING: u128 = 1_000_000_000_000_000_000_u128;
 
 fn dev_genesis(
-    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
+    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, AuraId)>,
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     _enable_println: bool,
@@ -298,11 +300,11 @@ fn dev_genesis(
         pallet_sudo: Some(SudoConfig {
             key: root_key.clone(),
         }),
-        pallet_babe: Some(BabeConfig {
-            authorities: vec![],
-        }),
+        pallet_aura: Some(AuraConfig {
+			authorities: initial_authorities.iter().map(|x| (x.3.clone())).collect(),
+		}),
         pallet_grandpa: Some(GrandpaConfig {
-            authorities: vec![],
+            authorities: initial_authorities.iter().map(|x| (x.2.clone(), 1)).collect(),
         }),
         pallet_collective_Instance1: Some(Default::default()),
         pallet_membership_Instance1: Some(GeneralCouncilMembershipConfig {
@@ -314,7 +316,7 @@ fn dev_genesis(
 }
 
 fn testnet_genesis(
-    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
+    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, AuraId)>,
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     // No println
@@ -351,11 +353,11 @@ fn testnet_genesis(
         pallet_sudo: Some(SudoConfig {
             key: root_key.clone(),
         }),
-        pallet_babe: Some(BabeConfig {
-            authorities: vec![],
-        }),
+        pallet_aura: Some(AuraConfig {
+			authorities: initial_authorities.iter().map(|x| (x.3.clone())).collect(),
+		}),
         pallet_grandpa: Some(GrandpaConfig {
-            authorities: vec![],
+            authorities: initial_authorities.iter().map(|x| (x.2.clone(), 1)).collect(),
         }),
         pallet_collective_Instance1: Some(Default::default()),
         pallet_membership_Instance1: Some(GeneralCouncilMembershipConfig {
@@ -366,9 +368,9 @@ fn testnet_genesis(
     }
 }
 
-pub fn load_spec(id: &str) -> Result<Option<ChainSpec>, String> {
+pub fn load_spec(id: &str) -> Result<Box<dyn sc_service::ChainSpec>, String> {
     Ok(match Alternative::from(id) {
-        Some(spec) => Some(spec.load()?),
-        None => None,
+        Some(spec) => Box::new(spec.load()?),
+        None => Box::new(ChainSpec::from_json_file(std::path::PathBuf::from(id))?),
     })
 }

@@ -1,5 +1,5 @@
 mod chain_spec;
-mod rpc;
+// mod rpc;
 #[macro_use]
 mod service;
 mod cli;

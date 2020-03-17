@@ -1,3 +1,4 @@
+use sp_consensus_aura::sr25519::{AuthorityPair as AuraPair};
 use crate::{
     chain_spec,
     cli::Cli,

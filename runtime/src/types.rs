@@ -21,6 +21,10 @@ pub type AccountId = <<Signature as Verify>::Signer as IdentifyAccount>::Account
 /// never know...
 pub type AccountIndex = u32;
 
+// TODO: Balance type of u128 was replaced with Amount type of i128?
+/// Balance of an account.
+pub type Balance = u128;
+
 /// Signed version of Balance
 pub type Amount = i128;
 
