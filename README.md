@@ -232,7 +232,10 @@ Terminal 1: Alice's Substrate-based node on default TCP port 30333 with her chai
 If you explicitly specify a `--node-key` (i.e. `--node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee`) when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chainspec.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/datahighway:
 
 ```bash
-./target/release/datahighway --validator \
+SKIP_WASM_BUILD= ./target/release/datahighway --validator \
+  --unsafe-ws-external \
+  --unsafe-rpc-external \
+  --rpc-cors=all \
   --base-path /tmp/polkadot-chains/alice \
   --keystore-path "/tmp/polkadot-chains/alice/keys" \
   --chain ./src/chain-definition-custom/chain_def_testnet_v0.1.0.json \
@@ -241,7 +244,9 @@ If you explicitly specify a `--node-key` (i.e. `--node-key 88dc3417d5058ec4b4503
   --rpc-port 9933 \
   --port 30333 \
   --telemetry-url ws://telemetry.polkadot.io:1024 \
-  --ws-port 9944
+  --ws-port 9944 \
+  --execution=native \
+  -lruntime=debug
 ```
 
 When the node is started, copy the address of the node, and paste in the `bootNodes` of chain_def_testnet_v0.1.0.json.
@@ -249,13 +254,20 @@ When the node is started, copy the address of the node, and paste in the `bootNo
 Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and with his chain database stored locally at `/tmp/polkadot-chains/alice`. We'll specify a value for the `--bootnodes` option that will connect his node to Alice's bootnode ID on TCP port 30333:
 
 ```bash
-./target/release/datahighway --validator \
+SKIP_WASM_BUILD= ./target/release/datahighway --validator \
+  --unsafe-ws-external \
+  --unsafe-rpc-external \
+  --rpc-cors=all \
   --base-path /tmp/polkadot-chains/bob \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
   --chain ./src/chain-definition-custom/chain_def_testnet_v0.1.0.json \
   --bob \
+  --rpc-port 9933 \
   --port 30334 \
-  --telemetry-url ws://telemetry.polkadot.io:1024
+  --telemetry-url ws://telemetry.polkadot.io:1024 \
+  --ws-port 9944 \
+  --execution=native \
+  -lruntime=debug
 ```
 
 * Generate session keys for Alice
@@ -298,10 +310,10 @@ Secret Key URI `//Alice//grandpa` is account:
 
 * Add session keys for account(s) to be configured as authorities (validators). Run cURL to insert session key for each key type (i.e. "aura"), by providing the associated secret key, and associated Public key (hex) 
 ```bash
-curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["aura", "//Alice//aura", "0x408f99b525d90cce76288245cb975771282c2cefa89d693b9da2cdbed6cd9152"],"id":1 }' localhost:9933
-curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["babe", "//Alice//babe", "0x46ffa3a808850b2ad55732e958e781146ed1e6436ffb83290e0cb810aacf5070"],"id":1 }' localhost:9933
-curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["imon", "//Alice//imonline", "0xee725cf87fa2d6f264f26d7d8b84b1054d2182cdcce51fdea95ec868be9d1e17"],"id":1 }' localhost:9933
-curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["gran", "//Alice//grandpa", "0x6e2de2e5087b56ed2370359574f479d7e5da1973e17ca1b55882c4773f154d2f"],"id":1 }' localhost:9933
+curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["aura", "//Alice//aura", "0x408f99b525d90cce76288245cb975771282c2cefa89d693b9da2cdbed6cd9152"],"id":1 }' 127.0.0.1:9933
+curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["babe", "//Alice//babe", "0x46ffa3a808850b2ad55732e958e781146ed1e6436ffb83290e0cb810aacf5070"],"id":1 }' 127.0.0.1:9933
+curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["imon", "//Alice//imonline", "0xee725cf87fa2d6f264f26d7d8b84b1054d2182cdcce51fdea95ec868be9d1e17"],"id":1 }' 127.0.0.1:9933
+curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["gran", "//Alice//grandpa", "0x6e2de2e5087b56ed2370359574f479d7e5da1973e17ca1b55882c4773f154d2f"],"id":1 }' 127.0.0.1:9933
 ```
 
 * Check that the output from each cURL request is `{"jsonrpc":"2.0","result":"0x...","id":1}` and that the following folder is not empty /tmp/polkadot-chains/alice/keys
