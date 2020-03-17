@@ -232,7 +232,7 @@ Terminal 1: Alice's Substrate-based node on default TCP port 30333 with her chai
 If you explicitly specify a `--node-key` (i.e. `--node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee`) when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chainspec.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/datahighway:
 
 ```bash
-SKIP_WASM_BUILD= ./target/release/datahighway --validator \
+./target/release/datahighway --validator \
   --unsafe-ws-external \
   --unsafe-rpc-external \
   --rpc-cors=all \
@@ -254,7 +254,7 @@ When the node is started, copy the address of the node, and paste in the `bootNo
 Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and with his chain database stored locally at `/tmp/polkadot-chains/bob`. We'll specify a value for the `--bootnodes` option that will connect his node to Alice's bootnode ID on TCP port 30333:
 
 ```bash
-SKIP_WASM_BUILD= ./target/release/datahighway --validator \
+./target/release/datahighway --validator \
   --unsafe-ws-external \
   --unsafe-rpc-external \
   --rpc-cors=all \
