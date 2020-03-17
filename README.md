@@ -238,8 +238,10 @@ If you explicitly specify a `--node-key` (i.e. `--node-key 88dc3417d5058ec4b4503
   --chain ./src/chain-definition-custom/chain_def_testnet_v0.1.0.json \
   --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee \
   --alice \
+  --rpc-port 9933 \
   --port 30333 \
-  --telemetry-url ws://telemetry.polkadot.io:1024
+  --telemetry-url ws://telemetry.polkadot.io:1024 \
+  --ws-port 9944
 ```
 
 When the node is started, copy the address of the node, and paste in the `bootNodes` of chain_def_testnet_v0.1.0.json.
@@ -256,13 +258,61 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
   --telemetry-url ws://telemetry.polkadot.io:1024
 ```
 
+* Generate session keys for Alice
+```bash
+$ subkey --ed25519 inspect "//Alice"
+Secret Key URI `//Alice` is account:
+  Secret seed:      0xabf8e5bdbe30c65656c0a3cbd181ff8a56294a69dfedd27982aace4a76909115
+  Public key (hex): 0x88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee
+  Account ID:       0x88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee
+  SS58 Address:     5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu
+
+$ subkey --sr25519 inspect "//Alice"//aura
+Secret Key URI `//Alice//aura` is account:
+  Secret seed:      0x153d8db5f7ef35f18a456c049d6f6e2c723d6c18d1f9f6c9fbee880c2a171c73
+  Public key (hex): 0x408f99b525d90cce76288245cb975771282c2cefa89d693b9da2cdbed6cd9152
+  Account ID:       0x408f99b525d90cce76288245cb975771282c2cefa89d693b9da2cdbed6cd9152
+  SS58 Address:     5DXMabRsSpaMwfNivWjWEnzYtiHsKwQnP4aAKB85429ZQU6v
+
+$ subkey --sr25519 inspect "//Alice"//babe
+Secret Key URI `//Alice//babe` is account:
+  Secret seed:      0x7bc0e13f128f3f3274e407de23057efe043c2e12d8ed72dc5c627975755c9620
+  Public key (hex): 0x46ffa3a808850b2ad55732e958e781146ed1e6436ffb83290e0cb810aacf5070
+  Account ID:       0x46ffa3a808850b2ad55732e958e781146ed1e6436ffb83290e0cb810aacf5070
+  SS58 Address:     5Dfo9eF9C7Lu5Vbc8LbaMXi1Us2yi5VGTTA7radKoxb7M9HT
+
+$ subkey --sr25519 inspect "//Alice"//imonline
+Secret Key URI `//Alice//imonline` is account:
+  Secret seed:      0xf54dc00d41d0ea7929ac00a08ed1e111eb8c35d669b011c649cea23997f5d8d9
+  Public key (hex): 0xee725cf87fa2d6f264f26d7d8b84b1054d2182cdcce51fdea95ec868be9d1e17
+  Account ID:       0xee725cf87fa2d6f264f26d7d8b84b1054d2182cdcce51fdea95ec868be9d1e17
+  SS58 Address:     5HTME6o2DqEuoNCxE5263j2dNzFGxspeP8wswenPA3WerfmA
+
+$ subkey --ed25519 inspect "//Alice"//grandpa
+Secret Key URI `//Alice//grandpa` is account:
+  Secret seed:      0x03bee0237d4847732404fde7539e356da44bce9cd69f26f869883419371a78ab
+  Public key (hex): 0x6e2de2e5087b56ed2370359574f479d7e5da1973e17ca1b55882c4773f154d2f
+  Account ID:       0x6e2de2e5087b56ed2370359574f479d7e5da1973e17ca1b55882c4773f154d2f
+  SS58 Address:     5EZAkmxARDqRz5z5ojuTjacTs2rTd7WRL1A9ZeLvwgq2STA2
+```
+
+* Add session keys for account(s) to be configured as authorities (validators). Run cURL to insert session key for each key type (i.e. "aura"), by providing the associated secret key, and associated Public key (hex) 
+```bash
+curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["aura", "//Alice//aura", "0x408f99b525d90cce76288245cb975771282c2cefa89d693b9da2cdbed6cd9152"],"id":1 }' localhost:9933
+curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["babe", "//Alice//babe", "0x46ffa3a808850b2ad55732e958e781146ed1e6436ffb83290e0cb810aacf5070"],"id":1 }' localhost:9933
+curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["imon", "//Alice//imonline", "0xee725cf87fa2d6f264f26d7d8b84b1054d2182cdcce51fdea95ec868be9d1e17"],"id":1 }' localhost:9933
+curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["gran", "//Alice//grandpa", "0x6e2de2e5087b56ed2370359574f479d7e5da1973e17ca1b55882c4773f154d2f"],"id":1 }' localhost:9933
+```
+
+* Check that the output from each cURL request is `{"jsonrpc":"2.0","result":"0x...","id":1}` and that the following folder is not empty /tmp/polkadot-chains/alice/keys
+
+* Check that the chain is finalizing blocks (i.e. finalized is non-zero `Idle (1 peers), best: #58 (0x1aac…05f1), finalized #0 (0x3947…2716), ⬇ 0 ⬆ 0`)
+
 * Configure settings to view at [Polkadot.js Apps](#chapter-6d9058)
 
 * View on [Polkadot Telemetry](https://telemetry.polkadot.io/#list/DataHighway%20Local%20PoA%20Testnet%20v0.1.0)
 
 * Distribute the custom chain definition (i.e. chain_def_testnet_v0.1.0.json) to allow others to synchronise and validate if they are an authority
-
-* Add session keys for other account(s) to be configured as authorities (validators)
 
 ## Linting<a id="chapter-c345d7"></a>
 
