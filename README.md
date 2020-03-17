@@ -251,7 +251,7 @@ SKIP_WASM_BUILD= ./target/release/datahighway --validator \
 
 When the node is started, copy the address of the node, and paste in the `bootNodes` of chain_def_testnet_v0.1.0.json.
 
-Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and with his chain database stored locally at `/tmp/polkadot-chains/alice`. We'll specify a value for the `--bootnodes` option that will connect his node to Alice's bootnode ID on TCP port 30333:
+Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and with his chain database stored locally at `/tmp/polkadot-chains/bob`. We'll specify a value for the `--bootnodes` option that will connect his node to Alice's bootnode ID on TCP port 30333:
 
 ```bash
 SKIP_WASM_BUILD= ./target/release/datahighway --validator \
