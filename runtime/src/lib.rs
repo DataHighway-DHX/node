@@ -52,7 +52,6 @@ use sp_version::RuntimeVersion;
 // A few exports that help ease life for downstream crates.
 pub use frame_support::{
     construct_runtime,
-    debug,
     parameter_types,
     traits::{
         Contains,
@@ -739,7 +738,6 @@ impl_runtime_apis! {
         }
 
         fn finalize_block() -> <Block as BlockT>::Header {
-            debug::native::info!("Finalize block");
             Executive::finalize_block()
         }
 
