@@ -358,13 +358,12 @@ curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"a
 
 * Distribute the custom chain definition (i.e. chain_def_testnet_v0.1.0.json) to allow others to synchronise and validate if they are an authority
 
-
 ### Run using Docker containers
 
 - Checkout this repo on the test node
 - Update docker-compose.yml with the role (Alice/Bob)
 - Update ./scripts/docker-entrypoint.sh with the role specific information
-- Update ./src/chain-definition-custom/chain_def_testnet_v0.1.0.json with the role specific information
+- Update ./src/chain_spec.rs for the "testnet-latest" chain spec, since we will generate the raw chain definition from this
 - Start the container (the image will be build on first run based on Dockerfile)
 ```bash
 docker-compose up -d
