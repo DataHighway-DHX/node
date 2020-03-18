@@ -268,11 +268,11 @@ curl https://getsubstrate.io -sSf | bash -s -- --fast && \
 ```
 * Install and run Docker
 * Replace docker-compose.yml with your node information
-* Update ./scripts/docker-entrypoint.sh with your node specific information
+* Update the relevant ./scripts/docker-entrypoint-<VALIDATOR_NAME>.sh with your node specific information
 * Update the ["testnet-latest" chain spec](./src/chain_spec.rs), to be used to generate the raw chain definition
 * Start the container (the image will be built on first run based on Dockerfile) and build chain runtime code
   ```bash
-  docker-compose up -d
+  docker-compose --verbose up -d
   ```
 * Check the logs
   ```bash

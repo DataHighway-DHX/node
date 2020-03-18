@@ -219,8 +219,9 @@ impl Alternative {
                     },
                     // bootnodes
                     vec![
-                        // Alice
-                        "/ip4/172.31.1.212/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".to_string(),
+                        // Note: Bootnode and associated IP address configured in docker-compose.yml entrypoints
+                        // // Alice
+                        // "/ip4/172.31.1.212/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".to_string(),
                     ],
                     // telemetry endpoints
                     Some(TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])),
