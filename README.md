@@ -223,6 +223,8 @@ mkdir -p ./src/chain-definition-custom
 
 ## Run multiple nodes in PoS testnet using custom blockchain configuration <a id="chapter-f21efd"></a>
 
+### Run on Local Machine (without Docker)
+
 * Run custom Substrate-based blockchain on local machine testnet with multiple terminals:
   * Imported custom chain definition for custom testnet
   * Use default accounts Alice and Bob as the two initial authorities of the genesis configuration that have been endowed with testnet units that will run validator nodes
@@ -256,7 +258,17 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
   --telemetry-url ws://telemetry.polkadot.io:1024
 ```
 
-# Run the testnet chain in docker containers
+* Configure settings to view at [Polkadot.js Apps](#chapter-6d9058)
+
+* View on [Polkadot Telemetry](https://telemetry.polkadot.io/#list/DataHighway%20Local%20PoA%20Testnet%20v0.1.0)
+
+* Distribute the custom chain definition (i.e. chain_def_testnet_poa_v0.1.0.json) to allow others to synchronise and validate if they are an authority
+
+* Add session keys for other account(s) to be configured as authorities (validators)
+
+
+### Run using Docker containers
+
 - Checkout this repo on the test node
 - Update docker-compose.yml with the role (Alice/Bob)
 - Update ./scripts/docker-entrypoint.sh with the role specific information
@@ -269,14 +281,6 @@ docker-compose up -d
 ```bash
 docker-compose logs (-f to follow)
 ```
-
-* Configure settings to view at [Polkadot.js Apps](#chapter-6d9058)
-
-* View on [Polkadot Telemetry](https://telemetry.polkadot.io/#list/DataHighway%20Local%20PoA%20Testnet%20v0.1.0)
-
-* Distribute the custom chain definition (i.e. chain_def_testnet_poa_v0.1.0.json) to allow others to synchronise and validate if they are an authority
-
-* Add session keys for other account(s) to be configured as authorities (validators)
 
 ## Linting<a id="chapter-c345d7"></a>
 
