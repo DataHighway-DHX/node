@@ -51,6 +51,12 @@ cargo build --release
 ./target/release/datahighway purge-chain --dev --base-path /tmp/polkadot-chains/alice
 ```
 
+```bash
+./target/release/datahighway purge-chain --chain "testnet-latest" --base-path /tmp/polkadot-chains/alice
+./target/release/datahighway purge-chain --chain "testnet-latest" --base-path /tmp/polkadot-chains/bob
+./target/release/datahighway purge-chain --chain "testnet-latest" --base-path /tmp/polkadot-chains/charlie
+```
+
 * Connect to development testnet (`--chain development`)
 
 ```bash
@@ -186,6 +192,7 @@ use log::{error, info, debug, trace};
 ...
 log::debug!("hello {:?}", world); // Only shows in terminal in debug mode
 log::info!("hello {:?}", world); // Shows in terminal in release mode
+debug::native::info!("hello {:?}", world);
 ```
 
 ### Detailed Debugging
@@ -271,6 +278,30 @@ Terminal 2: Bob's Substrate-based node on a different TCP port of 30334, and wit
   -lruntime=debug
 ```
 
+> Important: Since in GRANDPA you have authority set of size 4, it means you need 3 nodes running in order to **finalize** the blocks that are authored. (Credit: @bkchr Bastian Köcher)
+
+Terminal 3: Charlie's Substrate-based node on a different TCP port of 30335, and with his chain database stored locally at `/tmp/polkadot-chains/charlie`. We'll specify a value for the `--bootnodes` option that will connect his node to Alice's bootnode ID on TCP port 30333:
+
+```bash
+./target/release/datahighway --validator \
+  --unsafe-ws-external \
+  --unsafe-rpc-external \
+  --rpc-cors=all \
+  --base-path /tmp/polkadot-chains/charlie \
+  --keystore-path "/tmp/polkadot-chains/charlie/keys" \
+  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
+  --chain ./src/chain-definition-custom/chain_def_testnet_v0.1.0.json \
+  --charlie \
+  --rpc-port 9933 \
+  --port 30335 \
+  --telemetry-url ws://telemetry.polkadot.io:1024 \
+  --ws-port 9944 \
+  --execution=native \
+  -lruntime=debug
+```
+
+* Check that the chain is finalizing blocks (i.e. finalized is non-zero `main-tokio- INFO substrate  Idle (2 peers), best: #3 (0xaede…b8d9), finalized #1 (0x4c69…f605), ⬇ 3.3kiB/s ⬆ 3.7kiB/s`)
+
 * Generate session keys for Alice
 ```bash
 $ subkey --ed25519 inspect "//Alice"
@@ -311,15 +342,13 @@ Secret Key URI `//Alice//grandpa` is account:
 
 * Add session keys for account(s) to be configured as authorities (validators). Run cURL to insert session key for each key type (i.e. "aura"), by providing the associated secret key, and associated Public key (hex) 
 ```bash
-curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["aura", "//Alice//aura", "0x408f99b525d90cce76288245cb975771282c2cefa89d693b9da2cdbed6cd9152"],"id":1 }' 127.0.0.1:9933
+curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["aura", "", "0x408f99b525d90cce76288245cb975771282c2cefa89d693b9da2cdbed6cd9152"],"id":1 }' 127.0.0.1:9933
 curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["babe", "//Alice//babe", "0x46ffa3a808850b2ad55732e958e781146ed1e6436ffb83290e0cb810aacf5070"],"id":1 }' 127.0.0.1:9933
 curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["imon", "//Alice//imonline", "0xee725cf87fa2d6f264f26d7d8b84b1054d2182cdcce51fdea95ec868be9d1e17"],"id":1 }' 127.0.0.1:9933
 curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["gran", "//Alice//grandpa", "0x6e2de2e5087b56ed2370359574f479d7e5da1973e17ca1b55882c4773f154d2f"],"id":1 }' 127.0.0.1:9933
 ```
 
-* Check that the output from each cURL request is `{"jsonrpc":"2.0","result":"0x...","id":1}` and that the following folder is not empty /tmp/polkadot-chains/alice/keys
-
-* Check that the chain is finalizing blocks (i.e. finalized is non-zero `Idle (1 peers), best: #58 (0x1aac…05f1), finalized #0 (0x3947…2716), ⬇ 0 ⬆ 0`)
+* Check that the output from each cURL request is `{"jsonrpc":"2.0","result":null,"id":1}`, since with a successful output `null` is returned https://github.com/paritytech/substrate/blob/db1ab7d18fbe7876cdea43bbf30f147ddd263f94/client/rpc-api/src/author/mod.rs#L47. Also check that the following folder is not empty /tmp/polkadot-chains/alice/keys (it should now contain four keys).
 
 * Configure settings to view at [Polkadot.js Apps](#chapter-6d9058)
 
