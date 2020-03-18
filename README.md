@@ -392,6 +392,10 @@ where `redundant_pattern_matching` is the clippy error type in this example:
 #![cfg_attr(feature = "cargo-clippy", allow(clippy::redundant_pattern_matching))]
 ```
 
+##### Skipping CI
+
+To skip running the CI unnecessarily for simple changes such as updating the documentation, include `[ci skip]` or `[skip ci]` in your Git commit message.
+
 ### Rust Format
 
 [RustFmt](https://github.com/rust-lang/rustfmt) should be used for styling Rust code.
@@ -424,3 +428,7 @@ Add the following to settings.json `"editor.rulers": [80,120]`, as recommended h
 ### EditorConfig
 
 Install an [EditorConfig Plugin](https://editorconfig.org/) for your code editor to detect and apply the configuration in .editorconfig.
+
+### Parachain
+
+* The `SessionKeys` struct of our chain only needs [babe and grandpa](https://github.com/DataHighway-DHX/node/blob/master/runtime/src/lib.rs#L94), not [im_online and authority_discovery](https://github.com/paritytech/substrate/blob/master/bin/node/runtime/src/lib.rs#L242), since we'll be a parachain?
