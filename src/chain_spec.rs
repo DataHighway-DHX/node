@@ -127,11 +127,7 @@ impl Alternative {
                             true,
                         )
                     },
-                    // bootnodes
-                    vec![
-                        // Alice
-                        "/ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".to_string(),
-                    ],
+                    vec![],
                     None,
                     None,
                     Some(properties),
@@ -173,7 +169,7 @@ impl Alternative {
                         // Alice
                         "/ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".to_string(),
                     ],
-                    None,
+                    Some(TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])),
                     None,
                     Some(properties),
                     Default::default(),
@@ -224,7 +220,7 @@ impl Alternative {
                     // bootnodes
                     vec![
                         // Alice
-                        "/ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".to_string(),
+                        "/ip4/172.31.1.212/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".to_string(),
                     ],
                     // telemetry endpoints
                     Some(TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])),

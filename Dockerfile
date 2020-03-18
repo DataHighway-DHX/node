@@ -12,9 +12,17 @@ RUN apt-get update && apt-get install -y build-essential wget cmake pkg-config l
 COPY . .
 
 RUN PATH=$PATH:/root/.cargo/bin \
-        && cargo build --release
+	&& curl https://getsubstrate.io -sSf | bash -s -- --fast \
+	&& ./scripts/init.sh \
+  && cargo build --release \
+	# Generate the chain specification JSON file from src/chain_spec.rs
+	&& mkdir -p ./src/chain-spec-templates \
+	&& ./target/release/datahighway build-spec \
+  	--chain=testnet-latest > ./src/chain-spec-templates/chain_spec_testnet_latest.json \
+	# Build "raw" chain definition for the new chain from it
+	&& mkdir -p ./src/chain-definition-custom \
+	&& ./target/release/datahighway build-spec \
+  	--chain ./src/chain-spec-templates/chain_spec_testnet_latest.json \
+  	--raw > ./src/chain-definition-custom/chain_def_testnet_v0.1.0.json
 
 WORKDIR /dhx/scripts
-
-
-
