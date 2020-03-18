@@ -12,7 +12,6 @@ use datahighway_runtime::{
     Index,
     UncheckedExtrinsic,
 };
-use frame_rpc_system::AccountNonceApi;
 use sc_client::blockchain::{
     Error as BlockChainError,
     HeaderBackend,
@@ -29,6 +28,7 @@ use sp_api::ProvideRuntimeApi;
 use sp_consensus::SelectChain;
 use sp_consensus_babe::BabeApi;
 use sp_transaction_pool::TransactionPool;
+use substrate_frame_rpc_system::AccountNonceApi;
 
 /// Light client extra dependencies.
 pub struct LightDeps<C, F, P> {
@@ -80,7 +80,7 @@ where
     M: jsonrpc_core::Metadata + Default,
     SC: SelectChain<Block> + 'static,
 {
-    use frame_rpc_system::{
+    use substrate_frame_rpc_system::{
         FullSystem,
         SystemApi,
     };
@@ -128,7 +128,7 @@ where
     P: TransactionPool + 'static,
     M: jsonrpc_core::Metadata + Default,
 {
-    use frame_rpc_system::{
+    use substrate_frame_rpc_system::{
         LightSystem,
         SystemApi,
     };

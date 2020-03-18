@@ -1,7 +1,7 @@
 // extern crate env as env;
-extern crate mining_speed_boosts_claims_token_mining as mining_speed_boosts_claims_token_mining;
 extern crate mining_speed_boosts_configuration_token_mining as mining_speed_boosts_configuration_token_mining;
 extern crate mining_speed_boosts_eligibility_token_mining as mining_speed_boosts_eligibility_token_mining;
+extern crate mining_speed_boosts_lodgements_token_mining as mining_speed_boosts_lodgements_token_mining;
 extern crate mining_speed_boosts_rates_token_mining as mining_speed_boosts_rates_token_mining;
 extern crate mining_speed_boosts_sampling_token_mining as mining_speed_boosts_sampling_token_mining;
 extern crate roaming_operators as roaming_operators;
@@ -17,6 +17,7 @@ mod tests {
         parameter_types,
         weights::Weight,
     };
+    use frame_system::{self as system,};
     use sp_core::H256;
     use sp_runtime::{
         testing::Header,
@@ -31,12 +32,6 @@ mod tests {
         Permill,
     };
     // Import Trait for each runtime module being tested
-    use mining_speed_boosts_claims_token_mining::{
-        MiningSpeedBoostClaimsTokenMining,
-        MiningSpeedBoostClaimsTokenMiningClaimResult,
-        Module as MiningSpeedBoostClaimsTokenMiningModule,
-        Trait as MiningSpeedBoostClaimsTokenMiningTrait,
-    };
     use mining_speed_boosts_configuration_token_mining::{
         MiningSpeedBoostConfigurationTokenMining,
         MiningSpeedBoostConfigurationTokenMiningTokenConfig,
@@ -48,6 +43,12 @@ mod tests {
         MiningSpeedBoostEligibilityTokenMiningEligibilityResult,
         Module as MiningSpeedBoostEligibilityTokenMiningModule,
         Trait as MiningSpeedBoostEligibilityTokenMiningTrait,
+    };
+    use mining_speed_boosts_lodgements_token_mining::{
+        MiningSpeedBoostLodgementsTokenMining,
+        MiningSpeedBoostLodgementsTokenMiningLodgementResult,
+        Module as MiningSpeedBoostLodgementsTokenMiningModule,
+        Trait as MiningSpeedBoostLodgementsTokenMiningTrait,
     };
     use mining_speed_boosts_rates_token_mining::{
         MiningSpeedBoostRatesTokenMining,
@@ -63,8 +64,8 @@ mod tests {
     };
     use roaming_operators;
 
-    // pub fn origin_of(who: &AccountId) -> <Runtime as system::Trait>::Origin {
-    // 	<Runtime as system::Trait>::Origin::signed((*who).clone())
+    // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Trait>::Origin {
+    // 	<Runtime as frame_system::Trait>::Origin::signed((*who).clone())
     // }
 
     impl_outer_origin! {
@@ -79,7 +80,7 @@ mod tests {
         pub const MaximumBlockLength: u32 = 2 * 1024;
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
-    impl system::Trait for Test {
+    impl frame_system::Trait for Test {
         type AccountData = pallet_balances::AccountData<u64>;
         type AccountId = u64;
         type AvailableBlockRatio = AvailableBlockRatio;
@@ -165,26 +166,26 @@ mod tests {
         // type MiningSpeedBoostEligibilityTokenMiningDateAudited = u64;
         // type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
     }
-    impl MiningSpeedBoostClaimsTokenMiningTrait for Test {
+    impl MiningSpeedBoostLodgementsTokenMiningTrait for Test {
         type Event = ();
-        type MiningSpeedBoostClaimsTokenMiningClaimAmount = u64;
-        type MiningSpeedBoostClaimsTokenMiningClaimDateRedeemed = u64;
-        type MiningSpeedBoostClaimsTokenMiningIndex = u64;
+        type MiningSpeedBoostLodgementsTokenMiningIndex = u64;
+        type MiningSpeedBoostLodgementsTokenMiningLodgementAmount = u64;
+        type MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = u64;
     }
 
-    type System = system::Module<Test>;
+    type System = frame_system::Module<Test>;
     pub type Balances = pallet_balances::Module<Test>;
     pub type MiningSpeedBoostConfigurationTokenMiningTestModule = MiningSpeedBoostConfigurationTokenMiningModule<Test>;
     pub type MiningSpeedBoostRatesTokenMiningTestModule = MiningSpeedBoostRatesTokenMiningModule<Test>;
     pub type MiningSpeedBoostSamplingTokenMiningTestModule = MiningSpeedBoostSamplingTokenMiningModule<Test>;
     pub type MiningSpeedBoostEligibilityTokenMiningTestModule = MiningSpeedBoostEligibilityTokenMiningModule<Test>;
-    pub type MiningSpeedBoostClaimsTokenMiningTestModule = MiningSpeedBoostClaimsTokenMiningModule<Test>;
+    pub type MiningSpeedBoostLodgementsTokenMiningTestModule = MiningSpeedBoostLodgementsTokenMiningModule<Test>;
     type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     pub fn new_test_ext() -> sp_io::TestExternalities {
-        let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
+        let mut t = frame_system::GenesisConfig::default().build_storage::<Test>().unwrap();
         pallet_balances::GenesisConfig::<Test> {
             balances: vec![(1, 10), (2, 20), (3, 30)],
         }
@@ -377,38 +378,38 @@ mod tests {
                 })
             );
 
-            // Create Mining Speed Boost Claims Token Mining
+            // Create Mining Speed Boost Lodgements Token Mining
 
             // Call Functions
-            assert_ok!(MiningSpeedBoostClaimsTokenMiningTestModule::create(Origin::signed(0)));
-            assert_ok!(MiningSpeedBoostClaimsTokenMiningTestModule::assign_claim_to_configuration(Origin::signed(0), 0, 0));
+            assert_ok!(MiningSpeedBoostLodgementsTokenMiningTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningSpeedBoostLodgementsTokenMiningTestModule::assign_claim_to_configuration(Origin::signed(0), 0, 0));
             assert_ok!(
-                MiningSpeedBoostClaimsTokenMiningTestModule::claim(
+                MiningSpeedBoostLodgementsTokenMiningTestModule::claim(
                     Origin::signed(0),
                     0, // mining_speed_boosts_configuration_token_mining_id
                     0, // mining_speed_boosts_eligibility_token_mining_id
-                    0, // mining_speed_boosts_claims_token_mining_id
+                    0, // mining_speed_boosts_lodgements_token_mining_id
                 )
             );
             // Override by DAO if necessary
             assert_ok!(
-              MiningSpeedBoostClaimsTokenMiningTestModule::set_mining_speed_boosts_claims_token_mining_claims_result(
+              MiningSpeedBoostLodgementsTokenMiningTestModule::set_mining_speed_boosts_lodgements_token_mining_lodgements_result(
                   Origin::signed(0),
                   0, // mining_speed_boosts_configuration_token_mining_id
                   0, // mining_speed_boosts_eligibility_token_mining_id
-                  0, // mining_speed_boosts_claims_token_mining_id
+                  0, // mining_speed_boosts_lodgements_token_mining_id
                   Some(1), // hardware_claim_amount
                   Some(34567) // hardware_claim_date_redeemed
               )
             );
 
             // Verify Storage
-            assert_eq!(MiningSpeedBoostClaimsTokenMiningTestModule::mining_speed_boosts_claims_token_mining_count(), 1);
-            assert!(MiningSpeedBoostClaimsTokenMiningTestModule::mining_speed_boosts_claims_token_mining(0).is_some());
-            assert_eq!(MiningSpeedBoostClaimsTokenMiningTestModule::mining_speed_boosts_claims_token_mining_owner(0), Some(0));
+            assert_eq!(MiningSpeedBoostLodgementsTokenMiningTestModule::mining_speed_boosts_lodgements_token_mining_count(), 1);
+            assert!(MiningSpeedBoostLodgementsTokenMiningTestModule::mining_speed_boosts_lodgements_token_mining(0).is_some());
+            assert_eq!(MiningSpeedBoostLodgementsTokenMiningTestModule::mining_speed_boosts_lodgements_token_mining_owner(0), Some(0));
             assert_eq!(
-              MiningSpeedBoostClaimsTokenMiningTestModule::mining_speed_boosts_claims_token_mining_claims_results((0, 0)),
-                Some(MiningSpeedBoostClaimsTokenMiningClaimResult {
+              MiningSpeedBoostLodgementsTokenMiningTestModule::mining_speed_boosts_lodgements_token_mining_lodgements_results((0, 0)),
+                Some(MiningSpeedBoostLodgementsTokenMiningLodgementResult {
                     token_claim_amount: 1,
                     token_claim_date_redeemed: 34567,
                 })
