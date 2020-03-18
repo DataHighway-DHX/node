@@ -173,7 +173,7 @@ parameter_types! {
     pub const Version: RuntimeVersion = VERSION;
 }
 
-impl system::Trait for Runtime {
+impl frame_system::Trait for Runtime {
     /// The data to be stored in an account.
     type AccountData = pallet_balances::AccountData<Balance>;
     /// The identifier used to distinguish between accounts.
@@ -359,7 +359,7 @@ impl pallet_session::Trait for Runtime {
     type SessionHandler = <opaque::SessionKeys as OpaqueKeys>::KeyTypeIdProviders;
     type SessionManager = Staking;
     type ShouldEndSession = Babe;
-    type ValidatorId = <Self as system::Trait>::AccountId;
+    type ValidatorId = <Self as frame_system::Trait>::AccountId;
     type ValidatorIdOf = pallet_staking::StashOf<Self>;
 }
 
@@ -618,18 +618,18 @@ impl mining_speed_boosts_eligibility_hardware_mining::Trait for Runtime {
     // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
 }
 
-impl mining_speed_boosts_claims_token_mining::Trait for Runtime {
+impl mining_speed_boosts_lodgements_token_mining::Trait for Runtime {
     type Event = Event;
-    type MiningSpeedBoostClaimsTokenMiningClaimAmount = u64;
-    type MiningSpeedBoostClaimsTokenMiningClaimDateRedeemed = u64;
-    type MiningSpeedBoostClaimsTokenMiningIndex = u64;
+    type MiningSpeedBoostLodgementsTokenMiningIndex = u64;
+    type MiningSpeedBoostLodgementsTokenMiningLodgementAmount = u64;
+    type MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = u64;
 }
 
-impl mining_speed_boosts_claims_hardware_mining::Trait for Runtime {
+impl mining_speed_boosts_lodgements_hardware_mining::Trait for Runtime {
     type Event = Event;
-    type MiningSpeedBoostClaimsHardwareMiningClaimAmount = u64;
-    type MiningSpeedBoostClaimsHardwareMiningClaimDateRedeemed = u64;
-    type MiningSpeedBoostClaimsHardwareMiningIndex = u64;
+    type MiningSpeedBoostLodgementsHardwareMiningIndex = u64;
+    type MiningSpeedBoostLodgementsHardwareMiningLodgementAmount = u64;
+    type MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed = u64;
 }
 
 construct_runtime!(
@@ -638,7 +638,7 @@ construct_runtime!(
         NodeBlock = opaque::Block,
         UncheckedExtrinsic = UncheckedExtrinsic
     {
-        System: system::{Module, Call, Config, Storage, Event<T>},
+        System: frame_system::{Module, Call, Config, Storage, Event<T>},
         Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
         Babe: pallet_babe::{Module, Call, Storage, Config, Inherent(Timestamp)},
         Grandpa: pallet_grandpa::{Module, Call, Storage, Config, Event},
@@ -675,8 +675,8 @@ construct_runtime!(
         DataHighwayMiningSpeedBoostSamplingHardwareMining: mining_speed_boosts_sampling_hardware_mining::{Module, Call, Storage, Event<T>},
         DataHighwayMiningSpeedBoostEligibilityTokenMining: mining_speed_boosts_eligibility_token_mining::{Module, Call, Storage, Event<T>},
         DataHighwayMiningSpeedBoostEligibilityHardwareMining: mining_speed_boosts_eligibility_hardware_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostClaimsTokenMining: mining_speed_boosts_claims_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostClaimsHardwareMining: mining_speed_boosts_claims_hardware_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostLodgementsTokenMining: mining_speed_boosts_lodgements_token_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostLodgementsHardwareMining: mining_speed_boosts_lodgements_hardware_mining::{Module, Call, Storage, Event<T>},
     }
 );
 
@@ -692,11 +692,11 @@ pub type SignedBlock = generic::SignedBlock<Block>;
 pub type BlockId = generic::BlockId<Block>;
 /// The SignedExtension to the basic transaction logic.
 pub type SignedExtra = (
-    system::CheckVersion<Runtime>,
-    system::CheckGenesis<Runtime>,
-    system::CheckEra<Runtime>,
-    system::CheckNonce<Runtime>,
-    system::CheckWeight<Runtime>,
+    frame_system::CheckVersion<Runtime>,
+    frame_system::CheckGenesis<Runtime>,
+    frame_system::CheckEra<Runtime>,
+    frame_system::CheckNonce<Runtime>,
+    frame_system::CheckWeight<Runtime>,
     pallet_transaction_payment::ChargeTransactionPayment<Runtime>,
 );
 /// Unchecked extrinsic type as expected by this runtime.
@@ -704,7 +704,8 @@ pub type UncheckedExtrinsic = generic::UncheckedExtrinsic<Address, Call, Signatu
 /// Extrinsic type that has already been checked.
 pub type CheckedExtrinsic = generic::CheckedExtrinsic<AccountId, Call, SignedExtra>;
 /// Executive: handles dispatch to the various modules.
-pub type Executive = frame_executive::Executive<Runtime, Block, system::ChainContext<Runtime>, Runtime, AllModules>;
+pub type Executive =
+    frame_executive::Executive<Runtime, Block, frame_system::ChainContext<Runtime>, Runtime, AllModules>;
 
 impl_runtime_apis! {
     impl sp_api::Core<Block> for Runtime {
@@ -808,7 +809,7 @@ impl_runtime_apis! {
         }
     }
 
-    impl system_rpc_runtime_api::AccountNonceApi<Block, AccountId, Index> for Runtime {
+    impl frame_system_rpc_runtime_api::AccountNonceApi<Block, AccountId, Index> for Runtime {
         fn account_nonce(account: AccountId) -> Index {
             System::account_nonce(account)
         }

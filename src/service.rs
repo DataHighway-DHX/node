@@ -7,15 +7,15 @@ use datahighway_runtime::{
     GenesisConfig,
     RuntimeApi,
 };
-use grandpa::{
-    self,
-    FinalityProofProvider as GrandpaFinalityProofProvider,
-};
 use sc_client::{
     self,
     LongestChain,
 };
 use sc_consensus_babe;
+use sc_finality_grandpa::{
+    self,
+    FinalityProofProvider as GrandpaFinalityProofProvider,
+};
 use sc_service::{
     config::Configuration,
     error::Error as ServiceError,
@@ -52,7 +52,8 @@ macro_rules! new_full_start {
         })?
         .with_import_queue(|_config, client, mut select_chain, _transaction_pool| {
             let select_chain = select_chain.take().ok_or_else(|| sc_service::Error::SelectChainRequired)?;
-            let (grandpa_block_import, grandpa_link) = grandpa::block_import(client.clone(), &*client, select_chain)?;
+            let (grandpa_block_import, grandpa_link) =
+                sc_finality_grandpa::block_import(client.clone(), &*client, select_chain)?;
             let justification_import = grandpa_block_import.clone();
 
             let (block_import, babe_link) = sc_consensus_babe::block_import(
@@ -127,10 +128,7 @@ pub fn new_full(config: NodeConfiguration) -> Result<impl AbstractService, Servi
         .build()?;
 
     if participates_in_consensus {
-        let proposer = sc_basic_authorship::ProposerFactory {
-            client: service.client(),
-            transaction_pool: service.transaction_pool(),
-        };
+        let proposer = sc_basic_authorship::ProposerFactory::new(service.client(), service.transaction_pool());
 
         let client = service.client();
         let select_chain = service.select_chain().ok_or(ServiceError::SelectChainRequired)?;
@@ -162,7 +160,7 @@ pub fn new_full(config: NodeConfiguration) -> Result<impl AbstractService, Servi
         None
     };
 
-    let grandpa_config = grandpa::Config {
+    let grandpa_config = sc_finality_grandpa::Config {
         // FIXME #1578 make this available through chainspec
         gossip_duration: std::time::Duration::from_millis(333),
         justification_period: 512,
@@ -180,21 +178,21 @@ pub fn new_full(config: NodeConfiguration) -> Result<impl AbstractService, Servi
         // and vote data availability than the observer. The observer has not
         // been tested extensively yet and having most nodes in a network run it
         // could lead to finality stalls.
-        let grandpa_config = grandpa::GrandpaParams {
+        let grandpa_config = sc_finality_grandpa::GrandpaParams {
             config: grandpa_config,
             link: grandpa_link,
             network: service.network(),
             inherent_data_providers: inherent_data_providers.clone(),
             on_exit: service.on_exit(),
             telemetry_on_connect: Some(service.telemetry_on_connect_stream()),
-            voting_rule: grandpa::VotingRulesBuilder::default().build(),
+            voting_rule: sc_finality_grandpa::VotingRulesBuilder::default().build(),
         };
 
         // the GRANDPA voter task is considered infallible, i.e.
         // if it fails we take down the service with it.
-        service.spawn_essential_task("grandpa-voter", grandpa::run_grandpa_voter(grandpa_config)?);
+        service.spawn_essential_task("grandpa-voter", sc_finality_grandpa::run_grandpa_voter(grandpa_config)?);
     } else {
-        grandpa::setup_disabled_grandpa(service.client(), &inherent_data_providers, service.network())?;
+        sc_finality_grandpa::setup_disabled_grandpa(service.client(), &inherent_data_providers, service.network())?;
     }
 
     Ok(service)
@@ -222,7 +220,7 @@ pub fn new_light(config: NodeConfiguration) -> Result<impl AbstractService, Serv
             let fetch_checker = fetcher
                 .map(|fetcher| fetcher.checker().clone())
                 .ok_or_else(|| "Trying to start light import queue without active fetch checker")?;
-            let grandpa_block_import = grandpa::light_block_import::<_, _, _, RuntimeApi>(
+            let grandpa_block_import = sc_finality_grandpa::light_block_import(
                 client.clone(),
                 backend,
                 &*client.clone(),

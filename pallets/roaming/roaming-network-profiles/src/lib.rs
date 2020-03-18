@@ -14,6 +14,10 @@ use frame_support::{
     ensure,
     Parameter,
 };
+use frame_system::{
+    self as system,
+    ensure_signed,
+};
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -25,7 +29,6 @@ use sp_runtime::{
     DispatchError,
 };
 use sp_std::prelude::*; // Imports Vec
-use system::ensure_signed;
 
 #[cfg(test)]
 mod mock;
@@ -34,8 +37,10 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: system::Trait + roaming_operators::Trait + roaming_networks::Trait + roaming_devices::Trait {
-    type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
+pub trait Trait:
+    frame_system::Trait + roaming_operators::Trait + roaming_networks::Trait + roaming_devices::Trait
+{
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type RoamingNetworkProfileIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
@@ -45,7 +50,7 @@ pub struct RoamingNetworkProfile(pub [u8; 16]);
 
 decl_event!(
     pub enum Event<T> where
-        <T as system::Trait>::AccountId,
+        <T as frame_system::Trait>::AccountId,
         <T as Trait>::RoamingNetworkProfileIndex,
         <T as roaming_networks::Trait>::RoamingNetworkIndex,
         <T as roaming_operators::Trait>::RoamingOperatorIndex,
@@ -719,8 +724,8 @@ impl<T: Trait> Module<T> {
         let payload = (
             T::Randomness::random(&[0]),
             sender,
-            <system::Module<T>>::extrinsic_index(),
-            <system::Module<T>>::block_number(),
+            <frame_system::Module<T>>::extrinsic_index(),
+            <frame_system::Module<T>>::block_number(),
         );
         payload.using_encoded(blake2_128)
     }
