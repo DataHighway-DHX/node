@@ -15,6 +15,6 @@ RUN PATH=$PATH:/root/.cargo/bin \
         && cargo build --release
 
 WORKDIR /dhx/scripts
-ENTRYPOINT ["./docker-entrypoint.sh"]
+
 
 

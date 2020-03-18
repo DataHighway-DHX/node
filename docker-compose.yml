@@ -9,5 +9,21 @@ services:
       - 9944:9944
       - 9933:9933
     volumes:
-      - ./src/chain-definition-custom:/dhx/src/chain-definition-custom
+      - ./scripts:/dhx/scripts
+    entrypoint:
+      - ./docker-entrypoint-alice.sh
+
+  bob:
+    build: .
+    image: dhxdocker/datahighway:latest
+    depends_on:
+      - alice
+    ports:
+      - 30334:30333
+      - 9945:9944
+      - 9934:9933
+    volumes:
+      - ./scripts:/dhx/scripts
+    entrypoint:
+      - ./docker-entrypoint-bob.sh
 
