@@ -6,7 +6,6 @@
 * [Debugging](#chapter-93c645)
 * [Testing](#chapter-e146ec)
 * [Code Editor Configuration](#chapter-d5a9de)
-* [Interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
 * [Create new runtime modules](#chapter-18873f)
 * [FAQ](#chapter-f078a2)
 
@@ -197,23 +196,6 @@ Add the following to settings.json `"editor.rulers": [80,120]`, as recommended h
 
 Install an [EditorConfig Plugin](https://editorconfig.org/) for your code editor to detect and apply the configuration in .editorconfig.
 
-## Interact with blockchain using Polkadot.js Apps UI <a id="chapter-6d9058"></a>
-
-* Interact with the node when running it:
-  * Go to Polkadot.js Apps "Settings" tab at https://polkadot.js.org/apps/#/settings
-  * General > remote node/endpoint to connect to > Local Node (127.0.0.1:9944)
-
-* Important:
-  * Input parameter quirk: Sometimes it is necessary to modify the value of one of the input parameters to allow you to click "Submit Transaction" (i.e. if the first arguments input value is already 0 and appears valid, but the "Submit Transaction" button appears disabled, just delete the 0 value and re-enter 0 again)
-  * Prior to being able to submit extrinics at https://polkadot.js.org/apps/#/extrinsics (i.e. roaming > createNetwork()) or to view StorageMap values, it is necessary to add the Custom Types to https://polkadot.js.org/apps/#/settings/developer, which are included in [custom_types.json](./custom_types.json), otherwise the "Submit Transaction" button will not work.
-
-### Troubleshooting
-
-If you encounter any UI errors or any errors in the browser console using https://polkadot.js.org/apps, then you may be able to contribute to Polkadot.js Apps. If you run Polkadot.js Apps locally from your machine then the errors are easier to debug.
-
-Follow the instructions at https://github.com/polkadot-js/apps, including cloning it, and running it.
-Try to identify and fix the error, and raise an issue in that repository if necessary.  
-
 ### Create new runtime modules <a id="chapter-18873f"></a>
 
 ```bash
@@ -257,3 +239,6 @@ substrate-module-new <module-name> <author>
 		```
 * Question: How do I upgrade the runtime without stopping the blockchain
 	* Answer: https://www.youtube.com/watch?v=0aTnxHrV_j4&list=PLOyWqupZ-WGt3mA_d9wu74vVe0bM37-39&index=9&t=0s
+
+* Question: How may I debug and contribute to fixing UI errors or any errors in the browser console that I encounter when using Polkadot.js Apps https://polkadot.js.org/apps?
+	* Answer: If you run Polkadot.js Apps locally from your machine then the errors are easier to debug. Follow the instructions at https://github.com/polkadot-js/apps, including cloning it, and running it. Try to identify and fix the error, and raise an issue in that repository if necessary.

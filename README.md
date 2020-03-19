@@ -11,6 +11,7 @@ __WARNING__: This implementation is a proof-of-concept prototype and is not read
 * [Example "dev" development PoS testnet with single nodes](#chapter-ca9336)
 * [Example "local" PoS testnet with multiple nodes](#chapter-f21efd)
 * [Live (Alpha) "testnet-latest" PoS testnet (with multiple nodes)](#chapter-f0264f)
+* [Interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
 
 Note: Generate a new chapter with `openssl rand -hex 3`
 
@@ -242,7 +243,7 @@ curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"a
 
 #### Additional Steps (Optional)
 
-* Configure settings to view at [Polkadot.js Apps](#chapter-6d9058)
+* Follow the steps to [interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
 
 * View on [Polkadot Telemetry](https://telemetry.polkadot.io/#list/DataHighway%20Local%20PoA%20Testnet%20v0.1.0)
 
@@ -252,7 +253,7 @@ curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"a
 
 ### Intro
 
-Join the multiple node PoS testnet (alpha).
+Join the multiple node PoS testnet (alpha), where you will be using the latest custom chain definition for the testnet (i.e. chain_def_testnet_v0.1.0.json).
 
 ### Run (with Docker containers)
 
@@ -278,3 +279,40 @@ curl https://getsubstrate.io -sSf | bash -s -- --fast && \
   ```bash
   docker-compose logs (-f to follow)
   ```
+  * Screenshot:
+  ![](./assets/images/logs.png)
+
+* Follow the steps to [interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
+
+## Interact with blockchain using Polkadot.js Apps UI <a id="chapter-6d9058"></a>
+
+* Setup connection between the UI and the node:
+  * Go to Polkadot.js Apps at https://polkadot.js.org/apps
+	* Click "Settings" from the sidebar menu, and click its "Developer" tab to be taken to https://polkadot.js.org/apps/#/settings/developer to add Custom Types. Copy the contents of [custom_types.json](./custom_types.json), and pasting it into the input field, then click "Save".
+  * Click "Settings" from the sidebar menu again, and click its "General" tab to be taken to https://polkadot.js.org/apps/#/settings. Click the "remote node/endpoint to connect to" selection box, and choose "Local Node (127.0.0.1:9944)" option from the list, then click "Save".
+  * Wait for the UI to refresh (i.e. additional sidebar menu items will appear including "Explorer", "Accounts", "Address book", "Staking", "Chain state", etc).
+  * Click "Explore" from the sidebar menu to be taken to https://polkadot.js.org/apps/#/explorer/node and shown the "Node info", including connected peers.
+
+Once you've established a connection between the UI and the DataHighway testnet, you may try the following:
+
+* Create accounts and transfer funds:
+  * Click "Accounts" from the sidebar menu, then click tab "My accounts", and click button "Add Account"
+  * Import Bob's built-in stash account (with 1,000 DHX balance) from the [test keyring](https://github.com/polkadot-js/apps/issues/1117#issuecomment-491020187) by entering: 
+    * name: "Bob"
+    * mnemonic seed: "bottom drive obey lake curtain smoke basket hold race lonely fit walk"
+    * password: "bob"
+    * password (repeat): "bob"  
+    * secret derivation path: "//Bob//stash"
+* Transfer funds between accounts:
+  * Click "Transfer" from the sidebar menu
+* Stake on the testnet (using testnet DHX that has been endowed to accounts)
+  * Click "Stake" from the sidebar menu. Refer to the [Polkadot wiki's collator, validator, and nominator guides](https://wiki.polkadot.network/docs/en/maintain-guides-how-to-validate-kusama)
+* Chain state interaction (i.e. roaming, mining, etc):
+  * Click "Chain state" from the sidebar menu, then click tab "Storage"
+  * Click "selected state query" selection box, and then as an example, choose "dataHighwayMiningSpeedBoostLodgement", and see if it works yet (WIP).
+* Extrinsics interaction (i.e. roaming, mining, etc):
+  * Click "Extrinsics" from the sidebar menu.
+
+* **Important**:
+  * Input parameter quirk: Sometimes it is necessary to modify the value of one of the input parameters to allow you to click "Submit Transaction" (i.e. if the first arguments input value is already 0 and appears valid, but the "Submit Transaction" button appears disabled, just delete the 0 value and re-enter 0 again)
+  * Prior to being able to submit extrinics at https://polkadot.js.org/apps/#/extrinsics (i.e. roaming > createNetwork()) or to view StorageMap values, it is necessary to Add Custom Types (see earlier step), otherwise the "Submit Transaction" button will not work.
