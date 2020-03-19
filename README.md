@@ -260,18 +260,11 @@ Join the multiple node PoS testnet (alpha), where you will be using the latest c
 #### Fetch repository and dependencies
 
 * Fork and clone the repository
-
-* Install or update Rust and dependencies. Build the WebAssembly binary from all code
-
-```bash
-curl https://getsubstrate.io -sSf | bash -s -- --fast && \
-./scripts/init.sh
-```
 * Install and run Docker
 * Replace docker-compose.yml with your node information
 * Update the relevant ./scripts/docker-entrypoint-<VALIDATOR_NAME>.sh with your node specific information
 * Update the ["testnet-latest" chain spec](./src/chain_spec.rs), to be used to generate the raw chain definition
-* Start the container (the image will be built on first run based on Dockerfile) and build chain runtime code
+* Start the container (the image will be built on first run based on Dockerfile). It will install dependencies and build chain runtime code
   ```bash
   docker-compose --verbose up -d
   ```
