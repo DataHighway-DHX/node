@@ -1,0 +1,43 @@
+version: "3"
+
+services:
+  alice:
+    build: .
+    image: dhxdocker/datahighway:latest
+    ports:
+      - 30333:30333
+      - 9944:9944
+      - 9933:9933
+    volumes:
+      - ./scripts:/dhx/scripts
+    restart: always
+    entrypoint:
+      - ./docker-entrypoint-alice.sh
+  bob:
+    build: .
+    image: dhxdocker/datahighway:latest
+    depends_on:
+      - alice
+    ports:
+      - 30334:30334
+      - 9945:9944
+      - 9934:9933
+    volumes:
+      - ./scripts:/dhx/scripts
+    restart: always
+    entrypoint:
+      - ./docker-entrypoint-bob.sh
+  charlie:
+    build: .
+    image: dhxdocker/datahighway:latest
+    depends_on:
+      - bob
+    ports:
+      - 30335:30335
+      - 9946:9944
+      - 9935:9933
+    volumes:
+      - ./scripts:/dhx/scripts
+    restart: always
+    entrypoint:
+      - ./docker-entrypoint-charlie.sh
