@@ -11,8 +11,8 @@
   --bob \
   # --name "Validator 2" \
   --port 30334 \
-  --ws-port 9944 \
-  --rpc-port 9933 \
+  --ws-port 9945 \
+  --rpc-port 9934 \
   --telemetry-url ws://telemetry.polkadot.io:1024 \
   --execution=native \
   -lruntime=debug

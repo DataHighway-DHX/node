@@ -5,9 +5,9 @@ services:
     build: .
     image: dhxdocker/datahighway:latest
     ports:
-      - 30333:30333
-      - 9944:9944
-      - 9933:9933
+      - 30333:30333 # TCP
+      - 9944:9944 # WS
+      - 9933:9933 # RPC
     volumes:
       - ./scripts:/dhx/scripts
     restart: always
@@ -20,8 +20,8 @@ services:
       - alice
     ports:
       - 30334:30334
-      - 9945:9944
-      - 9934:9933
+      - 9945:9945
+      - 9934:9934
     volumes:
       - ./scripts:/dhx/scripts
     restart: always
@@ -34,8 +34,8 @@ services:
       - bob
     ports:
       - 30335:30335
-      - 9946:9944
-      - 9935:9933
+      - 9946:9946
+      - 9935:9935
     volumes:
       - ./scripts:/dhx/scripts
     restart: always

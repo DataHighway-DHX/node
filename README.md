@@ -128,10 +128,10 @@ Run Alice's bootnode using the raw chain definition file that was generated
   --chain ./src/chain-definition-custom/chain_def_local_v0.1.0.json \
   --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee \
   --alice \
-  --rpc-port 9933 \
   --port 30333 \
-  --telemetry-url ws://telemetry.polkadot.io:1024 \
   --ws-port 9944 \
+  --rpc-port 9933 \
+  --telemetry-url ws://telemetry.polkadot.io:1024 \
   --execution=native \
   -lruntime=debug
 ```
@@ -157,10 +157,10 @@ Run Bob's Substrate-based node on a different TCP port of 30334, and with his ch
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
   --chain ./src/chain-definition-custom/chain_def_local_v0.1.0.json \
   --bob \
-  --rpc-port 9933 \
   --port 30334 \
+  --ws-port 9945 \
+  --rpc-port 9934 \
   --telemetry-url ws://telemetry.polkadot.io:1024 \
-  --ws-port 9944 \
   --execution=native \
   -lruntime=debug
 ```
@@ -181,10 +181,10 @@ Run Charlie's Substrate-based node on a different TCP port of 30335, and with hi
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
   --chain ./src/chain-definition-custom/chain_def_local_v0.1.0.json \
   --charlie \
-  --rpc-port 9933 \
   --port 30335 \
+  --ws-port 9946 \
+  --rpc-port 9935 \
   --telemetry-url ws://telemetry.polkadot.io:1024 \
-  --ws-port 9944 \
   --execution=native \
   -lruntime=debug
 ```
@@ -240,6 +240,8 @@ curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"a
 ```
 
 * Check that the output from each cURL request is `{"jsonrpc":"2.0","result":null,"id":1}`, since with a successful output `null` is returned https://github.com/paritytech/substrate/blob/db1ab7d18fbe7876cdea43bbf30f147ddd263f94/client/rpc-api/src/author/mod.rs#L47. Also check that the following folder is not empty /tmp/polkadot-chains/alice/keys (it should now contain four keys).
+
+* Reference: https://substrate.dev/docs/en/next/tutorials/start-a-private-network/alicebob
 
 #### Additional Steps (Optional)
 
