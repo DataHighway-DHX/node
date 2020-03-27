@@ -242,3 +242,7 @@ substrate-module-new <module-name> <author>
 
 * Question: How may I debug and contribute to fixing UI errors or any errors in the browser console that I encounter when using Polkadot.js Apps https://polkadot.js.org/apps?
 	* Answer: If you run Polkadot.js Apps locally from your machine then the errors are easier to debug. Follow the instructions at https://github.com/polkadot-js/apps, including cloning it, and running it. Try to identify and fix the error, and raise an issue in that repository if necessary.
+
+* Question: How do I stop and remove all the Docker containers and images?
+	* Answer: Run `./scripts/docker-clean.sh`
+	* **WARNING**: This stops and removes **all** your Docker containers and images, not just DataHighway relates ones.
