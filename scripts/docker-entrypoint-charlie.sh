@@ -11,8 +11,8 @@
   --charlie \
   # --name "Validator 3" \
   --port 30335 \
-  --ws-port 9944 \
-  --rpc-port 9933 \
+  --ws-port 9946 \
+  --rpc-port 9934 \
   --telemetry-url ws://telemetry.polkadot.io:1024 \
   --execution=native \
   -lruntime=debug
