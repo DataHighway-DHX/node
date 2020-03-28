@@ -246,3 +246,14 @@ substrate-module-new <module-name> <author>
 * Question: How do I stop and remove all the Docker containers and images?
 	* Answer: Run `./scripts/docker-clean.sh`
 	* **WARNING**: This stops and removes **all** your Docker containers and images, not just DataHighway relates ones.
+
+* Question: How to access the Docker container of a running node and run shell commands?
+	* Answer: `docker exec -it node_alice_1 /bin/bash`, where `node_alice_1` is the Container Name that is shown when you run `docker ps -a`.
+* Question: How do I restart the testnet Docker containers (including each chain databases)?
+	* Answer: Run the following, where `node_alice_1` is a Container Name that is shown when you run `docker ps -a`.
+		```bash
+		docker stop node_alice_1 node_bob_1 node_charlie_1
+		docker rm node_alice_1 node_bob_1 node_charlie_1
+		docker-compose --verbose up -d
+		docker-compose logs -f
+		```
