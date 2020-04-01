@@ -107,7 +107,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
     spec_name: create_runtime_str!("datahighway"),
     impl_name: create_runtime_str!("datahighway"),
     authoring_version: 1,
-    spec_version: 3,
+    spec_version: 3, // This appears in top left corner of polkadot.js.org/apps
     impl_version: 1,
     apis: RUNTIME_API_VERSIONS,
 };

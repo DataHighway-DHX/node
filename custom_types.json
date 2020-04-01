@@ -94,17 +94,30 @@
     "packet_bundle_received_ended_at": "Moment",
     "packet_bundle_external_data_storage_hash": "Hash"
   },
-  "MiningSpeedBoostRateTokenMining": "[u8; 16]",
+  "MiningSpeedBoostRatesTokenMining": "[u8; 16]",
   "MiningSpeedBoostRatesTokenMiningIndex": "u64",
+  "MiningSpeedBoostRatesTokenMiningTokenDOT": "u32",
   "MiningSpeedBoostRatesTokenMiningTokenMXC": "u32",
   "MiningSpeedBoostRatesTokenMiningTokenIOTA": "u32",
   "MiningSpeedBoostRatesTokenMiningMaxToken": "u32",
   "MiningSpeedBoostRatesTokenMiningMaxLoyalty": "u32",
-  "MiningSpeedBoostRateHardwareMining": "[u8; 16]",
+  "MiningSpeedBoostRatesTokenMiningRatesConfig": {
+    "token_token_mxc": "u32",
+    "token_token_iota": "u32",
+    "token_token_dot": "u32",
+    "token_max_token": "u32",
+    "token_max_loyalty": "u32"
+  },
+  "MiningSpeedBoostRatesHardwareMining": "[u8; 16]",
   "MiningSpeedBoostRatesHardwareMiningIndex": "u64",
   "MiningSpeedBoostRatesHardwareMiningHardwareSecure": "u32",
   "MiningSpeedBoostRatesHardwareMiningHardwareInsecure": "u32",
   "MiningSpeedBoostRatesHardwareMiningMaxHardware": "u32",
+  "MiningSpeedBoostRatesHardwareMiningRatesConfig": {
+    "hardware_hardware_secure": "u32",
+    "hardware_hardware_insecure": "u32",
+    "hardware_max_hardware": "u32"
+  },
   "MiningSpeedBoostConfigurationTokenMining": "[u8; 16]",
   "MiningSpeedBoostConfigurationTokenMiningIndex": "u64",
   "MiningSpeedBoostConfigurationTokenMiningTokenType": "Text",
