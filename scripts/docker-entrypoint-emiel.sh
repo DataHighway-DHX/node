@@ -5,7 +5,8 @@
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/emiel \
-  --bootnodes /ip4/172.31.1.212/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
+  # 3.126.37.110
+  --bootnodes /dns4/testnet-frankfurt-v0.1.0-alpha.datahighway.com/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
   --keystore-path "/tmp/polkadot-chains/emiel/keys" \
   --chain ../src/chain-definition-custom/chain_def_testnet_v0.1.0.json \
   --name "Emiel DataHighway Validator" \
