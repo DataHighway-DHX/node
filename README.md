@@ -264,7 +264,7 @@ Join the multiple node PoS testnet (alpha), where you will be using the latest c
 * Fork and clone the repository
 * Install and run Docker
 * Replace docker-compose.yml with your node information
-* Update the relevant ./scripts/docker-entrypoint-<VALIDATOR_NAME>.sh with your node specific information
+* Update the relevant ./scripts/docker-entrypoint-<VALIDATOR_NAME>.sh with your node specific information and run `chmod 755 ./scripts/docker-entrypoint-<VALIDATOR_NAME>.sh` so it is executable
 * Update the ["testnet-latest" chain spec](./src/chain_spec.rs), to be used to generate the raw chain definition
 * Start the container (the image will be built on first run based on Dockerfile). It will install dependencies and build chain runtime code
   ```bash
