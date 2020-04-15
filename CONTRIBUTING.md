@@ -8,6 +8,7 @@
 * [Code Editor Configuration](#chapter-d5a9de)
 * [Create new runtime modules](#chapter-18873f)
 * [FAQ](#chapter-f078a2)
+* [Technical Support](#chapter-c00ab7)
 
 Note: Generate a new chapter with `openssl rand -hex 3`
 
@@ -257,3 +258,17 @@ substrate-module-new <module-name> <author>
 		docker-compose --verbose up -d
 		docker-compose logs -f
 		```
+
+* Question: Why can't I syncronize my node?
+	* Answer: Run `./scripts/docker-clean.sh` before starting them again with either `docker-compose up` or `docker-compose --verbose up -d; docker-compose logs -f`, incase a cached image is still being used locally
+	* **WARNING**: This stops and removes **all** your Docker containers and images, not just DataHighway relates ones.
+
+* Question: How do I run two nodes on the same host machine?
+	* Answer:
+		* Customize the example nodes in docker-compose-custom.yml, and update ./scripts/docker-entrypoint-node-1.sh and ./scripts/docker-entrypoint-node-2.sh, and then run them with `docker-compose -f docker-compose-custom.yml up`. Note that since both Docker containers will be running on the same host machine, they must use different ports (on the left side of the colon), however the ports that are used within each Docker container may be the same.
+
+## Technical Support <a id="chapter-c00ab7"></a>
+
+* [Discord Chat](https://discord.gg/UuZN2tE)
+
+* [Twitter](https://twitter.com/DataHighway_DHX)

@@ -263,20 +263,17 @@ Join the multiple node PoS testnet (alpha), where you will be using the latest c
 
 * Fork and clone the repository
 * Install and run Docker
-* Replace docker-compose.yml with your node information
-* Update the relevant ./scripts/docker-entrypoint-<VALIDATOR_NAME>.sh with your node specific information
+* Replace docker-compose-custom.yml file with your custom node information. By default it will run two validator nodes.
+* Update the relevant ./scripts/docker-entrypoint-<VALIDATOR_NAME>.sh (i.e. ./scripts/docker-entrypoint-node-1.sh and ./scripts/docker-entrypoint-node-2.sh) with your node specific information and run `chmod 755 ./scripts/docker-entrypoint-<VALIDATOR_NAME>.sh` if you create an new scripts so they are executable
 * Update the ["testnet-latest" chain spec](./src/chain_spec.rs), to be used to generate the raw chain definition
-* Start the container (the image will be built on first run based on Dockerfile). It will install dependencies and build chain runtime code
+* Start the container and view the logs (the image will be built on first run based on Dockerfile). It will install dependencies and build chain runtime code.
   ```bash
   docker-compose --verbose up -d
-  ```
-* Check the logs
-  ```bash
-  docker-compose logs (-f to follow)
+  docker-compose logs -f
   ```
   * Screenshot:
   ![](./assets/images/logs.png)
-
+* Refer to the FAQ or contact Technical Support provided in [CONTRIBUTING.md](./CONTRIBUTING.md) if you encounter any issues.
 * Follow the steps to [interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
 
 ## Interact with blockchain using Polkadot.js Apps UI <a id="chapter-6d9058"></a>
