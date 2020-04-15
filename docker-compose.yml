@@ -2,17 +2,11 @@ version: "3"
 
 services:
   emiel:
-    build: .
     image: dhxdocker/datahighway:latest
-    # depends_on:
-    #   - bob
     ports:
       - 30333:30333
-      - 30336:30336
       - 9944:9944
-      - 9947:9947
       - 9933:9933
-      - 9934:9934
     volumes:
       - ./scripts:/dhx/scripts
     restart: always
