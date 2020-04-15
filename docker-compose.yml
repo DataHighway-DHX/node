@@ -12,3 +12,15 @@ services:
     restart: always
     entrypoint:
       - ./docker-entrypoint-emiel.sh
+  emiel2:
+    image: dhxdocker/datahighway:latest
+    ports:
+      - 30334:30333
+      - 9945:9944
+      - 9934:9933
+    volumes:
+      - ./scripts:/dhx/scripts
+    restart: always
+    entrypoint:
+      - ./docker-entrypoint-emiel2.sh
+    

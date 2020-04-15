@@ -247,6 +247,10 @@ substrate-module-new <module-name> <author>
 	* Answer: Run `./scripts/docker-clean.sh`
 	* **WARNING**: This stops and removes **all** your Docker containers and images, not just DataHighway relates ones.
 
+* Question: Why can't I syncronize my node?
+	* Answer: Run `./scripts/docker-clean.sh` or run `docker system prune -a;`v incase a cached image is still being used locally
+	* **WARNING**: This stops and removes **all** your Docker containers and images, not just DataHighway relates ones.
+
 * Question: How to access the Docker container of a running node and run shell commands?
 	* Answer: `docker exec -it node_alice_1 /bin/bash`, where `node_alice_1` is the Container Name that is shown when you run `docker ps -a`.
 * Question: How do I restart the testnet Docker containers (including each chain databases)?
@@ -257,3 +261,77 @@ substrate-module-new <module-name> <author>
 		docker-compose --verbose up -d
 		docker-compose logs -f
 		```
+
+* Question: How do I run two nodes on the same host machine?
+	* Answer:
+		* Add two services in docker-compose.yml as shown below. Note that since both Docker containers will be running on the same host machine, they must use different ports (on the left side of the colon), however the ports that are used within each Docker container may be the same.
+
+		```
+		version: "3"
+
+		services:
+			node-1:
+				image: dhxdocker/datahighway:latest
+				ports:
+					- 30333:30333
+					- 9944:9944
+					- 9933:9933
+				volumes:
+					- ./scripts:/dhx/scripts
+				restart: always
+				entrypoint:
+					- ./docker-entrypoint-node-1.sh
+			node-2:
+				image: dhxdocker/datahighway:latest
+				ports:
+					- 30334:30333
+					- 9945:9944
+					- 9934:9933
+				volumes:
+					- ./scripts:/dhx/scripts
+				restart: always
+				entrypoint:
+					- ./docker-entrypoint-node-2.sh
+		```
+	* Create two entrypoint scripts:
+		* node-1
+			```
+			#!/bin/bash
+
+			../target/release/datahighway --validator \
+				--unsafe-ws-external \
+				--unsafe-rpc-external \
+				--rpc-cors=all \
+				--base-path /tmp/polkadot-chains/node-1 \
+				--bootnodes /dns4/testnet-frankfurt-v0.1.0-alpha.datahighway.com/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
+				--keystore-path "/tmp/polkadot-chains/node-1/keys" \
+				--chain ../src/chain-definition-custom/chain_def_testnet_v0.1.0.json \
+				--name "node-1 DataHighway Validator" \
+				--port 30333 \
+				--ws-port 9944 \
+				--rpc-port 9933 \
+				--telemetry-url ws://telemetry.polkadot.io:1024 \
+				--execution=native \
+				-lruntime=debug
+			```
+
+		* node-2
+			```
+			#!/bin/bash
+
+			../target/release/datahighway --validator \
+				--unsafe-ws-external \
+				--unsafe-rpc-external \
+				--rpc-cors=all \
+				--base-path /tmp/polkadot-chains/node-2 \
+				--bootnodes /dns4/testnet-frankfurt-v0.1.0-alpha.datahighway.com/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
+				--keystore-path "/tmp/polkadot-chains/node-2/keys" \
+				--chain ../src/chain-definition-custom/chain_def_testnet_v0.1.0.json \
+				--name "node-2 DataHighway Validator" \
+				--port 30333 \
+				--ws-port 9944 \
+				--rpc-port 9933 \
+				--telemetry-url ws://telemetry.polkadot.io:1024 \
+				--execution=native \
+				-lruntime=debug
+			```
