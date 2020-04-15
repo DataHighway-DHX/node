@@ -9,9 +9,9 @@
   --keystore-path "/tmp/polkadot-chains/emiel/keys" \
   --chain ../src/chain-definition-custom/chain_def_testnet_v0.1.0.json \
   --name "Emiel DataHighway Validator" \
-  --port 30336 \
-  --ws-port 9947 \
-  --rpc-port 9934 \
+  --port 30333 \
+  --ws-port 9944 \
+  --rpc-port 9933 \
   --telemetry-url ws://telemetry.polkadot.io:1024 \
   --execution=native \
   -lruntime=debug
