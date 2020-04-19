@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   alice:
     build: .
@@ -19,9 +17,9 @@ services:
     depends_on:
       - alice
     ports:
-      - 30334:30334
-      - 9945:9945
-      - 9934:9934
+      - 30334:30333
+      - 9945:9944
+      - 9934:9933
     volumes:
       - ./scripts:/dhx/scripts
     restart: always
@@ -33,9 +31,9 @@ services:
     depends_on:
       - bob
     ports:
-      - 30335:30335
-      - 9946:9946
-      - 9935:9935
+      - 30335:30333
+      - 9946:9944
+      - 9935:9933
     volumes:
       - ./scripts:/dhx/scripts
     restart: always
