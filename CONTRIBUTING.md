@@ -8,6 +8,7 @@
 * [Code Editor Configuration](#chapter-d5a9de)
 * [Create new runtime modules](#chapter-18873f)
 * [FAQ](#chapter-f078a2)
+* [Technical Support](#chapter-c00ab7)
 
 Note: Generate a new chapter with `openssl rand -hex 3`
 
@@ -249,6 +250,7 @@ substrate-module-new <module-name> <author>
 
 * Question: How to access the Docker container of a running node and run shell commands?
 	* Answer: `docker exec -it node_alice_1 /bin/bash`, where `node_alice_1` is the Container Name that is shown when you run `docker ps -a`.
+
 * Question: How do I restart the testnet Docker containers (including each chain databases)?
 	* Answer: Run the following, where `node_alice_1` is a Container Name that is shown when you run `docker ps -a`.
 		```bash
@@ -257,3 +259,17 @@ substrate-module-new <module-name> <author>
 		docker-compose --verbose up -d
 		docker-compose logs -f
 		```
+
+* Question: Why can't I syncronize my node?
+	* Answer: Run `./scripts/docker-clean.sh` before starting them again with either `docker-compose up` or `docker-compose --verbose up -d; docker-compose logs -f`, incase a cached image is still being used locally
+	* **WARNING**: This stops and removes **all** your Docker containers and images, not just DataHighway relates ones.
+
+* Question: How do I run two nodes on the same host machine?
+	* Answer:
+		* Refer to "Testnet (Alpha) "testnet-latest" PoS testnet (with multiple nodes)" in [EXAMPLES](./EXAMPLES.md).
+
+## Technical Support <a id="chapter-c00ab7"></a>
+
+* [Discord Chat](https://discord.gg/UuZN2tE)
+
+* [Twitter](https://twitter.com/DataHighway_DHX)
