@@ -250,6 +250,7 @@ substrate-module-new <module-name> <author>
 
 * Question: How to access the Docker container of a running node and run shell commands?
 	* Answer: `docker exec -it node_alice_1 /bin/bash`, where `node_alice_1` is the Container Name that is shown when you run `docker ps -a`.
+
 * Question: How do I restart the testnet Docker containers (including each chain databases)?
 	* Answer: Run the following, where `node_alice_1` is a Container Name that is shown when you run `docker ps -a`.
 		```bash
