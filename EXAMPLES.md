@@ -260,6 +260,7 @@ Note:
 * Only DataHighway admins that need to additionally update the ["testnet-latest" chain spec](./src/chain_spec.rs), to generate and share the raw chain definition with other nodes.
 * Only DataHighway admins should use the docker-compose-admin.yml file to start the initial bootnodes, whereas other community nodes that connect to the DataHighway should use docker-compose-custom.yml instead.
 * Refer to the FAQ or contact Technical Support provided in [CONTRIBUTING.md](./CONTRIBUTING.md) if you encounter any issues.
+* If all services defined in docker-compose-custom.yml will be running in Docker containers on the same host machine, then each service must expose different ports (on the left side of the colon), however the ports that are used within each Docker container may be the same.
 
 ## Interact with blockchain using Polkadot.js Apps UI <a id="chapter-6d9058"></a>
 

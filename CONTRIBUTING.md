@@ -266,7 +266,7 @@ substrate-module-new <module-name> <author>
 
 * Question: How do I run two nodes on the same host machine?
 	* Answer:
-		* Customize the example nodes in docker-compose-custom.yml, and update ./scripts/docker-entrypoint-node-1.sh and ./scripts/docker-entrypoint-node-2.sh, and then run them with `docker-compose -f docker-compose-custom.yml up`. Note that since both Docker containers will be running on the same host machine, they must use different ports (on the left side of the colon), however the ports that are used within each Docker container may be the same.
+		* Refer to "Testnet (Alpha) "testnet-latest" PoS testnet (with multiple nodes)" in [EXAMPLES](./EXAMPLES.md).
 
 ## Technical Support <a id="chapter-c00ab7"></a>
 
