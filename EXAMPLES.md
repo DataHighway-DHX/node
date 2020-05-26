@@ -215,7 +215,7 @@ Secret Key URI `//Alice//grandpa` is account:
 
 #### Terminal 4 (Optional)
 
-* Add session keys for account(s) to be configured as authorities (validators). Run cURL to insert session key for each key type (i.e. "aura"), by providing the associated secret key, and associated Public key (hex) 
+* Add session keys for account(s) to be configured as authorities (validators). Run cURL to insert session key for each key type (i.e. "aura"), by providing the associated secret key, and associated Public key (hex)
 ```bash
 curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["aura", "", "0x408f99b525d90cce76288245cb975771282c2cefa89d693b9da2cdbed6cd9152"],"id":1 }' 127.0.0.1:9933
 curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["babe", "//Alice//babe", "0x46ffa3a808850b2ad55732e958e781146ed1e6436ffb83290e0cb810aacf5070"],"id":1 }' 127.0.0.1:9933
@@ -247,11 +247,15 @@ Join the multiple node PoS testnet (alpha), where you will be using the latest c
 2. Install and run Docker
 3. Replace [docker-compose-custom.yml](./docker-compose-custom.yml) file with your custom node (e.g. rename node from `node-1` to something else or add additional nodes). By default it will run two validator nodes (i.e. node-1 and node-2).
 4. Update the relevant ./scripts/docker-entrypoint-<NODE_NAME>.sh (i.e. [docker-entrypoint-node-1.sh](./scripts/docker-entrypoint-node-1.sh) and [docker-entrypoint-node-2.sh](./scripts/docker-entrypoint-node-2.sh) with your node specific information (e.g. change the value provided to `--name` and rename `node-1` or `node-2` to your custom node name) and run `chmod 755 ./scripts/docker-entrypoint-<NODE_NAME>.sh` if you create an new scripts so they are executable, where `<NODE_NAME>` would be your chosen custom node name.
+5. If you modify the code, rebuild the chain configuration file and purge the chain (see section "Create custom blockchain configuration")
 5. Run the Docker container in the background as a daemon and view the logs on-demand (the image will be built on first run based on the Dockerfile). It will install dependencies and build chain runtime code. See the notes below for an alternative approach.
   ```bash
   docker-compose --file docker-compose-custom.yml --verbose up --detach
   docker-compose logs --follow
   ```
+Alternatively just run `docker-compose --file docker-compose-custom.yml --verbose up`.
+If you change the code, then be sure to rebuild the chain configuration file and purge the chain, then destroy and rebuild containers from the image by running `docker-compose --file docker-compose-custom.yml --verbose down && docker-compose --file docker-compose-custom.yml --verbose up`
+To just restart existing containers of the node, run `docker-compose --file docker-compose-custom.yml --verbose restart`.
   * Screenshot:
   ![](./assets/images/logs.png)
 6. Follow the steps to [interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
@@ -275,11 +279,11 @@ Once you've established a connection between the UI and the DataHighway testnet,
 
 * Create accounts and transfer funds:
   * Click "Accounts" from the sidebar menu, then click tab "My accounts", and click button "Add Account"
-  * Import Bob's built-in stash account (with 1,000 DHX balance) from the [test keyring](https://github.com/polkadot-js/apps/issues/1117#issuecomment-491020187) by entering: 
+  * Import Bob's built-in stash account (with 1,000 DHX balance) from the [test keyring](https://github.com/polkadot-js/apps/issues/1117#issuecomment-491020187) by entering:
     * name: "Bob"
     * mnemonic seed: "bottom drive obey lake curtain smoke basket hold race lonely fit walk"
     * password: "bob"
-    * password (repeat): "bob"  
+    * password (repeat): "bob"
     * secret derivation path: "//Bob//stash"
 * Transfer funds between accounts:
   * Click "Transfer" from the sidebar menu

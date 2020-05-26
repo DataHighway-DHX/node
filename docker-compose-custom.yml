@@ -23,3 +23,14 @@ services:
     restart: always
     entrypoint:
       - ./docker-entrypoint-node-2.sh
+  node-3:
+    image: dhxdocker/datahighway:latest
+    ports:
+      - 30338:30333
+      - 9949:9944
+      - 9938:9933
+    volumes:
+      - ./scripts:/dhx/scripts
+    restart: always
+    entrypoint:
+      - ./docker-entrypoint-node-3.sh
