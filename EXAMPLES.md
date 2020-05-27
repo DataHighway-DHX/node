@@ -69,6 +69,7 @@ Run a multiple node PoS testnet on your local machine with built-in keys (Alice,
 ```bash
 curl https://getsubstrate.io -sSf | bash -s -- --fast && \
 ./scripts/init.sh
+cargo build --release
 ```
 
 #### Build runtime code
@@ -273,7 +274,7 @@ Join the multiple node PoS testnet (alpha), where you will be using the latest c
   docker-compose logs --follow
   ```
 Alternatively just run `docker-compose --file docker-compose-custom.yml --verbose up`.
-If you change the code, then be sure to rebuild the chain configuration file and purge the chain, then destroy and rebuild containers from the image by running `docker-compose --file docker-compose-custom.yml --verbose down && docker-compose --file docker-compose-custom.yml --verbose up`
+If you change the code, then be rebuild the code, rebuild the chain configuration file and purge the chain, then destroy and rebuild containers from the image by running `docker-compose --file docker-compose-custom.yml --verbose down && docker-compose --file docker-compose-custom.yml --verbose up`
 To just restart existing containers of the node, run `docker-compose --file docker-compose-custom.yml --verbose restart`.
   * Screenshot:
   ![](./assets/images/logs.png)

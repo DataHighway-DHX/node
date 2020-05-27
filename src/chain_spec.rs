@@ -261,9 +261,9 @@ fn session_keys(grandpa: GrandpaId, babe: BabeId) -> SessionKeys {
     }
 }
 
-const INITIAL_BALANCE: u128 = 2_000_000_000_000_000_000_000_u128; // $1M 1_000_000_000_000_000_000_000_u128
+const INITIAL_BALANCE: u128 = 70_000_000_000_000_000_000_000_u128; // $70M 70_000_000_000_000_000_000_000_u128
 const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_000_000_000_000_u128; // $30M
-const INITIAL_STAKING: u128 = 3_000_000_000_000_000_000_u128;
+const INITIAL_STAKING: u128 = 1_000_000_000_000_000_000_u128;
 
 fn dev_genesis(
     initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
@@ -281,7 +281,7 @@ fn dev_genesis(
         }),
         pallet_balances: Some(BalancesConfig {
             balances: endowed_accounts.iter().cloned().map(|x| (x, INITIAL_BALANCE))
-                .chain(endowed_accounts.iter().map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE)))
+                .into_iter().map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE))
                 .collect(),
         }),
         pallet_session: Some(SessionConfig {
@@ -336,7 +336,7 @@ fn testnet_genesis(
         }),
         pallet_balances: Some(BalancesConfig {
             balances: endowed_accounts.iter().cloned().map(|x| (x, INITIAL_BALANCE))
-                .chain(endowed_accounts.iter().map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE)))
+                .into_iter().map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE))
                 .collect(),
         }),
         pallet_session: Some(SessionConfig {
