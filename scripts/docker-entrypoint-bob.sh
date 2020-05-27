@@ -1,5 +1,7 @@
 #!/bin/bash
 
+./docker-prepare-local.sh
+
 ../target/release/datahighway --validator \
   --unsafe-ws-external \
   --unsafe-rpc-external \

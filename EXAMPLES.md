@@ -86,6 +86,8 @@ cargo build --release
 * Generate the chain specification JSON file from src/chain_spec.rs
 
 ```bash
+rm ./src/chain-spec-templates/chain_spec_local_latest.json
+touch ./src/chain-spec-templates/chain_spec_local_latest.json
 mkdir -p ./src/chain-spec-templates
 ./target/release/datahighway build-spec \
   --chain=local > ./src/chain-spec-templates/chain_spec_local_latest.json
@@ -94,6 +96,8 @@ mkdir -p ./src/chain-spec-templates
 * Build "raw" chain definition for the new chain from it
 
 ```bash
+rm ./src/chain-definition-custom/chain_def_local_v0.1.0.json
+touch ./src/chain-definition-custom/chain_def_local_v0.1.0.json
 mkdir -p ./src/chain-definition-custom
 ./target/release/datahighway build-spec \
   --chain ./src/chain-spec-templates/chain_spec_local_latest.json \
@@ -106,6 +110,11 @@ mkdir -p ./src/chain-definition-custom
 ./target/release/datahighway purge-chain --chain "local" --base-path /tmp/polkadot-chains/alice
 ./target/release/datahighway purge-chain --chain "local" --base-path /tmp/polkadot-chains/bob
 ./target/release/datahighway purge-chain --chain "local" --base-path /tmp/polkadot-chains/charlie
+```
+
+Or just:
+```
+rm -rf /tmp/polkadot-chains/alice /tmp/polkadot-chains/bob /tmp/polkadot-chains/charlie /tmp/polkadot-chains/node-1 /tmp/polkadot-chains/node-2 /tmp/polkadot-chains/node-3
 ```
 
 #### Terminal 1

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+./docker-prepare-testnet.sh
+
 # use 127.0.0.1 or testnet-harbour.datahighway.com
 # bootnode node-1 is QmTci9Adif5gUXhgPUZk4bEd3U1E1Tvr1PwKBjDbL5UGn7 or
 # sentry node id: QmVuryfE427VRqrqqXsGuWpwBk4g8mGXgYmnt3f1v6j78r
