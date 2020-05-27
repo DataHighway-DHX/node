@@ -27,6 +27,16 @@ cargo build --release
 
 ```bash
 ./target/release/datahighway purge-chain --dev --base-path /tmp/polkadot-chains/alice
+./target/release/datahighway purge-chain --dev --base-path /tmp/polkadot-chains/bob
+./target/release/datahighway purge-chain --dev --base-path /tmp/polkadot-chains/charlie
+./target/release/datahighway purge-chain --dev --base-path /tmp/polkadot-chains/node-1
+./target/release/datahighway purge-chain --dev --base-path /tmp/polkadot-chains/node-2
+./target/release/datahighway purge-chain --dev --base-path /tmp/polkadot-chains/node-3
+```
+
+Or just:
+```
+rm -rf /tmp/polkadot-chains/alice /tmp/polkadot-chains/bob /tmp/polkadot-chains/charlie /tmp/polkadot-chains/node-1 /tmp/polkadot-chains/node-2 /tmp/polkadot-chains/node-3
 ```
 
 * Connect to development testnet (`--chain development` is abbreviated `--dev`)

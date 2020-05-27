@@ -152,17 +152,17 @@ impl Alternative {
                                 // 5FmxcuFwGK7kPmQCB3zhk3HtxxJUyb3WjxosF8jvnkrVRLUG
 				                hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
                                 get_account_id_from_seed::<sr25519::Public>("Alice"),
-                                get_account_id_from_seed::<sr25519::Public>("Bob"),
-                                get_account_id_from_seed::<sr25519::Public>("Charlie"),
-                                get_account_id_from_seed::<sr25519::Public>("Dave"),
-                                get_account_id_from_seed::<sr25519::Public>("Eve"),
-                                get_account_id_from_seed::<sr25519::Public>("Ferdie"),
-                                get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
+                                // get_account_id_from_seed::<sr25519::Public>("Bob"),
+                                // get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                                // get_account_id_from_seed::<sr25519::Public>("Dave"),
+                                // get_account_id_from_seed::<sr25519::Public>("Eve"),
+                                // get_account_id_from_seed::<sr25519::Public>("Ferdie"),
+                                // get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
+                                // get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+                                // get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
+                                // get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
+                                // get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
+                                // get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                             ],
                             true,
                         )
@@ -209,17 +209,17 @@ impl Alternative {
                                 // 5FmxcuFwGK7kPmQCB3zhk3HtxxJUyb3WjxosF8jvnkrVRLUG
 				                hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
                                 get_account_id_from_seed::<sr25519::Public>("Alice"),
-                                get_account_id_from_seed::<sr25519::Public>("Bob"),
-                                get_account_id_from_seed::<sr25519::Public>("Charlie"),
-                                get_account_id_from_seed::<sr25519::Public>("Dave"),
-                                get_account_id_from_seed::<sr25519::Public>("Eve"),
-                                get_account_id_from_seed::<sr25519::Public>("Ferdie"),
-                                get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
+                                // get_account_id_from_seed::<sr25519::Public>("Bob"),
+                                // get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                                // get_account_id_from_seed::<sr25519::Public>("Dave"),
+                                // get_account_id_from_seed::<sr25519::Public>("Eve"),
+                                // get_account_id_from_seed::<sr25519::Public>("Ferdie"),
+                                // get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
+                                // get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+                                // get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
+                                // get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
+                                // get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
+                                // get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                             ],
                         )
                     },
@@ -228,7 +228,7 @@ impl Alternative {
                         // Note: Bootnode and associated IP address configured in docker-compose.yml entrypoints
                         // Alice
                         // Sentry node address
-                        "/ip4/testnet-harbour.datahighway.com/tcp/30333/p2p/QmRR5ipj6arL2rhfUsAUk9ndCQ6qYntjqDQSDD73mi2g7p".to_string(),
+                        "/ip4/testnet-harbour.datahighway.com/tcp/30333/p2p/QmVuryfE427VRqrqqXsGuWpwBk4g8mGXgYmnt3f1v6j78r".to_string(),
                     ],
                     // telemetry endpoints
                     Some(TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])),
@@ -261,9 +261,9 @@ fn session_keys(grandpa: GrandpaId, babe: BabeId) -> SessionKeys {
     }
 }
 
-const INITIAL_BALANCE: u128 = 1_000_000_000_000_000_000_000_u128; // $1M 1_000_000_000_000_000_000_000_u128
+const INITIAL_BALANCE: u128 = 2_000_000_000_000_000_000_000_u128; // $1M 1_000_000_000_000_000_000_000_u128
 const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_000_000_000_000_u128; // $30M
-const INITIAL_STAKING: u128 = 1_000_000_000_000_000_000_u128;
+const INITIAL_STAKING: u128 = 3_000_000_000_000_000_000_u128;
 
 fn dev_genesis(
     initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
