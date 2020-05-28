@@ -3,7 +3,14 @@ version: "3"
 services:
   alice:
     build: .
-    image: dhxdocker/datahighway:latest
+    # Note: Instead of using `dhxdocker/datahighway:latest` from Docker Hub, which
+    # may reflects the latest version on Github, during development we want to build
+    # a Docker container using the Dockerfile, which contains the latest local changes of our current branch.
+    image: "debian:buster"
+    # build:
+    #   context: ./
+    #   dockerfile: ./Dockerfile
+    # image: dhxdocker/datahighway:latest
     ports:
       - 30333:30333 # TCP
       - 9944:9944 # WS
@@ -15,7 +22,8 @@ services:
       - ./docker-entrypoint-alice.sh
   bob:
     build: .
-    image: dhxdocker/datahighway:latest
+    image: "debian:buster"
+    # image: dhxdocker/datahighway:latest
     depends_on:
       - alice
     ports:
@@ -29,7 +37,8 @@ services:
       - ./docker-entrypoint-bob.sh
   charlie:
     build: .
-    image: dhxdocker/datahighway:latest
+    image: "debian:buster"
+    # image: dhxdocker/datahighway:latest
     depends_on:
       - bob
     ports:

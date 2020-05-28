@@ -268,7 +268,12 @@ Join the multiple node PoS testnet (alpha), where you will be using the latest c
 3. Replace [docker-compose-custom.yml](./docker-compose-custom.yml) file with your custom node (e.g. rename node from `node-1` to something else or add additional nodes). By default it will run two validator nodes (i.e. node-1 and node-2).
 4. Update the relevant ./scripts/docker-entrypoint-<NODE_NAME>.sh (i.e. [docker-entrypoint-node-1.sh](./scripts/docker-entrypoint-node-1.sh) and [docker-entrypoint-node-2.sh](./scripts/docker-entrypoint-node-2.sh) with your node specific information (e.g. change the value provided to `--name` and rename `node-1` or `node-2` to your custom node name) and run `chmod 755 ./scripts/docker-entrypoint-<NODE_NAME>.sh` if you create an new scripts so they are executable, where `<NODE_NAME>` would be your chosen custom node name.
 5. If you modify the code, rebuild the chain configuration file and purge the chain (see section "Create custom blockchain configuration")
-5. Run the Docker container in the background as a daemon and view the logs on-demand (the image will be built on first run based on the Dockerfile). It will install dependencies and build chain runtime code. See the notes below for an alternative approach.
+6. Remove old containers and images:
+```
+docker rm node_1 node_2 node_3 node_bob_1 node_alice_1 node_charlie_1
+docker rmi dhxdocker/datahighway
+```
+6. Run the Docker container in the background as a daemon and view the logs on-demand (the image will be built on first run based on the Dockerfile). It will install dependencies and build chain runtime code. See the notes below for an alternative approach.
   ```bash
   docker-compose --file docker-compose-custom.yml --verbose up --detach
   docker-compose logs --follow
@@ -278,7 +283,12 @@ If you change the code, then be rebuild the code, rebuild the chain configuratio
 To just restart existing containers of the node, run `docker-compose --file docker-compose-custom.yml --verbose restart`.
   * Screenshot:
   ![](./assets/images/logs.png)
-6. Follow the steps to [interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
+Note: If you get error building after modifying docker-compose: `FileNotFoundError: [Errno 2] No such file or directory`, then try running `rm -rf target/rls/debug/`
+Note: If you get error building like: `Cannot start service alice: OCI runtime create failed`, then try running `./scripts/docker-clean.sh` (beware this deletes all Docker containers, images, and cache for all your projects, not just Datahighway), and then `rm -rf ./target/rls/debug` a few times until it no longer says `Directory not empty`
+Note: If you get error building like: `Compiling parity-multiaddr v0.7.2 error[E0308]: mismatched types --> /root/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-multiaddr-0.7.2/src/onion_addr.rs:23:9` then you need to use an older version of Rust Nightly, and to set Nightly as the default.
+Note: If you get error running docker-compose: `Creating node_alice_1 ... error compose.parallel.feed_queue: Pending: set() ERROR: for node_alice_1  Cannot start service alice: OCI runtime create failed: container_linux.go:349: starting container process caused "exec: \"./docker-entrypoint-alice.sh\": stat ./docker-entrypoint-alice.sh: no such file or directory": unknown`, then it's likely the last time you tried to build the Docker container it failed, so you need to delete the container and possibly the image and cache too and try again.
+Note: If you get error: `FileNotFoundError: [Errno 2] No such file or directory: '/Users/ls/code/src/DataHighway-com/node/target/rls/debug/deps/save-analysis/libsc_executor_common-f236f3ddcd6862b3.json'` then run `rm -rf ./target/rls/debug` a few times until it no longer says `Directory not empty`
+7. Follow the steps to [interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
 
 Note:
 * Only DataHighway admins that need to additionally update the ["testnet-latest" chain spec](./src/chain_spec.rs), to generate and share the raw chain definition with other nodes.

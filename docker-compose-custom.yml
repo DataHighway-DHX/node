@@ -2,6 +2,9 @@ version: "3"
 
 services:
   node-1:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
     image: dhxdocker/datahighway:latest
     ports:
       - 30336:30333
@@ -13,6 +16,9 @@ services:
     entrypoint:
       - ./docker-entrypoint-node-1.sh
   node-2:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
     image: dhxdocker/datahighway:latest
     ports:
       - 30337:30333
@@ -24,6 +30,9 @@ services:
     entrypoint:
       - ./docker-entrypoint-node-2.sh
   node-3:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
     image: dhxdocker/datahighway:latest
     ports:
       - 30338:30333
