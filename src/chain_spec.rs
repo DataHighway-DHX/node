@@ -31,7 +31,7 @@ use sp_consensus_babe::AuthorityId as BabeId;
 use sp_finality_grandpa::AuthorityId as GrandpaId;
 
 use sp_core::{
-    crypto::UncheckedInto,
+    crypto::UncheckedFrom,
     sr25519,
     Pair,
     Public,
@@ -155,16 +155,12 @@ impl Alternative {
                                 get_account_id_from_seed::<sr25519::Public>("Bob"),
                                 get_account_id_from_seed::<sr25519::Public>("Charlie"),
                                 get_account_id_from_seed::<sr25519::Public>("Dave"),
-                                get_account_id_from_seed::<sr25519::Public>("Eve"),
-                                get_account_id_from_seed::<sr25519::Public>("Ferdie"),
                                 // Required otherwise get error when compiling
                                 // `Stash does not have enough balance to bond`
                                 get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
                                 get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
                                 get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
                                 get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                             ],
                             true,
                         )
@@ -215,14 +211,10 @@ impl Alternative {
                                 get_account_id_from_seed::<sr25519::Public>("Bob"),
                                 get_account_id_from_seed::<sr25519::Public>("Charlie"),
                                 get_account_id_from_seed::<sr25519::Public>("Dave"),
-                                get_account_id_from_seed::<sr25519::Public>("Eve"),
-                                get_account_id_from_seed::<sr25519::Public>("Ferdie"),
                                 get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
                                 get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
                                 get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
                                 get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                             ],
                         )
                     },
@@ -264,7 +256,9 @@ fn session_keys(grandpa: GrandpaId, babe: BabeId) -> SessionKeys {
     }
 }
 
-const INITIAL_BALANCE: u128 = 70_000_000_000_000_000_000_000_u128; // $70M 70_000_000_000_000_000_000_000_u128
+// total supply should be 100m, with 30m (30%) going to DHX DAO unlocked reserves, and the remaining
+// 70m split between the initial 8x accounts other than the reserves such that each should receive 8750
+const INITIAL_BALANCE: u128 = 8_750_000_000_000_000_000_000_u128; // $70M 70_000_000_000_000_000_000_000_u128
 const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_000_000_000_000_u128; // $30M
 const INITIAL_STAKING: u128 = 1_000_000_000_000_000_000_u128;
 
@@ -283,9 +277,15 @@ fn dev_genesis(
             indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
         }),
         pallet_balances: Some(BalancesConfig {
-            balances: endowed_accounts.iter().cloned().map(|x| (x, INITIAL_BALANCE))
-                .into_iter().map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE))
-                .collect(),
+            balances: endowed_accounts.iter().cloned().map(|x|
+                // Public key (hex)
+                if x == UncheckedFrom::unchecked_from(hex!("a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21").into()) {
+                    (x, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE)
+                } else {
+                    (x, INITIAL_BALANCE)
+                }
+            )
+            .collect(),
         }),
         pallet_session: Some(SessionConfig {
             keys: initial_authorities
