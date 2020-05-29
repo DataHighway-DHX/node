@@ -278,7 +278,7 @@ fn dev_genesis(
         }),
         pallet_balances: Some(BalancesConfig {
             balances: endowed_accounts.iter().cloned().map(|x|
-                // Public key (hex)
+                // Insert Public key (hex) of the account without the 0x prefix below
                 if x == UncheckedFrom::unchecked_from(hex!("a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21").into()) {
                     (x, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE)
                 } else {
