@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# ./docker-prepare-testnet.sh
-
-# touch ../src/chain-spec-templates/chain_spec_testnet_latest.json ../src/chain-definition-custom/chain_def_testnet_latest.json
-# ../target/release/datahighway build-spec --chain testnet_latest > ../src/chain-spec-templates/chain_spec_testnet_latest.json
-# ../target/release/datahighway build-spec --chain ../src/chain-spec-templates/chain_spec_testnet_latest.json --raw > ../src/chain-definition-custom/chain_def_testnet_latest.json
-
 # use 127.0.0.1 or testnet-harbour.datahighway.com
 # bootnode node-2 is QmTU8wBoSGWDX2Dd3sGE2bD9xb9cRjZTzaH3dG4BmoQWbD or
 # sentry node id: QmVuryfE427VRqrqqXsGuWpwBk4g8mGXgYmnt3f1v6j78r
