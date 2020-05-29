@@ -185,7 +185,7 @@ impl Alternative {
             Alternative::DataHighwayTestnetLatest => {
                 ChainSpec::from_genesis(
                     "DataHighway Testnet",
-                    "testnet-latest",
+                    "testnet_latest",
                     || {
                         // TODO: regenerate alphanet according to babe-grandpa consensus
                         // export SECRET=test && echo $SECRET
@@ -243,7 +243,7 @@ impl Alternative {
             "dev" => Some(Alternative::Development),
             "local" => Some(Alternative::LocalTestnet),
             // "" | "testnet" => Some(Alternative::DataHighwayTestnet),
-            "testnet-latest" => Some(Alternative::DataHighwayTestnetLatest),
+            "testnet_latest" => Some(Alternative::DataHighwayTestnetLatest),
             _ => None,
         }
     }

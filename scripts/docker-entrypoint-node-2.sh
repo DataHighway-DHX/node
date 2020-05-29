@@ -3,7 +3,7 @@
 # ./docker-prepare-testnet.sh
 
 # touch ../src/chain-spec-templates/chain_spec_testnet_latest.json ../src/chain-definition-custom/chain_def_testnet_v0.1.0.json
-# ../target/release/datahighway build-spec --chain testnet-latest > ../src/chain-spec-templates/chain_spec_testnet_latest.json
+# ../target/release/datahighway build-spec --chain testnet_latest > ../src/chain-spec-templates/chain_spec_testnet_latest.json
 # ../target/release/datahighway build-spec --chain ../src/chain-spec-templates/chain_spec_testnet_latest.json --raw > ../src/chain-definition-custom/chain_def_testnet_v0.1.0.json
 
 # use 127.0.0.1 or testnet-harbour.datahighway.com

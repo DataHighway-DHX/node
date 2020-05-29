@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y build-essential wget cmake pkg-config l
 	# Generate the chain specification JSON file from src/chain_spec.rs
 	&& mkdir -p ./src/chain-spec-templates \
 	&& ./target/release/datahighway build-spec \
-  	    --chain=testnet-latest > ./src/chain-spec-templates/chain_spec_testnet_latest.json \
+  	    --chain=testnet_latest > ./src/chain-spec-templates/chain_spec_testnet_latest.json \
 	# Build "raw" chain definition for the new chain from it
 	&& mkdir -p ./src/chain-definition-custom \
 	&& ./target/release/datahighway build-spec \

@@ -266,7 +266,7 @@ substrate-module-new <module-name> <author>
 
 * Question: How do I run two nodes on the same host machine?
 	* Answer:
-		* Refer to "Testnet (Alpha) "testnet-latest" PoS testnet (with multiple nodes)" in [EXAMPLES](./EXAMPLES.md).
+		* Refer to "Testnet (Alpha) "testnet_latest" PoS testnet (with multiple nodes)" in [EXAMPLES](./EXAMPLES.md).
 
 ## Technical Support <a id="chapter-c00ab7"></a>
 

@@ -2,7 +2,7 @@
 
 * [Example "dev" development PoS testnet with single nodes](#chapter-ca9336)
 * [Example "local" PoS testnet with multiple nodes](#chapter-f21efd)
-* [Live (Alpha) "testnet-latest" PoS testnet (with multiple nodes)](#chapter-f0264f)
+* [Live (Alpha) "testnet_latest" PoS testnet (with multiple nodes)](#chapter-f0264f)
 * [Interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
 
 ## Example "dev" development PoS testnet (with single node) <a id="chapter-f21efd"></a>
@@ -82,7 +82,7 @@ cargo build --release
 
 * Create latest chain specification code changes of <CHAIN_ID> "local"
 
-> Other chains are specified in src/chain_spec.rs (i.e. dev, local, testnet, or testnet-latest).
+> Other chains are specified in src/chain_spec.rs (i.e. dev, local, testnet, or testnet_latest).
 
 * Generate the chain specification JSON file from src/chain_spec.rs
 
@@ -255,7 +255,7 @@ curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"a
 
 * Distribute the custom chain definition (i.e. chain_def_local_v0.1.0.json) to allow others to synchronise and validate if they are an authority
 
-## Testnet (Alpha) "testnet-latest" PoS testnet (with multiple nodes) <a id="chapter-f0264f"></a>
+## Testnet (Alpha) "testnet_latest" PoS testnet (with multiple nodes) <a id="chapter-f0264f"></a>
 
 ### Intro
 
@@ -291,7 +291,7 @@ Note: If you get error: `FileNotFoundError: [Errno 2] No such file or directory:
 7. Follow the steps to [interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
 
 Note:
-* Only DataHighway admins that need to additionally update the ["testnet-latest" chain spec](./src/chain_spec.rs), to generate and share the raw chain definition with other nodes.
+* Only DataHighway admins that need to additionally update the ["testnet_latest" chain spec](./src/chain_spec.rs), to generate and share the raw chain definition with other nodes.
 * Only DataHighway admins should use the docker-compose-admin.yml file to start the initial bootnodes, whereas other community nodes that connect to the DataHighway should use docker-compose-custom.yml instead.
 * Refer to the FAQ or contact Technical Support provided in [CONTRIBUTING.md](./CONTRIBUTING.md) if you encounter any issues.
 * If all services defined in docker-compose-custom.yml will be running in Docker containers on the same host machine, then each service must expose different ports (on the left side of the colon), however the ports that are used within each Docker container may be the same.
