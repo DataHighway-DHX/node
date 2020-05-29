@@ -6,10 +6,10 @@
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/bob \
   --keystore-path "/tmp/polkadot-chains/bob/keys" \
-  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
-  --chain ../src/chain-definition-custom/chain_def_local_latest.json \
+  --bootnodes /ip4/${ENDPOINT_DEVELOPMENT}/tcp/30333/p2p/${BOOT_NODE_LOCAL_1} \
+  --chain ../src/chain-definition-custom/chain_def_${CHAIN_VERSION}.json \
   --bob \
-  --name "Validator 2" \
+  --name "${NODE_ENV} Validator Bob" \
   --port 30334 \
   --ws-port 9945 \
   --rpc-port 9934 \

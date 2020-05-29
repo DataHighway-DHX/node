@@ -5,11 +5,11 @@
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/charlie \
-  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
+  --bootnodes /ip4/${ENDPOINT_DEVELOPMENT}/tcp/30333/p2p/${BOOT_NODE_LOCAL_1} \
   --keystore-path "/tmp/polkadot-chains/charlie/keys" \
-  --chain ../src/chain-definition-custom/chain_def_local_latest.json \
+  --chain ../src/chain-definition-custom/chain_def_${CHAIN_VERSION}.json \
   --charlie \
-  --name "Validator 3" \
+  --name "${NODE_ENV} Validator Charlie" \
   --port 30335 \
   --ws-port 9946 \
   --rpc-port 9934 \
