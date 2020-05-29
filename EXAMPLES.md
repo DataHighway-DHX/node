@@ -97,12 +97,12 @@ mkdir -p ./src/chain-spec-templates
 * Build "raw" chain definition for the new chain from it
 
 ```bash
-rm ./src/chain-definition-custom/chain_def_local_v0.1.0.json
-touch ./src/chain-definition-custom/chain_def_local_v0.1.0.json
+rm ./src/chain-definition-custom/chain_def_local_latest.json
+touch ./src/chain-definition-custom/chain_def_local_latest.json
 mkdir -p ./src/chain-definition-custom
 ./target/release/datahighway build-spec \
   --chain ./src/chain-spec-templates/chain_spec_local_latest.json \
-  --raw > ./src/chain-definition-custom/chain_def_local_v0.1.0.json
+  --raw > ./src/chain-definition-custom/chain_def_local_latest.json
 ```
 
 > Remember to purge the chain state if you change anything (database and keys)
@@ -129,7 +129,7 @@ Run Alice's bootnode using the raw chain definition file that was generated
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/alice \
   --keystore-path "/tmp/polkadot-chains/alice/keys" \
-  --chain ./src/chain-definition-custom/chain_def_local_v0.1.0.json \
+  --chain ./src/chain-definition-custom/chain_def_local_latest.json \
   --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee \
   --alice \
   --port 30333 \
@@ -140,7 +140,7 @@ Run Alice's bootnode using the raw chain definition file that was generated
   -lruntime=debug
 ```
 
-When the node has started, copy the libp2p local node identity of the node, and paste in the `bootNodes` of chain_def_local_v0.1.0.json if necessary.
+When the node has started, copy the libp2p local node identity of the node, and paste in the `bootNodes` of chain_def_local_latest.json if necessary.
 
 * Notes:
   * Alice's Substrate-based node on default TCP port 30333
@@ -159,7 +159,7 @@ Run Bob's Substrate-based node on a different TCP port of 30334, and with his ch
   --base-path /tmp/polkadot-chains/bob \
   --keystore-path "/tmp/polkadot-chains/bob/keys" \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
-  --chain ./src/chain-definition-custom/chain_def_local_v0.1.0.json \
+  --chain ./src/chain-definition-custom/chain_def_local_latest.json \
   --bob \
   --port 30334 \
   --ws-port 9945 \
@@ -183,7 +183,7 @@ Run Charlie's Substrate-based node on a different TCP port of 30335, and with hi
   --base-path /tmp/polkadot-chains/charlie \
   --keystore-path "/tmp/polkadot-chains/charlie/keys" \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
-  --chain ./src/chain-definition-custom/chain_def_local_v0.1.0.json \
+  --chain ./src/chain-definition-custom/chain_def_local_latest.json \
   --charlie \
   --port 30335 \
   --ws-port 9946 \
@@ -253,13 +253,13 @@ curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"a
 
 * View on [Polkadot Telemetry](https://telemetry.polkadot.io/#list/DataHighway%20Local%20PoA%20Testnet%20v0.1.0)
 
-* Distribute the custom chain definition (i.e. chain_def_local_v0.1.0.json) to allow others to synchronise and validate if they are an authority
+* Distribute the custom chain definition (i.e. chain_def_local_latest.json) to allow others to synchronise and validate if they are an authority
 
 ## Testnet (Alpha) "testnet_latest" PoS testnet (with multiple nodes) <a id="chapter-f0264f"></a>
 
 ### Intro
 
-Join the multiple node PoS testnet (alpha), where you will be using the latest custom chain definition for the testnet (i.e. chain_def_testnet_v0.1.0.json).
+Join the multiple node PoS testnet (alpha), where you will be using the latest custom chain definition for the testnet (i.e. chain_def_testnet_latest.json).
 
 ### Run (with Docker containers)
 

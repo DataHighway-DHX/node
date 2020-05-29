@@ -30,13 +30,13 @@ RUN apt-get update && apt-get install -y build-essential wget cmake pkg-config l
 	&& mkdir -p ./src/chain-definition-custom \
 	&& ./target/release/datahighway build-spec \
         --chain ./src/chain-spec-templates/chain_spec_testnet_latest.json \
-        --raw > ./src/chain-definition-custom/chain_def_testnet_v0.1.0.json \
+        --raw > ./src/chain-definition-custom/chain_def_testnet_latest.json \
 	# Generate the chain specification JSON file from src/chain_spec.rs
 	&& ./target/release/datahighway build-spec \
   	    --chain=local > ./src/chain-spec-templates/chain_spec_local_latest.json \
 	# Build "raw" chain definition for the new chain from it
 	&& ./target/release/datahighway build-spec \
   	    --chain ./src/chain-spec-templates/chain_spec_local_latest.json \
-  	    --raw > ./src/chain-definition-custom/chain_def_local_v0.1.0.json
+  	    --raw > ./src/chain-definition-custom/chain_def_local_latest.json
 
 WORKDIR /dhx/scripts
