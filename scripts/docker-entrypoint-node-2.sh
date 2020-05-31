@@ -1,5 +1,9 @@
 #!/bin/bash
 
+./dev.sh
+
+echo "Running Node 2 Endpoint"
+
 ../target/release/datahighway --validator \
   --unsafe-ws-external \
   --unsafe-rpc-external \

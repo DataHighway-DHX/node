@@ -1,5 +1,9 @@
 #!/bin/bash
 
+./dev.sh
+
+echo "Running Bob Endpoint"
+
 ../target/release/datahighway --validator \
   --unsafe-ws-external \
   --unsafe-rpc-external \

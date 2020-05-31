@@ -3,12 +3,26 @@ version: "3"
 services:
   alice:
     build: .
+    # build:
+    #   context: .
+      # args:
+      #   - CHAIN_VERSION="${CHAIN_VERSION}"
+      #   - RUST_VERSION="${RUST_VERSION}"
     # Note: Instead of using `dhxdocker/datahighway:latest` from Docker Hub, which
     # may reflects the latest version on Github, during development we want to build
     # a Docker container using the Dockerfile, which contains the latest local changes of our current branch.
     image: "debian:buster"
     env_file:
       - .env
+    environment:
+      - BOOT_NODE_LOCAL_1="${BOOT_NODE_LOCAL_1}"
+      - ENDPOINT_DEVELOPMENT="${ENDPOINT_DEVELOPMENT}"
+      # - ENDPOINT_TESTNET="${ENDPOINT_TESTNET}"
+      - NODE_ENV="${NODE_ENV}"
+      - NODE_KEY="${NODE_KEY}"
+      - SENTRY_NODE_TESTNET_1="${SENTRY_NODE_TESTNET_1}"
+      - CHAIN_VERSION="${CHAIN_VERSION}"
+      # - RUST_VERSION="${RUST_VERSION}"
     ports:
       - 30333:30333 # TCP
       - 9944:9944 # WS
@@ -23,6 +37,15 @@ services:
     image: "debian:buster"
     env_file:
       - .env
+    environment:
+      - BOOT_NODE_LOCAL_1="${BOOT_NODE_LOCAL_1}"
+      - ENDPOINT_DEVELOPMENT="${ENDPOINT_DEVELOPMENT}"
+      # - ENDPOINT_TESTNET="${ENDPOINT_TESTNET}"
+      - NODE_ENV="${NODE_ENV}"
+      - NODE_KEY="${NODE_KEY}"
+      - SENTRY_NODE_TESTNET_1="${SENTRY_NODE_TESTNET_1}"
+      - CHAIN_VERSION="${CHAIN_VERSION}"
+      # - RUST_VERSION="${RUST_VERSION}"
     ports:
       - 30334:30333
       - 9945:9944
@@ -37,6 +60,15 @@ services:
     image: "debian:buster"
     env_file:
       - .env
+    environment:
+      - BOOT_NODE_LOCAL_1="${BOOT_NODE_LOCAL_1}"
+      - ENDPOINT_DEVELOPMENT="${ENDPOINT_DEVELOPMENT}"
+      # - ENDPOINT_TESTNET="${ENDPOINT_TESTNET}"
+      - NODE_ENV="${NODE_ENV}"
+      - NODE_KEY="${NODE_KEY}"
+      - SENTRY_NODE_TESTNET_1="${SENTRY_NODE_TESTNET_1}"
+      - CHAIN_VERSION="${CHAIN_VERSION}"
+      # - RUST_VERSION="${RUST_VERSION}"
     ports:
       - 30335:30333
       - 9946:9944
