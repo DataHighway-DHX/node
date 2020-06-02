@@ -6,7 +6,7 @@ services:
     # Note: Instead of using `dhxdocker/datahighway:latest` from Docker Hub, which
     # may reflects the latest version on Github, during development we want to build
     # a Docker container using the Dockerfile, which contains the latest local changes of our current branch.
-    image: "debian:buster"
+    image: "dhxdocker/datahighway:luke-fix-node-2"
     env_file:
       - .env
     ports:
@@ -20,7 +20,7 @@ services:
       - ./docker-entrypoint-alice.sh
   bob:
     build: .
-    image: "debian:buster"
+    image: "dhxdocker/datahighway:luke-fix-node-2"
     env_file:
       - .env
     ports:
@@ -34,7 +34,7 @@ services:
       - ./docker-entrypoint-bob.sh
   charlie:
     build: .
-    image: "debian:buster"
+    image: "dhxdocker/datahighway:luke-fix-node-2"
     env_file:
       - .env
     ports:
