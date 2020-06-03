@@ -22,7 +22,7 @@ services:
     entrypoint:
       - ./docker-entrypoint-alice.sh
   bob:
-    build: .
+    # Note: Removed `build .` from Bob and Charlie since only want to build Docker Image once
     image: "dhxdocker/datahighway:luke-fix-node-2"
     env_file:
       - .env
@@ -36,7 +36,6 @@ services:
     entrypoint:
       - ./docker-entrypoint-bob.sh
   charlie:
-    build: .
     image: "dhxdocker/datahighway:luke-fix-node-2"
     env_file:
       - .env
