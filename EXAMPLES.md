@@ -294,6 +294,16 @@ docker-compose logs --follow
 
 Follow the steps to [interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
 
+View the balances endowed in the Genesis block by going to https://polkadot.js.org/apps/#/js and pasting the following, click the Play icon, and view the output on the right
+```
+const DHX_DAO = '5FmxcuFwGK7kPmQCB3zhk3HtxxJUyb3WjxosF8jvnkrVRLUG';
+
+const { data: balance } = await api.query.system.account(DHX_DAO);
+const totalIssuance = await api.query.balances.totalIssuance();
+console.log(`DHX DAO Unlocked Reserves has a balance of ${balance.free} DHX`);
+console.log(`DataHighway has a total supply of ${totalIssuance} DHX`);
+```
+
 ### Stop or Restart Docker Container
 
 ```
