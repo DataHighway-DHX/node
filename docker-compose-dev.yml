@@ -6,6 +6,9 @@ services:
     # Note: Instead of using `dhxdocker/datahighway:latest` from Docker Hub, which
     # may reflects the latest version on Github, during development we want to build
     # a Docker container using the Dockerfile, which contains the latest local changes of our current branch.
+    # Replace the image below with `dhxdocker/datahighway:luke-fix-node-2`
+    # e.g. `dhxdocker/datahighway:<BRANCH_NAME>`
+    # Rename the tag name of an existing `docker images` with `docker tag ...`
     image: "dhxdocker/datahighway:luke-fix-node-2"
     env_file:
       - .env
@@ -19,7 +22,7 @@ services:
     entrypoint:
       - ./docker-entrypoint-alice.sh
   bob:
-    build: .
+    # Note: Removed `build .` from Bob and Charlie since only want to build Docker Image once
     image: "dhxdocker/datahighway:luke-fix-node-2"
     env_file:
       - .env
@@ -33,7 +36,6 @@ services:
     entrypoint:
       - ./docker-entrypoint-bob.sh
   charlie:
-    build: .
     image: "dhxdocker/datahighway:luke-fix-node-2"
     env_file:
       - .env
