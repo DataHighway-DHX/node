@@ -168,6 +168,7 @@ impl Alternative {
                     // bootnodes
                     vec![
                         // Alice
+                        // FIXME - should this be `dns`?
                         "/ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".to_string(),
                     ],
                     Some(TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])),
@@ -223,7 +224,7 @@ impl Alternative {
                         // Note: Bootnode and associated IP address configured in docker-compose.yml entrypoints
                         // Alice
                         // Sentry node address
-                        "/ip4/testnet-harbour.datahighway.com/tcp/30333/p2p/QmVuryfE427VRqrqqXsGuWpwBk4g8mGXgYmnt3f1v6j78r".to_string(),
+                        "/dns4/testnet-harbour.datahighway.com/tcp/30333/p2p/QmVuryfE427VRqrqqXsGuWpwBk4g8mGXgYmnt3f1v6j78r".to_string(),
                     ],
                     // telemetry endpoints
                     Some(TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])),

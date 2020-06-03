@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# FIXME - check security associated with each CLI option
 ../target/release/datahighway --validator \
   --unsafe-ws-external \
   --unsafe-rpc-external \

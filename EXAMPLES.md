@@ -255,6 +255,69 @@ curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"a
 
 * Distribute the custom chain definition (i.e. chain_def_local.json) to allow others to synchronise and validate if they are an authority
 
+### Run on Local Machine (WITH Docker) (Alice, Bob, Charlie)
+
+#### Fetch repository and dependencies
+
+* Fork and clone the repository
+
+#### Edit the Docker Compose
+
+* Update docker-compose-dev.yml. Rename each of the Docker Images that will be created to be:
+```
+image: "dhxdocker/datahighway:<YOUR_BRANCH_NAME>"
+```
+
+#### Build a Docker Image
+
+* Install or update Rust and dependencies. Build the WebAssembly binary from all code. Create blockchain configuration from chain specification and "raw" chain definition.
+
+```
+docker-compose --env-file=./.env --file docker-compose-dev.yml --verbose build --no-cache --build-arg CHAIN_VERSION="local"
+```
+
+### Run Docker Containers for each Node (Alice, Bob, and Charlie)
+
+```
+docker-compose -f docker-compose-dev.yml up --detach alice && \
+docker-compose -f docker-compose-dev.yml up --detach bob && \
+docker-compose -f docker-compose-dev.yml up --detach charlie
+```
+
+### View Logs of each Node
+
+```
+docker-compose logs --follow
+```
+
+### Interact using UI
+
+Follow the steps to [interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
+
+### Stop or Restart Docker Container
+
+```
+docker-compose -f docker-compose-dev.yml stop alice && \
+docker-compose -f docker-compose-dev.yml stop bob && \
+docker-compose -f docker-compose-dev.yml stop charlie
+```
+
+```
+docker-compose -f docker-compose-dev.yml start alice && \
+docker-compose -f docker-compose-dev.yml start bob && \
+docker-compose -f docker-compose-dev.yml start charlie
+```
+
+Note: Where `<SERVICE>` is `alice`, `bob`, or `charlie`, as defined in docker-compose-dev.yml file
+
+### Other
+
+#### Access the Docker Container
+
+```
+docker-compose -f docker-compose-dev.yml exec alice bash
+```
+
 ## Testnet (Alpha) "testnet_latest" PoS testnet (with multiple nodes) <a id="chapter-f0264f"></a>
 
 ### Intro
