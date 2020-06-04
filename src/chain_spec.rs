@@ -223,7 +223,6 @@ impl Alternative {
                     vec![
                         // Note: Bootnode and associated IP address configured in docker-compose.yml entrypoints
                         // Alice
-                        // Sentry node address
                         "/dns4/testnet-harbour.datahighway.com/tcp/30333/p2p/QmVuryfE427VRqrqqXsGuWpwBk4g8mGXgYmnt3f1v6j78r".to_string(),
                     ],
                     // telemetry endpoints
