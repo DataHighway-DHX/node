@@ -4,6 +4,23 @@ ARG CHAIN_VERSION
 ENV _CHAIN_VERSION=${CHAIN_VERSION}
 RUN echo "DataHighway chain version ${_CHAIN_VERSION}"
 
+WORKDIR /dhx
+
+# # Copy entire project.
+# # This layer is rebuilt when a file changes in the project directory
+# COPY ./pallets/ /dhx/pallets/
+# COPY ./runtime/ /dhx/runtime/
+# # COPY ./runtime/Cargo.toml /dhx/runtime/
+# # COPY ./runtime/build.rs /dhx/runtime/
+# COPY ./scripts/ /dhx/scripts/
+# COPY ./src/ /dhx/src/
+# COPY ./target/ /dhx/target/
+# COPY ./target/release/build/ /dhx/target/release/build/
+# COPY ./target/release/wbuild/datahighway-runtime/ /dhx/target/release/wbuild/datahighway-runtime/
+# COPY Cargo.toml /dhx/
+# COPY build.rs /dhx/
+# COPY ./.git/ /dhx/.git/
+
 # Install dependencies. Combine update with other dependencies on same line so we
 # do not use cache and bypass updating it if we change the dependencies
 RUN apt-get update \
@@ -18,34 +35,35 @@ RUN curl https://getsubstrate.io -sSf | bash -s -- --fast \
     && . /root/.cargo/env \
     && echo "Installed Substrate"
 
-WORKDIR /dhx
-
-# Copy entire project.
-# This layer is rebuilt when a file changes in the project directory
-COPY ./pallets/ /dhx/pallets/
-COPY ./runtime/ /dhx/runtime/
-# COPY ./runtime/Cargo.toml /dhx/runtime/
-# COPY ./runtime/build.rs /dhx/runtime/
-COPY ./scripts/ /dhx/scripts/
-COPY ./src/ /dhx/src/
-COPY ./target/ /dhx/target/
-COPY Cargo.toml /dhx/
-COPY build.rs /dhx/
-
-# Install Rust
+# Install Rust. Build chain
 RUN wget -O - https://sh.rustup.rs | sh -s -- -y \
     && PATH=$PATH:/root/.cargo/bin \
-    && rustup update stable \
-    && rustup update nightly \
+    && . /root/.cargo/env \
     && echo "Installed Rust" \
-    # Build the project.
+    # Update Rust and use a compatible nightly version released prior to the
+    # release date of the Substrate version used by the chain
+    && rustup update stable \
+    # && rustup update nightly \
     && rustup toolchain install nightly-2020-02-17 \
     && rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17 \
     && rustup default nightly-2020-02-17 \
     && rustup override set nightly-2020-02-17 \
     && cargo version \
     && rustc --version \
-    && cargo build --release \
+    && echo "Updated Rust"
+
+# This results in a single layer image
+FROM scratch as build2
+# Copy local files to container that are necessary to build the chain.
+# Note: If you do not copy sufficient files across, it may not use the correct
+# version of Rust to build the chain.
+COPY . .
+COPY --from=build /root/.cargo/bin/cargo /root/.cargo/bin/cargo
+COPY --from=build . /dhx/src/
+COPY --from=build . /dhx/scripts/
+
+# Build the chain. Check logs to ensure that it is using Substrate and Rust versions
+RUN cargo build --release \
     && echo "Built DataHighway Chain" \
 	# Generate the chain specification JSON file from src/chain_spec.rs
 	&& ./target/release/datahighway build-spec \
@@ -55,12 +73,12 @@ RUN wget -O - https://sh.rustup.rs | sh -s -- -y \
         --chain ./src/chain-spec-templates/chain_spec_${_CHAIN_VERSION}.json \
         --raw > ./src/chain-definition-custom/chain_def_${_CHAIN_VERSION}.json
 
-WORKDIR /dhx/scripts
-
 # This results in a single layer image
 FROM scratch
-COPY --from=build /dhx/target/ /dhx/target/
-COPY --from=build /dhx/scripts/ /dhx/scripts/
-COPY --from=build /dhx/src/ /dhx/src/
-COPY --from=build /dhx/build.rs /dhx/Cargo.toml /dhx/
-COPY --from=build /root/.cargo/ /root/.cargo/
+COPY --from=build2 /dhx/target/ /dhx/target/
+COPY --from=build2 /dhx/scripts/ /dhx/scripts/
+# COPY --from=build /dhx/src/ /dhx/src/
+# COPY --from=build /dhx/build.rs /dhx/Cargo.toml /dhx/
+# COPY --from=build /root/.cargo/ /root/.cargo/
+
+WORKDIR /dhx/scripts
