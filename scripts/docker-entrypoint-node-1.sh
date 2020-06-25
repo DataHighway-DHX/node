@@ -13,6 +13,6 @@
   --port 30333 \
   --ws-port 9944 \
   --rpc-port 9933 \
-  --telemetry-url disabled \
+  --telemetry-url ws://telemetry.polkadot.io:1024 \
   --execution=native \
   -lruntime=debug
