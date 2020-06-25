@@ -276,6 +276,8 @@ image: "dhxdocker/datahighway:<YOUR_BRANCH_NAME>"
 docker-compose --env-file=./.env --file docker-compose-dev.yml --verbose build --no-cache --build-arg CHAIN_VERSION="local"
 ```
 
+Note: If you get error `error: failed to parse manifest at /dhx/runtime/Cargo.toml Caused by: no targets specified in the manifest either src/lib.rs, src/main.rs, a [lib] section, or [[bin]] section must be present` then it's because the necessary folders haven't been copied using Docker's `COPY` (i.e. `COPY ./abc/* /root/abc` doesn't work, it shouldn't have the `*`)
+
 ### Run Docker Containers for each Node (Alice, Bob, and Charlie)
 
 ```
