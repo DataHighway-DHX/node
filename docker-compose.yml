@@ -12,6 +12,7 @@ services:
       - 9944:9944 # WS
       - 9933:9933 # RPC
     volumes:
+      - basePath:/tmp
       - ./scripts:/dhx/scripts
     restart: always
     entrypoint:
@@ -25,6 +26,7 @@ services:
       - 9945:9944
       - 9934:9933
     volumes:
+      - basePath:/tmp
       - ./scripts:/dhx/scripts
     restart: always
     entrypoint:
@@ -38,7 +40,10 @@ services:
       - 9946:9944
       - 9935:9933
     volumes:
+      - basePath:/tmp
       - ./scripts:/dhx/scripts
     restart: always
     entrypoint:
       - ./docker-entrypoint-charlie.sh
+volumes:
+  basePath:
