@@ -267,6 +267,7 @@ curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"a
 ```
 image: "dhxdocker/datahighway:<YOUR_BRANCH_NAME>"
 ```
+* Note: By default they are `image: "dhxdocker/datahighway:latest"`
 
 #### Build a Docker Image
 
