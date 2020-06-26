@@ -9,7 +9,7 @@ services:
     # Replace the image below with `dhxdocker/datahighway:luke-fix-node-2`
     # e.g. `dhxdocker/datahighway:<BRANCH_NAME>`
     # Rename the tag name of an existing `docker images` with `docker tag ...`
-    image: "dhxdocker/datahighway:luke-fix-node-2"
+    image: "dhxdocker/datahighway:latest"
     env_file:
       - .env
     ports:
@@ -23,7 +23,7 @@ services:
       - ./docker-entrypoint-alice.sh
   bob:
     # Note: Removed `build .` from Bob and Charlie since only want to build Docker Image once
-    image: "dhxdocker/datahighway:luke-fix-node-2"
+    image: "dhxdocker/datahighway:latest"
     env_file:
       - .env
     ports:
@@ -36,7 +36,7 @@ services:
     entrypoint:
       - ./docker-entrypoint-bob.sh
   charlie:
-    image: "dhxdocker/datahighway:luke-fix-node-2"
+    image: "dhxdocker/datahighway:latest"
     env_file:
       - .env
     ports:

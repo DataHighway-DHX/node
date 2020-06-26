@@ -170,7 +170,7 @@ The styles are defined in the rustfmt.toml configuration file, which was generat
 #### Install RustFmt
 
 ```bash
-rustup component add rustfmt --toolchain nightly
+rustup component add rustfmt --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
 ```
 
 #### Check Formating Changes that RustFmt before applying them

@@ -255,6 +255,82 @@ curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"a
 
 * Distribute the custom chain definition (i.e. chain_def_local.json) to allow others to synchronise and validate if they are an authority
 
+### Run on Local Machine (WITH Docker) (Alice, Bob, Charlie)
+
+#### Fetch repository and dependencies
+
+* Fork and clone the repository
+
+#### Edit the Docker Compose
+
+* Update docker-compose-dev.yml. Rename each of the Docker Images that will be created to be:
+```
+image: "dhxdocker/datahighway:<YOUR_BRANCH_NAME>"
+```
+* Note: By default they are `image: "dhxdocker/datahighway:latest"`
+
+#### Build a Docker Image
+
+* Install or update Rust and dependencies. Build the WebAssembly binary from all code. Create blockchain configuration from chain specification and "raw" chain definition.
+
+```
+docker-compose --env-file=./.env --file docker-compose-dev.yml --verbose build --no-cache --build-arg CHAIN_VERSION="local"
+```
+
+Note: If you get error `error: failed to parse manifest at /dhx/runtime/Cargo.toml Caused by: no targets specified in the manifest either src/lib.rs, src/main.rs, a [lib] section, or [[bin]] section must be present` then it's because the necessary folders haven't been copied using Docker's `COPY` (i.e. `COPY ./abc/* /root/abc` doesn't work, it shouldn't have the `*`)
+
+### Run Docker Containers for each Node (Alice, Bob, and Charlie)
+
+```
+docker-compose -f docker-compose-dev.yml up --detach alice && \
+docker-compose -f docker-compose-dev.yml up --detach bob && \
+docker-compose -f docker-compose-dev.yml up --detach charlie
+```
+
+### View Logs of each Node
+
+```
+docker-compose logs --follow
+```
+
+### Interact using UI
+
+Follow the steps to [interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
+
+View the balances endowed in the Genesis block by going to https://polkadot.js.org/apps/#/js and pasting the following, click the Play icon, and view the output on the right
+```
+const DHX_DAO = '5FmxcuFwGK7kPmQCB3zhk3HtxxJUyb3WjxosF8jvnkrVRLUG';
+
+const { data: balance } = await api.query.system.account(DHX_DAO);
+const totalIssuance = await api.query.balances.totalIssuance();
+console.log(`DHX DAO Unlocked Reserves has a balance of ${balance.free} DHX`);
+console.log(`DataHighway has a total supply of ${totalIssuance} DHX`);
+```
+
+### Stop or Restart Docker Container
+
+```
+docker-compose -f docker-compose-dev.yml stop alice && \
+docker-compose -f docker-compose-dev.yml stop bob && \
+docker-compose -f docker-compose-dev.yml stop charlie
+```
+
+```
+docker-compose -f docker-compose-dev.yml start alice && \
+docker-compose -f docker-compose-dev.yml start bob && \
+docker-compose -f docker-compose-dev.yml start charlie
+```
+
+Note: Where `<SERVICE>` is `alice`, `bob`, or `charlie`, as defined in docker-compose-dev.yml file
+
+### Other
+
+#### Access the Docker Container
+
+```
+docker-compose -f docker-compose-dev.yml exec alice bash
+```
+
 ## Testnet (Alpha) "testnet_latest" PoS testnet (with multiple nodes) <a id="chapter-f0264f"></a>
 
 ### Intro

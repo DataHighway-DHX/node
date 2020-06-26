@@ -150,7 +150,7 @@ impl Alternative {
                             vec![
                                 // DHX DAO Unlocked Reserves Balance
                                 // 5FmxcuFwGK7kPmQCB3zhk3HtxxJUyb3WjxosF8jvnkrVRLUG
-				                hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
+                                hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
                                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                                 get_account_id_from_seed::<sr25519::Public>("Bob"),
                                 get_account_id_from_seed::<sr25519::Public>("Charlie"),
@@ -168,6 +168,7 @@ impl Alternative {
                     // bootnodes
                     vec![
                         // Alice
+                        // FIXME - should this be `dns`?
                         "/ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".to_string(),
                     ],
                     Some(TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])),
@@ -222,8 +223,9 @@ impl Alternative {
                     vec![
                         // Note: Bootnode and associated IP address configured in docker-compose.yml entrypoints
                         // Alice
-                        // Sentry node address
-                        "/ip4/testnet-harbour.datahighway.com/tcp/30333/p2p/QmVuryfE427VRqrqqXsGuWpwBk4g8mGXgYmnt3f1v6j78r".to_string(),
+                        "/dns4/testnet-harbour.datahighway.com/tcp/30333/p2p/\
+                         QmVuryfE427VRqrqqXsGuWpwBk4g8mGXgYmnt3f1v6j78r"
+                            .to_string(),
                     ],
                     // telemetry endpoints
                     Some(TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])),
@@ -338,8 +340,12 @@ fn testnet_genesis(
             indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
         }),
         pallet_balances: Some(BalancesConfig {
-            balances: endowed_accounts.iter().cloned().map(|x| (x, INITIAL_BALANCE))
-                .into_iter().map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE))
+            balances: endowed_accounts
+                .iter()
+                .cloned()
+                .map(|x| (x, INITIAL_BALANCE))
+                .into_iter()
+                .map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE))
                 .collect(),
         }),
         pallet_session: Some(SessionConfig {
