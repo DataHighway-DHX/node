@@ -1,6 +1,6 @@
-name: CI
+name: Test
 
-on: [pull_request]
+on: [push]
 
 jobs:
   check:
