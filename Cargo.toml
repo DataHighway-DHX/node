@@ -23,41 +23,41 @@ jsonrpc-core = '14.0.5'
 serde = { version = '1.0.102', features = ['derive'] }
 parity-util-mem = { version = '0.5.1', default-features = false, features = ['jemalloc-global'] }
 
-pallet-transaction-payment-rpc = { version = '2.0.0-alpha.3' }
-sc-authority-discovery = { version = '0.8.0-alpha.3' }
-sc-basic-authorship = { version = '0.8.0-alpha.3' }
-sc-chain-spec = { version = '2.0.0-alpha.3' }
-sc-cli = { version = '0.8.0-alpha.3' }
-sc-client = { version = '0.8.0-alpha.3' }
-sc-client-api = { version = '2.0.0-alpha.3' }
-sc-consensus-epochs = { version = '0.8.0-alpha.3' }
-sc-consensus-babe = { version = '0.8.0-alpha.3' }
-sc-consensus-babe-rpc = { version = '0.8.0-alpha.3' }
-sc-executor = { version = '0.8.0-alpha.3' }
-sc-finality-grandpa = { version = '0.8.0-alpha.3' }
-sc-keystore = { version = '2.0.0-alpha.3' }
-sc-network = { version = '0.8.0-alpha.3' }
-sc-offchain = { version = '2.0.0-alpha.3' }
-sc-rpc = { version = '2.0.0-alpha.3' }
-sc-service = { version = '0.8.0-alpha.3' }
-sc-telemetry = { version = '2.0.0-alpha.3' }
-sc-transaction-pool = { version = '2.0.0-alpha.3' }
-sp-api = { version = '2.0.0-alpha.3' }
-sp-consensus-babe = { version = '0.8.0-alpha.3' }
-sp-consensus = { version = '0.8.0-alpha.3' }
-sp-core = { version = '2.0.0-alpha.3' }
-sp-finality-grandpa = { version = '2.0.0-alpha.3' }
-sp-inherents = { version = '2.0.0-alpha.3' }
-sp-io = { version = '2.0.0-alpha.3' }
-sp-runtime = { version = '2.0.0-alpha.3' }
-sp-transaction-pool = { version = '2.0.0-alpha.3' }
-substrate-frame-rpc-system = { version = '2.0.0-alpha.3' }
+pallet-transaction-payment-rpc = { version = '2.0.0-rc4' }
+sc-authority-discovery = { version = '0.8.0-rc4' }
+sc-basic-authorship = { version = '0.8.0-rc4' }
+sc-chain-spec = { version = '2.0.0-rc4' }
+sc-cli = { version = '0.8.0-rc4' }
+sc-client = { version = '0.8.0-rc4' }
+sc-client-api = { version = '2.0.0-rc4' }
+sc-consensus-epochs = { version = '0.8.0-rc4' }
+sc-consensus-babe = { version = '0.8.0-rc4' }
+sc-consensus-babe-rpc = { version = '0.8.0-rc4' }
+sc-executor = { version = '0.8.0-rc4' }
+sc-finality-grandpa = { version = '0.8.0-rc4' }
+sc-keystore = { version = '2.0.0-rc4' }
+sc-network = { version = '0.8.0-rc4' }
+sc-offchain = { version = '2.0.0-rc4' }
+sc-rpc = { version = '2.0.0-rc4' }
+sc-service = { version = '0.8.0-rc4' }
+sc-telemetry = { version = '2.0.0-rc4' }
+sc-transaction-pool = { version = '2.0.0-rc4' }
+sp-api = { version = '2.0.0-rc4' }
+sp-consensus-babe = { version = '0.8.0-rc4' }
+sp-consensus = { version = '0.8.0-rc4' }
+sp-core = { version = '2.0.0-rc4' }
+sp-finality-grandpa = { version = '2.0.0-rc4' }
+sp-inherents = { version = '2.0.0-rc4' }
+sp-io = { version = '2.0.0-rc4' }
+sp-runtime = { version = '2.0.0-rc4' }
+sp-transaction-pool = { version = '2.0.0-rc4' }
+substrate-frame-rpc-system = { version = '2.0.0-rc4' }
 
 datahighway-runtime = { version = '0.1.0', path = 'runtime' }
 
 [build-dependencies]
 vergen = '3.0.4'
-build-script-utils = { version = '2.0.0-alpha.3', package = 'substrate-build-script-utils' }
+build-script-utils = { version = '2.0.0-rc4', package = 'substrate-build-script-utils' }
 
 [workspace]
 members = [
