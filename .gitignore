@@ -9,3 +9,4 @@
 pallets/.DS_Store
 .DS_Store
 
+*.wasm
