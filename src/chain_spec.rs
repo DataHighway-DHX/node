@@ -1,15 +1,16 @@
 use datahighway_runtime::{
     opaque::{
-        Block,
         SessionKeys,
     },
     AccountId,
     BabeConfig,
     BalancesConfig,
+    Block,
     GeneralCouncilMembershipConfig,
     GenesisConfig,
     GrandpaConfig,
     IndicesConfig,
+    Moment,
     SessionConfig,
     Signature,
     StakerStatus,
@@ -21,12 +22,14 @@ use datahighway_runtime::{
 use hex_literal::hex;
 use sc_chain_spec::ChainSpecExtension;
 use sc_service;
+use sc_service::ChainType;
 use sc_telemetry::TelemetryEndpoints;
 use serde::{
     Deserialize,
     Serialize,
 };
 use serde_json::map::Map;
+use sp_arithmetic::FixedI128;
 use sp_consensus_babe::AuthorityId as BabeId;
 use sp_finality_grandpa::AuthorityId as GrandpaId;
 
@@ -41,12 +44,15 @@ use sp_runtime::traits::{
     Verify,
 };
 pub use sp_runtime::{
+    FixedPointNumber,
     Perbill,
     Permill,
 };
 
+type AccountPublic = <Signature as Verify>::Signer;
+
 // Note this is the URL for the telemetry server
-// const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
+const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
 
 /// Node `ChainSpec` extensions.
 ///
@@ -61,8 +67,15 @@ pub struct Extensions {
     pub bad_blocks: sc_client::BadBlocks<Block>,
 }
 
-/// Specialized `ChainSpec`. This is a specialization of the general Substrate ChainSpec type.
-pub type ChainSpec = sc_service::ChainSpec<GenesisConfig, Extensions>;
+/// Specialized `ChainSpec`.
+pub type ChainSpec = sc_service::GenericChainSpec<GenesisConfig, Extensions>;
+
+fn session_keys(grandpa: GrandpaId, babe: BabeId) -> SessionKeys {
+    SessionKeys {
+        grandpa,
+        babe,
+    }
+}
 
 /// The chain specification option. This is expected to come in from the CLI and
 /// is little more than one of a number of alternatives which can easily be converted
@@ -81,8 +94,6 @@ pub enum Alternative {
 pub fn get_from_seed<TPublic: Public>(seed: &str) -> <TPublic::Pair as Pair>::Public {
     TPublic::Pair::from_string(&format!("//{}", seed), None).expect("static values are valid; qed").public()
 }
-
-type AccountPublic = <Signature as Verify>::Signer;
 
 /// Helper function to generate an account ID from seed
 pub fn get_account_id_from_seed<TPublic: Public>(seed: &str) -> AccountId
@@ -247,13 +258,6 @@ impl Alternative {
     }
 }
 
-fn session_keys(grandpa: GrandpaId, babe: BabeId) -> SessionKeys {
-    SessionKeys {
-        grandpa,
-        babe,
-    }
-}
-
 const INITIAL_BALANCE: u128 = 1_000_000_000_000_000_000_000_u128; // $1M
 const INITIAL_STAKING: u128 = 1_000_000_000_000_000_000_u128;
 
@@ -281,7 +285,6 @@ fn dev_genesis(
                 .collect::<Vec<_>>(),
         }),
         pallet_staking: Some(StakingConfig {
-            current_era: 0,
             validator_count: initial_authorities.len() as u32 * 2,
             minimum_validator_count: initial_authorities.len() as u32,
             stakers: initial_authorities
@@ -334,7 +337,6 @@ fn testnet_genesis(
                 .collect::<Vec<_>>(),
         }),
         pallet_staking: Some(StakingConfig {
-            current_era: 0,
             validator_count: initial_authorities.len() as u32 * 2,
             minimum_validator_count: initial_authorities.len() as u32,
             stakers: initial_authorities
