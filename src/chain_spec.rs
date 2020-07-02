@@ -103,8 +103,8 @@ where
     AccountPublic::from(get_from_seed::<TPublic>(seed)).into_account()
 }
 
-/// Helper function to generate an authority key from seed
-pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, GrandpaId, BabeId) {
+/// Helper function to generate stash, controller and session key from seed
+pub fn authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, GrandpaId, BabeId) {
     (
         get_account_id_from_seed::<sr25519::Public>(&format!("{}//stash", seed)),
         get_account_id_from_seed::<sr25519::Public>(seed),
@@ -113,149 +113,143 @@ pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, Grandp
     )
 }
 
-impl Alternative {
-    /// Get an actual chain config from one of the alternatives.
-    pub(crate) fn load(self) -> Result<ChainSpec, String> {
-        let mut properties = Map::new();
-        properties.insert("tokenSymbol".into(), "DHX".into());
-        properties.insert("tokenDecimals".into(), 18.into());
+pub fn development_config() -> ChainSpec {
+    let mut properties = Map::new();
+    properties.insert("tokenSymbol".into(), "DHX".into());
+    properties.insert("tokenDecimals".into(), 18.into());
 
-        Ok(match self {
-            Alternative::Development => {
-                ChainSpec::from_genesis(
-                    "Development",
-                    "dev",
-                    || {
-                        dev_genesis(
-                            vec![get_authority_keys_from_seed("Alice")],
-                            get_account_id_from_seed::<sr25519::Public>("Alice"),
-                            vec![
-                                get_account_id_from_seed::<sr25519::Public>("Alice"),
-                                get_account_id_from_seed::<sr25519::Public>("Bob"),
-                                get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
-                            ],
-                            true,
-                        )
-                    },
-                    vec![],
-                    None,
-                    None,
-                    Some(properties),
-                    Default::default(),
-                )
-            }
-            Alternative::LocalTestnet => {
-                ChainSpec::from_genesis(
-                    "Local Testnet",
-                    "local",
-                    || {
-                        dev_genesis(
-                            vec![
-                                get_authority_keys_from_seed("Alice"),
-                                get_authority_keys_from_seed("Bob"),
-                                get_authority_keys_from_seed("Charlie"),
-                                get_authority_keys_from_seed("Dave"),
-                            ],
-                            get_account_id_from_seed::<sr25519::Public>("Alice"),
-                            vec![
-                                get_account_id_from_seed::<sr25519::Public>("Alice"),
-                                get_account_id_from_seed::<sr25519::Public>("Bob"),
-                                get_account_id_from_seed::<sr25519::Public>("Charlie"),
-                                get_account_id_from_seed::<sr25519::Public>("Dave"),
-                                get_account_id_from_seed::<sr25519::Public>("Eve"),
-                                get_account_id_from_seed::<sr25519::Public>("Ferdie"),
-                                get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
-                            ],
-                            true,
-                        )
-                    },
-                    // bootnodes
-                    vec![
-                        // Alice
-                        "/ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".to_string(),
-                    ],
-                    Some(TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])),
-                    None,
-                    Some(properties),
-                    Default::default(),
-                )
-            }
-            // Alternative::DataHighwayTestnet => {
-            //     ChainSpec::from_json_bytes(
-            //         &include_bytes!("./chain-definition-custom/chain_def_testnet_v0.1.0.json")[..],
-            //     )?
-            // }
-            // FIXME: Not working for some reason. Only 'local' works (error insufficient balance to bond)
-            Alternative::DataHighwayTestnetLatest => {
-                ChainSpec::from_genesis(
-                    "DataHighway Testnet",
-                    "testnet-latest",
-                    || {
-                        // TODO: regenerate alphanet according to babe-grandpa consensus
-                        // export SECRET=test && echo $SECRET
-                        // ./target/release/subkey --sr25519 inspect "$SECRET//datahighway//aura"
-                        // ./target/release/subkey --sr25519 inspect "$SECRET//datahighway//babe"
-                        // ./target/release/subkey --sr25519 inspect "$SECRET//datahighway//imonline"
-                        // ./target/release/subkey --ed25519 inspect "$SECRET//datahighway//grandpa"
-                        // ./target/release/subkey inspect "$SECRET//datahighway//root"
-                        testnet_genesis(
-                            vec![
-                                get_authority_keys_from_seed("Alice"),
-                                get_authority_keys_from_seed("Bob"),
-                                get_authority_keys_from_seed("Charlie"),
-                                get_authority_keys_from_seed("Dave"),
-                            ],
-                            get_account_id_from_seed::<sr25519::Public>("Alice"),
-                            vec![
-                                get_account_id_from_seed::<sr25519::Public>("Alice"),
-                                get_account_id_from_seed::<sr25519::Public>("Bob"),
-                                get_account_id_from_seed::<sr25519::Public>("Charlie"),
-                                get_account_id_from_seed::<sr25519::Public>("Dave"),
-                                get_account_id_from_seed::<sr25519::Public>("Eve"),
-                                get_account_id_from_seed::<sr25519::Public>("Ferdie"),
-                                get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
-                            ],
-                        )
-                    },
-                    // bootnodes
-                    vec![
-                        // Note: Bootnode and associated IP address configured in docker-compose.yml entrypoints
-                        // // Alice
-                        // "/ip4/172.31.1.212/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".to_string(),
-                    ],
-                    // telemetry endpoints
-                    Some(TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])),
-                    // protocol id
-                    Some("dhx-test"),
-                    // properties
-                    Some(properties),
-                    // extensions
-                    Default::default(),
-                )
-            }
-        })
-    }
+    ChainSpec::from_genesis(
+        "Development",
+        "dev",
+        ChainType::Development,
+        || {
+            dev_genesis(
+                vec![authority_keys_from_seed("Alice")],
+                get_account_id_from_seed::<sr25519::Public>("Alice"),
+                vec![
+                    get_account_id_from_seed::<sr25519::Public>("Alice"),
+                    get_account_id_from_seed::<sr25519::Public>("Bob"),
+                    get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+                ],
+                true,
+            )
+        },
+        vec![],
+        None,
+        None,
+        Some(properties),
+        Default::default(),
+    )
+}
 
-    pub(crate) fn from(s: &str) -> Option<Self> {
-        match s {
-            "dev" => Some(Alternative::Development),
-            "local" => Some(Alternative::LocalTestnet),
-            // "" | "testnet" => Some(Alternative::DataHighwayTestnet),
-            "testnet-latest" => Some(Alternative::DataHighwayTestnetLatest),
-            _ => None,
-        }
-    }
+pub fn local_testnet_config() -> ChainSpec {
+    let mut properties = Map::new();
+    properties.insert("tokenSymbol".into(), "DHX".into());
+    properties.insert("tokenDecimals".into(), 18.into());
+
+    ChainSpec::from_genesis(
+        "Local Testnet",
+        "local",
+        ChainType::Local,
+        || {
+            dev_genesis(
+                vec![
+                    authority_keys_from_seed("Alice"),
+                    authority_keys_from_seed("Bob"),
+                    authority_keys_from_seed("Charlie"),
+                    authority_keys_from_seed("Dave"),
+                ],
+                get_account_id_from_seed::<sr25519::Public>("Alice"),
+                vec![
+                    get_account_id_from_seed::<sr25519::Public>("Alice"),
+                    get_account_id_from_seed::<sr25519::Public>("Bob"),
+                    get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                    get_account_id_from_seed::<sr25519::Public>("Dave"),
+                    get_account_id_from_seed::<sr25519::Public>("Eve"),
+                    get_account_id_from_seed::<sr25519::Public>("Ferdie"),
+                    get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
+                ],
+                true,
+            )
+        },
+        // bootnodes
+        vec![
+            // Alice
+            "/ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".to_string(),
+        ],
+        Some(TelemetryEndpoints::new(vec![(STAGING_TELEMETRY_URL.to_string(), 0)])),
+        None,
+        Some(properties),
+        Default::default(),
+    )
+}
+
+pub fn datahighway_harbour_config() -> Result<ChainSpec, String> {
+	ChainSpec::from_json_bytes(&include_bytes!("./resources/harbour-dist.json")[..])
+}
+
+pub fn datahighway_harbour_latest_config() -> ChainSpec {
+    let mut properties = Map::new();
+    properties.insert("tokenSymbol".into(), "DHX".into());
+    properties.insert("tokenDecimals".into(), 18.into());
+
+    ChainSpec::from_genesis(
+        "DataHighway Testnet",
+        "testnet-latest",
+        ChainType::Live,
+        || {
+            // TODO: regenerate alphanet according to babe-grandpa consensus
+            // export SECRET=test && echo $SECRET
+            // ./target/release/subkey --sr25519 inspect "$SECRET//datahighway//aura"
+            // ./target/release/subkey --sr25519 inspect "$SECRET//datahighway//babe"
+            // ./target/release/subkey --sr25519 inspect "$SECRET//datahighway//imonline"
+            // ./target/release/subkey --ed25519 inspect "$SECRET//datahighway//grandpa"
+            // ./target/release/subkey inspect "$SECRET//datahighway//root"
+            testnet_genesis(
+                vec![
+                    authority_keys_from_seed("Alice"),
+                    authority_keys_from_seed("Bob"),
+                    authority_keys_from_seed("Charlie"),
+                    authority_keys_from_seed("Dave"),
+                ],
+                get_account_id_from_seed::<sr25519::Public>("Alice"),
+                vec![
+                    get_account_id_from_seed::<sr25519::Public>("Alice"),
+                    get_account_id_from_seed::<sr25519::Public>("Bob"),
+                    get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                    get_account_id_from_seed::<sr25519::Public>("Dave"),
+                    get_account_id_from_seed::<sr25519::Public>("Eve"),
+                    get_account_id_from_seed::<sr25519::Public>("Ferdie"),
+                    get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
+                ],
+            )
+        },
+        // bootnodes
+        vec![
+            // Note: Bootnode and associated IP address configured in docker-compose.yml entrypoints
+            // // Alice
+            // "/ip4/172.31.1.212/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".to_string(),
+        ],
+        // telemetry endpoints
+        Some(TelemetryEndpoints::new(vec![(STAGING_TELEMETRY_URL.to_string(), 0)])),
+        // protocol id
+        Some("dhx-test"),
+        // properties
+        Some(properties),
+        // extensions
+        Default::default(),
+    )
 }
 
 const INITIAL_BALANCE: u128 = 1_000_000_000_000_000_000_000_u128; // $1M
@@ -363,11 +357,4 @@ fn testnet_genesis(
         }),
         pallet_treasury: Some(Default::default()),
     }
-}
-
-pub fn load_spec(id: &str) -> Result<Option<ChainSpec>, String> {
-    Ok(match Alternative::from(id) {
-        Some(spec) => Some(spec.load()?),
-        None => None,
-    })
 }
