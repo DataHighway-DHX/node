@@ -63,8 +63,6 @@ sp-arithmetic = { version = '2.0.0-rc4' }
 sp-authority-discovery = { version = '2.0.0-rc4' }
 sp-block-builder = { version = '2.0.0-rc4' }
 substrate-frame-rpc-system = { version = '2.0.0-rc4' }
-frame-benchmarking = { version = '2.0.0-rc4' }
-frame-benchmarking-cli = { version = '2.0.0-rc4' }
 
 datahighway-runtime = { version = '0.1.0', path = 'runtime' }
 
@@ -74,13 +72,6 @@ frame-support = { version = '2.0.0-rc4' }
 [build-dependencies]
 vergen = '3.0.4'
 build-script-utils = { version = '2.0.0-rc4', package = 'substrate-build-script-utils' }
-
-[features]
-default = ['wasmtime']
-wasmtime = [ 'sc-cli/wasmtime' ]
-runtime-benchmarks = [
-	'runtime/runtime-benchmarks',
-]
 
 [workspace]
 members = [

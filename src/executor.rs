@@ -7,5 +7,4 @@ native_executor_instance!(
     pub Executor,
     datahighway_runtime::api::dispatch,
     datahighway_runtime::native_version,
-    frame_benchmarking::benchmarking::HostFunctions,
 );

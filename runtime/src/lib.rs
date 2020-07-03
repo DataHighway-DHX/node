@@ -10,7 +10,6 @@
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
-mod benchmarking;
 mod constants;
 mod types;
 
@@ -428,9 +427,6 @@ impl Contains<AccountId> for GeneralCouncilProvider {
     fn sorted_members() -> Vec<AccountId> {
         GeneralCouncil::members()
     }
-
-    #[cfg(feature = "runtime-benchmarks")]
-	fn add(_who: &AccountId) {}
 }
 
 impl ContainsLengthBound for GeneralCouncilProvider {

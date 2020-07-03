@@ -25,8 +25,4 @@ pub enum Subcommand {
 		about = "Decode given block or extrinsic using current native runtime."
 	)]
 	Inspect(inspect::cli::InspectCmd),
-
-	/// The custom benchmark subcommmand benchmarking runtime modules.
-	#[structopt(name = "benchmark", about = "Benchmark runtime modules.")]
-	Benchmark(frame_benchmarking_cli::BenchmarkCmd),
 }
