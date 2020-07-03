@@ -32,7 +32,6 @@ sc-authority-discovery = { version = '0.8.0-rc4' }
 sc-basic-authorship = { version = '0.8.0-rc4' }
 sc-chain-spec = { version = '2.0.0-rc4' }
 sc-cli = { version = '0.8.0-rc4' }
-sc-client = { version = '0.8.0-rc4' }
 sc-client-api = { version = '2.0.0-rc4' }
 sc-consensus-epochs = { version = '0.8.0-rc4' }
 sc-consensus-babe = { version = '0.8.0-rc4' }
