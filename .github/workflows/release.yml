@@ -55,9 +55,9 @@ jobs:
         rustup toolchain install nightly-2020-02-17
         rustup default nightly-2020-02-17
         rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
-      - name: Build a release binary
-        run: |
-          cargo build --release
+    - name: Build a release binary
+      run: |
+        cargo build --release
     - name: build (release)
       run: cargo build --verbose --release
     - name: compress
