@@ -28,6 +28,9 @@ jobs:
           - os: ubuntu-latest
             artifact_name: pc
             asset_name: pc-linux-x64.tar.gz
+          - os: macos-latest
+            artifact_name: pc
+            asset_name: pc-darwin-x64.tar.gz
     runs-on: ${{ matrix.os }}
     steps:
     - name: checkout the source code
