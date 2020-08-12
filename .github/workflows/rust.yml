@@ -141,3 +141,49 @@ jobs:
       #     rustup component add clippy --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
       #     rustup component add clippy-preview --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
       #     cargo +nightly-2020-02-17 clippy-preview -Zunstable-options
+
+  build:
+    name: Build ubuntu release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@master
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+
+      - name: Initialize WASM build environment
+        run: |
+          rustup update stable
+          rustup toolchain install nightly-2020-02-17
+          rustup default nightly-2020-02-17
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
+
+      - name: Build a release binary
+        run: |
+          cargo build --release
+
+      - name: Bump version and push tag/create release point
+        uses: anothrNick/github-tag-action@1.17.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+        id: bump_version
+      - name: Upload binary to release
+        uses: svenstaro/upload-release-action@v1-release
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/datahighway
+          asset_name: datahighway-linux-amd64
+          tag: ${{ steps.bump_version.outputs.new_tag }}
+          overwrite: true
