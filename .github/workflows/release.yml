@@ -1,0 +1,80 @@
+name: release
+
+on:
+  push:
+    # tags: 'v*'
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: release ${{ github.ref }}
+        draft: false
+        prerelease: false
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+  upload_assets:
+    needs: create_release
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: pc
+            asset_name: pc-linux-x64.tar.gz
+          - os: macos-latest
+            artifact_name: pc
+            asset_name: pc-darwin-x64.tar.gz
+          - os: windows-latest
+            artifact_name: pc.exe
+            asset_name: pc-win-x64.tar.gz
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: checkout the source code
+      uses: actions/checkout@v2
+    - name: Install stable toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+    - name: Install nightly toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: nightly
+    - name: Initialize WASM build environment
+      run: |
+        rustup update stable
+        rustup toolchain install nightly-2020-02-17
+        rustup default nightly-2020-02-17
+        rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
+      - name: Build a release binary
+        run: |
+          cargo build --release
+    - name: build (release)
+      run: cargo build --verbose --release
+    - name: compress
+      uses: master-atul/tar-action@v1.0.2
+      with:
+        command: c
+        cwd: ./target/release
+        files: |
+          ${{ matrix.artifact_name }}
+        outPath: ./target/release/${{ matrix.asset_name }}
+    - name: upload release assets
+      id: upload-release-assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create_release.outputs.upload_url }}
+        asset_path: ./target/release/${{ matrix.asset_name }}
+        asset_name: ${{ matrix.asset_name }}
+        asset_content_type: application/tar+gzip
