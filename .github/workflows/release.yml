@@ -1,4 +1,4 @@
-name: release
+name: Release
 
 on:
   push:
@@ -38,11 +38,6 @@ jobs:
         profile: minimal
         toolchain: stable
         override: true
-    - name: Install nightly toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: nightly
     - name: Initialize WASM build environment
       run: |
         rustup update stable
