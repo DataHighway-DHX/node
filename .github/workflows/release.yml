@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    # tags: 'v*'
+    tags: 'v*'
 
 jobs:
   create_release:
@@ -26,8 +26,8 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            artifact_name: pc
-            asset_name: pc-linux-x64.tar.gz
+            artifact_name: datahighway
+            asset_name: datahighway
     runs-on: ${{ matrix.os }}
     steps:
     - name: checkout the source code
@@ -35,15 +35,21 @@ jobs:
     - name: Install stable toolchain
       uses: actions-rs/toolchain@v1
       with:
-        profile: minimal
         toolchain: stable
-        override: true
     - name: Initialize WASM build environment
       run: |
-        rustup update stable
-        rustup toolchain install nightly-2020-02-17
-        rustup default nightly-2020-02-17
-        rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
+        curl https://getsubstrate.io -sSf | bash -s -- --fast \
+        . ~/.cargo/env \
+        wget -O - https://sh.rustup.rs | sh -s -- -y \
+        PATH=$PATH:/root/.cargo/bin \
+        rustup update stable \
+        rustup update nightly \
+        rustup toolchain install nightly-2020-02-17 \
+        rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17 \
+        rustup default nightly-2020-02-17 \
+        rustup override set nightly-2020-02-17 \
+        cargo version \
+        rustc --version \
         cargo build --release
     - name: compress
       uses: master-atul/tar-action@v1.0.2
