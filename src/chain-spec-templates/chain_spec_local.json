@@ -1,8 +1,8 @@
 {
-  "name": "DataHighway Testnet",
-  "id": "testnet_latest",
+  "name": "Local Testnet",
+  "id": "local",
   "bootNodes": [
-    "/ip4/testnet-harbour.datahighway.com/tcp/30333/p2p/QmVuryfE427VRqrqqXsGuWpwBk4g8mGXgYmnt3f1v6j78r"
+    "/ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ"
   ],
   "telemetryEndpoints": [
     [
@@ -10,7 +10,7 @@
       0
     ]
   ],
-  "protocolId": "dhx-test",
+  "protocolId": null,
   "properties": {
     "tokenDecimals": 18,
     "tokenSymbol": "DHX"
@@ -94,51 +94,51 @@
           ],
           [
             "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
-            30000000000000000000000
+            8750000000000000000000
           ],
           [
             "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty",
-            30000000000000000000000
+            8750000000000000000000
           ],
           [
             "5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y",
-            30000000000000000000000
+            8750000000000000000000
           ],
           [
             "5DAAnrj7VHTznn2AWBemMuyBwZWs6FNFjdyVXUeYum3PTXFy",
-            30000000000000000000000
+            8750000000000000000000
           ],
           [
             "5HGjWAeFDfFCWPsjFQdVV2Msvz2XtMktvgocEZcCj68kUMaw",
-            30000000000000000000000
+            8750000000000000000000
           ],
           [
             "5CiPPseXPECbkjWCa6MnjNokrgYjMqmKndv2rSnekmSK2DjL",
-            30000000000000000000000
+            8750000000000000000000
           ],
           [
             "5GNJqTPyNqANBkUVMN1LPPrxXnFouWXoe2wNSmmEoLctxiZY",
-            30000000000000000000000
+            8750000000000000000000
           ],
           [
             "5HpG9w8EBLe5XCrbczpwq5TSXvedjrBGCwqxK1iQ7qUsSWFc",
-            30000000000000000000000
+            8750000000000000000000
           ],
           [
             "5Ck5SLSHYac6WFt5UZRSsdJjwmpSZq85fd5TRNAdZQVzEAPT",
-            30000000000000000000000
+            8750000000000000000000
           ],
           [
             "5HKPmK9GYtE1PSLsS1qiYU9xQ9Si1NcEhdeCq9sw5bqu4ns8",
-            30000000000000000000000
+            8750000000000000000000
           ],
           [
             "5FCfAonRZgTFrTd9HREEyeJjDpT397KMzizE6T3DvebLFE7n",
-            30000000000000000000000
+            8750000000000000000000
           ],
           [
             "5CRmqmsiNFExV6VbdmPJViVxrWmkaXXvBrSX8oqBT8R9vmWk",
-            30000000000000000000000
+            8750000000000000000000
           ]
         ]
       },

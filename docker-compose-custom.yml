@@ -3,6 +3,8 @@ version: "3"
 services:
   node-1:
     image: dhxdocker/datahighway:latest
+    env_file:
+      - .env
     ports:
       - 30336:30333
       - 9947:9944
@@ -14,6 +16,8 @@ services:
       - ./docker-entrypoint-node-1.sh
   node-2:
     image: dhxdocker/datahighway:latest
+    env_file:
+      - .env
     ports:
       - 30337:30333
       - 9948:9944
@@ -23,3 +27,16 @@ services:
     restart: always
     entrypoint:
       - ./docker-entrypoint-node-2.sh
+  node-3:
+    image: dhxdocker/datahighway:latest
+    env_file:
+      - .env
+    ports:
+      - 30338:30333
+      - 9949:9944
+      - 9938:9933
+    volumes:
+      - ./scripts:/dhx/scripts
+    restart: always
+    entrypoint:
+      - ./docker-entrypoint-node-3.sh
