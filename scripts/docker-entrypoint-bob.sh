@@ -20,6 +20,6 @@ echo "Chain Version is ${CHAIN_VERSION}"
   --port 30334 \
   --ws-port 9945 \
   --rpc-port 9934 \
-  --telemetry-url ws://telemetry.polkadot.io:1024 \
+  --telemetry-url wss://telemetry.polkadot.io/submit/ \
   --execution=native \
   -lruntime=debug
