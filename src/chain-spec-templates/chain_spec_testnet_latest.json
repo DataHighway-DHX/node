@@ -2,7 +2,7 @@
   "name": "DataHighway Testnet",
   "id": "testnet_latest",
   "bootNodes": [
-    "/ip4/testnet-harbour.datahighway.com/tcp/30333/p2p/QmVuryfE427VRqrqqXsGuWpwBk4g8mGXgYmnt3f1v6j78r"
+    "/dns4/testnet-harbour.datahighway.com/tcp/30333/p2p/QmVuryfE427VRqrqqXsGuWpwBk4g8mGXgYmnt3f1v6j78r"
   ],
   "telemetryEndpoints": [
     [
