@@ -15,32 +15,20 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@master
 
-      - name: Install stable toolchain
+      - name: Add wasm toolchain
         uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
-          toolchain: stable
+          toolchain: nightly-2020-02-17
+          target: wasm32-unknown-unknown
           override: true
-          components: rustfmt, clippy
 
-      - name: Install nightly toolchain for rustfmt
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly
-          override: true
-          components: rustfmt, clippy
-
-      # nightly-2020-02-17-x86_64-unknown-linux-gnu
-      - name: Initialize WASM build environment
+      - name: Initialize environment and build
         run: |
           rustup update stable
           rustup toolchain install nightly-2020-02-17
           rustup default nightly-2020-02-17
           rustup target add wasm32-unknown-unknown --toolchain nightly-2020-02-17
-
-      - name: Build
-        run: cargo build --release
+          cargo build --release
         
       - name: Upload artifact
         uses: actions/upload-artifact@v1
