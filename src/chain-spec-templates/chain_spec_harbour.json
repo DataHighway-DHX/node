@@ -1,6 +1,9 @@
 {
   "name": "DataHighway Harbour testnet",
   "id": "harbour",
+  "bootNodes": [
+    "/dns4/testnet-harbour.datahighway.com/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ"
+  ],
   "telemetryEndpoints": [
     [
       "wss://telemetry.polkadot.io/submit/",
