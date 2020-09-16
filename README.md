@@ -1,4 +1,4 @@
-# Data Highway [![GitHub license](https://img.shields.io/github/license/paritytech/substrate)](LICENSE) <a href="https://github.com/DataHighway-DHX/node/actions?query=workflow%3ACI+branch%3Adevelop" target="_blank"><img src="https://github.com/DataHighway-DHX/node/workflows/CI/badge.svg?branch=develop"></a>
+# Data Highway [![GitHub license](https://img.shields.io/badge/license-GPL3%2FApache2-blue)](LICENSE) ![Test](https://github.com/DataHighway-DHX/node/workflows/Test/badge.svg?branch=master) ![Create release](https://github.com/DataHighway-DHX/node/workflows/Create%20release/badge.svg?branch=master)
 
 The Data Highway Substrate-based blockchain node.
 
