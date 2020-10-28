@@ -112,49 +112,6 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
     apis: RUNTIME_API_VERSIONS,
 };
 
-// FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-
-// /// Mining Speed Boost Token Types
-// #[derive(Debug, Clone, PartialEq)]
-// pub enum MiningSpeedBoostConfigurationTokenMiningTokenTypes {
-// 	MXC,
-// 	IOTA,
-// 	DOT
-// }
-
-// impl FromStr for MiningSpeedBoostConfigurationTokenMiningTokenTypes {
-// 	type Err = String;
-// 	fn from_str(mining_speed_boosts_configuration_token_mining_token_type: &str) -> Result<Self, Self::Err> {
-// 		match mining_speed_boosts_configuration_hardware_mining_hardware_type {
-// 			"MXC" => Ok(MiningSpeedBoostConfigurationTokenMiningTokenTypes::MXC),
-// 			"IOTA" => Ok(MiningSpeedBoostConfigurationTokenMiningTokenTypes::IOTA),
-// 			"DOT" => Ok(MiningSpeedBoostConfigurationTokenMiningTokenTypes::DOT),
-// 			_ => Err(format!("Invalid mining_speed_boosts_configuration_token_mining_token_type: {}",
-// mining_speed_boosts_configuration_token_mining_token_type)), 		}
-// 	}
-// }
-
-// /// Mining Speed Boost Hardware Types
-// #[derive(Debug, Clone, PartialEq)]
-// pub enum MiningSpeedBoostConfigurationHardwareMiningHardwareTypes {
-// 	EndDevice,
-// 	Gateway,
-// 	Supernode,
-// 	Collator
-// }
-
-// impl FromStr for MiningSpeedBoostConfigurationHardwareMiningHardwareTypes {
-// 	type Err = String;
-// 	fn from_str(mining_speed_boosts_configuration_hardware_mining_hardware_type: &str) -> Result<Self, Self::Err> {
-// 		match mining_speed_boosts_configuration_hardware_mining_hardware_type {
-// 			"EndDevice" => Ok(MiningSpeedBoostConfigurationHardwareMiningHardwareTypes::EndDevice),
-// 			"Gateway" => Ok(MiningSpeedBoostConfigurationHardwareMiningHardwareTypes::Gateway),
-// 			"Supernode" => Ok(MiningSpeedBoostConfigurationHardwareMiningHardwareTypes::Supernode),
-// 			"Collator" => Ok(MiningSpeedBoostConfigurationHardwareMiningHardwareTypes::Collator),
-// 			_ => Err(format!("Invalid mining_speed_boosts_configuration_hardware_mining_hardware_type: {}",
-// mining_speed_boosts_configuration_hardware_mining_hardware_type)), 		}
-// 	}
-// }
 
 /// The version infromation used to identify this runtime when compiled natively.
 #[cfg(feature = "std")]
@@ -214,6 +171,8 @@ impl frame_system::Trait for Runtime {
     type Origin = Origin;
     /// Version of the runtime.
     type Version = Version;
+    
+    type DbWeight = RocksDbWeight;
 }
 
 parameter_types! {
@@ -639,6 +598,7 @@ construct_runtime!(
         UncheckedExtrinsic = UncheckedExtrinsic
     {
         System: frame_system::{Module, Call, Config, Storage, Event<T>},
+        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
         Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
         Babe: pallet_babe::{Module, Call, Storage, Config, Inherent(Timestamp)},
         Grandpa: pallet_grandpa::{Module, Call, Storage, Config, Event},
@@ -646,7 +606,6 @@ construct_runtime!(
         Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
         TransactionPayment: pallet_transaction_payment::{Module, Storage},
         Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
-        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
         GeneralCouncil: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
         GeneralCouncilMembership: pallet_membership::<Instance1>::{Module, Call, Storage, Event<T>, Config<T>},
         PalletTreasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
