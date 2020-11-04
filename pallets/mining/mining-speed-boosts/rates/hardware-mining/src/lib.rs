@@ -13,6 +13,8 @@ use frame_support::{
     decl_storage,
     ensure,
     Parameter,
+    traits::Get,
+    dispatch
 };
 use frame_system::{
     self as system,
@@ -92,16 +94,16 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostRatesHardwareMining {
         /// Stores all the mining_speed_boosts_rates_hardware_minings, key is the mining_speed_boosts_rates_hardware_mining id / index
-        pub MiningSpeedBoostRatesHardwareMinings get(fn mining_speed_boosts_rates_hardware_mining): map hasher(blake2_256) T::MiningSpeedBoostRatesHardwareMiningIndex => Option<MiningSpeedBoostRatesHardwareMining>;
+        pub MiningSpeedBoostRatesHardwareMinings get(fn mining_speed_boosts_rates_hardware_mining): map hasher(opaque_blake2_256) T::MiningSpeedBoostRatesHardwareMiningIndex => Option<MiningSpeedBoostRatesHardwareMining>;
 
         /// Stores the total number of mining_speed_boosts_rates_hardware_minings. i.e. the next mining_speed_boosts_rates_hardware_mining index
         pub MiningSpeedBoostRatesHardwareMiningCount get(fn mining_speed_boosts_rates_hardware_mining_count): T::MiningSpeedBoostRatesHardwareMiningIndex;
 
         /// Stores mining_speed_boosts_rates_hardware_mining owner
-        pub MiningSpeedBoostRatesHardwareMiningOwners get(fn mining_speed_boosts_rates_hardware_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostRatesHardwareMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostRatesHardwareMiningOwners get(fn mining_speed_boosts_rates_hardware_mining_owner): map hasher(opaque_blake2_256) T::MiningSpeedBoostRatesHardwareMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_rates_hardware_mining_rates_config
-        pub MiningSpeedBoostRatesHardwareMiningRatesConfigs get(fn mining_speed_boosts_rates_hardware_mining_rates_configs): map hasher(blake2_256) T::MiningSpeedBoostRatesHardwareMiningIndex =>
+        pub MiningSpeedBoostRatesHardwareMiningRatesConfigs get(fn mining_speed_boosts_rates_hardware_mining_rates_configs): map hasher(opaque_blake2_256) T::MiningSpeedBoostRatesHardwareMiningIndex =>
             Option<MiningSpeedBoostRatesHardwareMiningRatesConfig<T::MiningSpeedBoostRatesHardwareMiningHardwareSecure,
             T::MiningSpeedBoostRatesHardwareMiningHardwareInsecure, T::MiningSpeedBoostRatesHardwareMiningMaxHardware>>;
     }
@@ -114,6 +116,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new mining mining_speed_boosts_rates_hardware_mining
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let mining_speed_boosts_rates_hardware_mining_id = Self::next_mining_speed_boosts_rates_hardware_mining_id()?;
@@ -129,6 +132,7 @@ decl_module! {
         }
 
         /// Transfer a mining_speed_boosts_rates_hardware_mining to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, mining_speed_boosts_rates_hardware_mining_id: T::MiningSpeedBoostRatesHardwareMiningIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -140,6 +144,7 @@ decl_module! {
         }
 
         /// Set mining_speed_boosts_rates_hardware_mining_rates_config
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_mining_speed_boosts_rates_hardware_mining_rates_config(
             origin,
             mining_speed_boosts_rates_hardware_mining_id: T::MiningSpeedBoostRatesHardwareMiningIndex,

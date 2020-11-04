@@ -1,0 +1,14 @@
+[package]
+name = "lockdrop"
+version = "0.1.0"
+authors = ["Ilya Beregovskiy"]
+edition = "2018"
+
+[dependencies]
+sp-std = { version = '2.0.0', default_features = false }
+
+[features]
+default = ['std']
+std = [
+    'sp-std/std',
+]

@@ -13,6 +13,8 @@ use frame_support::{
     decl_storage,
     ensure,
     Parameter,
+    traits::Get,
+    dispatch
 };
 use frame_system::{
     self as system,
@@ -84,28 +86,28 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingChargingPolicies {
         /// Stores all the roaming charging_policy, key is the roaming charging_policy id / index
-        pub RoamingChargingPolicies get(fn roaming_charging_policy): map hasher(blake2_256) T::RoamingChargingPolicyIndex => Option<RoamingChargingPolicy>;
+        pub RoamingChargingPolicies get(fn roaming_charging_policy): map hasher(opaque_blake2_256) T::RoamingChargingPolicyIndex => Option<RoamingChargingPolicy>;
 
         /// Stores the total number of roaming charging_policies. i.e. the next roaming charging_policy index
         pub RoamingChargingPoliciesCount get(fn roaming_charging_policies_count): T::RoamingChargingPolicyIndex;
 
         /// Get roaming charging_policy owner
-        pub RoamingChargingPolicyOwners get(fn roaming_charging_policy_owner): map hasher(blake2_256) T::RoamingChargingPolicyIndex => Option<T::AccountId>;
+        pub RoamingChargingPolicyOwners get(fn roaming_charging_policy_owner): map hasher(opaque_blake2_256) T::RoamingChargingPolicyIndex => Option<T::AccountId>;
 
         /// Get roaming charging_policy config
-        pub RoamingChargingPolicyConfigs get(fn roaming_charging_policy_configs): map hasher(blake2_256) T::RoamingChargingPolicyIndex => Option<RoamingChargingPolicyConfig<T::RoamingChargingPolicyNextChargingAt, T::RoamingChargingPolicyDelayAfterBillingInDays>>;
+        pub RoamingChargingPolicyConfigs get(fn roaming_charging_policy_configs): map hasher(opaque_blake2_256) T::RoamingChargingPolicyIndex => Option<RoamingChargingPolicyConfig<T::RoamingChargingPolicyNextChargingAt, T::RoamingChargingPolicyDelayAfterBillingInDays>>;
 
         /// Get roaming charging_policy network
-        pub RoamingChargingPolicyNetwork get(fn roaming_charging_policy_network): map hasher(blake2_256) T::RoamingChargingPolicyIndex => Option<T::RoamingNetworkIndex>;
+        pub RoamingChargingPolicyNetwork get(fn roaming_charging_policy_network): map hasher(opaque_blake2_256) T::RoamingChargingPolicyIndex => Option<T::RoamingNetworkIndex>;
 
         /// Get roaming network's charging policies
-        pub RoamingNetworkChargingPolicies get(fn roaming_network_charging_policies): map hasher(blake2_256) T::RoamingNetworkIndex => Option<Vec<T::RoamingChargingPolicyIndex>>;
+        pub RoamingNetworkChargingPolicies get(fn roaming_network_charging_policies): map hasher(opaque_blake2_256) T::RoamingNetworkIndex => Option<Vec<T::RoamingChargingPolicyIndex>>;
 
         /// Get roaming charging_policy operator
-        pub RoamingChargingPolicyOperator get(fn roaming_charging_policy_operator): map hasher(blake2_256) T::RoamingChargingPolicyIndex => Option<T::RoamingOperatorIndex>;
+        pub RoamingChargingPolicyOperator get(fn roaming_charging_policy_operator): map hasher(opaque_blake2_256) T::RoamingChargingPolicyIndex => Option<T::RoamingOperatorIndex>;
 
         /// Get roaming operator's charging policies
-        pub RoamingOperatorChargingPolicies get(fn roaming_operator_charging_policies): map hasher(blake2_256) T::RoamingOperatorIndex => Option<Vec<T::RoamingChargingPolicyIndex>>
+        pub RoamingOperatorChargingPolicies get(fn roaming_operator_charging_policies): map hasher(opaque_blake2_256) T::RoamingOperatorIndex => Option<Vec<T::RoamingChargingPolicyIndex>>
     }
 }
 
@@ -116,6 +118,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new roaming charging_policy
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let roaming_charging_policy_id = Self::next_roaming_charging_policy_id()?;
@@ -131,6 +134,7 @@ decl_module! {
         }
 
         /// Transfer a roaming charging_policy to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, roaming_charging_policy_id: T::RoamingChargingPolicyIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -142,6 +146,7 @@ decl_module! {
         }
 
         /// Set roaming charging_policy config
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_config(
             origin,
             roaming_charging_policy_id: T::RoamingChargingPolicyIndex,
@@ -218,6 +223,7 @@ decl_module! {
             ));
         }
 
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_charging_policy_to_network(
             origin,
             roaming_charging_policy_id: T::RoamingChargingPolicyIndex,
@@ -253,6 +259,7 @@ decl_module! {
             Self::deposit_event(RawEvent::AssignedChargingPolicyToNetwork(sender, roaming_charging_policy_id, roaming_network_id));
         }
 
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_charging_policy_to_operator(
             origin,
             roaming_charging_policy_id: T::RoamingChargingPolicyIndex,

@@ -13,6 +13,8 @@ use frame_support::{
     decl_storage,
     ensure,
     Parameter,
+    traits::Get,
+    dispatch
 };
 use frame_system::{
     self as system,
@@ -85,22 +87,22 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingDeviceProfiles {
         /// Stores all the roaming device_profiles, key is the roaming device_profile id / index
-        pub RoamingDeviceProfiles get(fn roaming_device_profile): map hasher(blake2_256) T::RoamingDeviceProfileIndex => Option<RoamingDeviceProfile>;
+        pub RoamingDeviceProfiles get(fn roaming_device_profile): map hasher(opaque_blake2_256) T::RoamingDeviceProfileIndex => Option<RoamingDeviceProfile>;
 
         /// Stores the total number of roaming device_profiles. i.e. the next roaming device_profile index
         pub RoamingDeviceProfilesCount get(fn roaming_device_profiles_count): T::RoamingDeviceProfileIndex;
 
         /// Get roaming device_profile owner
-        pub RoamingDeviceProfileOwners get(fn roaming_device_profile_owner): map hasher(blake2_256) T::RoamingDeviceProfileIndex => Option<T::AccountId>;
+        pub RoamingDeviceProfileOwners get(fn roaming_device_profile_owner): map hasher(opaque_blake2_256) T::RoamingDeviceProfileIndex => Option<T::AccountId>;
 
         /// Get roaming device_profile config
-        pub RoamingDeviceProfileConfigs get(fn roaming_device_profile_configs): map hasher(blake2_256) T::RoamingDeviceProfileIndex => Option<RoamingDeviceProfileConfig<T::RoamingDeviceProfileDevAddr, T::RoamingDeviceProfileDevEUI, T::RoamingDeviceProfileJoinEUI, T::RoamingDeviceProfileVendorID>>;
+        pub RoamingDeviceProfileConfigs get(fn roaming_device_profile_configs): map hasher(opaque_blake2_256) T::RoamingDeviceProfileIndex => Option<RoamingDeviceProfileConfig<T::RoamingDeviceProfileDevAddr, T::RoamingDeviceProfileDevEUI, T::RoamingDeviceProfileJoinEUI, T::RoamingDeviceProfileVendorID>>;
 
         /// Get roaming device_profile device
-        pub RoamingDeviceProfileDevice get(fn roaming_device_profile_device): map hasher(blake2_256) T::RoamingDeviceProfileIndex => Option<T::RoamingDeviceIndex>;
+        pub RoamingDeviceProfileDevice get(fn roaming_device_profile_device): map hasher(opaque_blake2_256) T::RoamingDeviceProfileIndex => Option<T::RoamingDeviceIndex>;
 
         /// Get roaming device device_profiles
-        pub RoamingDeviceDeviceProfiles get(fn roaming_device_device_profiles): map hasher(blake2_256) T::RoamingDeviceIndex => Option<Vec<T::RoamingDeviceProfileIndex>>
+        pub RoamingDeviceDeviceProfiles get(fn roaming_device_device_profiles): map hasher(opaque_blake2_256) T::RoamingDeviceIndex => Option<Vec<T::RoamingDeviceProfileIndex>>
     }
 }
 
@@ -111,6 +113,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new roaming device_profile
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let roaming_device_profile_id = Self::next_roaming_device_profile_id()?;
@@ -126,6 +129,7 @@ decl_module! {
         }
 
         /// Transfer a roaming device_profile to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, roaming_device_profile_id: T::RoamingDeviceProfileIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -137,6 +141,7 @@ decl_module! {
         }
 
         /// Set roaming device_profile config
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_config(
             origin,
             roaming_device_profile_id: T::RoamingDeviceProfileIndex,
@@ -233,6 +238,7 @@ decl_module! {
             ));
         }
 
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_device_profile_to_device(
             origin,
             roaming_device_profile_id: T::RoamingDeviceProfileIndex,

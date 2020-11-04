@@ -17,6 +17,10 @@ use frame_support::{
     decl_storage,
     ensure,
     Parameter,
+    traits::Get,
+    dispatch,
+    StorageValue, 
+    StorageMap
 };
 use frame_system::{
     self as system,
@@ -76,23 +80,24 @@ decl_event!(
 // This module's storage items.
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingNetworks {
+
         /// Stores all the roaming networks, key is the roaming network id / index
-        pub RoamingNetworks get(fn roaming_network): map hasher(blake2_256) T::RoamingNetworkIndex => Option<RoamingNetwork>;
+        pub RoamingNetworks get(fn roaming_network): map hasher(opaque_blake2_256) T::RoamingNetworkIndex => Option<RoamingNetwork>;
 
         /// Stores the total number of roaming networks. i.e. the next roaming network index
         pub RoamingNetworksCount get(fn roaming_networks_count): T::RoamingNetworkIndex;
 
         /// Get roaming network owner
-        pub RoamingNetworkOwners get(fn roaming_network_owner): map hasher(blake2_256) T::RoamingNetworkIndex => Option<T::AccountId>;
+        pub RoamingNetworkOwners get(fn roaming_network_owner): map hasher(opaque_blake2_256) T::RoamingNetworkIndex => Option<T::AccountId>;
 
         /// Get roaming network price. None means not for sale.
-        pub RoamingNetworkPrices get(fn roaming_network_price): map hasher(blake2_256) T::RoamingNetworkIndex => Option<BalanceOf<T>>;
+        pub RoamingNetworkPrices get(fn roaming_network_price): map hasher(opaque_blake2_256) T::RoamingNetworkIndex => Option<BalanceOf<T>>;
 
         /// Get roaming operator belonging to a network
-        pub RoamingNetworkOperator get(fn roaming_network_operator): map hasher(blake2_256) T::RoamingNetworkIndex => Option<T::RoamingOperatorIndex>;
+        pub RoamingNetworkOperator get(fn roaming_network_operator): map hasher(opaque_blake2_256) T::RoamingNetworkIndex => Option<T::RoamingOperatorIndex>;
 
         /// Get roaming operator networks
-        pub RoamingOperatorNetworks get(fn roaming_operator_networks): map hasher(blake2_256) T::RoamingOperatorIndex => Option<Vec<T::RoamingNetworkIndex>>
+        pub RoamingOperatorNetworks get(fn roaming_operator_networks): map hasher(opaque_blake2_256) T::RoamingOperatorIndex => Option<Vec<T::RoamingNetworkIndex>>
     }
 }
 
@@ -103,6 +108,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new roaming network
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let roaming_network_id = Self::next_roaming_network_id()?;
@@ -118,6 +124,7 @@ decl_module! {
         }
 
         /// Transfer a roaming network to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, roaming_network_id: T::RoamingNetworkIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -130,6 +137,7 @@ decl_module! {
 
         /// Set a price for a roaming network for sale
         /// None to delist the roaming network
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_price(origin, roaming_network_id: T::RoamingNetworkIndex, price: Option<BalanceOf<T>>) {
             let sender = ensure_signed(origin)?;
 
@@ -145,6 +153,7 @@ decl_module! {
         }
 
         /// Buy a roaming network with max price willing to pay
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn buy(origin, roaming_network_id: T::RoamingNetworkIndex, price: BalanceOf<T>) {
             let sender = ensure_signed(origin)?;
 
@@ -167,6 +176,7 @@ decl_module! {
             Self::deposit_event(RawEvent::Sold(owner, sender, roaming_network_id, roaming_network_price));
         }
 
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_network_to_operator(
           origin,
           roaming_network_id: T::RoamingNetworkIndex,

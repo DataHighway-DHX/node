@@ -16,6 +16,8 @@ use frame_support::{
     decl_storage,
     ensure,
     Parameter,
+    traits::Get,
+    dispatch
 };
 use frame_system::{
     self as system,
@@ -90,22 +92,22 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingAccountingPolicies {
         /// Stores all the roaming accounting_policies, key is the roaming accounting_policy id / index
-        pub RoamingAccountingPolicies get(fn roaming_accounting_policy): map hasher(blake2_256) T::RoamingAccountingPolicyIndex => Option<RoamingAccountingPolicy>;
+        pub RoamingAccountingPolicies get(fn roaming_accounting_policy): map hasher(opaque_blake2_256) T::RoamingAccountingPolicyIndex => Option<RoamingAccountingPolicy>;
 
         /// Stores the total number of roaming accounting_policies. i.e. the next roaming accounting_policy index
         pub RoamingAccountingPoliciesCount get(fn roaming_accounting_policies_count): T::RoamingAccountingPolicyIndex;
 
         /// Get roaming accounting_policy owner
-        pub RoamingAccountingPolicyOwners get(fn roaming_accounting_policy_owner): map hasher(blake2_256) T::RoamingAccountingPolicyIndex => Option<T::AccountId>;
+        pub RoamingAccountingPolicyOwners get(fn roaming_accounting_policy_owner): map hasher(opaque_blake2_256) T::RoamingAccountingPolicyIndex => Option<T::AccountId>;
 
         /// Get roaming accounting_policy config
-        pub RoamingAccountingPolicyConfigs get(fn roaming_accounting_policy_configs): map hasher(blake2_256) T::RoamingAccountingPolicyIndex => Option<RoamingAccountingPolicyConfig<T::RoamingAccountingPolicyType, BalanceOf<T>, T::RoamingAccountingPolicyUplinkFeeFactor, T::RoamingAccountingPolicyDownlinkFeeFactor>>;
+        pub RoamingAccountingPolicyConfigs get(fn roaming_accounting_policy_configs): map hasher(opaque_blake2_256) T::RoamingAccountingPolicyIndex => Option<RoamingAccountingPolicyConfig<T::RoamingAccountingPolicyType, BalanceOf<T>, T::RoamingAccountingPolicyUplinkFeeFactor, T::RoamingAccountingPolicyDownlinkFeeFactor>>;
 
         /// Get roaming accounting_policy network
-        pub RoamingAccountingPolicyNetwork get(fn roaming_accounting_policy_network): map hasher(blake2_256) T::RoamingAccountingPolicyIndex => Option<T::RoamingNetworkIndex>;
+        pub RoamingAccountingPolicyNetwork get(fn roaming_accounting_policy_network): map hasher(opaque_blake2_256) T::RoamingAccountingPolicyIndex => Option<T::RoamingNetworkIndex>;
 
         /// Get roaming network's accounting policies
-        pub RoamingNetworkAccountingPolicies get(fn roaming_network_accounting_policies): map hasher(blake2_256) T::RoamingNetworkIndex => Option<Vec<T::RoamingAccountingPolicyIndex>>
+        pub RoamingNetworkAccountingPolicies get(fn roaming_network_accounting_policies): map hasher(opaque_blake2_256) T::RoamingNetworkIndex => Option<Vec<T::RoamingAccountingPolicyIndex>>
     }
 }
 
@@ -116,6 +118,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new roaming accounting_policy
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let roaming_accounting_policy_id = Self::next_roaming_accounting_policy_id()?;
@@ -131,6 +134,7 @@ decl_module! {
         }
 
         /// Transfer a roaming accounting_policy to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, roaming_accounting_policy_id: T::RoamingAccountingPolicyIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -142,6 +146,7 @@ decl_module! {
         }
 
         /// Set roaming account_policy config
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_config(
             origin,
             roaming_accounting_policy_id: T::RoamingAccountingPolicyIndex,
@@ -238,6 +243,7 @@ decl_module! {
             ));
         }
 
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_accounting_policy_to_network(
             origin,
             roaming_accounting_policy_id: T::RoamingAccountingPolicyIndex,

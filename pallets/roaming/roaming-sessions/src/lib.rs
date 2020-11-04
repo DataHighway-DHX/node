@@ -13,6 +13,8 @@ use frame_support::{
     decl_storage,
     ensure,
     Parameter,
+    traits::Get,
+    dispatch
 };
 use frame_system::{
     self as system,
@@ -96,25 +98,25 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingSessions {
         /// Stores all the roaming sessions, key is the roaming session id / index
-        pub RoamingSessions get(fn roaming_session): map hasher(blake2_256) T::RoamingSessionIndex => Option<RoamingSession>;
+        pub RoamingSessions get(fn roaming_session): map hasher(opaque_blake2_256) T::RoamingSessionIndex => Option<RoamingSession>;
 
         /// Stores the total number of roaming sessions. i.e. the next roaming session index
         pub RoamingSessionsCount get(fn roaming_sessions_count): T::RoamingSessionIndex;
 
         /// Get roaming session owner
-        pub RoamingSessionOwners get(fn roaming_session_owner): map hasher(blake2_256) T::RoamingSessionIndex => Option<T::AccountId>;
+        pub RoamingSessionOwners get(fn roaming_session_owner): map hasher(opaque_blake2_256) T::RoamingSessionIndex => Option<T::AccountId>;
 
         /// Get roaming session join requests
-        pub RoamingSessionJoinRequests get(fn roaming_session_join_requests): map hasher(blake2_256) T::RoamingSessionIndex => Option<RoamingSessionJoinRequest<T::RoamingNetworkServerIndex, T::RoamingSessionJoinRequestRequestedAt>>;
+        pub RoamingSessionJoinRequests get(fn roaming_session_join_requests): map hasher(opaque_blake2_256) T::RoamingSessionIndex => Option<RoamingSessionJoinRequest<T::RoamingNetworkServerIndex, T::RoamingSessionJoinRequestRequestedAt>>;
 
         /// Get roaming session join accepts
-        pub RoamingSessionJoinAccepts get(fn roaming_session_join_accepts): map hasher(blake2_256) T::RoamingSessionIndex => Option<RoamingSessionJoinAccept<T::RoamingSessionJoinRequestAcceptExpiry, T::RoamingSessionJoinRequestAcceptAcceptedAt>>;
+        pub RoamingSessionJoinAccepts get(fn roaming_session_join_accepts): map hasher(opaque_blake2_256) T::RoamingSessionIndex => Option<RoamingSessionJoinAccept<T::RoamingSessionJoinRequestAcceptExpiry, T::RoamingSessionJoinRequestAcceptAcceptedAt>>;
 
         /// Get roaming session device
-        pub RoamingSessionDevices get(fn roaming_session_device): map hasher(blake2_256) T::RoamingSessionIndex => Option<T::RoamingDeviceIndex>;
+        pub RoamingSessionDevices get(fn roaming_session_device): map hasher(opaque_blake2_256) T::RoamingSessionIndex => Option<T::RoamingDeviceIndex>;
 
         /// Get roaming device sessions
-        pub RoamingDeviceSessions get(fn roaming_device_sessions): map hasher(blake2_256) T::RoamingDeviceIndex => Option<Vec<T::RoamingSessionIndex>>
+        pub RoamingDeviceSessions get(fn roaming_device_sessions): map hasher(opaque_blake2_256) T::RoamingDeviceIndex => Option<Vec<T::RoamingSessionIndex>>
     }
 }
 
@@ -125,6 +127,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new roaming session
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let roaming_session_id = Self::next_roaming_session_id()?;
@@ -140,6 +143,7 @@ decl_module! {
         }
 
         /// Transfer a roaming session to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, roaming_session_id: T::RoamingSessionIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -151,6 +155,7 @@ decl_module! {
         }
 
         /// Set roaming session join request
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_join_request(
             origin,
             roaming_session_id: T::RoamingSessionIndex,
@@ -234,6 +239,7 @@ decl_module! {
         }
 
         /// Set roaming session join accept
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_join_accept(
             origin,
             roaming_session_id: T::RoamingSessionIndex,
@@ -326,6 +332,7 @@ decl_module! {
             Ok(())
         }
 
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_session_to_device(
             origin,
             roaming_session_id: T::RoamingSessionIndex,

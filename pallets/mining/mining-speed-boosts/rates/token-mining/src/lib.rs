@@ -13,6 +13,8 @@ use frame_support::{
     decl_storage,
     ensure,
     Parameter,
+    traits::Get,
+    dispatch
 };
 use frame_system::{
     self as system,
@@ -94,16 +96,16 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostRatesTokenMining {
         /// Stores all the mining_speed_boosts_rates_token_minings, key is the mining_speed_boosts_rates_token_mining id / index
-        pub MiningSpeedBoostRatesTokenMinings get(fn mining_speed_boosts_rates_token_mining): map hasher(blake2_256) T::MiningSpeedBoostRatesTokenMiningIndex => Option<MiningSpeedBoostRatesTokenMining>;
+        pub MiningSpeedBoostRatesTokenMinings get(fn mining_speed_boosts_rates_token_mining): map hasher(opaque_blake2_256) T::MiningSpeedBoostRatesTokenMiningIndex => Option<MiningSpeedBoostRatesTokenMining>;
 
         /// Stores the total number of mining_speed_boosts_rates_token_minings. i.e. the next mining_speed_boosts_rates_token_mining index
         pub MiningSpeedBoostRatesTokenMiningCount get(fn mining_speed_boosts_rates_token_mining_count): T::MiningSpeedBoostRatesTokenMiningIndex;
 
         /// Stores mining_speed_boosts_rates_token_mining owner
-        pub MiningSpeedBoostRatesTokenMiningOwners get(fn mining_speed_boosts_rates_token_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostRatesTokenMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostRatesTokenMiningOwners get(fn mining_speed_boosts_rates_token_mining_owner): map hasher(opaque_blake2_256) T::MiningSpeedBoostRatesTokenMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_rates_token_mining_rates_config
-        pub MiningSpeedBoostRatesTokenMiningRatesConfigs get(fn mining_speed_boosts_rates_token_mining_rates_configs): map hasher(blake2_256) T::MiningSpeedBoostRatesTokenMiningIndex =>
+        pub MiningSpeedBoostRatesTokenMiningRatesConfigs get(fn mining_speed_boosts_rates_token_mining_rates_configs): map hasher(opaque_blake2_256) T::MiningSpeedBoostRatesTokenMiningIndex =>
             Option<MiningSpeedBoostRatesTokenMiningRatesConfig<T::MiningSpeedBoostRatesTokenMiningTokenMXC, T::MiningSpeedBoostRatesTokenMiningTokenIOTA,
             T::MiningSpeedBoostRatesTokenMiningTokenDOT, T::MiningSpeedBoostRatesTokenMiningMaxToken, T::MiningSpeedBoostRatesTokenMiningMaxLoyalty>>;
     }
@@ -116,6 +118,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new mining mining_speed_boosts_rates_token_mining
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let mining_speed_boosts_rates_token_mining_id = Self::next_mining_speed_boosts_rates_token_mining_id()?;
@@ -131,6 +134,7 @@ decl_module! {
         }
 
         /// Transfer a mining_speed_boosts_rates_token_mining to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, mining_speed_boosts_rates_token_mining_id: T::MiningSpeedBoostRatesTokenMiningIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -142,6 +146,7 @@ decl_module! {
         }
 
         /// Set mining_speed_boosts_rates_token_mining_rates_config
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_mining_speed_boosts_rates_token_mining_rates_config(
             origin,
             mining_speed_boosts_rates_token_mining_id: T::MiningSpeedBoostRatesTokenMiningIndex,

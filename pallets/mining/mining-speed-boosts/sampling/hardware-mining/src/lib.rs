@@ -13,6 +13,8 @@ use frame_support::{
     decl_storage,
     ensure,
     Parameter,
+    traits::Get,
+    dispatch
 };
 use frame_system::{
     self as system,
@@ -96,26 +98,26 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostSamplingHardwareMining {
         /// Stores all the mining_speed_boosts_samplings_hardware_minings, key is the mining_speed_boosts_samplings_hardware_mining id / index
-        pub MiningSpeedBoostSamplingHardwareMinings get(fn mining_speed_boosts_samplings_hardware_mining): map hasher(blake2_256) T::MiningSpeedBoostSamplingHardwareMiningIndex => Option<MiningSpeedBoostSamplingHardwareMining>;
+        pub MiningSpeedBoostSamplingHardwareMinings get(fn mining_speed_boosts_samplings_hardware_mining): map hasher(opaque_blake2_256) T::MiningSpeedBoostSamplingHardwareMiningIndex => Option<MiningSpeedBoostSamplingHardwareMining>;
 
         /// Stores the total number of mining_speed_boosts_samplings_hardware_minings. i.e. the next mining_speed_boosts_samplings_hardware_mining index
         pub MiningSpeedBoostSamplingHardwareMiningCount get(fn mining_speed_boosts_samplings_hardware_mining_count): T::MiningSpeedBoostSamplingHardwareMiningIndex;
 
         /// Stores mining_speed_boosts_samplings_hardware_mining owner
-        pub MiningSpeedBoostSamplingHardwareMiningOwners get(fn mining_speed_boosts_samplings_hardware_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostSamplingHardwareMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostSamplingHardwareMiningOwners get(fn mining_speed_boosts_samplings_hardware_mining_owner): map hasher(opaque_blake2_256) T::MiningSpeedBoostSamplingHardwareMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_samplings_hardware_mining_samplings_config
-        pub MiningSpeedBoostSamplingHardwareMiningSamplingConfigs get(fn mining_speed_boosts_samplings_hardware_mining_samplings_configs): map hasher(blake2_256) (T::MiningSpeedBoostConfigurationHardwareMiningIndex, T::MiningSpeedBoostSamplingHardwareMiningIndex) =>
+        pub MiningSpeedBoostSamplingHardwareMiningSamplingConfigs get(fn mining_speed_boosts_samplings_hardware_mining_samplings_configs): map hasher(opaque_blake2_256) (T::MiningSpeedBoostConfigurationHardwareMiningIndex, T::MiningSpeedBoostSamplingHardwareMiningIndex) =>
             Option<MiningSpeedBoostSamplingHardwareMiningSamplingConfig<
                 T::MiningSpeedBoostSamplingHardwareMiningSampleDate,
                 T::MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline
             >>;
 
         /// Get mining_speed_boosts_configuration_hardware_mining_id belonging to a mining_speed_boosts_samplings_hardware_mining_id
-        pub HardwareMiningSamplingConfiguration get(fn hardware_mining_sampling_configuration): map hasher(blake2_256) T::MiningSpeedBoostSamplingHardwareMiningIndex => Option<T::MiningSpeedBoostConfigurationHardwareMiningIndex>;
+        pub HardwareMiningSamplingConfiguration get(fn hardware_mining_sampling_configuration): map hasher(opaque_blake2_256) T::MiningSpeedBoostSamplingHardwareMiningIndex => Option<T::MiningSpeedBoostConfigurationHardwareMiningIndex>;
 
         /// Get mining_speed_boosts_samplings_hardware_mining_id's belonging to a mining_speed_boosts_configuration_hardware_mining_id
-        pub HardwareMiningConfigurationSamplings get(fn hardware_mining_configuration_samplings): map hasher(blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<Vec<T::MiningSpeedBoostSamplingHardwareMiningIndex>>
+        pub HardwareMiningConfigurationSamplings get(fn hardware_mining_configuration_samplings): map hasher(opaque_blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<Vec<T::MiningSpeedBoostSamplingHardwareMiningIndex>>
     }
 }
 
@@ -126,6 +128,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new mining mining_speed_boosts_samplings_hardware_mining
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let mining_speed_boosts_samplings_hardware_mining_id = Self::next_mining_speed_boosts_samplings_hardware_mining_id()?;
@@ -141,6 +144,7 @@ decl_module! {
         }
 
         /// Transfer a mining_speed_boosts_samplings_hardware_mining to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, mining_speed_boosts_samplings_hardware_mining_id: T::MiningSpeedBoostSamplingHardwareMiningIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -152,6 +156,7 @@ decl_module! {
         }
 
         /// Set mining_speed_boosts_samplings_hardware_mining_samplings_config
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_mining_speed_boosts_samplings_hardware_mining_samplings_config(
             origin,
             mining_speed_boosts_configuration_hardware_mining_id: T::MiningSpeedBoostConfigurationHardwareMiningIndex,
@@ -228,6 +233,7 @@ decl_module! {
             ));
         }
 
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_sampling_to_configuration(
           origin,
           mining_speed_boosts_samplings_hardware_mining_id: T::MiningSpeedBoostSamplingHardwareMiningIndex,

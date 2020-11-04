@@ -13,6 +13,8 @@ use frame_support::{
     decl_storage,
     ensure,
     Parameter,
+    traits::Get,
+    dispatch
 };
 use frame_system::{
     self as system,
@@ -122,16 +124,16 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostConfigurationHardwareMining {
         /// Stores all the mining_speed_boosts_configuration_hardware_minings, key is the mining_speed_boosts_configuration_hardware_mining id / index
-        pub MiningSpeedBoostConfigurationHardwareMinings get(fn mining_speed_boosts_configuration_hardware_mining): map hasher(blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<MiningSpeedBoostConfigurationHardwareMining>;
+        pub MiningSpeedBoostConfigurationHardwareMinings get(fn mining_speed_boosts_configuration_hardware_mining): map hasher(opaque_blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<MiningSpeedBoostConfigurationHardwareMining>;
 
         /// Stores the total number of mining_speed_boosts_configuration_hardware_minings. i.e. the next mining_speed_boosts_configuration_hardware_mining index
         pub MiningSpeedBoostConfigurationHardwareMiningCount get(fn mining_speed_boosts_configuration_hardware_mining_count): T::MiningSpeedBoostConfigurationHardwareMiningIndex;
 
         /// Stores mining_speed_boosts_configuration_hardware_mining owner
-        pub MiningSpeedBoostConfigurationHardwareMiningOwners get(fn mining_speed_boosts_configuration_hardware_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostConfigurationHardwareMiningOwners get(fn mining_speed_boosts_configuration_hardware_mining_owner): map hasher(opaque_blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_configuration_hardware_mining_hardware_config
-        pub MiningSpeedBoostConfigurationHardwareMiningHardwareConfigs get(fn mining_speed_boosts_configuration_hardware_mining_hardware_configs): map hasher(blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex =>
+        pub MiningSpeedBoostConfigurationHardwareMiningHardwareConfigs get(fn mining_speed_boosts_configuration_hardware_mining_hardware_configs): map hasher(opaque_blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex =>
             Option<MiningSpeedBoostConfigurationHardwareMiningHardwareConfig<T::MiningSpeedBoostConfigurationHardwareMiningHardwareSecure, T::MiningSpeedBoostConfigurationHardwareMiningHardwareType,
                 T::MiningSpeedBoostConfigurationHardwareMiningHardwareID, T::MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI, T::MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate,
                 T::MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate>>;
@@ -145,6 +147,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new mining mining_speed_boosts_configuration_hardware_mining
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let mining_speed_boosts_configuration_hardware_mining_id = Self::next_mining_speed_boosts_configuration_hardware_mining_id()?;
@@ -160,6 +163,7 @@ decl_module! {
         }
 
         /// Transfer a mining_speed_boosts_configuration_hardware_mining to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, mining_speed_boosts_configuration_hardware_mining_id: T::MiningSpeedBoostConfigurationHardwareMiningIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -171,6 +175,7 @@ decl_module! {
         }
 
         /// Set mining_speed_boosts_configuration_hardware_mining_hardware_config
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_mining_speed_boosts_configuration_hardware_mining_hardware_config(
             origin,
             mining_speed_boosts_configuration_hardware_mining_id: T::MiningSpeedBoostConfigurationHardwareMiningIndex,
