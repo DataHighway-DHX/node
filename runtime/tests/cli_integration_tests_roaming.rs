@@ -23,6 +23,7 @@ mod tests {
         impl_outer_origin,
         parameter_types,
         weights::Weight,
+        weights::IdentityFee,
     };
     use frame_system::{self as system,};
     use sp_core::H256;
@@ -31,7 +32,6 @@ mod tests {
         traits::{
             BlakeTwo256,
             IdentityLookup,
-            OnFinalize,
             Zero,
         },
         DispatchResult,
@@ -138,11 +138,17 @@ mod tests {
         type Lookup = IdentityLookup<Self::AccountId>;
         type MaximumBlockLength = MaximumBlockLength;
         type MaximumBlockWeight = MaximumBlockWeight;
-        type ModuleToIndex = ();
         type OnKilledAccount = ();
         type OnNewAccount = ();
         type Origin = Origin;
         type Version = ();
+        type BaseCallFilter = ();
+        type BlockExecutionWeight = ();
+        type DbWeight = ();
+        type ExtrinsicBaseWeight = ();
+        type MaximumExtrinsicWeight = MaximumBlockWeight;
+        type PalletInfo = ();
+        type SystemWeightInfo = ();
     }
     parameter_types! {
         pub const ExistentialDeposit: u64 = 1;
@@ -153,14 +159,15 @@ mod tests {
         type DustRemoval = ();
         type Event = ();
         type ExistentialDeposit = ExistentialDeposit;
+        type WeightInfo = ();
+        type MaxLocks = ();
     }
     impl pallet_transaction_payment::Trait for Test {
         type Currency = Balances;
         type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
-        type TransactionBaseFee = ();
         type TransactionByteFee = ();
-        type WeightToFee = ();
+        type WeightToFee = IdentityFee<u64>;
     }
     impl RoamingOperatorTrait for Test {
         type Currency = Balances;
@@ -259,7 +266,9 @@ mod tests {
         }
         .assimilate_storage(&mut t)
         .unwrap();
-        sp_io::TestExternalities::new(t)
+        let mut ext = sp_io::TestExternalities::new(t);
+        ext.execute_with(|| System::set_block_number(1));
+        ext
     }
 
     // Create Users on Data Highway
