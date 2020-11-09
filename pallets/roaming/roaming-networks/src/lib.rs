@@ -15,12 +15,12 @@ use frame_support::{
     decl_event,
     decl_module,
     decl_storage,
-    ensure,
-    Parameter,
-    traits::Get,
     dispatch,
-    StorageValue, 
-    StorageMap
+    ensure,
+    traits::Get,
+    Parameter,
+    StorageMap,
+    StorageValue,
 };
 use frame_system::{
     self as system,

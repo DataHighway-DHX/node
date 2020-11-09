@@ -15,10 +15,10 @@ use frame_support::{
     decl_event,
     decl_module,
     decl_storage,
+    dispatch,
     ensure,
-    Parameter,
     traits::Get,
-    dispatch
+    Parameter,
 };
 use frame_system::{
     self as system,
@@ -181,7 +181,7 @@ decl_module! {
 
             Self::deposit_event(RawEvent::Sold(owner, sender, roaming_network_server_id, roaming_network_server_price));
         }
-        
+
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_network_server_to_network(
             origin,

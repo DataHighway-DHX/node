@@ -1,9 +1,9 @@
-
 use datahighway_runtime::{
     opaque::{
         Block,
         SessionKeys,
     },
+    wasm_binary_unwrap,
     AccountId,
     BabeConfig,
     BalancesConfig,
@@ -17,7 +17,6 @@ use datahighway_runtime::{
     StakingConfig,
     SudoConfig,
     SystemConfig,
-    wasm_binary_unwrap,
 };
 use hex_literal::hex;
 use sc_chain_spec::ChainSpecExtension;
@@ -31,6 +30,7 @@ use serde_json::map::Map;
 use sp_consensus_babe::AuthorityId as BabeId;
 use sp_finality_grandpa::AuthorityId as GrandpaId;
 
+use sc_service::ChainType;
 use sp_core::{
     crypto::UncheckedFrom,
     sr25519,
@@ -41,7 +41,6 @@ use sp_runtime::traits::{
     IdentifyAccount,
     Verify,
 };
-use sc_service::ChainType;
 pub use sp_runtime::{
     Perbill,
     Permill,
@@ -175,8 +174,10 @@ impl Alternative {
                         // FIXME - should this be `dns`?
                         "/ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".parse().unwrap(),
                     ],
-                    Some(TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])
-                        .expect("Local telemetry url is valid; qed")),
+                    Some(
+                        TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])
+                            .expect("Local telemetry url is valid; qed"),
+                    ),
                     None,
                     Some(properties),
                     Default::default(),
@@ -231,11 +232,14 @@ impl Alternative {
                         // Alice
                         "/dns4/testnet-harbour.datahighway.com/tcp/30333/p2p/\
                          QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ"
-                            .parse().unwrap(),
+                            .parse()
+                            .unwrap(),
                     ],
                     // telemetry endpoints
-                    Some(TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])
-                        .expect("Testnet url is valid; qed")),
+                    Some(
+                        TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])
+                            .expect("Testnet url is valid; qed"),
+                    ),
                     // protocol id
                     Some("dhx-test"),
                     // properties
@@ -397,9 +401,7 @@ pub fn load_spec(id: &str) -> Result<Box<dyn sc_service::ChainSpec>, String> {
 
     let spec = Box::new(match option {
         Some(v) => v,
-        None => ChainSpec::from_json_file(
-            std::path::PathBuf::from(id),
-        )?
+        None => ChainSpec::from_json_file(std::path::PathBuf::from(id))?,
     }) as Box<sc_service::ChainSpec>;
 
     return Ok(spec);

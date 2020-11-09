@@ -13,10 +13,10 @@ use frame_support::{
     decl_event,
     decl_module,
     decl_storage,
+    dispatch,
     ensure,
-    Parameter,
     traits::Get,
-    dispatch
+    Parameter,
 };
 use frame_system::{
     self as system,
@@ -107,7 +107,7 @@ decl_module! {
             Self::insert_roaming_operator(&sender, roaming_operator_id, roaming_operator);
 
             Self::deposit_event(RawEvent::Created(sender, roaming_operator_id));
-			Ok(())
+            Ok(())
         }
 
         /// Transfer a roaming operator to new owner

@@ -11,10 +11,10 @@ use frame_support::{
     decl_event,
     decl_module,
     decl_storage,
+    dispatch,
     ensure,
-    Parameter,
     traits::Get,
-    dispatch
+    Parameter,
 };
 use frame_system::{
     self as system,

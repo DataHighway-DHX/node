@@ -9,14 +9,9 @@ use datahighway_runtime::{
     opaque::Block,
     AccountId,
     Balance,
+    Hash,
     Index,
     UncheckedExtrinsic,
-    Hash,
-};
-use sp_blockchain::{
-    Error as BlockChainError,
-    HeaderBackend,
-    HeaderMetadata,
 };
 use sc_consensus_babe::{
     Config,
@@ -26,6 +21,11 @@ use sc_consensus_babe_rpc::BabeRpcHandler;
 use sc_consensus_epochs::SharedEpochChanges;
 use sc_keystore::KeyStorePtr;
 use sp_api::ProvideRuntimeApi;
+use sp_blockchain::{
+    Error as BlockChainError,
+    HeaderBackend,
+    HeaderMetadata,
+};
 use sp_consensus::SelectChain;
 use sp_consensus_babe::BabeApi;
 use sp_transaction_pool::TransactionPool;
@@ -102,7 +102,7 @@ where
         pool,
         select_chain,
         babe,
-		deny_unsafe,
+        deny_unsafe,
     } = deps;
     let BabeDeps {
         keystore,

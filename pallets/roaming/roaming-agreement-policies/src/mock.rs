@@ -10,8 +10,10 @@ use frame_support::{
     assert_ok,
     impl_outer_origin,
     parameter_types,
-    weights::Weight,
-    weights::IdentityFee,
+    weights::{
+        IdentityFee,
+        Weight,
+    },
 };
 use frame_system::{self as system,};
 use sp_core::H256;
@@ -40,11 +42,15 @@ impl frame_system::Trait for Test {
     type AccountData = pallet_balances::AccountData<u64>;
     type AccountId = u64;
     type AvailableBlockRatio = AvailableBlockRatio;
+    type BaseCallFilter = ();
+    type BlockExecutionWeight = ();
     type BlockHashCount = BlockHashCount;
     type BlockNumber = u64;
     type Call = ();
+    type DbWeight = ();
     // type WeightMultiplierUpdate = ();
     type Event = ();
+    type ExtrinsicBaseWeight = ();
     type Hash = H256;
     type Hashing = BlakeTwo256;
     type Header = Header;
@@ -52,17 +58,13 @@ impl frame_system::Trait for Test {
     type Lookup = IdentityLookup<Self::AccountId>;
     type MaximumBlockLength = MaximumBlockLength;
     type MaximumBlockWeight = MaximumBlockWeight;
+    type MaximumExtrinsicWeight = MaximumBlockWeight;
     type OnKilledAccount = ();
     type OnNewAccount = ();
     type Origin = Origin;
-    type Version = ();
-    type BaseCallFilter = ();
-    type BlockExecutionWeight = ();
-    type DbWeight = ();
-    type ExtrinsicBaseWeight = ();
-    type MaximumExtrinsicWeight = MaximumBlockWeight;
     type PalletInfo = ();
     type SystemWeightInfo = ();
+    type Version = ();
 }
 parameter_types! {
     pub const ExistentialDeposit: u64 = 1;
@@ -73,8 +75,8 @@ impl pallet_balances::Trait for Test {
     type DustRemoval = ();
     type Event = ();
     type ExistentialDeposit = ExistentialDeposit;
-    type WeightInfo = ();
     type MaxLocks = ();
+    type WeightInfo = ();
 }
 impl pallet_transaction_payment::Trait for Test {
     type Currency = Balances;
@@ -122,6 +124,6 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
     .assimilate_storage(&mut t)
     .unwrap();
     let mut ext = sp_io::TestExternalities::new(t);
-	ext.execute_with(|| System::set_block_number(1));
-	ext
+    ext.execute_with(|| System::set_block_number(1));
+    ext
 }
