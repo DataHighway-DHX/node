@@ -11,13 +11,11 @@ use frame_support::{
     decl_event,
     decl_module,
     decl_storage,
-    dispatch,
     ensure,
     traits::Get,
     Parameter,
 };
 use frame_system::{
-    self as system,
     ensure_signed,
 };
 use sp_io::hashing::blake2_128;
@@ -288,7 +286,7 @@ impl<T: Trait> Module<T> {
         mining_speed_boosts_rates_token_mining_id: T::MiningSpeedBoostRatesTokenMiningIndex,
     ) -> Result<(), DispatchError> {
         match Self::mining_speed_boosts_rates_token_mining_rates_configs(mining_speed_boosts_rates_token_mining_id) {
-            Some(value) => Ok(()),
+            Some(_value) => Ok(()),
             None => Err(DispatchError::Other("MiningSpeedBoostRatesTokenMiningRatesConfig does not exist")),
         }
     }
@@ -299,7 +297,7 @@ impl<T: Trait> Module<T> {
         debug::info!("Checking if mining_speed_boosts_rates_token_mining_rates_config has a value that is defined");
         let fetched_mining_speed_boosts_rates_token_mining_rates_config =
             <MiningSpeedBoostRatesTokenMiningRatesConfigs<T>>::get(mining_speed_boosts_rates_token_mining_id);
-        if let Some(value) = fetched_mining_speed_boosts_rates_token_mining_rates_config {
+        if let Some(_value) = fetched_mining_speed_boosts_rates_token_mining_rates_config {
             debug::info!("Found value for mining_speed_boosts_rates_token_mining_rates_config");
             return Ok(());
         }

@@ -19,7 +19,6 @@ use frame_support::{
     Parameter,
 };
 use frame_system::{
-    self as system,
     ensure_signed,
 };
 use sp_io::hashing::blake2_128;

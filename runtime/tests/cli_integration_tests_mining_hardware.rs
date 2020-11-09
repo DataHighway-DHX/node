@@ -11,7 +11,6 @@ mod tests {
     use super::*;
 
     use frame_support::{
-        assert_noop,
         assert_ok,
         impl_outer_origin,
         parameter_types,
@@ -20,7 +19,7 @@ mod tests {
             Weight,
         },
     };
-    use frame_system::{self as system,};
+    
     use sp_core::H256;
     use sp_runtime::{
         testing::Header,
@@ -35,31 +34,26 @@ mod tests {
     };
     // Import Trait for each runtime module being tested
     use mining_speed_boosts_configuration_hardware_mining::{
-        MiningSpeedBoostConfigurationHardwareMining,
         MiningSpeedBoostConfigurationHardwareMiningHardwareConfig,
         Module as MiningSpeedBoostConfigurationHardwareMiningModule,
         Trait as MiningSpeedBoostConfigurationHardwareMiningTrait,
     };
     use mining_speed_boosts_eligibility_hardware_mining::{
-        MiningSpeedBoostEligibilityHardwareMining,
         MiningSpeedBoostEligibilityHardwareMiningEligibilityResult,
         Module as MiningSpeedBoostEligibilityHardwareMiningModule,
         Trait as MiningSpeedBoostEligibilityHardwareMiningTrait,
     };
     use mining_speed_boosts_lodgements_hardware_mining::{
-        MiningSpeedBoostLodgementsHardwareMining,
         MiningSpeedBoostLodgementsHardwareMiningLodgementResult,
         Module as MiningSpeedBoostLodgementsHardwareMiningModule,
         Trait as MiningSpeedBoostLodgementsHardwareMiningTrait,
     };
     use mining_speed_boosts_rates_hardware_mining::{
-        MiningSpeedBoostRatesHardwareMining,
         MiningSpeedBoostRatesHardwareMiningRatesConfig,
         Module as MiningSpeedBoostRatesHardwareMiningModule,
         Trait as MiningSpeedBoostRatesHardwareMiningTrait,
     };
     use mining_speed_boosts_sampling_hardware_mining::{
-        MiningSpeedBoostSamplingHardwareMining,
         MiningSpeedBoostSamplingHardwareMiningSamplingConfig,
         Module as MiningSpeedBoostSamplingHardwareMiningModule,
         Trait as MiningSpeedBoostSamplingHardwareMiningTrait,

@@ -6,7 +6,6 @@ use crate::{
 };
 
 use frame_support::{
-    assert_ok,
     impl_outer_origin,
     parameter_types,
     weights::{
@@ -14,7 +13,7 @@ use frame_support::{
         Weight,
     },
 };
-use frame_system::{self as system,};
+
 use sp_core::H256;
 use sp_runtime::{
     testing::Header,

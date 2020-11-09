@@ -16,7 +16,6 @@
 // limitations under the License.
 
 use crate::{
-    chain_spec,
     chain_spec::load_spec as chain_load_spec,
     cli::{
         Cli,
@@ -24,7 +23,7 @@ use crate::{
     },
     service,
 };
-use datahighway_runtime::Block;
+
 use sc_cli::{
     ChainSpec,
     Role,

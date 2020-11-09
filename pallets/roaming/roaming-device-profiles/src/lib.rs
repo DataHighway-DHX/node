@@ -11,13 +11,11 @@ use frame_support::{
     decl_event,
     decl_module,
     decl_storage,
-    dispatch,
     ensure,
     traits::Get,
     Parameter,
 };
 use frame_system::{
-    self as system,
     ensure_signed,
 };
 use sp_io::hashing::blake2_128;
@@ -315,7 +313,7 @@ impl<T: Trait> Module<T> {
         roaming_device_profile_id: T::RoamingDeviceProfileIndex,
     ) -> Result<(), DispatchError> {
         match Self::roaming_device_profile_configs(roaming_device_profile_id) {
-            Some(value) => Ok(()),
+            Some(_value) => Ok(()),
             None => Err(DispatchError::Other("RoamingDeviceProfileConfig does not exist")),
         }
     }
@@ -325,7 +323,7 @@ impl<T: Trait> Module<T> {
     ) -> Result<(), DispatchError> {
         debug::info!("Checking if device profile config has a value that is defined");
         let fetched_profile_config = <RoamingDeviceProfileConfigs<T>>::get(roaming_device_profile_id);
-        if let Some(value) = fetched_profile_config {
+        if let Some(_value) = fetched_profile_config {
             debug::info!("Found value for device profile config");
             return Ok(());
         }

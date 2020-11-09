@@ -11,13 +11,11 @@ use frame_support::{
     decl_event,
     decl_module,
     decl_storage,
-    dispatch,
     ensure,
     traits::Get,
     Parameter,
 };
 use frame_system::{
-    self as system,
     ensure_signed,
 };
 use sp_io::hashing::blake2_128;
@@ -124,12 +122,12 @@ decl_module! {
             let sender = ensure_signed(origin)?;
             let roaming_agreement_policy_id = Self::next_roaming_agreement_policy_id()?;
 
-            let mut unique_id = Self::random_value(&sender);
+            let unique_id = Self::random_value(&sender);
             // if env::config::get_env() == "TEST" {
             //     unique_id = [0; 16];
             // } else {
                 // Generate a random 128bit value
-                unique_id = Self::random_value(&sender);
+                // unique_id = Self::random_value(&sender);
             // }
 
             // Create and store roaming agreement_policy
@@ -350,7 +348,7 @@ impl<T: Trait> Module<T> {
         roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
     ) -> Result<(), DispatchError> {
         match Self::roaming_agreement_policy_configs(roaming_agreement_policy_id) {
-            Some(value) => Ok(()),
+            Some(_value) => Ok(()),
             None => Err(DispatchError::Other("RoamingAgreementPolicyConfig does not exist")),
         }
     }
@@ -360,7 +358,7 @@ impl<T: Trait> Module<T> {
     ) -> Result<(), DispatchError> {
         debug::info!("Checking if agreement policy config has a value that is defined");
         let fetched_policy_config = <RoamingAgreementPolicyConfigs<T>>::get(roaming_agreement_policy_id);
-        if let Some(value) = fetched_policy_config {
+        if let Some(_value) = fetched_policy_config {
             debug::info!("Found value for agreement policy config");
             return Ok(());
         }

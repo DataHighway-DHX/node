@@ -396,13 +396,13 @@ fn testnet_genesis(
 pub fn load_spec(id: &str) -> Result<Box<dyn sc_service::ChainSpec>, String> {
     let option = match Alternative::from(id) {
         Some(spec) => Some(spec.load()?),
-        path => None,
+        _path => None,
     };
 
     let spec = Box::new(match option {
         Some(v) => v,
         None => ChainSpec::from_json_file(std::path::PathBuf::from(id))?,
-    }) as Box<sc_service::ChainSpec>;
+    }) as Box<dyn sc_service::ChainSpec>;
 
     return Ok(spec);
 }

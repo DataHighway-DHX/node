@@ -11,13 +11,11 @@ use frame_support::{
     decl_event,
     decl_module,
     decl_storage,
-    dispatch,
     ensure,
     traits::Get,
     Parameter,
 };
 use frame_system::{
-    self as system,
     ensure_signed,
 };
 use sp_io::hashing::blake2_128;
@@ -196,12 +194,12 @@ decl_module! {
             // Check that the extrinsic call is made after the end date defined in the provided configuration
 
             // FIXME - add system time now
-            let TIME_NOW = 123.into();
+            let time_now = 123.into();
             // Get the config associated with the given configuration_token_mining
             if let Some(configuration_token_mining_config) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_configs(mining_speed_boosts_configuration_token_mining_id) {
-              if let token_lock_period_end_date = configuration_token_mining_config.token_lock_period_end_date {
+              if let _token_lock_period_end_date = configuration_token_mining_config.token_lock_period_end_date {
                 // FIXME - get this to work when add system time
-                // ensure!(TIME_NOW > token_lock_period_end_date, "Lodgement may not be made until after the end date of the lock period");
+                // ensure!(time_now > token_lock_period_end_date, "Lodgement may not be made until after the end date of the lock period");
               } else {
                 return Err(DispatchError::Other("Cannot find token_mining_config end_date associated with the claim"));
               }
@@ -219,7 +217,7 @@ decl_module! {
 
             // Record the claim associated with their configuration/eligibility
             let token_claim_amount: T::MiningSpeedBoostLodgementsTokenMiningLodgementAmount = 0.into();
-            let token_claim_date_redeemed: T::MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = TIME_NOW;
+            let token_claim_date_redeemed: T::MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = time_now;
             if let Some(eligibility_token_mining) = <mining_speed_boosts_eligibility_token_mining::Module<T>>::mining_speed_boosts_eligibility_token_mining_eligibility_results((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id)) {
               if let token_mining_calculated_eligibility = eligibility_token_mining.eligibility_token_mining_calculated_eligibility {
                 ensure!(token_mining_calculated_eligibility > 0.into(), "Calculated eligibility is zero. Nothing to claim.");
@@ -434,7 +432,7 @@ impl<T: Trait> Module<T> {
             mining_speed_boosts_configuration_token_mining_id,
             mining_speed_boosts_lodgements_token_mining_id,
         )) {
-            Some(value) => Ok(()),
+            Some(_value) => Ok(()),
             None => Err(DispatchError::Other("MiningSpeedBoostLodgementsTokenMiningLodgementResult does not exist")),
         }
     }
@@ -451,7 +449,7 @@ impl<T: Trait> Module<T> {
                 mining_speed_boosts_configuration_token_mining_id,
                 mining_speed_boosts_lodgements_token_mining_id,
             ));
-        if let Some(value) = fetched_mining_speed_boosts_lodgements_token_mining_lodgements_result {
+        if let Some(_value) = fetched_mining_speed_boosts_lodgements_token_mining_lodgements_result {
             debug::info!("Found value for mining_speed_boosts_lodgements_token_mining_lodgements_result");
             return Ok(());
         }

@@ -11,13 +11,11 @@ use frame_support::{
     decl_event,
     decl_module,
     decl_storage,
-    dispatch,
     ensure,
     traits::Get,
     Parameter,
 };
 use frame_system::{
-    self as system,
     ensure_signed,
 };
 use sp_io::hashing::blake2_128;
@@ -327,7 +325,7 @@ impl<T: Trait> Module<T> {
         match Self::mining_speed_boosts_configuration_hardware_mining_hardware_configs(
             mining_speed_boosts_configuration_hardware_mining_id,
         ) {
-            Some(value) => Ok(()),
+            Some(_value) => Ok(()),
             None => {
                 Err(DispatchError::Other("MiningSpeedBoostConfigurationHardwareMiningHardwareConfig does not exist"))
             }
@@ -344,7 +342,7 @@ impl<T: Trait> Module<T> {
             <MiningSpeedBoostConfigurationHardwareMiningHardwareConfigs<T>>::get(
                 mining_speed_boosts_configuration_hardware_mining_id,
             );
-        if let Some(value) = fetched_mining_speed_boosts_configuration_hardware_mining_hardware_config {
+        if let Some(_value) = fetched_mining_speed_boosts_configuration_hardware_mining_hardware_config {
             debug::info!("Found value for mining_speed_boosts_configuration_hardware_mining_hardware_config");
             return Ok(());
         }

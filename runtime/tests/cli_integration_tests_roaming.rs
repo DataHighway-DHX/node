@@ -15,10 +15,9 @@ extern crate roaming_service_profiles as service_profiles;
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     use frame_support::{
-        assert_noop,
         assert_ok,
         impl_outer_origin,
         parameter_types,
@@ -27,7 +26,7 @@ mod tests {
             Weight,
         },
     };
-    use frame_system::{self as system,};
+    
     use sp_core::H256;
     use sp_runtime::{
         testing::Header,
@@ -43,42 +42,35 @@ mod tests {
     // Import Trait for each runtime module being tested
     use roaming_accounting_policies::{
         Module as RoamingAccountingPolicyModule,
-        RoamingAccountingPolicy,
         RoamingAccountingPolicyConfig,
         Trait as RoamingAccountingPolicyTrait,
     };
     use roaming_agreement_policies::{
         Module as RoamingAgreementPolicyModule,
-        RoamingAgreementPolicy,
         RoamingAgreementPolicyConfig,
         Trait as RoamingAgreementPolicyTrait,
     };
     use roaming_billing_policies::{
         Module as RoamingBillingPolicyModule,
-        RoamingBillingPolicy,
         RoamingBillingPolicyConfig,
         Trait as RoamingBillingPolicyTrait,
     };
     use roaming_charging_policies::{
         Module as RoamingChargingPolicyModule,
-        RoamingChargingPolicy,
         RoamingChargingPolicyConfig,
         Trait as RoamingChargingPolicyTrait,
     };
     use roaming_device_profiles::{
         Module as RoamingDeviceProfileModule,
-        RoamingDeviceProfile,
         RoamingDeviceProfileConfig,
         Trait as RoamingDeviceProfileTrait,
     };
     use roaming_devices::{
         Module as RoamingDeviceModule,
-        RoamingDevice,
         Trait as RoamingDeviceTrait,
     };
     use roaming_network_profiles::{
         Module as RoamingNetworkProfileModule,
-        RoamingNetworkProfile,
         Trait as RoamingNetworkProfileTrait,
     };
     use roaming_network_servers::{
@@ -99,12 +91,10 @@ mod tests {
     };
     use roaming_routing_profiles::{
         Module as RoamingRoutingProfileModule,
-        RoamingRoutingProfile,
         Trait as RoamingRoutingProfileTrait,
     };
     use roaming_service_profiles::{
         Module as RoamingServiceProfileModule,
-        RoamingServiceProfile,
         Trait as RoamingServiceProfileTrait,
     };
 

@@ -17,7 +17,6 @@ use sp_api::impl_runtime_apis;
 use sp_core::{
     crypto::KeyTypeId,
     u32_trait::{
-        _1,
         _2,
         _3,
         _4,
@@ -905,15 +904,15 @@ impl_runtime_apis! {
         }
 
         fn submit_report_equivocation_unsigned_extrinsic(
-            equivocation_proof: sp_consensus_babe::EquivocationProof<<Block as BlockT>::Header>,
-            key_owner_proof: sp_consensus_babe::OpaqueKeyOwnershipProof,
+            _equivocation_proof: sp_consensus_babe::EquivocationProof<<Block as BlockT>::Header>,
+            _key_owner_proof: sp_consensus_babe::OpaqueKeyOwnershipProof,
         )  -> Option<()> {
             None
         }
 
         fn generate_key_ownership_proof(
             _slot_number: sp_consensus_babe::SlotNumber,
-            authority_id: sp_consensus_babe::AuthorityId,
+            _authority_id: sp_consensus_babe::AuthorityId,
         ) -> Option<sp_consensus_babe::OpaqueKeyOwnershipProof> {
             // NOTE: this is the only implementation possible since we've
             // defined our key owner proof type as a bottom type (i.e. a type

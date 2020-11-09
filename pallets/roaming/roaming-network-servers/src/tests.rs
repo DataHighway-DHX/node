@@ -2,7 +2,6 @@
 
 use super::*;
 use crate::{
-    mock,
     mock::*,
 };
 use frame_support::{

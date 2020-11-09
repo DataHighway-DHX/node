@@ -11,7 +11,6 @@ mod tests {
     use super::*;
 
     use frame_support::{
-        assert_noop,
         assert_ok,
         impl_outer_origin,
         parameter_types,
@@ -20,7 +19,7 @@ mod tests {
             Weight,
         },
     };
-    use frame_system::{self as system,};
+    
     use sp_core::H256;
     use sp_runtime::{
         testing::Header,
@@ -35,31 +34,26 @@ mod tests {
     };
     // Import Trait for each runtime module being tested
     use mining_speed_boosts_configuration_token_mining::{
-        MiningSpeedBoostConfigurationTokenMining,
         MiningSpeedBoostConfigurationTokenMiningTokenConfig,
         Module as MiningSpeedBoostConfigurationTokenMiningModule,
         Trait as MiningSpeedBoostConfigurationTokenMiningTrait,
     };
     use mining_speed_boosts_eligibility_token_mining::{
-        MiningSpeedBoostEligibilityTokenMining,
         MiningSpeedBoostEligibilityTokenMiningEligibilityResult,
         Module as MiningSpeedBoostEligibilityTokenMiningModule,
         Trait as MiningSpeedBoostEligibilityTokenMiningTrait,
     };
     use mining_speed_boosts_lodgements_token_mining::{
-        MiningSpeedBoostLodgementsTokenMining,
         MiningSpeedBoostLodgementsTokenMiningLodgementResult,
         Module as MiningSpeedBoostLodgementsTokenMiningModule,
         Trait as MiningSpeedBoostLodgementsTokenMiningTrait,
     };
     use mining_speed_boosts_rates_token_mining::{
-        MiningSpeedBoostRatesTokenMining,
         MiningSpeedBoostRatesTokenMiningRatesConfig,
         Module as MiningSpeedBoostRatesTokenMiningModule,
         Trait as MiningSpeedBoostRatesTokenMiningTrait,
     };
     use mining_speed_boosts_sampling_token_mining::{
-        MiningSpeedBoostSamplingTokenMining,
         MiningSpeedBoostSamplingTokenMiningSamplingConfig,
         Module as MiningSpeedBoostSamplingTokenMiningModule,
         Trait as MiningSpeedBoostSamplingTokenMiningTrait,

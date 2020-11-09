@@ -15,13 +15,11 @@ use frame_support::{
     decl_event,
     decl_module,
     decl_storage,
-    dispatch,
     ensure,
     traits::Get,
     Parameter,
 };
 use frame_system::{
-    self as system,
     ensure_signed,
 };
 use sp_io::hashing::blake2_128;
@@ -510,7 +508,7 @@ impl<T: Trait> Module<T> {
         debug::info!("Ensuring that the caller has provided a network server id that actually exists");
         match <roaming_network_servers::Module<T>>::exists_roaming_network_server(roaming_network_server_id) {
             Ok(_) => Ok(()),
-            Err(e) => Err(DispatchError::Other("RoamingNetworkServer does not exist")),
+            Err(_e) => Err(DispatchError::Other("RoamingNetworkServer does not exist")),
         }
     }
 
@@ -524,7 +522,7 @@ impl<T: Trait> Module<T> {
         );
         match <roaming_network_servers::Module<T>>::is_roaming_network_server_owner(roaming_network_server_id, sender) {
             Ok(_) => Ok(()),
-            Err(e) => {
+            Err(_e) => {
                 Err(DispatchError::Other(
                     "Only owner of the given network server id associated with the given packet bundle id can set it \
                      as an associated roaming packet bundle receiver",

@@ -1,5 +1,3 @@
-#![warn(missing_docs)]
-
 use std::{
     fmt,
     sync::Arc,
@@ -9,15 +7,13 @@ use datahighway_runtime::{
     opaque::Block,
     AccountId,
     Balance,
-    Hash,
     Index,
-    UncheckedExtrinsic,
 };
 use sc_consensus_babe::{
     Config,
     Epoch,
 };
-use sc_consensus_babe_rpc::BabeRpcHandler;
+
 use sc_consensus_epochs::SharedEpochChanges;
 use sc_keystore::KeyStorePtr;
 use sp_api::ProvideRuntimeApi;
@@ -32,18 +28,6 @@ use sp_transaction_pool::TransactionPool;
 use substrate_frame_rpc_system::AccountNonceApi;
 
 pub use sc_rpc_api::DenyUnsafe;
-
-/// Light client extra dependencies.
-pub struct LightDeps<C, F, P> {
-    /// The client instance to use.
-    pub client: Arc<C>,
-    /// Transaction pool instance.
-    pub pool: Arc<P>,
-    /// Remote access to the blockchain (async).
-    pub remote_blockchain: Arc<dyn sc_client_api::light::RemoteBlockchain<Block>>,
-    /// Fetcher instance.
-    pub fetcher: Arc<F>,
-}
 
 /// Extra dependencies for BABE.
 pub struct BabeDeps {
@@ -85,10 +69,7 @@ where
     M: jsonrpc_core::Metadata + Default,
     SC: SelectChain<Block> + 'static,
 {
-    use substrate_frame_rpc_system::{
-        FullSystem,
-        SystemApi,
-    };
+    
     // TODO
     // use orml_oracle_rpc::{Oracle, OracleApi};
     use pallet_transaction_payment_rpc::{
@@ -99,15 +80,15 @@ where
     let mut io = jsonrpc_core::IoHandler::default();
     let FullDeps {
         client,
-        pool,
-        select_chain,
+        pool: _,
+        select_chain: _,
         babe,
-        deny_unsafe,
+        deny_unsafe: _,
     } = deps;
     let BabeDeps {
-        keystore,
-        babe_config,
-        shared_epoch_changes,
+        keystore: _,
+        babe_config: _,
+        shared_epoch_changes: _,
     } = babe;
 
     // io.extend_with(SystemApi::to_delegate(FullSystem::new(client.clone(), pool, deny_unsafe))); TODO#ILYA
@@ -122,37 +103,6 @@ where
     // )));
     // TODO: Add Oracle
     // io.extend_with(OracleApi::to_delegate(Oracle::new(client))); TODO#ILYA
-
-    io
-}
-
-/// Instantiate all Light RPC extensions.
-pub fn create_light<C, P, M, F>(deps: LightDeps<C, F, P>) -> jsonrpc_core::IoHandler<M>
-where
-    C: HeaderBackend<Block>,
-    C: Send + Sync + 'static,
-    F: sc_client_api::light::Fetcher<Block> + 'static,
-    P: TransactionPool + 'static,
-    M: jsonrpc_core::Metadata + Default,
-{
-    use substrate_frame_rpc_system::{
-        LightSystem,
-        SystemApi,
-    };
-
-    let LightDeps {
-        client,
-        pool,
-        remote_blockchain,
-        fetcher,
-    } = deps;
-    let mut io = jsonrpc_core::IoHandler::default();
-    io.extend_with(SystemApi::<Hash, AccountId, Index>::to_delegate(LightSystem::new(
-        client,
-        remote_blockchain,
-        fetcher,
-        pool,
-    )));
 
     io
 }

@@ -20,7 +20,7 @@ use sc_service::{
     Configuration,
     TaskManager,
 };
-use sp_inherents::InherentDataProviders;
+
 use std::{
     sync::Arc,
     time::Duration,

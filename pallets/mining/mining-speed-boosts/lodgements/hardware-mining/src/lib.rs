@@ -11,13 +11,11 @@ use frame_support::{
     decl_event,
     decl_module,
     decl_storage,
-    dispatch,
     ensure,
     traits::Get,
     Parameter,
 };
 use frame_system::{
-    self as system,
     ensure_signed,
 };
 use sp_io::hashing::blake2_128;
@@ -175,7 +173,7 @@ decl_module! {
             mining_speed_boosts_eligibility_hardware_mining_id: T::MiningSpeedBoostEligibilityHardwareMiningIndex,
             mining_speed_boosts_lodgements_hardware_mining_id: T::MiningSpeedBoostLodgementsHardwareMiningIndex,
         ) {
-            let sender = ensure_signed(origin)?;
+            let _sender = ensure_signed(origin)?;
 
             // TODO - implement similar to lodgements/token-mining when it is working and uncomment the integration tests
             return Err(DispatchError::Other("Not implemented"));
@@ -332,7 +330,7 @@ impl<T: Trait> Module<T> {
             mining_speed_boosts_configuration_hardware_mining_id,
             mining_speed_boosts_lodgements_hardware_mining_id,
         )) {
-            Some(value) => Ok(()),
+            Some(_value) => Ok(()),
             None => Err(DispatchError::Other("MiningSpeedBoostLodgementsHardwareMiningLodgementResult does not exist")),
         }
     }
@@ -349,7 +347,7 @@ impl<T: Trait> Module<T> {
                 mining_speed_boosts_configuration_hardware_mining_id,
                 mining_speed_boosts_lodgements_hardware_mining_id,
             ));
-        if let Some(value) = fetched_mining_speed_boosts_lodgements_hardware_mining_lodgements_result {
+        if let Some(_value) = fetched_mining_speed_boosts_lodgements_hardware_mining_lodgements_result {
             debug::info!("Found value for mining_speed_boosts_lodgements_hardware_mining_lodgements_result");
             return Ok(());
         }
