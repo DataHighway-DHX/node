@@ -69,7 +69,6 @@ where
     M: jsonrpc_core::Metadata + Default,
     SC: SelectChain<Block> + 'static,
 {
-    
     // TODO
     // use orml_oracle_rpc::{Oracle, OracleApi};
     use pallet_transaction_payment_rpc::{

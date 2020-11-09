@@ -15,7 +15,6 @@ extern crate roaming_service_profiles as service_profiles;
 
 #[cfg(test)]
 mod tests {
-    
 
     use frame_support::{
         assert_ok,
@@ -26,7 +25,7 @@ mod tests {
             Weight,
         },
     };
-    
+
     use sp_core::H256;
     use sp_runtime::{
         testing::Header,
