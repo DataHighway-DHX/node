@@ -1,6 +1,6 @@
 [package]
 name = 'roaming-billing-policies'
-version = '0.1.0'
+version = '1.0.0'
 authors = ['Luke Schoen']
 edition = '2018'
 
