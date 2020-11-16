@@ -12,12 +12,10 @@ use frame_support::{
     decl_module,
     decl_storage,
     ensure,
+    traits::Get,
     Parameter,
 };
-use frame_system::{
-    self as system,
-    ensure_signed,
-};
+use frame_system::ensure_signed;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -109,26 +107,26 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostLodgementsTokenMining {
         /// Stores all the mining_speed_boosts_lodgements_token_minings, key is the mining_speed_boosts_lodgements_token_mining id / index
-        pub MiningSpeedBoostLodgementsTokenMinings get(fn mining_speed_boosts_lodgements_token_mining): map hasher(blake2_256) T::MiningSpeedBoostLodgementsTokenMiningIndex => Option<MiningSpeedBoostLodgementsTokenMining>;
+        pub MiningSpeedBoostLodgementsTokenMinings get(fn mining_speed_boosts_lodgements_token_mining): map hasher(opaque_blake2_256) T::MiningSpeedBoostLodgementsTokenMiningIndex => Option<MiningSpeedBoostLodgementsTokenMining>;
 
         /// Stores the total number of mining_speed_boosts_lodgements_token_minings. i.e. the next mining_speed_boosts_lodgements_token_mining index
         pub MiningSpeedBoostLodgementsTokenMiningCount get(fn mining_speed_boosts_lodgements_token_mining_count): T::MiningSpeedBoostLodgementsTokenMiningIndex;
 
         /// Stores mining_speed_boosts_lodgements_token_mining owner
-        pub MiningSpeedBoostLodgementsTokenMiningOwners get(fn mining_speed_boosts_lodgements_token_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostLodgementsTokenMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostLodgementsTokenMiningOwners get(fn mining_speed_boosts_lodgements_token_mining_owner): map hasher(opaque_blake2_256) T::MiningSpeedBoostLodgementsTokenMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_lodgements_token_mining_lodgements_result
-        pub MiningSpeedBoostLodgementsTokenMiningLodgementResults get(fn mining_speed_boosts_lodgements_token_mining_lodgements_results): map hasher(blake2_256) (T::MiningSpeedBoostConfigurationTokenMiningIndex, T::MiningSpeedBoostLodgementsTokenMiningIndex) =>
+        pub MiningSpeedBoostLodgementsTokenMiningLodgementResults get(fn mining_speed_boosts_lodgements_token_mining_lodgements_results): map hasher(opaque_blake2_256) (T::MiningSpeedBoostConfigurationTokenMiningIndex, T::MiningSpeedBoostLodgementsTokenMiningIndex) =>
             Option<MiningSpeedBoostLodgementsTokenMiningLodgementResult<
                 T::MiningSpeedBoostLodgementsTokenMiningLodgementAmount,
                 T::MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed
             >>;
 
         /// Get mining_speed_boosts_configuration_token_mining_id belonging to a mining_speed_boosts_lodgements_token_mining_id
-        pub TokenMiningLodgementConfiguration get(fn token_mining_claim_configuration): map hasher(blake2_256) T::MiningSpeedBoostLodgementsTokenMiningIndex => Option<T::MiningSpeedBoostConfigurationTokenMiningIndex>;
+        pub TokenMiningLodgementConfiguration get(fn token_mining_claim_configuration): map hasher(opaque_blake2_256) T::MiningSpeedBoostLodgementsTokenMiningIndex => Option<T::MiningSpeedBoostConfigurationTokenMiningIndex>;
 
         /// Get mining_speed_boosts_lodgements_token_mining_id's belonging to a mining_speed_boosts_configuration_token_mining_id
-        pub TokenMiningConfigurationLodgements get(fn token_mining_configuration_lodgements): map hasher(blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<Vec<T::MiningSpeedBoostLodgementsTokenMiningIndex>>
+        pub TokenMiningConfigurationLodgements get(fn token_mining_configuration_lodgements): map hasher(opaque_blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<Vec<T::MiningSpeedBoostLodgementsTokenMiningIndex>>
     }
 }
 
@@ -139,6 +137,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new mining mining_speed_boosts_lodgements_token_mining
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let mining_speed_boosts_lodgements_token_mining_id = Self::next_mining_speed_boosts_lodgements_token_mining_id()?;
@@ -154,6 +153,7 @@ decl_module! {
         }
 
         /// Transfer a mining_speed_boosts_lodgements_token_mining to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, mining_speed_boosts_lodgements_token_mining_id: T::MiningSpeedBoostLodgementsTokenMiningIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -164,6 +164,7 @@ decl_module! {
             Self::deposit_event(RawEvent::Transferred(sender, to, mining_speed_boosts_lodgements_token_mining_id));
         }
 
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn claim(
             origin,
             mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
@@ -191,12 +192,12 @@ decl_module! {
             // Check that the extrinsic call is made after the end date defined in the provided configuration
 
             // FIXME - add system time now
-            let TIME_NOW = 123.into();
+            let time_now = 123.into();
             // Get the config associated with the given configuration_token_mining
             if let Some(configuration_token_mining_config) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_configs(mining_speed_boosts_configuration_token_mining_id) {
-              if let token_lock_period_end_date = configuration_token_mining_config.token_lock_period_end_date {
+              if let _token_lock_period_end_date = configuration_token_mining_config.token_lock_period_end_date {
                 // FIXME - get this to work when add system time
-                // ensure!(TIME_NOW > token_lock_period_end_date, "Lodgement may not be made until after the end date of the lock period");
+                // ensure!(time_now > token_lock_period_end_date, "Lodgement may not be made until after the end date of the lock period");
               } else {
                 return Err(DispatchError::Other("Cannot find token_mining_config end_date associated with the claim"));
               }
@@ -214,7 +215,7 @@ decl_module! {
 
             // Record the claim associated with their configuration/eligibility
             let token_claim_amount: T::MiningSpeedBoostLodgementsTokenMiningLodgementAmount = 0.into();
-            let token_claim_date_redeemed: T::MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = TIME_NOW;
+            let token_claim_date_redeemed: T::MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = time_now;
             if let Some(eligibility_token_mining) = <mining_speed_boosts_eligibility_token_mining::Module<T>>::mining_speed_boosts_eligibility_token_mining_eligibility_results((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id)) {
               if let token_mining_calculated_eligibility = eligibility_token_mining.eligibility_token_mining_calculated_eligibility {
                 ensure!(token_mining_calculated_eligibility > 0.into(), "Calculated eligibility is zero. Nothing to claim.");
@@ -282,6 +283,7 @@ decl_module! {
         }
 
         /// Set mining_speed_boosts_lodgements_token_mining_lodgements_result
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_mining_speed_boosts_lodgements_token_mining_lodgements_result(
             origin,
             mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
@@ -359,6 +361,7 @@ decl_module! {
             ));
         }
 
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_claim_to_configuration(
           origin,
           mining_speed_boosts_lodgements_token_mining_id: T::MiningSpeedBoostLodgementsTokenMiningIndex,
@@ -427,7 +430,7 @@ impl<T: Trait> Module<T> {
             mining_speed_boosts_configuration_token_mining_id,
             mining_speed_boosts_lodgements_token_mining_id,
         )) {
-            Some(value) => Ok(()),
+            Some(_value) => Ok(()),
             None => Err(DispatchError::Other("MiningSpeedBoostLodgementsTokenMiningLodgementResult does not exist")),
         }
     }
@@ -444,7 +447,7 @@ impl<T: Trait> Module<T> {
                 mining_speed_boosts_configuration_token_mining_id,
                 mining_speed_boosts_lodgements_token_mining_id,
             ));
-        if let Some(value) = fetched_mining_speed_boosts_lodgements_token_mining_lodgements_result {
+        if let Some(_value) = fetched_mining_speed_boosts_lodgements_token_mining_lodgements_result {
             debug::info!("Found value for mining_speed_boosts_lodgements_token_mining_lodgements_result");
             return Ok(());
         }

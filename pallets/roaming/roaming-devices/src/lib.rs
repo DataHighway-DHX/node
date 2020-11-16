@@ -16,12 +16,10 @@ use frame_support::{
     decl_module,
     decl_storage,
     ensure,
+    traits::Get,
     Parameter,
 };
-use frame_system::{
-    self as system,
-    ensure_signed,
-};
+use frame_system::ensure_signed;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -82,28 +80,28 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingDevices {
         /// Stores all the roaming devices, key is the roaming device id / index
-        pub RoamingDevices get(fn roaming_device): map hasher(blake2_256) T::RoamingDeviceIndex => Option<RoamingDevice>;
+        pub RoamingDevices get(fn roaming_device): map hasher(opaque_blake2_256) T::RoamingDeviceIndex => Option<RoamingDevice>;
 
         /// Stores the total number of roaming devices. i.e. the next roaming device index
         pub RoamingDevicesCount get(fn roaming_devices_count): T::RoamingDeviceIndex;
 
         /// Get roaming device owner
-        pub RoamingDeviceOwners get(fn roaming_device_owner): map hasher(blake2_256) T::RoamingDeviceIndex => Option<T::AccountId>;
+        pub RoamingDeviceOwners get(fn roaming_device_owner): map hasher(opaque_blake2_256) T::RoamingDeviceIndex => Option<T::AccountId>;
 
         /// Get roaming device price. None means not for sale.
-        pub RoamingDevicePrices get(fn roaming_device_price): map hasher(blake2_256) T::RoamingDeviceIndex => Option<BalanceOf<T>>;
+        pub RoamingDevicePrices get(fn roaming_device_price): map hasher(opaque_blake2_256) T::RoamingDeviceIndex => Option<BalanceOf<T>>;
 
         /// Get roaming device network_server
-        pub RoamingDeviceNetworkServers get(fn roaming_device_network_server): map hasher(blake2_256) T::RoamingDeviceIndex => Option<T::RoamingNetworkServerIndex>;
+        pub RoamingDeviceNetworkServers get(fn roaming_device_network_server): map hasher(opaque_blake2_256) T::RoamingDeviceIndex => Option<T::RoamingNetworkServerIndex>;
 
         /// Get roaming device organization
-        pub RoamingDeviceOrganization get(fn roaming_device_organization): map hasher(blake2_256) T::RoamingDeviceIndex => Option<T::RoamingOrganizationIndex>;
+        pub RoamingDeviceOrganization get(fn roaming_device_organization): map hasher(opaque_blake2_256) T::RoamingDeviceIndex => Option<T::RoamingOrganizationIndex>;
 
         /// Get roaming network server's devices
-        pub RoamingNetworkServerDevices get(fn roaming_network_server_devices): map hasher(blake2_256) T::RoamingNetworkServerIndex => Option<Vec<T::RoamingDeviceIndex>>;
+        pub RoamingNetworkServerDevices get(fn roaming_network_server_devices): map hasher(opaque_blake2_256) T::RoamingNetworkServerIndex => Option<Vec<T::RoamingDeviceIndex>>;
 
         /// Get roaming organization's devices
-        pub RoamingOrganizationDevices get(fn roaming_organization_devices): map hasher(blake2_256) T::RoamingOrganizationIndex => Option<Vec<T::RoamingDeviceIndex>>
+        pub RoamingOrganizationDevices get(fn roaming_organization_devices): map hasher(opaque_blake2_256) T::RoamingOrganizationIndex => Option<Vec<T::RoamingDeviceIndex>>
     }
 }
 
@@ -114,6 +112,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new roaming device
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let roaming_device_id = Self::next_roaming_device_id()?;
@@ -129,6 +128,7 @@ decl_module! {
         }
 
         /// Transfer a roaming device to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, roaming_device_id: T::RoamingDeviceIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -141,6 +141,7 @@ decl_module! {
 
         /// Set a price for a roaming device for sale
         /// None to delist the roaming device
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_price(origin, roaming_device_id: T::RoamingDeviceIndex, price: Option<BalanceOf<T>>) {
             let sender = ensure_signed(origin)?;
 
@@ -156,6 +157,7 @@ decl_module! {
         }
 
         /// Buy a roaming device with max price willing to pay
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn buy(origin, roaming_device_id: T::RoamingDeviceIndex, price: BalanceOf<T>) {
             let sender = ensure_signed(origin)?;
 
@@ -178,6 +180,7 @@ decl_module! {
             Self::deposit_event(RawEvent::Sold(owner, sender, roaming_device_id, roaming_device_price));
         }
 
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_device_to_network_server(
             origin,
             roaming_device_id: T::RoamingDeviceIndex,
@@ -213,6 +216,7 @@ decl_module! {
             Self::deposit_event(RawEvent::AssignedDeviceToNetworkServer(sender, roaming_device_id, roaming_network_server_id));
         }
 
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_device_to_organization(
             origin,
             roaming_device_id: T::RoamingDeviceIndex,

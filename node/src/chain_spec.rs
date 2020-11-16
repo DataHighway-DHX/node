@@ -3,6 +3,7 @@ use datahighway_runtime::{
         Block,
         SessionKeys,
     },
+    wasm_binary_unwrap,
     AccountId,
     BabeConfig,
     BalancesConfig,
@@ -16,7 +17,6 @@ use datahighway_runtime::{
     StakingConfig,
     SudoConfig,
     SystemConfig,
-    WASM_BINARY,
 };
 use hex_literal::hex;
 use sc_chain_spec::ChainSpecExtension;
@@ -30,6 +30,7 @@ use serde_json::map::Map;
 use sp_consensus_babe::AuthorityId as BabeId;
 use sp_finality_grandpa::AuthorityId as GrandpaId;
 
+use sc_service::ChainType;
 use sp_core::{
     crypto::UncheckedFrom,
     sr25519,
@@ -56,13 +57,13 @@ pub use sp_runtime::{
 #[serde(rename_all = "camelCase")]
 pub struct Extensions {
     /// Block numbers with known hashes.
-    pub fork_blocks: sc_client::ForkBlocks<Block>,
+    pub fork_blocks: sc_client_api::client::ForkBlocks<Block>,
     /// Known bad block hashes.
-    pub bad_blocks: sc_client::BadBlocks<Block>,
+    pub bad_blocks: sc_client_api::client::BadBlocks<Block>,
 }
 
 /// Specialized `ChainSpec`. This is a specialization of the general Substrate ChainSpec type.
-pub type ChainSpec = sc_service::ChainSpec<GenesisConfig, Extensions>;
+pub type ChainSpec = sc_service::GenericChainSpec<GenesisConfig, Extensions>;
 
 /// The chain specification option. This is expected to come in from the CLI and
 /// is little more than one of a number of alternatives which can easily be converted
@@ -114,6 +115,7 @@ impl Alternative {
                 ChainSpec::from_genesis(
                     "Development",
                     "dev",
+                    ChainType::Development,
                     || {
                         dev_genesis(
                             vec![get_authority_keys_from_seed("Alice")],
@@ -138,6 +140,7 @@ impl Alternative {
                 ChainSpec::from_genesis(
                     "Local Testnet",
                     "local",
+                    ChainType::Local,
                     || {
                         dev_genesis(
                             vec![
@@ -169,9 +172,12 @@ impl Alternative {
                     vec![
                         // Alice
                         // FIXME - should this be `dns`?
-                        "/ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".to_string(),
+                        "/ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".parse().unwrap(),
                     ],
-                    Some(TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])),
+                    Some(
+                        TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])
+                            .expect("Local telemetry url is valid; qed"),
+                    ),
                     None,
                     Some(properties),
                     Default::default(),
@@ -187,6 +193,7 @@ impl Alternative {
                 ChainSpec::from_genesis(
                     "DataHighway Testnet",
                     "testnet_latest",
+                    ChainType::Live,
                     || {
                         // TODO: regenerate alphanet according to babe-grandpa consensus
                         // export SECRET=test && echo $SECRET
@@ -225,10 +232,14 @@ impl Alternative {
                         // Alice
                         "/dns4/testnet-harbour.datahighway.com/tcp/30333/p2p/\
                          QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ"
-                            .to_string(),
+                            .parse()
+                            .unwrap(),
                     ],
                     // telemetry endpoints
-                    Some(TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])),
+                    Some(
+                        TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])
+                            .expect("Testnet url is valid; qed"),
+                    ),
                     // protocol id
                     Some("dhx-test"),
                     // properties
@@ -272,7 +283,7 @@ fn dev_genesis(
 ) -> GenesisConfig {
     GenesisConfig {
         frame_system: Some(SystemConfig {
-            code: WASM_BINARY.to_vec(),
+            code: wasm_binary_unwrap().to_vec(),
             changes_trie_config: Default::default(),
         }),
         pallet_indices: Some(IndicesConfig {
@@ -296,7 +307,6 @@ fn dev_genesis(
                 .collect::<Vec<_>>(),
         }),
         pallet_staking: Some(StakingConfig {
-            current_era: 0,
             validator_count: initial_authorities.len() as u32 * 2,
             minimum_validator_count: initial_authorities.len() as u32,
             stakers: initial_authorities
@@ -333,7 +343,7 @@ fn testnet_genesis(
 ) -> GenesisConfig {
     GenesisConfig {
         frame_system: Some(SystemConfig {
-            code: WASM_BINARY.to_vec(),
+            code: wasm_binary_unwrap().to_vec(),
             changes_trie_config: Default::default(),
         }),
         pallet_indices: Some(IndicesConfig {
@@ -355,7 +365,6 @@ fn testnet_genesis(
                 .collect::<Vec<_>>(),
         }),
         pallet_staking: Some(StakingConfig {
-            current_era: 0,
             validator_count: initial_authorities.len() as u32 * 2,
             minimum_validator_count: initial_authorities.len() as u32,
             stakers: initial_authorities
@@ -383,10 +392,17 @@ fn testnet_genesis(
         pallet_treasury: Some(Default::default()),
     }
 }
-
-pub fn load_spec(id: &str) -> Result<Option<ChainSpec>, String> {
-    Ok(match Alternative::from(id) {
+// Result<Box<ChainSpec>, String>
+pub fn load_spec(id: &str) -> Result<Box<dyn sc_service::ChainSpec>, String> {
+    let option = match Alternative::from(id) {
         Some(spec) => Some(spec.load()?),
-        None => None,
-    })
+        _path => None,
+    };
+
+    let spec = Box::new(match option {
+        Some(v) => v,
+        None => ChainSpec::from_json_file(std::path::PathBuf::from(id))?,
+    }) as Box<dyn sc_service::ChainSpec>;
+
+    return Ok(spec);
 }

@@ -6,12 +6,14 @@ use crate::{
 };
 
 use frame_support::{
-    assert_ok,
     impl_outer_origin,
     parameter_types,
-    weights::Weight,
+    weights::{
+        IdentityFee,
+        Weight,
+    },
 };
-use frame_system::{self as system,};
+
 use sp_core::H256;
 use sp_runtime::{
     testing::Header,
@@ -38,11 +40,15 @@ impl frame_system::Trait for Test {
     type AccountData = pallet_balances::AccountData<u64>;
     type AccountId = u64;
     type AvailableBlockRatio = AvailableBlockRatio;
+    type BaseCallFilter = ();
+    type BlockExecutionWeight = ();
     type BlockHashCount = BlockHashCount;
     type BlockNumber = u64;
     type Call = ();
+    type DbWeight = ();
     // type WeightMultiplierUpdate = ();
     type Event = ();
+    type ExtrinsicBaseWeight = ();
     type Hash = H256;
     type Hashing = BlakeTwo256;
     type Header = Header;
@@ -50,10 +56,12 @@ impl frame_system::Trait for Test {
     type Lookup = IdentityLookup<Self::AccountId>;
     type MaximumBlockLength = MaximumBlockLength;
     type MaximumBlockWeight = MaximumBlockWeight;
-    type ModuleToIndex = ();
+    type MaximumExtrinsicWeight = MaximumBlockWeight;
     type OnKilledAccount = ();
     type OnNewAccount = ();
     type Origin = Origin;
+    type PalletInfo = ();
+    type SystemWeightInfo = ();
     type Version = ();
 }
 parameter_types! {
@@ -65,14 +73,15 @@ impl pallet_balances::Trait for Test {
     type DustRemoval = ();
     type Event = ();
     type ExistentialDeposit = ExistentialDeposit;
+    type MaxLocks = ();
+    type WeightInfo = ();
 }
 impl pallet_transaction_payment::Trait for Test {
     type Currency = Balances;
     type FeeMultiplierUpdate = ();
     type OnTransactionPayment = ();
-    type TransactionBaseFee = ();
     type TransactionByteFee = ();
-    type WeightToFee = ();
+    type WeightToFee = IdentityFee<u64>;
 }
 // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
 impl roaming_operators::Trait for Test {
@@ -141,5 +150,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
     }
     .assimilate_storage(&mut t)
     .unwrap();
-    sp_io::TestExternalities::new(t)
+    let mut ext = sp_io::TestExternalities::new(t);
+    ext.execute_with(|| System::set_block_number(1));
+    ext
 }

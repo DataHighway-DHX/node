@@ -16,12 +16,10 @@ use frame_support::{
     decl_module,
     decl_storage,
     ensure,
+    traits::Get,
     Parameter,
 };
-use frame_system::{
-    self as system,
-    ensure_signed,
-};
+use frame_system::ensure_signed;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -77,22 +75,22 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingOrganizations {
         /// Stores all the roaming organizations, key is the roaming organization id / index
-        pub RoamingOrganizations get(fn roaming_organization): map hasher(blake2_256) T::RoamingOrganizationIndex => Option<RoamingOrganization>;
+        pub RoamingOrganizations get(fn roaming_organization): map hasher(opaque_blake2_256) T::RoamingOrganizationIndex => Option<RoamingOrganization>;
 
         /// Stores the total number of roaming organizations. i.e. the next roaming organization index
         pub RoamingOrganizationsCount get(fn roaming_organizations_count): T::RoamingOrganizationIndex;
 
         /// Get roaming organization owner
-        pub RoamingOrganizationOwners get(fn roaming_organization_owner): map hasher(blake2_256) T::RoamingOrganizationIndex => Option<T::AccountId>;
+        pub RoamingOrganizationOwners get(fn roaming_organization_owner): map hasher(opaque_blake2_256) T::RoamingOrganizationIndex => Option<T::AccountId>;
 
         /// Get roaming organization price. None means not for sale.
-        pub RoamingOrganizationPrices get(fn roaming_organization_price): map hasher(blake2_256) T::RoamingOrganizationIndex => Option<BalanceOf<T>>;
+        pub RoamingOrganizationPrices get(fn roaming_organization_price): map hasher(opaque_blake2_256) T::RoamingOrganizationIndex => Option<BalanceOf<T>>;
 
         /// Get roaming organization network server
-        pub RoamingOrganizationNetworkServers get(fn roaming_organization_network_server): map hasher(blake2_256) T::RoamingOrganizationIndex => Option<T::RoamingNetworkServerIndex>;
+        pub RoamingOrganizationNetworkServers get(fn roaming_organization_network_server): map hasher(opaque_blake2_256) T::RoamingOrganizationIndex => Option<T::RoamingNetworkServerIndex>;
 
         /// Get roaming network server organizations
-        pub RoamingNetworkServerOrganizations get(fn roaming_network_server_organizations): map hasher(blake2_256) T::RoamingNetworkServerIndex => Option<Vec<T::RoamingOrganizationIndex>>
+        pub RoamingNetworkServerOrganizations get(fn roaming_network_server_organizations): map hasher(opaque_blake2_256) T::RoamingNetworkServerIndex => Option<Vec<T::RoamingOrganizationIndex>>
     }
 }
 
@@ -103,6 +101,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new roaming organization
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let roaming_organization_id = Self::next_roaming_organization_id()?;
@@ -118,6 +117,7 @@ decl_module! {
         }
 
         /// Transfer a roaming organization to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, roaming_organization_id: T::RoamingOrganizationIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -130,6 +130,7 @@ decl_module! {
 
         /// Set a price for a roaming organization for sale
         /// None to delist the roaming organization
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_price(origin, roaming_organization_id: T::RoamingOrganizationIndex, price: Option<BalanceOf<T>>) {
             let sender = ensure_signed(origin)?;
 
@@ -145,6 +146,7 @@ decl_module! {
         }
 
         /// Buy a roaming organization with max price willing to pay
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn buy(origin, roaming_organization_id: T::RoamingOrganizationIndex, price: BalanceOf<T>) {
             let sender = ensure_signed(origin)?;
 
@@ -167,6 +169,7 @@ decl_module! {
             Self::deposit_event(RawEvent::Sold(owner, sender, roaming_organization_id, roaming_organization_price));
         }
 
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_organization_to_network_server(
             origin,
             roaming_organization_id: T::RoamingOrganizationIndex,

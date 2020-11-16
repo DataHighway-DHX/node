@@ -12,12 +12,10 @@ use frame_support::{
     decl_module,
     decl_storage,
     ensure,
+    traits::Get,
     Parameter,
 };
-use frame_system::{
-    self as system,
-    ensure_signed,
-};
+use frame_system::ensure_signed;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -120,16 +118,16 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostEligibilityHardwareMining {
         /// Stores all the mining_speed_boosts_eligibility_hardware_minings, key is the mining_speed_boosts_eligibility_hardware_mining id / index
-        pub MiningSpeedBoostEligibilityHardwareMinings get(fn mining_speed_boosts_eligibility_hardware_mining): map hasher(blake2_256) T::MiningSpeedBoostEligibilityHardwareMiningIndex => Option<MiningSpeedBoostEligibilityHardwareMining>;
+        pub MiningSpeedBoostEligibilityHardwareMinings get(fn mining_speed_boosts_eligibility_hardware_mining): map hasher(opaque_blake2_256) T::MiningSpeedBoostEligibilityHardwareMiningIndex => Option<MiningSpeedBoostEligibilityHardwareMining>;
 
         /// Stores the total number of mining_speed_boosts_eligibility_hardware_minings. i.e. the next mining_speed_boosts_eligibility_hardware_mining index
         pub MiningSpeedBoostEligibilityHardwareMiningCount get(fn mining_speed_boosts_eligibility_hardware_mining_count): T::MiningSpeedBoostEligibilityHardwareMiningIndex;
 
         /// Stores mining_speed_boosts_eligibility_hardware_mining owner
-        pub MiningSpeedBoostEligibilityHardwareMiningOwners get(fn mining_speed_boosts_eligibility_hardware_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostEligibilityHardwareMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostEligibilityHardwareMiningOwners get(fn mining_speed_boosts_eligibility_hardware_mining_owner): map hasher(opaque_blake2_256) T::MiningSpeedBoostEligibilityHardwareMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_eligibility_hardware_mining_result
-        pub MiningSpeedBoostEligibilityHardwareMiningEligibilityResults get(fn mining_speed_boosts_eligibility_hardware_mining_eligibility_results): map hasher(blake2_256) (T::MiningSpeedBoostConfigurationHardwareMiningIndex, T::MiningSpeedBoostEligibilityHardwareMiningIndex) =>
+        pub MiningSpeedBoostEligibilityHardwareMiningEligibilityResults get(fn mining_speed_boosts_eligibility_hardware_mining_eligibility_results): map hasher(opaque_blake2_256) (T::MiningSpeedBoostConfigurationHardwareMiningIndex, T::MiningSpeedBoostEligibilityHardwareMiningIndex) =>
             Option<MiningSpeedBoostEligibilityHardwareMiningEligibilityResult<
                 T::MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility,
                 T::MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage,
@@ -138,10 +136,10 @@ decl_storage! {
             >>;
 
         /// Get mining_speed_boosts_configuration_hardware_mining_id belonging to a mining_speed_boosts_eligibility_hardware_mining_id
-        pub HardwareMiningEligibilityConfiguration get(fn hardware_mining_resulturation): map hasher(blake2_256) T::MiningSpeedBoostEligibilityHardwareMiningIndex => Option<T::MiningSpeedBoostConfigurationHardwareMiningIndex>;
+        pub HardwareMiningEligibilityConfiguration get(fn hardware_mining_resulturation): map hasher(opaque_blake2_256) T::MiningSpeedBoostEligibilityHardwareMiningIndex => Option<T::MiningSpeedBoostConfigurationHardwareMiningIndex>;
 
         /// Get mining_speed_boosts_eligibility_hardware_mining_id's belonging to a mining_speed_boosts_configuration_hardware_mining_id
-        pub HardwareMiningConfigurationEligibilities get(fn hardware_mining_configuration_eligibilities): map hasher(blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<Vec<T::MiningSpeedBoostEligibilityHardwareMiningIndex>>
+        pub HardwareMiningConfigurationEligibilities get(fn hardware_mining_configuration_eligibilities): map hasher(opaque_blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex => Option<Vec<T::MiningSpeedBoostEligibilityHardwareMiningIndex>>
     }
 }
 
@@ -152,6 +150,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new mining mining_speed_boosts_eligibility_hardware_mining
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let mining_speed_boosts_eligibility_hardware_mining_id = Self::next_mining_speed_boosts_eligibility_hardware_mining_id()?;
@@ -167,6 +166,7 @@ decl_module! {
         }
 
         /// Transfer a mining_speed_boosts_eligibility_hardware_mining to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, mining_speed_boosts_eligibility_hardware_mining_id: T::MiningSpeedBoostEligibilityHardwareMiningIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -327,6 +327,7 @@ decl_module! {
         // }
 
         /// Set mining_speed_boosts_eligibility_hardware_mining_result
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_mining_speed_boosts_eligibility_hardware_mining_eligibility_result(
             origin,
             mining_speed_boosts_configuration_hardware_mining_id: T::MiningSpeedBoostConfigurationHardwareMiningIndex,
@@ -424,6 +425,7 @@ decl_module! {
             ));
         }
 
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_eligibility_to_configuration(
           origin,
           mining_speed_boosts_eligibility_hardware_mining_id: T::MiningSpeedBoostEligibilityHardwareMiningIndex,
@@ -495,7 +497,7 @@ impl<T: Trait> Module<T> {
             mining_speed_boosts_configuration_hardware_mining_id,
             mining_speed_boosts_eligibility_hardware_mining_id,
         )) {
-            Some(value) => Ok(()),
+            Some(_value) => Ok(()),
             None => {
                 Err(DispatchError::Other("MiningSpeedBoostEligibilityHardwareMiningEligibilityResult does not exist"))
             }
@@ -512,7 +514,7 @@ impl<T: Trait> Module<T> {
                 mining_speed_boosts_configuration_hardware_mining_id,
                 mining_speed_boosts_eligibility_hardware_mining_id,
             ));
-        if let Some(value) = fetched_mining_speed_boosts_eligibility_hardware_mining_result {
+        if let Some(_value) = fetched_mining_speed_boosts_eligibility_hardware_mining_result {
             debug::info!("Found value for mining_speed_boosts_eligibility_hardware_mining_result");
             return Ok(());
         }

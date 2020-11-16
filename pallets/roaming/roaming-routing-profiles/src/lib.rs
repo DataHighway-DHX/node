@@ -12,12 +12,10 @@ use frame_support::{
     decl_module,
     decl_storage,
     ensure,
+    traits::Get,
     Parameter,
 };
-use frame_system::{
-    self as system,
-    ensure_signed,
-};
+use frame_system::ensure_signed;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -71,22 +69,22 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingRoutingProfiles {
         /// Stores all the roaming routing_profiles, key is the roaming routing_profile id / index
-        pub RoamingRoutingProfiles get(fn roaming_routing_profile): map hasher(blake2_256) T::RoamingRoutingProfileIndex => Option<RoamingRoutingProfile>;
+        pub RoamingRoutingProfiles get(fn roaming_routing_profile): map hasher(opaque_blake2_256) T::RoamingRoutingProfileIndex => Option<RoamingRoutingProfile>;
 
         /// Stores the total number of roaming routing_profiles. i.e. the next roaming routing_profile index
         pub RoamingRoutingProfilesCount get(fn roaming_routing_profiles_count): T::RoamingRoutingProfileIndex;
 
         /// Get roaming routing_profile owner
-        pub RoamingRoutingProfileOwners get(fn roaming_routing_profile_owner): map hasher(blake2_256) T::RoamingRoutingProfileIndex => Option<T::AccountId>;
+        pub RoamingRoutingProfileOwners get(fn roaming_routing_profile_owner): map hasher(opaque_blake2_256) T::RoamingRoutingProfileIndex => Option<T::AccountId>;
 
         /// Get roaming routing_profile app server.
-        pub RoamingRoutingProfileAppServers get(fn roaming_routing_profile_app_server): map hasher(blake2_256) T::RoamingRoutingProfileIndex => Option<T::RoamingRoutingProfileAppServer>;
+        pub RoamingRoutingProfileAppServers get(fn roaming_routing_profile_app_server): map hasher(opaque_blake2_256) T::RoamingRoutingProfileIndex => Option<T::RoamingRoutingProfileAppServer>;
 
         /// Get roaming routing_profile device
-        pub RoamingRoutingProfileDevices get(fn roaming_routing_profile_device): map hasher(blake2_256) T::RoamingRoutingProfileIndex => Option<T::RoamingDeviceIndex>;
+        pub RoamingRoutingProfileDevices get(fn roaming_routing_profile_device): map hasher(opaque_blake2_256) T::RoamingRoutingProfileIndex => Option<T::RoamingDeviceIndex>;
 
         /// Get roaming device routing_profiles
-        pub RoamingDeviceRoutingProfiles get(fn roaming_device_routing_profiles): map hasher(blake2_256) T::RoamingDeviceIndex => Option<Vec<T::RoamingRoutingProfileIndex>>
+        pub RoamingDeviceRoutingProfiles get(fn roaming_device_routing_profiles): map hasher(opaque_blake2_256) T::RoamingDeviceIndex => Option<Vec<T::RoamingRoutingProfileIndex>>
     }
 }
 
@@ -97,6 +95,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new roaming routing_profile
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let roaming_routing_profile_id = Self::next_roaming_routing_profile_id()?;
@@ -112,6 +111,7 @@ decl_module! {
         }
 
         /// Transfer a roaming routing_profile to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, roaming_routing_profile_id: T::RoamingRoutingProfileIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -123,6 +123,7 @@ decl_module! {
         }
 
         /// Set app server for a roaming routing_profile
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_app_server(origin, roaming_routing_profile_id: T::RoamingRoutingProfileIndex, app_server: Option<T::RoamingRoutingProfileAppServer>) {
             let sender = ensure_signed(origin)?;
 

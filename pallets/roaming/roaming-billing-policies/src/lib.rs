@@ -12,12 +12,10 @@ use frame_support::{
     decl_module,
     decl_storage,
     ensure,
+    traits::Get,
     Parameter,
 };
-use frame_system::{
-    self as system,
-    ensure_signed,
-};
+use frame_system::ensure_signed;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -84,28 +82,28 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingBillingPolicies {
         /// Stores all the roaming billing_policy, key is the roaming billing_policy id / index
-        pub RoamingBillingPolicies get(fn roaming_billing_policy): map hasher(blake2_256) T::RoamingBillingPolicyIndex => Option<RoamingBillingPolicy>;
+        pub RoamingBillingPolicies get(fn roaming_billing_policy): map hasher(opaque_blake2_256) T::RoamingBillingPolicyIndex => Option<RoamingBillingPolicy>;
 
         /// Stores the total number of roaming billing_policies. i.e. the next roaming billing_policy index
         pub RoamingBillingPoliciesCount get(fn roaming_billing_policies_count): T::RoamingBillingPolicyIndex;
 
         /// Get roaming billing_policy owner
-        pub RoamingBillingPolicyOwners get(fn roaming_billing_policy_owner): map hasher(blake2_256) T::RoamingBillingPolicyIndex => Option<T::AccountId>;
+        pub RoamingBillingPolicyOwners get(fn roaming_billing_policy_owner): map hasher(opaque_blake2_256) T::RoamingBillingPolicyIndex => Option<T::AccountId>;
 
         /// Get roaming billing_policy config
-        pub RoamingBillingPolicyConfigs get(fn roaming_billing_policy_configs): map hasher(blake2_256) T::RoamingBillingPolicyIndex => Option<RoamingBillingPolicyConfig<T::RoamingBillingPolicyNextBillingAt, T::RoamingBillingPolicyFrequencyInDays>>;
+        pub RoamingBillingPolicyConfigs get(fn roaming_billing_policy_configs): map hasher(opaque_blake2_256) T::RoamingBillingPolicyIndex => Option<RoamingBillingPolicyConfig<T::RoamingBillingPolicyNextBillingAt, T::RoamingBillingPolicyFrequencyInDays>>;
 
         /// Get roaming billing_policy network
-        pub RoamingBillingPolicyNetwork get(fn roaming_billing_policy_network): map hasher(blake2_256) T::RoamingBillingPolicyIndex => Option<T::RoamingNetworkIndex>;
+        pub RoamingBillingPolicyNetwork get(fn roaming_billing_policy_network): map hasher(opaque_blake2_256) T::RoamingBillingPolicyIndex => Option<T::RoamingNetworkIndex>;
 
         /// Get roaming network's billing policies
-        pub RoamingNetworkBillingPolicies get(fn roaming_network_billing_policies): map hasher(blake2_256) T::RoamingNetworkIndex => Option<Vec<T::RoamingBillingPolicyIndex>>;
+        pub RoamingNetworkBillingPolicies get(fn roaming_network_billing_policies): map hasher(opaque_blake2_256) T::RoamingNetworkIndex => Option<Vec<T::RoamingBillingPolicyIndex>>;
 
         /// Get roaming billing_policy operator
-        pub RoamingBillingPolicyOperator get(fn roaming_billing_policy_operator): map hasher(blake2_256) T::RoamingBillingPolicyIndex => Option<T::RoamingOperatorIndex>;
+        pub RoamingBillingPolicyOperator get(fn roaming_billing_policy_operator): map hasher(opaque_blake2_256) T::RoamingBillingPolicyIndex => Option<T::RoamingOperatorIndex>;
 
         /// Get roaming operator's billing policies
-        pub RoamingOperatorBillingPolicies get(fn roaming_operator_billing_policies): map hasher(blake2_256) T::RoamingOperatorIndex => Option<Vec<T::RoamingBillingPolicyIndex>>
+        pub RoamingOperatorBillingPolicies get(fn roaming_operator_billing_policies): map hasher(opaque_blake2_256) T::RoamingOperatorIndex => Option<Vec<T::RoamingBillingPolicyIndex>>
     }
 }
 
@@ -116,6 +114,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new roaming billing_policy
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let roaming_billing_policy_id = Self::next_roaming_billing_policy_id()?;
@@ -131,6 +130,7 @@ decl_module! {
         }
 
         /// Transfer a roaming billing_policy to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, roaming_billing_policy_id: T::RoamingBillingPolicyIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -142,6 +142,7 @@ decl_module! {
         }
 
         /// Set roaming billing_policy config
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_config(
             origin,
             roaming_billing_policy_id: T::RoamingBillingPolicyIndex,
@@ -218,6 +219,7 @@ decl_module! {
             ));
         }
 
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_billing_policy_to_network(
             origin,
             roaming_billing_policy_id: T::RoamingBillingPolicyIndex,
@@ -253,6 +255,7 @@ decl_module! {
             Self::deposit_event(RawEvent::AssignedBillingPolicyToNetwork(sender, roaming_billing_policy_id, roaming_network_id));
         }
 
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_billing_policy_to_operator(
             origin,
             roaming_billing_policy_id: T::RoamingBillingPolicyIndex,

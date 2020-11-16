@@ -46,7 +46,7 @@ rm -rf /tmp/polkadot-chains/alice /tmp/polkadot-chains/bob /tmp/polkadot-chains/
   --base-path /tmp/polkadot-chains/alice \
   --name "Data Highway Development Chain" \
   --dev \
-  --telemetry-url wss://telemetry.polkadot.io/submit/
+  --telemetry-url "wss://telemetry.polkadot.io/submit/ 0"
 ```
 
 ## Example "local" PoS testnet (with multiple nodes) <a id="chapter-f21efd"></a>
@@ -135,7 +135,7 @@ Run Alice's bootnode using the raw chain definition file that was generated
   --port 30333 \
   --ws-port 9944 \
   --rpc-port 9933 \
-  --telemetry-url wss://telemetry.polkadot.io/submit/ \
+  --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
   --execution=native \
   -lruntime=debug
 ```
@@ -164,7 +164,7 @@ Run Bob's Substrate-based node on a different TCP port of 30334, and with his ch
   --port 30334 \
   --ws-port 9945 \
   --rpc-port 9934 \
-  --telemetry-url wss://telemetry.polkadot.io/submit/ \
+  --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
   --execution=native \
   -lruntime=debug
 ```
@@ -188,7 +188,7 @@ Run Charlie's Substrate-based node on a different TCP port of 30335, and with hi
   --port 30335 \
   --ws-port 9946 \
   --rpc-port 9935 \
-  --telemetry-url wss://telemetry.polkadot.io/submit/ \
+  --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
   --execution=native \
   -lruntime=debug
 ```

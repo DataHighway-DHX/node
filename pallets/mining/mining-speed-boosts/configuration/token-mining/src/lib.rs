@@ -15,12 +15,10 @@ use frame_support::{
     decl_module,
     decl_storage,
     ensure,
+    traits::Get,
     Parameter,
 };
-use frame_system::{
-    self as system,
-    ensure_signed,
-};
+use frame_system::ensure_signed;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -188,32 +186,32 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostConfigurationTokenMining {
         /// Stores all the mining_speed_boosts_configuration_token_minings, key is the mining_speed_boosts_configuration_token_mining id / index
-        pub MiningSpeedBoostConfigurationTokenMinings get(fn mining_speed_boosts_configuration_token_mining): map hasher(blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<MiningSpeedBoostConfigurationTokenMining>;
+        pub MiningSpeedBoostConfigurationTokenMinings get(fn mining_speed_boosts_configuration_token_mining): map hasher(opaque_blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<MiningSpeedBoostConfigurationTokenMining>;
 
         /// Stores the total number of mining_speed_boosts_configuration_token_minings. i.e. the next mining_speed_boosts_configuration_token_mining index
         pub MiningSpeedBoostConfigurationTokenMiningCount get(fn mining_speed_boosts_configuration_token_mining_count): T::MiningSpeedBoostConfigurationTokenMiningIndex;
 
         /// Stores mining_speed_boosts_configuration_token_mining owner
-        pub MiningSpeedBoostConfigurationTokenMiningOwners get(fn mining_speed_boosts_configuration_token_mining_owner): map hasher(blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<T::AccountId>;
+        pub MiningSpeedBoostConfigurationTokenMiningOwners get(fn mining_speed_boosts_configuration_token_mining_owner): map hasher(opaque_blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<T::AccountId>;
 
         /// Stores mining_speed_boosts_configuration_token_mining_token_config
-        pub MiningSpeedBoostConfigurationTokenMiningTokenConfigs get(fn mining_speed_boosts_configuration_token_mining_token_configs): map hasher(blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex =>
+        pub MiningSpeedBoostConfigurationTokenMiningTokenConfigs get(fn mining_speed_boosts_configuration_token_mining_token_configs): map hasher(opaque_blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex =>
             Option<MiningSpeedBoostConfigurationTokenMiningTokenConfig<T::MiningSpeedBoostConfigurationTokenMiningTokenType, BalanceOf<T>, T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod,
                 T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate, T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate>>;
 
         // /// Stores mining_speed_boosts_random_samples
-        // pub MiningSpeedBoostSamples get(fn mining_speed_boosts_random_sample): map hasher(blake2_256) (T::MiningSpeedBoostOracleIndex, T::MiningSpeedBoostSampleHash) =>
+        // pub MiningSpeedBoostSamples get(fn mining_speed_boosts_random_sample): map hasher(opaque_blake2_256) (T::MiningSpeedBoostOracleIndex, T::MiningSpeedBoostSampleHash) =>
         //     Option<MiningSpeedBoostSample<T::MiningSpeedBoostSampleDate, T::MiningSpeedBoostSampleTokensLocked>>;
 
         // /// Stores mining_speed_boosts_random_eligibility
-        // pub MiningSpeedBoostEligibility get(fn mining_speed_boosts_eligibility): map hasher(blake2_256) T::MiningSpeedBoostEligibilityTokenMiningIndex =>
+        // pub MiningSpeedBoostEligibility get(fn mining_speed_boosts_eligibility): map hasher(opaque_blake2_256) T::MiningSpeedBoostEligibilityTokenMiningIndex =>
         //     Option<MiningSpeedBoostEligibilityResult<
         //         T::MiningSpeedBoostEligibilityCalculatedEligibility, T::MiningSpeedBoostEligibilityTokenLockedPercentage, T::MiningSpeedBoostEligibilityHardwareUptimePercentage
         //     >>;
         // }
 
         // /// Stores mining_speed_boosts_claim
-        // pub MiningSpeedBoostLodgement get(fn mining_speed_boosts_claim): map hasher(blake2_256) (T::MiningSpeedBoostLodgementIndex, T::MiningSpeedBoostLodgementHash) =>
+        // pub MiningSpeedBoostLodgement get(fn mining_speed_boosts_claim): map hasher(opaque_blake2_256) (T::MiningSpeedBoostLodgementIndex, T::MiningSpeedBoostLodgementHash) =>
         //     Option<MiningSpeedBoostLodgement<
         //         T::MiningSpeedBoostLodgementHash, T::MiningSpeedBoostLodgementAmount, T::MiningSpeedBoostLodgementDateRedeemed
         //     >>;
@@ -228,6 +226,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new mining mining_speed_boosts_configuration_token_mining
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let mining_speed_boosts_configuration_token_mining_id = Self::next_mining_speed_boosts_configuration_token_mining_id()?;
@@ -243,6 +242,7 @@ decl_module! {
         }
 
         /// Transfer a mining_speed_boosts_configuration_token_mining to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -254,6 +254,7 @@ decl_module! {
         }
 
         /// Set mining_speed_boosts_configuration_token_mining_token_config
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_mining_speed_boosts_configuration_token_mining_token_config(
             origin,
             mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
@@ -390,7 +391,7 @@ impl<T: Trait> Module<T> {
         match Self::mining_speed_boosts_configuration_token_mining_token_configs(
             mining_speed_boosts_configuration_token_mining_id,
         ) {
-            Some(value) => Ok(()),
+            Some(_value) => Ok(()),
             None => Err(DispatchError::Other("MiningSpeedBoostConfigurationTokenMiningTokenConfig does not exist")),
         }
     }
@@ -405,7 +406,7 @@ impl<T: Trait> Module<T> {
             <MiningSpeedBoostConfigurationTokenMiningTokenConfigs<T>>::get(
                 mining_speed_boosts_configuration_token_mining_id,
             );
-        if let Some(value) = fetched_mining_speed_boosts_configuration_token_mining_token_config {
+        if let Some(_value) = fetched_mining_speed_boosts_configuration_token_mining_token_config {
             debug::info!("Found value for mining_speed_boosts_configuration_token_mining_token_config");
             return Ok(());
         }

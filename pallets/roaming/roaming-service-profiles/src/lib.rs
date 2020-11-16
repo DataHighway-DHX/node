@@ -12,12 +12,10 @@ use frame_support::{
     decl_module,
     decl_storage,
     ensure,
+    traits::Get,
     Parameter,
 };
-use frame_system::{
-    self as system,
-    ensure_signed,
-};
+use frame_system::ensure_signed;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -73,25 +71,25 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingServiceProfiles {
         /// Stores all the roaming service_profiles, key is the roaming service_profile id / index
-        pub RoamingServiceProfiles get(fn roaming_service_profile): map hasher(blake2_256) T::RoamingServiceProfileIndex => Option<RoamingServiceProfile>;
+        pub RoamingServiceProfiles get(fn roaming_service_profile): map hasher(opaque_blake2_256) T::RoamingServiceProfileIndex => Option<RoamingServiceProfile>;
 
         /// Stores the total number of roaming service_profiles. i.e. the next roaming service_profile index
         pub RoamingServiceProfilesCount get(fn roaming_service_profiles_count): T::RoamingServiceProfileIndex;
 
         /// Get roaming service_profile owner
-        pub RoamingServiceProfileOwners get(fn roaming_service_profile_owner): map hasher(blake2_256) T::RoamingServiceProfileIndex => Option<T::AccountId>;
+        pub RoamingServiceProfileOwners get(fn roaming_service_profile_owner): map hasher(opaque_blake2_256) T::RoamingServiceProfileIndex => Option<T::AccountId>;
 
         /// Get roaming service_profile uplink rate.
-        pub RoamingServiceProfileUplinkRates get(fn roaming_service_profile_uplink_rate): map hasher(blake2_256) T::RoamingServiceProfileIndex => Option<T::RoamingServiceProfileUplinkRate>;
+        pub RoamingServiceProfileUplinkRates get(fn roaming_service_profile_uplink_rate): map hasher(opaque_blake2_256) T::RoamingServiceProfileIndex => Option<T::RoamingServiceProfileUplinkRate>;
 
         /// Get roaming service_profile downlink rate.
-        pub RoamingServiceProfileDownlinkRates get(fn roaming_service_profile_downlink_rate): map hasher(blake2_256) T::RoamingServiceProfileIndex => Option<T::RoamingServiceProfileDownlinkRate>;
+        pub RoamingServiceProfileDownlinkRates get(fn roaming_service_profile_downlink_rate): map hasher(opaque_blake2_256) T::RoamingServiceProfileIndex => Option<T::RoamingServiceProfileDownlinkRate>;
 
         /// Get roaming service_profile network_server
-        pub RoamingServiceProfileNetworkServer get(fn roaming_service_profile_network_server): map hasher(blake2_256) T::RoamingServiceProfileIndex => Option<T::RoamingNetworkServerIndex>;
+        pub RoamingServiceProfileNetworkServer get(fn roaming_service_profile_network_server): map hasher(opaque_blake2_256) T::RoamingServiceProfileIndex => Option<T::RoamingNetworkServerIndex>;
 
         /// Get roaming network_server service_profiles
-        pub RoamingNetworkServerServiceProfiles get(fn roaming_network_server_service_profiles): map hasher(blake2_256) T::RoamingNetworkServerIndex => Option<Vec<T::RoamingServiceProfileIndex>>
+        pub RoamingNetworkServerServiceProfiles get(fn roaming_network_server_service_profiles): map hasher(opaque_blake2_256) T::RoamingNetworkServerIndex => Option<Vec<T::RoamingServiceProfileIndex>>
     }
 }
 
@@ -102,6 +100,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new roaming service_profile
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let roaming_service_profile_id = Self::next_roaming_service_profile_id()?;
@@ -117,6 +116,7 @@ decl_module! {
         }
 
         /// Transfer a roaming service_profile to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, roaming_service_profile_id: T::RoamingServiceProfileIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -128,6 +128,7 @@ decl_module! {
         }
 
         /// Set uplink_rate for a roaming service_profile
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_uplink_rate(origin, roaming_service_profile_id: T::RoamingServiceProfileIndex, uplink_rate: Option<T::RoamingServiceProfileUplinkRate>) {
             let sender = ensure_signed(origin)?;
 
@@ -146,6 +147,7 @@ decl_module! {
         }
 
         /// Set downlink_rate for a roaming service_profile
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_downlink_rate(origin, roaming_service_profile_id: T::RoamingServiceProfileIndex, downlink_rate: Option<T::RoamingServiceProfileDownlinkRate>) {
             let sender = ensure_signed(origin)?;
 
@@ -165,6 +167,7 @@ decl_module! {
 
         // Optional: Service Profile is assigned to Network (Roaming Base) Profile, which is associated with a network.
         // This is an override to associate it with a specific Network Server rather than entire networks.
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_service_profile_to_network_server(
             origin,
             roaming_service_profile_id: T::RoamingServiceProfileIndex,
