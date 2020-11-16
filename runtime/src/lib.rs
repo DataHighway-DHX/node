@@ -142,8 +142,8 @@ pub use constants::time::*;
 pub use types::*;
 
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-    spec_name: create_runtime_str!("node-template"),
-    impl_name: create_runtime_str!("node-template"),
+    spec_name: create_runtime_str!("datahighway"),
+    impl_name: create_runtime_str!("datahighway"),
     authoring_version: 1,
     spec_version: 1,
     impl_version: 1,

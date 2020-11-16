@@ -4923,7 +4923,7 @@ dependencies = [
 
 [[package]]
 name = "roaming-accounting-policies"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "frame-support",
  "frame-system",
@@ -4942,7 +4942,7 @@ dependencies = [
 
 [[package]]
 name = "roaming-agreement-policies"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "frame-support",
  "frame-system",
@@ -4962,7 +4962,7 @@ dependencies = [
 
 [[package]]
 name = "roaming-billing-policies"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "frame-support",
  "frame-system",
