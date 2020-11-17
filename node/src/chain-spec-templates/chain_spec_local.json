@@ -165,8 +165,8 @@
           "5Ck5SLSHYac6WFt5UZRSsdJjwmpSZq85fd5TRNAdZQVzEAPT",
           "5HKPmK9GYtE1PSLsS1qiYU9xQ9Si1NcEhdeCq9sw5bqu4ns8"
         ],
-        "currentEra": 0,
         "forceEra": "NotForcing",
+        "historyDepth": 84,
         "slashRewardFraction": 100000000,
         "canceledPayout": 0,
         "stakers": [
