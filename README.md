@@ -26,3 +26,7 @@ Refer to [EXAMPLES.md](./EXAMPLES.md) for different examples of how to configure
 ### Run a Full Node
 
 * Follow the steps in section "Testnet (Alpha) PoS testnet (with multiple nodes)" and "Interact with blockchain using Polkadot.js Apps UI" in [EXAMPLES.md](./EXAMPLES.md).
+
+### Run an Authority Node (live)
+
+* Follow the steps in this [Tutorial](https://dev.datahighway.com/docs/en/tutorials/tutorials-nodes-authorities-setup)
