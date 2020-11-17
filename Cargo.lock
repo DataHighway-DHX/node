@@ -941,7 +941,7 @@ checksum = "72aa14c04dfae8dd7d8a2b1cb7ca2152618cd01336dbfe704b8dcbf8d41dbd69"
 
 [[package]]
 name = "datahighway"
-version = "0.2.0"
+version = "2.0.0"
 dependencies = [
  "datahighway-runtime",
  "frame-benchmarking",
@@ -987,7 +987,7 @@ dependencies = [
 
 [[package]]
 name = "datahighway-runtime"
-version = "0.2.0"
+version = "2.0.0"
 dependencies = [
  "frame-executive",
  "frame-support",
