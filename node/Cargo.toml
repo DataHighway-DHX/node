@@ -1,9 +1,9 @@
 [package]
-authors = ['MXC Foundation GmbH <https://t.me/mxcfoundation>']
+authors = ['MXC Foundation GmbH <https://t.me/mxcfoundation>', 'Luke Schoen <luke@mxc.org>', 'Ilya Beregovskiy <ilya@mxc.org>']
 build = 'build.rs'
 edition = '2018'
 name = 'datahighway'
-version = '0.2.0'
+version = '1.0.0'
 
 [[bin]]
 name = 'datahighway'
@@ -21,7 +21,7 @@ structopt = '0.3.8'
 hex-literal = '0.2.1'
 
 # local dependencies
-datahighway-runtime = { path = '../runtime', version = '0.2.0' }
+datahighway-runtime = { path = '../runtime', version = '1.0.0' }
 
 # Substrate dependencies
 frame-benchmarking = '2.0.0'

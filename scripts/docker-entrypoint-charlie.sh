@@ -23,3 +23,4 @@ echo "Chain Version is ${CHAIN_VERSION}"
   --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
   --execution=native \
   -lruntime=debug
+  --rpc-methods=Unsafe
