@@ -76,6 +76,7 @@ pub enum Alternative {
     LocalTestnet,
     // DataHighwayTestnet,
     DataHighwayTestnetLatest,
+    DataHighwayTestnetHarbour
 }
 
 /// Helper function to generate a crypto pair from seed
@@ -248,6 +249,65 @@ impl Alternative {
                     Default::default(),
                 )
             }
+            Alternative::DataHighwayTestnetHarbour => {
+                ChainSpec::from_genesis(
+                    "DataHighway Harbour Testnet",
+                    "harbour",
+                    ChainType::Live,
+                    || {
+                        // TODO: regenerate alphanet according to babe-grandpa consensus
+                        // export SECRET=test && echo $SECRET
+                        // ./target/release/subkey --sr25519 inspect "$SECRET//datahighway//aura"
+                        // ./target/release/subkey --sr25519 inspect "$SECRET//datahighway//babe"
+                        // ./target/release/subkey --sr25519 inspect "$SECRET//datahighway//imonline"
+                        // ./target/release/subkey --ed25519 inspect "$SECRET//datahighway//grandpa"
+                        // ./target/release/subkey inspect "$SECRET//datahighway//root"
+                        testnet_genesis(
+                            vec![
+                                get_authority_keys_from_seed("Titanic"),
+                                get_authority_keys_from_seed("Arizona"),
+                                get_authority_keys_from_seed("Bismarck"),
+                                get_authority_keys_from_seed("Maine"),
+                            ],
+                            get_account_id_from_seed::<sr25519::Public>("Titanic"),
+                            vec![
+                                // Endow this account with the DHX DAO Unlocked Reserves Balance
+                                // 5FmxcuFwGK7kPmQCB3zhk3HtxxJUyb3WjxosF8jvnkrVRLUG
+                                hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
+                                // Endow these accounts with a balance so they may bond as authorities
+                                get_account_id_from_seed::<sr25519::Public>("Titanic"),
+                                get_account_id_from_seed::<sr25519::Public>("Arizona"),
+                                get_account_id_from_seed::<sr25519::Public>("Bismarck"),
+                                get_account_id_from_seed::<sr25519::Public>("Maine"),
+                                get_account_id_from_seed::<sr25519::Public>("Titanic//stash"),
+                                get_account_id_from_seed::<sr25519::Public>("Arizona//stash"),
+                                get_account_id_from_seed::<sr25519::Public>("Bismarck//stash"),
+                                get_account_id_from_seed::<sr25519::Public>("Maine//stash"),
+                            ],
+                        )
+                    },
+                    // bootnodes
+                    vec![
+                        // Note: Bootnode and associated IP address configured in docker-compose.yml entrypoints
+                        // Alice
+                        "/dns4/testnet-harbour.datahighway.com/tcp/30333/p2p/\
+                         QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ"
+                            .parse()
+                            .unwrap(),
+                    ],
+                    // telemetry endpoints
+                    Some(
+                        TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])
+                            .expect("Testnet url is valid; qed"),
+                    ),
+                    // protocol id
+                    Some("dhx-test"),
+                    // properties
+                    Some(properties),
+                    // extensions
+                    Default::default(),
+                )
+            }
         })
     }
 
@@ -257,6 +317,7 @@ impl Alternative {
             "local" => Some(Alternative::LocalTestnet),
             // "" | "testnet" => Some(Alternative::DataHighwayTestnet),
             "testnet_latest" => Some(Alternative::DataHighwayTestnetLatest),
+            "harbour" => Some(Alternative::DataHighwayTestnetHarbour),
             _ => None,
         }
     }
