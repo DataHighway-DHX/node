@@ -76,7 +76,7 @@ pub enum Alternative {
     LocalTestnet,
     // DataHighwayTestnet,
     DataHighwayTestnetLatest,
-    DataHighwayTestnetHarbour
+    DataHighwayTestnetHarbour,
 }
 
 /// Helper function to generate a crypto pair from seed
