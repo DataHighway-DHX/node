@@ -2,7 +2,7 @@
 authors = ['MXC Foundation GmbH <https://t.me/mxcfoundation>', 'Luke Schoen <luke@mxc.org>', 'Ilya Beregovskiy <ilya@mxc.org>']
 edition = '2018'
 name = 'datahighway-runtime'
-version = '2.0.0'
+version = '1.0.0'
 
 [features]
 default = ['std']
