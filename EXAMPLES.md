@@ -138,6 +138,7 @@ Run Alice's bootnode using the raw chain definition file that was generated
   --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
   --execution=native \
   -lruntime=debug
+  --rpc-methods=Unsafe
 ```
 
 When the node has started, copy the libp2p local node identity of the node, and paste in the `bootNodes` of chain_def_local.json if necessary.
@@ -167,6 +168,7 @@ Run Bob's Substrate-based node on a different TCP port of 30334, and with his ch
   --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
   --execution=native \
   -lruntime=debug
+  --rpc-methods=Unsafe
 ```
 
 > Important: Since in GRANDPA you have authority set of size 4, it means you need 3 nodes running in order to **finalize** the blocks that are authored. (Credit: @bkchr Bastian Köcher)
@@ -191,6 +193,7 @@ Run Charlie's Substrate-based node on a different TCP port of 30335, and with hi
   --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
   --execution=native \
   -lruntime=debug
+  --rpc-methods=Unsafe
 ```
 
 * Check that the chain is finalizing blocks (i.e. finalized is non-zero `main-tokio- INFO substrate  Idle (2 peers), best: #3 (0xaede…b8d9), finalized #1 (0x4c69…f605), ⬇ 3.3kiB/s ⬆ 3.7kiB/s`)
