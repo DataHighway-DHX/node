@@ -291,7 +291,7 @@ impl Alternative {
                         // Note: Bootnode and associated IP address configured in docker-compose.yml entrypoints
                         // Alice
                         "/dns4/testnet-harbour.datahighway.com/tcp/30333/p2p/\
-                         QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ"
+                         12D3KooWHws5vBGsiPFbtXVgCDrDeYMZSJm2MS1hV9hNXHQe6ZPE"
                             .parse()
                             .unwrap(),
                     ],
