@@ -33,3 +33,6 @@ Refer to [EXAMPLES.md](./EXAMPLES.md) for different examples of how to configure
 
 ### Run multiple Nodes (distributed testnet)
 * [Testnet (Alpha) "testnet_latest" PoS testnet (with multiple nodes)](./EXAMPLES.md#testnet-alpha-testnet_latest-pos-testnet-with-multiple-nodes-)
+
+### Run an authority node (live harbour testnet)
+* [Setup Authority Node](https://dev.datahighway.com/docs/en/tutorials/tutorials-nodes-authorities-setup)
