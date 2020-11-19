@@ -5,8 +5,6 @@ echo "Node Key is ${NODE_KEY}"
 echo "Node Env is ${NODE_ENV}"
 echo "Chain Version is ${CHAIN_VERSION}"
 
-./docker-build-chain-spec.sh
-
 ../target/release/datahighway --validator \
   --unsafe-ws-external \
   --unsafe-rpc-external \
