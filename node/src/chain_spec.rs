@@ -145,10 +145,10 @@ impl Alternative {
                     || {
                         dev_genesis(
                             vec![
-                                get_authority_keys_from_seed("Alice"),
-                                get_authority_keys_from_seed("Bob"),
-                                get_authority_keys_from_seed("Charlie"),
-                                get_authority_keys_from_seed("Dave"),
+                                get_authority_keys_from_seed::<sr25519::Public>("Alice"),
+                                get_authority_keys_from_seed::<sr25519::Public>("Bob"),
+                                get_authority_keys_from_seed::<sr25519::Public>("Charlie"),
+                                get_authority_keys_from_seed::<sr25519::Public>("Dave"),
                             ],
                             get_account_id_from_seed::<sr25519::Public>("Alice"),
                             vec![
@@ -205,10 +205,10 @@ impl Alternative {
                         // ./target/release/subkey inspect "$SECRET//datahighway//root"
                         testnet_genesis(
                             vec![
-                                get_authority_keys_from_seed("Alice"),
-                                get_authority_keys_from_seed("Bob"),
-                                get_authority_keys_from_seed("Charlie"),
-                                get_authority_keys_from_seed("Dave"),
+                                get_authority_keys_from_seed::<sr25519::Public>("Alice"),
+                                get_authority_keys_from_seed::<sr25519::Public>("Bob"),
+                                get_authority_keys_from_seed::<sr25519::Public>("Charlie"),
+                                get_authority_keys_from_seed::<sr25519::Public>("Dave"),
                             ],
                             get_account_id_from_seed::<sr25519::Public>("Alice"),
                             vec![
@@ -264,10 +264,10 @@ impl Alternative {
                         // ./target/release/subkey inspect "$SECRET//datahighway//root"
                         testnet_genesis(
                             vec![
-                                get_authority_keys_from_seed("Titanic"),
-                                get_authority_keys_from_seed("Arizona"),
-                                get_authority_keys_from_seed("Bismarck"),
-                                get_authority_keys_from_seed("Maine"),
+                                get_authority_keys_from_seed::<sr25519::Public>("Titanic"),
+                                get_authority_keys_from_seed::<sr25519::Public>("Arizona"),
+                                get_authority_keys_from_seed::<sr25519::Public>("Bismarck"),
+                                get_authority_keys_from_seed::<sr25519::Public>("Maine"),
                             ],
                             get_account_id_from_seed::<sr25519::Public>("Titanic"),
                             vec![
