@@ -20,5 +20,5 @@ echo "Chain Version is ${CHAIN_VERSION}"
   --rpc-port 9933 \
   --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
   --execution=native \
-  -lruntime=debug
+  -lruntime=debug \
   --rpc-methods=Unsafe
