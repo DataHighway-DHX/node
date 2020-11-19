@@ -22,7 +22,17 @@ Relevant part of contributing instructons will progressively be moved to [DataHi
 Refer to [EXAMPLES.md](./EXAMPLES.md) for different examples of how to configure and interact.
 
 ## Quickstart <a id="chapter-888ccd"></a>
+* Follow the steps below
 
-### Run a Full Node
+### Run a single Node (local testnet)
+* [Example "dev" development PoS testnet (with single node)
+](./EXAMPLES.md#example-dev-development-pos-testnet-with-single-node-)
 
-* Follow the steps in section "Testnet (Alpha) PoS testnet (with multiple nodes)" and "Interact with blockchain using Polkadot.js Apps UI" in [EXAMPLES.md](./EXAMPLES.md).
+### Run multiple Nodes (local testnet)
+* [Example "local" PoS testnet (with multiple nodes)](./EXAMPLES.md#example-local-pos-testnet-with-multiple-nodes-)
+
+### Run multiple Nodes (distributed testnet)
+* [Testnet (Alpha) "testnet_latest" PoS testnet (with multiple nodes)](./EXAMPLES.md#testnet-alpha-testnet_latest-pos-testnet-with-multiple-nodes-)
+
+### Run an authority node (live harbour testnet)
+* [Setup Authority Node](https://dev.datahighway.com/docs/en/tutorials/tutorials-nodes-authorities-setup)
