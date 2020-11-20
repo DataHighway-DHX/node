@@ -137,7 +137,7 @@ Run Alice's bootnode using the raw chain definition file that was generated
   --rpc-port 9933 \
   --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
   --execution=native \
-  -lruntime=debug
+  -lruntime=debug \
   --rpc-methods=Unsafe
 ```
 
@@ -167,7 +167,7 @@ Run Bob's Substrate-based node on a different TCP port of 30334, and with his ch
   --rpc-port 9934 \
   --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
   --execution=native \
-  -lruntime=debug
+  -lruntime=debug \
   --rpc-methods=Unsafe
 ```
 
@@ -192,7 +192,7 @@ Run Charlie's Substrate-based node on a different TCP port of 30335, and with hi
   --rpc-port 9935 \
   --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
   --execution=native \
-  -lruntime=debug
+  -lruntime=debug \
   --rpc-methods=Unsafe
 ```
 
