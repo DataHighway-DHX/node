@@ -1,4 +1,6 @@
 {
+  "Address": "AccountId", 
+  "LookupSource": "AccountId", 
   "RoamingOperator": "[u8; 16]",
   "RoamingOperatorIndex": "u64",
   "RoamingNetwork": "[u8; 16]",
