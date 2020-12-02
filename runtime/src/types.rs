@@ -25,7 +25,7 @@ pub type AccountIndex = u32;
 pub type Amount = i128;
 
 /// Index of a transaction in the chain.
-pub type Index = u64;
+pub type Index = u32;
 
 /// A hash of some data used by the chain.
 pub type Hash = sp_core::H256;
