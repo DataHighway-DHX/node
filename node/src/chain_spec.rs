@@ -32,6 +32,7 @@ use sp_finality_grandpa::AuthorityId as GrandpaId;
 
 use sc_service::ChainType;
 use sp_core::{
+    crypto::UncheckedInto,
     crypto::UncheckedFrom,
     sr25519,
     Pair,
@@ -256,33 +257,52 @@ impl Alternative {
                     ChainType::Live,
                     || {
                         // TODO: regenerate alphanet according to babe-grandpa consensus
-                        // export SECRET=test && echo $SECRET
-                        // ./target/release/subkey --sr25519 inspect "$SECRET//datahighway//aura"
-                        // ./target/release/subkey --sr25519 inspect "$SECRET//datahighway//babe"
-                        // ./target/release/subkey --sr25519 inspect "$SECRET//datahighway//imonline"
-                        // ./target/release/subkey --ed25519 inspect "$SECRET//datahighway//grandpa"
-                        // ./target/release/subkey inspect "$SECRET//datahighway//root"
+                        // subkey inspect "$SECRET"
+                        // for i in 1 2 3 4; do for j in stash controller; do subkey inspect "$SECRET//$i//$j"; done; done
+                        // for i in 1 2 3 4; do for j in babe; do subkey inspect --scheme=sr25519 "$SECRET//$i//$j"; done; done
+                        // for i in 1 2 3 4; do for j in grandpa; do subkey inspect --scheme=ed25519 "$SECRET//$i//$j"; done; done
                         testnet_genesis(
                             vec![
-                                get_authority_keys_from_seed("Titanic"),
-                                get_authority_keys_from_seed("Arizona"),
-                                get_authority_keys_from_seed("Bismarck"),
-                                get_authority_keys_from_seed("Maine"),
+                                (
+                                    hex!["f64bae0f8fbe2eb59ff1c0ff760a085f55d69af5909aed280ebda09dc364d443"].into(),
+                                    hex!["ca907b74f921b74638eb40c289e9bf1142b0afcdb25e1a50383ab8f9d515da0d"].into(),
+                                    hex!["6a9da05f3e07d68bc29fb6cf9377a1537d59f082f49cb27a47881aef9fbaeaee"].unchecked_into(),
+                                    hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"].unchecked_into(),
+                                ),
+                                (
+                                    hex!["420a7b4a8c9f2388eded13c17841d2a0e08ea7c87eda84310da54f3ccecd3931"].into(),
+                                    hex!["ae69db7838fb139cbf4f93bf877faf5bbef242f3f5aac6eb4f111398e9385e7d"].into(),
+                                    hex!["9af1908ac74b042f4be713e10dcf6a2def3770cfce58951c839768e7d6bbcd8e"].unchecked_into(),
+                                    hex!["1e91a7902c89289f97756c4e20c0e9536f34de61c7c21af7773d670b0e644030"].unchecked_into(),
+                                ),
+                                (
+                                    hex!["ceecb6cc08c20ff44052ff19952a810d08363aa26ea4fb0a64a62a4630d37f28"].into(),
+                                    hex!["7652b25328d78d264aef01184202c9771b55f5b391359309a2559ef77fbbb33d"].into(),
+                                    hex!["b8902681768fbda7a29666e1de8a18f5be3c778d92cf29139959a86e6bff13e7"].unchecked_into(),
+                                    hex!["aaabcb653ce5dfd63035430dba10ce9aed5d064883b9e2b19ec5d9b26a457f57"].unchecked_into(),
+                                ),
+                                (
+                                    hex!["68bac5586028dd40db59a7becec349b42cd4229f9d3c31875c3eb7a57241cd42"].into(),
+                                    hex!["eec96d02877a45fa524fcee1c6b7c849cbdc8cee01a95f5db168c427ae766849"].into(),
+                                    hex!["f4807d86cca169a81d42fcf9c7abddeff107b0a73e9e7a809257ac7e4a164741"].unchecked_into(),
+                                    hex!["a49ac1053a40a2c7c33ffa41cb285cef7c3bc9db7e03a16d174cc8b5b5ac0247"].unchecked_into(),
+                                ),
                             ],
-                            get_account_id_from_seed::<sr25519::Public>("Titanic"),
+                            hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
                             vec![
                                 // Endow this account with the DHX DAO Unlocked Reserves Balance
                                 // 5FmxcuFwGK7kPmQCB3zhk3HtxxJUyb3WjxosF8jvnkrVRLUG
                                 hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
                                 // Endow these accounts with a balance so they may bond as authorities
-                                get_account_id_from_seed::<sr25519::Public>("Titanic"),
-                                get_account_id_from_seed::<sr25519::Public>("Arizona"),
-                                get_account_id_from_seed::<sr25519::Public>("Bismarck"),
-                                get_account_id_from_seed::<sr25519::Public>("Maine"),
-                                get_account_id_from_seed::<sr25519::Public>("Titanic//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Arizona//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Bismarck//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Maine//stash"),
+                                hex!["ca907b74f921b74638eb40c289e9bf1142b0afcdb25e1a50383ab8f9d515da0d"].into(),
+                                hex!["ae69db7838fb139cbf4f93bf877faf5bbef242f3f5aac6eb4f111398e9385e7d"].into(),
+                                hex!["7652b25328d78d264aef01184202c9771b55f5b391359309a2559ef77fbbb33d"].into(),
+                                hex!["eec96d02877a45fa524fcee1c6b7c849cbdc8cee01a95f5db168c427ae766849"].into(),
+
+                                hex!["f64bae0f8fbe2eb59ff1c0ff760a085f55d69af5909aed280ebda09dc364d443"].into(),
+                                hex!["420a7b4a8c9f2388eded13c17841d2a0e08ea7c87eda84310da54f3ccecd3931"].into(),
+                                hex!["ceecb6cc08c20ff44052ff19952a810d08363aa26ea4fb0a64a62a4630d37f28"].into(),
+                                hex!["68bac5586028dd40db59a7becec349b42cd4229f9d3c31875c3eb7a57241cd42"].into(),
                             ],
                         )
                     },
