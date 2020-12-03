@@ -49,6 +49,9 @@ pub use sp_runtime::{
     Permill,
 };
 
+const POLKADOT_STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
+
+
 // Note this is the URL for the telemetry server
 // const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
 
@@ -172,15 +175,10 @@ impl Alternative {
                             true,
                         )
                     },
-                    // bootnodes
-                    vec![
-                        // Alice
-                        // FIXME - should this be `dns`?
-                        "/ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ".parse().unwrap(),
-                    ],
+                    vec![],
                     Some(
-                        TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])
-                            .expect("Local telemetry url is valid; qed"),
+                        TelemetryEndpoints::new(vec![(POLKADOT_STAGING_TELEMETRY_URL.to_string(), 0)])
+                            .expect("Polkadot telemetry url is valid; qed"),
                     ),
                     None,
                     Some(properties),
@@ -230,19 +228,11 @@ impl Alternative {
                             ],
                         )
                     },
-                    // bootnodes
-                    vec![
-                        // Note: Bootnode and associated IP address configured in docker-compose.yml entrypoints
-                        // Alice
-                        "/dns4/testnet-harbour.datahighway.com/tcp/30333/p2p/\
-                         QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ"
-                            .parse()
-                            .unwrap(),
-                    ],
+                    vec![],
                     // telemetry endpoints
                     Some(
-                        TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])
-                            .expect("Testnet url is valid; qed"),
+                        TelemetryEndpoints::new(vec![(POLKADOT_STAGING_TELEMETRY_URL.to_string(), 0)])
+                            .expect("Polkadot telemetry url is valid; qed"),
                     ),
                     // protocol id
                     Some("dhx-test"),
@@ -316,19 +306,11 @@ impl Alternative {
                             ],
                         )
                     },
-                    // bootnodes
-                    vec![
-                        // Note: Bootnode and associated IP address configured in docker-compose.yml entrypoints
-                        // Alice
-                        "/dns4/testnet-harbour.datahighway.com/tcp/30333/p2p/\
-                         12D3KooWHws5vBGsiPFbtXVgCDrDeYMZSJm2MS1hV9hNXHQe6ZPE"
-                            .parse()
-                            .unwrap(),
-                    ],
+                    vec![],
                     // telemetry endpoints
                     Some(
-                        TelemetryEndpoints::new(vec![("wss://telemetry.polkadot.io/submit/".into(), 0)])
-                            .expect("Testnet url is valid; qed"),
+                        TelemetryEndpoints::new(vec![(POLKADOT_STAGING_TELEMETRY_URL.to_string(), 0)])
+                            .expect("Polkadot telemetry url is valid; qed"),
                     ),
                     // protocol id
                     Some("dhx-test"),
