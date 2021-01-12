@@ -2,8 +2,6 @@
 
 The Data Highway Substrate-based blockchain node.
 
-__WARNING__: This implementation is a proof-of-concept prototype and is not ready for production use.
-
 # Table of contents
 
 * [Contributing](#chapter-cb8b82)
@@ -20,6 +18,12 @@ Refer to [CONTRIBUTING.md](./CONTRIBUTING.md) for contributing instructions.
 Relevant part of contributing instructons will progressively be moved to [DataHighway Developer Hub](https://github.com/DataHighway-DHX/documentation).
 
 Refer to [EXAMPLES.md](./EXAMPLES.md) for different examples of how to configure and interact.
+
+## Parachain notes
+
+Refer to [PARACHAIN.md](./PARACHAIN.md) for instructions of how to run as a parachain 
+
+__WARNING__: This implementation is a proof-of-concept prototype and is not ready for production use.
 
 ## Quickstart <a id="chapter-888ccd"></a>
 * Follow the steps below
