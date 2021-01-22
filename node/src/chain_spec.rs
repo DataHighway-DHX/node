@@ -24,7 +24,6 @@ use parachain_runtime::{
     BalancesConfig,
     GeneralCouncilMembershipConfig,
     GenesisConfig,
-    IndicesConfig,
     Signature,
     SudoConfig,
     SystemConfig,};
@@ -266,9 +265,9 @@ fn testnet_genesis(
 				.to_vec(),
 			changes_trie_config: Default::default(),
 		}),
-        pallet_indices: Some(IndicesConfig {
-            indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
-        }),
+        // pallet_indices: Some(IndicesConfig {
+        //     indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
+        // }),
         pallet_balances: Some(BalancesConfig {
             balances: endowed_accounts
                 .iter()
@@ -327,9 +326,9 @@ fn dev_genesis(
 				.to_vec(),
 			changes_trie_config: Default::default(),
 		}),
-        pallet_indices: Some(IndicesConfig {
-            indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
-        }),
+        // pallet_indices: Some(IndicesConfig {
+        //     indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
+        // }),
 		pallet_balances: Some(parachain_runtime::BalancesConfig {
             balances: endowed_accounts.iter().cloned().map(|x|
                 // Insert Public key (hex) of the account without the 0x prefix below

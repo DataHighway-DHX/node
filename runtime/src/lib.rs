@@ -261,18 +261,18 @@ parameter_types! {
     pub const ExpectedBlockTime: Moment = MILLISECS_PER_BLOCK;
 }
 
-impl pallet_indices::Config for Runtime {
-    /// The type for recording indexing into the account enumeration. If this ever overflows, there
-    /// will be problems!
-    type AccountIndex = AccountIndex;
-    /// The currency type.
-    type Currency = Balances;
-    /// How much an index costs.
-    type Deposit = IndexDeposit;
-    /// The ubiquitous event type.
-    type Event = Event;
-    type WeightInfo = ();
-}
+// impl pallet_indices::Config for Runtime {
+//     /// The type for recording indexing into the account enumeration. If this ever overflows, there
+//     /// will be problems!
+//     type AccountIndex = AccountIndex;
+//     /// The currency type.
+//     type Currency = Balances;
+//     /// How much an index costs.
+//     type Deposit = IndexDeposit;
+//     /// The ubiquitous event type.
+//     type Event = Event;
+//     type WeightInfo = ();
+// }
 
 parameter_types! {
     /// How much an index costs.
@@ -772,7 +772,7 @@ construct_runtime!(
         System: frame_system::{Module, Call, Config, Storage, Event<T>},
         RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
         Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
-        Indices: pallet_indices::{Module, Call, Storage, Event<T>, Config<T>},
+        //Indices: pallet_indices::{Module, Call, Storage, Event<T>, Config<T>},
         Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
         TransactionPayment: pallet_transaction_payment::{Module, Storage},
         Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
