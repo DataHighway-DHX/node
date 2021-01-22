@@ -8,11 +8,6 @@ include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 mod constants;
 mod types;
 
-use pallet_grandpa::{
-    fg_primitives,
-    AuthorityId as GrandpaId,
-    AuthorityList as GrandpaAuthorityList,
-};
 use sp_api::impl_runtime_apis;
 use sp_core::{
     crypto::KeyTypeId,
@@ -51,6 +46,19 @@ use sp_std::prelude::*;
 #[cfg(feature = "std")]
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
+use frame_system::limits::{BlockLength, BlockWeights};
+
+use polkadot_parachain::primitives::Sibling;
+use xcm::v0::{Junction, MultiLocation, NetworkId};
+use xcm_builder::{
+	AccountId32Aliases, CurrencyAdapter, LocationInverter, ParentIsDefault, RelayChainAsNative,
+	SiblingParachainAsNative, SiblingParachainConvertsVia, SignedAccountId32AsNative,
+	SovereignSignedViaLocation,
+};
+use xcm_executor::{
+	traits::{IsConcrete, NativeAsset},
+	Config, XcmExecutor,
+};
 
 // A few exports that help ease life for downstream crates.
 pub use frame_support::{
@@ -71,11 +79,12 @@ pub use frame_support::{
         },
         IdentityFee,
         Weight,
+        DispatchClass,
     },
     StorageValue,
 };
 pub use pallet_balances::Call as BalancesCall;
-pub use pallet_staking::StakerStatus;
+//pub use pallet_staking::StakerStatus;
 pub use pallet_timestamp::Call as TimestampCall;
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
@@ -103,10 +112,7 @@ pub mod opaque {
     pub type BlockId = generic::BlockId<Block>;
 
     impl_opaque_keys! {
-        pub struct SessionKeys {
-            pub babe: Babe,
-            pub grandpa: Grandpa,
-        }
+        pub struct SessionKeys {}
     }
 }
 
@@ -141,40 +147,66 @@ pub fn native_version() -> NativeVersion {
     }
 }
 
-#[cfg(feature = "std")]
-pub fn wasm_binary_unwrap() -> &'static [u8] {
-    WASM_BINARY.expect(
-        "Development wasm binary is not available. This means the client is built with `BUILD_DUMMY_WASM_BINARY` flag \
-         and it is only usable for production chains. Please rebuild with the flag disabled.",
-    )
-}
+/// We assume that ~10% of the block weight is consumed by `on_initalize` handlers.
+/// This is used to limit the maximal weight of a single extrinsic.
+const AVERAGE_ON_INITIALIZE_RATIO: Perbill = Perbill::from_percent(10);
+/// We allow `Normal` extrinsics to fill up the block up to 75%, the rest can be used
+/// by  Operational  extrinsics.
+const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
+/// We allow for 2 seconds of compute with a 6 second average block time.
+const MAXIMUM_BLOCK_WEIGHT: Weight = 2 * WEIGHT_PER_SECOND;
 
 parameter_types! {
     pub const BlockHashCount: BlockNumber = 2400;
     /// We allow for 2 seconds of compute with a 6 second average block time.
     pub const MaximumBlockWeight: Weight = 2 * WEIGHT_PER_SECOND;
-    pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
+    // pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     /// Assume 10% of weight for average on_initialize calls.
-    pub MaximumExtrinsicWeight: Weight = AvailableBlockRatio::get()
-        .saturating_sub(Perbill::from_percent(10)) * MaximumBlockWeight::get();
+    // pub MaximumExtrinsicWeight: Weight = AvailableBlockRatio::get()
+    //     .saturating_sub(Perbill::from_percent(10)) * MaximumBlockWeight::get();
     pub const MaximumBlockLength: u32 = 5 * 1024 * 1024;
     pub const Version: RuntimeVersion = VERSION;
+	pub RuntimeBlockLength: BlockLength =
+        BlockLength::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
+	pub RuntimeBlockWeights: BlockWeights = BlockWeights::builder()
+        .base_block(BlockExecutionWeight::get())
+        .for_class(DispatchClass::all(), |weights| {
+            weights.base_extrinsic = ExtrinsicBaseWeight::get();
+        })
+        .for_class(DispatchClass::Normal, |weights| {
+            weights.max_total = Some(NORMAL_DISPATCH_RATIO * MAXIMUM_BLOCK_WEIGHT);
+        })
+        .for_class(DispatchClass::Operational, |weights| {
+            weights.max_total = Some(MAXIMUM_BLOCK_WEIGHT);
+            // Operational transactions have some extra reserved space, so that they
+            // are included even if block reached `MAXIMUM_BLOCK_WEIGHT`.
+            weights.reserved = Some(
+                MAXIMUM_BLOCK_WEIGHT - NORMAL_DISPATCH_RATIO * MAXIMUM_BLOCK_WEIGHT
+            );
+        })
+        .avg_block_initialization(AVERAGE_ON_INITIALIZE_RATIO)
+        .build_or_panic();
+    pub const SS58Prefix: u8 = 42;
 }
 
 // Configure FRAME pallets to include in runtime.
 
-impl frame_system::Trait for Runtime {
+impl frame_system::Config for Runtime {
     /// The data to be stored in an account.
     type AccountData = pallet_balances::AccountData<Balance>;
     /// The identifier used to distinguish between accounts.
     type AccountId = AccountId;
     /// Portion of the block weight that is available to all normal transactions.
-    type AvailableBlockRatio = AvailableBlockRatio;
+    // type AvailableBlockRatio = AvailableBlockRatio;
     /// The basic call filter to use in dispatchable.
     type BaseCallFilter = ();
+	/// Block & extrinsics weights: base values and limits.
+	type BlockWeights = RuntimeBlockWeights;
+	/// The maximum length of a block (in bytes).
+	type BlockLength = RuntimeBlockLength;
     /// The weight of the overhead invoked on the block import process, independent of the
     /// extrinsics included in that block.
-    type BlockExecutionWeight = BlockExecutionWeight;
+    // type BlockExecutionWeight = BlockExecutionWeight;
     /// Maximum number of block number to block hash mappings to keep (oldest pruned first).
     type BlockHashCount = BlockHashCount;
     /// The index type for blocks.
@@ -187,7 +219,7 @@ impl frame_system::Trait for Runtime {
     type Event = Event;
     /// The base weight of any extrinsic processed by the runtime, independent of the
     /// logic of that extrinsic. (Signature verification, nonce increment, fee, etc...)
-    type ExtrinsicBaseWeight = ExtrinsicBaseWeight;
+    // type ExtrinsicBaseWeight = ExtrinsicBaseWeight;
     /// The type for hashing blocks and tries.
     type Hash = Hash;
     /// The hashing algorithm used.
@@ -199,13 +231,13 @@ impl frame_system::Trait for Runtime {
     /// The lookup mechanism to get account ID from whatever is passed in dispatchers.
     type Lookup = IdentityLookup<AccountId>;
     /// Maximum size of all encoded transactions (in bytes) that are allowed in one block.
-    type MaximumBlockLength = MaximumBlockLength;
+    // type MaximumBlockLength = MaximumBlockLength;
     /// Maximum weight of each block.
-    type MaximumBlockWeight = MaximumBlockWeight;
+    // type MaximumBlockWeight = MaximumBlockWeight;
     /// The maximum weight that a single extrinsic of `Normal` dispatch class can have,
     /// idependent of the logic of that extrinsics. (Roughly max block weight - average on
     /// initialize cost).
-    type MaximumExtrinsicWeight = MaximumExtrinsicWeight;
+    // type MaximumExtrinsicWeight = MaximumExtrinsicWeight;
     /// What to do if an account is fully reaped from the system.
     type OnKilledAccount = ();
     /// What to do if a new account is created.
@@ -220,6 +252,8 @@ impl frame_system::Trait for Runtime {
     type SystemWeightInfo = ();
     /// Version of the runtime.
     type Version = Version;
+	/// This is used as an identifier of the chain. 42 is the generic substrate prefix.
+	type SS58Prefix = SS58Prefix;
 }
 
 parameter_types! {
@@ -227,41 +261,18 @@ parameter_types! {
     pub const ExpectedBlockTime: Moment = MILLISECS_PER_BLOCK;
 }
 
-impl pallet_babe::Trait for Runtime {
-    type EpochChangeTrigger = pallet_babe::ExternalTrigger;
-    type EpochDuration = EpochDuration;
-    type ExpectedBlockTime = ExpectedBlockTime;
-    type HandleEquivocation = ();
-    type KeyOwnerIdentification =
-        <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::IdentificationTuple;
-    type KeyOwnerProof = <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::Proof;
-    type KeyOwnerProofSystem = ();
-    type WeightInfo = ();
-}
-
-impl pallet_grandpa::Trait for Runtime {
-    type Call = Call;
-    type Event = Event;
-    type HandleEquivocation = ();
-    type KeyOwnerIdentification =
-        <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::IdentificationTuple;
-    type KeyOwnerProof = <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::Proof;
-    type KeyOwnerProofSystem = ();
-    type WeightInfo = ();
-}
-
-impl pallet_indices::Trait for Runtime {
-    /// The type for recording indexing into the account enumeration. If this ever overflows, there
-    /// will be problems!
-    type AccountIndex = AccountIndex;
-    /// The currency type.
-    type Currency = Balances;
-    /// How much an index costs.
-    type Deposit = IndexDeposit;
-    /// The ubiquitous event type.
-    type Event = Event;
-    type WeightInfo = ();
-}
+// impl pallet_indices::Config for Runtime {
+//     /// The type for recording indexing into the account enumeration. If this ever overflows, there
+//     /// will be problems!
+//     type AccountIndex = AccountIndex;
+//     /// The currency type.
+//     type Currency = Balances;
+//     /// How much an index costs.
+//     type Deposit = IndexDeposit;
+//     /// The ubiquitous event type.
+//     type Event = Event;
+//     type WeightInfo = ();
+// }
 
 parameter_types! {
     /// How much an index costs.
@@ -272,11 +283,11 @@ parameter_types! {
     pub const MinimumPeriod: u64 = SLOT_DURATION / 2;
 }
 
-impl pallet_timestamp::Trait for Runtime {
+impl pallet_timestamp::Config for Runtime {
     type MinimumPeriod = MinimumPeriod;
     /// A timestamp: milliseconds since the unix epoch.
     type Moment = Moment;
-    type OnTimestampSet = Babe;
+    type OnTimestampSet = ();
     type WeightInfo = ();
 }
 
@@ -285,7 +296,7 @@ parameter_types! {
     pub const MaxLocks: u32 = 50;
 }
 
-impl pallet_balances::Trait for Runtime {
+impl pallet_balances::Config for Runtime {
     type AccountStore = System;
     /// The type for recording an account's balance.
     type Balance = Balance;
@@ -301,15 +312,14 @@ parameter_types! {
     pub const TransactionByteFee: Balance = 1;
 }
 
-impl pallet_transaction_payment::Trait for Runtime {
-    type Currency = Balances;
+impl pallet_transaction_payment::Config for Runtime {
     type FeeMultiplierUpdate = ();
-    type OnTransactionPayment = ();
+    type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
     type TransactionByteFee = TransactionByteFee;
     type WeightToFee = IdentityFee<Balance>;
 }
 
-impl pallet_sudo::Trait for Runtime {
+impl pallet_sudo::Config for Runtime {
     type Call = Call;
     type Event = Event;
 }
@@ -321,7 +331,7 @@ parameter_types! {
 }
 
 type GeneralCouncilInstance = pallet_collective::Instance1;
-impl pallet_collective::Trait<GeneralCouncilInstance> for Runtime {
+impl pallet_collective::Config<GeneralCouncilInstance> for Runtime {
     type DefaultVote = pallet_collective::PrimeDefaultVote;
     type Event = Event;
     type MaxMembers = CouncilMaxMembers;
@@ -333,7 +343,7 @@ impl pallet_collective::Trait<GeneralCouncilInstance> for Runtime {
 }
 
 type GeneralCouncilMembershipInstance = pallet_membership::Instance1;
-impl pallet_membership::Trait<GeneralCouncilMembershipInstance> for Runtime {
+impl pallet_membership::Config<GeneralCouncilMembershipInstance> for Runtime {
     type AddOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
     type Event = Event;
     type MembershipChanged = GeneralCouncil;
@@ -382,29 +392,30 @@ parameter_types! {
     pub const TreasuryModuleId: ModuleId = ModuleId(*b"py/trsry");
 }
 
-impl pallet_treasury::Trait for Runtime {
+impl pallet_treasury::Config for Runtime {
     type ApproveOrigin = pallet_collective::EnsureMembers<_4, AccountId, GeneralCouncilInstance>;
-    type BountyCuratorDeposit = BountyCuratorDeposit;
-    type BountyDepositBase = BountyDepositBase;
-    type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
-    type BountyUpdatePeriod = BountyUpdatePeriod;
-    type BountyValueMinimum = BountyValueMinimum;
+    // type BountyCuratorDeposit = BountyCuratorDeposit;
+    // type BountyDepositBase = BountyDepositBase;
+    // type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
+    // type BountyUpdatePeriod = BountyUpdatePeriod;
+    // type BountyValueMinimum = BountyValueMinimum;
     type Burn = Burn;
     type BurnDestination = ();
     type Currency = Balances;
-    type DataDepositPerByte = DataDepositPerByte;
+    // type DataDepositPerByte = DataDepositPerByte;
     type Event = Event;
-    type MaximumReasonLength = MaximumReasonLength;
+    // type MaximumReasonLength = MaximumReasonLength;
     type ModuleId = TreasuryModuleId;
     type OnSlash = ();
     type ProposalBond = ProposalBond;
     type ProposalBondMinimum = ProposalBondMinimum;
     type RejectOrigin = pallet_collective::EnsureMembers<_2, AccountId, GeneralCouncilInstance>;
     type SpendPeriod = SpendPeriod;
-    type TipCountdown = TipCountdown;
-    type TipFindersFee = TipFindersFee;
-    type TipReportDepositBase = TipReportDepositBase;
-    type Tippers = GeneralCouncilProvider;
+    type SpendFunds = ();
+    // type TipCountdown = TipCountdown;
+    // type TipFindersFee = TipFindersFee;
+    // type TipReportDepositBase = TipReportDepositBase;
+    // type Tippers = GeneralCouncilProvider;
     // Just gets burned.
     type WeightInfo = ();
 }
@@ -413,67 +424,36 @@ parameter_types! {
     pub const DisabledValidatorsThreshold: Perbill = Perbill::from_percent(17);
 }
 
-impl pallet_session::Trait for Runtime {
-    type DisabledValidatorsThreshold = DisabledValidatorsThreshold;
-    type Event = Event;
-    type Keys = opaque::SessionKeys;
-    type NextSessionRotation = Babe;
-    type SessionHandler = <opaque::SessionKeys as OpaqueKeys>::KeyTypeIdProviders;
-    type SessionManager = Staking;
-    type ShouldEndSession = Babe;
-    type ValidatorId = <Self as frame_system::Trait>::AccountId;
-    type ValidatorIdOf = pallet_staking::StashOf<Self>;
-    type WeightInfo = ();
-}
-
-impl pallet_session::historical::Trait for Runtime {
-    type FullIdentification = pallet_staking::Exposure<AccountId, Balance>;
-    type FullIdentificationOf = pallet_staking::ExposureOf<Runtime>;
-}
-
-pallet_staking_reward_curve::build! {
-    const REWARD_CURVE: PiecewiseLinear<'static> = curve!(
-        min_inflation: 0_025_000,
-        max_inflation: 0_100_000,
-        ideal_stake: 0_500_000,
-        falloff: 0_050_000,
-        max_piece_count: 40,
-        test_precision: 0_005_000,
-    );
-}
-
-/// Struct that handles the conversion of Balance -> `u64`. This is used for staking's election
-/// calculation.
-pub struct CurrencyToVoteHandler;
-
-impl CurrencyToVoteHandler {
-    fn factor() -> Balance {
-        (Balances::total_issuance() / u64::max_value() as Balance).max(1)
-    }
-}
-
-impl Convert<Balance, u64> for CurrencyToVoteHandler {
-    fn convert(x: Balance) -> u64 {
-        (x / Self::factor()) as u64
-    }
-}
-
-impl Convert<u128, Balance> for CurrencyToVoteHandler {
-    fn convert(x: u128) -> Balance {
-        x * Self::factor()
-    }
-}
+// pallet_staking_reward_curve::build! {
+//     const REWARD_CURVE: PiecewiseLinear<'static> = curve!(
+//         min_inflation: 0_025_000,
+//         max_inflation: 0_100_000,
+//         ideal_stake: 0_500_000,
+//         falloff: 0_050_000,
+//         max_piece_count: 40,
+//         test_precision: 0_005_000,
+//     );
+// }
 
 parameter_types! {
-    pub const SessionsPerEra: sp_staking::SessionIndex = 6;
-    pub const BondingDuration: pallet_staking::EraIndex = 24 * 28;
-    pub const SlashDeferDuration: pallet_staking::EraIndex = 24 * 7; // 1/4 the bonding duration.
-    pub const RewardCurve: &'static PiecewiseLinear<'static> = &REWARD_CURVE;
-    pub const StakingUnsignedPriority: TransactionPriority = TransactionPriority::max_value() / 2;
+    //pub const SessionsPerEra: sp_staking::SessionIndex = 6;
+    //pub const BondingDuration: pallet_staking::EraIndex = 24 * 28;
+    //pub const SlashDeferDuration: pallet_staking::EraIndex = 24 * 7; // 1/4 the bonding duration.
+    //pub const RewardCurve: &'static PiecewiseLinear<'static> = &REWARD_CURVE;
+    //pub const StakingUnsignedPriority: TransactionPriority = TransactionPriority::max_value() / 2;
     pub const MaxNominatorRewardedPerValidator: u32 = 64;
     pub MinSolutionScoreBump: Perbill = Perbill::from_rational_approximation(5u32, 10_000);
     pub const MaxIterations: u32 = 10;
     pub const ElectionLookahead: BlockNumber = EPOCH_DURATION_IN_BLOCKS / 4;
+	/// A limit for off-chain phragmen unsigned solution submission.
+	///
+	/// We want to keep it as high as possible, but can't risk having it reject,
+	/// so we always subtract the base block execution weight.
+	pub OffchainSolutionWeightLimit: Weight = RuntimeBlockWeights::get()
+        .get(DispatchClass::Normal)
+        .max_extrinsic
+        .expect("Normal extrinsics have weight limit configured by default; qed")
+        .saturating_sub(BlockExecutionWeight::get());
 }
 
 impl<C> frame_system::offchain::SendTransactionTypes<C> for Runtime
@@ -484,75 +464,76 @@ where
     type OverarchingCall = Call;
 }
 
-impl pallet_staking::Trait for Runtime {
-    type BondingDuration = BondingDuration;
-    type Call = Call;
-    type Currency = Balances;
-    type CurrencyToVote = CurrencyToVoteHandler;
-    type ElectionLookahead = ElectionLookahead;
-    type Event = Event;
-    type MaxIterations = MaxIterations;
-    type MaxNominatorRewardedPerValidator = MaxNominatorRewardedPerValidator;
-    type MinSolutionScoreBump = MinSolutionScoreBump;
-    type NextNewSession = Session;
-    // send the slashed funds to the pallet treasury.
-    type Reward = ();
-    type RewardCurve = RewardCurve;
-    type RewardRemainder = PalletTreasury;
-    type SessionInterface = Self;
-    // rewards are minted from the void
-    type SessionsPerEra = SessionsPerEra;
-    type Slash = PalletTreasury;
-    /// A super-majority of the council can cancel the slash.
-    type SlashCancelOrigin = pallet_collective::EnsureProportionAtLeast<_3, _4, AccountId, GeneralCouncilInstance>;
-    type SlashDeferDuration = SlashDeferDuration;
-    type UnixTime = Timestamp;
-    type UnsignedPriority = StakingUnsignedPriority;
-    type WeightInfo = ();
-}
+// impl pallet_staking::Config for Runtime {
+//     type BondingDuration = BondingDuration;
+//     type Call = Call;
+//     type Currency = Balances;
+//     type CurrencyToVote = frame_support::traits::U128CurrencyToVote;
+//     type ElectionLookahead = ElectionLookahead;
+//     type Event = Event;
+//     type MaxIterations = MaxIterations;
+//     type MaxNominatorRewardedPerValidator = MaxNominatorRewardedPerValidator;
+//     type MinSolutionScoreBump = MinSolutionScoreBump;
+//     type NextNewSession = Session;
+//     // send the slashed funds to the pallet treasury.
+//     type Reward = ();
+//     type RewardCurve = RewardCurve;
+//     type RewardRemainder = PalletTreasury;
+//     type SessionInterface = Self;
+//     type OffchainSolutionWeightLimit = OffchainSolutionWeightLimit;
+//     // rewards are minted from the void
+//     type SessionsPerEra = SessionsPerEra;
+//     type Slash = PalletTreasury;
+//     /// A super-majority of the council can cancel the slash.
+//     type SlashCancelOrigin = pallet_collective::EnsureProportionAtLeast<_3, _4, AccountId, GeneralCouncilInstance>;
+//     type SlashDeferDuration = SlashDeferDuration;
+//     type UnixTime = Timestamp;
+//     type UnsignedPriority = StakingUnsignedPriority;
+//     type WeightInfo = ();
+// }
 
-impl roaming_operators::Trait for Runtime {
+impl roaming_operators::Config for Runtime {
     type Currency = Balances;
     type Event = Event;
     type Randomness = RandomnessCollectiveFlip;
     type RoamingOperatorIndex = u64;
 }
 
-impl roaming_networks::Trait for Runtime {
+impl roaming_networks::Config for Runtime {
     type Event = Event;
     type RoamingNetworkIndex = u64;
 }
 
-impl roaming_organizations::Trait for Runtime {
+impl roaming_organizations::Config for Runtime {
     type Event = Event;
     type RoamingOrganizationIndex = u64;
 }
 
-impl roaming_network_servers::Trait for Runtime {
+impl roaming_network_servers::Config for Runtime {
     type Event = Event;
     type RoamingNetworkServerIndex = u64;
 }
 
-impl roaming_devices::Trait for Runtime {
+impl roaming_devices::Config for Runtime {
     type Event = Event;
     type RoamingDeviceIndex = u64;
 }
 
-impl roaming_routing_profiles::Trait for Runtime {
+impl roaming_routing_profiles::Config for Runtime {
     type Event = Event;
     // https://polkadot.js.org/api/types/#primitive-types
     type RoamingRoutingProfileAppServer = Vec<u8>;
     type RoamingRoutingProfileIndex = u64;
 }
 
-impl roaming_service_profiles::Trait for Runtime {
+impl roaming_service_profiles::Config for Runtime {
     type Event = Event;
     type RoamingServiceProfileDownlinkRate = u32;
     type RoamingServiceProfileIndex = u64;
     type RoamingServiceProfileUplinkRate = u32;
 }
 
-impl roaming_accounting_policies::Trait for Runtime {
+impl roaming_accounting_policies::Config for Runtime {
     type Event = Event;
     type RoamingAccountingPolicyDownlinkFeeFactor = u32;
     type RoamingAccountingPolicyIndex = u64;
@@ -560,19 +541,19 @@ impl roaming_accounting_policies::Trait for Runtime {
     type RoamingAccountingPolicyUplinkFeeFactor = u32;
 }
 
-impl roaming_agreement_policies::Trait for Runtime {
+impl roaming_agreement_policies::Config for Runtime {
     type Event = Event;
     type RoamingAgreementPolicyActivationType = Vec<u8>;
     type RoamingAgreementPolicyExpiry = u64;
-    type RoamingAgreementPolicyIndex = u64; // <pallet_timestamp::Module<Runtime> as Trait>::Moment` timestamp::Module<Runtime>::Moment;
+    type RoamingAgreementPolicyIndex = u64; // <pallet_timestamp::Module<Runtime> as Config>::Moment` timestamp::Module<Runtime>::Moment;
 }
 
-impl roaming_network_profiles::Trait for Runtime {
+impl roaming_network_profiles::Config for Runtime {
     type Event = Event;
     type RoamingNetworkProfileIndex = u64;
 }
 
-impl roaming_device_profiles::Trait for Runtime {
+impl roaming_device_profiles::Config for Runtime {
     type Event = Event;
     type RoamingDeviceProfileDevAddr = Vec<u8>;
     type RoamingDeviceProfileDevEUI = Vec<u8>;
@@ -581,7 +562,7 @@ impl roaming_device_profiles::Trait for Runtime {
     type RoamingDeviceProfileVendorID = Vec<u8>;
 }
 
-impl roaming_sessions::Trait for Runtime {
+impl roaming_sessions::Config for Runtime {
     type Event = Event;
     type RoamingSessionIndex = u64;
     type RoamingSessionJoinRequestAcceptAcceptedAt = u64;
@@ -589,21 +570,21 @@ impl roaming_sessions::Trait for Runtime {
     type RoamingSessionJoinRequestRequestedAt = u64;
 }
 
-impl roaming_billing_policies::Trait for Runtime {
+impl roaming_billing_policies::Config for Runtime {
     type Event = Event;
     type RoamingBillingPolicyFrequencyInDays = u64;
     type RoamingBillingPolicyIndex = u64;
     type RoamingBillingPolicyNextBillingAt = u64;
 }
 
-impl roaming_charging_policies::Trait for Runtime {
+impl roaming_charging_policies::Config for Runtime {
     type Event = Event;
     type RoamingChargingPolicyDelayAfterBillingInDays = u64;
     type RoamingChargingPolicyIndex = u64;
     type RoamingChargingPolicyNextChargingAt = u64;
 }
 
-impl roaming_packet_bundles::Trait for Runtime {
+impl roaming_packet_bundles::Config for Runtime {
     type Event = Event;
     type RoamingPacketBundleExternalDataStorageHash = Hash;
     type RoamingPacketBundleIndex = u64;
@@ -614,7 +595,7 @@ impl roaming_packet_bundles::Trait for Runtime {
     type RoamingPacketBundleReceivedStartedAt = u64;
 }
 
-impl mining_speed_boosts_configuration_token_mining::Trait for Runtime {
+impl mining_speed_boosts_configuration_token_mining::Config for Runtime {
     type Event = Event;
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
@@ -630,7 +611,7 @@ impl mining_speed_boosts_configuration_token_mining::Trait for Runtime {
     type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
 }
 
-impl mining_speed_boosts_configuration_hardware_mining::Trait for Runtime {
+impl mining_speed_boosts_configuration_hardware_mining::Config for Runtime {
     type Event = Event;
     type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI = u64;
     // type MiningSpeedBoostConfigurationHardwareMiningHardwareType =
@@ -648,7 +629,7 @@ impl mining_speed_boosts_configuration_hardware_mining::Trait for Runtime {
     type MiningSpeedBoostConfigurationHardwareMiningIndex = u64;
 }
 
-impl mining_speed_boosts_rates_token_mining::Trait for Runtime {
+impl mining_speed_boosts_rates_token_mining::Config for Runtime {
     type Event = Event;
     type MiningSpeedBoostRatesTokenMiningIndex = u64;
     type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
@@ -660,7 +641,7 @@ impl mining_speed_boosts_rates_token_mining::Trait for Runtime {
     type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
 }
 
-impl mining_speed_boosts_rates_hardware_mining::Trait for Runtime {
+impl mining_speed_boosts_rates_hardware_mining::Config for Runtime {
     type Event = Event;
     type MiningSpeedBoostRatesHardwareMiningHardwareInsecure = u32;
     // Mining Speed Boost Rate
@@ -670,21 +651,21 @@ impl mining_speed_boosts_rates_hardware_mining::Trait for Runtime {
     type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
 }
 
-impl mining_speed_boosts_sampling_token_mining::Trait for Runtime {
+impl mining_speed_boosts_sampling_token_mining::Config for Runtime {
     type Event = Event;
     type MiningSpeedBoostSamplingTokenMiningIndex = u64;
     type MiningSpeedBoostSamplingTokenMiningSampleDate = u64;
     type MiningSpeedBoostSamplingTokenMiningSampleTokensLocked = u64;
 }
 
-impl mining_speed_boosts_sampling_hardware_mining::Trait for Runtime {
+impl mining_speed_boosts_sampling_hardware_mining::Config for Runtime {
     type Event = Event;
     type MiningSpeedBoostSamplingHardwareMiningIndex = u64;
     type MiningSpeedBoostSamplingHardwareMiningSampleDate = u64;
     type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
 }
 
-impl mining_speed_boosts_eligibility_token_mining::Trait for Runtime {
+impl mining_speed_boosts_eligibility_token_mining::Config for Runtime {
     type Event = Event;
     type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility = u64;
     type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
@@ -693,7 +674,7 @@ impl mining_speed_boosts_eligibility_token_mining::Trait for Runtime {
     // type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
 }
 
-impl mining_speed_boosts_eligibility_hardware_mining::Trait for Runtime {
+impl mining_speed_boosts_eligibility_hardware_mining::Config for Runtime {
     type Event = Event;
     type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility = u64;
     type MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage = u32;
@@ -702,19 +683,84 @@ impl mining_speed_boosts_eligibility_hardware_mining::Trait for Runtime {
     // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
 }
 
-impl mining_speed_boosts_lodgements_token_mining::Trait for Runtime {
+impl mining_speed_boosts_lodgements_token_mining::Config for Runtime {
     type Event = Event;
     type MiningSpeedBoostLodgementsTokenMiningIndex = u64;
     type MiningSpeedBoostLodgementsTokenMiningLodgementAmount = u64;
     type MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = u64;
 }
 
-impl mining_speed_boosts_lodgements_hardware_mining::Trait for Runtime {
+impl mining_speed_boosts_lodgements_hardware_mining::Config for Runtime {
     type Event = Event;
     type MiningSpeedBoostLodgementsHardwareMiningIndex = u64;
     type MiningSpeedBoostLodgementsHardwareMiningLodgementAmount = u64;
     type MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed = u64;
 }
+
+parameter_types! {
+	pub const RococoLocation: MultiLocation = MultiLocation::X1(Junction::Parent);
+	pub const RococoNetwork: NetworkId = NetworkId::Polkadot;
+	pub RelayChainOrigin: Origin = xcm_handler::Origin::Relay.into();
+	pub Ancestry: MultiLocation = Junction::Parachain {
+		id: ParachainInfo::parachain_id().into()
+	}.into();
+}
+
+type LocationConverter = (
+	ParentIsDefault<AccountId>,
+	SiblingParachainConvertsVia<Sibling, AccountId>,
+	AccountId32Aliases<RococoNetwork, AccountId>,
+);
+
+type LocalAssetTransactor = CurrencyAdapter<
+	// Use this currency:
+	Balances,
+	// Use this currency when it is a fungible asset matching the given location or name:
+	IsConcrete<RococoLocation>,
+	// Do a simple punn to convert an AccountId32 MultiLocation into a native chain account ID:
+	LocationConverter,
+	// Our chain's account ID type (we can't get away without mentioning it explicitly):
+	AccountId,
+>;
+
+type LocalOriginConverter = (
+	SovereignSignedViaLocation<LocationConverter, Origin>,
+	RelayChainAsNative<RelayChainOrigin, Origin>,
+	SiblingParachainAsNative<xcm_handler::Origin, Origin>,
+	SignedAccountId32AsNative<RococoNetwork, Origin>,
+);
+
+pub struct XcmConfig;
+impl Config for XcmConfig {
+	type Call = Call;
+	type XcmSender = XcmHandler;
+	// How to withdraw and deposit an asset.
+	type AssetTransactor = LocalAssetTransactor;
+	type OriginConverter = LocalOriginConverter;
+	type IsReserve = NativeAsset;
+	type IsTeleporter = ();
+	type LocationInverter = LocationInverter<Ancestry>;
+}
+
+impl xcm_handler::Config for Runtime {
+	type Event = Event;
+	type XcmExecutor = XcmExecutor<XcmConfig>;
+	type UpwardMessageSender = MessageBroker;
+	type HrmpMessageSender = MessageBroker;
+}
+
+impl cumulus_parachain_upgrade::Config for Runtime {
+	type Event = Event;
+	type OnValidationData = ();
+	type SelfParaId = parachain_info::Module<Runtime>;
+}
+
+impl cumulus_message_broker::Config for Runtime {
+	type DownwardMessageHandlers = ();
+	type HrmpMessageHandlers = ();
+}
+
+impl parachain_info::Config for Runtime {}
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
@@ -726,17 +772,14 @@ construct_runtime!(
         System: frame_system::{Module, Call, Config, Storage, Event<T>},
         RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
         Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
-        Babe: pallet_babe::{Module, Config, Inherent},
-        Grandpa: pallet_grandpa::{Module, Call, Storage, Config, Event},
-        Indices: pallet_indices::{Module, Call, Storage, Event<T>, Config<T>},
+        //Indices: pallet_indices::{Module, Call, Storage, Event<T>, Config<T>},
         Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
         TransactionPayment: pallet_transaction_payment::{Module, Storage},
         Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
         GeneralCouncil: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
         GeneralCouncilMembership: pallet_membership::<Instance1>::{Module, Call, Storage, Event<T>, Config<T>},
         PalletTreasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
-        Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
-        Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>},
+        //Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>},
         DataHighwayRoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
         DataHighwayRoamingNetworks: roaming_networks::{Module, Call, Storage, Event<T>},
         DataHighwayRoamingOrganizations: roaming_organizations::{Module, Call, Storage, Event<T>},
@@ -762,6 +805,11 @@ construct_runtime!(
         DataHighwayMiningSpeedBoostEligibilityHardwareMining: mining_speed_boosts_eligibility_hardware_mining::{Module, Call, Storage, Event<T>},
         DataHighwayMiningSpeedBoostLodgementsTokenMining: mining_speed_boosts_lodgements_token_mining::{Module, Call, Storage, Event<T>},
         DataHighwayMiningSpeedBoostLodgementsHardwareMining: mining_speed_boosts_lodgements_hardware_mining::{Module, Call, Storage, Event<T>},
+        // PARACHAIN
+		ParachainUpgrade: cumulus_parachain_upgrade::{Module, Call, Storage, Inherent, Event},
+		MessageBroker: cumulus_message_broker::{Module, Storage, Call, Inherent},
+		ParachainInfo: parachain_info::{Module, Storage, Config},
+		XcmHandler: xcm_handler::{Module, Event<T>, Origin},
     }
 );
 
@@ -854,45 +902,6 @@ impl_runtime_apis! {
         }
     }
 
-    impl sp_consensus_babe::BabeApi<Block> for Runtime {
-        fn configuration() -> sp_consensus_babe::BabeGenesisConfiguration {
-            // The choice of `c` parameter (where `1 - c` represents the
-            // probability of a slot being empty), is done in accordance to the
-            // slot duration and expected target block time, for safely
-            // resisting network delays of maximum two seconds.
-            // <https://research.web3.foundation/en/latest/polkadot/BABE/Babe/#6-practical-results>
-            sp_consensus_babe::BabeGenesisConfiguration {
-                slot_duration: Babe::slot_duration(),
-                epoch_length: EpochDuration::get(),
-                c: PRIMARY_PROBABILITY,
-                genesis_authorities: Babe::authorities(),
-                randomness: Babe::randomness(),
-                allowed_slots: sp_consensus_babe::AllowedSlots::PrimaryAndSecondaryPlainSlots,
-            }
-        }
-
-        fn current_epoch_start() -> sp_consensus_babe::SlotNumber {
-            Babe::current_epoch_start()
-        }
-
-        fn submit_report_equivocation_unsigned_extrinsic(
-            _equivocation_proof: sp_consensus_babe::EquivocationProof<<Block as BlockT>::Header>,
-            _key_owner_proof: sp_consensus_babe::OpaqueKeyOwnershipProof,
-        )  -> Option<()> {
-            None
-        }
-
-        fn generate_key_ownership_proof(
-            _slot_number: sp_consensus_babe::SlotNumber,
-            _authority_id: sp_consensus_babe::AuthorityId,
-        ) -> Option<sp_consensus_babe::OpaqueKeyOwnershipProof> {
-            // NOTE: this is the only implementation possible since we've
-            // defined our key owner proof type as a bottom type (i.e. a type
-            // with no values).
-            None
-        }
-    }
-
     impl sp_session::SessionKeys<Block> for Runtime {
         fn generate_session_keys(seed: Option<Vec<u8>>) -> Vec<u8> {
             opaque::SessionKeys::generate(seed)
@@ -902,32 +911,6 @@ impl_runtime_apis! {
             encoded: Vec<u8>,
         ) -> Option<Vec<(Vec<u8>, KeyTypeId)>> {
             opaque::SessionKeys::decode_into_raw_public_keys(&encoded)
-        }
-    }
-
-    impl fg_primitives::GrandpaApi<Block> for Runtime {
-        fn grandpa_authorities() -> GrandpaAuthorityList {
-            Grandpa::grandpa_authorities()
-        }
-
-        fn submit_report_equivocation_unsigned_extrinsic(
-            _equivocation_proof: fg_primitives::EquivocationProof<
-                <Block as BlockT>::Hash,
-                NumberFor<Block>,
-            >,
-            _key_owner_proof: fg_primitives::OpaqueKeyOwnershipProof,
-        ) -> Option<()> {
-            None
-        }
-
-        fn generate_key_ownership_proof(
-            _set_id: fg_primitives::SetId,
-            _authority_id: GrandpaId,
-        ) -> Option<fg_primitives::OpaqueKeyOwnershipProof> {
-            // NOTE: this is the only implementation possible since we've
-            // defined our key owner proof type as a bottom type (i.e. a type
-            // with no values).
-            None
         }
     }
 
@@ -944,5 +927,13 @@ impl_runtime_apis! {
         ) -> pallet_transaction_payment_rpc_runtime_api::RuntimeDispatchInfo<Balance> {
             TransactionPayment::query_info(uxt, len)
         }
+		fn query_fee_details(
+			uxt: <Block as BlockT>::Extrinsic,
+			len: u32,
+		) -> pallet_transaction_payment::FeeDetails<Balance> {
+			TransactionPayment::query_fee_details(uxt, len)
+		}
     }
 }
+
+cumulus_runtime::register_validate_block!(Block, Executive);

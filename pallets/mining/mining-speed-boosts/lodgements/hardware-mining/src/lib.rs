@@ -42,15 +42,15 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait:
-    frame_system::Trait
-    + roaming_operators::Trait
-    + mining_speed_boosts_configuration_hardware_mining::Trait
-    + mining_speed_boosts_eligibility_hardware_mining::Trait
-    + mining_speed_boosts_rates_hardware_mining::Trait
-    + mining_speed_boosts_sampling_hardware_mining::Trait
+pub trait Config:
+    frame_system::Config
+    + roaming_operators::Config
+    + mining_speed_boosts_configuration_hardware_mining::Config
+    + mining_speed_boosts_eligibility_hardware_mining::Config
+    + mining_speed_boosts_rates_hardware_mining::Config
+    + mining_speed_boosts_sampling_hardware_mining::Config
 {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningSpeedBoostLodgementsHardwareMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningSpeedBoostLodgementsHardwareMiningLodgementAmount: Parameter
         + Member
@@ -66,8 +66,8 @@ pub trait Trait:
         + Copy;
 }
 
-// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
-// frame_system::Trait>::AccountId>>::Balance;
+// type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
+// frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -82,11 +82,11 @@ pub struct MiningSpeedBoostLodgementsHardwareMiningLodgementResult<U, V> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::MiningSpeedBoostLodgementsHardwareMiningIndex,
-        <T as Trait>::MiningSpeedBoostLodgementsHardwareMiningLodgementAmount,
-        <T as Trait>::MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed,
-        <T as mining_speed_boosts_configuration_hardware_mining::Trait>::MiningSpeedBoostConfigurationHardwareMiningIndex,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::MiningSpeedBoostLodgementsHardwareMiningIndex,
+        <T as Config>::MiningSpeedBoostLodgementsHardwareMiningLodgementAmount,
+        <T as Config>::MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed,
+        <T as mining_speed_boosts_configuration_hardware_mining::Config>::MiningSpeedBoostConfigurationHardwareMiningIndex,
         // Balance = BalanceOf<T>,
     {
         /// A mining_speed_boosts_lodgements_hardware_mining is created. (owner, mining_speed_boosts_lodgements_hardware_mining_id)
@@ -105,7 +105,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as MiningSpeedBoostLodgementsHardwareMining {
+    trait Store for Module<T: Config> as MiningSpeedBoostLodgementsHardwareMining {
         /// Stores all the mining_speed_boosts_lodgements_hardware_minings, key is the mining_speed_boosts_lodgements_hardware_mining id / index
         pub MiningSpeedBoostLodgementsHardwareMinings get(fn mining_speed_boosts_lodgements_hardware_mining): map hasher(opaque_blake2_256) T::MiningSpeedBoostLodgementsHardwareMiningIndex => Option<MiningSpeedBoostLodgementsHardwareMining>;
 
@@ -133,7 +133,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new mining mining_speed_boosts_lodgements_hardware_mining
@@ -295,7 +295,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_speed_boosts_lodgements_hardware_mining_owner(
         mining_speed_boosts_lodgements_hardware_mining_id: T::MiningSpeedBoostLodgementsHardwareMiningIndex,
         sender: T::AccountId,

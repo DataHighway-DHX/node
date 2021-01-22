@@ -41,13 +41,13 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config + roaming_operators::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingNetworkIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
 type BalanceOf<T> =
-    <<T as roaming_operators::Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+    <<T as roaming_operators::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -55,9 +55,9 @@ pub struct RoamingNetwork(pub [u8; 16]);
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::RoamingNetworkIndex,
-        <T as roaming_operators::Trait>::RoamingOperatorIndex,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::RoamingNetworkIndex,
+        <T as roaming_operators::Config>::RoamingOperatorIndex,
         Balance = BalanceOf<T>,
     {
         /// A roaming network is created. (owner, roaming_network_id)
@@ -75,7 +75,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingNetworks {
+    trait Store for Module<T: Config> as RoamingNetworks {
 
         /// Stores all the roaming networks, key is the roaming network id / index
         pub RoamingNetworks get(fn roaming_network): map hasher(opaque_blake2_256) T::RoamingNetworkIndex => Option<RoamingNetwork>;
@@ -100,7 +100,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new roaming network
@@ -210,7 +210,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_roaming_network_owner(
         roaming_network_id: T::RoamingNetworkIndex,
         sender: T::AccountId,

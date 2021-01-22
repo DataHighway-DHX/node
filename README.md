@@ -1,3 +1,5 @@
+# Please read parachain template readme - https://github.com/substrate-developer-hub/substrate-parachain-template/blob/master/README.md.
+
 # Data Highway [![GitHub license](https://img.shields.io/badge/license-GPL3%2FApache2-blue)](LICENSE) ![Test](https://github.com/DataHighway-DHX/node/workflows/Test/badge.svg?branch=master) ![Create release](https://github.com/DataHighway-DHX/node/workflows/Create%20release/badge.svg?branch=master)
 
 The Data Highway Substrate-based blockchain node.

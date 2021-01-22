@@ -41,14 +41,14 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait:
-    frame_system::Trait
-    + roaming_operators::Trait
-    + mining_speed_boosts_rates_token_mining::Trait
-    + mining_speed_boosts_configuration_token_mining::Trait
-    + mining_speed_boosts_sampling_token_mining::Trait
+pub trait Config:
+    frame_system::Config
+    + roaming_operators::Config
+    + mining_speed_boosts_rates_token_mining::Config
+    + mining_speed_boosts_configuration_token_mining::Config
+    + mining_speed_boosts_sampling_token_mining::Config
 {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningSpeedBoostEligibilityTokenMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility: Parameter
         + Member
@@ -67,8 +67,8 @@ pub trait Trait:
     // Bounded + Default + Copy;
 }
 
-// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
-// frame_system::Trait>::AccountId>>::Balance;
+// type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
+// frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -85,13 +85,13 @@ pub struct MiningSpeedBoostEligibilityTokenMiningEligibilityResult<U, V> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::MiningSpeedBoostEligibilityTokenMiningIndex,
-        <T as Trait>::MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility,
-        <T as Trait>::MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage,
-        // <T as Trait>::MiningSpeedBoostEligibilityTokenMiningDateAudited,
-        // <T as Trait>::MiningSpeedBoostEligibilityTokenMiningAuditorAccountID,
-        <T as mining_speed_boosts_configuration_token_mining::Trait>::MiningSpeedBoostConfigurationTokenMiningIndex,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::MiningSpeedBoostEligibilityTokenMiningIndex,
+        <T as Config>::MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility,
+        <T as Config>::MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage,
+        // <T as Config>::MiningSpeedBoostEligibilityTokenMiningDateAudited,
+        // <T as Config>::MiningSpeedBoostEligibilityTokenMiningAuditorAccountID,
+        <T as mining_speed_boosts_configuration_token_mining::Config>::MiningSpeedBoostConfigurationTokenMiningIndex,
         // Balance = BalanceOf<T>,
     {
         /// A mining_speed_boosts_eligibility_token_mining is created. (owner, mining_speed_boosts_eligibility_token_mining_id)
@@ -116,7 +116,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as MiningSpeedBoostEligibilityTokenMining {
+    trait Store for Module<T: Config> as MiningSpeedBoostEligibilityTokenMining {
         /// Stores all the mining_speed_boosts_eligibility_token_minings, key is the mining_speed_boosts_eligibility_token_mining id / index
         pub MiningSpeedBoostEligibilityTokenMinings get(fn mining_speed_boosts_eligibility_token_mining): map hasher(opaque_blake2_256) T::MiningSpeedBoostEligibilityTokenMiningIndex => Option<MiningSpeedBoostEligibilityTokenMining>;
 
@@ -146,7 +146,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new mining mining_speed_boosts_eligibility_token_mining
@@ -463,7 +463,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_speed_boosts_eligibility_token_mining_owner(
         mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
         sender: T::AccountId,

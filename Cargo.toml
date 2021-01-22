@@ -4,6 +4,7 @@ panic = 'unwind'
 [workspace]
 members = [
     'node',
+    'pallets/parachain-info',
     'pallets/roaming/roaming-operators',
     'pallets/roaming/roaming-networks',
     'pallets/roaming/roaming-organizations',

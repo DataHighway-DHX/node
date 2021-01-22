@@ -18,7 +18,6 @@ std = [
     'sp-io/std',
     'sp-runtime/std',
     'sp-std/std',
-
     'roaming-operators/std',
     'mining-speed-boosts-rates-token-mining/std',
     'mining-speed-boosts-configuration-token-mining/std',
@@ -28,19 +27,63 @@ std = [
 [dependencies]
 codec = { version = '1.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
 safe-mix = { version = '1.0.0', default-features = false }
-frame-support = { version = '2.0.0', default_features = false }
-frame-system = { version = '2.0.0', default_features = false }
-pallet-balances = { version = '2.0.0', default_features = false }
-pallet-randomness-collective-flip = { version = '2.0.0', default_features = false }
-pallet-transaction-payment = { version = '2.0.0', default_features = false }
-sp-core = { version = '2.0.0', default_features = false }
-sp-io = { version = '2.0.0', default_features = false }
-sp-runtime = { version = '2.0.0', default_features = false }
-sp-std = { version = '2.0.0', default_features = false }
-
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../../roaming/roaming-operators' }
 mining-speed-boosts-configuration-token-mining = { default_features = false, package = 'mining-speed-boosts-configuration-token-mining', path = '../../../../mining/mining-speed-boosts/configuration/token-mining' }
 mining-speed-boosts-rates-token-mining = { default_features = false, package = 'mining-speed-boosts-rates-token-mining', path = '../../../../mining/mining-speed-boosts/rates/token-mining' }
 mining-speed-boosts-sampling-token-mining = { default_features = false, package = 'mining-speed-boosts-sampling-token-mining', path = '../../../../mining/mining-speed-boosts/sampling/token-mining' }
+
+[dependencies.pallet-balances]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.pallet-randomness-collective-flip]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.pallet-transaction-payment]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.frame-support]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.frame-system]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.sp-core]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.sp-io]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.sp-runtime]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.sp-std]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
 
 [dev-dependencies]

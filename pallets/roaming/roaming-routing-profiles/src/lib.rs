@@ -37,8 +37,8 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait + roaming_devices::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config + roaming_operators::Config + roaming_devices::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingRoutingProfileIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingRoutingProfileAppServer: Parameter + Member + Default;
 }
@@ -49,10 +49,10 @@ pub struct RoamingRoutingProfile(pub [u8; 16]);
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::RoamingRoutingProfileIndex,
-        <T as Trait>::RoamingRoutingProfileAppServer,
-        <T as roaming_devices::Trait>::RoamingDeviceIndex,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::RoamingRoutingProfileIndex,
+        <T as Config>::RoamingRoutingProfileAppServer,
+        <T as roaming_devices::Config>::RoamingDeviceIndex,
     {
         /// A roaming routing_profile is created. (owner, roaming_routing_profile_id)
         Created(AccountId, RoamingRoutingProfileIndex),
@@ -67,7 +67,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingRoutingProfiles {
+    trait Store for Module<T: Config> as RoamingRoutingProfiles {
         /// Stores all the roaming routing_profiles, key is the roaming routing_profile id / index
         pub RoamingRoutingProfiles get(fn roaming_routing_profile): map hasher(opaque_blake2_256) T::RoamingRoutingProfileIndex => Option<RoamingRoutingProfile>;
 
@@ -91,7 +91,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new roaming routing_profile
@@ -182,7 +182,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn exists_roaming_routing_profile(
         roaming_routing_profile_id: T::RoamingRoutingProfileIndex,
     ) -> Result<RoamingRoutingProfile, DispatchError> {

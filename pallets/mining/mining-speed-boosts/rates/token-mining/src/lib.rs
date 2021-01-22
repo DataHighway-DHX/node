@@ -38,8 +38,8 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config + roaming_operators::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningSpeedBoostRatesTokenMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningSpeedBoostRatesTokenMiningTokenMXC: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningSpeedBoostRatesTokenMiningTokenIOTA: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
@@ -48,8 +48,8 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
     type MiningSpeedBoostRatesTokenMiningMaxLoyalty: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
-// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
-// frame_system::Trait>::AccountId>>::Balance;
+// type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
+// frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -67,13 +67,13 @@ pub struct MiningSpeedBoostRatesTokenMiningRatesConfig<U, V, W, X, Y> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::MiningSpeedBoostRatesTokenMiningIndex,
-        <T as Trait>::MiningSpeedBoostRatesTokenMiningTokenMXC,
-        <T as Trait>::MiningSpeedBoostRatesTokenMiningTokenIOTA,
-        <T as Trait>::MiningSpeedBoostRatesTokenMiningTokenDOT,
-        <T as Trait>::MiningSpeedBoostRatesTokenMiningMaxToken,
-        <T as Trait>::MiningSpeedBoostRatesTokenMiningMaxLoyalty,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::MiningSpeedBoostRatesTokenMiningIndex,
+        <T as Config>::MiningSpeedBoostRatesTokenMiningTokenMXC,
+        <T as Config>::MiningSpeedBoostRatesTokenMiningTokenIOTA,
+        <T as Config>::MiningSpeedBoostRatesTokenMiningTokenDOT,
+        <T as Config>::MiningSpeedBoostRatesTokenMiningMaxToken,
+        <T as Config>::MiningSpeedBoostRatesTokenMiningMaxLoyalty,
         // Balance = BalanceOf<T>,
     {
         /// A mining_speed_boosts_rates_token_mining is created. (owner, mining_speed_boosts_rates_token_mining_id)
@@ -90,7 +90,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as MiningSpeedBoostRatesTokenMining {
+    trait Store for Module<T: Config> as MiningSpeedBoostRatesTokenMining {
         /// Stores all the mining_speed_boosts_rates_token_minings, key is the mining_speed_boosts_rates_token_mining id / index
         pub MiningSpeedBoostRatesTokenMinings get(fn mining_speed_boosts_rates_token_mining): map hasher(opaque_blake2_256) T::MiningSpeedBoostRatesTokenMiningIndex => Option<MiningSpeedBoostRatesTokenMining>;
 
@@ -110,7 +110,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new mining mining_speed_boosts_rates_token_mining
@@ -184,7 +184,7 @@ decl_module! {
             };
 
             // FIXME - how to use float and overcome error:
-            //  the trait `std::str::FromStr` is not implemented for `<T as Trait>::MiningSpeedBoostRatesTokenMiningMaxToken
+            //  the trait `std::str::FromStr` is not implemented for `<T as Config>::MiningSpeedBoostRatesTokenMiningMaxToken
             // if token_token_mxc > "1.2".parse().unwrap() || token_token_iota > "1.2".parse().unwrap() || token_token_dot > "1.2".parse().unwrap() || token_max_token > "1.6".parse().unwrap() || token_max_loyalty > "1.2".parse().unwrap() {
             //   debug::info!("Token rate cannot be this large");
 
@@ -257,7 +257,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_speed_boosts_rates_token_mining_owner(
         mining_speed_boosts_rates_token_mining_id: T::MiningSpeedBoostRatesTokenMiningIndex,
         sender: T::AccountId,

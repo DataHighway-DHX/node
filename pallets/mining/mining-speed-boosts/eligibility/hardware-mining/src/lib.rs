@@ -41,14 +41,14 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait:
-    frame_system::Trait
-    + roaming_operators::Trait
-    + mining_speed_boosts_rates_hardware_mining::Trait
-    + mining_speed_boosts_configuration_hardware_mining::Trait
-    + mining_speed_boosts_sampling_hardware_mining::Trait
+pub trait Config:
+    frame_system::Config
+    + roaming_operators::Config
+    + mining_speed_boosts_rates_hardware_mining::Config
+    + mining_speed_boosts_configuration_hardware_mining::Config
+    + mining_speed_boosts_sampling_hardware_mining::Config
 {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningSpeedBoostEligibilityHardwareMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility: Parameter
         + Member
@@ -67,8 +67,8 @@ pub trait Trait:
     // Bounded + Default + Copy;
 }
 
-// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
-// frame_system::Trait>::AccountId>>::Balance;
+// type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
+// frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -85,13 +85,13 @@ pub struct MiningSpeedBoostEligibilityHardwareMiningEligibilityResult<U, V> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::MiningSpeedBoostEligibilityHardwareMiningIndex,
-        <T as Trait>::MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility,
-        <T as Trait>::MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage,
-        // <T as Trait>::MiningSpeedBoostEligibilityHardwareMiningDateAudited,
-        // <T as Trait>::MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID,
-        <T as mining_speed_boosts_configuration_hardware_mining::Trait>::MiningSpeedBoostConfigurationHardwareMiningIndex,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::MiningSpeedBoostEligibilityHardwareMiningIndex,
+        <T as Config>::MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility,
+        <T as Config>::MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage,
+        // <T as Config>::MiningSpeedBoostEligibilityHardwareMiningDateAudited,
+        // <T as Config>::MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID,
+        <T as mining_speed_boosts_configuration_hardware_mining::Config>::MiningSpeedBoostConfigurationHardwareMiningIndex,
         // Balance = BalanceOf<T>,
     {
         /// A mining_speed_boosts_eligibility_hardware_mining is created. (owner, mining_speed_boosts_eligibility_hardware_mining_id)
@@ -116,7 +116,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as MiningSpeedBoostEligibilityHardwareMining {
+    trait Store for Module<T: Config> as MiningSpeedBoostEligibilityHardwareMining {
         /// Stores all the mining_speed_boosts_eligibility_hardware_minings, key is the mining_speed_boosts_eligibility_hardware_mining id / index
         pub MiningSpeedBoostEligibilityHardwareMinings get(fn mining_speed_boosts_eligibility_hardware_mining): map hasher(opaque_blake2_256) T::MiningSpeedBoostEligibilityHardwareMiningIndex => Option<MiningSpeedBoostEligibilityHardwareMining>;
 
@@ -146,7 +146,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new mining mining_speed_boosts_eligibility_hardware_mining
@@ -463,7 +463,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_speed_boosts_eligibility_hardware_mining_owner(
         mining_speed_boosts_eligibility_hardware_mining_id: T::MiningSpeedBoostEligibilityHardwareMiningIndex,
         sender: T::AccountId,

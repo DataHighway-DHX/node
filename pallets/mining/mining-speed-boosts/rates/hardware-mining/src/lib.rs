@@ -38,8 +38,8 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config + roaming_operators::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningSpeedBoostRatesHardwareMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningSpeedBoostRatesHardwareMiningHardwareSecure: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningSpeedBoostRatesHardwareMiningHardwareInsecure: Parameter
@@ -51,8 +51,8 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
     type MiningSpeedBoostRatesHardwareMiningMaxHardware: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
-// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
-// frame_system::Trait>::AccountId>>::Balance;
+// type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
+// frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -68,11 +68,11 @@ pub struct MiningSpeedBoostRatesHardwareMiningRatesConfig<U, V, W> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::MiningSpeedBoostRatesHardwareMiningIndex,
-        <T as Trait>::MiningSpeedBoostRatesHardwareMiningHardwareSecure,
-        <T as Trait>::MiningSpeedBoostRatesHardwareMiningHardwareInsecure,
-        <T as Trait>::MiningSpeedBoostRatesHardwareMiningMaxHardware,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::MiningSpeedBoostRatesHardwareMiningIndex,
+        <T as Config>::MiningSpeedBoostRatesHardwareMiningHardwareSecure,
+        <T as Config>::MiningSpeedBoostRatesHardwareMiningHardwareInsecure,
+        <T as Config>::MiningSpeedBoostRatesHardwareMiningMaxHardware,
         // Balance = BalanceOf<T>,
     {
         /// A mining_speed_boosts_rates_hardware_mining is created. (owner, mining_speed_boosts_rates_hardware_mining_id)
@@ -88,7 +88,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as MiningSpeedBoostRatesHardwareMining {
+    trait Store for Module<T: Config> as MiningSpeedBoostRatesHardwareMining {
         /// Stores all the mining_speed_boosts_rates_hardware_minings, key is the mining_speed_boosts_rates_hardware_mining id / index
         pub MiningSpeedBoostRatesHardwareMinings get(fn mining_speed_boosts_rates_hardware_mining): map hasher(opaque_blake2_256) T::MiningSpeedBoostRatesHardwareMiningIndex => Option<MiningSpeedBoostRatesHardwareMining>;
 
@@ -108,7 +108,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new mining mining_speed_boosts_rates_hardware_mining
@@ -227,7 +227,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_speed_boosts_rates_hardware_mining_owner(
         mining_speed_boosts_rates_hardware_mining_id: T::MiningSpeedBoostRatesHardwareMiningIndex,
         sender: T::AccountId,

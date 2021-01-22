@@ -37,8 +37,8 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait + roaming_networks::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config + roaming_operators::Config + roaming_networks::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingChargingPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingChargingPolicyNextChargingAt: Parameter + Member + Default;
     type RoamingChargingPolicyDelayAfterBillingInDays: Parameter + Member + Default;
@@ -58,12 +58,12 @@ pub struct RoamingChargingPolicyConfig<U, V> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::RoamingChargingPolicyIndex,
-        <T as Trait>::RoamingChargingPolicyNextChargingAt,
-        <T as Trait>::RoamingChargingPolicyDelayAfterBillingInDays,
-        <T as roaming_networks::Trait>::RoamingNetworkIndex,
-        <T as roaming_operators::Trait>::RoamingOperatorIndex,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::RoamingChargingPolicyIndex,
+        <T as Config>::RoamingChargingPolicyNextChargingAt,
+        <T as Config>::RoamingChargingPolicyDelayAfterBillingInDays,
+        <T as roaming_networks::Config>::RoamingNetworkIndex,
+        <T as roaming_operators::Config>::RoamingOperatorIndex,
     {
         /// A roaming charging_policy is created. (owner, roaming_charging_policy_id)
         Created(AccountId, RoamingChargingPolicyIndex),
@@ -80,7 +80,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingChargingPolicies {
+    trait Store for Module<T: Config> as RoamingChargingPolicies {
         /// Stores all the roaming charging_policy, key is the roaming charging_policy id / index
         pub RoamingChargingPolicies get(fn roaming_charging_policy): map hasher(opaque_blake2_256) T::RoamingChargingPolicyIndex => Option<RoamingChargingPolicy>;
 
@@ -110,7 +110,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new roaming charging_policy
@@ -293,7 +293,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_roaming_charging_policy_owner(
         roaming_charging_policy_id: T::RoamingChargingPolicyIndex,
         sender: T::AccountId,

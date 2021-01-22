@@ -31,24 +31,67 @@ std = [
 [dependencies]
 codec = { version = '1.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
 safe-mix = { version = '1.0.0', default-features = false }
-frame-support = { version = '2.0.0', default_features = false }
-frame-system = { version = '2.0.0', default_features = false }
-pallet-balances = { version = '2.0.0', default_features = false }
-pallet-randomness-collective-flip = { version = '2.0.0', default_features = false }
-pallet-transaction-payment = { version = '2.0.0', default_features = false }
-sp-core = { version = '2.0.0', default_features = false }
-sp-io = { version = '2.0.0', default_features = false }
-sp-runtime = { version = '2.0.0', default_features = false }
-sp-std = { version = '2.0.0', default_features = false }
-
 log = { version = '0.4.8' }
 serde = { version = '1.0', optional = true }
-
 roaming-sessions = { default_features = false, package = 'roaming-sessions', path = '../roaming-sessions' }
 roaming-devices = { default_features = false, package = 'roaming-devices', path = '../roaming-devices' }
 roaming-organizations = { default_features = false, package = 'roaming-organizations', path = '../roaming-organizations' }
 roaming-network-servers = { default_features = false, package = 'roaming-network-servers', path = '../roaming-network-servers' }
 roaming-networks = { default_features = false, package = 'roaming-networks', path = '../roaming-networks' }
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../roaming-operators' }
+
+[dependencies.pallet-balances]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.pallet-randomness-collective-flip]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.pallet-transaction-payment]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.frame-support]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.frame-system]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.sp-core]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.sp-io]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.sp-runtime]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.sp-std]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
 
 [dev-dependencies]

@@ -39,13 +39,13 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait + roaming_networks::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config + roaming_operators::Config + roaming_networks::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingNetworkServerIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
 type BalanceOf<T> =
-    <<T as roaming_operators::Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+    <<T as roaming_operators::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -53,10 +53,10 @@ pub struct RoamingNetworkServer(pub [u8; 16]);
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::RoamingNetworkServerIndex,
-        <T as roaming_networks::Trait>::RoamingNetworkIndex,
-        <T as roaming_operators::Trait>::RoamingOperatorIndex,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::RoamingNetworkServerIndex,
+        <T as roaming_networks::Config>::RoamingNetworkIndex,
+        <T as roaming_operators::Config>::RoamingOperatorIndex,
         Balance = BalanceOf<T>,
     {
         /// A roaming network_server is created. (owner, roaming_network_server_id)
@@ -76,7 +76,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingNetworkServers {
+    trait Store for Module<T: Config> as RoamingNetworkServers {
         /// Stores all the roaming network_servers, key is the roaming network_server id / index
         pub RoamingNetworkServers get(fn roaming_network_server): map hasher(opaque_blake2_256) T::RoamingNetworkServerIndex => Option<RoamingNetworkServer>;
 
@@ -106,7 +106,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new roaming network_server
@@ -252,7 +252,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_roaming_network_server_owner(
         roaming_network_server_id: T::RoamingNetworkServerIndex,
         sender: T::AccountId,

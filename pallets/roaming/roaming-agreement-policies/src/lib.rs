@@ -37,10 +37,10 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait:
-    frame_system::Trait + roaming_operators::Trait + roaming_networks::Trait + roaming_accounting_policies::Trait
+pub trait Config:
+    frame_system::Config + roaming_operators::Config + roaming_networks::Config + roaming_accounting_policies::Config
 {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingAgreementPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingAgreementPolicyActivationType: Parameter + Member + Default;
     type RoamingAgreementPolicyExpiry: Parameter + Member + Default;
@@ -59,12 +59,12 @@ pub struct RoamingAgreementPolicyConfig<U, V> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::RoamingAgreementPolicyIndex,
-        <T as Trait>::RoamingAgreementPolicyActivationType,
-        <T as Trait>::RoamingAgreementPolicyExpiry,
-        <T as roaming_accounting_policies::Trait>::RoamingAccountingPolicyIndex,
-        <T as roaming_networks::Trait>::RoamingNetworkIndex,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::RoamingAgreementPolicyIndex,
+        <T as Config>::RoamingAgreementPolicyActivationType,
+        <T as Config>::RoamingAgreementPolicyExpiry,
+        <T as roaming_accounting_policies::Config>::RoamingAccountingPolicyIndex,
+        <T as roaming_networks::Config>::RoamingNetworkIndex,
     {
         /// A roaming agreement_policy is created. (owner, roaming_agreement_policy_id)
         Created(AccountId, RoamingAgreementPolicyIndex),
@@ -81,7 +81,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingAgreementPolicies {
+    trait Store for Module<T: Config> as RoamingAgreementPolicies {
         /// Stores all the roaming agreement_policy, key is the roaming agreement_policy id / index
         pub RoamingAgreementPolicies get(fn roaming_agreement_policy): map hasher(opaque_blake2_256) T::RoamingAgreementPolicyIndex => Option<RoamingAgreementPolicy>;
 
@@ -111,7 +111,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new roaming agreement_policy
@@ -299,7 +299,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_roaming_agreement_policy_owner(
         roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
         sender: T::AccountId,

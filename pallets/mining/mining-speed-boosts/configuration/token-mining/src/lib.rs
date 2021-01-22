@@ -41,8 +41,8 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config + roaming_operators::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningSpeedBoostConfigurationTokenMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     // Mining Speed Boost Token Mining Config
     type MiningSpeedBoostConfigurationTokenMiningTokenType: Parameter + Member + Default;
@@ -80,7 +80,7 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
 }
 
 type BalanceOf<T> =
-    <<T as roaming_operators::Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+    <<T as roaming_operators::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -153,12 +153,12 @@ pub struct MiningSpeedBoostConfigurationTokenMiningTokenConfig<U, V, W, X, Y> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::MiningSpeedBoostConfigurationTokenMiningIndex,
-        <T as Trait>::MiningSpeedBoostConfigurationTokenMiningTokenType,
-        <T as Trait>::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod,
-        <T as Trait>::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate,
-        <T as Trait>::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::MiningSpeedBoostConfigurationTokenMiningIndex,
+        <T as Config>::MiningSpeedBoostConfigurationTokenMiningTokenType,
+        <T as Config>::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod,
+        <T as Config>::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate,
+        <T as Config>::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate,
         Balance = BalanceOf<T>,
     {
         /// A mining_speed_boosts_configuration_token_mining is created. (owner, mining_speed_boosts_configuration_token_mining_id)
@@ -184,7 +184,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as MiningSpeedBoostConfigurationTokenMining {
+    trait Store for Module<T: Config> as MiningSpeedBoostConfigurationTokenMining {
         /// Stores all the mining_speed_boosts_configuration_token_minings, key is the mining_speed_boosts_configuration_token_mining id / index
         pub MiningSpeedBoostConfigurationTokenMinings get(fn mining_speed_boosts_configuration_token_mining): map hasher(opaque_blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<MiningSpeedBoostConfigurationTokenMining>;
 
@@ -222,7 +222,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new mining mining_speed_boosts_configuration_token_mining
@@ -360,7 +360,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_speed_boosts_configuration_token_mining_owner(
         mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
         sender: T::AccountId,
