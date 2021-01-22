@@ -1,0 +1,34 @@
+[profile.release]
+panic = 'unwind'
+
+[workspace]
+members = [
+    'node',
+    'pallets/parachain-info',
+    'pallets/roaming/roaming-operators',
+    'pallets/roaming/roaming-networks',
+    'pallets/roaming/roaming-organizations',
+    'pallets/roaming/roaming-network-servers',
+    'pallets/roaming/roaming-devices',
+    'pallets/roaming/roaming-routing-profiles',
+    'pallets/roaming/roaming-service-profiles',
+    'pallets/roaming/roaming-accounting-policies',
+    'pallets/roaming/roaming-agreement-policies',
+    'pallets/roaming/roaming-network-profiles',
+    'pallets/roaming/roaming-device-profiles',
+    'pallets/roaming/roaming-sessions',
+    'pallets/roaming/roaming-billing-policies',
+    'pallets/roaming/roaming-charging-policies',
+    'pallets/roaming/roaming-packet-bundles',
+    'pallets/mining/mining-speed-boosts/configuration/token-mining',
+    'pallets/mining/mining-speed-boosts/configuration/hardware-mining',
+    'pallets/mining/mining-speed-boosts/rates/token-mining',
+    'pallets/mining/mining-speed-boosts/rates/hardware-mining',
+    'pallets/mining/mining-speed-boosts/sampling/token-mining',
+    'pallets/mining/mining-speed-boosts/sampling/hardware-mining',
+    'pallets/mining/mining-speed-boosts/eligibility/token-mining',
+    'pallets/mining/mining-speed-boosts/eligibility/hardware-mining',
+    'pallets/mining/mining-speed-boosts/lodgements/token-mining',
+    'pallets/mining/mining-speed-boosts/lodgements/hardware-mining',
+    'runtime',
+]

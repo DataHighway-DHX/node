@@ -1,0 +1,93 @@
+[package]
+name = "roaming-devices"
+version = "0.1.0"
+authors = ["Luke Schoen"]
+edition = "2018"
+
+[features]
+default = ['std']
+std = [
+    'codec/std',
+    'frame-support/std',
+    'frame-system/std',
+    'log/std',
+    'pallet-balances/std',
+    'pallet-randomness-collective-flip/std',
+    'pallet-transaction-payment/std',
+    'serde',
+    'safe-mix/std',
+    'sp-core/std',
+    'sp-io/std',
+    'sp-runtime/std',
+    'sp-std/std',
+    'roaming-operators/std',
+    'roaming-networks/std',
+    'roaming-network-servers/std',
+    'roaming-organizations/std'
+]
+
+[dependencies]
+codec = { version = '1.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
+safe-mix = { version = '1.0.0', default-features = false }
+log = { version = '0.4.8' }
+serde = { version = '1.0', optional = true }
+roaming-organizations = { default_features = false, package = 'roaming-organizations', path = '../roaming-organizations' }
+roaming-network-servers = { default_features = false, package = 'roaming-network-servers', path = '../roaming-network-servers' }
+roaming-networks = { default_features = false, package = 'roaming-networks', path = '../roaming-networks' }
+roaming-operators = { default_features = false, package = 'roaming-operators', path = '../roaming-operators' }
+
+[dependencies.pallet-balances]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.pallet-randomness-collective-flip]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.pallet-transaction-payment]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.frame-support]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.frame-system]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.sp-core]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.sp-io]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.sp-runtime]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dependencies.sp-std]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '2.0.0'
+
+[dev-dependencies]
