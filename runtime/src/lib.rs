@@ -20,27 +20,18 @@ use sp_core::{
 };
 use sp_runtime::{
     create_runtime_str,
-    curve::PiecewiseLinear,
     generic,
     impl_opaque_keys,
     traits::{
         BlakeTwo256,
         Block as BlockT,
-        Convert,
-        IdentifyAccount,
         IdentityLookup,
-        NumberFor,
-        OpaqueKeys,
-        Saturating,
-        Verify,
     },
     transaction_validity::{
-        TransactionPriority,
         TransactionSource,
         TransactionValidity,
     },
     ApplyExtrinsicResult,
-    MultiSignature,
 };
 use sp_std::prelude::*;
 #[cfg(feature = "std")]

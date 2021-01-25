@@ -16,17 +16,12 @@ use hex_literal::hex;
 use sc_telemetry::TelemetryEndpoints;
 use serde_json::map::Map;
 use datahighway_runtime::{
-    opaque::{
-        Block,
-        SessionKeys,
-    },
 	AccountId,  
     BalancesConfig,
     GeneralCouncilMembershipConfig,
     GenesisConfig,
     Signature,
-    SudoConfig,
-    SystemConfig,};
+    SudoConfig,};
 use sp_consensus_babe::AuthorityId as BabeId;
 use sp_finality_grandpa::AuthorityId as GrandpaId;
 pub use sp_runtime::{
@@ -292,7 +287,7 @@ pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
 // 70m split between the initial 8x accounts other than the reserves such that each should receive 8750
 const INITIAL_BALANCE: u128 = 8_750_000_000_000_000_000_000_u128; // $70M 70_000_000_000_000_000_000_000_u128
 const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_000_000_000_000_u128; // $30M
-const INITIAL_STAKING: u128 = 1_000_000_000_000_000_000_u128;
+// const INITIAL_STAKING: u128 = 1_000_000_000_000_000_000_u128;
 
 fn mk_genesis(
     endowed_accounts: Vec<AccountId>,
@@ -329,7 +324,7 @@ fn mk_genesis(
 }
 
 fn testnet_genesis(
-    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
+    _initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
 	id: ParaId,
@@ -390,7 +385,7 @@ fn testnet_genesis(
 }
 
 fn dev_genesis(
-    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
+    _initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
     root_key: AccountId,
 	endowed_accounts: Vec<AccountId>,
 	id: ParaId,
