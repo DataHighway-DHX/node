@@ -40,61 +40,61 @@ mod tests {
     };
     // Import Config for each runtime module being tested
     use roaming_accounting_policies::{
+        Config as RoamingAccountingPolicyTrait,
         Module as RoamingAccountingPolicyModule,
         RoamingAccountingPolicyConfig,
-        Config as RoamingAccountingPolicyTrait,
     };
     use roaming_agreement_policies::{
+        Config as RoamingAgreementPolicyTrait,
         Module as RoamingAgreementPolicyModule,
         RoamingAgreementPolicyConfig,
-        Config as RoamingAgreementPolicyTrait,
     };
     use roaming_billing_policies::{
+        Config as RoamingBillingPolicyTrait,
         Module as RoamingBillingPolicyModule,
         RoamingBillingPolicyConfig,
-        Config as RoamingBillingPolicyTrait,
     };
     use roaming_charging_policies::{
+        Config as RoamingChargingPolicyTrait,
         Module as RoamingChargingPolicyModule,
         RoamingChargingPolicyConfig,
-        Config as RoamingChargingPolicyTrait,
     };
     use roaming_device_profiles::{
+        Config as RoamingDeviceProfileTrait,
         Module as RoamingDeviceProfileModule,
         RoamingDeviceProfileConfig,
-        Config as RoamingDeviceProfileTrait,
     };
     use roaming_devices::{
-        Module as RoamingDeviceModule,
         Config as RoamingDeviceTrait,
+        Module as RoamingDeviceModule,
     };
     use roaming_network_profiles::{
-        Module as RoamingNetworkProfileModule,
         Config as RoamingNetworkProfileTrait,
+        Module as RoamingNetworkProfileModule,
     };
     use roaming_network_servers::{
-        Module as RoamingNetworkServerModule,
         Config as RoamingNetworkServerTrait,
+        Module as RoamingNetworkServerModule,
     };
     use roaming_networks::{
-        Module as RoamingNetworkModule,
         Config as RoamingNetworkTrait,
+        Module as RoamingNetworkModule,
     };
     use roaming_operators::{
-        Module as RoamingOperatorModule,
         Config as RoamingOperatorTrait,
+        Module as RoamingOperatorModule,
     };
     use roaming_organizations::{
-        Module as RoamingOrganizationModule,
         Config as RoamingOrganizationTrait,
+        Module as RoamingOrganizationModule,
     };
     use roaming_routing_profiles::{
-        Module as RoamingRoutingProfileModule,
         Config as RoamingRoutingProfileTrait,
+        Module as RoamingRoutingProfileModule,
     };
     use roaming_service_profiles::{
-        Module as RoamingServiceProfileModule,
         Config as RoamingServiceProfileTrait,
+        Module as RoamingServiceProfileModule,
     };
 
     // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Config>::Origin {
@@ -114,29 +114,29 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl frame_system::Config for Test {
-    type AccountData = pallet_balances::AccountData<u64>;
-    type AccountId = u64;
-    type BaseCallFilter = ();
-    type BlockHashCount = BlockHashCount;
-    type BlockLength = ();
-    type BlockNumber = u64;
-    type BlockWeights = ();
-    type Call = ();
-    type DbWeight = ();
-    type Event = ();
-    type Hash = H256;
-    type Hashing = BlakeTwo256;
-    type Header = Header;
-    type Index = u64;
-    type Lookup = IdentityLookup<Self::AccountId>;
-    type OnKilledAccount = ();
-    type OnNewAccount = ();
-    type Origin = Origin;
-    type PalletInfo = ();
-    type SS58Prefix = ();
-    type SystemWeightInfo = ();
-    type Version = ();
-}
+        type AccountData = pallet_balances::AccountData<u64>;
+        type AccountId = u64;
+        type BaseCallFilter = ();
+        type BlockHashCount = BlockHashCount;
+        type BlockLength = ();
+        type BlockNumber = u64;
+        type BlockWeights = ();
+        type Call = ();
+        type DbWeight = ();
+        type Event = ();
+        type Hash = H256;
+        type Hashing = BlakeTwo256;
+        type Header = Header;
+        type Index = u64;
+        type Lookup = IdentityLookup<Self::AccountId>;
+        type OnKilledAccount = ();
+        type OnNewAccount = ();
+        type Origin = Origin;
+        type PalletInfo = ();
+        type SS58Prefix = ();
+        type SystemWeightInfo = ();
+        type Version = ();
+    }
     parameter_types! {
         pub const ExistentialDeposit: u64 = 1;
     }
@@ -150,14 +150,14 @@ mod tests {
         type WeightInfo = ();
     }
     parameter_types! {
-    pub const TransactionByteFee: u64 = 1;
-}
-impl pallet_transaction_payment::Config for Test {
-    type FeeMultiplierUpdate = ();
-    type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
-    type TransactionByteFee = TransactionByteFee;
-    type WeightToFee = IdentityFee<u64>;
-}
+        pub const TransactionByteFee: u64 = 1;
+    }
+    impl pallet_transaction_payment::Config for Test {
+        type FeeMultiplierUpdate = ();
+        type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
+        type TransactionByteFee = TransactionByteFee;
+        type WeightToFee = IdentityFee<u64>;
+    }
     impl RoamingOperatorTrait for Test {
         type Currency = Balances;
         type Event = ();

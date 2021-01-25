@@ -34,29 +34,29 @@ mod tests {
     };
     // Import Config for each runtime module being tested
     use mining_speed_boosts_configuration_token_mining::{
+        Config as MiningSpeedBoostConfigurationTokenMiningTrait,
         MiningSpeedBoostConfigurationTokenMiningTokenConfig,
         Module as MiningSpeedBoostConfigurationTokenMiningModule,
-        Config as MiningSpeedBoostConfigurationTokenMiningTrait,
     };
     use mining_speed_boosts_eligibility_token_mining::{
+        Config as MiningSpeedBoostEligibilityTokenMiningTrait,
         MiningSpeedBoostEligibilityTokenMiningEligibilityResult,
         Module as MiningSpeedBoostEligibilityTokenMiningModule,
-        Config as MiningSpeedBoostEligibilityTokenMiningTrait,
     };
     use mining_speed_boosts_lodgements_token_mining::{
+        Config as MiningSpeedBoostLodgementsTokenMiningTrait,
         MiningSpeedBoostLodgementsTokenMiningLodgementResult,
         Module as MiningSpeedBoostLodgementsTokenMiningModule,
-        Config as MiningSpeedBoostLodgementsTokenMiningTrait,
     };
     use mining_speed_boosts_rates_token_mining::{
+        Config as MiningSpeedBoostRatesTokenMiningTrait,
         MiningSpeedBoostRatesTokenMiningRatesConfig,
         Module as MiningSpeedBoostRatesTokenMiningModule,
-        Config as MiningSpeedBoostRatesTokenMiningTrait,
     };
     use mining_speed_boosts_sampling_token_mining::{
+        Config as MiningSpeedBoostSamplingTokenMiningTrait,
         MiningSpeedBoostSamplingTokenMiningSamplingConfig,
         Module as MiningSpeedBoostSamplingTokenMiningModule,
-        Config as MiningSpeedBoostSamplingTokenMiningTrait,
     };
     use roaming_operators;
 
@@ -77,29 +77,29 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
     impl frame_system::Config for Test {
-    type AccountData = pallet_balances::AccountData<u64>;
-    type AccountId = u64;
-    type BaseCallFilter = ();
-    type BlockHashCount = BlockHashCount;
-    type BlockLength = ();
-    type BlockNumber = u64;
-    type BlockWeights = ();
-    type Call = ();
-    type DbWeight = ();
-    type Event = ();
-    type Hash = H256;
-    type Hashing = BlakeTwo256;
-    type Header = Header;
-    type Index = u64;
-    type Lookup = IdentityLookup<Self::AccountId>;
-    type OnKilledAccount = ();
-    type OnNewAccount = ();
-    type Origin = Origin;
-    type PalletInfo = ();
-    type SS58Prefix = ();
-    type SystemWeightInfo = ();
-    type Version = ();
-}
+        type AccountData = pallet_balances::AccountData<u64>;
+        type AccountId = u64;
+        type BaseCallFilter = ();
+        type BlockHashCount = BlockHashCount;
+        type BlockLength = ();
+        type BlockNumber = u64;
+        type BlockWeights = ();
+        type Call = ();
+        type DbWeight = ();
+        type Event = ();
+        type Hash = H256;
+        type Hashing = BlakeTwo256;
+        type Header = Header;
+        type Index = u64;
+        type Lookup = IdentityLookup<Self::AccountId>;
+        type OnKilledAccount = ();
+        type OnNewAccount = ();
+        type Origin = Origin;
+        type PalletInfo = ();
+        type SS58Prefix = ();
+        type SystemWeightInfo = ();
+        type Version = ();
+    }
     parameter_types! {
         pub const ExistentialDeposit: u64 = 1;
     }
@@ -113,14 +113,14 @@ mod tests {
         type WeightInfo = ();
     }
     parameter_types! {
-    pub const TransactionByteFee: u64 = 1;
-}
-impl pallet_transaction_payment::Config for Test {
-    type FeeMultiplierUpdate = ();
-    type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
-    type TransactionByteFee = TransactionByteFee;
-    type WeightToFee = IdentityFee<u64>;
-}
+        pub const TransactionByteFee: u64 = 1;
+    }
+    impl pallet_transaction_payment::Config for Test {
+        type FeeMultiplierUpdate = ();
+        type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
+        type TransactionByteFee = TransactionByteFee;
+        type WeightToFee = IdentityFee<u64>;
+    }
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
     impl roaming_operators::Config for Test {
         type Currency = Balances;
