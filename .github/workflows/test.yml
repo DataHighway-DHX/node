@@ -61,38 +61,9 @@ jobs:
           rustup target add wasm32-unknown-unknown --toolchain nightly-2020-10-06
 
       # Runs integration tests in the runtime/tests folder
-      - name: Run Integration Tests across all runtime modules
+      - name: Run All Tests
         run: |
-          cargo +nightly-2020-10-06 test -p datahighway-runtime
-
-      # Runs unit tests in each runtime module of the pallet folder
-      - name: Run Unit Tests in each runtime module
-        run: |
-          cargo +nightly-2020-10-06 test -p roaming-operators &&
-          cargo +nightly-2020-10-06 test -p roaming-networks &&
-          cargo +nightly-2020-10-06 test -p roaming-organizations &&
-          cargo +nightly-2020-10-06 test -p roaming-network-servers &&
-          cargo +nightly-2020-10-06 test -p roaming-devices &&
-          cargo +nightly-2020-10-06 test -p roaming-routing-profiles &&
-          cargo +nightly-2020-10-06 test -p roaming-service-profiles &&
-          cargo +nightly-2020-10-06 test -p roaming-accounting-policies &&
-          cargo +nightly-2020-10-06 test -p roaming-agreement-policies &&
-          cargo +nightly-2020-10-06 test -p roaming-network-profiles &&
-          cargo +nightly-2020-10-06 test -p roaming-device-profiles &&
-          cargo +nightly-2020-10-06 test -p roaming-sessions &&
-          cargo +nightly-2020-10-06 test -p roaming-billing-policies &&
-          cargo +nightly-2020-10-06 test -p roaming-charging-policies &&
-          cargo +nightly-2020-10-06 test -p roaming-packet-bundles &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-configuration-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-configuration-hardware-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-rates-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-rates-hardware-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-sampling-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-sampling-hardware-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-eligibility-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-eligibility-hardware-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-lodgements-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-lodgements-hardware-mining
+          cargo +nightly-2020-10-06 test
 
   lints:
     name: Lints
