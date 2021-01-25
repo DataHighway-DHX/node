@@ -32,36 +32,36 @@ mod tests {
         Perbill,
         Permill,
     };
-    // Import Trait for each runtime module being tested
+    // Import Config for each runtime module being tested
     use mining_speed_boosts_configuration_token_mining::{
         MiningSpeedBoostConfigurationTokenMiningTokenConfig,
         Module as MiningSpeedBoostConfigurationTokenMiningModule,
-        Trait as MiningSpeedBoostConfigurationTokenMiningTrait,
+        Config as MiningSpeedBoostConfigurationTokenMiningTrait,
     };
     use mining_speed_boosts_eligibility_token_mining::{
         MiningSpeedBoostEligibilityTokenMiningEligibilityResult,
         Module as MiningSpeedBoostEligibilityTokenMiningModule,
-        Trait as MiningSpeedBoostEligibilityTokenMiningTrait,
+        Config as MiningSpeedBoostEligibilityTokenMiningTrait,
     };
     use mining_speed_boosts_lodgements_token_mining::{
         MiningSpeedBoostLodgementsTokenMiningLodgementResult,
         Module as MiningSpeedBoostLodgementsTokenMiningModule,
-        Trait as MiningSpeedBoostLodgementsTokenMiningTrait,
+        Config as MiningSpeedBoostLodgementsTokenMiningTrait,
     };
     use mining_speed_boosts_rates_token_mining::{
         MiningSpeedBoostRatesTokenMiningRatesConfig,
         Module as MiningSpeedBoostRatesTokenMiningModule,
-        Trait as MiningSpeedBoostRatesTokenMiningTrait,
+        Config as MiningSpeedBoostRatesTokenMiningTrait,
     };
     use mining_speed_boosts_sampling_token_mining::{
         MiningSpeedBoostSamplingTokenMiningSamplingConfig,
         Module as MiningSpeedBoostSamplingTokenMiningModule,
-        Trait as MiningSpeedBoostSamplingTokenMiningTrait,
+        Config as MiningSpeedBoostSamplingTokenMiningTrait,
     };
     use roaming_operators;
 
-    // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Trait>::Origin {
-    // 	<Runtime as frame_system::Trait>::Origin::signed((*who).clone())
+    // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Config>::Origin {
+    // 	<Runtime as frame_system::Config>::Origin::signed((*who).clone())
     // }
 
     impl_outer_origin! {
@@ -76,38 +76,34 @@ mod tests {
         pub const MaximumBlockLength: u32 = 2 * 1024;
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
-    impl frame_system::Trait for Test {
-        type AccountData = pallet_balances::AccountData<u64>;
-        type AccountId = u64;
-        type AvailableBlockRatio = AvailableBlockRatio;
-        type BaseCallFilter = ();
-        type BlockExecutionWeight = ();
-        type BlockHashCount = BlockHashCount;
-        type BlockNumber = u64;
-        type Call = ();
-        type DbWeight = ();
-        // type WeightMultiplierUpdate = ();
-        type Event = ();
-        type ExtrinsicBaseWeight = ();
-        type Hash = H256;
-        type Hashing = BlakeTwo256;
-        type Header = Header;
-        type Index = u64;
-        type Lookup = IdentityLookup<Self::AccountId>;
-        type MaximumBlockLength = MaximumBlockLength;
-        type MaximumBlockWeight = MaximumBlockWeight;
-        type MaximumExtrinsicWeight = MaximumBlockWeight;
-        type OnKilledAccount = ();
-        type OnNewAccount = ();
-        type Origin = Origin;
-        type PalletInfo = ();
-        type SystemWeightInfo = ();
-        type Version = ();
-    }
+    impl frame_system::Config for Test {
+    type AccountData = pallet_balances::AccountData<u64>;
+    type AccountId = u64;
+    type BaseCallFilter = ();
+    type BlockHashCount = BlockHashCount;
+    type BlockLength = ();
+    type BlockNumber = u64;
+    type BlockWeights = ();
+    type Call = ();
+    type DbWeight = ();
+    type Event = ();
+    type Hash = H256;
+    type Hashing = BlakeTwo256;
+    type Header = Header;
+    type Index = u64;
+    type Lookup = IdentityLookup<Self::AccountId>;
+    type OnKilledAccount = ();
+    type OnNewAccount = ();
+    type Origin = Origin;
+    type PalletInfo = ();
+    type SS58Prefix = ();
+    type SystemWeightInfo = ();
+    type Version = ();
+}
     parameter_types! {
         pub const ExistentialDeposit: u64 = 1;
     }
-    impl pallet_balances::Trait for Test {
+    impl pallet_balances::Config for Test {
         type AccountStore = System;
         type Balance = u64;
         type DustRemoval = ();
@@ -116,15 +112,17 @@ mod tests {
         type MaxLocks = ();
         type WeightInfo = ();
     }
-    impl pallet_transaction_payment::Trait for Test {
-        type Currency = Balances;
-        type FeeMultiplierUpdate = ();
-        type OnTransactionPayment = ();
-        type TransactionByteFee = ();
-        type WeightToFee = IdentityFee<u64>;
-    }
+    parameter_types! {
+    pub const TransactionByteFee: u64 = 1;
+}
+impl pallet_transaction_payment::Config for Test {
+    type FeeMultiplierUpdate = ();
+    type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
+    type TransactionByteFee = TransactionByteFee;
+    type WeightToFee = IdentityFee<u64>;
+}
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
-    impl roaming_operators::Trait for Test {
+    impl roaming_operators::Config for Test {
         type Currency = Balances;
         type Event = ();
         type Randomness = Randomness;

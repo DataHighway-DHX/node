@@ -39,28 +39,24 @@ parameter_types! {
 impl frame_system::Config for Test {
     type AccountData = pallet_balances::AccountData<u64>;
     type AccountId = u64;
-    type AvailableBlockRatio = AvailableBlockRatio;
     type BaseCallFilter = ();
-    type BlockExecutionWeight = ();
     type BlockHashCount = BlockHashCount;
+    type BlockLength = ();
     type BlockNumber = u64;
+    type BlockWeights = ();
     type Call = ();
     type DbWeight = ();
-    // type WeightMultiplierUpdate = ();
     type Event = ();
-    type ExtrinsicBaseWeight = ();
     type Hash = H256;
     type Hashing = BlakeTwo256;
     type Header = Header;
     type Index = u64;
     type Lookup = IdentityLookup<Self::AccountId>;
-    type MaximumBlockLength = MaximumBlockLength;
-    type MaximumBlockWeight = MaximumBlockWeight;
-    type MaximumExtrinsicWeight = MaximumBlockWeight;
     type OnKilledAccount = ();
     type OnNewAccount = ();
     type Origin = Origin;
     type PalletInfo = ();
+    type SS58Prefix = ();
     type SystemWeightInfo = ();
     type Version = ();
 }
@@ -76,11 +72,13 @@ impl pallet_balances::Config for Test {
     type MaxLocks = ();
     type WeightInfo = ();
 }
+parameter_types! {
+    pub const TransactionByteFee: u64 = 1;
+}
 impl pallet_transaction_payment::Config for Test {
-    type Currency = Balances;
     type FeeMultiplierUpdate = ();
-    type OnTransactionPayment = ();
-    type TransactionByteFee = ();
+    type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
+    type TransactionByteFee = TransactionByteFee;
     type WeightToFee = IdentityFee<u64>;
 }
 impl roaming_operators::Config for Test {
