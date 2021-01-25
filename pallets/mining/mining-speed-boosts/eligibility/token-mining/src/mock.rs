@@ -1,8 +1,8 @@
 // Creating mock runtime here
 
 use crate::{
-    Module,
     Config,
+    Module,
 };
 
 use frame_support::{
