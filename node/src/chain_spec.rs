@@ -220,10 +220,7 @@ pub fn harbor_testnet_config(id: ParaId) -> ChainSpec {
             )
         },
         vec![],
-        Some(
-            TelemetryEndpoints::new(vec![(POLKADOT_STAGING_TELEMETRY_URL.to_string(), 0)])
-                .expect("Polkadot telemetry url is valid; qed"),
-        ),
+        None,
         Some("dhx-test"),
         Some(properties),
         Extensions {
@@ -263,10 +260,7 @@ pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
             )
         },
         boot_nodes,
-        Some(
-            TelemetryEndpoints::new(vec![(POLKADOT_STAGING_TELEMETRY_URL.to_string(), 0)])
-                .expect("Polkadot telemetry url is valid; qed"),
-        ),
+        None,
         Some("dhx"),
         Some(properties),
         Extensions {
