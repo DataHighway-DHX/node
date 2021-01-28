@@ -205,17 +205,12 @@ git = 'https://github.com/paritytech/cumulus.git'
 branch = "rococo-v1"
 default-features = false
 
-[dependencies.cumulus-parachain-upgrade]
+[dependencies.cumulus-parachain-system]
 git = 'https://github.com/paritytech/cumulus.git'
 branch = "rococo-v1"
 default-features = false
 
 [dependencies.cumulus-primitives]
-git = 'https://github.com/paritytech/cumulus.git'
-branch = "rococo-v1"
-default-features = false
-
-[dependencies.cumulus-message-broker]
 git = 'https://github.com/paritytech/cumulus.git'
 branch = "rococo-v1"
 default-features = false
@@ -363,8 +358,7 @@ std = [
     'pallet-transaction-payment-rpc-runtime-api/std',
 	"parachain-info/std",
 	"cumulus-runtime/std",
-	"cumulus-parachain-upgrade/std",
-	"cumulus-message-broker/std",
+	"cumulus-parachain-system/std",
 	"cumulus-primitives/std",
 	"xcm/std",
 	"xcm-builder/std",

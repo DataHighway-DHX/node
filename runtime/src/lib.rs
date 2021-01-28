@@ -752,20 +752,17 @@ impl Config for XcmConfig {
 
 impl xcm_handler::Config for Runtime {
     type Event = Event;
-    type HrmpMessageSender = MessageBroker;
-    type UpwardMessageSender = MessageBroker;
+    type HrmpMessageSender = ParachainSystem;
+    type UpwardMessageSender = ParachainSystem;
     type XcmExecutor = XcmExecutor<XcmConfig>;
 }
 
-impl cumulus_parachain_upgrade::Config for Runtime {
-    type Event = Event;
-    type OnValidationData = ();
-    type SelfParaId = parachain_info::Module<Runtime>;
-}
-
-impl cumulus_message_broker::Config for Runtime {
-    type DownwardMessageHandlers = ();
-    type HrmpMessageHandlers = ();
+impl cumulus_parachain_system::Config for Runtime {
+	type SelfParaId = parachain_info::Module<Runtime>;
+	type Event = Event;
+	type OnValidationData = ();
+	type DownwardMessageHandlers = ();
+	type HrmpMessageHandlers = ();
 }
 
 impl parachain_info::Config for Runtime {}
@@ -814,8 +811,7 @@ construct_runtime!(
         DataHighwayMiningSpeedBoostLodgementsTokenMining: mining_speed_boosts_lodgements_token_mining::{Module, Call, Storage, Event<T>},
         DataHighwayMiningSpeedBoostLodgementsHardwareMining: mining_speed_boosts_lodgements_hardware_mining::{Module, Call, Storage, Event<T>},
         // PARACHAIN
-        ParachainUpgrade: cumulus_parachain_upgrade::{Module, Call, Storage, Inherent, Event},
-        MessageBroker: cumulus_message_broker::{Module, Storage, Call, Inherent},
+        ParachainSystem: cumulus_parachain_system::{Module, Call, Storage, Inherent, Event},
         ParachainInfo: parachain_info::{Module, Storage, Config},
         XcmHandler: xcm_handler::{Module, Event<T>, Origin},
     }
