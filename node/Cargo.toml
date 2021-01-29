@@ -239,7 +239,7 @@ branch = "rococo-v1"
 version = '2.0.0'
 
 [[bin]]
-name = 'parachain-collator'
+name = 'datahighway-collator'
 
 [package]
 authors = ['Anonymous']
@@ -247,7 +247,7 @@ build = 'build.rs'
 edition = '2018'
 homepage = 'https://substrate.dev'
 license = 'Unlicense'
-name = 'parachain-collator'
+name = 'datahighway-collator'
 repository = 'https://github.com/substrate-developer-hub/substrate-parachain-template'
 version = '2.0.0'
 [package.metadata.docs.rs]
