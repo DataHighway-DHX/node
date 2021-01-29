@@ -236,7 +236,7 @@ pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
     properties.insert("tokenDecimals".into(), 18.into());
     let boot_nodes = vec![];
     ChainSpec::from_genesis(
-        "Datahighway Rococo",
+        "DataHighway",
         "datahighway",
         ChainType::Live,
         move || {
