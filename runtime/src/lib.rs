@@ -662,15 +662,15 @@ impl mining_speed_boosts_rates_token_mining::Trait for Runtime {
 
 impl mining_speed_boosts_rates_hardware_mining::Trait for Runtime {
     type Event = Event;
+    type MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway = u32;
+    type MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway = u32;
+    type MiningSpeedBoostRatesHardwareMiningCategory3MaxTokenBonusPerGateway = u32;
     type MiningSpeedBoostRatesHardwareMiningHardwareInsecure = u32;
     // Mining Speed Boost Rate
     type MiningSpeedBoostRatesHardwareMiningHardwareSecure = u32;
     type MiningSpeedBoostRatesHardwareMiningIndex = u64;
     // Mining Speed Boost Max Rates
     type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
-    type MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway = u32;
-    type MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway = u32;
-    type MiningSpeedBoostRatesHardwareMiningCategory3MaxTokenBonusPerGateway = u32;
 }
 
 impl mining_speed_boosts_sampling_token_mining::Trait for Runtime {

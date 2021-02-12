@@ -49,9 +49,24 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
         + Default
         + Copy;
     type MiningSpeedBoostRatesHardwareMiningMaxHardware: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSpeedBoostRatesHardwareMiningCategory3MaxTokenBonusPerGateway: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway: Parameter
+        + Member
+        + AtLeast32Bit
+        + Bounded
+        + Default
+        + Copy;
+    type MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway: Parameter
+        + Member
+        + AtLeast32Bit
+        + Bounded
+        + Default
+        + Copy;
+    type MiningSpeedBoostRatesHardwareMiningCategory3MaxTokenBonusPerGateway: Parameter
+        + Member
+        + AtLeast32Bit
+        + Bounded
+        + Default
+        + Copy;
 }
 
 // type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
