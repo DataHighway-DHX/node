@@ -96,6 +96,9 @@ impl Trait for Test {
     type MiningSpeedBoostRatesHardwareMiningHardwareSecure = u32;
     type MiningSpeedBoostRatesHardwareMiningIndex = u64;
     type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
+    type MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway = u32;
+    type MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway = u32;
+    type MiningSpeedBoostRatesHardwareMiningCategory3MaxTokenBonusPerGateway = u32;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;
