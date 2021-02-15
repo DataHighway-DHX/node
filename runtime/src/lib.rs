@@ -465,9 +465,12 @@ impl Convert<u128, Balance> for CurrencyToVoteHandler {
 }
 
 parameter_types! {
+    // 1 hour session, 6 hour era
     pub const SessionsPerEra: sp_staking::SessionIndex = 6;
-    pub const BondingDuration: pallet_staking::EraIndex = 24 * 28;
-    pub const SlashDeferDuration: pallet_staking::EraIndex = 24 * 7; // 1/4 the bonding duration.
+    // 28 eras * 6 hours/era = 7 day bonding duration
+    pub const BondingDuration: pallet_staking::EraIndex = 28;
+    // 27 eras * 6 hours/era = 6.75 day slash duration in which slashes can be cancelled
+    pub const SlashDeferDuration: pallet_staking::EraIndex = 27;
     pub const RewardCurve: &'static PiecewiseLinear<'static> = &REWARD_CURVE;
     pub const StakingUnsignedPriority: TransactionPriority = TransactionPriority::max_value() / 2;
     pub const MaxNominatorRewardedPerValidator: u32 = 64;
