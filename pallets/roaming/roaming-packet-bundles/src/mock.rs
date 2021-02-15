@@ -65,7 +65,7 @@ parameter_types! {
 }
 impl pallet_balances::Config for Test {
     type AccountStore = System;
-    type Balance = u64;
+    type Balance = u128;
     type DustRemoval = ();
     type Event = ();
     type ExistentialDeposit = ExistentialDeposit;
