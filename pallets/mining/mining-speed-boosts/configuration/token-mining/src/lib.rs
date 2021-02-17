@@ -8,7 +8,6 @@ use frame_support::traits::{
     Currency,
     Randomness,
 };
-/// A runtime module for managing non-fungible tokens
 use frame_support::{
     debug,
     decl_event,
@@ -70,13 +69,6 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
         + Bounded
         + Default
         + Copy;
-    // // Mining Speed Boost Eligibility
-    // type MiningSpeedBoostEligibilityCalculatedEligibility: Parameter + Member + AtLeast32Bit + Bounded + Default +
-    // Copy; type MiningSpeedBoostEligibilityTokenLockedPercentage: Parameter + Member + AtLeast32Bit + Bounded +
-    // Default + Copy; type MiningSpeedBoostEligibilityHardwareUptimePercentage: Parameter + Member + AtLeast32Bit +
-    // Bounded + Default + Copy; type MiningSpeedBoostEligibilityDateAudited: Parameter + Member + AtLeast32Bit +
-    // Bounded + Default + Copy; type MiningSpeedBoostEligibilityAuditorAccountID: Parameter + Member + AtLeast32Bit
-    // + Bounded + Default + Copy;
 }
 
 type BalanceOf<T> =
@@ -85,25 +77,6 @@ type BalanceOf<T> =
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct MiningSpeedBoostConfigurationTokenMining(pub [u8; 16]);
-
-// #[cfg_attr(feature = "std", derive(Debug))]
-// #[derive(Encode, Decode, Default, Clone, PartialEq)]
-// pub struct MiningSpeedBoostRates<U, V, W, X, Y> {
-//     pub token_mxc: U,
-//     pub token_iota: V,
-//     pub token_dot: W,
-//     pub hardware_secure: X,
-//     pub hardware_insecure: Y,
-// }
-
-// #[cfg_attr(feature = "std", derive(Debug))]
-// #[derive(Encode, Decode, Default, Clone, PartialEq)]
-// pub struct MiningSpeedBoostRatesMax<U, V, W, X> {
-//     pub token: U,
-//     pub hardware: V,
-//     pub loyalty: W,
-//     pub combination: X,
-// }
 
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
@@ -114,42 +87,6 @@ pub struct MiningSpeedBoostConfigurationTokenMiningTokenConfig<U, V, W, X, Y> {
     pub token_lock_period_start_date: X,
     pub token_lock_period_end_date: Y,
 }
-
-// #[cfg_attr(feature = "std", derive(Debug))]
-// #[derive(Encode, Decode, Default, Clone, PartialEq)]
-// pub struct MiningSpeedBoostConfigurationHardwareMiningHardwareConfig<U, V, W, X, Y, Z> {
-//     pub hardware_secure: U,
-//     pub hardware_type: V,
-//     pub hardware_id: W,
-//     pub hardware_dev_eui: X,
-//     pub hardware_lock_period_start_date: Y,
-//     pub hardware_lock_period_end_date: Z,
-// }
-
-// #[cfg_attr(feature = "std", derive(Debug))]
-// #[derive(Encode, Decode, Default, Clone, PartialEq)]
-// pub struct MiningSpeedBoostSample<U, V> {
-//     pub random_sample_date: U,
-//     pub random_sample_tokens_locked: V,
-// }
-
-// // TODO - Configure Auditing of Eligibility
-// #[cfg_attr(feature = "std", derive(Debug))]
-// #[derive(Encode, Decode, Default, Clone, PartialEq)]
-// pub struct MiningSpeedBoostEligibilityResult<U, V, W> {
-//     pub eligibility_calculated_eligibility: U,
-//     pub eligibility_token_locked_percentage: V,
-//     pub eligibility_hardware_uptime_percentage: W,
-//     // pub eligibility_date_audited: X,
-//     // pub eligibility_auditor_account_id: Y,
-// }
-
-// #[cfg_attr(feature = "std", derive(Debug))]
-// #[derive(Encode, Decode, Default, Clone, PartialEq)]
-// pub struct MiningSpeedBoostLodgement<U, V> {
-//     pub reward_amount: U,
-//     pub reward_date_redeemed: V,
-// }
 
 decl_event!(
     pub enum Event<T> where
@@ -170,15 +107,6 @@ decl_event!(
             MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod, MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate,
             MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate
         ),
-        // SampleSet(
-        //     AccountId, MiningSpeedBoostOracleIndex, MiningSpeedBoostSampleHash, MiningSpeedBoostSampleDate
-        // ),
-        // EligibilitySet(
-        //     AccountId, MiningSpeedBoostEligibilityTokenMiningIndex, MiningSpeedBoostEligibilityCalculatedEligibility
-        // ),
-        // RewardSet(
-        //     AccountId, MiningSpeedBoostLodgementIndex, MiningSpeedBoostLodgementHash, MiningSpeedBoostLodgementAmount, MiningSpeedBoostLodgementDateRedeemed
-        // )
     }
 );
 
@@ -198,24 +126,6 @@ decl_storage! {
         pub MiningSpeedBoostConfigurationTokenMiningTokenConfigs get(fn mining_speed_boosts_configuration_token_mining_token_configs): map hasher(opaque_blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex =>
             Option<MiningSpeedBoostConfigurationTokenMiningTokenConfig<T::MiningSpeedBoostConfigurationTokenMiningTokenType, BalanceOf<T>, T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod,
                 T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate, T::MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate>>;
-
-        // /// Stores mining_speed_boosts_random_samples
-        // pub MiningSpeedBoostSamples get(fn mining_speed_boosts_random_sample): map hasher(opaque_blake2_256) (T::MiningSpeedBoostOracleIndex, T::MiningSpeedBoostSampleHash) =>
-        //     Option<MiningSpeedBoostSample<T::MiningSpeedBoostSampleDate, T::MiningSpeedBoostSampleTokensLocked>>;
-
-        // /// Stores mining_speed_boosts_random_eligibility
-        // pub MiningSpeedBoostEligibility get(fn mining_speed_boosts_eligibility): map hasher(opaque_blake2_256) T::MiningSpeedBoostEligibilityTokenMiningIndex =>
-        //     Option<MiningSpeedBoostEligibilityResult<
-        //         T::MiningSpeedBoostEligibilityCalculatedEligibility, T::MiningSpeedBoostEligibilityTokenLockedPercentage, T::MiningSpeedBoostEligibilityHardwareUptimePercentage
-        //     >>;
-        // }
-
-        // /// Stores mining_speed_boosts_claim
-        // pub MiningSpeedBoostLodgement get(fn mining_speed_boosts_claim): map hasher(opaque_blake2_256) (T::MiningSpeedBoostLodgementIndex, T::MiningSpeedBoostLodgementHash) =>
-        //     Option<MiningSpeedBoostLodgement<
-        //         T::MiningSpeedBoostLodgementHash, T::MiningSpeedBoostLodgementAmount, T::MiningSpeedBoostLodgementDateRedeemed
-        //     >>;
-        // }
     }
 }
 
