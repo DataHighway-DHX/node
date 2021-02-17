@@ -49,6 +49,24 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
         + Default
         + Copy;
     type MiningSpeedBoostRatesHardwareMiningMaxHardware: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway: Parameter
+        + Member
+        + AtLeast32Bit
+        + Bounded
+        + Default
+        + Copy;
+    type MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway: Parameter
+        + Member
+        + AtLeast32Bit
+        + Bounded
+        + Default
+        + Copy;
+    type MiningSpeedBoostRatesHardwareMiningCategory3MaxTokenBonusPerGateway: Parameter
+        + Member
+        + AtLeast32Bit
+        + Bounded
+        + Default
+        + Copy;
 }
 
 // type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
@@ -60,10 +78,13 @@ pub struct MiningSpeedBoostRatesHardwareMining(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
-pub struct MiningSpeedBoostRatesHardwareMiningRatesConfig<U, V, W> {
+pub struct MiningSpeedBoostRatesHardwareMiningRatesConfig<U, V, W, X, Y, Z> {
     pub hardware_hardware_secure: U,
     pub hardware_hardware_insecure: V,
     pub hardware_max_hardware: W,
+    pub hardware_category_1_max_token_bonus_per_gateway: X,
+    pub hardware_category_2_max_token_bonus_per_gateway: Y,
+    pub hardware_category_3_max_token_bonus_per_gateway: Z,
 }
 
 decl_event!(
@@ -73,6 +94,9 @@ decl_event!(
         <T as Trait>::MiningSpeedBoostRatesHardwareMiningHardwareSecure,
         <T as Trait>::MiningSpeedBoostRatesHardwareMiningHardwareInsecure,
         <T as Trait>::MiningSpeedBoostRatesHardwareMiningMaxHardware,
+        <T as Trait>::MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway,
+        <T as Trait>::MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway,
+        <T as Trait>::MiningSpeedBoostRatesHardwareMiningCategory3MaxTokenBonusPerGateway,
         // Balance = BalanceOf<T>,
     {
         /// A mining_speed_boosts_rates_hardware_mining is created. (owner, mining_speed_boosts_rates_hardware_mining_id)
@@ -81,7 +105,10 @@ decl_event!(
         Transferred(AccountId, AccountId, MiningSpeedBoostRatesHardwareMiningIndex),
         MiningSpeedBoostRatesHardwareMiningRatesConfigSet(
             AccountId, MiningSpeedBoostRatesHardwareMiningIndex, MiningSpeedBoostRatesHardwareMiningHardwareSecure,
-            MiningSpeedBoostRatesHardwareMiningHardwareInsecure, MiningSpeedBoostRatesHardwareMiningMaxHardware
+            MiningSpeedBoostRatesHardwareMiningHardwareInsecure, MiningSpeedBoostRatesHardwareMiningMaxHardware,
+            MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway,
+            MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway,
+            MiningSpeedBoostRatesHardwareMiningCategory3MaxTokenBonusPerGateway
         ),
     }
 );
@@ -101,7 +128,10 @@ decl_storage! {
         /// Stores mining_speed_boosts_rates_hardware_mining_rates_config
         pub MiningSpeedBoostRatesHardwareMiningRatesConfigs get(fn mining_speed_boosts_rates_hardware_mining_rates_configs): map hasher(opaque_blake2_256) T::MiningSpeedBoostRatesHardwareMiningIndex =>
             Option<MiningSpeedBoostRatesHardwareMiningRatesConfig<T::MiningSpeedBoostRatesHardwareMiningHardwareSecure,
-            T::MiningSpeedBoostRatesHardwareMiningHardwareInsecure, T::MiningSpeedBoostRatesHardwareMiningMaxHardware>>;
+            T::MiningSpeedBoostRatesHardwareMiningHardwareInsecure, T::MiningSpeedBoostRatesHardwareMiningMaxHardware,
+            T::MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway,
+            T::MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway,
+            T::MiningSpeedBoostRatesHardwareMiningCategory3MaxTokenBonusPerGateway>>;
     }
 }
 
@@ -146,7 +176,10 @@ decl_module! {
             mining_speed_boosts_rates_hardware_mining_id: T::MiningSpeedBoostRatesHardwareMiningIndex,
             _hardware_hardware_secure: Option<T::MiningSpeedBoostRatesHardwareMiningHardwareSecure>,
             _hardware_hardware_insecure: Option<T::MiningSpeedBoostRatesHardwareMiningHardwareInsecure>,
-            _hardware_max_hardware: Option<T::MiningSpeedBoostRatesHardwareMiningMaxHardware>
+            _hardware_max_hardware: Option<T::MiningSpeedBoostRatesHardwareMiningMaxHardware>,
+            _hardware_category_1_max_token_bonus_per_gateway: Option<T::MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway>,
+            _hardware_category_2_max_token_bonus_per_gateway: Option<T::MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway>,
+            _hardware_category_3_max_token_bonus_per_gateway: Option<T::MiningSpeedBoostRatesHardwareMiningCategory3MaxTokenBonusPerGateway>
         ) {
             let sender = ensure_signed(origin)?;
 
@@ -170,6 +203,18 @@ decl_module! {
               Some(value) => value,
               None => 1.into() // Default
             };
+            let hardware_category_1_max_token_bonus_per_gateway = match _hardware_category_1_max_token_bonus_per_gateway.clone() {
+                Some(value) => value,
+                None => 1000000.into() // Default
+            };
+            let hardware_category_2_max_token_bonus_per_gateway = match _hardware_category_2_max_token_bonus_per_gateway {
+                Some(value) => value,
+                None => 500000.into() // Default
+            };
+            let hardware_category_3_max_token_bonus_per_gateway = match _hardware_category_3_max_token_bonus_per_gateway {
+                Some(value) => value,
+                None => 250000.into() // Default
+            };
 
             // Check if a mining_speed_boosts_rates_hardware_mining_rates_config already exists with the given mining_speed_boosts_rates_hardware_mining_id
             // to determine whether to insert new or mutate existing.
@@ -181,6 +226,9 @@ decl_module! {
                         _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_hardware_secure = hardware_hardware_secure.clone();
                         _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_hardware_insecure = hardware_hardware_insecure.clone();
                         _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_max_hardware = hardware_max_hardware.clone();
+                        _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_category_1_max_token_bonus_per_gateway = hardware_category_1_max_token_bonus_per_gateway.clone();
+                        _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_category_2_max_token_bonus_per_gateway = hardware_category_2_max_token_bonus_per_gateway.clone();
+                        _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_category_3_max_token_bonus_per_gateway = hardware_category_3_max_token_bonus_per_gateway.clone();
                     }
                 });
                 debug::info!("Checking mutated values");
@@ -189,6 +237,9 @@ decl_module! {
                     debug::info!("Latest field hardware_hardware_secure {:#?}", _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_hardware_secure);
                     debug::info!("Latest field hardware_hardware_insecure {:#?}", _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_hardware_insecure);
                     debug::info!("Latest field hardware_max_hardware {:#?}", _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_max_hardware);
+                    debug::info!("Latest field hardware_category_1_max_token_bonus_per_gateway {:#?}", _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_category_1_max_token_bonus_per_gateway);
+                    debug::info!("Latest field hardware_category_2_max_token_bonus_per_gateway {:#?}", _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_category_2_max_token_bonus_per_gateway);
+                    debug::info!("Latest field hardware_category_3_max_token_bonus_per_gateway {:#?}", _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_category_3_max_token_bonus_per_gateway);
                 }
             } else {
                 debug::info!("Inserting values");
@@ -200,6 +251,9 @@ decl_module! {
                     hardware_hardware_secure: hardware_hardware_secure.clone(),
                     hardware_hardware_insecure: hardware_hardware_insecure.clone(),
                     hardware_max_hardware: hardware_max_hardware.clone(),
+                    hardware_category_1_max_token_bonus_per_gateway: hardware_category_1_max_token_bonus_per_gateway.clone(),
+                    hardware_category_2_max_token_bonus_per_gateway: hardware_category_2_max_token_bonus_per_gateway.clone(),
+                    hardware_category_3_max_token_bonus_per_gateway: hardware_category_3_max_token_bonus_per_gateway.clone(),
                 };
 
                 <MiningSpeedBoostRatesHardwareMiningRatesConfigs<T>>::insert(
@@ -213,6 +267,9 @@ decl_module! {
                     debug::info!("Inserted field hardware_hardware_secure {:#?}", _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_hardware_secure);
                     debug::info!("Inserted field hardware_hardware_insecure {:#?}", _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_hardware_insecure);
                     debug::info!("Inserted field hardware_max_hardware {:#?}", _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_max_hardware);
+                    debug::info!("Inserted field hardware_category_1_max_token_bonus_per_gateway {:#?}", _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_category_1_max_token_bonus_per_gateway);
+                    debug::info!("Inserted field hardware_category_2_max_token_bonus_per_gateway {:#?}", _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_category_2_max_token_bonus_per_gateway);
+                    debug::info!("Inserted field hardware_category_3_max_token_bonus_per_gateway {:#?}", _mining_speed_boosts_rates_hardware_mining_rates_config.hardware_category_3_max_token_bonus_per_gateway);
                 }
             }
 
@@ -222,6 +279,9 @@ decl_module! {
                 hardware_hardware_secure,
                 hardware_hardware_insecure,
                 hardware_max_hardware,
+                hardware_category_1_max_token_bonus_per_gateway,
+                hardware_category_2_max_token_bonus_per_gateway,
+                hardware_category_3_max_token_bonus_per_gateway,
             ));
         }
     }

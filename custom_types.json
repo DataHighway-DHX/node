@@ -1,7 +1,7 @@
 {
   "Keys": "SessionKeys2",
-  "Address": "AccountId", 
-  "LookupSource": "AccountId", 
+  "Address": "AccountId",
+  "LookupSource": "AccountId",
   "RoamingOperator": "[u8; 16]",
   "RoamingOperatorIndex": "u64",
   "RoamingNetwork": "[u8; 16]",
@@ -116,10 +116,16 @@
   "MiningSpeedBoostRatesHardwareMiningHardwareSecure": "u32",
   "MiningSpeedBoostRatesHardwareMiningHardwareInsecure": "u32",
   "MiningSpeedBoostRatesHardwareMiningMaxHardware": "u32",
+  "MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway": "u32",
+  "MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway": "u32",
+  "MiningSpeedBoostRatesHardwareMiningCategory3MaxTokenBonusPerGateway": "u32",
   "MiningSpeedBoostRatesHardwareMiningRatesConfig": {
     "hardware_hardware_secure": "u32",
     "hardware_hardware_insecure": "u32",
-    "hardware_max_hardware": "u32"
+    "hardware_max_hardware": "u32",
+    "hardware_category_1_max_token_bonus_per_gateway": "u32",
+    "hardware_category_2_max_token_bonus_per_gateway": "u32",
+    "hardware_category_3_max_token_bonus_per_gateway": "u32"
   },
   "MiningSpeedBoostConfigurationTokenMining": "[u8; 16]",
   "MiningSpeedBoostConfigurationTokenMiningIndex": "u64",

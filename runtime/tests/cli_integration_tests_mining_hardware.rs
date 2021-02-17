@@ -148,6 +148,9 @@ mod tests {
     }
     impl MiningSpeedBoostRatesHardwareMiningTrait for Test {
         type Event = ();
+        type MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway = u32;
+        type MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway = u32;
+        type MiningSpeedBoostRatesHardwareMiningCategory3MaxTokenBonusPerGateway = u32;
         type MiningSpeedBoostRatesHardwareMiningHardwareInsecure = u32;
         // Mining Speed Boost Rate
         type MiningSpeedBoostRatesHardwareMiningHardwareSecure = u32;
@@ -231,6 +234,9 @@ mod tests {
                 Some(1), // hardware_hardware_secure
                 Some(1), // hardware_hardware_insecure
                 Some(1), // hardware_max_hardware
+                Some(1000000),
+                Some(500000),
+                Some(250000)
               )
             );
 
@@ -244,6 +250,9 @@ mod tests {
                     hardware_hardware_secure: 1,
                     hardware_hardware_insecure: 1,
                     hardware_max_hardware: 1,
+                    hardware_category_1_max_token_bonus_per_gateway: 1000000,
+                    hardware_category_2_max_token_bonus_per_gateway: 500000,
+                    hardware_category_3_max_token_bonus_per_gateway: 250000
                 })
             );
 
