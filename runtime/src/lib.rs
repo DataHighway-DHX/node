@@ -708,7 +708,7 @@ impl mining_speed_boosts_lodgements_hardware_mining::Config for Runtime {
 parameter_types! {
     pub const RococoLocation: MultiLocation = MultiLocation::X1(Junction::Parent);
     pub const RococoNetwork: NetworkId = NetworkId::Polkadot;
-    pub RelayChainOrigin: Origin = xcm_handler::Origin::Relay.into();
+    pub RelayChainOrigin: Origin = cumulus_pallet_xcm_handler::Origin::Relay.into();
     pub Ancestry: MultiLocation = Junction::Parachain {
         id: ParachainInfo::parachain_id().into()
     }.into();
@@ -734,7 +734,7 @@ type LocalAssetTransactor = CurrencyAdapter<
 type LocalOriginConverter = (
     SovereignSignedViaLocation<LocationConverter, Origin>,
     RelayChainAsNative<RelayChainOrigin, Origin>,
-    SiblingParachainAsNative<xcm_handler::Origin, Origin>,
+    SiblingParachainAsNative<cumulus_pallet_xcm_handler::Origin, Origin>,
     SignedAccountId32AsNative<RococoNetwork, Origin>,
 );
 
@@ -750,14 +750,14 @@ impl Config for XcmConfig {
     type XcmSender = XcmHandler;
 }
 
-impl xcm_handler::Config for Runtime {
+impl cumulus_pallet_xcm_handler::Config for Runtime {
     type Event = Event;
     type HrmpMessageSender = ParachainSystem;
     type UpwardMessageSender = ParachainSystem;
     type XcmExecutor = XcmExecutor<XcmConfig>;
 }
 
-impl cumulus_parachain_system::Config for Runtime {
+impl cumulus_pallet_parachain_system::Config for Runtime {
     type DownwardMessageHandlers = ();
     type Event = Event;
     type HrmpMessageHandlers = ();
@@ -811,9 +811,9 @@ construct_runtime!(
         DataHighwayMiningSpeedBoostLodgementsTokenMining: mining_speed_boosts_lodgements_token_mining::{Module, Call, Storage, Event<T>},
         DataHighwayMiningSpeedBoostLodgementsHardwareMining: mining_speed_boosts_lodgements_hardware_mining::{Module, Call, Storage, Event<T>},
         // PARACHAIN
-        ParachainSystem: cumulus_parachain_system::{Module, Call, Storage, Inherent, Event},
+        ParachainSystem: cumulus_pallet_parachain_system::{Module, Call, Storage, Inherent, Event},
         ParachainInfo: parachain_info::{Module, Storage, Config},
-        XcmHandler: xcm_handler::{Module, Event<T>, Origin},
+        XcmHandler: cumulus_pallet_xcm_handler::{Module, Event<T>, Origin},
     }
 );
 
@@ -940,4 +940,4 @@ impl_runtime_apis! {
     }
 }
 
-cumulus_runtime::register_validate_block!(Block, Executive);
+cumulus_pallet_parachain_system::register_validate_block!(Block, Executive);

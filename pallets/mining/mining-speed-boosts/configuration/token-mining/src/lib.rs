@@ -279,11 +279,11 @@ decl_module! {
             };
             let token_locked_amount = match _token_locked_amount {
                 Some(value) => value,
-                None => 0.into() // Default
+                None => 0u32.into() // Default
             };
             let token_lock_period = match _token_lock_period {
                 Some(value) => value,
-                None => 3.into() // Default
+                None => 3u32.into() // Default
             };
             let token_lock_period_start_date = match _token_lock_period_start_date {
                 Some(value) => value,

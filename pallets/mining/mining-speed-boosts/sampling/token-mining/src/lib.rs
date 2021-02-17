@@ -172,11 +172,11 @@ decl_module! {
             // TODO - adjust default samplings
             let token_sample_date = match _token_sample_date.clone() {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_sample_tokens_locked = match _token_sample_tokens_locked {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
 
             // Check if a mining_speed_boosts_samplings_token_mining_samplings_config already exists with the given mining_speed_boosts_samplings_token_mining_id

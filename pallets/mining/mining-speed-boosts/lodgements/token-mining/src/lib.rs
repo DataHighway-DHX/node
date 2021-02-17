@@ -192,7 +192,7 @@ decl_module! {
             // Check that the extrinsic call is made after the end date defined in the provided configuration
 
             // FIXME - add system time now
-            let time_now = 123.into();
+            let time_now = 123u32.into();
             // Get the config associated with the given configuration_token_mining
             if let Some(configuration_token_mining_config) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_configs(mining_speed_boosts_configuration_token_mining_id) {
               if let _token_lock_period_end_date = configuration_token_mining_config.token_lock_period_end_date {
@@ -214,11 +214,11 @@ decl_module! {
             }
 
             // Record the claim associated with their configuration/eligibility
-            let token_claim_amount: T::MiningSpeedBoostLodgementsTokenMiningLodgementAmount = 0.into();
+            let token_claim_amount: T::MiningSpeedBoostLodgementsTokenMiningLodgementAmount = 0u32.into();
             let token_claim_date_redeemed: T::MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = time_now;
             if let Some(eligibility_token_mining) = <mining_speed_boosts_eligibility_token_mining::Module<T>>::mining_speed_boosts_eligibility_token_mining_eligibility_results((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id)) {
               if let token_mining_calculated_eligibility = eligibility_token_mining.eligibility_token_mining_calculated_eligibility {
-                ensure!(token_mining_calculated_eligibility > 0.into(), "Calculated eligibility is zero. Nothing to claim.");
+                ensure!(token_mining_calculated_eligibility > 0u32.into(), "Calculated eligibility is zero. Nothing to claim.");
                 // FIXME - unable to figure out how to cast here!
                 // token_claim_amount = (token_mining_calculated_eligibility as T::MiningSpeedBoostLodgementsTokenMiningLodgementAmount).clone();
               } else {
@@ -304,11 +304,11 @@ decl_module! {
             // TODO - adjust defaults
             let token_claim_amount = match _token_claim_amount.clone() {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_claim_date_redeemed = match _token_claim_date_redeemed {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
 
             // Check if a mining_speed_boosts_lodgements_token_mining_lodgements_result already exists with the given mining_speed_boosts_lodgements_token_mining_id

@@ -25,7 +25,7 @@ std = [
 ]
 
 [dependencies]
-codec = { version = '1.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
+codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
 safe-mix = { version = '1.0.0', default-features = false }
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../../roaming/roaming-operators' }
 mining-speed-boosts-configuration-hardware-mining = { default_features = false, package = 'mining-speed-boosts-configuration-hardware-mining', path = '../../../../mining/mining-speed-boosts/configuration/hardware-mining' }
@@ -36,54 +36,54 @@ mining-speed-boosts-sampling-hardware-mining = { default_features = false, packa
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 branch = "rococo-v1"
-version = '2.0.0'
+version = '3.0.0'
 
 [dependencies.pallet-randomness-collective-flip]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 branch = "rococo-v1"
-version = '2.0.0'
+version = '3.0.0'
 
 [dependencies.pallet-transaction-payment]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 branch = "rococo-v1"
-version = '2.0.0'
+version = '3.0.0'
 
 [dependencies.frame-support]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 branch = "rococo-v1"
-version = '2.0.0'
+version = '3.0.0'
 
 [dependencies.frame-system]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 branch = "rococo-v1"
-version = '2.0.0'
+version = '3.0.0'
 
 [dependencies.sp-core]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 branch = "rococo-v1"
-version = '2.0.0'
+version = '3.0.0'
 
 [dependencies.sp-io]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 branch = "rococo-v1"
-version = '2.0.0'
+version = '3.0.0'
 
 [dependencies.sp-runtime]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 branch = "rococo-v1"
-version = '2.0.0'
+version = '3.0.0'
 
 [dependencies.sp-std]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 branch = "rococo-v1"
-version = '2.0.0'
+version = '3.0.0'
 
 [dev-dependencies]

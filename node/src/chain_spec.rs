@@ -1,4 +1,4 @@
-use cumulus_primitives::ParaId;
+use cumulus_primitives_core::ParaId;
 use datahighway_runtime::{
     AccountId,
     BalancesConfig,

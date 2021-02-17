@@ -164,23 +164,23 @@ decl_module! {
             // TODO - adjust default rates
             let token_token_mxc = match _token_token_mxc.clone() {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_token_iota = match _token_token_iota {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_token_dot = match _token_token_dot {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_max_token = match _token_max_token {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_max_loyalty = match _token_max_loyalty {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
 
             // FIXME - how to use float and overcome error:

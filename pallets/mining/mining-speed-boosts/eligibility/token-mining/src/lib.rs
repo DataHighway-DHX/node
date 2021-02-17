@@ -349,11 +349,11 @@ decl_module! {
             // TODO - adjust default eligibilitys
             let eligibility_token_mining_calculated_eligibility = match _eligibility_token_mining_calculated_eligibility.clone() {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let eligibility_token_mining_token_locked_percentage = match _eligibility_token_mining_token_locked_percentage {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             // let eligibility_token_mining_date_audited = match _eligibility_token_mining_date_audited {
             //   Some(value) => value,

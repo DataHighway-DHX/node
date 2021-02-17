@@ -200,11 +200,11 @@ decl_module! {
             // TODO - adjust defaults
             let hardware_claim_amount = match _hardware_claim_amount.clone() {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let hardware_claim_date_redeemed = match _hardware_claim_date_redeemed {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
 
             // Check if a mining_speed_boosts_lodgements_hardware_mining_lodgements_result already exists with the given mining_speed_boosts_lodgements_hardware_mining_id

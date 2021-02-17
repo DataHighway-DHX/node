@@ -160,15 +160,15 @@ decl_module! {
             // TODO - adjust default rates
             let hardware_hardware_secure = match _hardware_hardware_secure.clone() {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let hardware_hardware_insecure = match _hardware_hardware_insecure {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let hardware_max_hardware = match _hardware_max_hardware {
               Some(value) => value,
-              None => 1.into() // Default
+              None => 1u32.into() // Default
             };
 
             // Check if a mining_speed_boosts_rates_hardware_mining_rates_config already exists with the given mining_speed_boosts_rates_hardware_mining_id
