@@ -8,9 +8,7 @@ use crate::{
 };
 use codec::Encode;
 use cumulus_client_service::genesis::generate_genesis_block;
-use cumulus_primitives_core::{
-    ParaId,
-};
+use cumulus_primitives_core::ParaId;
 use datahighway_runtime::Block;
 use log::info;
 use polkadot_parachain::primitives::AccountIdConversion;
@@ -61,9 +59,9 @@ impl SubstrateCli for Cli {
 
     fn description() -> String {
         format!(
-            "DataHighway Collator\n\nThe command-line arguments provided first will be passed to the parachain \
-             node, while the arguments provided after -- will be passed to the relaychain node.\n\n{} \
-             [parachain-args] -- [relaychain-args]",
+            "DataHighway Collator\n\nThe command-line arguments provided first will be passed to the parachain node, \
+             while the arguments provided after -- will be passed to the relaychain node.\n\n{} [parachain-args] -- \
+             [relaychain-args]",
             Self::executable_name()
         )
     }
@@ -99,9 +97,9 @@ impl SubstrateCli for RelayChainCli {
     }
 
     fn description() -> String {
-        "DataHighway Collator\n\nThe command-line arguments provided first will be passed to the parachain \
-         node, while the arguments provided after -- will be passed to the relaychain node.\n\nrococo-collator \
-         [parachain-args] -- [relaychain-args]"
+        "DataHighway Collator\n\nThe command-line arguments provided first will be passed to the parachain node, while \
+         the arguments provided after -- will be passed to the relaychain node.\n\nrococo-collator [parachain-args] -- \
+         [relaychain-args]"
             .into()
     }
 

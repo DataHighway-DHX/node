@@ -60,7 +60,7 @@ pub fn new_partial(
 
     let transaction_pool = sc_transaction_pool::BasicPool::new_full(
         config.transaction_pool.clone(),
-		config.role.is_authority().into(),
+        config.role.is_authority().into(),
         config.prometheus_registry(),
         task_manager.spawn_handle(),
         client.clone(),
@@ -112,11 +112,11 @@ where
 
     let polkadot_full_node = cumulus_client_service::build_polkadot_full_node(polkadot_config, collator_key.public())
         .map_err(|e| {
-            match e {
-                polkadot_service::Error::Sub(x) => x,
-                s => format!("{}", s).into(),
-            }
-        })?;
+        match e {
+            polkadot_service::Error::Sub(x) => x,
+            s => format!("{}", s).into(),
+        }
+    })?;
 
     let params = new_partial(&parachain_config)?;
     params.inherent_data_providers.register_provider(sp_timestamp::InherentDataProvider).unwrap();
