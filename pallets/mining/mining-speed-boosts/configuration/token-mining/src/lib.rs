@@ -316,11 +316,11 @@ decl_module! {
             };
             let token_locked_amount_min = match _token_locked_amount_min {
                 Some(value) => value,
-                None => 0.into() // Default
+                None => 10.into() // Default
             };
             let token_lock_period_min = match _token_lock_period_min {
                 Some(value) => value,
-                None => 3.into() // Default
+                None => 7.into() // Default
             };
 
             // Check if a mining_speed_boosts_configuration_token_mining_token_cooldown_config already exists with the given mining_speed_boosts_configuration_token_mining_id
