@@ -422,8 +422,8 @@ mod tests {
                   0, // mining_speed_boosts_configuration_token_mining_id
                   0, // mining_speed_boosts_eligibility_token_mining_id
                   0, // mining_speed_boosts_lodgements_token_mining_id
-                  Some(1), // hardware_claim_amount
-                  Some(34567) // hardware_claim_date_redeemed
+                  Some(1), // token_claim_amount
+                  Some(34567) // token_claim_date_redeemed
               )
             );
 
