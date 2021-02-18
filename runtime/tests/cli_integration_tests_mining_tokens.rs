@@ -256,6 +256,15 @@ mod tests {
             // Call Functions
             assert_ok!(MiningSpeedBoostConfigurationTokenMiningTestModule::create(Origin::signed(0)));
             assert_ok!(
+                MiningSpeedBoostConfigurationTokenMiningTestModule::set_mining_speed_boosts_configuration_token_mining_token_cooldown_config(
+                  Origin::signed(0),
+                  0, // mining_speed_boosts_token_mining_id
+                  Some(b"DHX".to_vec()), // token_type
+                  Some(10), // token_locked_amount_min
+                  Some(7), // token_lock_period_min
+                )
+              );
+            assert_ok!(
               MiningSpeedBoostConfigurationTokenMiningTestModule::set_mining_speed_boosts_configuration_token_mining_token_config(
                 Origin::signed(0),
                 0, // mining_speed_boosts_token_mining_id
@@ -266,20 +275,19 @@ mod tests {
                 Some(23456), // token_lock_period_end_date
               )
             );
-            assert_ok!(
-              MiningSpeedBoostConfigurationTokenMiningTestModule::set_mining_speed_boosts_configuration_token_mining_token_cooldown_config(
-                Origin::signed(0),
-                0, // mining_speed_boosts_token_mining_id
-                Some(b"DHX".to_vec()), // token_type
-                Some(10), // token_locked_amount_min
-                Some(7), // token_lock_period_min
-              )
-            );
 
             // Verify Storage
             assert_eq!(MiningSpeedBoostConfigurationTokenMiningTestModule::mining_speed_boosts_configuration_token_mining_count(), 1);
             assert!(MiningSpeedBoostConfigurationTokenMiningTestModule::mining_speed_boosts_configuration_token_mining(0).is_some());
             assert_eq!(MiningSpeedBoostConfigurationTokenMiningTestModule::mining_speed_boosts_configuration_token_mining_owner(0), Some(0));
+            assert_eq!(
+                MiningSpeedBoostConfigurationTokenMiningTestModule::mining_speed_boosts_configuration_token_mining_token_cooldown_configs(0),
+                  Some(MiningSpeedBoostConfigurationTokenMiningTokenCooldownConfig {
+                      token_type: b"DHX".to_vec(), // token_type
+                      token_locked_amount_min: 10, // token_locked_amount_min
+                      token_lock_period_min: 7, // token_lock_period_min
+                  })
+              );
             assert_eq!(
               MiningSpeedBoostConfigurationTokenMiningTestModule::mining_speed_boosts_configuration_token_mining_token_configs(0),
                 Some(MiningSpeedBoostConfigurationTokenMiningTokenConfig {
@@ -288,14 +296,6 @@ mod tests {
                     token_lock_period: 15, // token_lock_period
                     token_lock_period_start_date: 12345, // token_lock_period_start_date
                     token_lock_period_end_date: 23456, // token_lock_period_end_date
-                })
-            );
-            assert_eq!(
-              MiningSpeedBoostConfigurationTokenMiningTestModule::mining_speed_boosts_configuration_token_mining_token_cooldown_configs(0),
-                Some(MiningSpeedBoostConfigurationTokenMiningTokenCooldownConfig {
-                    token_type: b"DHX".to_vec(), // token_type
-                    token_locked_amount_min: 10, // token_locked_amount_min
-                    token_lock_period_min: 7, // token_lock_period_min
                 })
             );
 
