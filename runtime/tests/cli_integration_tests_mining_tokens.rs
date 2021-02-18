@@ -35,6 +35,7 @@ mod tests {
     // Import Trait for each runtime module being tested
     use mining_speed_boosts_configuration_token_mining::{
         MiningSpeedBoostConfigurationTokenMiningTokenConfig,
+        MiningSpeedBoostConfigurationTokenMiningTokenCooldownConfig,
         Module as MiningSpeedBoostConfigurationTokenMiningModule,
         Trait as MiningSpeedBoostConfigurationTokenMiningTrait,
     };
@@ -138,6 +139,7 @@ mod tests {
         type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
         type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
         type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
+        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodMin = u64;
         // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
         type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
         // Mining Speed Boost Token Mining Config
@@ -249,7 +251,7 @@ mod tests {
                 })
             );
 
-            // Create Mining Speed Boost Configuration Token Mining
+            // Create Mining Speed Boost Configuration & Cooldown Configuration Token Mining
 
             // Call Functions
             assert_ok!(MiningSpeedBoostConfigurationTokenMiningTestModule::create(Origin::signed(0)));
@@ -262,6 +264,15 @@ mod tests {
                 Some(15), // token_lock_period
                 Some(12345), // token_lock_period_start_date
                 Some(23456), // token_lock_period_end_date
+              )
+            );
+            assert_ok!(
+              MiningSpeedBoostConfigurationTokenMiningTestModule::set_mining_speed_boosts_configuration_token_mining_token_cooldown_config(
+                Origin::signed(0),
+                0, // mining_speed_boosts_token_mining_id
+                Some(b"DHX".to_vec()), // token_type
+                Some(10), // token_locked_amount_min
+                Some(7), // token_lock_period_min
               )
             );
 
@@ -277,6 +288,14 @@ mod tests {
                     token_lock_period: 15, // token_lock_period
                     token_lock_period_start_date: 12345, // token_lock_period_start_date
                     token_lock_period_end_date: 23456, // token_lock_period_end_date
+                })
+            );
+            assert_eq!(
+              MiningSpeedBoostConfigurationTokenMiningTestModule::mining_speed_boosts_configuration_token_mining_token_cooldown_configs(0),
+                Some(MiningSpeedBoostConfigurationTokenMiningTokenCooldownConfig {
+                    token_type: b"DHX".to_vec(), // token_type
+                    token_locked_amount_min: 10, // token_locked_amount_min
+                    token_lock_period_min: 7, // token_lock_period_min
                 })
             );
 

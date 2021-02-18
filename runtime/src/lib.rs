@@ -623,6 +623,7 @@ impl mining_speed_boosts_configuration_token_mining::Trait for Runtime {
     type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
     type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
     type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
+    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodMin = u64;
     // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
     type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
     // Mining Speed Boost Token Mining Config

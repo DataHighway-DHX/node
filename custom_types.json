@@ -134,12 +134,18 @@
   "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod": "u32",
   "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate": "u64",
   "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate": "u64",
+  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodMin": "u64",
   "MiningSpeedBoostConfigurationTokenMiningTokenConfig": {
     "token_type": "Text",
     "token_locked_amount": "u64",
     "token_lock_period": "u32",
     "token_lock_period_start_date": "Moment",
     "token_lock_period_end_date": "Moment"
+  },
+  "MiningSpeedBoostConfigurationTokenMiningTokenCooldownConfig": {
+    "token_type": "Text",
+    "token_locked_amount_min": "u64",
+    "token_lock_period_min": "u32"
   },
   "MiningSpeedBoostConfigurationHardwareMining": "[u8; 16]",
   "MiningSpeedBoostConfigurationHardwareMiningIndex": "u64",
