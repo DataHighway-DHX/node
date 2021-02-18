@@ -98,7 +98,8 @@ pub struct MiningSpeedBoostConfigurationTokenMiningTokenConfig<U, V, W, X, Y> {
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
 pub struct MiningSpeedBoostConfigurationTokenMiningTokenCooldownConfig<U, V, W> {
     pub token_type: U,
-    pub token_locked_amount_min: V, // Balance used instead of MiningSpeedBoostConfigurationTokenMiningTokenLockedAmountMin
+    pub token_locked_amount_min: V, /* Balance used instead of
+                                     * MiningSpeedBoostConfigurationTokenMiningTokenLockedAmountMin */
     pub token_lock_period_min: W,
 }
 
@@ -437,7 +438,8 @@ impl<T: Trait> Module<T> {
         mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
     ) -> Result<(), DispatchError> {
         debug::info!(
-            "Checking if mining_speed_boosts_configuration_token_mining_token_cooldown_config has a value that is defined"
+            "Checking if mining_speed_boosts_configuration_token_mining_token_cooldown_config has a value that is \
+             defined"
         );
         let fetched_mining_speed_boosts_configuration_token_mining_token_cooldown_config =
             <MiningSpeedBoostConfigurationTokenMiningTokenCooldownConfigs<T>>::get(
