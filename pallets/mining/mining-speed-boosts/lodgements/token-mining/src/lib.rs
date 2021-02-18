@@ -99,7 +99,7 @@ decl_event!(
         ),
         /// A mining_speed_boosts_lodgements_token_mining is assigned to an mining_speed_boosts_token_mining.
         /// (owner of mining_speed_boosts_token_mining, mining_speed_boosts_lodgements_token_mining_id, mining_speed_boosts_configuration_token_mining_id)
-            AssignedTokenMiningLodgementToConfiguration(AccountId, MiningSpeedBoostLodgementsTokenMiningIndex, MiningSpeedBoostConfigurationTokenMiningIndex),
+        AssignedTokenMiningLodgementToConfiguration(AccountId, MiningSpeedBoostLodgementsTokenMiningIndex, MiningSpeedBoostConfigurationTokenMiningIndex),
     }
 );
 

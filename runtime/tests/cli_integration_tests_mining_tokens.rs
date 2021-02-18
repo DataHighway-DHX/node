@@ -1,6 +1,7 @@
 // extern crate env as env;
 extern crate mining_speed_boosts_configuration_token_mining as mining_speed_boosts_configuration_token_mining;
 extern crate mining_speed_boosts_eligibility_token_mining as mining_speed_boosts_eligibility_token_mining;
+extern crate mining_speed_boosts_execution_token_mining as mining_speed_boosts_execution_token_mining;
 extern crate mining_speed_boosts_lodgements_token_mining as mining_speed_boosts_lodgements_token_mining;
 extern crate mining_speed_boosts_rates_token_mining as mining_speed_boosts_rates_token_mining;
 extern crate mining_speed_boosts_sampling_token_mining as mining_speed_boosts_sampling_token_mining;
@@ -43,6 +44,11 @@ mod tests {
         MiningSpeedBoostEligibilityTokenMiningEligibilityResult,
         Module as MiningSpeedBoostEligibilityTokenMiningModule,
         Trait as MiningSpeedBoostEligibilityTokenMiningTrait,
+    };
+    use mining_speed_boosts_execution_token_mining::{
+        MiningSpeedBoostExecutionTokenMiningExecutionResult,
+        Module as MiningSpeedBoostExecutionTokenMiningModule,
+        Trait as MiningSpeedBoostExecutionTokenMiningTrait,
     };
     use mining_speed_boosts_lodgements_token_mining::{
         MiningSpeedBoostLodgementsTokenMiningLodgementResult,
@@ -177,6 +183,12 @@ mod tests {
         type MiningSpeedBoostLodgementsTokenMiningLodgementAmount = u64;
         type MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = u64;
     }
+    impl MiningSpeedBoostExecutionTokenMiningTrait for Test {
+        type Event = ();
+        type MiningSpeedBoostExecutionTokenMiningEndedDate = u64;
+        type MiningSpeedBoostExecutionTokenMiningIndex = u64;
+        type MiningSpeedBoostExecutionTokenMiningStartedDate = u64;
+    }
 
     type System = frame_system::Module<Test>;
     pub type Balances = pallet_balances::Module<Test>;
@@ -185,6 +197,7 @@ mod tests {
     pub type MiningSpeedBoostSamplingTokenMiningTestModule = MiningSpeedBoostSamplingTokenMiningModule<Test>;
     pub type MiningSpeedBoostEligibilityTokenMiningTestModule = MiningSpeedBoostEligibilityTokenMiningModule<Test>;
     pub type MiningSpeedBoostLodgementsTokenMiningTestModule = MiningSpeedBoostLodgementsTokenMiningModule<Test>;
+    pub type MiningSpeedBoostExecutionTokenMiningTestModule = MiningSpeedBoostExecutionTokenMiningModule<Test>;
     type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
@@ -436,6 +449,47 @@ mod tests {
                 Some(MiningSpeedBoostLodgementsTokenMiningLodgementResult {
                     token_claim_amount: 1,
                     token_claim_date_redeemed: 34567,
+                })
+            );
+
+            // Create Mining Speed Boost Execution Token Mining
+
+            // Call Functions
+            assert_ok!(MiningSpeedBoostExecutionTokenMiningTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningSpeedBoostExecutionTokenMiningTestModule::assign_execution_to_configuration(Origin::signed(0), 0, 0));
+            // assert_ok!(
+            //     MiningSpeedBoostExecutionTokenMiningTestModule::execution(
+            //         Origin::signed(0),
+            //         0, // mining_speed_boosts_configuration_token_mining_id
+            //         0, // mining_speed_boosts_eligibility_token_mining_id
+            //         0, // mining_speed_boosts_execution_token_mining_id
+            //         0, // mining_speed_boosts_rates_token_mining_id
+            //         0, // mining_speed_boosts_sampling_token_mining_id
+            //     )
+            // );
+
+            // Override by DAO if necessary
+            assert_ok!(
+              MiningSpeedBoostExecutionTokenMiningTestModule::set_mining_speed_boosts_execution_token_mining_execution_result(
+                  Origin::signed(0),
+                  0, // mining_speed_boosts_configuration_token_mining_id
+                  0, // mining_speed_boosts_eligibility_token_mining_id
+                  0, // mining_speed_boosts_execution_token_mining_id
+                  Some(12345), // token_execution_started_date
+                  Some(34567) // token_execution_ended_date
+              )
+            );
+
+            // Verify Storage
+            assert_eq!(MiningSpeedBoostExecutionTokenMiningTestModule::mining_speed_boosts_execution_token_mining_count(), 1);
+            assert!(MiningSpeedBoostExecutionTokenMiningTestModule::mining_speed_boosts_execution_token_mining(0).is_some());
+            assert_eq!(MiningSpeedBoostExecutionTokenMiningTestModule::mining_speed_boosts_execution_token_mining_owner(0), Some(0));
+            assert_eq!(
+              MiningSpeedBoostExecutionTokenMiningTestModule::mining_speed_boosts_execution_token_mining_execution_results((0, 0)),
+                Some(MiningSpeedBoostExecutionTokenMiningExecutionResult {
+                    token_execution_executor_account_id: 0,
+                    token_execution_started_date: 12345,
+                    token_execution_ended_date: 34567,
                 })
             );
         });

@@ -99,7 +99,7 @@ decl_event!(
         ),
         /// A mining_speed_boosts_lodgements_hardware_mining is assigned to an mining_speed_boosts_hardware_mining.
         /// (owner of mining_speed_boosts_hardware_mining, mining_speed_boosts_lodgements_hardware_mining_id, mining_speed_boosts_configuration_hardware_mining_id)
-            AssignedHardwareMiningLodgementToConfiguration(AccountId, MiningSpeedBoostLodgementsHardwareMiningIndex, MiningSpeedBoostConfigurationHardwareMiningIndex),
+        AssignedHardwareMiningLodgementToConfiguration(AccountId, MiningSpeedBoostLodgementsHardwareMiningIndex, MiningSpeedBoostConfigurationHardwareMiningIndex),
     }
 );
 

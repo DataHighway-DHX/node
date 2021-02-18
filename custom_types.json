@@ -218,5 +218,15 @@
   "MiningSpeedBoostLodgementsHardwareMiningLodgementResult": {
     "hardware_claim_amount": "u64",
     "hardware_date_redeemed": "u64"
+  },
+  "MiningSpeedBoostExecutionTokenMining": "[u8; 16]",
+  "MiningSpeedBoostExecutionTokenMiningIndex": "u64",
+  "MiningSpeedBoostExecutionTokenMiningExecutorAccountID": "u64",
+  "MiningSpeedBoostExecutionTokenMiningStartedDate": "u64",
+  "MiningSpeedBoostExecutionTokenMiningEndedDate": "u64",
+  "MiningSpeedBoostExecutionTokenMiningExecutionResult": {
+    "token_execution_exector_account_id": "u64",
+    "token_execution_started_date": "Moment",
+    "token_execution_ended_date": "Moment"
   }
 }

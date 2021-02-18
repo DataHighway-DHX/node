@@ -720,6 +720,13 @@ impl mining_speed_boosts_lodgements_hardware_mining::Trait for Runtime {
     type MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed = u64;
 }
 
+impl mining_speed_boosts_execution_token_mining::Trait for Runtime {
+    type Event = Event;
+    type MiningSpeedBoostExecutionTokenMiningEndedDate = u64;
+    type MiningSpeedBoostExecutionTokenMiningIndex = u64;
+    type MiningSpeedBoostExecutionTokenMiningStartedDate = u64;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
     pub enum Runtime where
@@ -766,6 +773,7 @@ construct_runtime!(
         DataHighwayMiningSpeedBoostEligibilityHardwareMining: mining_speed_boosts_eligibility_hardware_mining::{Module, Call, Storage, Event<T>},
         DataHighwayMiningSpeedBoostLodgementsTokenMining: mining_speed_boosts_lodgements_token_mining::{Module, Call, Storage, Event<T>},
         DataHighwayMiningSpeedBoostLodgementsHardwareMining: mining_speed_boosts_lodgements_hardware_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostExecutionTokenMining: mining_speed_boosts_execution_token_mining::{Module, Call, Storage, Event<T>},
     }
 );
 
