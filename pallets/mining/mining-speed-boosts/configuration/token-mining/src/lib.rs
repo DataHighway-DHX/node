@@ -91,7 +91,7 @@ pub struct MiningSpeedBoostConfigurationTokenMiningTokenConfig<U, V, W, X, Y> {
     pub token_locked_amount: V,
     pub token_lock_period: W,
     pub token_lock_period_start_date: X,
-    pub token_lock_period_end_date: Y,
+    pub token_lock_period_end_date: Y, // FIXME - why need end date if already have start date and period
 }
 
 #[cfg_attr(feature = "std", derive(Debug))]

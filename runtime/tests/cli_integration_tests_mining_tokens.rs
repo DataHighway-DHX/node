@@ -457,23 +457,14 @@ mod tests {
             // Call Functions
             assert_ok!(MiningSpeedBoostExecutionTokenMiningTestModule::create(Origin::signed(0)));
             assert_ok!(MiningSpeedBoostExecutionTokenMiningTestModule::assign_execution_to_configuration(Origin::signed(0), 0, 0));
-            // assert_ok!(
-            //     MiningSpeedBoostExecutionTokenMiningTestModule::execution(
-            //         Origin::signed(0),
-            //         0, // mining_speed_boosts_configuration_token_mining_id
-            //         0, // mining_speed_boosts_eligibility_token_mining_id
-            //         0, // mining_speed_boosts_execution_token_mining_id
-            //         0, // mining_speed_boosts_rates_token_mining_id
-            //         0, // mining_speed_boosts_sampling_token_mining_id
-            //     )
-            // );
 
             // Override by DAO if necessary
+            //
+            // Execute is called to start the mining if all checks pass
             assert_ok!(
               MiningSpeedBoostExecutionTokenMiningTestModule::set_mining_speed_boosts_execution_token_mining_execution_result(
                   Origin::signed(0),
                   0, // mining_speed_boosts_configuration_token_mining_id
-                  0, // mining_speed_boosts_eligibility_token_mining_id
                   0, // mining_speed_boosts_execution_token_mining_id
                   Some(12345), // token_execution_started_date
                   Some(34567) // token_execution_ended_date
@@ -492,6 +483,8 @@ mod tests {
                     token_execution_ended_date: 34567,
                 })
             );
+            // TODO - check that the locked amount has actually been locked and check that a sampling, eligibility, and lodgement were all run automatically afterwards
+            // assert!(false);
         });
     }
 }
