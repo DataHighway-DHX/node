@@ -9,7 +9,6 @@ use frame_support::traits::{
     ExistenceRequirement,
     Randomness,
 };
-/// A runtime module for managing non-fungible tokens
 use frame_support::{
     debug,
     decl_event,

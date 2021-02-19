@@ -8,7 +8,6 @@ use frame_support::traits::{
     ExistenceRequirement,
     Randomness,
 };
-/// A runtime module for managing non-fungible tokens
 use frame_support::{
     decl_event,
     decl_module,
