@@ -21,7 +21,7 @@ std = [
 
     'roaming-operators/std',
     'mining-rates-hardware-mining/std',
-    'mining-configuration-hardware-mining/std',
+    'mining-config-hardware-mining/std',
     'mining-sampling-hardware-mining/std',
 ]
 
@@ -39,7 +39,7 @@ sp-runtime = { version = '2.0.0', default_features = false }
 sp-std = { version = '2.0.0', default_features = false }
 
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
-mining-configuration-hardware-mining = { default_features = false, package = 'mining-configuration-hardware-mining', path = '../../../mining/configuration/hardware-mining' }
+mining-config-hardware-mining = { default_features = false, package = 'mining-config-hardware-mining', path = '../../../mining/config/hardware-mining' }
 mining-rates-hardware-mining = { default_features = false, package = 'mining-rates-hardware-mining', path = '../../../mining/rates/hardware-mining' }
 mining-sampling-hardware-mining = { default_features = false, package = 'mining-sampling-hardware-mining', path = '../../../mining/sampling/hardware-mining' }
 

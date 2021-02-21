@@ -92,39 +92,39 @@ impl roaming_operators::Trait for Test {
 }
 impl mining_rates_token_mining::Trait for Test {
     type Event = ();
-    type MiningSpeedBoostRatesTokenMiningIndex = u64;
-    type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
-    type MiningSpeedBoostRatesTokenMiningMaxToken = u32;
-    type MiningSpeedBoostRatesTokenMiningTokenDOT = u32;
-    type MiningSpeedBoostRatesTokenMiningTokenIOTA = u32;
-    type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
+    type MiningRatesTokenMiningIndex = u64;
+    type MiningRatesTokenMiningMaxLoyalty = u32;
+    type MiningRatesTokenMiningMaxToken = u32;
+    type MiningRatesTokenMiningTokenDOT = u32;
+    type MiningRatesTokenMiningTokenIOTA = u32;
+    type MiningRatesTokenMiningTokenMXC = u32;
 }
 impl mining_sampling_token_mining::Trait for Test {
     type Event = ();
-    type MiningSpeedBoostSamplingTokenMiningIndex = u64;
-    type MiningSpeedBoostSamplingTokenMiningSampleLockedAmount = u64;
+    type MiningSamplingTokenMiningIndex = u64;
+    type MiningSamplingTokenMiningSampleLockedAmount = u64;
 }
-impl mining_configuration_token_mining::Trait for Test {
+impl mining_config_token_mining::Trait for Test {
     type Event = ();
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
-    type MiningSpeedBoostConfigurationTokenMiningIndex = u64;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockAmount = u64;
+    type MiningConfigTokenMiningIndex = u64;
+    type MiningConfigTokenMiningTokenLockAmount = u64;
     // Mining Speed Boost Token Mining Config
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
+    type MiningConfigTokenMiningTokenType = Vec<u8>;
 }
 impl Trait for Test {
     type Event = ();
-    type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility = u64;
-    type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
-    type MiningSpeedBoostEligibilityTokenMiningLockedPercentage = u32;
-    // type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
+    type MiningEligibilityTokenMiningCalculatedEligibility = u64;
+    type MiningEligibilityTokenMiningIndex = u64;
+    type MiningEligibilityTokenMiningLockedPercentage = u32;
+    // type MiningEligibilityTokenMiningAuditorAccountID = u64;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;
-pub type MiningSpeedBoostEligibilityTokenMiningTestModule = Module<Test>;
+pub type MiningEligibilityTokenMiningTestModule = Module<Test>;
 type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
 // This function basically just builds a genesis storage key/value store according to

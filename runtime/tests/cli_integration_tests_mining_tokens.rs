@@ -1,8 +1,8 @@
 // extern crate env as env;
-extern crate mining_configuration_token_mining as mining_configuration_token_mining;
+extern crate mining_config_token_mining as mining_config_token_mining;
 extern crate mining_eligibility_token_mining as mining_eligibility_token_mining;
 extern crate mining_execution_token_mining as mining_execution_token_mining;
-extern crate mining_lodgements_token_mining as mining_lodgements_token_mining;
+extern crate mining_claims_token_mining as mining_claims_token_mining;
 extern crate mining_rates_token_mining as mining_rates_token_mining;
 extern crate mining_sampling_token_mining as mining_sampling_token_mining;
 extern crate roaming_operators as roaming_operators;
@@ -34,36 +34,36 @@ mod tests {
         Permill,
     };
     // Import Trait for each runtime module being tested
-    use mining_configuration_token_mining::{
-        MiningSpeedBoostConfigurationTokenMiningTokenConfig,
-        MiningSpeedBoostConfigurationTokenMiningTokenRequirementsConfig,
-        Module as MiningSpeedBoostConfigurationTokenMiningModule,
-        Trait as MiningSpeedBoostConfigurationTokenMiningTrait,
+    use mining_config_token_mining::{
+        MiningConfigTokenMiningTokenConfig,
+        MiningConfigTokenMiningTokenRequirementsConfig,
+        Module as MiningConfigTokenMiningModule,
+        Trait as MiningConfigTokenMiningTrait,
     };
     use mining_eligibility_token_mining::{
-        MiningSpeedBoostEligibilityTokenMiningEligibilityResult,
-        Module as MiningSpeedBoostEligibilityTokenMiningModule,
-        Trait as MiningSpeedBoostEligibilityTokenMiningTrait,
+        MiningEligibilityTokenMiningEligibilityResult,
+        Module as MiningEligibilityTokenMiningModule,
+        Trait as MiningEligibilityTokenMiningTrait,
     };
     use mining_execution_token_mining::{
-        MiningSpeedBoostExecutionTokenMiningExecutionResult,
-        Module as MiningSpeedBoostExecutionTokenMiningModule,
-        Trait as MiningSpeedBoostExecutionTokenMiningTrait,
+        MiningExecutionTokenMiningExecutionResult,
+        Module as MiningExecutionTokenMiningModule,
+        Trait as MiningExecutionTokenMiningTrait,
     };
-    use mining_lodgements_token_mining::{
-        MiningSpeedBoostLodgementsTokenMiningLodgementResult,
-        Module as MiningSpeedBoostLodgementsTokenMiningModule,
-        Trait as MiningSpeedBoostLodgementsTokenMiningTrait,
+    use mining_claims_token_mining::{
+        MiningClaimsTokenMiningClaimResult,
+        Module as MiningClaimsTokenMiningModule,
+        Trait as MiningClaimsTokenMiningTrait,
     };
     use mining_rates_token_mining::{
-        MiningSpeedBoostRatesTokenMiningRatesConfig,
-        Module as MiningSpeedBoostRatesTokenMiningModule,
-        Trait as MiningSpeedBoostRatesTokenMiningTrait,
+        MiningRatesTokenMiningRatesConfig,
+        Module as MiningRatesTokenMiningModule,
+        Trait as MiningRatesTokenMiningTrait,
     };
     use mining_sampling_token_mining::{
-        MiningSpeedBoostSamplingTokenMiningSamplingConfig,
-        Module as MiningSpeedBoostSamplingTokenMiningModule,
-        Trait as MiningSpeedBoostSamplingTokenMiningTrait,
+        MiningSamplingTokenMiningSamplingConfig,
+        Module as MiningSamplingTokenMiningModule,
+        Trait as MiningSamplingTokenMiningTrait,
     };
     use roaming_operators;
 
@@ -137,57 +137,57 @@ mod tests {
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
-    impl MiningSpeedBoostConfigurationTokenMiningTrait for Test {
+    impl MiningConfigTokenMiningTrait for Test {
         type Event = ();
         // type Currency = Balances;
         // type Randomness = Randomness;
-        type MiningSpeedBoostConfigurationTokenMiningIndex = u64;
-        type MiningSpeedBoostConfigurationTokenMiningTokenLockAmount = u64;
+        type MiningConfigTokenMiningIndex = u64;
+        type MiningConfigTokenMiningTokenLockAmount = u64;
         // Mining Speed Boost Token Mining Config
         // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-        type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
+        type MiningConfigTokenMiningTokenType = Vec<u8>;
     }
-    impl MiningSpeedBoostRatesTokenMiningTrait for Test {
+    impl MiningRatesTokenMiningTrait for Test {
         type Event = ();
-        type MiningSpeedBoostRatesTokenMiningIndex = u64;
-        type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
+        type MiningRatesTokenMiningIndex = u64;
+        type MiningRatesTokenMiningMaxLoyalty = u32;
         // Mining Speed Boost Max Rates
-        type MiningSpeedBoostRatesTokenMiningMaxToken = u32;
-        type MiningSpeedBoostRatesTokenMiningTokenDOT = u32;
-        type MiningSpeedBoostRatesTokenMiningTokenIOTA = u32;
+        type MiningRatesTokenMiningMaxToken = u32;
+        type MiningRatesTokenMiningTokenDOT = u32;
+        type MiningRatesTokenMiningTokenIOTA = u32;
         // Mining Speed Boost Rate
-        type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
+        type MiningRatesTokenMiningTokenMXC = u32;
     }
-    impl MiningSpeedBoostSamplingTokenMiningTrait for Test {
+    impl MiningSamplingTokenMiningTrait for Test {
         type Event = ();
-        type MiningSpeedBoostSamplingTokenMiningIndex = u64;
-        type MiningSpeedBoostSamplingTokenMiningSampleLockedAmount = u64;
+        type MiningSamplingTokenMiningIndex = u64;
+        type MiningSamplingTokenMiningSampleLockedAmount = u64;
     }
-    impl MiningSpeedBoostEligibilityTokenMiningTrait for Test {
+    impl MiningEligibilityTokenMiningTrait for Test {
         type Event = ();
-        type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility = u64;
-        type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
-        type MiningSpeedBoostEligibilityTokenMiningLockedPercentage = u32;
-        // type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
+        type MiningEligibilityTokenMiningCalculatedEligibility = u64;
+        type MiningEligibilityTokenMiningIndex = u64;
+        type MiningEligibilityTokenMiningLockedPercentage = u32;
+        // type MiningEligibilityTokenMiningAuditorAccountID = u64;
     }
-    impl MiningSpeedBoostLodgementsTokenMiningTrait for Test {
+    impl MiningClaimsTokenMiningTrait for Test {
         type Event = ();
-        type MiningSpeedBoostLodgementsTokenMiningIndex = u64;
-        type MiningSpeedBoostLodgementsTokenMiningLodgementAmount = u64;
+        type MiningClaimsTokenMiningIndex = u64;
+        type MiningClaimsTokenMiningClaimAmount = u64;
     }
-    impl MiningSpeedBoostExecutionTokenMiningTrait for Test {
+    impl MiningExecutionTokenMiningTrait for Test {
         type Event = ();
-        type MiningSpeedBoostExecutionTokenMiningIndex = u64;
+        type MiningExecutionTokenMiningIndex = u64;
     }
 
     type System = frame_system::Module<Test>;
     pub type Balances = pallet_balances::Module<Test>;
-    pub type MiningSpeedBoostConfigurationTokenMiningTestModule = MiningSpeedBoostConfigurationTokenMiningModule<Test>;
-    pub type MiningSpeedBoostRatesTokenMiningTestModule = MiningSpeedBoostRatesTokenMiningModule<Test>;
-    pub type MiningSpeedBoostSamplingTokenMiningTestModule = MiningSpeedBoostSamplingTokenMiningModule<Test>;
-    pub type MiningSpeedBoostEligibilityTokenMiningTestModule = MiningSpeedBoostEligibilityTokenMiningModule<Test>;
-    pub type MiningSpeedBoostLodgementsTokenMiningTestModule = MiningSpeedBoostLodgementsTokenMiningModule<Test>;
-    pub type MiningSpeedBoostExecutionTokenMiningTestModule = MiningSpeedBoostExecutionTokenMiningModule<Test>;
+    pub type MiningConfigTokenMiningTestModule = MiningConfigTokenMiningModule<Test>;
+    pub type MiningRatesTokenMiningTestModule = MiningRatesTokenMiningModule<Test>;
+    pub type MiningSamplingTokenMiningTestModule = MiningSamplingTokenMiningModule<Test>;
+    pub type MiningEligibilityTokenMiningTestModule = MiningEligibilityTokenMiningModule<Test>;
+    pub type MiningClaimsTokenMiningTestModule = MiningClaimsTokenMiningModule<Test>;
+    pub type MiningExecutionTokenMiningTestModule = MiningExecutionTokenMiningModule<Test>;
     type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
@@ -225,9 +225,9 @@ mod tests {
             // Create Mining Speed Boost Rates Token Mining
 
             // Call Functions
-            assert_ok!(MiningSpeedBoostRatesTokenMiningTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningRatesTokenMiningTestModule::create(Origin::signed(0)));
             assert_ok!(
-              MiningSpeedBoostRatesTokenMiningTestModule::set_mining_rates_token_mining_rates_config(
+              MiningRatesTokenMiningTestModule::set_mining_rates_token_mining_rates_config(
                 Origin::signed(0),
                 0, // mining_rates_token_mining_id
                 // FIXME - convert all below types to Vec<u8> since float values? i.e. b"1.025".to_vec()
@@ -240,12 +240,12 @@ mod tests {
             );
 
             // Verify Storage
-            assert_eq!(MiningSpeedBoostRatesTokenMiningTestModule::mining_rates_token_mining_count(), 1);
-            assert!(MiningSpeedBoostRatesTokenMiningTestModule::mining_rates_token_mining(0).is_some());
-            assert_eq!(MiningSpeedBoostRatesTokenMiningTestModule::mining_rates_token_mining_owner(0), Some(0));
+            assert_eq!(MiningRatesTokenMiningTestModule::mining_rates_token_mining_count(), 1);
+            assert!(MiningRatesTokenMiningTestModule::mining_rates_token_mining(0).is_some());
+            assert_eq!(MiningRatesTokenMiningTestModule::mining_rates_token_mining_owner(0), Some(0));
             assert_eq!(
-              MiningSpeedBoostRatesTokenMiningTestModule::mining_rates_token_mining_rates_configs(0),
-                Some(MiningSpeedBoostRatesTokenMiningRatesConfig {
+              MiningRatesTokenMiningTestModule::mining_rates_token_mining_rates_configs(0),
+                Some(MiningRatesTokenMiningRatesConfig {
                     token_token_mxc: 1,
                     token_token_iota: 1,
                     token_token_dot: 1,
@@ -257,9 +257,9 @@ mod tests {
             // Create Mining Speed Boost Configuration & Cooldown Configuration Token Mining
 
             // Call Functions
-            assert_ok!(MiningSpeedBoostConfigurationTokenMiningTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningConfigTokenMiningTestModule::create(Origin::signed(0)));
             assert_ok!(
-                MiningSpeedBoostConfigurationTokenMiningTestModule::set_mining_configuration_token_mining_token_cooldown_config(
+                MiningConfigTokenMiningTestModule::set_mining_config_token_mining_token_cooldown_config(
                   Origin::signed(0),
                   0, // mining_token_mining_id
                   Some(b"DHX".to_vec()), // token_type
@@ -268,7 +268,7 @@ mod tests {
                 )
               );
             assert_ok!(
-              MiningSpeedBoostConfigurationTokenMiningTestModule::set_mining_configuration_token_mining_token_config(
+              MiningConfigTokenMiningTestModule::set_mining_config_token_mining_token_config(
                 Origin::signed(0),
                 0, // mining_token_mining_id
                 Some(b"MXC".to_vec()), // token_type
@@ -279,20 +279,20 @@ mod tests {
             );
 
             // Verify Storage
-            assert_eq!(MiningSpeedBoostConfigurationTokenMiningTestModule::mining_configuration_token_mining_count(), 1);
-            assert!(MiningSpeedBoostConfigurationTokenMiningTestModule::mining_configuration_token_mining(0).is_some());
-            assert_eq!(MiningSpeedBoostConfigurationTokenMiningTestModule::mining_configuration_token_mining_owner(0), Some(0));
+            assert_eq!(MiningConfigTokenMiningTestModule::mining_config_token_mining_count(), 1);
+            assert!(MiningConfigTokenMiningTestModule::mining_config_token_mining(0).is_some());
+            assert_eq!(MiningConfigTokenMiningTestModule::mining_config_token_mining_owner(0), Some(0));
             assert_eq!(
-                MiningSpeedBoostConfigurationTokenMiningTestModule::mining_configuration_token_mining_token_cooldown_configs(0),
-                  Some(MiningSpeedBoostConfigurationTokenMiningTokenRequirementsConfig {
+                MiningConfigTokenMiningTestModule::mining_config_token_mining_token_cooldown_configs(0),
+                  Some(MiningConfigTokenMiningTokenRequirementsConfig {
                       token_type: b"DHX".to_vec(), // token_type
                       token_lock_min_amount: 10, // token_lock_min_amount
                       token_lock_min_blocks: 7, // token_lock_min_blocks
                   })
               );
             assert_eq!(
-              MiningSpeedBoostConfigurationTokenMiningTestModule::mining_configuration_token_mining_token_configs(0),
-                Some(MiningSpeedBoostConfigurationTokenMiningTokenConfig {
+              MiningConfigTokenMiningTestModule::mining_config_token_mining_token_configs(0),
+                Some(MiningConfigTokenMiningTokenConfig {
                     token_type: b"MXC".to_vec(), // token_type
                     token_lock_amount: 100, // token_lock_amount
                     token_lock_start_block: 12345, // token_lock_start_block
@@ -303,9 +303,9 @@ mod tests {
             // Create Mining Speed Boost Sampling Token Mining
 
             // Call Functions
-            assert_ok!(MiningSpeedBoostSamplingTokenMiningTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningSamplingTokenMiningTestModule::create(Origin::signed(0)));
             assert_ok!(
-              MiningSpeedBoostSamplingTokenMiningTestModule::set_mining_samplings_token_mining_samplings_config(
+              MiningSamplingTokenMiningTestModule::set_mining_samplings_token_mining_samplings_config(
                 Origin::signed(0),
                 0, // mining_token_mining_id
                 0, // mining_token_mining_sample_id
@@ -313,15 +313,15 @@ mod tests {
                 Some(100), // token_sample_locked_amount
               )
             );
-            assert_ok!(MiningSpeedBoostSamplingTokenMiningTestModule::assign_sampling_to_configuration(Origin::signed(0), 0, 0));
+            assert_ok!(MiningSamplingTokenMiningTestModule::assign_sampling_to_configuration(Origin::signed(0), 0, 0));
 
             // Verify Storage
-            assert_eq!(MiningSpeedBoostSamplingTokenMiningTestModule::mining_samplings_token_mining_count(), 1);
-            assert!(MiningSpeedBoostSamplingTokenMiningTestModule::mining_samplings_token_mining(0).is_some());
-            assert_eq!(MiningSpeedBoostSamplingTokenMiningTestModule::mining_samplings_token_mining_owner(0), Some(0));
+            assert_eq!(MiningSamplingTokenMiningTestModule::mining_samplings_token_mining_count(), 1);
+            assert!(MiningSamplingTokenMiningTestModule::mining_samplings_token_mining(0).is_some());
+            assert_eq!(MiningSamplingTokenMiningTestModule::mining_samplings_token_mining_owner(0), Some(0));
             assert_eq!(
-              MiningSpeedBoostSamplingTokenMiningTestModule::mining_samplings_token_mining_samplings_configs((0, 0)),
-                Some(MiningSpeedBoostSamplingTokenMiningSamplingConfig {
+              MiningSamplingTokenMiningTestModule::mining_samplings_token_mining_samplings_configs((0, 0)),
+                Some(MiningSamplingTokenMiningSamplingConfig {
                     token_sample_block: 23456, // token_sample_block
                     token_sample_locked_amount: 100 // token_sample_locked_amount
                 })
@@ -344,18 +344,18 @@ mod tests {
             // The account id of the an auditor who may be involved in auditing the eligibility
             // outcome may also be recorded.
             // Note that we can find out all the samples associated with a
-            // mining_configuration_token_mining_id
+            // mining_config_token_mining_id
 
             // Call Functions
-            assert_ok!(MiningSpeedBoostEligibilityTokenMiningTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningEligibilityTokenMiningTestModule::create(Origin::signed(0)));
             // assert_eq!(
-            //   MiningSpeedBoostEligibilityTokenMiningTestModule::calculate_mining_eligibility_token_mining_result(
+            //   MiningEligibilityTokenMiningTestModule::calculate_mining_eligibility_token_mining_result(
             //       Origin::signed(0),
-            //       0, // mining_configuration_token_mining_id
+            //       0, // mining_config_token_mining_id
             //       0, // mining_eligibility_token_mining_id
             //   ),
             //   Some(
-            //     MiningSpeedBoostEligibilityTokenMiningEligibilityResult {
+            //     MiningEligibilityTokenMiningEligibilityResult {
             //       token_calculated_eligibility: 1.1
             //       // to determine eligibility for proportion (incase user hardware is not online around during the whole lock period)
             //       token_locked_percentage: 0.7, // i.e. 70%
@@ -367,16 +367,16 @@ mod tests {
 
             // Override by DAO if necessary
             assert_ok!(
-              MiningSpeedBoostEligibilityTokenMiningTestModule::set_mining_eligibility_token_mining_eligibility_result(
+              MiningEligibilityTokenMiningTestModule::set_mining_eligibility_token_mining_eligibility_result(
                 Origin::signed(0),
-                0, // mining_configuration_token_mining_id
+                0, // mining_config_token_mining_id
                 0, // mining_eligibility_token_mining_id
                 Some(1), // mining_token_calculated_eligibility
                 Some(1), // mining_token_locked_percentage
                 // 123, // mining_token_block_audited
                 // 123, // mining_token_auditor_account_id
                 // Some({
-                //   MiningSpeedBoostEligibilityTokenMiningEligibilityResult {
+                //   MiningEligibilityTokenMiningEligibilityResult {
                 //     token_calculated_eligibility: 1, // i.e. 1.1
                 //     // to determine eligibility for proportion (incase user hardware is not online around during the whole lock period)
                 //     token_locked_percentage: 1, // i.e. 0.7 for 70%
@@ -386,15 +386,15 @@ mod tests {
                 // }),
               )
             );
-            assert_ok!(MiningSpeedBoostEligibilityTokenMiningTestModule::assign_eligibility_to_configuration(Origin::signed(0), 0, 0));
+            assert_ok!(MiningEligibilityTokenMiningTestModule::assign_eligibility_to_configuration(Origin::signed(0), 0, 0));
 
             // Verify Storage
-            assert_eq!(MiningSpeedBoostEligibilityTokenMiningTestModule::mining_eligibility_token_mining_count(), 1);
-            assert!(MiningSpeedBoostEligibilityTokenMiningTestModule::mining_eligibility_token_mining(0).is_some());
-            assert_eq!(MiningSpeedBoostEligibilityTokenMiningTestModule::mining_eligibility_token_mining_owner(0), Some(0));
+            assert_eq!(MiningEligibilityTokenMiningTestModule::mining_eligibility_token_mining_count(), 1);
+            assert!(MiningEligibilityTokenMiningTestModule::mining_eligibility_token_mining(0).is_some());
+            assert_eq!(MiningEligibilityTokenMiningTestModule::mining_eligibility_token_mining_owner(0), Some(0));
             assert_eq!(
-              MiningSpeedBoostEligibilityTokenMiningTestModule::mining_eligibility_token_mining_eligibility_results((0, 0)),
-                Some(MiningSpeedBoostEligibilityTokenMiningEligibilityResult {
+              MiningEligibilityTokenMiningTestModule::mining_eligibility_token_mining_eligibility_results((0, 0)),
+                Some(MiningEligibilityTokenMiningEligibilityResult {
                     token_calculated_eligibility: 1,
                     // to determine eligibility for proportion (incase user hardware is not online around during the whole lock period)
                     token_locked_percentage: 1, // i.e. 70%
@@ -403,38 +403,38 @@ mod tests {
                 })
             );
 
-            // Create Mining Speed Boost Lodgements Token Mining
+            // Create Mining Speed Boost Claims Token Mining
 
             // Call Functions
-            assert_ok!(MiningSpeedBoostLodgementsTokenMiningTestModule::create(Origin::signed(0)));
-            assert_ok!(MiningSpeedBoostLodgementsTokenMiningTestModule::assign_claim_to_configuration(Origin::signed(0), 0, 0));
+            assert_ok!(MiningClaimsTokenMiningTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningClaimsTokenMiningTestModule::assign_claim_to_configuration(Origin::signed(0), 0, 0));
             assert_ok!(
-                MiningSpeedBoostLodgementsTokenMiningTestModule::claim(
+                MiningClaimsTokenMiningTestModule::claim(
                     Origin::signed(0),
-                    0, // mining_configuration_token_mining_id
+                    0, // mining_config_token_mining_id
                     0, // mining_eligibility_token_mining_id
-                    0, // mining_lodgements_token_mining_id
+                    0, // mining_claims_token_mining_id
                 )
             );
             // Override by DAO if necessary
             assert_ok!(
-              MiningSpeedBoostLodgementsTokenMiningTestModule::set_mining_lodgements_token_mining_lodgements_result(
+              MiningClaimsTokenMiningTestModule::set_mining_claims_token_mining_claims_result(
                   Origin::signed(0),
-                  0, // mining_configuration_token_mining_id
+                  0, // mining_config_token_mining_id
                   0, // mining_eligibility_token_mining_id
-                  0, // mining_lodgements_token_mining_id
+                  0, // mining_claims_token_mining_id
                   Some(1), // token_claim_amount
                   Some(34567) // token_claim_block_redeemed
               )
             );
 
             // Verify Storage
-            assert_eq!(MiningSpeedBoostLodgementsTokenMiningTestModule::mining_lodgements_token_mining_count(), 1);
-            assert!(MiningSpeedBoostLodgementsTokenMiningTestModule::mining_lodgements_token_mining(0).is_some());
-            assert_eq!(MiningSpeedBoostLodgementsTokenMiningTestModule::mining_lodgements_token_mining_owner(0), Some(0));
+            assert_eq!(MiningClaimsTokenMiningTestModule::mining_claims_token_mining_count(), 1);
+            assert!(MiningClaimsTokenMiningTestModule::mining_claims_token_mining(0).is_some());
+            assert_eq!(MiningClaimsTokenMiningTestModule::mining_claims_token_mining_owner(0), Some(0));
             assert_eq!(
-              MiningSpeedBoostLodgementsTokenMiningTestModule::mining_lodgements_token_mining_lodgements_results((0, 0)),
-                Some(MiningSpeedBoostLodgementsTokenMiningLodgementResult {
+              MiningClaimsTokenMiningTestModule::mining_claims_token_mining_claims_results((0, 0)),
+                Some(MiningClaimsTokenMiningClaimResult {
                     token_claim_amount: 1,
                     token_claim_block_redeemed: 34567,
                 })
@@ -443,16 +443,16 @@ mod tests {
             // Create Mining Speed Boost Execution Token Mining
 
             // Call Functions
-            assert_ok!(MiningSpeedBoostExecutionTokenMiningTestModule::create(Origin::signed(0)));
-            assert_ok!(MiningSpeedBoostExecutionTokenMiningTestModule::assign_execution_to_configuration(Origin::signed(0), 0, 0));
+            assert_ok!(MiningExecutionTokenMiningTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningExecutionTokenMiningTestModule::assign_execution_to_configuration(Origin::signed(0), 0, 0));
 
             // Override by DAO if necessary
             //
             // Execute is called to start the mining if all checks pass
             assert_ok!(
-              MiningSpeedBoostExecutionTokenMiningTestModule::set_mining_execution_token_mining_execution_result(
+              MiningExecutionTokenMiningTestModule::set_mining_execution_token_mining_execution_result(
                   Origin::signed(0),
-                  0, // mining_configuration_token_mining_id
+                  0, // mining_config_token_mining_id
                   0, // mining_execution_token_mining_id
                   Some(12345), // token_execution_started_block
                   Some(34567) // token_execution_ended_block
@@ -460,18 +460,18 @@ mod tests {
             );
 
             // Verify Storage
-            assert_eq!(MiningSpeedBoostExecutionTokenMiningTestModule::mining_execution_token_mining_count(), 1);
-            assert!(MiningSpeedBoostExecutionTokenMiningTestModule::mining_execution_token_mining(0).is_some());
-            assert_eq!(MiningSpeedBoostExecutionTokenMiningTestModule::mining_execution_token_mining_owner(0), Some(0));
+            assert_eq!(MiningExecutionTokenMiningTestModule::mining_execution_token_mining_count(), 1);
+            assert!(MiningExecutionTokenMiningTestModule::mining_execution_token_mining(0).is_some());
+            assert_eq!(MiningExecutionTokenMiningTestModule::mining_execution_token_mining_owner(0), Some(0));
             assert_eq!(
-              MiningSpeedBoostExecutionTokenMiningTestModule::mining_execution_token_mining_execution_results((0, 0)),
-                Some(MiningSpeedBoostExecutionTokenMiningExecutionResult {
+              MiningExecutionTokenMiningTestModule::mining_execution_token_mining_execution_results((0, 0)),
+                Some(MiningExecutionTokenMiningExecutionResult {
                     token_execution_executor_account_id: 0,
                     token_execution_started_block: 12345,
                     token_execution_ended_block: 34567,
                 })
             );
-            // TODO - check that the locked amount has actually been locked and check that a sampling, eligibility, and lodgement were all run automatically afterwards
+            // TODO - check that the locked amount has actually been locked and check that a sampling, eligibility, and claim were all run automatically afterwards
             // assert!(false);
         });
     }

@@ -400,7 +400,7 @@ Once you've established a connection between the UI and the DataHighway testnet,
   * Click "Stake" from the sidebar menu. Refer to the [Polkadot wiki's collator, validator, and nominator guides](https://wiki.polkadot.network/docs/en/maintain-guides-how-to-validate-kusama)
 * Chain state interaction (i.e. roaming, mining, etc):
   * Click "Chain state" from the sidebar menu, then click tab "Storage"
-  * Click "selected state query" selection box, and then as an example, choose "dataHighwayMiningSpeedBoostLodgement", and see if it works yet (WIP).
+  * Click "selected state query" selection box, and then as an example, choose "dataHighwayMiningClaim", and see if it works yet (WIP).
 * Extrinsics interaction (i.e. roaming, mining, etc):
   * Click "Extrinsics" from the sidebar menu.
 

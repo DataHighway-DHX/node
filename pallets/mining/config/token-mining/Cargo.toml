@@ -1,5 +1,5 @@
 [package]
-name = "mining-configuration-token-mining"
+name = "mining-config-token-mining"
 version = "0.1.0"
 authors = ["Luke Schoen"]
 edition = "2018"

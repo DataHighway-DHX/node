@@ -92,17 +92,17 @@ impl roaming_operators::Trait for Test {
 }
 impl Trait for Test {
     type Event = ();
-    type MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway = u32;
-    type MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway = u32;
-    type MiningSpeedBoostRatesHardwareMiningCategory3MaxTokenBonusPerGateway = u32;
-    type MiningSpeedBoostRatesHardwareMiningHardwareInsecure = u32;
-    type MiningSpeedBoostRatesHardwareMiningHardwareSecure = u32;
-    type MiningSpeedBoostRatesHardwareMiningIndex = u64;
-    type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
+    type MiningRatesHardwareMiningCategory1MaxTokenBonusPerGateway = u32;
+    type MiningRatesHardwareMiningCategory2MaxTokenBonusPerGateway = u32;
+    type MiningRatesHardwareMiningCategory3MaxTokenBonusPerGateway = u32;
+    type MiningRatesHardwareMiningHardwareInsecure = u32;
+    type MiningRatesHardwareMiningHardwareSecure = u32;
+    type MiningRatesHardwareMiningIndex = u64;
+    type MiningRatesHardwareMiningMaxHardware = u32;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;
-pub type MiningSpeedBoostRatesHardwareMiningTestModule = Module<Test>;
+pub type MiningRatesHardwareMiningTestModule = Module<Test>;
 type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
 // This function basically just builds a genesis storage key/value store according to

@@ -92,16 +92,16 @@ impl roaming_operators::Trait for Test {
 }
 impl Trait for Test {
     type Event = ();
-    type MiningSpeedBoostRatesTokenMiningIndex = u64;
-    type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
-    type MiningSpeedBoostRatesTokenMiningMaxToken = u32;
-    type MiningSpeedBoostRatesTokenMiningTokenDOT = u32;
-    type MiningSpeedBoostRatesTokenMiningTokenIOTA = u32;
-    type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
+    type MiningRatesTokenMiningIndex = u64;
+    type MiningRatesTokenMiningMaxLoyalty = u32;
+    type MiningRatesTokenMiningMaxToken = u32;
+    type MiningRatesTokenMiningTokenDOT = u32;
+    type MiningRatesTokenMiningTokenIOTA = u32;
+    type MiningRatesTokenMiningTokenMXC = u32;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;
-pub type MiningSpeedBoostRatesTokenMiningTestModule = Module<Test>;
+pub type MiningRatesTokenMiningTestModule = Module<Test>;
 type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
 // This function basically just builds a genesis storage key/value store according to

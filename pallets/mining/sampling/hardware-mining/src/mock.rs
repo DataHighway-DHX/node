@@ -90,29 +90,29 @@ impl roaming_operators::Trait for Test {
     type Randomness = Randomness;
     type RoamingOperatorIndex = u64;
 }
-impl mining_configuration_hardware_mining::Trait for Test {
+impl mining_config_hardware_mining::Trait for Test {
     type Event = ();
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI = u64;
-    // type MiningSpeedBoostConfigurationHardwareMiningHardwareType =
-    // MiningSpeedBoostConfigurationHardwareMiningHardwareTypes;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareID = u64;
+    type MiningConfigHardwareMiningHardwareDevEUI = u64;
+    // type MiningConfigHardwareMiningHardwareType =
+    // MiningConfigHardwareMiningHardwareTypes;
+    type MiningConfigHardwareMiningHardwareID = u64;
     // Mining Speed Boost Hardware Mining Config
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareSecure = bool;
+    type MiningConfigHardwareMiningHardwareSecure = bool;
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareType = Vec<u8>;
+    type MiningConfigHardwareMiningHardwareType = Vec<u8>;
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
-    type MiningSpeedBoostConfigurationHardwareMiningIndex = u64;
+    type MiningConfigHardwareMiningIndex = u64;
 }
 impl Trait for Test {
     type Event = ();
-    type MiningSpeedBoostSamplingHardwareMiningIndex = u64;
-    type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
+    type MiningSamplingHardwareMiningIndex = u64;
+    type MiningSamplingHardwareMiningSampleHardwareOnline = u64;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;
-pub type MiningSpeedBoostSamplingHardwareMiningTestModule = Module<Test>;
+pub type MiningSamplingHardwareMiningTestModule = Module<Test>;
 type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
 // This function basically just builds a genesis storage key/value store according to

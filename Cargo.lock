@@ -993,13 +993,13 @@ dependencies = [
  "frame-support",
  "frame-system",
  "frame-system-rpc-runtime-api",
- "mining-configuration-hardware-mining",
- "mining-configuration-token-mining",
+ "mining-config-hardware-mining",
+ "mining-config-token-mining",
  "mining-eligibility-hardware-mining",
  "mining-eligibility-token-mining",
  "mining-execution-token-mining",
- "mining-lodgements-hardware-mining",
- "mining-lodgements-token-mining",
+ "mining-claims-hardware-mining",
+ "mining-claims-token-mining",
  "mining-rates-hardware-mining",
  "mining-rates-token-mining",
  "mining-sampling-hardware-mining",
@@ -3153,7 +3153,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mining-configuration-hardware-mining"
+name = "mining-config-hardware-mining"
 version = "0.1.0"
 dependencies = [
  "frame-support",
@@ -3171,7 +3171,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mining-configuration-token-mining"
+name = "mining-config-token-mining"
 version = "0.1.0"
 dependencies = [
  "frame-support",
@@ -3194,7 +3194,7 @@ version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-configuration-hardware-mining",
+ "mining-config-hardware-mining",
  "mining-rates-hardware-mining",
  "mining-sampling-hardware-mining",
  "pallet-balances",
@@ -3215,7 +3215,7 @@ version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-configuration-token-mining",
+ "mining-config-token-mining",
  "mining-rates-token-mining",
  "mining-sampling-token-mining",
  "pallet-balances",
@@ -3236,9 +3236,9 @@ version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-configuration-token-mining",
+ "mining-config-token-mining",
  "mining-eligibility-token-mining",
- "mining-lodgements-token-mining",
+ "mining-claims-token-mining",
  "mining-rates-token-mining",
  "mining-sampling-token-mining",
  "pallet-balances",
@@ -3254,12 +3254,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "mining-lodgements-hardware-mining"
+name = "mining-claims-hardware-mining"
 version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-configuration-hardware-mining",
+ "mining-config-hardware-mining",
  "mining-eligibility-hardware-mining",
  "mining-rates-hardware-mining",
  "mining-sampling-hardware-mining",
@@ -3276,12 +3276,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "mining-lodgements-token-mining"
+name = "mining-claims-token-mining"
 version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-configuration-token-mining",
+ "mining-config-token-mining",
  "mining-eligibility-token-mining",
  "mining-rates-token-mining",
  "mining-sampling-token-mining",
@@ -3339,7 +3339,7 @@ version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-configuration-hardware-mining",
+ "mining-config-hardware-mining",
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",
@@ -3358,7 +3358,7 @@ version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-configuration-token-mining",
+ "mining-config-token-mining",
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",

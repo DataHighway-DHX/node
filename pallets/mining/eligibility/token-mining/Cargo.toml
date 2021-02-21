@@ -21,7 +21,7 @@ std = [
 
     'roaming-operators/std',
     'mining-rates-token-mining/std',
-    'mining-configuration-token-mining/std',
+    'mining-config-token-mining/std',
     'mining-sampling-token-mining/std',
 ]
 
@@ -39,7 +39,7 @@ sp-runtime = { version = '2.0.0', default_features = false }
 sp-std = { version = '2.0.0', default_features = false }
 
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
-mining-configuration-token-mining = { default_features = false, package = 'mining-configuration-token-mining', path = '../../../mining/configuration/token-mining' }
+mining-config-token-mining = { default_features = false, package = 'mining-config-token-mining', path = '../../../mining/config/token-mining' }
 mining-rates-token-mining = { default_features = false, package = 'mining-rates-token-mining', path = '../../../mining/rates/token-mining' }
 mining-sampling-token-mining = { default_features = false, package = 'mining-sampling-token-mining', path = '../../../mining/sampling/token-mining' }
 

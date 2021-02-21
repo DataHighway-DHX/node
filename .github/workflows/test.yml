@@ -83,16 +83,16 @@ jobs:
           cargo +nightly-2020-10-06 test -p roaming-billing-policies &&
           cargo +nightly-2020-10-06 test -p roaming-charging-policies &&
           cargo +nightly-2020-10-06 test -p roaming-packet-bundles &&
-          cargo +nightly-2020-10-06 test -p mining-configuration-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-configuration-hardware-mining &&
+          cargo +nightly-2020-10-06 test -p mining-config-token-mining &&
+          cargo +nightly-2020-10-06 test -p mining-config-hardware-mining &&
           cargo +nightly-2020-10-06 test -p mining-rates-token-mining &&
           cargo +nightly-2020-10-06 test -p mining-rates-hardware-mining &&
           cargo +nightly-2020-10-06 test -p mining-sampling-token-mining &&
           cargo +nightly-2020-10-06 test -p mining-sampling-hardware-mining &&
           cargo +nightly-2020-10-06 test -p mining-eligibility-token-mining &&
           cargo +nightly-2020-10-06 test -p mining-eligibility-hardware-mining &&
-          cargo +nightly-2020-10-06 test -p mining-lodgements-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-lodgements-hardware-mining &&
+          cargo +nightly-2020-10-06 test -p mining-claims-token-mining &&
+          cargo +nightly-2020-10-06 test -p mining-claims-hardware-mining &&
           cargo +nightly-2020-10-06 test -p mining-execution-token-mining
 
   lints:

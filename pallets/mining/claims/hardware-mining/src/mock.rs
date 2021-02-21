@@ -90,17 +90,53 @@ impl roaming_operators::Trait for Test {
     type Randomness = Randomness;
     type RoamingOperatorIndex = u64;
 }
+impl mining_config_hardware_mining::Trait for Test {
+    type Event = ();
+    type MiningConfigHardwareMiningHardwareDevEUI = u64;
+    // type MiningConfigHardwareMiningHardwareType =
+    // MiningConfigHardwareMiningHardwareTypes;
+    type MiningConfigHardwareMiningHardwareID = u64;
+    // Mining Speed Boost Hardware Mining Config
+    type MiningConfigHardwareMiningHardwareSecure = bool;
+    // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
+    type MiningConfigHardwareMiningHardwareType = Vec<u8>;
+    // FIXME - restore when stop temporarily using roaming-operators
+    // type Currency = Balances;
+    // type Randomness = RandomnessCollectiveFlip;
+    type MiningConfigHardwareMiningIndex = u64;
+}
+impl mining_eligibility_hardware_mining::Trait for Test {
+    type Event = ();
+    type MiningEligibilityHardwareMiningCalculatedEligibility = u64;
+    type MiningEligibilityHardwareMiningHardwareUptimePercentage = u32;
+    type MiningEligibilityHardwareMiningIndex = u64;
+    // type MiningEligibilityHardwareMiningAuditorAccountID = u64;
+}
+impl mining_rates_hardware_mining::Trait for Test {
+    type Event = ();
+    type MiningRatesHardwareMiningCategory1MaxTokenBonusPerGateway = u32;
+    type MiningRatesHardwareMiningCategory2MaxTokenBonusPerGateway = u32;
+    type MiningRatesHardwareMiningCategory3MaxTokenBonusPerGateway = u32;
+    type MiningRatesHardwareMiningHardwareInsecure = u32;
+    // Mining Speed Boost Rate
+    type MiningRatesHardwareMiningHardwareSecure = u32;
+    type MiningRatesHardwareMiningIndex = u64;
+    // Mining Speed Boost Max Rates
+    type MiningRatesHardwareMiningMaxHardware = u32;
+}
+impl mining_sampling_hardware_mining::Trait for Test {
+    type Event = ();
+    type MiningSamplingHardwareMiningIndex = u64;
+    type MiningSamplingHardwareMiningSampleHardwareOnline = u64;
+}
 impl Trait for Test {
     type Event = ();
-    type MiningSpeedBoostConfigurationTokenMiningIndex = u64;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockAmount = u64;
-    // Mining Speed Boost Token Mining Config
-    // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
+    type MiningClaimsHardwareMiningIndex = u64;
+    type MiningClaimsHardwareMiningClaimAmount = u64;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;
-pub type MiningSpeedBoostConfigurationTokenMiningTestModule = Module<Test>;
+pub type MiningClaimsHardwareMiningTestModule = Module<Test>;
 type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
 // This function basically just builds a genesis storage key/value store according to

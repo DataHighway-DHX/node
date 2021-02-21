@@ -1,5 +1,5 @@
 [package]
-name = "mining-configuration-hardware-mining"
+name = "mining-config-hardware-mining"
 version = "0.1.0"
 authors = ["Luke Schoen"]
 edition = "2018"
