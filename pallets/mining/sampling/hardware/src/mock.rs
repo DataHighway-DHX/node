@@ -92,18 +92,18 @@ impl roaming_operators::Trait for Test {
 }
 impl mining_config_hardware::Trait for Test {
     type Event = ();
-    type MiningConfigHardwareHardwareDevEUI = u64;
-    // type MiningConfigHardwareHardwareType =
-    // MiningConfigHardwareHardwareTypes;
-    type MiningConfigHardwareHardwareID = u64;
-    // Mining Speed Boost Hardware Mining Config
-    type MiningConfigHardwareHardwareSecure = bool;
-    // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningConfigHardwareHardwareType = Vec<u8>;
+    type MiningConfigHardwareDevEUI = u64;
+    // type MiningConfigHardwareType =
+    // MiningConfigHardwareTypes;
+    type MiningConfigHardwareID = u64;
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
     type MiningConfigHardwareIndex = u64;
+    // Mining Speed Boost Hardware Mining Config
+    type MiningConfigHardwareSecure = bool;
+    // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
+    type MiningConfigHardwareType = Vec<u8>;
 }
 impl Trait for Test {
     type Event = ();

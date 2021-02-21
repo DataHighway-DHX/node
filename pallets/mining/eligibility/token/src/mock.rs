@@ -110,10 +110,10 @@ impl mining_config_token::Trait for Test {
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
     type MiningConfigTokenIndex = u64;
-    type MiningConfigTokenTokenLockAmount = u64;
+    type MiningConfigTokenLockAmount = u64;
     // Mining Speed Boost Token Mining Config
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningConfigTokenTokenType = Vec<u8>;
+    type MiningConfigTokenType = Vec<u8>;
 }
 impl Trait for Test {
     type Event = ();

@@ -93,10 +93,10 @@ impl roaming_operators::Trait for Test {
 impl Trait for Test {
     type Event = ();
     type MiningConfigTokenIndex = u64;
-    type MiningConfigTokenTokenLockAmount = u64;
+    type MiningConfigTokenLockAmount = u64;
     // Mining Speed Boost Token Mining Config
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningConfigTokenTokenType = Vec<u8>;
+    type MiningConfigTokenType = Vec<u8>;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;

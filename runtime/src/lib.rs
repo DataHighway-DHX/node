@@ -613,26 +613,26 @@ impl mining_config_token::Trait for Runtime {
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
     type MiningConfigTokenIndex = u64;
-    type MiningConfigTokenTokenLockAmount = u64;
+    type MiningConfigTokenLockAmount = u64;
     // Mining Speed Boost Token Mining Config
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningConfigTokenTokenType = Vec<u8>;
+    type MiningConfigTokenType = Vec<u8>;
 }
 
 impl mining_config_hardware::Trait for Runtime {
     type Event = Event;
-    type MiningConfigHardwareHardwareDevEUI = u64;
-    // type MiningConfigHardwareHardwareType =
-    // MiningConfigHardwareHardwareTypes;
-    type MiningConfigHardwareHardwareID = u64;
-    // Mining Speed Boost Hardware Mining Config
-    type MiningConfigHardwareHardwareSecure = bool;
-    // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningConfigHardwareHardwareType = Vec<u8>;
+    type MiningConfigHardwareDevEUI = u64;
+    // type MiningConfigHardwareType =
+    // MiningConfigHardwareTypes;
+    type MiningConfigHardwareID = u64;
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
     type MiningConfigHardwareIndex = u64;
+    // Mining Speed Boost Hardware Mining Config
+    type MiningConfigHardwareSecure = bool;
+    // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
+    type MiningConfigHardwareType = Vec<u8>;
 }
 
 impl mining_rates_token::Trait for Runtime {
@@ -652,12 +652,12 @@ impl mining_rates_hardware::Trait for Runtime {
     type MiningRatesHardwareCategory1MaxTokenBonusPerGateway = u32;
     type MiningRatesHardwareCategory2MaxTokenBonusPerGateway = u32;
     type MiningRatesHardwareCategory3MaxTokenBonusPerGateway = u32;
-    type MiningRatesHardwareHardwareInsecure = u32;
-    // Mining Speed Boost Rate
-    type MiningRatesHardwareHardwareSecure = u32;
     type MiningRatesHardwareIndex = u64;
+    type MiningRatesHardwareInsecure = u32;
     // Mining Speed Boost Max Rates
     type MiningRatesHardwareMaxHardware = u32;
+    // Mining Speed Boost Rate
+    type MiningRatesHardwareSecure = u32;
 }
 
 impl mining_sampling_token::Trait for Runtime {
@@ -683,21 +683,21 @@ impl mining_eligibility_token::Trait for Runtime {
 impl mining_eligibility_hardware::Trait for Runtime {
     type Event = Event;
     type MiningEligibilityHardwareCalculatedEligibility = u64;
-    type MiningEligibilityHardwareHardwareUptimePercentage = u32;
     type MiningEligibilityHardwareIndex = u64;
+    type MiningEligibilityHardwareUptimePercentage = u32;
     // type MiningEligibilityHardwareAuditorAccountID = u64;
 }
 
 impl mining_claims_token::Trait for Runtime {
     type Event = Event;
-    type MiningClaimsTokenIndex = u64;
     type MiningClaimsTokenClaimAmount = u64;
+    type MiningClaimsTokenIndex = u64;
 }
 
 impl mining_claims_hardware::Trait for Runtime {
     type Event = Event;
-    type MiningClaimsHardwareIndex = u64;
     type MiningClaimsHardwareClaimAmount = u64;
+    type MiningClaimsHardwareIndex = u64;
 }
 
 impl mining_execution_token::Trait for Runtime {

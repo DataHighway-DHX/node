@@ -44,13 +44,8 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type MiningConfigTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     // Mining Speed Boost Token Mining Config
-    type MiningConfigTokenTokenType: Parameter + Member + Default;
-    type MiningConfigTokenTokenLockAmount: Parameter
-        + Member
-        + AtLeast32Bit
-        + Bounded
-        + Default
-        + Copy;
+    type MiningConfigTokenType: Parameter + Member + Default;
+    type MiningConfigTokenLockAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
 type BalanceOf<T> =
@@ -62,7 +57,7 @@ pub struct MiningConfigToken(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
-pub struct MiningConfigTokenTokenConfig<U, V, W, X> {
+pub struct MiningConfigTokenConfig<U, V, W, X> {
     pub token_type: U,
     pub token_lock_amount: V,
     pub token_lock_start_block: W,
@@ -71,7 +66,7 @@ pub struct MiningConfigTokenTokenConfig<U, V, W, X> {
 
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
-pub struct MiningConfigTokenTokenRequirementsConfig<U, V, W> {
+pub struct MiningConfigTokenRequirementsConfig<U, V, W> {
     pub token_type: U,
     pub token_lock_min_amount: V, /* Balance used instead of
                                    * MiningConfigTokenTokenLockMinAmount */
@@ -82,7 +77,7 @@ decl_event!(
     pub enum Event<T> where
         <T as frame_system::Trait>::AccountId,
         <T as Trait>::MiningConfigTokenIndex,
-        <T as Trait>::MiningConfigTokenTokenType,
+        <T as Trait>::MiningConfigTokenType,
         <T as frame_system::Trait>::BlockNumber,
         Balance = BalanceOf<T>,
     {
@@ -90,11 +85,11 @@ decl_event!(
         Created(AccountId, MiningConfigTokenIndex),
         /// A mining_config_token is transferred. (from, to, mining_config_token_id)
         Transferred(AccountId, AccountId, MiningConfigTokenIndex),
-        MiningConfigTokenTokenConfigSet(
-            AccountId, MiningConfigTokenIndex, MiningConfigTokenTokenType, Balance, BlockNumber, BlockNumber
+        MiningConfigTokenConfigSet(
+            AccountId, MiningConfigTokenIndex, MiningConfigTokenType, Balance, BlockNumber, BlockNumber
         ),
-        MiningConfigTokenTokenRequirementsConfigSet(
-            AccountId, MiningConfigTokenIndex, MiningConfigTokenTokenType, Balance,
+        MiningConfigTokenRequirementsConfigSet(
+            AccountId, MiningConfigTokenIndex, MiningConfigTokenType, Balance,
             BlockNumber
         ),
     }
@@ -113,12 +108,12 @@ decl_storage! {
         pub MiningConfigTokenOwners get(fn mining_config_token_owner): map hasher(opaque_blake2_256) T::MiningConfigTokenIndex => Option<T::AccountId>;
 
         /// Stores mining_config_token_token_config
-        pub MiningConfigTokenTokenConfigs get(fn mining_config_token_token_configs): map hasher(opaque_blake2_256) T::MiningConfigTokenIndex =>
-            Option<MiningConfigTokenTokenConfig<T::MiningConfigTokenTokenType, BalanceOf<T>, T::BlockNumber, T::BlockNumber>>;
+        pub MiningConfigTokenConfigs get(fn mining_config_token_token_configs): map hasher(opaque_blake2_256) T::MiningConfigTokenIndex =>
+            Option<MiningConfigTokenConfig<T::MiningConfigTokenType, BalanceOf<T>, T::BlockNumber, T::BlockNumber>>;
 
         /// Stores mining_config_token_token_cooldown_config
-        pub MiningConfigTokenTokenRequirementsConfigs get(fn mining_config_token_token_cooldown_configs): map hasher(opaque_blake2_256) T::MiningConfigTokenIndex =>
-            Option<MiningConfigTokenTokenRequirementsConfig<T::MiningConfigTokenTokenType, BalanceOf<T>, T::BlockNumber>>;
+        pub MiningConfigTokenRequirementsConfigs get(fn mining_config_token_token_cooldown_configs): map hasher(opaque_blake2_256) T::MiningConfigTokenIndex =>
+            Option<MiningConfigTokenRequirementsConfig<T::MiningConfigTokenType, BalanceOf<T>, T::BlockNumber>>;
     }
 }
 
@@ -161,7 +156,7 @@ decl_module! {
         pub fn set_mining_config_token_token_config(
             origin,
             mining_config_token_id: T::MiningConfigTokenIndex,
-            _token_type: Option<T::MiningConfigTokenTokenType>,
+            _token_type: Option<T::MiningConfigTokenType>,
             _token_lock_amount: Option<BalanceOf<T>>,
             _token_lock_start_block: Option<T::BlockNumber>,
             _token_lock_interval_blocks: Option<T::BlockNumber>,
@@ -178,7 +173,7 @@ decl_module! {
             let mut default_token_type = Default::default();
             let mut default_token_lock_min_amount = Default::default();
             let mut default_token_lock_min_blocks = Default::default();
-            let mut fetched_mining_config_token_token_cooldown_config = <MiningConfigTokenTokenRequirementsConfigs<T>>::get(mining_config_token_id);
+            let mut fetched_mining_config_token_token_cooldown_config = <MiningConfigTokenRequirementsConfigs<T>>::get(mining_config_token_id);
             if let Some(_mining_config_token_token_cooldown_config) = fetched_mining_config_token_token_cooldown_config {
                 default_token_type = _mining_config_token_token_cooldown_config.token_type;
                 default_token_lock_min_amount = _mining_config_token_token_cooldown_config.token_lock_min_amount;
@@ -206,7 +201,7 @@ decl_module! {
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_mining_config_token_token_config_index(mining_config_token_id).is_ok() {
                 debug::info!("Mutating values");
-                <MiningConfigTokenTokenConfigs<T>>::mutate(mining_config_token_id, |mining_config_token_token_config| {
+                <MiningConfigTokenConfigs<T>>::mutate(mining_config_token_id, |mining_config_token_token_config| {
                     if let Some(_mining_config_token_token_config) = mining_config_token_token_config {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
                         _mining_config_token_token_config.token_type = token_type.clone();
@@ -216,7 +211,7 @@ decl_module! {
                     }
                 });
                 debug::info!("Checking mutated values");
-                let fetched_mining_config_token_token_config = <MiningConfigTokenTokenConfigs<T>>::get(mining_config_token_id);
+                let fetched_mining_config_token_token_config = <MiningConfigTokenConfigs<T>>::get(mining_config_token_id);
                 if let Some(_mining_config_token_token_config) = fetched_mining_config_token_token_config {
                     debug::info!("Latest field token_type {:#?}", _mining_config_token_token_config.token_type);
                     debug::info!("Latest field token_lock_amount {:#?}", _mining_config_token_token_config.token_lock_amount);
@@ -227,7 +222,7 @@ decl_module! {
                 debug::info!("Inserting values");
 
                 // Create a new mining mining_config_token_token_config instance with the input params
-                let mining_config_token_token_config_instance = MiningConfigTokenTokenConfig {
+                let mining_config_token_token_config_instance = MiningConfigTokenConfig {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     token_type: token_type.clone(),
@@ -236,13 +231,13 @@ decl_module! {
                     token_lock_interval_blocks: token_lock_interval_blocks.clone()
                 };
 
-                <MiningConfigTokenTokenConfigs<T>>::insert(
+                <MiningConfigTokenConfigs<T>>::insert(
                     mining_config_token_id,
                     &mining_config_token_token_config_instance
                 );
 
                 debug::info!("Checking inserted values");
-                let fetched_mining_config_token_token_config = <MiningConfigTokenTokenConfigs<T>>::get(mining_config_token_id);
+                let fetched_mining_config_token_token_config = <MiningConfigTokenConfigs<T>>::get(mining_config_token_id);
                 if let Some(_mining_config_token_token_config) = fetched_mining_config_token_token_config {
                     debug::info!("Inserted field token_type {:#?}", _mining_config_token_token_config.token_type);
                     debug::info!("Inserted field token_lock_amount {:#?}", _mining_config_token_token_config.token_lock_amount);
@@ -251,7 +246,7 @@ decl_module! {
                 }
             }
 
-            Self::deposit_event(RawEvent::MiningConfigTokenTokenConfigSet(
+            Self::deposit_event(RawEvent::MiningConfigTokenConfigSet(
                 sender,
                 mining_config_token_id,
                 token_type,
@@ -267,7 +262,7 @@ decl_module! {
         pub fn set_mining_config_token_token_cooldown_config(
             origin,
             mining_config_token_id: T::MiningConfigTokenIndex,
-            _token_type: Option<T::MiningConfigTokenTokenType>,
+            _token_type: Option<T::MiningConfigTokenType>,
             _token_lock_min_amount: Option<BalanceOf<T>>,
             _token_lock_min_blocks: Option<T::BlockNumber>,
         ) {
@@ -297,7 +292,7 @@ decl_module! {
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_mining_config_token_token_cooldown_config_index(mining_config_token_id).is_ok() {
                 debug::info!("Mutating values");
-                <MiningConfigTokenTokenRequirementsConfigs<T>>::mutate(mining_config_token_id, |mining_config_token_token_cooldown_config| {
+                <MiningConfigTokenRequirementsConfigs<T>>::mutate(mining_config_token_id, |mining_config_token_token_cooldown_config| {
                     if let Some(_mining_config_token_token_cooldown_config) = mining_config_token_token_cooldown_config {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
                         _mining_config_token_token_cooldown_config.token_type = token_type.clone();
@@ -306,7 +301,7 @@ decl_module! {
                     }
                 });
                 debug::info!("Checking mutated values");
-                let fetched_mining_config_token_token_cooldown_config = <MiningConfigTokenTokenRequirementsConfigs<T>>::get(mining_config_token_id);
+                let fetched_mining_config_token_token_cooldown_config = <MiningConfigTokenRequirementsConfigs<T>>::get(mining_config_token_id);
                 if let Some(_mining_config_token_token_cooldown_config) = fetched_mining_config_token_token_cooldown_config {
                     debug::info!("Latest field token_type {:#?}", _mining_config_token_token_cooldown_config.token_type);
                     debug::info!("Latest field token_lock_min_amount {:#?}", _mining_config_token_token_cooldown_config.token_lock_min_amount);
@@ -316,7 +311,7 @@ decl_module! {
                 debug::info!("Inserting values");
 
                 // Create a new mining mining_config_token_token_cooldown_config instance with the input params
-                let mining_config_token_token_cooldown_config_instance = MiningConfigTokenTokenRequirementsConfig {
+                let mining_config_token_token_cooldown_config_instance = MiningConfigTokenRequirementsConfig {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     token_type: token_type.clone(),
@@ -324,13 +319,13 @@ decl_module! {
                     token_lock_min_blocks: token_lock_min_blocks.clone(),
                 };
 
-                <MiningConfigTokenTokenRequirementsConfigs<T>>::insert(
+                <MiningConfigTokenRequirementsConfigs<T>>::insert(
                     mining_config_token_id,
                     &mining_config_token_token_cooldown_config_instance
                 );
 
                 debug::info!("Checking inserted values");
-                let fetched_mining_config_token_token_cooldown_config = <MiningConfigTokenTokenRequirementsConfigs<T>>::get(mining_config_token_id);
+                let fetched_mining_config_token_token_cooldown_config = <MiningConfigTokenRequirementsConfigs<T>>::get(mining_config_token_id);
                 if let Some(_mining_config_token_token_cooldown_config) = fetched_mining_config_token_token_cooldown_config {
                     debug::info!("Inserted field token_type {:#?}", _mining_config_token_token_cooldown_config.token_type);
                     debug::info!("Inserted field token_lock_min_amount {:#?}", _mining_config_token_token_cooldown_config.token_lock_min_amount);
@@ -338,7 +333,7 @@ decl_module! {
                 }
             }
 
-            Self::deposit_event(RawEvent::MiningConfigTokenTokenRequirementsConfigSet(
+            Self::deposit_event(RawEvent::MiningConfigTokenRequirementsConfigSet(
                 sender,
                 mining_config_token_id,
                 token_type,
@@ -355,11 +350,7 @@ impl<T: Trait> Module<T> {
         sender: T::AccountId,
     ) -> Result<(), DispatchError> {
         ensure!(
-            Self::mining_config_token_owner(
-                &mining_config_token_id
-            )
-            .map(|owner| owner == sender)
-            .unwrap_or(false),
+            Self::mining_config_token_owner(&mining_config_token_id).map(|owner| owner == sender).unwrap_or(false),
             "Sender is not owner of Mining"
         );
         Ok(())
@@ -377,24 +368,17 @@ impl<T: Trait> Module<T> {
     pub fn exists_mining_config_token_token_config(
         mining_config_token_id: T::MiningConfigTokenIndex,
     ) -> Result<(), DispatchError> {
-        match Self::mining_config_token_token_configs(
-            mining_config_token_id,
-        ) {
+        match Self::mining_config_token_token_configs(mining_config_token_id) {
             Some(_value) => Ok(()),
-            None => Err(DispatchError::Other("MiningConfigTokenTokenConfig does not exist")),
+            None => Err(DispatchError::Other("MiningConfigTokenConfig does not exist")),
         }
     }
 
     pub fn has_value_for_mining_config_token_token_config_index(
         mining_config_token_id: T::MiningConfigTokenIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!(
-            "Checking if mining_config_token_token_config has a value that is defined"
-        );
-        let fetched_mining_config_token_token_config =
-            <MiningConfigTokenTokenConfigs<T>>::get(
-                mining_config_token_id,
-            );
+        debug::info!("Checking if mining_config_token_token_config has a value that is defined");
+        let fetched_mining_config_token_token_config = <MiningConfigTokenConfigs<T>>::get(mining_config_token_id);
         if let Some(_value) = fetched_mining_config_token_token_config {
             debug::info!("Found value for mining_config_token_token_config");
             return Ok(());
@@ -406,14 +390,9 @@ impl<T: Trait> Module<T> {
     pub fn has_value_for_mining_config_token_token_cooldown_config_index(
         mining_config_token_id: T::MiningConfigTokenIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!(
-            "Checking if mining_config_token_token_cooldown_config has a value that is \
-             defined"
-        );
+        debug::info!("Checking if mining_config_token_token_cooldown_config has a value that is defined");
         let fetched_mining_config_token_token_cooldown_config =
-            <MiningConfigTokenTokenRequirementsConfigs<T>>::get(
-                mining_config_token_id,
-            );
+            <MiningConfigTokenRequirementsConfigs<T>>::get(mining_config_token_id);
         if let Some(_value) = fetched_mining_config_token_token_cooldown_config {
             debug::info!("Found value for mining_config_token_token_cooldown_config");
             return Ok(());
@@ -432,13 +411,9 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_mining_config_token_id()
-    -> Result<T::MiningConfigTokenIndex, DispatchError> {
-        let mining_config_token_id =
-            Self::mining_config_token_count();
-        if mining_config_token_id ==
-            <T::MiningConfigTokenIndex as Bounded>::max_value()
-        {
+    fn next_mining_config_token_id() -> Result<T::MiningConfigTokenIndex, DispatchError> {
+        let mining_config_token_id = Self::mining_config_token_count();
+        if mining_config_token_id == <T::MiningConfigTokenIndex as Bounded>::max_value() {
             return Err(DispatchError::Other("MiningConfigToken count overflow"));
         }
         Ok(mining_config_token_id)
@@ -450,26 +425,12 @@ impl<T: Trait> Module<T> {
         mining_config_token: MiningConfigToken,
     ) {
         // Create and store mining mining_config_token
-        <MiningConfigTokens<T>>::insert(
-            mining_config_token_id,
-            mining_config_token,
-        );
-        <MiningConfigTokenCount<T>>::put(
-            mining_config_token_id + One::one(),
-        );
-        <MiningConfigTokenOwners<T>>::insert(
-            mining_config_token_id,
-            owner.clone(),
-        );
+        <MiningConfigTokens<T>>::insert(mining_config_token_id, mining_config_token);
+        <MiningConfigTokenCount<T>>::put(mining_config_token_id + One::one());
+        <MiningConfigTokenOwners<T>>::insert(mining_config_token_id, owner.clone());
     }
 
-    fn update_owner(
-        to: &T::AccountId,
-        mining_config_token_id: T::MiningConfigTokenIndex,
-    ) {
-        <MiningConfigTokenOwners<T>>::insert(
-            mining_config_token_id,
-            to,
-        );
+    fn update_owner(to: &T::AccountId, mining_config_token_id: T::MiningConfigTokenIndex) {
+        <MiningConfigTokenOwners<T>>::insert(mining_config_token_id, to);
     }
 }

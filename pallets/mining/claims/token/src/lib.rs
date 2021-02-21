@@ -53,12 +53,7 @@ pub trait Trait:
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type MiningClaimsTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningClaimsTokenClaimAmount: Parameter
-        + Member
-        + AtLeast32Bit
-        + Bounded
-        + Default
-        + Copy;
+    type MiningClaimsTokenClaimAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
 // type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
@@ -399,9 +394,7 @@ impl<T: Trait> Module<T> {
         sender: T::AccountId,
     ) -> Result<(), DispatchError> {
         ensure!(
-            Self::mining_claims_token_owner(&mining_claims_token_id)
-                .map(|owner| owner == sender)
-                .unwrap_or(false),
+            Self::mining_claims_token_owner(&mining_claims_token_id).map(|owner| owner == sender).unwrap_or(false),
             "Sender is not owner of MiningClaimsToken"
         );
         Ok(())
@@ -420,10 +413,7 @@ impl<T: Trait> Module<T> {
         mining_config_token_id: T::MiningConfigTokenIndex,
         mining_claims_token_id: T::MiningClaimsTokenIndex,
     ) -> Result<(), DispatchError> {
-        match Self::mining_claims_token_claims_results((
-            mining_config_token_id,
-            mining_claims_token_id,
-        )) {
+        match Self::mining_claims_token_claims_results((mining_config_token_id, mining_claims_token_id)) {
             Some(_value) => Ok(()),
             None => Err(DispatchError::Other("MiningClaimsTokenClaimResult does not exist")),
         }
@@ -433,14 +423,9 @@ impl<T: Trait> Module<T> {
         mining_config_token_id: T::MiningConfigTokenIndex,
         mining_claims_token_id: T::MiningClaimsTokenIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!(
-            "Checking if mining_claims_token_claims_result has a value that is defined"
-        );
+        debug::info!("Checking if mining_claims_token_claims_result has a value that is defined");
         let fetched_mining_claims_token_claims_result =
-            <MiningClaimsTokenClaimResults<T>>::get((
-                mining_config_token_id,
-                mining_claims_token_id,
-            ));
+            <MiningClaimsTokenClaimResults<T>>::get((mining_config_token_id, mining_claims_token_id));
         if let Some(_value) = fetched_mining_claims_token_claims_result {
             debug::info!("Found value for mining_claims_token_claims_result");
             return Ok(());
@@ -456,16 +441,13 @@ impl<T: Trait> Module<T> {
     ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given claim id
-        if let Some(configuration_claims) =
-            Self::token_config_claims(mining_config_token_id)
-        {
+        if let Some(configuration_claims) = Self::token_config_claims(mining_config_token_id) {
             debug::info!(
                 "Configuration id key {:?} exists with value {:?}",
                 mining_config_token_id,
                 configuration_claims
             );
-            let not_configuration_contains_claim =
-                !configuration_claims.contains(&mining_claims_token_id);
+            let not_configuration_contains_claim = !configuration_claims.contains(&mining_claims_token_id);
             ensure!(not_configuration_contains_claim, "Configuration already contains the given claim id");
             debug::info!("Configuration id key exists but its vector value does not contain the given claim id");
             <TokenConfigClaims<T>>::mutate(mining_config_token_id, |v| {
@@ -486,10 +468,7 @@ impl<T: Trait> Module<T> {
                 mining_config_token_id,
                 mining_claims_token_id
             );
-            <TokenConfigClaims<T>>::insert(
-                mining_config_token_id,
-                &vec![mining_claims_token_id],
-            );
+            <TokenConfigClaims<T>>::insert(mining_config_token_id, &vec![mining_claims_token_id]);
             Ok(())
         }
     }
@@ -504,12 +483,9 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_mining_claims_token_id()
-    -> Result<T::MiningClaimsTokenIndex, DispatchError> {
+    fn next_mining_claims_token_id() -> Result<T::MiningClaimsTokenIndex, DispatchError> {
         let mining_claims_token_id = Self::mining_claims_token_count();
-        if mining_claims_token_id ==
-            <T::MiningClaimsTokenIndex as Bounded>::max_value()
-        {
+        if mining_claims_token_id == <T::MiningClaimsTokenIndex as Bounded>::max_value() {
             return Err(DispatchError::Other("MiningClaimsToken count overflow"));
         }
         Ok(mining_claims_token_id)
@@ -521,23 +497,12 @@ impl<T: Trait> Module<T> {
         mining_claims_token: MiningClaimsToken,
     ) {
         // Create and store mining mining_claims_token
-        <MiningClaimsTokens<T>>::insert(
-            mining_claims_token_id,
-            mining_claims_token,
-        );
-        <MiningClaimsTokenCount<T>>::put(
-            mining_claims_token_id + One::one(),
-        );
-        <MiningClaimsTokenOwners<T>>::insert(
-            mining_claims_token_id,
-            owner.clone(),
-        );
+        <MiningClaimsTokens<T>>::insert(mining_claims_token_id, mining_claims_token);
+        <MiningClaimsTokenCount<T>>::put(mining_claims_token_id + One::one());
+        <MiningClaimsTokenOwners<T>>::insert(mining_claims_token_id, owner.clone());
     }
 
-    fn update_owner(
-        to: &T::AccountId,
-        mining_claims_token_id: T::MiningClaimsTokenIndex,
-    ) {
+    fn update_owner(to: &T::AccountId, mining_claims_token_id: T::MiningClaimsTokenIndex) {
         <MiningClaimsTokenOwners<T>>::insert(mining_claims_token_id, to);
     }
 }

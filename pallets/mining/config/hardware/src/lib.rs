@@ -43,20 +43,10 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type MiningConfigHardwareIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     // Mining Speed Boost Hardware Mining Config
-    type MiningConfigHardwareHardwareSecure: Parameter + Member + Default + Copy; // bool
-    type MiningConfigHardwareHardwareType: Parameter + Member + Default;
-    type MiningConfigHardwareHardwareID: Parameter
-        + Member
-        + AtLeast32Bit
-        + Bounded
-        + Default
-        + Copy;
-    type MiningConfigHardwareHardwareDevEUI: Parameter
-        + Member
-        + AtLeast32Bit
-        + Bounded
-        + Default
-        + Copy;
+    type MiningConfigHardwareSecure: Parameter + Member + Default + Copy; // bool
+    type MiningConfigHardwareType: Parameter + Member + Default;
+    type MiningConfigHardwareID: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningConfigHardwareDevEUI: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     // // Mining Speed Boost Reward
     // type MiningClaimAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     // type MiningClaimDateRedeemed: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
@@ -71,7 +61,7 @@ pub struct MiningConfigHardware(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
-pub struct MiningConfigHardwareHardwareConfig<U, V, W, X, Y, Z> {
+pub struct MiningConfigHardwareConfig<U, V, W, X, Y, Z> {
     pub hardware_secure: U,
     pub hardware_type: V,
     pub hardware_id: W,
@@ -84,10 +74,10 @@ decl_event!(
     pub enum Event<T> where
         <T as frame_system::Trait>::AccountId,
         <T as Trait>::MiningConfigHardwareIndex,
-        <T as Trait>::MiningConfigHardwareHardwareSecure,
-        <T as Trait>::MiningConfigHardwareHardwareType,
-        <T as Trait>::MiningConfigHardwareHardwareID,
-        <T as Trait>::MiningConfigHardwareHardwareDevEUI,
+        <T as Trait>::MiningConfigHardwareSecure,
+        <T as Trait>::MiningConfigHardwareType,
+        <T as Trait>::MiningConfigHardwareID,
+        <T as Trait>::MiningConfigHardwareDevEUI,
         <T as frame_system::Trait>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
@@ -95,10 +85,10 @@ decl_event!(
         Created(AccountId, MiningConfigHardwareIndex),
         /// A mining_config_hardware is transferred. (from, to, mining_config_hardware_id)
         Transferred(AccountId, AccountId, MiningConfigHardwareIndex),
-        MiningConfigHardwareHardwareConfigSet(
-          AccountId, MiningConfigHardwareIndex, MiningConfigHardwareHardwareSecure,
-          MiningConfigHardwareHardwareType, MiningConfigHardwareHardwareID,
-          MiningConfigHardwareHardwareDevEUI, BlockNumber, BlockNumber
+        MiningConfigHardwareConfigSet(
+          AccountId, MiningConfigHardwareIndex, MiningConfigHardwareSecure,
+          MiningConfigHardwareType, MiningConfigHardwareID,
+          MiningConfigHardwareDevEUI, BlockNumber, BlockNumber
         ),
     }
 );
@@ -116,9 +106,9 @@ decl_storage! {
         pub MiningConfigHardwareOwners get(fn mining_config_hardware_owner): map hasher(opaque_blake2_256) T::MiningConfigHardwareIndex => Option<T::AccountId>;
 
         /// Stores mining_config_hardware_hardware_config
-        pub MiningConfigHardwareHardwareConfigs get(fn mining_config_hardware_hardware_configs): map hasher(opaque_blake2_256) T::MiningConfigHardwareIndex =>
-            Option<MiningConfigHardwareHardwareConfig<T::MiningConfigHardwareHardwareSecure, T::MiningConfigHardwareHardwareType,
-                T::MiningConfigHardwareHardwareID, T::MiningConfigHardwareHardwareDevEUI, T::BlockNumber,
+        pub MiningConfigHardwareConfigs get(fn mining_config_hardware_hardware_configs): map hasher(opaque_blake2_256) T::MiningConfigHardwareIndex =>
+            Option<MiningConfigHardwareConfig<T::MiningConfigHardwareSecure, T::MiningConfigHardwareType,
+                T::MiningConfigHardwareID, T::MiningConfigHardwareDevEUI, T::BlockNumber,
                 T::BlockNumber>>;
     }
 }
@@ -162,10 +152,10 @@ decl_module! {
         pub fn set_mining_config_hardware_hardware_config(
             origin,
             mining_config_hardware_id: T::MiningConfigHardwareIndex,
-            _hardware_secure: Option<T::MiningConfigHardwareHardwareSecure>,
-            _hardware_type: Option<T::MiningConfigHardwareHardwareType>,
-            _hardware_id: Option<T::MiningConfigHardwareHardwareID>,
-            _hardware_dev_eui: Option<T::MiningConfigHardwareHardwareDevEUI>,
+            _hardware_secure: Option<T::MiningConfigHardwareSecure>,
+            _hardware_type: Option<T::MiningConfigHardwareType>,
+            _hardware_id: Option<T::MiningConfigHardwareID>,
+            _hardware_dev_eui: Option<T::MiningConfigHardwareDevEUI>,
             _hardware_lock_start_block: Option<T::BlockNumber>,
             _hardware_lock_interval_blocks: Option<T::BlockNumber>,
         ) {
@@ -210,7 +200,7 @@ decl_module! {
             if Self::has_value_for_mining_config_hardware_hardware_config_index(mining_config_hardware_id).is_ok() {
                 debug::info!("Mutating values");
                 // TODO
-                <MiningConfigHardwareHardwareConfigs<T>>::mutate(mining_config_hardware_id, |mining_config_hardware_hardware_config| {
+                <MiningConfigHardwareConfigs<T>>::mutate(mining_config_hardware_id, |mining_config_hardware_hardware_config| {
                     if let Some(_mining_config_hardware_hardware_config) = mining_config_hardware_hardware_config {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
                         _mining_config_hardware_hardware_config.hardware_secure = hardware_secure.clone();
@@ -222,7 +212,7 @@ decl_module! {
                     }
                 });
                 debug::info!("Checking mutated values");
-                let fetched_mining_config_hardware_hardware_config = <MiningConfigHardwareHardwareConfigs<T>>::get(mining_config_hardware_id);
+                let fetched_mining_config_hardware_hardware_config = <MiningConfigHardwareConfigs<T>>::get(mining_config_hardware_id);
                 if let Some(_mining_config_hardware_hardware_config) = fetched_mining_config_hardware_hardware_config {
                     debug::info!("Latest field hardware_secure {:#?}", _mining_config_hardware_hardware_config.hardware_secure);
                     debug::info!("Latest field hardware_type {:#?}", _mining_config_hardware_hardware_config.hardware_type);
@@ -235,7 +225,7 @@ decl_module! {
                 debug::info!("Inserting values");
 
                 // Create a new mining mining_config_hardware_hardware_config instance with the input params
-                let mining_config_hardware_hardware_config_instance = MiningConfigHardwareHardwareConfig {
+                let mining_config_hardware_hardware_config_instance = MiningConfigHardwareConfig {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     hardware_secure: hardware_secure.clone(),
@@ -246,13 +236,13 @@ decl_module! {
                     hardware_lock_interval_blocks: hardware_lock_interval_blocks.clone(),
                 };
 
-                <MiningConfigHardwareHardwareConfigs<T>>::insert(
+                <MiningConfigHardwareConfigs<T>>::insert(
                     mining_config_hardware_id,
                     &mining_config_hardware_hardware_config_instance
                 );
 
                 debug::info!("Checking inserted values");
-                let fetched_mining_config_hardware_hardware_config = <MiningConfigHardwareHardwareConfigs<T>>::get(mining_config_hardware_id);
+                let fetched_mining_config_hardware_hardware_config = <MiningConfigHardwareConfigs<T>>::get(mining_config_hardware_id);
                 if let Some(_mining_config_hardware_hardware_config) = fetched_mining_config_hardware_hardware_config {
                     debug::info!("Inserted field hardware_secure {:#?}", _mining_config_hardware_hardware_config.hardware_secure);
                     debug::info!("Inserted field hardware_type {:#?}", _mining_config_hardware_hardware_config.hardware_type);
@@ -263,7 +253,7 @@ decl_module! {
                 }
             }
 
-            Self::deposit_event(RawEvent::MiningConfigHardwareHardwareConfigSet(
+            Self::deposit_event(RawEvent::MiningConfigHardwareConfigSet(
                 sender,
                 mining_config_hardware_id,
                 hardware_secure,
@@ -283,11 +273,9 @@ impl<T: Trait> Module<T> {
         sender: T::AccountId,
     ) -> Result<(), DispatchError> {
         ensure!(
-            Self::mining_config_hardware_owner(
-                &mining_config_hardware_id
-            )
-            .map(|owner| owner == sender)
-            .unwrap_or(false),
+            Self::mining_config_hardware_owner(&mining_config_hardware_id)
+                .map(|owner| owner == sender)
+                .unwrap_or(false),
             "Sender is not owner of Mining"
         );
         Ok(())
@@ -296,9 +284,7 @@ impl<T: Trait> Module<T> {
     pub fn exists_mining_config_hardware(
         mining_config_hardware_id: T::MiningConfigHardwareIndex,
     ) -> Result<MiningConfigHardware, DispatchError> {
-        match Self::mining_config_hardware(
-            mining_config_hardware_id,
-        ) {
+        match Self::mining_config_hardware(mining_config_hardware_id) {
             Some(value) => Ok(value),
             None => Err(DispatchError::Other("MiningConfigHardware does not exist")),
         }
@@ -307,26 +293,18 @@ impl<T: Trait> Module<T> {
     pub fn exists_mining_config_hardware_hardware_config(
         mining_config_hardware_id: T::MiningConfigHardwareIndex,
     ) -> Result<(), DispatchError> {
-        match Self::mining_config_hardware_hardware_configs(
-            mining_config_hardware_id,
-        ) {
+        match Self::mining_config_hardware_hardware_configs(mining_config_hardware_id) {
             Some(_value) => Ok(()),
-            None => {
-                Err(DispatchError::Other("MiningConfigHardwareHardwareConfig does not exist"))
-            }
+            None => Err(DispatchError::Other("MiningConfigHardwareConfig does not exist")),
         }
     }
 
     pub fn has_value_for_mining_config_hardware_hardware_config_index(
         mining_config_hardware_id: T::MiningConfigHardwareIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!(
-            "Checking if mining_config_hardware_hardware_config has a value that is defined"
-        );
+        debug::info!("Checking if mining_config_hardware_hardware_config has a value that is defined");
         let fetched_mining_config_hardware_hardware_config =
-            <MiningConfigHardwareHardwareConfigs<T>>::get(
-                mining_config_hardware_id,
-            );
+            <MiningConfigHardwareConfigs<T>>::get(mining_config_hardware_id);
         if let Some(_value) = fetched_mining_config_hardware_hardware_config {
             debug::info!("Found value for mining_config_hardware_hardware_config");
             return Ok(());
@@ -345,13 +323,9 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_mining_config_hardware_id()
-    -> Result<T::MiningConfigHardwareIndex, DispatchError> {
-        let mining_config_hardware_id =
-            Self::mining_config_hardware_count();
-        if mining_config_hardware_id ==
-            <T::MiningConfigHardwareIndex as Bounded>::max_value()
-        {
+    fn next_mining_config_hardware_id() -> Result<T::MiningConfigHardwareIndex, DispatchError> {
+        let mining_config_hardware_id = Self::mining_config_hardware_count();
+        if mining_config_hardware_id == <T::MiningConfigHardwareIndex as Bounded>::max_value() {
             return Err(DispatchError::Other("MiningConfigHardware count overflow"));
         }
         Ok(mining_config_hardware_id)
@@ -363,26 +337,12 @@ impl<T: Trait> Module<T> {
         mining_config_hardware: MiningConfigHardware,
     ) {
         // Create and store mining mining_config_hardware
-        <MiningConfigHardwares<T>>::insert(
-            mining_config_hardware_id,
-            mining_config_hardware,
-        );
-        <MiningConfigHardwareCount<T>>::put(
-            mining_config_hardware_id + One::one(),
-        );
-        <MiningConfigHardwareOwners<T>>::insert(
-            mining_config_hardware_id,
-            owner.clone(),
-        );
+        <MiningConfigHardwares<T>>::insert(mining_config_hardware_id, mining_config_hardware);
+        <MiningConfigHardwareCount<T>>::put(mining_config_hardware_id + One::one());
+        <MiningConfigHardwareOwners<T>>::insert(mining_config_hardware_id, owner.clone());
     }
 
-    fn update_owner(
-        to: &T::AccountId,
-        mining_config_hardware_id: T::MiningConfigHardwareIndex,
-    ) {
-        <MiningConfigHardwareOwners<T>>::insert(
-            mining_config_hardware_id,
-            to,
-        );
+    fn update_owner(to: &T::AccountId, mining_config_hardware_id: T::MiningConfigHardwareIndex) {
+        <MiningConfigHardwareOwners<T>>::insert(mining_config_hardware_id, to);
     }
 }

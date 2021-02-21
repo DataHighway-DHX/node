@@ -95,10 +95,10 @@ impl Trait for Test {
     type MiningRatesHardwareCategory1MaxTokenBonusPerGateway = u32;
     type MiningRatesHardwareCategory2MaxTokenBonusPerGateway = u32;
     type MiningRatesHardwareCategory3MaxTokenBonusPerGateway = u32;
-    type MiningRatesHardwareHardwareInsecure = u32;
-    type MiningRatesHardwareHardwareSecure = u32;
     type MiningRatesHardwareIndex = u64;
+    type MiningRatesHardwareInsecure = u32;
     type MiningRatesHardwareMaxHardware = u32;
+    type MiningRatesHardwareSecure = u32;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;

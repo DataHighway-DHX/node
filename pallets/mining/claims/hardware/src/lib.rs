@@ -53,12 +53,7 @@ pub trait Trait:
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type MiningClaimsHardwareIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningClaimsHardwareClaimAmount: Parameter
-        + Member
-        + AtLeast32Bit
-        + Bounded
-        + Default
-        + Copy;
+    type MiningClaimsHardwareClaimAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
 // type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
@@ -296,11 +291,9 @@ impl<T: Trait> Module<T> {
         sender: T::AccountId,
     ) -> Result<(), DispatchError> {
         ensure!(
-            Self::mining_claims_hardware_owner(
-                &mining_claims_hardware_id
-            )
-            .map(|owner| owner == sender)
-            .unwrap_or(false),
+            Self::mining_claims_hardware_owner(&mining_claims_hardware_id)
+                .map(|owner| owner == sender)
+                .unwrap_or(false),
             "Sender is not owner of MiningClaimsHardware"
         );
         Ok(())
@@ -319,10 +312,7 @@ impl<T: Trait> Module<T> {
         mining_config_hardware_id: T::MiningConfigHardwareIndex,
         mining_claims_hardware_id: T::MiningClaimsHardwareIndex,
     ) -> Result<(), DispatchError> {
-        match Self::mining_claims_hardware_claims_results((
-            mining_config_hardware_id,
-            mining_claims_hardware_id,
-        )) {
+        match Self::mining_claims_hardware_claims_results((mining_config_hardware_id, mining_claims_hardware_id)) {
             Some(_value) => Ok(()),
             None => Err(DispatchError::Other("MiningClaimsHardwareClaimResult does not exist")),
         }
@@ -332,14 +322,9 @@ impl<T: Trait> Module<T> {
         mining_config_hardware_id: T::MiningConfigHardwareIndex,
         mining_claims_hardware_id: T::MiningClaimsHardwareIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!(
-            "Checking if mining_claims_hardware_claims_result has a value that is defined"
-        );
+        debug::info!("Checking if mining_claims_hardware_claims_result has a value that is defined");
         let fetched_mining_claims_hardware_claims_result =
-            <MiningClaimsHardwareClaimResults<T>>::get((
-                mining_config_hardware_id,
-                mining_claims_hardware_id,
-            ));
+            <MiningClaimsHardwareClaimResults<T>>::get((mining_config_hardware_id, mining_claims_hardware_id));
         if let Some(_value) = fetched_mining_claims_hardware_claims_result {
             debug::info!("Found value for mining_claims_hardware_claims_result");
             return Ok(());
@@ -355,26 +340,20 @@ impl<T: Trait> Module<T> {
     ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given claim id
-        if let Some(configuration_claims) =
-            Self::hardware_config_claims(mining_config_hardware_id)
-        {
+        if let Some(configuration_claims) = Self::hardware_config_claims(mining_config_hardware_id) {
             debug::info!(
                 "Configuration id key {:?} exists with value {:?}",
                 mining_config_hardware_id,
                 configuration_claims
             );
-            let not_configuration_contains_claim =
-                !configuration_claims.contains(&mining_claims_hardware_id);
+            let not_configuration_contains_claim = !configuration_claims.contains(&mining_claims_hardware_id);
             ensure!(not_configuration_contains_claim, "Configuration already contains the given claim id");
             debug::info!("Configuration id key exists but its vector value does not contain the given claim id");
-            <HardwareConfigClaims<T>>::mutate(
-                mining_config_hardware_id,
-                |v| {
-                    if let Some(value) = v {
-                        value.push(mining_claims_hardware_id);
-                    }
-                },
-            );
+            <HardwareConfigClaims<T>>::mutate(mining_config_hardware_id, |v| {
+                if let Some(value) = v {
+                    value.push(mining_claims_hardware_id);
+                }
+            });
             debug::info!(
                 "Associated claim {:?} with configuration {:?}",
                 mining_claims_hardware_id,
@@ -388,10 +367,7 @@ impl<T: Trait> Module<T> {
                 mining_config_hardware_id,
                 mining_claims_hardware_id
             );
-            <HardwareConfigClaims<T>>::insert(
-                mining_config_hardware_id,
-                &vec![mining_claims_hardware_id],
-            );
+            <HardwareConfigClaims<T>>::insert(mining_config_hardware_id, &vec![mining_claims_hardware_id]);
             Ok(())
         }
     }
@@ -406,13 +382,9 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_mining_claims_hardware_id()
-    -> Result<T::MiningClaimsHardwareIndex, DispatchError> {
-        let mining_claims_hardware_id =
-            Self::mining_claims_hardware_count();
-        if mining_claims_hardware_id ==
-            <T::MiningClaimsHardwareIndex as Bounded>::max_value()
-        {
+    fn next_mining_claims_hardware_id() -> Result<T::MiningClaimsHardwareIndex, DispatchError> {
+        let mining_claims_hardware_id = Self::mining_claims_hardware_count();
+        if mining_claims_hardware_id == <T::MiningClaimsHardwareIndex as Bounded>::max_value() {
             return Err(DispatchError::Other("MiningClaimsHardware count overflow"));
         }
         Ok(mining_claims_hardware_id)
@@ -424,26 +396,12 @@ impl<T: Trait> Module<T> {
         mining_claims_hardware: MiningClaimsHardware,
     ) {
         // Create and store mining mining_claims_hardware
-        <MiningClaimsHardwares<T>>::insert(
-            mining_claims_hardware_id,
-            mining_claims_hardware,
-        );
-        <MiningClaimsHardwareCount<T>>::put(
-            mining_claims_hardware_id + One::one(),
-        );
-        <MiningClaimsHardwareOwners<T>>::insert(
-            mining_claims_hardware_id,
-            owner.clone(),
-        );
+        <MiningClaimsHardwares<T>>::insert(mining_claims_hardware_id, mining_claims_hardware);
+        <MiningClaimsHardwareCount<T>>::put(mining_claims_hardware_id + One::one());
+        <MiningClaimsHardwareOwners<T>>::insert(mining_claims_hardware_id, owner.clone());
     }
 
-    fn update_owner(
-        to: &T::AccountId,
-        mining_claims_hardware_id: T::MiningClaimsHardwareIndex,
-    ) {
-        <MiningClaimsHardwareOwners<T>>::insert(
-            mining_claims_hardware_id,
-            to,
-        );
+    fn update_owner(to: &T::AccountId, mining_claims_hardware_id: T::MiningClaimsHardwareIndex) {
+        <MiningClaimsHardwareOwners<T>>::insert(mining_claims_hardware_id, to);
     }
 }

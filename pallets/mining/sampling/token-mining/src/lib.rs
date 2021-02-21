@@ -40,10 +40,17 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait + mining_config_token::Trait {
+pub trait Trait:
+    frame_system::Trait + roaming_operators::Trait + mining_config_token::Trait
+{
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type MiningSamplingTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSamplingTokenSampleLockedAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSamplingTokenSampleLockedAmount: Parameter
+        + Member
+        + AtLeast32Bit
+        + Bounded
+        + Default
+        + Copy;
 }
 
 // type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
@@ -287,7 +294,10 @@ impl<T: Trait> Module<T> {
         mining_config_token_id: T::MiningConfigTokenIndex,
         mining_samplings_token_id: T::MiningSamplingTokenIndex,
     ) -> Result<(), DispatchError> {
-        match Self::mining_samplings_token_samplings_configs((mining_config_token_id, mining_samplings_token_id)) {
+        match Self::mining_samplings_token_samplings_configs((
+            mining_config_token_id,
+            mining_samplings_token_id,
+        )) {
             Some(_value) => Ok(()),
             None => Err(DispatchError::Other("MiningSamplingTokenConfig does not exist")),
         }
@@ -297,9 +307,14 @@ impl<T: Trait> Module<T> {
         mining_config_token_id: T::MiningConfigTokenIndex,
         mining_samplings_token_id: T::MiningSamplingTokenIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if mining_samplings_token_samplings_config has a value that is defined");
+        debug::info!(
+            "Checking if mining_samplings_token_samplings_config has a value that is defined"
+        );
         let fetched_mining_samplings_token_samplings_config =
-            <MiningSamplingTokenConfigs<T>>::get((mining_config_token_id, mining_samplings_token_id));
+            <MiningSamplingTokenConfigs<T>>::get((
+                mining_config_token_id,
+                mining_samplings_token_id,
+            ));
         if let Some(_value) = fetched_mining_samplings_token_samplings_config {
             debug::info!("Found value for mining_samplings_token_samplings_config");
             return Ok(());
@@ -315,13 +330,16 @@ impl<T: Trait> Module<T> {
     ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given sampling id
-        if let Some(configuration_samplings) = Self::token_config_samplings(mining_config_token_id) {
+        if let Some(configuration_samplings) =
+            Self::token_config_samplings(mining_config_token_id)
+        {
             debug::info!(
                 "Configuration id key {:?} exists with value {:?}",
                 mining_config_token_id,
                 configuration_samplings
             );
-            let not_configuration_contains_sampling = !configuration_samplings.contains(&mining_samplings_token_id);
+            let not_configuration_contains_sampling =
+                !configuration_samplings.contains(&mining_samplings_token_id);
             ensure!(not_configuration_contains_sampling, "Configuration already contains the given sampling id");
             debug::info!("Configuration id key exists but its vector value does not contain the given sampling id");
             <TokenConfigSamplings<T>>::mutate(mining_config_token_id, |v| {
@@ -342,7 +360,10 @@ impl<T: Trait> Module<T> {
                 mining_config_token_id,
                 mining_samplings_token_id
             );
-            <TokenConfigSamplings<T>>::insert(mining_config_token_id, &vec![mining_samplings_token_id]);
+            <TokenConfigSamplings<T>>::insert(
+                mining_config_token_id,
+                &vec![mining_samplings_token_id],
+            );
             Ok(())
         }
     }
@@ -357,9 +378,12 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_mining_samplings_token_id() -> Result<T::MiningSamplingTokenIndex, DispatchError> {
+    fn next_mining_samplings_token_id()
+    -> Result<T::MiningSamplingTokenIndex, DispatchError> {
         let mining_samplings_token_id = Self::mining_samplings_token_count();
-        if mining_samplings_token_id == <T::MiningSamplingTokenIndex as Bounded>::max_value() {
+        if mining_samplings_token_id ==
+            <T::MiningSamplingTokenIndex as Bounded>::max_value()
+        {
             return Err(DispatchError::Other("MiningSamplingToken count overflow"));
         }
         Ok(mining_samplings_token_id)
@@ -371,12 +395,21 @@ impl<T: Trait> Module<T> {
         mining_samplings_token: MiningSamplingToken,
     ) {
         // Create and store mining mining_samplings_token
-        <MiningSamplingTokens<T>>::insert(mining_samplings_token_id, mining_samplings_token);
+        <MiningSamplingTokens<T>>::insert(
+            mining_samplings_token_id,
+            mining_samplings_token,
+        );
         <MiningSamplingTokenCount<T>>::put(mining_samplings_token_id + One::one());
-        <MiningSamplingTokenOwners<T>>::insert(mining_samplings_token_id, owner.clone());
+        <MiningSamplingTokenOwners<T>>::insert(
+            mining_samplings_token_id,
+            owner.clone(),
+        );
     }
 
-    fn update_owner(to: &T::AccountId, mining_samplings_token_id: T::MiningSamplingTokenIndex) {
+    fn update_owner(
+        to: &T::AccountId,
+        mining_samplings_token_id: T::MiningSamplingTokenIndex,
+    ) {
         <MiningSamplingTokenOwners<T>>::insert(mining_samplings_token_id, to);
     }
 }

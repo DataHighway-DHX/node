@@ -94,7 +94,7 @@
   "MiningRatesTokenTokenIOTA": "u32",
   "MiningRatesTokenMaxToken": "u32",
   "MiningRatesTokenMaxLoyalty": "u32",
-  "MiningRatesTokenRatesConfig": {
+  "MiningRatesTokenConfig": {
     "token_token_mxc": "u32",
     "token_token_iota": "u32",
     "token_token_dot": "u32",
@@ -103,13 +103,13 @@
   },
   "MiningRatesHardware": "[u8; 16]",
   "MiningRatesHardwareIndex": "u64",
-  "MiningRatesHardwareHardwareSecure": "u32",
-  "MiningRatesHardwareHardwareInsecure": "u32",
+  "MiningRatesHardwareSecure": "u32",
+  "MiningRatesHardwareInsecure": "u32",
   "MiningRatesHardwareMaxHardware": "u32",
   "MiningRatesHardwareCategory1MaxTokenBonusPerGateway": "u32",
   "MiningRatesHardwareCategory2MaxTokenBonusPerGateway": "u32",
   "MiningRatesHardwareCategory3MaxTokenBonusPerGateway": "u32",
-  "MiningRatesHardwareRatesConfig": {
+  "MiningRatesHardwareConfig": {
     "hardware_hardware_secure": "u32",
     "hardware_hardware_insecure": "u32",
     "hardware_max_hardware": "u32",
@@ -119,26 +119,26 @@
   },
   "MiningConfigToken": "[u8; 16]",
   "MiningConfigTokenIndex": "u64",
-  "MiningConfigTokenTokenType": "Text",
-  "MiningConfigTokenTokenLockAmount": "u64",
-  "MiningConfigTokenTokenConfig": {
+  "MiningConfigTokenType": "Text",
+  "MiningConfigTokenLockAmount": "u64",
+  "MiningConfigTokenConfig": {
     "token_type": "Text",
     "token_lock_amount": "u64",
     "token_lock_start_block": "Moment",
     "token_lock_interval_blocks": "Moment"
   },
-  "MiningConfigTokenTokenRequirementsConfig": {
+  "MiningConfigTokenRequirementsConfig": {
     "token_type": "Text",
     "token_lock_min_amount": "u64",
     "token_lock_min_blocks": "u32"
   },
   "MiningConfigHardware": "[u8; 16]",
   "MiningConfigHardwareIndex": "u64",
-  "MiningConfigHardwareHardwareSecure": "bool",
-  "MiningConfigHardwareHardwareType": "Text",
-  "MiningConfigHardwareHardwareID": "u64",
-  "MiningConfigHardwareHardwareDevEUI": "u64",
-  "MiningConfigHardwareHardwareConfig": {
+  "MiningConfigHardwareSecure": "bool",
+  "MiningConfigHardwareType": "Text",
+  "MiningConfigHardwareID": "u64",
+  "MiningConfigHardwareDevEUI": "u64",
+  "MiningConfigHardwareConfig": {
     "hardware_secure": "bool",
     "hardware_type": "Text",
     "hardware_id": "u64",
@@ -149,14 +149,14 @@
   "MiningSamplingToken": "[u8; 16]",
   "MiningSamplingTokenIndex": "u64",
   "MiningSamplingTokenSampleLockedAmount": "u64",
-  "MiningSamplingTokenSamplingConfig": {
+  "MiningSamplingTokenConfig": {
     "token_sample_block": "Moment",
     "token_sample_locked_amount": "u64"
   },
   "MiningSamplingHardware": "[u8; 16]",
   "MiningSamplingHardwareIndex": "u64",
   "MiningSamplingHardwareSampleHardwareOnline": "u64",
-  "MiningSamplingHardwareSamplingConfig": {
+  "MiningSamplingHardwareConfig": {
     "hardware_sample_block": "Moment",
     "hardware_sample_hardware_online": "bool"
   },
@@ -165,7 +165,7 @@
   "MiningEligibilityTokenCalculatedEligibility": "u64",
   "MiningEligibilityTokenLockedPercentage": "u32",
   "MiningEligibilityTokenAuditorAccountID": "u64",
-  "MiningEligibilityTokenEligibilityResult": {
+  "MiningEligibilityTokenResult": {
     "token_calculated_eligibility": "u64",
     "token_token_locked_percentage": "u32",
     "token_date_audited": "Moment",
@@ -174,9 +174,9 @@
   "MiningEligibilityHardware": "[u8; 16]",
   "MiningEligibilityHardwareIndex": "u64",
   "MiningEligibilityHardwareCalculatedEligibility": "u64",
-  "MiningEligibilityHardwareHardwareUptimePercentage": "u32",
+  "MiningEligibilityHardwareUptimePercentage": "u32",
   "MiningEligibilityHardwareAuditorAccountID": "u64",
-  "MiningEligibilityHardwareEligibilityResult": {
+  "MiningEligibilityHardwareResult": {
     "hardware_calculated_eligibility": "u64",
     "hardware_uptime_percentage": "u32",
     "hardware_block_audited": "Moment",

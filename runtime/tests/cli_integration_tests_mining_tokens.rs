@@ -1,8 +1,8 @@
 // extern crate env as env;
+extern crate mining_claims_token as mining_claims_token;
 extern crate mining_config_token as mining_config_token;
 extern crate mining_eligibility_token as mining_eligibility_token;
 extern crate mining_execution_token as mining_execution_token;
-extern crate mining_claims_token as mining_claims_token;
 extern crate mining_rates_token as mining_rates_token;
 extern crate mining_sampling_token as mining_sampling_token;
 extern crate roaming_operators as roaming_operators;
@@ -34,14 +34,19 @@ mod tests {
         Permill,
     };
     // Import Trait for each runtime module being tested
+    use mining_claims_token::{
+        MiningClaimsTokenClaimResult,
+        Module as MiningClaimsTokenModule,
+        Trait as MiningClaimsTokenTrait,
+    };
     use mining_config_token::{
-        MiningConfigTokenTokenConfig,
-        MiningConfigTokenTokenRequirementsConfig,
+        MiningConfigTokenConfig,
+        MiningConfigTokenRequirementsConfig,
         Module as MiningConfigTokenModule,
         Trait as MiningConfigTokenTrait,
     };
     use mining_eligibility_token::{
-        MiningEligibilityTokenEligibilityResult,
+        MiningEligibilityTokenResult,
         Module as MiningEligibilityTokenModule,
         Trait as MiningEligibilityTokenTrait,
     };
@@ -50,18 +55,13 @@ mod tests {
         Module as MiningExecutionTokenModule,
         Trait as MiningExecutionTokenTrait,
     };
-    use mining_claims_token::{
-        MiningClaimsTokenClaimResult,
-        Module as MiningClaimsTokenModule,
-        Trait as MiningClaimsTokenTrait,
-    };
     use mining_rates_token::{
-        MiningRatesTokenRatesConfig,
+        MiningRatesTokenConfig,
         Module as MiningRatesTokenModule,
         Trait as MiningRatesTokenTrait,
     };
     use mining_sampling_token::{
-        MiningSamplingTokenSamplingConfig,
+        MiningSamplingTokenConfig,
         Module as MiningSamplingTokenModule,
         Trait as MiningSamplingTokenTrait,
     };
@@ -142,10 +142,10 @@ mod tests {
         // type Currency = Balances;
         // type Randomness = Randomness;
         type MiningConfigTokenIndex = u64;
-        type MiningConfigTokenTokenLockAmount = u64;
+        type MiningConfigTokenLockAmount = u64;
         // Mining Speed Boost Token Mining Config
         // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-        type MiningConfigTokenTokenType = Vec<u8>;
+        type MiningConfigTokenType = Vec<u8>;
     }
     impl MiningRatesTokenTrait for Test {
         type Event = ();
@@ -172,8 +172,8 @@ mod tests {
     }
     impl MiningClaimsTokenTrait for Test {
         type Event = ();
-        type MiningClaimsTokenIndex = u64;
         type MiningClaimsTokenClaimAmount = u64;
+        type MiningClaimsTokenIndex = u64;
     }
     impl MiningExecutionTokenTrait for Test {
         type Event = ();
@@ -226,8 +226,7 @@ mod tests {
 
             // Call Functions
             assert_ok!(MiningRatesTokenTestModule::create(Origin::signed(0)));
-            assert_ok!(
-              MiningRatesTokenTestModule::set_mining_rates_token_rates_config(
+            assert_ok!(MiningRatesTokenTestModule::set_mining_rates_token_rates_config(
                 Origin::signed(0),
                 0, // mining_rates_token_id
                 // FIXME - convert all below types to Vec<u8> since float values? i.e. b"1.025".to_vec()
@@ -236,16 +235,15 @@ mod tests {
                 Some(1), // token_token_dot
                 Some(1), // token_max_token
                 Some(1), // token_max_loyalty
-              )
-            );
+            ));
 
             // Verify Storage
             assert_eq!(MiningRatesTokenTestModule::mining_rates_token_count(), 1);
             assert!(MiningRatesTokenTestModule::mining_rates_token(0).is_some());
             assert_eq!(MiningRatesTokenTestModule::mining_rates_token_owner(0), Some(0));
             assert_eq!(
-              MiningRatesTokenTestModule::mining_rates_token_rates_configs(0),
-                Some(MiningRatesTokenRatesConfig {
+                MiningRatesTokenTestModule::mining_rates_token_rates_configs(0),
+                Some(MiningRatesTokenConfig {
                     token_token_mxc: 1,
                     token_token_iota: 1,
                     token_token_dot: 1,
@@ -258,25 +256,21 @@ mod tests {
 
             // Call Functions
             assert_ok!(MiningConfigTokenTestModule::create(Origin::signed(0)));
-            assert_ok!(
-                MiningConfigTokenTestModule::set_mining_config_token_token_cooldown_config(
-                  Origin::signed(0),
-                  0, // mining_token_id
-                  Some(b"DHX".to_vec()), // token_type
-                  Some(10), // token_lock_min_amount
-                  Some(7), // token_lock_min_blocks
-                )
-              );
-            assert_ok!(
-              MiningConfigTokenTestModule::set_mining_config_token_token_config(
+            assert_ok!(MiningConfigTokenTestModule::set_mining_config_token_token_cooldown_config(
                 Origin::signed(0),
-                0, // mining_token_id
+                0,                     // mining_token_id
+                Some(b"DHX".to_vec()), // token_type
+                Some(10),              // token_lock_min_amount
+                Some(7),               // token_lock_min_blocks
+            ));
+            assert_ok!(MiningConfigTokenTestModule::set_mining_config_token_token_config(
+                Origin::signed(0),
+                0,                     // mining_token_id
                 Some(b"MXC".to_vec()), // token_type
-                Some(100), // token_lock_amount
-                Some(12345), // token_lock_start_block
-                Some(23456), // token_lock_interval_blocks
-              )
-            );
+                Some(100),             // token_lock_amount
+                Some(12345),           // token_lock_start_block
+                Some(23456),           // token_lock_interval_blocks
+            ));
 
             // Verify Storage
             assert_eq!(MiningConfigTokenTestModule::mining_config_token_count(), 1);
@@ -284,18 +278,18 @@ mod tests {
             assert_eq!(MiningConfigTokenTestModule::mining_config_token_owner(0), Some(0));
             assert_eq!(
                 MiningConfigTokenTestModule::mining_config_token_token_cooldown_configs(0),
-                  Some(MiningConfigTokenTokenRequirementsConfig {
-                      token_type: b"DHX".to_vec(), // token_type
-                      token_lock_min_amount: 10, // token_lock_min_amount
-                      token_lock_min_blocks: 7, // token_lock_min_blocks
-                  })
-              );
+                Some(MiningConfigTokenRequirementsConfig {
+                    token_type: b"DHX".to_vec(), // token_type
+                    token_lock_min_amount: 10,   // token_lock_min_amount
+                    token_lock_min_blocks: 7,    // token_lock_min_blocks
+                })
+            );
             assert_eq!(
-              MiningConfigTokenTestModule::mining_config_token_token_configs(0),
-                Some(MiningConfigTokenTokenConfig {
-                    token_type: b"MXC".to_vec(), // token_type
-                    token_lock_amount: 100, // token_lock_amount
-                    token_lock_start_block: 12345, // token_lock_start_block
+                MiningConfigTokenTestModule::mining_config_token_token_configs(0),
+                Some(MiningConfigTokenConfig {
+                    token_type: b"MXC".to_vec(),       // token_type
+                    token_lock_amount: 100,            // token_lock_amount
+                    token_lock_start_block: 12345,     // token_lock_start_block
                     token_lock_interval_blocks: 23456, // token_lock_interval_blocks
                 })
             );
@@ -304,15 +298,13 @@ mod tests {
 
             // Call Functions
             assert_ok!(MiningSamplingTokenTestModule::create(Origin::signed(0)));
-            assert_ok!(
-              MiningSamplingTokenTestModule::set_mining_samplings_token_samplings_config(
+            assert_ok!(MiningSamplingTokenTestModule::set_mining_samplings_token_samplings_config(
                 Origin::signed(0),
-                0, // mining_token_id
-                0, // mining_token_sample_id
+                0,           // mining_token_id
+                0,           // mining_token_sample_id
                 Some(23456), // token_sample_block
-                Some(100), // token_sample_locked_amount
-              )
-            );
+                Some(100),   // token_sample_locked_amount
+            ));
             assert_ok!(MiningSamplingTokenTestModule::assign_sampling_to_configuration(Origin::signed(0), 0, 0));
 
             // Verify Storage
@@ -320,10 +312,10 @@ mod tests {
             assert!(MiningSamplingTokenTestModule::mining_samplings_token(0).is_some());
             assert_eq!(MiningSamplingTokenTestModule::mining_samplings_token_owner(0), Some(0));
             assert_eq!(
-              MiningSamplingTokenTestModule::mining_samplings_token_samplings_configs((0, 0)),
-                Some(MiningSamplingTokenSamplingConfig {
-                    token_sample_block: 23456, // token_sample_block
-                    token_sample_locked_amount: 100 // token_sample_locked_amount
+                MiningSamplingTokenTestModule::mining_samplings_token_samplings_configs((0, 0)),
+                Some(MiningSamplingTokenConfig {
+                    token_sample_block: 23456,       // token_sample_block
+                    token_sample_locked_amount: 100  // token_sample_locked_amount
                 })
             );
 
@@ -355,10 +347,10 @@ mod tests {
             //       0, // mining_eligibility_token_id
             //   ),
             //   Some(
-            //     MiningEligibilityTokenEligibilityResult {
+            //     MiningEligibilityTokenResult {
             //       token_calculated_eligibility: 1.1
-            //       // to determine eligibility for proportion (incase user hardware is not online around during the whole lock period)
-            //       token_locked_percentage: 0.7, // i.e. 70%
+            //       // to determine eligibility for proportion (incase user hardware is not online around during the
+            // whole lock period)       token_locked_percentage: 0.7, // i.e. 70%
             //       // token_block_audited: 123,
             //       // token_auditor_account_id: 123
             //     }
@@ -366,26 +358,25 @@ mod tests {
             // ))
 
             // Override by DAO if necessary
-            assert_ok!(
-              MiningEligibilityTokenTestModule::set_mining_eligibility_token_eligibility_result(
+            assert_ok!(MiningEligibilityTokenTestModule::set_mining_eligibility_token_eligibility_result(
                 Origin::signed(0),
-                0, // mining_config_token_id
-                0, // mining_eligibility_token_id
+                0,       // mining_config_token_id
+                0,       // mining_eligibility_token_id
                 Some(1), // mining_token_calculated_eligibility
-                Some(1), // mining_token_locked_percentage
-                // 123, // mining_token_block_audited
-                // 123, // mining_token_auditor_account_id
-                // Some({
-                //   MiningEligibilityTokenEligibilityResult {
-                //     token_calculated_eligibility: 1, // i.e. 1.1
-                //     // to determine eligibility for proportion (incase user hardware is not online around during the whole lock period)
-                //     token_locked_percentage: 1, // i.e. 0.7 for 70%
-                //     // token_block_audited: 123,
-                //     // token_auditor_account_id: 123
-                //   }
-                // }),
-              )
-            );
+                Some(1), /* mining_token_locked_percentage
+                          * 123, // mining_token_block_audited
+                          * 123, // mining_token_auditor_account_id
+                          * Some({
+                          *   MiningEligibilityTokenResult {
+                          *     token_calculated_eligibility: 1, // i.e. 1.1
+                          *     // to determine eligibility for proportion (incase user hardware is not online
+                          * around during the whole lock period)
+                          *     token_locked_percentage: 1, // i.e. 0.7 for 70%
+                          *     // token_block_audited: 123,
+                          *     // token_auditor_account_id: 123
+                          *   }
+                          * }), */
+            ));
             assert_ok!(MiningEligibilityTokenTestModule::assign_eligibility_to_configuration(Origin::signed(0), 0, 0));
 
             // Verify Storage
@@ -393,13 +384,14 @@ mod tests {
             assert!(MiningEligibilityTokenTestModule::mining_eligibility_token(0).is_some());
             assert_eq!(MiningEligibilityTokenTestModule::mining_eligibility_token_owner(0), Some(0));
             assert_eq!(
-              MiningEligibilityTokenTestModule::mining_eligibility_token_eligibility_results((0, 0)),
-                Some(MiningEligibilityTokenEligibilityResult {
+                MiningEligibilityTokenTestModule::mining_eligibility_token_eligibility_results((0, 0)),
+                Some(MiningEligibilityTokenResult {
                     token_calculated_eligibility: 1,
-                    // to determine eligibility for proportion (incase user hardware is not online around during the whole lock period)
-                    token_locked_percentage: 1, // i.e. 70%
-                    // token_block_audited: 123,
-                    // token_auditor_account_id: 123
+                    // to determine eligibility for proportion (incase user hardware is not online around during the
+                    // whole lock period)
+                    token_locked_percentage: 1, /* i.e. 70%
+                                                 * token_block_audited: 123,
+                                                 * token_auditor_account_id: 123 */
                 })
             );
 
@@ -408,32 +400,28 @@ mod tests {
             // Call Functions
             assert_ok!(MiningClaimsTokenTestModule::create(Origin::signed(0)));
             assert_ok!(MiningClaimsTokenTestModule::assign_claim_to_configuration(Origin::signed(0), 0, 0));
-            assert_ok!(
-                MiningClaimsTokenTestModule::claim(
-                    Origin::signed(0),
-                    0, // mining_config_token_id
-                    0, // mining_eligibility_token_id
-                    0, // mining_claims_token_id
-                )
-            );
+            assert_ok!(MiningClaimsTokenTestModule::claim(
+                Origin::signed(0),
+                0, // mining_config_token_id
+                0, // mining_eligibility_token_id
+                0, // mining_claims_token_id
+            ));
             // Override by DAO if necessary
-            assert_ok!(
-              MiningClaimsTokenTestModule::set_mining_claims_token_claims_result(
-                  Origin::signed(0),
-                  0, // mining_config_token_id
-                  0, // mining_eligibility_token_id
-                  0, // mining_claims_token_id
-                  Some(1), // token_claim_amount
-                  Some(34567) // token_claim_block_redeemed
-              )
-            );
+            assert_ok!(MiningClaimsTokenTestModule::set_mining_claims_token_claims_result(
+                Origin::signed(0),
+                0,           // mining_config_token_id
+                0,           // mining_eligibility_token_id
+                0,           // mining_claims_token_id
+                Some(1),     // token_claim_amount
+                Some(34567)  // token_claim_block_redeemed
+            ));
 
             // Verify Storage
             assert_eq!(MiningClaimsTokenTestModule::mining_claims_token_count(), 1);
             assert!(MiningClaimsTokenTestModule::mining_claims_token(0).is_some());
             assert_eq!(MiningClaimsTokenTestModule::mining_claims_token_owner(0), Some(0));
             assert_eq!(
-              MiningClaimsTokenTestModule::mining_claims_token_claims_results((0, 0)),
+                MiningClaimsTokenTestModule::mining_claims_token_claims_results((0, 0)),
                 Some(MiningClaimsTokenClaimResult {
                     token_claim_amount: 1,
                     token_claim_block_redeemed: 34567,
@@ -449,30 +437,28 @@ mod tests {
             // Override by DAO if necessary
             //
             // Execute is called to start the mining if all checks pass
-            assert_ok!(
-              MiningExecutionTokenTestModule::set_mining_execution_token_execution_result(
-                  Origin::signed(0),
-                  0, // mining_config_token_id
-                  0, // mining_execution_token_id
-                  Some(12345), // token_execution_started_block
-                  Some(34567) // token_execution_ended_block
-              )
-            );
+            assert_ok!(MiningExecutionTokenTestModule::set_mining_execution_token_execution_result(
+                Origin::signed(0),
+                0,           // mining_config_token_id
+                0,           // mining_execution_token_id
+                Some(12345), // token_execution_started_block
+                Some(34567)  // token_execution_ended_block
+            ));
 
             // Verify Storage
             assert_eq!(MiningExecutionTokenTestModule::mining_execution_token_count(), 1);
             assert!(MiningExecutionTokenTestModule::mining_execution_token(0).is_some());
             assert_eq!(MiningExecutionTokenTestModule::mining_execution_token_owner(0), Some(0));
             assert_eq!(
-              MiningExecutionTokenTestModule::mining_execution_token_execution_results((0, 0)),
+                MiningExecutionTokenTestModule::mining_execution_token_execution_results((0, 0)),
                 Some(MiningExecutionTokenExecutionResult {
                     token_execution_executor_account_id: 0,
                     token_execution_started_block: 12345,
                     token_execution_ended_block: 34567,
                 })
             );
-            // TODO - check that the locked amount has actually been locked and check that a sampling, eligibility, and claim were all run automatically afterwards
-            // assert!(false);
+            // TODO - check that the locked amount has actually been locked and check that a sampling, eligibility, and
+            // claim were all run automatically afterwards assert!(false);
         });
     }
 }
