@@ -144,7 +144,7 @@ mod tests {
         type MiningSpeedBoostConfigurationTokenMiningIndex = u64;
         type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
         type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
-        type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodMin = u64;
+        type MiningSpeedBoostConfigurationTokenMiningTokenLockMinBlocks = u32;
         type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
         // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
         type MiningSpeedBoostConfigurationTokenMiningTokenLockAmount = u64;
@@ -274,7 +274,7 @@ mod tests {
                   0, // mining_speed_boosts_token_mining_id
                   Some(b"DHX".to_vec()), // token_type
                   Some(10), // token_lock_amount_min
-                  Some(7), // token_lock_period_min
+                  Some(7), // token_lock_min_blocks
                 )
               );
             assert_ok!(
@@ -298,7 +298,7 @@ mod tests {
                   Some(MiningSpeedBoostConfigurationTokenMiningTokenRequirementsConfig {
                       token_type: b"DHX".to_vec(), // token_type
                       token_lock_amount_min: 10, // token_lock_amount_min
-                      token_lock_period_min: 7, // token_lock_period_min
+                      token_lock_min_blocks: 7, // token_lock_min_blocks
                   })
               );
             assert_eq!(

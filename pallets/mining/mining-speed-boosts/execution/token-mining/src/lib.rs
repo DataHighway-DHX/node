@@ -208,9 +208,9 @@ decl_module! {
             let is_token_execution_started_date_greater_than_time_now = Self::token_execution_started_date_greater_than_time_now(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id).is_ok();
             ensure!(is_token_execution_started_date_greater_than_time_now, "token execution does not have a token_execution_started_date > time_now");
 
-            // // Ensure that the associated token configuration has a token_lock_period > token_lock_period_min
-            // let is_token_lock_period_greater_than_token_lock_period_min = Self::token_lock_period_greater_than_token_lock_period_min(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id).is_ok();
-            // ensure!(is_token_lock_period_greater_than_token_lock_period_min, "token configuration does not have a token_lock_period > token_lock_period_min");
+            // // Ensure that the associated token configuration has a token_lock_period > token_lock_min_blocks
+            // let is_token_lock_period_greater_than_token_lock_min_blocks = Self::token_lock_period_greater_than_token_lock_min_blocks(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id).is_ok();
+            // ensure!(is_token_lock_period_greater_than_token_lock_min_blocks, "token configuration does not have a token_lock_period > token_lock_min_blocks");
 
             // Ensure that the associated token configuration has a token_lock_amount > token_lock_amount_min
             let is_token_lock_amount_greater_than_token_lock_amount_min = Self::token_lock_amount_greater_than_token_lock_amount_min(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id).is_ok();
@@ -383,20 +383,20 @@ impl<T: Trait> Module<T> {
         }
     }
 
-    // Check that the associated token configuration has a token_lock_period > token_lock_period_min
-    pub fn token_lock_period_greater_than_token_lock_period_min(
+    // Check that the associated token configuration has a token_lock_period > token_lock_min_blocks
+    pub fn token_lock_period_greater_than_token_lock_min_blocks(
         mining_speed_boosts_execution_token_mining_id: T::MiningSpeedBoostExecutionTokenMiningIndex,
         mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
     ) -> Result<(), DispatchError> {
         if let Some(configuration_token_mining) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_configs((mining_speed_boosts_configuration_token_mining_id)) {
             if let Some(cooldown_configuration_token_mining) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_cooldown_configs((mining_speed_boosts_configuration_token_mining_id)) {
                 if let lock_period = configuration_token_mining.token_lock_period {
-                    if let lock_period_min = cooldown_configuration_token_mining.token_lock_period_min {
+                    if let lock_period_min = cooldown_configuration_token_mining.token_lock_min_blocks {
                         // FIXME - fix this type error so we can use this function
                         // ensure!(lock_period > lock_period_min, "Lock period must be longer than the minimum lock period of the cooldown config. Cannot execute.");
                         Ok(())
                     } else {
-                        return Err(DispatchError::Other("Cannot find token_mining_config with token_lock_period_min associated with the execution"));
+                        return Err(DispatchError::Other("Cannot find token_mining_config with token_lock_min_blocks associated with the execution"));
                     }
                 } else {
                     return Err(DispatchError::Other("Cannot find token_mining_config with token_lock_period associated with the execution"));
@@ -421,7 +421,7 @@ impl<T: Trait> Module<T> {
                         ensure!(locked_amount > lock_amount_min, "Locked amount must be larger than the minimum locked amount of the cooldown config. Cannot execute.");
                         Ok(())
                     } else {
-                        return Err(DispatchError::Other("Cannot find token_mining_config with token_lock_period_min associated with the execution"));
+                        return Err(DispatchError::Other("Cannot find token_mining_config with token_lock_min_blocks associated with the execution"));
                     }
                 } else {
                     return Err(DispatchError::Other("Cannot find token_mining_config with token_lock_period associated with the execution"));
