@@ -31,9 +31,9 @@ use sp_std::prelude::*; // Imports Vec
 
 // FIXME - remove roaming_operators here, only use this approach since do not know how to use BalanceOf using only
 // mining runtime module
-use mining_speed_boosts_configuration_token_mining;
-use mining_speed_boosts_rates_token_mining;
-use mining_speed_boosts_sampling_token_mining;
+use mining_configuration_token_mining;
+use mining_rates_token_mining;
+use mining_sampling_token_mining;
 
 #[cfg(test)]
 mod mock;
@@ -45,9 +45,9 @@ mod tests;
 pub trait Trait:
     frame_system::Trait
     + roaming_operators::Trait
-    + mining_speed_boosts_rates_token_mining::Trait
-    + mining_speed_boosts_configuration_token_mining::Trait
-    + mining_speed_boosts_sampling_token_mining::Trait
+    + mining_rates_token_mining::Trait
+    + mining_configuration_token_mining::Trait
+    + mining_sampling_token_mining::Trait
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type MiningSpeedBoostEligibilityTokenMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
@@ -90,13 +90,13 @@ decl_event!(
         <T as Trait>::MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility,
         <T as Trait>::MiningSpeedBoostEligibilityTokenMiningLockedPercentage,
         // <T as Trait>::MiningSpeedBoostEligibilityTokenMiningAuditorAccountID,
-        <T as mining_speed_boosts_configuration_token_mining::Trait>::MiningSpeedBoostConfigurationTokenMiningIndex,
+        <T as mining_configuration_token_mining::Trait>::MiningSpeedBoostConfigurationTokenMiningIndex,
         // <T as frame_system::Trait>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
-        /// A mining_speed_boosts_eligibility_token_mining is created. (owner, mining_speed_boosts_eligibility_token_mining_id)
+        /// A mining_eligibility_token_mining is created. (owner, mining_eligibility_token_mining_id)
         Created(AccountId, MiningSpeedBoostEligibilityTokenMiningIndex),
-        /// A mining_speed_boosts_eligibility_token_mining is transferred. (from, to, mining_speed_boosts_eligibility_token_mining_id)
+        /// A mining_eligibility_token_mining is transferred. (from, to, mining_eligibility_token_mining_id)
         Transferred(AccountId, AccountId, MiningSpeedBoostEligibilityTokenMiningIndex),
         // MiningSpeedBoostEligibilityTokenMiningEligibilityResultSet(
         //   AccountId, MiningSpeedBoostConfigurationTokenMiningIndex, MiningSpeedBoostEligibilityTokenMiningIndex,
@@ -108,8 +108,8 @@ decl_event!(
           MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility, MiningSpeedBoostEligibilityTokenMiningLockedPercentage
           // BlockNumber, MiningSpeedBoostEligibilityTokenMiningAuditorAccountID
         ),
-        /// A mining_speed_boosts_eligibility_token_mining is assigned to an mining_speed_boosts_configuration_token_mining.
-        /// (owner of mining_speed_boosts_token_mining, mining_speed_boosts_eligibility_token_mining_id, mining_speed_boosts_configuration_token_mining_id)
+        /// A mining_eligibility_token_mining is assigned to an mining_configuration_token_mining.
+        /// (owner of mining_token_mining, mining_eligibility_token_mining_id, mining_configuration_token_mining_id)
         AssignedTokenMiningEligibilityToConfiguration(AccountId, MiningSpeedBoostEligibilityTokenMiningIndex, MiningSpeedBoostConfigurationTokenMiningIndex),
     }
 );
@@ -117,17 +117,17 @@ decl_event!(
 // This module's storage items.
 decl_storage! {
     trait Store for Module<T: Trait> as MiningSpeedBoostEligibilityTokenMining {
-        /// Stores all the mining_speed_boosts_eligibility_token_minings, key is the mining_speed_boosts_eligibility_token_mining id / index
-        pub MiningSpeedBoostEligibilityTokenMinings get(fn mining_speed_boosts_eligibility_token_mining): map hasher(opaque_blake2_256) T::MiningSpeedBoostEligibilityTokenMiningIndex => Option<MiningSpeedBoostEligibilityTokenMining>;
+        /// Stores all the mining_eligibility_token_minings, key is the mining_eligibility_token_mining id / index
+        pub MiningSpeedBoostEligibilityTokenMinings get(fn mining_eligibility_token_mining): map hasher(opaque_blake2_256) T::MiningSpeedBoostEligibilityTokenMiningIndex => Option<MiningSpeedBoostEligibilityTokenMining>;
 
-        /// Stores the total number of mining_speed_boosts_eligibility_token_minings. i.e. the next mining_speed_boosts_eligibility_token_mining index
-        pub MiningSpeedBoostEligibilityTokenMiningCount get(fn mining_speed_boosts_eligibility_token_mining_count): T::MiningSpeedBoostEligibilityTokenMiningIndex;
+        /// Stores the total number of mining_eligibility_token_minings. i.e. the next mining_eligibility_token_mining index
+        pub MiningSpeedBoostEligibilityTokenMiningCount get(fn mining_eligibility_token_mining_count): T::MiningSpeedBoostEligibilityTokenMiningIndex;
 
-        /// Stores mining_speed_boosts_eligibility_token_mining owner
-        pub MiningSpeedBoostEligibilityTokenMiningOwners get(fn mining_speed_boosts_eligibility_token_mining_owner): map hasher(opaque_blake2_256) T::MiningSpeedBoostEligibilityTokenMiningIndex => Option<T::AccountId>;
+        /// Stores mining_eligibility_token_mining owner
+        pub MiningSpeedBoostEligibilityTokenMiningOwners get(fn mining_eligibility_token_mining_owner): map hasher(opaque_blake2_256) T::MiningSpeedBoostEligibilityTokenMiningIndex => Option<T::AccountId>;
 
-        /// Stores mining_speed_boosts_eligibility_token_mining_result
-        pub MiningSpeedBoostEligibilityTokenMiningEligibilityResults get(fn mining_speed_boosts_eligibility_token_mining_eligibility_results): map hasher(opaque_blake2_256) (T::MiningSpeedBoostConfigurationTokenMiningIndex, T::MiningSpeedBoostEligibilityTokenMiningIndex) =>
+        /// Stores mining_eligibility_token_mining_result
+        pub MiningSpeedBoostEligibilityTokenMiningEligibilityResults get(fn mining_eligibility_token_mining_eligibility_results): map hasher(opaque_blake2_256) (T::MiningSpeedBoostConfigurationTokenMiningIndex, T::MiningSpeedBoostEligibilityTokenMiningIndex) =>
             Option<MiningSpeedBoostEligibilityTokenMiningEligibilityResult<
                 T::MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility,
                 T::MiningSpeedBoostEligibilityTokenMiningLockedPercentage,
@@ -135,10 +135,10 @@ decl_storage! {
                 // T::MiningSpeedBoostEligibilityTokenMiningAuditorAccountID,
             >>;
 
-        /// Get mining_speed_boosts_configuration_token_mining_id belonging to a mining_speed_boosts_eligibility_token_mining_id
+        /// Get mining_configuration_token_mining_id belonging to a mining_eligibility_token_mining_id
         pub TokenMiningEligibilityConfiguration get(fn token_mining_resulturation): map hasher(opaque_blake2_256) T::MiningSpeedBoostEligibilityTokenMiningIndex => Option<T::MiningSpeedBoostConfigurationTokenMiningIndex>;
 
-        /// Get mining_speed_boosts_eligibility_token_mining_id's belonging to a mining_speed_boosts_configuration_token_mining_id
+        /// Get mining_eligibility_token_mining_id's belonging to a mining_configuration_token_mining_id
         pub TokenMiningConfigurationEligibilities get(fn token_mining_configuration_eligibilities): map hasher(opaque_blake2_256) T::MiningSpeedBoostConfigurationTokenMiningIndex => Option<Vec<T::MiningSpeedBoostEligibilityTokenMiningIndex>>
     }
 }
@@ -149,49 +149,49 @@ decl_module! {
     pub struct Module<T: Trait> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
-        /// Create a new mining mining_speed_boosts_eligibility_token_mining
+        /// Create a new mining mining_eligibility_token_mining
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
-            let mining_speed_boosts_eligibility_token_mining_id = Self::next_mining_speed_boosts_eligibility_token_mining_id()?;
+            let mining_eligibility_token_mining_id = Self::next_mining_eligibility_token_mining_id()?;
 
             // Geneeligibility a random 128bit value
             let unique_id = Self::random_value(&sender);
 
-            // Create and store mining_speed_boosts_eligibility_token_mining
-            let mining_speed_boosts_eligibility_token_mining = MiningSpeedBoostEligibilityTokenMining(unique_id);
-            Self::insert_mining_speed_boosts_eligibility_token_mining(&sender, mining_speed_boosts_eligibility_token_mining_id, mining_speed_boosts_eligibility_token_mining);
+            // Create and store mining_eligibility_token_mining
+            let mining_eligibility_token_mining = MiningSpeedBoostEligibilityTokenMining(unique_id);
+            Self::insert_mining_eligibility_token_mining(&sender, mining_eligibility_token_mining_id, mining_eligibility_token_mining);
 
-            Self::deposit_event(RawEvent::Created(sender, mining_speed_boosts_eligibility_token_mining_id));
+            Self::deposit_event(RawEvent::Created(sender, mining_eligibility_token_mining_id));
         }
 
-        /// Transfer a mining_speed_boosts_eligibility_token_mining to new owner
+        /// Transfer a mining_eligibility_token_mining to new owner
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
-        pub fn transfer(origin, to: T::AccountId, mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex) {
+        pub fn transfer(origin, to: T::AccountId, mining_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex) {
             let sender = ensure_signed(origin)?;
 
-            ensure!(Self::mining_speed_boosts_eligibility_token_mining_owner(mining_speed_boosts_eligibility_token_mining_id) == Some(sender.clone()), "Only owner can transfer mining mining_speed_boosts_eligibility_token_mining");
+            ensure!(Self::mining_eligibility_token_mining_owner(mining_eligibility_token_mining_id) == Some(sender.clone()), "Only owner can transfer mining mining_eligibility_token_mining");
 
-            Self::update_owner(&to, mining_speed_boosts_eligibility_token_mining_id);
+            Self::update_owner(&to, mining_eligibility_token_mining_id);
 
-            Self::deposit_event(RawEvent::Transferred(sender, to, mining_speed_boosts_eligibility_token_mining_id));
+            Self::deposit_event(RawEvent::Transferred(sender, to, mining_eligibility_token_mining_id));
         }
 
         // FIXME - implement this and fix the type errors and uncomment it in the integration tests
-        // /// Calculate mining_speed_boosts_eligibility_token_mining_result
-        // pub fn calculate_mining_speed_boosts_eligibility_token_mining_result(
+        // /// Calculate mining_eligibility_token_mining_result
+        // pub fn calculate_mining_eligibility_token_mining_result(
         //     origin,
-        //     mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
-        //     mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
+        //     mining_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
+        //     mining_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
         // ) {
         //     let sender = ensure_signed(origin)?;
 
-        //     // Ensure that the mining_speed_boosts_eligibility_token_mining_id whose config we want to change actually exists
-        //     let is_mining_speed_boosts_eligibility_token_mining = Self::exists_mining_speed_boosts_eligibility_token_mining(mining_speed_boosts_eligibility_token_mining_id).is_ok();
-        //     ensure!(is_mining_speed_boosts_eligibility_token_mining, "MiningSpeedBoostEligibilityTokenMining does not exist");
+        //     // Ensure that the mining_eligibility_token_mining_id whose config we want to change actually exists
+        //     let is_mining_eligibility_token_mining = Self::exists_mining_eligibility_token_mining(mining_eligibility_token_mining_id).is_ok();
+        //     ensure!(is_mining_eligibility_token_mining, "MiningSpeedBoostEligibilityTokenMining does not exist");
 
-        //     // Ensure that the caller is owner of the mining_speed_boosts_eligibility_token_mining_result they are trying to change
-        //     ensure!(Self::mining_speed_boosts_eligibility_token_mining_owner(mining_speed_boosts_eligibility_token_mining_id) == Some(sender.clone()), "Only owner can set mining_speed_boosts_eligibility_token_mining_result");
+        //     // Ensure that the caller is owner of the mining_eligibility_token_mining_result they are trying to change
+        //     ensure!(Self::mining_eligibility_token_mining_owner(mining_eligibility_token_mining_id) == Some(sender.clone()), "Only owner can set mining_eligibility_token_mining_result");
 
         //     let DEFAULT_RATE_CONFIG = 0;
         //     let mut token_calculated_eligibility = 0.into();
@@ -202,7 +202,7 @@ decl_module! {
         //     let mut current_token_type;
         //     let mut current_token_lock_amount;
         //     // Get the config associated with the given configuration_token_mining
-        //     if let Some(configuration_token_mining_config) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_configs(mining_speed_boosts_configuration_token_mining_id) {
+        //     if let Some(configuration_token_mining_config) = <mining_configuration_token_mining::Module<T>>::mining_configuration_token_mining_token_configs(mining_configuration_token_mining_id) {
         //       if let token_type = configuration_token_mining_config.token_type {
         //         if token_type != "".to_string() {
         //           current_token_type = token_type.clone();
@@ -211,10 +211,10 @@ decl_module! {
         //             if token_lock_amount != 0 {
         //               current_token_lock_amount = token_lock_amount;
 
-        //               // Get list of all sampling_token_mining_ids that correspond to the given mining_speed_boosts_configuration_token_mining_id
+        //               // Get list of all sampling_token_mining_ids that correspond to the given mining_configuration_token_mining_id
         //               // of type MiningSpeedBoostSamplingTokenMiningIndex
-        //               let sampling_token_mining_ids = <mining_speed_boosts_sampling_token_mining::Module<T>>
-        //                 ::token_mining_configuration_samplings(mining_speed_boosts_configuration_token_mining_id);
+        //               let sampling_token_mining_ids = <mining_sampling_token_mining::Module<T>>
+        //                 ::token_mining_configuration_samplings(mining_configuration_token_mining_id);
 
         //               let mut sample_count = 0;
         //               let mut current_sample_tokens_locked = 0;
@@ -225,8 +225,8 @@ decl_module! {
         //               for (index, sampling_token_mining_id) in sampling_token_mining_ids.iter().enumerate() {
         //                 // Retrieve the current corresponding sampling_token_mining_config
         //                 // of type MiningSpeedBoostSamplingTokenMiningSamplingConfig
-        //                 if let Some(current_sampling_token_mining_config) = <mining_speed_boosts_sampling_token_mining::Module<T>>::mining_speed_boosts_samplings_token_mining_samplings_configs(
-        //                   (mining_speed_boosts_configuration_token_mining_id, sampling_token_mining_id)
+        //                 if let Some(current_sampling_token_mining_config) = <mining_sampling_token_mining::Module<T>>::mining_samplings_token_mining_samplings_configs(
+        //                   (mining_configuration_token_mining_id, sampling_token_mining_id)
         //                 ) {
         //                   if let tokens_locked = current_sampling_token_mining_config.token_sample_locked_amount {
         //                     sample_count += 1;
@@ -237,7 +237,7 @@ decl_module! {
         //                     }
         //                     current_sample_tokens_locked = tokens_locked;
 
-        //                     if let Some(token_mining_rates_config) = <mining_speed_boosts_rates_token_mining::Module<T>>::mining_speed_boosts_rates_token_mining_rates_configs(DEFAULT_RATE_CONFIG) {
+        //                     if let Some(token_mining_rates_config) = <mining_rates_token_mining::Module<T>>::mining_rates_token_mining_rates_configs(DEFAULT_RATE_CONFIG) {
 
         //                       if current_token_type == "MXC".to_string() {
         //                         current_token_mining_rate = token_mining_rates_config.token_token_mxc;
@@ -266,32 +266,32 @@ decl_module! {
         //       }
         //     }
 
-        //     // Check if a mining_speed_boosts_eligibility_token_mining_result already exists with the given mining_speed_boosts_eligibility_token_mining_id
+        //     // Check if a mining_eligibility_token_mining_result already exists with the given mining_eligibility_token_mining_id
         //     // to determine whether to insert new or mutate existing.
-        //     if Self::has_value_for_mining_speed_boosts_eligibility_token_mining_result_index(mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id).is_ok() {
+        //     if Self::has_value_for_mining_eligibility_token_mining_result_index(mining_configuration_token_mining_id, mining_eligibility_token_mining_id).is_ok() {
         //         debug::info!("Mutating values");
-        //         <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::mutate((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id), |mining_speed_boosts_eligibility_token_mining_result| {
-        //             if let Some(_mining_speed_boosts_eligibility_token_mining_result) = mining_speed_boosts_eligibility_token_mining_result {
+        //         <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::mutate((mining_configuration_token_mining_id, mining_eligibility_token_mining_id), |mining_eligibility_token_mining_result| {
+        //             if let Some(_mining_eligibility_token_mining_result) = mining_eligibility_token_mining_result {
         //                 // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-        //                 _mining_speed_boosts_eligibility_token_mining_result.token_calculated_eligibility = token_calculated_eligibility.clone();
-        //                 _mining_speed_boosts_eligibility_token_mining_result.token_locked_percentage = token_locked_percentage.clone();
-        //                 // _mining_speed_boosts_eligibility_token_mining_result.token_block_audited = token_block_audited.clone();
-        //                 // _mining_speed_boosts_eligibility_token_mining_result.token_auditor_account_id = token_auditor_account_id.clone();
+        //                 _mining_eligibility_token_mining_result.token_calculated_eligibility = token_calculated_eligibility.clone();
+        //                 _mining_eligibility_token_mining_result.token_locked_percentage = token_locked_percentage.clone();
+        //                 // _mining_eligibility_token_mining_result.token_block_audited = token_block_audited.clone();
+        //                 // _mining_eligibility_token_mining_result.token_auditor_account_id = token_auditor_account_id.clone();
         //             }
         //         });
         //         debug::info!("Checking mutated values");
-        //         let fetched_mining_speed_boosts_eligibility_token_mining_result = <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::get((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id));
-        //         if let Some(_mining_speed_boosts_eligibility_token_mining_result) = fetched_mining_speed_boosts_eligibility_token_mining_result {
-        //             debug::info!("Latest field token_calculated_eligibility {:#?}", _mining_speed_boosts_eligibility_token_mining_result.token_calculated_eligibility);
-        //             debug::info!("Latest field token_locked_percentage {:#?}", _mining_speed_boosts_eligibility_token_mining_result.token_locked_percentage);
-        //             // debug::info!("Latest field token_block_audited {:#?}", _mining_speed_boosts_eligibility_token_mining_result.token_block_audited);
-        //             // debug::info!("Latest field token_auditor_account_id {:#?}", _mining_speed_boosts_eligibility_token_mining_result.token_auditor_account_id);
+        //         let fetched_mining_eligibility_token_mining_result = <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::get((mining_configuration_token_mining_id, mining_eligibility_token_mining_id));
+        //         if let Some(_mining_eligibility_token_mining_result) = fetched_mining_eligibility_token_mining_result {
+        //             debug::info!("Latest field token_calculated_eligibility {:#?}", _mining_eligibility_token_mining_result.token_calculated_eligibility);
+        //             debug::info!("Latest field token_locked_percentage {:#?}", _mining_eligibility_token_mining_result.token_locked_percentage);
+        //             // debug::info!("Latest field token_block_audited {:#?}", _mining_eligibility_token_mining_result.token_block_audited);
+        //             // debug::info!("Latest field token_auditor_account_id {:#?}", _mining_eligibility_token_mining_result.token_auditor_account_id);
         //         }
         //     } else {
         //         debug::info!("Inserting values");
 
-        //         // Create a new mining mining_speed_boosts_eligibility_token_mining_result instance with the input params
-        //         let mining_speed_boosts_eligibility_token_mining_result_instance = MiningSpeedBoostEligibilityTokenMiningEligibilityResult {
+        //         // Create a new mining mining_eligibility_token_mining_result instance with the input params
+        //         let mining_eligibility_token_mining_result_instance = MiningSpeedBoostEligibilityTokenMiningEligibilityResult {
         //             // Since each parameter passed into the function is optional (i.e. `Option`)
         //             // we will assign a default value if a parameter value is not provided.
         //             token_calculated_eligibility: token_calculated_eligibility.clone(),
@@ -301,24 +301,24 @@ decl_module! {
         //         };
 
         //         <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::insert(
-        //             (mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id),
-        //             &mining_speed_boosts_eligibility_token_mining_result_instance
+        //             (mining_configuration_token_mining_id, mining_eligibility_token_mining_id),
+        //             &mining_eligibility_token_mining_result_instance
         //         );
 
         //         debug::info!("Checking inserted values");
-        //         let fetched_mining_speed_boosts_eligibility_token_mining_result = <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::get((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id));
-        //         if let Some(_mining_speed_boosts_eligibility_token_mining_result) = fetched_mining_speed_boosts_eligibility_token_mining_result {
-        //             debug::info!("Inserted field token_calculated_eligibility {:#?}", _mining_speed_boosts_eligibility_token_mining_result.token_calculated_eligibility);
-        //             debug::info!("Inserted field token_locked_percentage {:#?}", _mining_speed_boosts_eligibility_token_mining_result.token_locked_percentage);
-        //             // debug::info!("Inserted field token_block_audited {:#?}", _mining_speed_boosts_eligibility_token_mining_result.token_block_audited);
-        //             // debug::info!("Inserted field token_auditor_account_id {:#?}", _mining_speed_boosts_eligibility_token_mining_result.token_auditor_account_id);
+        //         let fetched_mining_eligibility_token_mining_result = <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::get((mining_configuration_token_mining_id, mining_eligibility_token_mining_id));
+        //         if let Some(_mining_eligibility_token_mining_result) = fetched_mining_eligibility_token_mining_result {
+        //             debug::info!("Inserted field token_calculated_eligibility {:#?}", _mining_eligibility_token_mining_result.token_calculated_eligibility);
+        //             debug::info!("Inserted field token_locked_percentage {:#?}", _mining_eligibility_token_mining_result.token_locked_percentage);
+        //             // debug::info!("Inserted field token_block_audited {:#?}", _mining_eligibility_token_mining_result.token_block_audited);
+        //             // debug::info!("Inserted field token_auditor_account_id {:#?}", _mining_eligibility_token_mining_result.token_auditor_account_id);
         //         }
         //     }
 
         //     Self::deposit_event(RawEvent::MiningSpeedBoostEligibilityTokenMiningEligibilityResultSet(
         //       sender,
-        //       mining_speed_boosts_configuration_token_mining_id,
-        //       mining_speed_boosts_eligibility_token_mining_id,
+        //       mining_configuration_token_mining_id,
+        //       mining_eligibility_token_mining_id,
         //       token_calculated_eligibility,
         //       token_locked_percentage,
         //       // token_block_audited,
@@ -326,12 +326,12 @@ decl_module! {
         //     ));
         // }
 
-        /// Set mining_speed_boosts_eligibility_token_mining_result
+        /// Set mining_eligibility_token_mining_result
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
-        pub fn set_mining_speed_boosts_eligibility_token_mining_eligibility_result(
+        pub fn set_mining_eligibility_token_mining_eligibility_result(
             origin,
-            mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
-            mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
+            mining_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
+            mining_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
             _token_calculated_eligibility: Option<T::MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility>,
             _token_locked_percentage: Option<T::MiningSpeedBoostEligibilityTokenMiningLockedPercentage>,
             // _token_block_audited: Option<T::BlockNumber>,
@@ -339,12 +339,12 @@ decl_module! {
         ) {
             let sender = ensure_signed(origin)?;
 
-            // Ensure that the mining_speed_boosts_eligibility_token_mining_id whose config we want to change actually exists
-            let is_mining_speed_boosts_eligibility_token_mining = Self::exists_mining_speed_boosts_eligibility_token_mining(mining_speed_boosts_eligibility_token_mining_id).is_ok();
-            ensure!(is_mining_speed_boosts_eligibility_token_mining, "MiningSpeedBoostEligibilityTokenMining does not exist");
+            // Ensure that the mining_eligibility_token_mining_id whose config we want to change actually exists
+            let is_mining_eligibility_token_mining = Self::exists_mining_eligibility_token_mining(mining_eligibility_token_mining_id).is_ok();
+            ensure!(is_mining_eligibility_token_mining, "MiningSpeedBoostEligibilityTokenMining does not exist");
 
-            // Ensure that the caller is owner of the mining_speed_boosts_eligibility_token_mining_result they are trying to change
-            ensure!(Self::mining_speed_boosts_eligibility_token_mining_owner(mining_speed_boosts_eligibility_token_mining_id) == Some(sender.clone()), "Only owner can set mining_speed_boosts_eligibility_token_mining_result");
+            // Ensure that the caller is owner of the mining_eligibility_token_mining_result they are trying to change
+            ensure!(Self::mining_eligibility_token_mining_owner(mining_eligibility_token_mining_id) == Some(sender.clone()), "Only owner can set mining_eligibility_token_mining_result");
 
             // TODO - adjust default eligibilitys
             let token_calculated_eligibility = match _token_calculated_eligibility.clone() {
@@ -364,33 +364,33 @@ decl_module! {
             //   None => 1.into() // Default
             // };
 
-            // Check if a mining_speed_boosts_eligibility_token_mining_result already exists with the given mining_speed_boosts_eligibility_token_mining_id
+            // Check if a mining_eligibility_token_mining_result already exists with the given mining_eligibility_token_mining_id
             // to determine whether to insert new or mutate existing.
-            if Self::has_value_for_mining_speed_boosts_eligibility_token_mining_result_index(mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id).is_ok() {
+            if Self::has_value_for_mining_eligibility_token_mining_result_index(mining_configuration_token_mining_id, mining_eligibility_token_mining_id).is_ok() {
                 debug::info!("Mutating values");
-                <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::mutate((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id), |mining_speed_boosts_eligibility_token_mining_result| {
-                    if let Some(_mining_speed_boosts_eligibility_token_mining_result) = mining_speed_boosts_eligibility_token_mining_result {
+                <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::mutate((mining_configuration_token_mining_id, mining_eligibility_token_mining_id), |mining_eligibility_token_mining_result| {
+                    if let Some(_mining_eligibility_token_mining_result) = mining_eligibility_token_mining_result {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-                        _mining_speed_boosts_eligibility_token_mining_result.token_calculated_eligibility = token_calculated_eligibility.clone();
-                        _mining_speed_boosts_eligibility_token_mining_result.token_locked_percentage = token_locked_percentage.clone();
-                        // _mining_speed_boosts_eligibility_token_mining_result.token_block_audited = token_block_audited.clone();
-                        // _mining_speed_boosts_eligibility_token_mining_result.token_auditor_account_id = token_auditor_account_id.clone();
+                        _mining_eligibility_token_mining_result.token_calculated_eligibility = token_calculated_eligibility.clone();
+                        _mining_eligibility_token_mining_result.token_locked_percentage = token_locked_percentage.clone();
+                        // _mining_eligibility_token_mining_result.token_block_audited = token_block_audited.clone();
+                        // _mining_eligibility_token_mining_result.token_auditor_account_id = token_auditor_account_id.clone();
                     }
                 });
 
                 debug::info!("Checking mutated values");
-                let fetched_mining_speed_boosts_eligibility_token_mining_result = <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::get((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id));
-                if let Some(_mining_speed_boosts_eligibility_token_mining_result) = fetched_mining_speed_boosts_eligibility_token_mining_result {
-                    debug::info!("Latest field token_calculated_eligibility {:#?}", _mining_speed_boosts_eligibility_token_mining_result.token_calculated_eligibility);
-                    debug::info!("Latest field token_locked_percentage {:#?}", _mining_speed_boosts_eligibility_token_mining_result.token_locked_percentage);
-                    // debug::info!("Latest field token_block_audited {:#?}", _mining_speed_boosts_eligibility_token_mining_result.token_block_audited);
-                    // debug::info!("Latest field token_auditor_account_id {:#?}", _mining_speed_boosts_eligibility_token_mining_result.token_auditor_account_id);
+                let fetched_mining_eligibility_token_mining_result = <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::get((mining_configuration_token_mining_id, mining_eligibility_token_mining_id));
+                if let Some(_mining_eligibility_token_mining_result) = fetched_mining_eligibility_token_mining_result {
+                    debug::info!("Latest field token_calculated_eligibility {:#?}", _mining_eligibility_token_mining_result.token_calculated_eligibility);
+                    debug::info!("Latest field token_locked_percentage {:#?}", _mining_eligibility_token_mining_result.token_locked_percentage);
+                    // debug::info!("Latest field token_block_audited {:#?}", _mining_eligibility_token_mining_result.token_block_audited);
+                    // debug::info!("Latest field token_auditor_account_id {:#?}", _mining_eligibility_token_mining_result.token_auditor_account_id);
                 }
             } else {
                 debug::info!("Inserting values");
 
-                // Create a new mining mining_speed_boosts_eligibility_token_mining_result instance with the input params
-                let mining_speed_boosts_eligibility_token_mining_result_instance = MiningSpeedBoostEligibilityTokenMiningEligibilityResult {
+                // Create a new mining mining_eligibility_token_mining_result instance with the input params
+                let mining_eligibility_token_mining_result_instance = MiningSpeedBoostEligibilityTokenMiningEligibilityResult {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     token_calculated_eligibility: token_calculated_eligibility.clone(),
@@ -400,24 +400,24 @@ decl_module! {
                 };
 
                 <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::insert(
-                    (mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id),
-                    &mining_speed_boosts_eligibility_token_mining_result_instance
+                    (mining_configuration_token_mining_id, mining_eligibility_token_mining_id),
+                    &mining_eligibility_token_mining_result_instance
                 );
 
                 debug::info!("Checking inserted values");
-                let fetched_mining_speed_boosts_eligibility_token_mining_result = <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::get((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id));
-                if let Some(_mining_speed_boosts_eligibility_token_mining_result) = fetched_mining_speed_boosts_eligibility_token_mining_result {
-                    debug::info!("Inserted field token_calculated_eligibility {:#?}", _mining_speed_boosts_eligibility_token_mining_result.token_calculated_eligibility);
-                    debug::info!("Inserted field token_locked_percentage {:#?}", _mining_speed_boosts_eligibility_token_mining_result.token_locked_percentage);
-                    // debug::info!("Inserted field token_block_audited {:#?}", _mining_speed_boosts_eligibility_token_mining_result.token_block_audited);
-                    // debug::info!("Inserted field token_auditor_account_id {:#?}", _mining_speed_boosts_eligibility_token_mining_result.token_auditor_account_id);
+                let fetched_mining_eligibility_token_mining_result = <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::get((mining_configuration_token_mining_id, mining_eligibility_token_mining_id));
+                if let Some(_mining_eligibility_token_mining_result) = fetched_mining_eligibility_token_mining_result {
+                    debug::info!("Inserted field token_calculated_eligibility {:#?}", _mining_eligibility_token_mining_result.token_calculated_eligibility);
+                    debug::info!("Inserted field token_locked_percentage {:#?}", _mining_eligibility_token_mining_result.token_locked_percentage);
+                    // debug::info!("Inserted field token_block_audited {:#?}", _mining_eligibility_token_mining_result.token_block_audited);
+                    // debug::info!("Inserted field token_auditor_account_id {:#?}", _mining_eligibility_token_mining_result.token_auditor_account_id);
                 }
             }
 
             Self::deposit_event(RawEvent::MiningSpeedBoostEligibilityTokenMiningEligibilityResultSet(
                 sender,
-                mining_speed_boosts_configuration_token_mining_id,
-                mining_speed_boosts_eligibility_token_mining_id,
+                mining_configuration_token_mining_id,
+                mining_eligibility_token_mining_id,
                 token_calculated_eligibility,
                 token_locked_percentage,
                 // token_block_audited,
@@ -428,48 +428,48 @@ decl_module! {
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_eligibility_to_configuration(
           origin,
-          mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
-          mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex
+          mining_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
+          mining_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex
         ) {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given configuration id already exists
-            let is_configuration_token_mining = <mining_speed_boosts_configuration_token_mining::Module<T>>
-                ::exists_mining_speed_boosts_configuration_token_mining(mining_speed_boosts_configuration_token_mining_id).is_ok();
+            let is_configuration_token_mining = <mining_configuration_token_mining::Module<T>>
+                ::exists_mining_configuration_token_mining(mining_configuration_token_mining_id).is_ok();
             ensure!(is_configuration_token_mining, "configuration_token_mining does not exist");
 
             // Ensure that caller of the function is the owner of the configuration id to assign the eligibility to
             ensure!(
-                <mining_speed_boosts_configuration_token_mining::Module<T>>::is_mining_speed_boosts_configuration_token_mining_owner(mining_speed_boosts_configuration_token_mining_id, sender.clone()).is_ok(),
+                <mining_configuration_token_mining::Module<T>>::is_mining_configuration_token_mining_owner(mining_configuration_token_mining_id, sender.clone()).is_ok(),
                 "Only the configuration_token_mining owner can assign itself a eligibility"
             );
 
-            Self::associate_token_eligibility_with_configuration(mining_speed_boosts_eligibility_token_mining_id, mining_speed_boosts_configuration_token_mining_id)
+            Self::associate_token_eligibility_with_configuration(mining_eligibility_token_mining_id, mining_configuration_token_mining_id)
                 .expect("Unable to associate eligibility with configuration");
 
-            // Ensure that the given mining_speed_boosts_eligibility_token_mining_id already exists
-            let token_eligibility = Self::mining_speed_boosts_eligibility_token_mining(mining_speed_boosts_eligibility_token_mining_id);
-            ensure!(token_eligibility.is_some(), "Invalid mining_speed_boosts_eligibility_token_mining_id");
+            // Ensure that the given mining_eligibility_token_mining_id already exists
+            let token_eligibility = Self::mining_eligibility_token_mining(mining_eligibility_token_mining_id);
+            ensure!(token_eligibility.is_some(), "Invalid mining_eligibility_token_mining_id");
 
             // // Ensure that the eligibility is not already owned by a different configuration
             // // Unassign the eligibility from any existing configuration since it may only be owned by one configuration
-            // <TokenMiningEligibilityConfiguration<T>>::remove(mining_speed_boosts_eligibility_token_mining_id);
+            // <TokenMiningEligibilityConfiguration<T>>::remove(mining_eligibility_token_mining_id);
 
             // Assign the network owner to the given operator (even if already belongs to them)
-            <TokenMiningEligibilityConfiguration<T>>::insert(mining_speed_boosts_eligibility_token_mining_id, mining_speed_boosts_configuration_token_mining_id);
+            <TokenMiningEligibilityConfiguration<T>>::insert(mining_eligibility_token_mining_id, mining_configuration_token_mining_id);
 
-            Self::deposit_event(RawEvent::AssignedTokenMiningEligibilityToConfiguration(sender, mining_speed_boosts_eligibility_token_mining_id, mining_speed_boosts_configuration_token_mining_id));
+            Self::deposit_event(RawEvent::AssignedTokenMiningEligibilityToConfiguration(sender, mining_eligibility_token_mining_id, mining_configuration_token_mining_id));
             }
     }
 }
 
 impl<T: Trait> Module<T> {
-    pub fn is_mining_speed_boosts_eligibility_token_mining_owner(
-        mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
+    pub fn is_mining_eligibility_token_mining_owner(
+        mining_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
         sender: T::AccountId,
     ) -> Result<(), DispatchError> {
         ensure!(
-            Self::mining_speed_boosts_eligibility_token_mining_owner(&mining_speed_boosts_eligibility_token_mining_id)
+            Self::mining_eligibility_token_mining_owner(&mining_eligibility_token_mining_id)
                 .map(|owner| owner == sender)
                 .unwrap_or(false),
             "Sender is not owner of MiningSpeedBoostEligibilityTokenMining"
@@ -477,89 +477,89 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn exists_mining_speed_boosts_eligibility_token_mining(
-        mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
+    pub fn exists_mining_eligibility_token_mining(
+        mining_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
     ) -> Result<MiningSpeedBoostEligibilityTokenMining, DispatchError> {
-        match Self::mining_speed_boosts_eligibility_token_mining(mining_speed_boosts_eligibility_token_mining_id) {
+        match Self::mining_eligibility_token_mining(mining_eligibility_token_mining_id) {
             Some(value) => Ok(value),
             None => Err(DispatchError::Other("MiningSpeedBoostEligibilityTokenMining does not exist")),
         }
     }
 
-    pub fn exists_mining_speed_boosts_eligibility_token_mining_result(
-        mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
-        mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
+    pub fn exists_mining_eligibility_token_mining_result(
+        mining_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
+        mining_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
     ) -> Result<(), DispatchError> {
-        match Self::mining_speed_boosts_eligibility_token_mining_eligibility_results((
-            mining_speed_boosts_configuration_token_mining_id,
-            mining_speed_boosts_eligibility_token_mining_id,
+        match Self::mining_eligibility_token_mining_eligibility_results((
+            mining_configuration_token_mining_id,
+            mining_eligibility_token_mining_id,
         )) {
             Some(_value) => Ok(()),
             None => Err(DispatchError::Other("MiningSpeedBoostEligibilityTokenMiningEligibilityResult does not exist")),
         }
     }
 
-    pub fn has_value_for_mining_speed_boosts_eligibility_token_mining_result_index(
-        mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
-        mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
+    pub fn has_value_for_mining_eligibility_token_mining_result_index(
+        mining_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
+        mining_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if mining_speed_boosts_eligibility_token_mining_result has a value that is defined");
-        let fetched_mining_speed_boosts_eligibility_token_mining_result =
+        debug::info!("Checking if mining_eligibility_token_mining_result has a value that is defined");
+        let fetched_mining_eligibility_token_mining_result =
             <MiningSpeedBoostEligibilityTokenMiningEligibilityResults<T>>::get((
-                mining_speed_boosts_configuration_token_mining_id,
-                mining_speed_boosts_eligibility_token_mining_id,
+                mining_configuration_token_mining_id,
+                mining_eligibility_token_mining_id,
             ));
-        if let Some(_value) = fetched_mining_speed_boosts_eligibility_token_mining_result {
-            debug::info!("Found value for mining_speed_boosts_eligibility_token_mining_result");
+        if let Some(_value) = fetched_mining_eligibility_token_mining_result {
+            debug::info!("Found value for mining_eligibility_token_mining_result");
             return Ok(());
         }
-        debug::info!("No value for mining_speed_boosts_eligibility_token_mining_result");
-        Err(DispatchError::Other("No value for mining_speed_boosts_eligibility_token_mining_result"))
+        debug::info!("No value for mining_eligibility_token_mining_result");
+        Err(DispatchError::Other("No value for mining_eligibility_token_mining_result"))
     }
 
     /// Only push the eligibility id onto the end of the vector if it does not already exist
     pub fn associate_token_eligibility_with_configuration(
-        mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
-        mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
+        mining_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
+        mining_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
     ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given eligibility id
         if let Some(configuration_eligibilities) =
-            Self::token_mining_configuration_eligibilities(mining_speed_boosts_configuration_token_mining_id)
+            Self::token_mining_configuration_eligibilities(mining_configuration_token_mining_id)
         {
             debug::info!(
                 "Configuration id key {:?} exists with value {:?}",
-                mining_speed_boosts_configuration_token_mining_id,
+                mining_configuration_token_mining_id,
                 configuration_eligibilities
             );
             let not_configuration_contains_eligibility =
-                !configuration_eligibilities.contains(&mining_speed_boosts_eligibility_token_mining_id);
+                !configuration_eligibilities.contains(&mining_eligibility_token_mining_id);
             ensure!(not_configuration_contains_eligibility, "Configuration already contains the given eligibility id");
             debug::info!("Configuration id key exists but its vector value does not contain the given eligibility id");
             <TokenMiningConfigurationEligibilities<T>>::mutate(
-                mining_speed_boosts_configuration_token_mining_id,
+                mining_configuration_token_mining_id,
                 |v| {
                     if let Some(value) = v {
-                        value.push(mining_speed_boosts_eligibility_token_mining_id);
+                        value.push(mining_eligibility_token_mining_id);
                     }
                 },
             );
             debug::info!(
                 "Associated eligibility {:?} with configuration {:?}",
-                mining_speed_boosts_eligibility_token_mining_id,
-                mining_speed_boosts_configuration_token_mining_id
+                mining_eligibility_token_mining_id,
+                mining_configuration_token_mining_id
             );
             Ok(())
         } else {
             debug::info!(
                 "Configuration id key does not yet exist. Creating the configuration key {:?} and appending the \
                  eligibility id {:?} to its vector value",
-                mining_speed_boosts_configuration_token_mining_id,
-                mining_speed_boosts_eligibility_token_mining_id
+                mining_configuration_token_mining_id,
+                mining_eligibility_token_mining_id
             );
             <TokenMiningConfigurationEligibilities<T>>::insert(
-                mining_speed_boosts_configuration_token_mining_id,
-                &vec![mining_speed_boosts_eligibility_token_mining_id],
+                mining_configuration_token_mining_id,
+                &vec![mining_eligibility_token_mining_id],
             );
             Ok(())
         }
@@ -575,41 +575,41 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_mining_speed_boosts_eligibility_token_mining_id()
+    fn next_mining_eligibility_token_mining_id()
     -> Result<T::MiningSpeedBoostEligibilityTokenMiningIndex, DispatchError> {
-        let mining_speed_boosts_eligibility_token_mining_id =
-            Self::mining_speed_boosts_eligibility_token_mining_count();
-        if mining_speed_boosts_eligibility_token_mining_id ==
+        let mining_eligibility_token_mining_id =
+            Self::mining_eligibility_token_mining_count();
+        if mining_eligibility_token_mining_id ==
             <T::MiningSpeedBoostEligibilityTokenMiningIndex as Bounded>::max_value()
         {
             return Err(DispatchError::Other("MiningSpeedBoostEligibilityTokenMining count overflow"));
         }
-        Ok(mining_speed_boosts_eligibility_token_mining_id)
+        Ok(mining_eligibility_token_mining_id)
     }
 
-    fn insert_mining_speed_boosts_eligibility_token_mining(
+    fn insert_mining_eligibility_token_mining(
         owner: &T::AccountId,
-        mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
-        mining_speed_boosts_eligibility_token_mining: MiningSpeedBoostEligibilityTokenMining,
+        mining_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
+        mining_eligibility_token_mining: MiningSpeedBoostEligibilityTokenMining,
     ) {
-        // Create and store mining mining_speed_boosts_eligibility_token_mining
+        // Create and store mining mining_eligibility_token_mining
         <MiningSpeedBoostEligibilityTokenMinings<T>>::insert(
-            mining_speed_boosts_eligibility_token_mining_id,
-            mining_speed_boosts_eligibility_token_mining,
+            mining_eligibility_token_mining_id,
+            mining_eligibility_token_mining,
         );
         <MiningSpeedBoostEligibilityTokenMiningCount<T>>::put(
-            mining_speed_boosts_eligibility_token_mining_id + One::one(),
+            mining_eligibility_token_mining_id + One::one(),
         );
         <MiningSpeedBoostEligibilityTokenMiningOwners<T>>::insert(
-            mining_speed_boosts_eligibility_token_mining_id,
+            mining_eligibility_token_mining_id,
             owner.clone(),
         );
     }
 
     fn update_owner(
         to: &T::AccountId,
-        mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
+        mining_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
     ) {
-        <MiningSpeedBoostEligibilityTokenMiningOwners<T>>::insert(mining_speed_boosts_eligibility_token_mining_id, to);
+        <MiningSpeedBoostEligibilityTokenMiningOwners<T>>::insert(mining_eligibility_token_mining_id, to);
     }
 }

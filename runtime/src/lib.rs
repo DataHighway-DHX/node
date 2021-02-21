@@ -607,7 +607,7 @@ impl roaming_packet_bundles::Trait for Runtime {
     type RoamingPacketBundleReceivedPacketsOkCount = u64;
 }
 
-impl mining_speed_boosts_configuration_token_mining::Trait for Runtime {
+impl mining_configuration_token_mining::Trait for Runtime {
     type Event = Event;
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
@@ -619,7 +619,7 @@ impl mining_speed_boosts_configuration_token_mining::Trait for Runtime {
     type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
 }
 
-impl mining_speed_boosts_configuration_hardware_mining::Trait for Runtime {
+impl mining_configuration_hardware_mining::Trait for Runtime {
     type Event = Event;
     type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI = u64;
     // type MiningSpeedBoostConfigurationHardwareMiningHardwareType =
@@ -635,7 +635,7 @@ impl mining_speed_boosts_configuration_hardware_mining::Trait for Runtime {
     type MiningSpeedBoostConfigurationHardwareMiningIndex = u64;
 }
 
-impl mining_speed_boosts_rates_token_mining::Trait for Runtime {
+impl mining_rates_token_mining::Trait for Runtime {
     type Event = Event;
     type MiningSpeedBoostRatesTokenMiningIndex = u64;
     type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
@@ -647,7 +647,7 @@ impl mining_speed_boosts_rates_token_mining::Trait for Runtime {
     type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
 }
 
-impl mining_speed_boosts_rates_hardware_mining::Trait for Runtime {
+impl mining_rates_hardware_mining::Trait for Runtime {
     type Event = Event;
     type MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway = u32;
     type MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway = u32;
@@ -660,19 +660,19 @@ impl mining_speed_boosts_rates_hardware_mining::Trait for Runtime {
     type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
 }
 
-impl mining_speed_boosts_sampling_token_mining::Trait for Runtime {
+impl mining_sampling_token_mining::Trait for Runtime {
     type Event = Event;
     type MiningSpeedBoostSamplingTokenMiningIndex = u64;
     type MiningSpeedBoostSamplingTokenMiningSampleLockedAmount = u64;
 }
 
-impl mining_speed_boosts_sampling_hardware_mining::Trait for Runtime {
+impl mining_sampling_hardware_mining::Trait for Runtime {
     type Event = Event;
     type MiningSpeedBoostSamplingHardwareMiningIndex = u64;
     type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
 }
 
-impl mining_speed_boosts_eligibility_token_mining::Trait for Runtime {
+impl mining_eligibility_token_mining::Trait for Runtime {
     type Event = Event;
     type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility = u64;
     type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
@@ -680,7 +680,7 @@ impl mining_speed_boosts_eligibility_token_mining::Trait for Runtime {
     // type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
 }
 
-impl mining_speed_boosts_eligibility_hardware_mining::Trait for Runtime {
+impl mining_eligibility_hardware_mining::Trait for Runtime {
     type Event = Event;
     type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility = u64;
     type MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage = u32;
@@ -688,19 +688,19 @@ impl mining_speed_boosts_eligibility_hardware_mining::Trait for Runtime {
     // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
 }
 
-impl mining_speed_boosts_lodgements_token_mining::Trait for Runtime {
+impl mining_lodgements_token_mining::Trait for Runtime {
     type Event = Event;
     type MiningSpeedBoostLodgementsTokenMiningIndex = u64;
     type MiningSpeedBoostLodgementsTokenMiningLodgementAmount = u64;
 }
 
-impl mining_speed_boosts_lodgements_hardware_mining::Trait for Runtime {
+impl mining_lodgements_hardware_mining::Trait for Runtime {
     type Event = Event;
     type MiningSpeedBoostLodgementsHardwareMiningIndex = u64;
     type MiningSpeedBoostLodgementsHardwareMiningLodgementAmount = u64;
 }
 
-impl mining_speed_boosts_execution_token_mining::Trait for Runtime {
+impl mining_execution_token_mining::Trait for Runtime {
     type Event = Event;
     type MiningSpeedBoostExecutionTokenMiningIndex = u64;
 }
@@ -741,17 +741,17 @@ construct_runtime!(
         DataHighwayRoamingBillingPolicies: roaming_billing_policies::{Module, Call, Storage, Event<T>},
         DataHighwayRoamingChargingPolicies: roaming_charging_policies::{Module, Call, Storage, Event<T>},
         DataHighwayRoamingPacketBundles: roaming_packet_bundles::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostConfigurationTokenMining: mining_speed_boosts_configuration_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostConfigurationHardwareMining: mining_speed_boosts_configuration_hardware_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostRatesTokenMining: mining_speed_boosts_rates_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostRatesHardwareMining: mining_speed_boosts_rates_hardware_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostSamplingTokenMining: mining_speed_boosts_sampling_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostSamplingHardwareMining: mining_speed_boosts_sampling_hardware_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostEligibilityTokenMining: mining_speed_boosts_eligibility_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostEligibilityHardwareMining: mining_speed_boosts_eligibility_hardware_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostLodgementsTokenMining: mining_speed_boosts_lodgements_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostLodgementsHardwareMining: mining_speed_boosts_lodgements_hardware_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostExecutionTokenMining: mining_speed_boosts_execution_token_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostConfigurationTokenMining: mining_configuration_token_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostConfigurationHardwareMining: mining_configuration_hardware_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostRatesTokenMining: mining_rates_token_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostRatesHardwareMining: mining_rates_hardware_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostSamplingTokenMining: mining_sampling_token_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostSamplingHardwareMining: mining_sampling_hardware_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostEligibilityTokenMining: mining_eligibility_token_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostEligibilityHardwareMining: mining_eligibility_hardware_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostLodgementsTokenMining: mining_lodgements_token_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostLodgementsHardwareMining: mining_lodgements_hardware_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostExecutionTokenMining: mining_execution_token_mining::{Module, Call, Storage, Event<T>},
     }
 );
 

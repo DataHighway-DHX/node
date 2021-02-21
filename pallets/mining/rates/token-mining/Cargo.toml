@@ -35,6 +35,6 @@ sp-io = { version = '2.0.0', default_features = false }
 sp-runtime = { version = '2.0.0', default_features = false }
 sp-std = { version = '2.0.0', default_features = false }
 
-roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../../roaming/roaming-operators' }
+roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
 
 [dev-dependencies]

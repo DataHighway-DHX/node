@@ -36,7 +36,7 @@ sp-io = { version = '2.0.0', default_features = false }
 sp-runtime = { version = '2.0.0', default_features = false }
 sp-std = { version = '2.0.0', default_features = false }
 
-roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../../roaming/roaming-operators' }
-mining-configuration-hardware-mining = { default_features = false, package = 'mining-configuration-hardware-mining', path = '../../../../mining/configuration/hardware-mining' }
+roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
+mining-configuration-hardware-mining = { default_features = false, package = 'mining-configuration-hardware-mining', path = '../../../mining/configuration/hardware-mining' }
 
 [dev-dependencies]

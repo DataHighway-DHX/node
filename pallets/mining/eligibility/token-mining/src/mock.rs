@@ -90,7 +90,7 @@ impl roaming_operators::Trait for Test {
     type Randomness = Randomness;
     type RoamingOperatorIndex = u64;
 }
-impl mining_speed_boosts_rates_token_mining::Trait for Test {
+impl mining_rates_token_mining::Trait for Test {
     type Event = ();
     type MiningSpeedBoostRatesTokenMiningIndex = u64;
     type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
@@ -99,12 +99,12 @@ impl mining_speed_boosts_rates_token_mining::Trait for Test {
     type MiningSpeedBoostRatesTokenMiningTokenIOTA = u32;
     type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
 }
-impl mining_speed_boosts_sampling_token_mining::Trait for Test {
+impl mining_sampling_token_mining::Trait for Test {
     type Event = ();
     type MiningSpeedBoostSamplingTokenMiningIndex = u64;
     type MiningSpeedBoostSamplingTokenMiningSampleLockedAmount = u64;
 }
-impl mining_speed_boosts_configuration_token_mining::Trait for Test {
+impl mining_configuration_token_mining::Trait for Test {
     type Event = ();
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;

@@ -90,7 +90,7 @@ impl roaming_operators::Trait for Test {
     type Randomness = Randomness;
     type RoamingOperatorIndex = u64;
 }
-impl mining_speed_boosts_configuration_token_mining::Trait for Test {
+impl mining_configuration_token_mining::Trait for Test {
     type Event = ();
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;

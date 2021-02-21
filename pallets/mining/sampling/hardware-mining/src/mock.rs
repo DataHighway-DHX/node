@@ -90,7 +90,7 @@ impl roaming_operators::Trait for Test {
     type Randomness = Randomness;
     type RoamingOperatorIndex = u64;
 }
-impl mining_speed_boosts_configuration_hardware_mining::Trait for Test {
+impl mining_configuration_hardware_mining::Trait for Test {
     type Event = ();
     type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI = u64;
     // type MiningSpeedBoostConfigurationHardwareMiningHardwareType =

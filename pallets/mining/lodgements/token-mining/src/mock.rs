@@ -90,7 +90,7 @@ impl roaming_operators::Trait for Test {
     type Randomness = Randomness;
     type RoamingOperatorIndex = u64;
 }
-impl mining_speed_boosts_configuration_token_mining::Trait for Test {
+impl mining_configuration_token_mining::Trait for Test {
     type Event = ();
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
@@ -101,14 +101,14 @@ impl mining_speed_boosts_configuration_token_mining::Trait for Test {
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
     type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
 }
-impl mining_speed_boosts_eligibility_token_mining::Trait for Test {
+impl mining_eligibility_token_mining::Trait for Test {
     type Event = ();
     type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility = u64;
     type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
     type MiningSpeedBoostEligibilityTokenMiningLockedPercentage = u32;
     // type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
 }
-impl mining_speed_boosts_rates_token_mining::Trait for Test {
+impl mining_rates_token_mining::Trait for Test {
     type Event = ();
     type MiningSpeedBoostRatesTokenMiningIndex = u64;
     type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
@@ -119,7 +119,7 @@ impl mining_speed_boosts_rates_token_mining::Trait for Test {
     // Mining Speed Boost Rate
     type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
 }
-impl mining_speed_boosts_sampling_token_mining::Trait for Test {
+impl mining_sampling_token_mining::Trait for Test {
     type Event = ();
     type MiningSpeedBoostSamplingTokenMiningIndex = u64;
     type MiningSpeedBoostSamplingTokenMiningSampleLockedAmount = u64;

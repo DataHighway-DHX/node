@@ -90,7 +90,7 @@ impl roaming_operators::Trait for Test {
     type Randomness = Randomness;
     type RoamingOperatorIndex = u64;
 }
-impl mining_speed_boosts_configuration_hardware_mining::Trait for Test {
+impl mining_configuration_hardware_mining::Trait for Test {
     type Event = ();
     type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI = u64;
     // type MiningSpeedBoostConfigurationHardwareMiningHardwareType =
@@ -105,14 +105,14 @@ impl mining_speed_boosts_configuration_hardware_mining::Trait for Test {
     // type Randomness = RandomnessCollectiveFlip;
     type MiningSpeedBoostConfigurationHardwareMiningIndex = u64;
 }
-impl mining_speed_boosts_eligibility_hardware_mining::Trait for Test {
+impl mining_eligibility_hardware_mining::Trait for Test {
     type Event = ();
     type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility = u64;
     type MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage = u32;
     type MiningSpeedBoostEligibilityHardwareMiningIndex = u64;
     // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
 }
-impl mining_speed_boosts_rates_hardware_mining::Trait for Test {
+impl mining_rates_hardware_mining::Trait for Test {
     type Event = ();
     type MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway = u32;
     type MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway = u32;
@@ -124,7 +124,7 @@ impl mining_speed_boosts_rates_hardware_mining::Trait for Test {
     // Mining Speed Boost Max Rates
     type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
 }
-impl mining_speed_boosts_sampling_hardware_mining::Trait for Test {
+impl mining_sampling_hardware_mining::Trait for Test {
     type Event = ();
     type MiningSpeedBoostSamplingHardwareMiningIndex = u64;
     type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
