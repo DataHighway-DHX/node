@@ -273,7 +273,7 @@ mod tests {
                   Origin::signed(0),
                   0, // mining_speed_boosts_token_mining_id
                   Some(b"DHX".to_vec()), // token_type
-                  Some(10), // token_lock_amount_min
+                  Some(10), // token_lock_min_amount
                   Some(7), // token_lock_min_blocks
                 )
               );
@@ -297,7 +297,7 @@ mod tests {
                 MiningSpeedBoostConfigurationTokenMiningTestModule::mining_speed_boosts_configuration_token_mining_token_cooldown_configs(0),
                   Some(MiningSpeedBoostConfigurationTokenMiningTokenRequirementsConfig {
                       token_type: b"DHX".to_vec(), // token_type
-                      token_lock_amount_min: 10, // token_lock_amount_min
+                      token_lock_min_amount: 10, // token_lock_min_amount
                       token_lock_min_blocks: 7, // token_lock_min_blocks
                   })
               );

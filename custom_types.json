@@ -144,7 +144,7 @@
   },
   "MiningSpeedBoostConfigurationTokenMiningTokenRequirementsConfig": {
     "token_type": "Text",
-    "token_lock_amount_min": "u64",
+    "token_lock_min_amount": "u64",
     "token_lock_min_blocks": "u32"
   },
   "MiningSpeedBoostConfigurationHardwareMining": "[u8; 16]",

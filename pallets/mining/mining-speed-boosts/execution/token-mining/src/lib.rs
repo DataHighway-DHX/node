@@ -212,9 +212,9 @@ decl_module! {
             // let is_token_lock_period_greater_than_token_lock_min_blocks = Self::token_lock_period_greater_than_token_lock_min_blocks(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id).is_ok();
             // ensure!(is_token_lock_period_greater_than_token_lock_min_blocks, "token configuration does not have a token_lock_period > token_lock_min_blocks");
 
-            // Ensure that the associated token configuration has a token_lock_amount > token_lock_amount_min
-            let is_token_lock_amount_greater_than_token_lock_amount_min = Self::token_lock_amount_greater_than_token_lock_amount_min(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id).is_ok();
-            ensure!(is_token_lock_amount_greater_than_token_lock_amount_min, "token configuration does not have a token_lock_amount > token_lock_amount_min");
+            // Ensure that the associated token configuration has a token_lock_amount > token_lock_min_amount
+            let is_token_lock_amount_greater_than_token_lock_min_amount = Self::token_lock_amount_greater_than_token_lock_min_amount(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id).is_ok();
+            ensure!(is_token_lock_amount_greater_than_token_lock_min_amount, "token configuration does not have a token_lock_amount > token_lock_min_amount");
 
             // Check if a mining_speed_boosts_execution_token_mining_execution_result already exists with the given mining_speed_boosts_execution_token_mining_id
             // to determine whether to insert new or mutate existing.
@@ -409,16 +409,16 @@ impl<T: Trait> Module<T> {
         }
     }
 
-    // Check that the associated token configuration has a token_lock_amount > token_lock_amount_min
-    pub fn token_lock_amount_greater_than_token_lock_amount_min(
+    // Check that the associated token configuration has a token_lock_amount > token_lock_min_amount
+    pub fn token_lock_amount_greater_than_token_lock_min_amount(
         mining_speed_boosts_execution_token_mining_id: T::MiningSpeedBoostExecutionTokenMiningIndex,
         mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
     ) -> Result<(), DispatchError> {
         if let Some(configuration_token_mining) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_configs((mining_speed_boosts_configuration_token_mining_id)) {
             if let Some(cooldown_configuration_token_mining) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_cooldown_configs((mining_speed_boosts_configuration_token_mining_id)) {
                 if let locked_amount = configuration_token_mining.token_lock_amount {
-                    if let lock_amount_min = cooldown_configuration_token_mining.token_lock_amount_min {
-                        ensure!(locked_amount > lock_amount_min, "Locked amount must be larger than the minimum locked amount of the cooldown config. Cannot execute.");
+                    if let lock_min_amount = cooldown_configuration_token_mining.token_lock_min_amount {
+                        ensure!(locked_amount > lock_min_amount, "Locked amount must be larger than the minimum locked amount of the cooldown config. Cannot execute.");
                         Ok(())
                     } else {
                         return Err(DispatchError::Other("Cannot find token_mining_config with token_lock_min_blocks associated with the execution"));
