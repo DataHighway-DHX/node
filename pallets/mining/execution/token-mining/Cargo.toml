@@ -41,10 +41,10 @@ sp-runtime = { version = '2.0.0', default_features = false }
 sp-std = { version = '2.0.0', default_features = false }
 
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../../roaming/roaming-operators' }
-mining-configuration-token-mining = { default_features = false, package = 'mining-configuration-token-mining', path = '../../../../mining/mining/configuration/token-mining' }
-mining-eligibility-token-mining = { default_features = false, package = 'mining-eligibility-token-mining', path = '../../../../mining/mining/eligibility/token-mining' }
-mining-rates-token-mining = { default_features = false, package = 'mining-rates-token-mining', path = '../../../../mining/mining/rates/token-mining' }
-mining-sampling-token-mining = { default_features = false, package = 'mining-sampling-token-mining', path = '../../../../mining/mining/sampling/token-mining' }
-mining-lodgements-token-mining = { default_features = false, package = 'mining-lodgements-token-mining', path = '../../../../mining/mining/lodgements/token-mining' }
+mining-configuration-token-mining = { default_features = false, package = 'mining-configuration-token-mining', path = '../../../../mining/configuration/token-mining' }
+mining-eligibility-token-mining = { default_features = false, package = 'mining-eligibility-token-mining', path = '../../../../mining/eligibility/token-mining' }
+mining-rates-token-mining = { default_features = false, package = 'mining-rates-token-mining', path = '../../../../mining/rates/token-mining' }
+mining-sampling-token-mining = { default_features = false, package = 'mining-sampling-token-mining', path = '../../../../mining/sampling/token-mining' }
+mining-lodgements-token-mining = { default_features = false, package = 'mining-lodgements-token-mining', path = '../../../../mining/lodgements/token-mining' }
 
 [dev-dependencies]

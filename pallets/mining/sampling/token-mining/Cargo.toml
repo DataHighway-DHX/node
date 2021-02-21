@@ -37,6 +37,6 @@ sp-runtime = { version = '2.0.0', default_features = false }
 sp-std = { version = '2.0.0', default_features = false }
 
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../../roaming/roaming-operators' }
-mining-configuration-token-mining = { default_features = false, package = 'mining-configuration-token-mining', path = '../../../../mining/mining/configuration/token-mining' }
+mining-configuration-token-mining = { default_features = false, package = 'mining-configuration-token-mining', path = '../../../../mining/configuration/token-mining' }
 
 [dev-dependencies]
