@@ -993,17 +993,17 @@ dependencies = [
  "frame-support",
  "frame-system",
  "frame-system-rpc-runtime-api",
- "mining-speed-boosts-configuration-hardware-mining",
- "mining-speed-boosts-configuration-token-mining",
- "mining-speed-boosts-eligibility-hardware-mining",
- "mining-speed-boosts-eligibility-token-mining",
- "mining-speed-boosts-execution-token-mining",
- "mining-speed-boosts-lodgements-hardware-mining",
- "mining-speed-boosts-lodgements-token-mining",
- "mining-speed-boosts-rates-hardware-mining",
- "mining-speed-boosts-rates-token-mining",
- "mining-speed-boosts-sampling-hardware-mining",
- "mining-speed-boosts-sampling-token-mining",
+ "mining-claims-hardware",
+ "mining-claims-token",
+ "mining-config-hardware",
+ "mining-config-token",
+ "mining-eligibility-hardware",
+ "mining-eligibility-token",
+ "mining-execution-token",
+ "mining-rates-hardware",
+ "mining-rates-token",
+ "mining-sampling-hardware",
+ "mining-sampling-token",
  "module-primitives",
  "pallet-babe",
  "pallet-balances",
@@ -3153,7 +3153,51 @@ dependencies = [
 ]
 
 [[package]]
-name = "mining-speed-boosts-configuration-hardware-mining"
+name = "mining-claims-hardware"
+version = "0.1.0"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "mining-config-hardware",
+ "mining-eligibility-hardware",
+ "mining-rates-hardware",
+ "mining-sampling-hardware",
+ "pallet-balances",
+ "pallet-randomness-collective-flip",
+ "pallet-transaction-payment",
+ "parity-scale-codec",
+ "roaming-operators",
+ "safe-mix",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "mining-claims-token"
+version = "0.1.0"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "mining-config-token",
+ "mining-eligibility-token",
+ "mining-rates-token",
+ "mining-sampling-token",
+ "pallet-balances",
+ "pallet-randomness-collective-flip",
+ "pallet-transaction-payment",
+ "parity-scale-codec",
+ "roaming-operators",
+ "safe-mix",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "mining-config-hardware"
 version = "0.1.0"
 dependencies = [
  "frame-support",
@@ -3171,7 +3215,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mining-speed-boosts-configuration-token-mining"
+name = "mining-config-token"
 version = "0.1.0"
 dependencies = [
  "frame-support",
@@ -3189,14 +3233,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "mining-speed-boosts-eligibility-hardware-mining"
+name = "mining-eligibility-hardware"
 version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-speed-boosts-configuration-hardware-mining",
- "mining-speed-boosts-rates-hardware-mining",
- "mining-speed-boosts-sampling-hardware-mining",
+ "mining-config-hardware",
+ "mining-rates-hardware",
+ "mining-sampling-hardware",
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",
@@ -3210,14 +3254,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "mining-speed-boosts-eligibility-token-mining"
+name = "mining-eligibility-token"
 version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-speed-boosts-configuration-token-mining",
- "mining-speed-boosts-rates-token-mining",
- "mining-speed-boosts-sampling-token-mining",
+ "mining-config-token",
+ "mining-rates-token",
+ "mining-sampling-token",
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",
@@ -3231,16 +3275,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "mining-speed-boosts-execution-token-mining"
+name = "mining-execution-token"
 version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-speed-boosts-configuration-token-mining",
- "mining-speed-boosts-eligibility-token-mining",
- "mining-speed-boosts-lodgements-token-mining",
- "mining-speed-boosts-rates-token-mining",
- "mining-speed-boosts-sampling-token-mining",
+ "mining-claims-token",
+ "mining-config-token",
+ "mining-eligibility-token",
+ "mining-rates-token",
+ "mining-sampling-token",
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",
@@ -3254,51 +3298,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mining-speed-boosts-lodgements-hardware-mining"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "mining-speed-boosts-configuration-hardware-mining",
- "mining-speed-boosts-eligibility-hardware-mining",
- "mining-speed-boosts-rates-hardware-mining",
- "mining-speed-boosts-sampling-hardware-mining",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-speed-boosts-lodgements-token-mining"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "mining-speed-boosts-configuration-token-mining",
- "mining-speed-boosts-eligibility-token-mining",
- "mining-speed-boosts-rates-token-mining",
- "mining-speed-boosts-sampling-token-mining",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-speed-boosts-rates-hardware-mining"
+name = "mining-rates-hardware"
 version = "0.1.0"
 dependencies = [
  "frame-support",
@@ -3316,7 +3316,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mining-speed-boosts-rates-token-mining"
+name = "mining-rates-token"
 version = "0.1.0"
 dependencies = [
  "frame-support",
@@ -3334,12 +3334,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "mining-speed-boosts-sampling-hardware-mining"
+name = "mining-sampling-hardware"
 version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-speed-boosts-configuration-hardware-mining",
+ "mining-config-hardware",
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",
@@ -3353,12 +3353,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "mining-speed-boosts-sampling-token-mining"
+name = "mining-sampling-token"
 version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-speed-boosts-configuration-token-mining",
+ "mining-config-token",
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",

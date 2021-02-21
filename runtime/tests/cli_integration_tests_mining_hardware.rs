@@ -1,9 +1,9 @@
 // extern crate env as env;
-extern crate mining_speed_boosts_configuration_hardware_mining as mining_speed_boosts_configuration_hardware_mining;
-extern crate mining_speed_boosts_eligibility_hardware_mining as mining_speed_boosts_eligibility_hardware_mining;
-extern crate mining_speed_boosts_lodgements_hardware_mining as mining_speed_boosts_lodgements_hardware_mining;
-extern crate mining_speed_boosts_rates_hardware_mining as mining_speed_boosts_rates_hardware_mining;
-extern crate mining_speed_boosts_sampling_hardware_mining as mining_speed_boosts_sampling_hardware_mining;
+extern crate mining_claims_hardware as mining_claims_hardware;
+extern crate mining_config_hardware as mining_config_hardware;
+extern crate mining_eligibility_hardware as mining_eligibility_hardware;
+extern crate mining_rates_hardware as mining_rates_hardware;
+extern crate mining_sampling_hardware as mining_sampling_hardware;
 extern crate roaming_operators as roaming_operators;
 
 #[cfg(test)]
@@ -33,30 +33,30 @@ mod tests {
         Permill,
     };
     // Import Trait for each runtime module being tested
-    use mining_speed_boosts_configuration_hardware_mining::{
-        MiningSpeedBoostConfigurationHardwareMiningHardwareConfig,
-        Module as MiningSpeedBoostConfigurationHardwareMiningModule,
-        Trait as MiningSpeedBoostConfigurationHardwareMiningTrait,
+    use mining_claims_hardware::{
+        MiningClaimsHardwareClaimResult,
+        Module as MiningClaimsHardwareModule,
+        Trait as MiningClaimsHardwareTrait,
     };
-    use mining_speed_boosts_eligibility_hardware_mining::{
-        MiningSpeedBoostEligibilityHardwareMiningEligibilityResult,
-        Module as MiningSpeedBoostEligibilityHardwareMiningModule,
-        Trait as MiningSpeedBoostEligibilityHardwareMiningTrait,
+    use mining_config_hardware::{
+        MiningConfigHardwareConfig,
+        Module as MiningConfigHardwareModule,
+        Trait as MiningConfigHardwareTrait,
     };
-    use mining_speed_boosts_lodgements_hardware_mining::{
-        MiningSpeedBoostLodgementsHardwareMiningLodgementResult,
-        Module as MiningSpeedBoostLodgementsHardwareMiningModule,
-        Trait as MiningSpeedBoostLodgementsHardwareMiningTrait,
+    use mining_eligibility_hardware::{
+        MiningEligibilityHardwareResult,
+        Module as MiningEligibilityHardwareModule,
+        Trait as MiningEligibilityHardwareTrait,
     };
-    use mining_speed_boosts_rates_hardware_mining::{
-        MiningSpeedBoostRatesHardwareMiningRatesConfig,
-        Module as MiningSpeedBoostRatesHardwareMiningModule,
-        Trait as MiningSpeedBoostRatesHardwareMiningTrait,
+    use mining_rates_hardware::{
+        MiningRatesHardwareConfig,
+        Module as MiningRatesHardwareModule,
+        Trait as MiningRatesHardwareTrait,
     };
-    use mining_speed_boosts_sampling_hardware_mining::{
-        MiningSpeedBoostSamplingHardwareMiningSamplingConfig,
-        Module as MiningSpeedBoostSamplingHardwareMiningModule,
-        Trait as MiningSpeedBoostSamplingHardwareMiningTrait,
+    use mining_sampling_hardware::{
+        MiningSamplingHardwareConfig,
+        Module as MiningSamplingHardwareModule,
+        Trait as MiningSamplingHardwareTrait,
     };
     use roaming_operators;
 
@@ -130,59 +130,57 @@ mod tests {
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
-    impl MiningSpeedBoostConfigurationHardwareMiningTrait for Test {
+    impl MiningConfigHardwareTrait for Test {
         type Event = ();
-        type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI = u64;
-        // type MiningSpeedBoostConfigurationHardwareMiningHardwareType =
-        // MiningSpeedBoostConfigurationHardwareMiningHardwareTypes;
-        type MiningSpeedBoostConfigurationHardwareMiningHardwareID = u64;
-        // Mining Speed Boost Hardware Mining Config
-        type MiningSpeedBoostConfigurationHardwareMiningHardwareSecure = bool;
-        // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-        type MiningSpeedBoostConfigurationHardwareMiningHardwareType = Vec<u8>;
+        type MiningConfigHardwareDevEUI = u64;
+        // type MiningConfigHardwareType =
+        // MiningConfigHardwareTypes;
+        type MiningConfigHardwareID = u64;
         // type Currency = Balances;
         // type Randomness = Randomness;
-        type MiningSpeedBoostConfigurationHardwareMiningIndex = u64;
+        type MiningConfigHardwareIndex = u64;
+        // Mining Speed Boost Hardware Mining Config
+        type MiningConfigHardwareSecure = bool;
+        // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
+        type MiningConfigHardwareType = Vec<u8>;
     }
-    impl MiningSpeedBoostRatesHardwareMiningTrait for Test {
+    impl MiningRatesHardwareTrait for Test {
         type Event = ();
-        type MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway = u32;
-        type MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway = u32;
-        type MiningSpeedBoostRatesHardwareMiningCategory3MaxTokenBonusPerGateway = u32;
-        type MiningSpeedBoostRatesHardwareMiningHardwareInsecure = u32;
-        // Mining Speed Boost Rate
-        type MiningSpeedBoostRatesHardwareMiningHardwareSecure = u32;
-        type MiningSpeedBoostRatesHardwareMiningIndex = u64;
+        type MiningRatesHardwareCategory1MaxTokenBonusPerGateway = u32;
+        type MiningRatesHardwareCategory2MaxTokenBonusPerGateway = u32;
+        type MiningRatesHardwareCategory3MaxTokenBonusPerGateway = u32;
+        type MiningRatesHardwareIndex = u64;
+        type MiningRatesHardwareInsecure = u32;
         // Mining Speed Boost Max Rates
-        type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
+        type MiningRatesHardwareMaxHardware = u32;
+        // Mining Speed Boost Rate
+        type MiningRatesHardwareSecure = u32;
     }
-    impl MiningSpeedBoostSamplingHardwareMiningTrait for Test {
+    impl MiningSamplingHardwareTrait for Test {
         type Event = ();
-        type MiningSpeedBoostSamplingHardwareMiningIndex = u64;
-        type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
+        type MiningSamplingHardwareIndex = u64;
+        type MiningSamplingHardwareSampleHardwareOnline = u64;
     }
-    impl MiningSpeedBoostEligibilityHardwareMiningTrait for Test {
+    impl MiningEligibilityHardwareTrait for Test {
         type Event = ();
-        type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility = u64;
-        type MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage = u32;
-        type MiningSpeedBoostEligibilityHardwareMiningIndex = u64;
-        // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
+        type MiningEligibilityHardwareCalculatedEligibility = u64;
+        type MiningEligibilityHardwareIndex = u64;
+        type MiningEligibilityHardwareUptimePercentage = u32;
+        // type MiningEligibilityHardwareAuditorAccountID = u64;
     }
-    impl MiningSpeedBoostLodgementsHardwareMiningTrait for Test {
+    impl MiningClaimsHardwareTrait for Test {
         type Event = ();
-        type MiningSpeedBoostLodgementsHardwareMiningIndex = u64;
-        type MiningSpeedBoostLodgementsHardwareMiningLodgementAmount = u64;
+        type MiningClaimsHardwareClaimAmount = u64;
+        type MiningClaimsHardwareIndex = u64;
     }
 
     type System = frame_system::Module<Test>;
     pub type Balances = pallet_balances::Module<Test>;
-    pub type MiningSpeedBoostConfigurationHardwareMiningTestModule =
-        MiningSpeedBoostConfigurationHardwareMiningModule<Test>;
-    pub type MiningSpeedBoostRatesHardwareMiningTestModule = MiningSpeedBoostRatesHardwareMiningModule<Test>;
-    pub type MiningSpeedBoostSamplingHardwareMiningTestModule = MiningSpeedBoostSamplingHardwareMiningModule<Test>;
-    pub type MiningSpeedBoostEligibilityHardwareMiningTestModule =
-        MiningSpeedBoostEligibilityHardwareMiningModule<Test>;
-    pub type MiningSpeedBoostLodgementsHardwareMiningTestModule = MiningSpeedBoostLodgementsHardwareMiningModule<Test>;
+    pub type MiningConfigHardwareTestModule = MiningConfigHardwareModule<Test>;
+    pub type MiningRatesHardwareTestModule = MiningRatesHardwareModule<Test>;
+    pub type MiningSamplingHardwareTestModule = MiningSamplingHardwareModule<Test>;
+    pub type MiningEligibilityHardwareTestModule = MiningEligibilityHardwareModule<Test>;
+    pub type MiningClaimsHardwareTestModule = MiningClaimsHardwareModule<Test>;
     pub type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
@@ -220,11 +218,10 @@ mod tests {
             // Create Mining Speed Boost Rates Hardware Mining
 
             // Call Functions
-            assert_ok!(MiningSpeedBoostRatesHardwareMiningTestModule::create(Origin::signed(0)));
-            assert_ok!(
-              MiningSpeedBoostRatesHardwareMiningTestModule::set_mining_speed_boosts_rates_hardware_mining_rates_config(
+            assert_ok!(MiningRatesHardwareTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningRatesHardwareTestModule::set_mining_rates_hardware_rates_config(
                 Origin::signed(0),
-                0, // mining_speed_boosts_rates_hardware_mining_id
+                0, // mining_rates_hardware_id
                 // FIXME - convert all below types to Vec<u8> since float values? i.e. b"1.025".to_vec()
                 Some(1), // hardware_hardware_secure
                 Some(1), // hardware_hardware_insecure
@@ -232,16 +229,15 @@ mod tests {
                 Some(1000000),
                 Some(500000),
                 Some(250000)
-              )
-            );
+            ));
 
             // Verify Storage
-            assert_eq!(MiningSpeedBoostRatesHardwareMiningTestModule::mining_speed_boosts_rates_hardware_mining_count(), 1);
-            assert!(MiningSpeedBoostRatesHardwareMiningTestModule::mining_speed_boosts_rates_hardware_mining(0).is_some());
-            assert_eq!(MiningSpeedBoostRatesHardwareMiningTestModule::mining_speed_boosts_rates_hardware_mining_owner(0), Some(0));
+            assert_eq!(MiningRatesHardwareTestModule::mining_rates_hardware_count(), 1);
+            assert!(MiningRatesHardwareTestModule::mining_rates_hardware(0).is_some());
+            assert_eq!(MiningRatesHardwareTestModule::mining_rates_hardware_owner(0), Some(0));
             assert_eq!(
-              MiningSpeedBoostRatesHardwareMiningTestModule::mining_speed_boosts_rates_hardware_mining_rates_configs(0),
-                Some(MiningSpeedBoostRatesHardwareMiningRatesConfig {
+                MiningRatesHardwareTestModule::mining_rates_hardware_rates_configs(0),
+                Some(MiningRatesHardwareConfig {
                     hardware_hardware_secure: 1,
                     hardware_hardware_insecure: 1,
                     hardware_max_hardware: 1,
@@ -254,27 +250,25 @@ mod tests {
             // Create Mining Speed Boost Configuration Hardware Mining
 
             // Call Functions
-            assert_ok!(MiningSpeedBoostConfigurationHardwareMiningTestModule::create(Origin::signed(0)));
-            assert_ok!(
-              MiningSpeedBoostConfigurationHardwareMiningTestModule::set_mining_speed_boosts_configuration_hardware_mining_hardware_config(
+            assert_ok!(MiningConfigHardwareTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningConfigHardwareTestModule::set_mining_config_hardware_hardware_config(
                 Origin::signed(0),
-                0, // mining_speed_boosts_hardware_mining_id
-                Some(true), // hardware_secure
+                0,                         // mining_hardware_id
+                Some(true),                // hardware_secure
                 Some(b"gateway".to_vec()), // hardware_type
-                Some(1), // hardware_id
-                Some(12345), // hardware_dev_eui
-                Some(23456), // hardware_lock_start_block
-                Some(34567), // hardware_lock_interval_blocks
-              )
-            );
+                Some(1),                   // hardware_id
+                Some(12345),               // hardware_dev_eui
+                Some(23456),               // hardware_lock_start_block
+                Some(34567),               // hardware_lock_interval_blocks
+            ));
 
             // Verify Storage
-            assert_eq!(MiningSpeedBoostConfigurationHardwareMiningTestModule::mining_speed_boosts_configuration_hardware_mining_count(), 1);
-            assert!(MiningSpeedBoostConfigurationHardwareMiningTestModule::mining_speed_boosts_configuration_hardware_mining(0).is_some());
-            assert_eq!(MiningSpeedBoostConfigurationHardwareMiningTestModule::mining_speed_boosts_configuration_hardware_mining_owner(0), Some(0));
+            assert_eq!(MiningConfigHardwareTestModule::mining_config_hardware_count(), 1);
+            assert!(MiningConfigHardwareTestModule::mining_config_hardware(0).is_some());
+            assert_eq!(MiningConfigHardwareTestModule::mining_config_hardware_owner(0), Some(0));
             assert_eq!(
-              MiningSpeedBoostConfigurationHardwareMiningTestModule::mining_speed_boosts_configuration_hardware_mining_hardware_configs(0),
-                Some(MiningSpeedBoostConfigurationHardwareMiningHardwareConfig {
+                MiningConfigHardwareTestModule::mining_config_hardware_hardware_configs(0),
+                Some(MiningConfigHardwareConfig {
                     hardware_secure: true,
                     hardware_type: b"gateway".to_vec(),
                     hardware_id: 1,
@@ -287,45 +281,43 @@ mod tests {
             // Create Mining Speed Boost Sampling Hardware Mining
 
             // Call Functions
-            assert_ok!(MiningSpeedBoostSamplingHardwareMiningTestModule::create(Origin::signed(0)));
-            assert_ok!(
-                MiningSpeedBoostSamplingHardwareMiningTestModule::set_mining_speed_boosts_samplings_hardware_mining_samplings_config(
-                    Origin::signed(0),
-                    0, // mining_speed_boosts_sampling_hardware_mining_id
-                    0, // mining_speed_boosts_sampling_hardware_mining_sample_id
-                    Some(23456), // hardware_sample_block
-                    Some(1), // hardware_sample_hardware_online
-                )
-            );
-            assert_ok!(MiningSpeedBoostSamplingHardwareMiningTestModule::assign_sampling_to_configuration(Origin::signed(0), 0, 0));
+            assert_ok!(MiningSamplingHardwareTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningSamplingHardwareTestModule::set_mining_samplings_hardware_samplings_config(
+                Origin::signed(0),
+                0,           // mining_sampling_hardware_id
+                0,           // mining_sampling_hardware_sample_id
+                Some(23456), // hardware_sample_block
+                Some(1),     // hardware_sample_hardware_online
+            ));
+            assert_ok!(MiningSamplingHardwareTestModule::assign_sampling_to_configuration(Origin::signed(0), 0, 0));
 
             // Verify Storage
-            assert_eq!(MiningSpeedBoostSamplingHardwareMiningTestModule::mining_speed_boosts_samplings_hardware_mining_count(), 1);
-            assert!(MiningSpeedBoostSamplingHardwareMiningTestModule::mining_speed_boosts_samplings_hardware_mining(0).is_some());
-            assert_eq!(MiningSpeedBoostSamplingHardwareMiningTestModule::mining_speed_boosts_samplings_hardware_mining_owner(0), Some(0));
+            assert_eq!(MiningSamplingHardwareTestModule::mining_samplings_hardware_count(), 1);
+            assert!(MiningSamplingHardwareTestModule::mining_samplings_hardware(0).is_some());
+            assert_eq!(MiningSamplingHardwareTestModule::mining_samplings_hardware_owner(0), Some(0));
             assert_eq!(
-              MiningSpeedBoostSamplingHardwareMiningTestModule::mining_speed_boosts_samplings_hardware_mining_samplings_configs((0, 0)),
-                Some(MiningSpeedBoostSamplingHardwareMiningSamplingConfig {
-                    hardware_sample_block: 23456, // hardware_sample_block
-                    hardware_sample_hardware_online: 1 // hardware_sample_hardware_online
+                MiningSamplingHardwareTestModule::mining_samplings_hardware_samplings_configs((0, 0)),
+                Some(MiningSamplingHardwareConfig {
+                    hardware_sample_block: 23456,       // hardware_sample_block
+                    hardware_sample_hardware_online: 1  // hardware_sample_hardware_online
                 })
             );
 
             // Create Mining Speed Boost Eligibility Hardware Mining
 
             // Call Functions
-            assert_ok!(MiningSpeedBoostEligibilityHardwareMiningTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningEligibilityHardwareTestModule::create(Origin::signed(0)));
             // assert_eq!(
-            //     MiningSpeedBoostEligibilityTestModule::calculate_mining_speed_boosts_eligibility_hardware_mining_result(
+            //     MiningEligibilityTestModule::calculate_mining_eligibility_hardware_result(
             //         Origin::signed(0),
-            //         0, // mining_speed_boosts_configuration_hardware_mining_id
-            //         0, // mining_speed_boosts_eligibility_hardware_mining_id
+            //         0, // mining_config_hardware_id
+            //         0, // mining_eligibility_hardware_id
             //     ),
             //     Some(
-            //         MiningSpeedBoostEligibilityHardwareMiningEligibilityResult {
+            //         MiningEligibilityHardwareResult {
             //             hardware_calculated_eligibility: 1.1
-            //             // to determine eligibility for proportion (incase user moves funds around during lock period)
-            //             hardware_uptime_percentage: 0.3,
+            //             // to determine eligibility for proportion (incase user moves funds around during lock
+            // period)             hardware_uptime_percentage: 0.3,
             //             // hardware_block_audited: 123,
             //             // hardware_auditor_account_id: 123
             //         }
@@ -333,75 +325,75 @@ mod tests {
             // ))
 
             // Override by DAO if necessary
-            assert_ok!(
-                MiningSpeedBoostEligibilityHardwareMiningTestModule::set_mining_speed_boosts_eligibility_hardware_mining_eligibility_result(
-                    Origin::signed(0),
-                    0, // mining_speed_boosts_configuration_hardware_mining_id
-                    0, // mining_speed_boosts_eligibility_hardware_mining_id
-                    Some(1), // mining_speed_boosts_hardware_calculated_eligibility
-                    Some(1), // mining_speed_boosts_hardware_uptime_percentage
-                    // 123, // mining_speed_boosts_hardware_block_audited
-                    // 123, // mining_speed_boosts_hardware_auditor_account_id
-                    // Some({
-                    //     MiningSpeedBoostEligibilityHardwareMiningEligibilityResult {
-                    //         hardware_calculated_eligibility: 1,
-                    //         // to determine eligibility for proportion (incase user moves funds around during lock period)
-                    //         hardware_uptime_percentage: 1,
-                    //         // hardware_block_audited: 123,
-                    //         // hardware_auditor_account_id: 123
-                    //     }
-                    // }),
-                )
-            );
-            assert_ok!(MiningSpeedBoostEligibilityHardwareMiningTestModule::assign_eligibility_to_configuration(Origin::signed(0), 0, 0));
+            assert_ok!(MiningEligibilityHardwareTestModule::set_mining_eligibility_hardware_eligibility_result(
+                Origin::signed(0),
+                0,       // mining_config_hardware_id
+                0,       // mining_eligibility_hardware_id
+                Some(1), // mining_hardware_calculated_eligibility
+                Some(1), /* mining_hardware_uptime_percentage
+                          * 123, // mining_hardware_block_audited
+                          * 123, // mining_hardware_auditor_account_id
+                          * Some({
+                          *     MiningEligibilityHardwareResult {
+                          *         hardware_calculated_eligibility: 1,
+                          *         // to determine eligibility for proportion (incase user moves funds around
+                          * during lock period)         hardware_uptime_percentage: 1,
+                          *         // hardware_block_audited: 123,
+                          *         // hardware_auditor_account_id: 123
+                          *     }
+                          * }), */
+            ));
+            assert_ok!(MiningEligibilityHardwareTestModule::assign_eligibility_to_configuration(
+                Origin::signed(0),
+                0,
+                0
+            ));
 
             // Verify Storage
-            assert_eq!(MiningSpeedBoostEligibilityHardwareMiningTestModule::mining_speed_boosts_eligibility_hardware_mining_count(), 1);
-            assert!(MiningSpeedBoostEligibilityHardwareMiningTestModule::mining_speed_boosts_eligibility_hardware_mining(0).is_some());
-            assert_eq!(MiningSpeedBoostEligibilityHardwareMiningTestModule::mining_speed_boosts_eligibility_hardware_mining_owner(0), Some(0));
+            assert_eq!(MiningEligibilityHardwareTestModule::mining_eligibility_hardware_count(), 1);
+            assert!(MiningEligibilityHardwareTestModule::mining_eligibility_hardware(0).is_some());
+            assert_eq!(MiningEligibilityHardwareTestModule::mining_eligibility_hardware_owner(0), Some(0));
             assert_eq!(
-                MiningSpeedBoostEligibilityHardwareMiningTestModule::mining_speed_boosts_eligibility_hardware_mining_eligibility_results((0, 0)),
-                Some(MiningSpeedBoostEligibilityHardwareMiningEligibilityResult {
+                MiningEligibilityHardwareTestModule::mining_eligibility_hardware_eligibility_results((0, 0)),
+                Some(MiningEligibilityHardwareResult {
                     hardware_calculated_eligibility: 1,
                     // to determine eligibility for proportion (incase user moves funds around during lock period)
                     hardware_uptime_percentage: 1,
-                    // hardware_block_audited: 123,
-                    // hardware_auditor_account_id: 123
+                    /* hardware_block_audited: 123,
+                     * hardware_auditor_account_id: 123 */
                 })
             );
 
-            // Create Mining Speed Boost Lodgements Hardware Mining
+            // Create Mining Speed Boost Claims Hardware Mining
 
             // // Call Functions
-            assert_ok!(MiningSpeedBoostLodgementsHardwareMiningTestModule::create(Origin::signed(0)));
-            assert_ok!(MiningSpeedBoostLodgementsHardwareMiningTestModule::assign_claim_to_configuration(Origin::signed(0), 0, 0));
+            assert_ok!(MiningClaimsHardwareTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningClaimsHardwareTestModule::assign_claim_to_configuration(Origin::signed(0), 0, 0));
             // assert_ok!(
-            //     MiningSpeedBoostLodgementsHardwareMiningTestModule::claim(
+            //     MiningClaimsHardwareTestModule::claim(
             //         Origin::signed(0),
-            //         0, // mining_speed_boosts_configuration_hardware_mining_id
-            //         0, // mining_speed_boosts_eligibility_hardware_mining_id
-            //         0, // mining_speed_boosts_lodgements_hardware_mining_id
+            //         0, // mining_config_hardware_id
+            //         0, // mining_eligibility_hardware_id
+            //         0, // mining_claims_hardware_id
             //     )
             // )
             // Override by DAO if necessary
-            assert_ok!(
-                MiningSpeedBoostLodgementsHardwareMiningTestModule::set_mining_speed_boosts_lodgements_hardware_mining_lodgements_result(
-                    Origin::signed(0),
-                    0, // mining_speed_boosts_configuration_hardware_mining_id
-                    0, // mining_speed_boosts_eligibility_hardware_mining_id
-                    0, // mining_speed_boosts_lodgements_hardware_mining_id
-                    Some(1), // hardware_claim_amount
-                    Some(34567), // hardware_claim_block_redeemed
-                )
-            );
+            assert_ok!(MiningClaimsHardwareTestModule::set_mining_claims_hardware_claims_result(
+                Origin::signed(0),
+                0,           // mining_config_hardware_id
+                0,           // mining_eligibility_hardware_id
+                0,           // mining_claims_hardware_id
+                Some(1),     // hardware_claim_amount
+                Some(34567), // hardware_claim_block_redeemed
+            ));
 
             // Verify Storage
-            assert_eq!(MiningSpeedBoostLodgementsHardwareMiningTestModule::mining_speed_boosts_lodgements_hardware_mining_count(), 1);
-            assert!(MiningSpeedBoostLodgementsHardwareMiningTestModule::mining_speed_boosts_lodgements_hardware_mining(0).is_some());
-            assert_eq!(MiningSpeedBoostLodgementsHardwareMiningTestModule::mining_speed_boosts_lodgements_hardware_mining_owner(0), Some(0));
+            assert_eq!(MiningClaimsHardwareTestModule::mining_claims_hardware_count(), 1);
+            assert!(MiningClaimsHardwareTestModule::mining_claims_hardware(0).is_some());
+            assert_eq!(MiningClaimsHardwareTestModule::mining_claims_hardware_owner(0), Some(0));
             assert_eq!(
-              MiningSpeedBoostLodgementsHardwareMiningTestModule::mining_speed_boosts_lodgements_hardware_mining_lodgements_results((0, 0)),
-                Some(MiningSpeedBoostLodgementsHardwareMiningLodgementResult {
+                MiningClaimsHardwareTestModule::mining_claims_hardware_claims_results((0, 0)),
+                Some(MiningClaimsHardwareClaimResult {
                     hardware_claim_amount: 1,
                     hardware_claim_block_redeemed: 34567,
                 })

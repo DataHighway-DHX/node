@@ -607,102 +607,102 @@ impl roaming_packet_bundles::Trait for Runtime {
     type RoamingPacketBundleReceivedPacketsOkCount = u64;
 }
 
-impl mining_speed_boosts_configuration_token_mining::Trait for Runtime {
+impl mining_config_token::Trait for Runtime {
     type Event = Event;
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
-    type MiningSpeedBoostConfigurationTokenMiningIndex = u64;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockAmount = u64;
+    type MiningConfigTokenIndex = u64;
+    type MiningConfigTokenLockAmount = u64;
     // Mining Speed Boost Token Mining Config
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
+    type MiningConfigTokenType = Vec<u8>;
 }
 
-impl mining_speed_boosts_configuration_hardware_mining::Trait for Runtime {
+impl mining_config_hardware::Trait for Runtime {
     type Event = Event;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI = u64;
-    // type MiningSpeedBoostConfigurationHardwareMiningHardwareType =
-    // MiningSpeedBoostConfigurationHardwareMiningHardwareTypes;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareID = u64;
-    // Mining Speed Boost Hardware Mining Config
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareSecure = bool;
-    // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareType = Vec<u8>;
+    type MiningConfigHardwareDevEUI = u64;
+    // type MiningConfigHardwareType =
+    // MiningConfigHardwareTypes;
+    type MiningConfigHardwareID = u64;
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
-    type MiningSpeedBoostConfigurationHardwareMiningIndex = u64;
+    type MiningConfigHardwareIndex = u64;
+    // Mining Speed Boost Hardware Mining Config
+    type MiningConfigHardwareSecure = bool;
+    // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
+    type MiningConfigHardwareType = Vec<u8>;
 }
 
-impl mining_speed_boosts_rates_token_mining::Trait for Runtime {
+impl mining_rates_token::Trait for Runtime {
     type Event = Event;
-    type MiningSpeedBoostRatesTokenMiningIndex = u64;
-    type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
+    type MiningRatesTokenIndex = u64;
+    type MiningRatesTokenMaxLoyalty = u32;
     // Mining Speed Boost Max Rates
-    type MiningSpeedBoostRatesTokenMiningMaxToken = u32;
-    type MiningSpeedBoostRatesTokenMiningTokenDOT = u32;
-    type MiningSpeedBoostRatesTokenMiningTokenIOTA = u32;
+    type MiningRatesTokenMaxToken = u32;
+    type MiningRatesTokenTokenDOT = u32;
+    type MiningRatesTokenTokenIOTA = u32;
     // Mining Speed Boost Rate
-    type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
+    type MiningRatesTokenTokenMXC = u32;
 }
 
-impl mining_speed_boosts_rates_hardware_mining::Trait for Runtime {
+impl mining_rates_hardware::Trait for Runtime {
     type Event = Event;
-    type MiningSpeedBoostRatesHardwareMiningCategory1MaxTokenBonusPerGateway = u32;
-    type MiningSpeedBoostRatesHardwareMiningCategory2MaxTokenBonusPerGateway = u32;
-    type MiningSpeedBoostRatesHardwareMiningCategory3MaxTokenBonusPerGateway = u32;
-    type MiningSpeedBoostRatesHardwareMiningHardwareInsecure = u32;
-    // Mining Speed Boost Rate
-    type MiningSpeedBoostRatesHardwareMiningHardwareSecure = u32;
-    type MiningSpeedBoostRatesHardwareMiningIndex = u64;
+    type MiningRatesHardwareCategory1MaxTokenBonusPerGateway = u32;
+    type MiningRatesHardwareCategory2MaxTokenBonusPerGateway = u32;
+    type MiningRatesHardwareCategory3MaxTokenBonusPerGateway = u32;
+    type MiningRatesHardwareIndex = u64;
+    type MiningRatesHardwareInsecure = u32;
     // Mining Speed Boost Max Rates
-    type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
+    type MiningRatesHardwareMaxHardware = u32;
+    // Mining Speed Boost Rate
+    type MiningRatesHardwareSecure = u32;
 }
 
-impl mining_speed_boosts_sampling_token_mining::Trait for Runtime {
+impl mining_sampling_token::Trait for Runtime {
     type Event = Event;
-    type MiningSpeedBoostSamplingTokenMiningIndex = u64;
-    type MiningSpeedBoostSamplingTokenMiningSampleLockedAmount = u64;
+    type MiningSamplingTokenIndex = u64;
+    type MiningSamplingTokenSampleLockedAmount = u64;
 }
 
-impl mining_speed_boosts_sampling_hardware_mining::Trait for Runtime {
+impl mining_sampling_hardware::Trait for Runtime {
     type Event = Event;
-    type MiningSpeedBoostSamplingHardwareMiningIndex = u64;
-    type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
+    type MiningSamplingHardwareIndex = u64;
+    type MiningSamplingHardwareSampleHardwareOnline = u64;
 }
 
-impl mining_speed_boosts_eligibility_token_mining::Trait for Runtime {
+impl mining_eligibility_token::Trait for Runtime {
     type Event = Event;
-    type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility = u64;
-    type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
-    type MiningSpeedBoostEligibilityTokenMiningLockedPercentage = u32;
-    // type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
+    type MiningEligibilityTokenCalculatedEligibility = u64;
+    type MiningEligibilityTokenIndex = u64;
+    type MiningEligibilityTokenLockedPercentage = u32;
+    // type MiningEligibilityTokenAuditorAccountID = u64;
 }
 
-impl mining_speed_boosts_eligibility_hardware_mining::Trait for Runtime {
+impl mining_eligibility_hardware::Trait for Runtime {
     type Event = Event;
-    type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility = u64;
-    type MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage = u32;
-    type MiningSpeedBoostEligibilityHardwareMiningIndex = u64;
-    // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
+    type MiningEligibilityHardwareCalculatedEligibility = u64;
+    type MiningEligibilityHardwareIndex = u64;
+    type MiningEligibilityHardwareUptimePercentage = u32;
+    // type MiningEligibilityHardwareAuditorAccountID = u64;
 }
 
-impl mining_speed_boosts_lodgements_token_mining::Trait for Runtime {
+impl mining_claims_token::Trait for Runtime {
     type Event = Event;
-    type MiningSpeedBoostLodgementsTokenMiningIndex = u64;
-    type MiningSpeedBoostLodgementsTokenMiningLodgementAmount = u64;
+    type MiningClaimsTokenClaimAmount = u64;
+    type MiningClaimsTokenIndex = u64;
 }
 
-impl mining_speed_boosts_lodgements_hardware_mining::Trait for Runtime {
+impl mining_claims_hardware::Trait for Runtime {
     type Event = Event;
-    type MiningSpeedBoostLodgementsHardwareMiningIndex = u64;
-    type MiningSpeedBoostLodgementsHardwareMiningLodgementAmount = u64;
+    type MiningClaimsHardwareClaimAmount = u64;
+    type MiningClaimsHardwareIndex = u64;
 }
 
-impl mining_speed_boosts_execution_token_mining::Trait for Runtime {
+impl mining_execution_token::Trait for Runtime {
     type Event = Event;
-    type MiningSpeedBoostExecutionTokenMiningIndex = u64;
+    type MiningExecutionTokenIndex = u64;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -726,32 +726,32 @@ construct_runtime!(
         PalletTreasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
         Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
         Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>},
-        DataHighwayRoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingNetworks: roaming_networks::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingOrganizations: roaming_organizations::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingNetworkServers: roaming_network_servers::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingDevices: roaming_devices::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingRoutingProfiles: roaming_routing_profiles::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingServiceProfiles: roaming_service_profiles::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingAccountingPolicies: roaming_accounting_policies::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingAgreementPolicies: roaming_agreement_policies::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingNetworkProfiles: roaming_network_profiles::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingDeviceProfiles: roaming_device_profiles::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingSessions: roaming_sessions::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingBillingPolicies: roaming_billing_policies::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingChargingPolicies: roaming_charging_policies::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingPacketBundles: roaming_packet_bundles::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostConfigurationTokenMining: mining_speed_boosts_configuration_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostConfigurationHardwareMining: mining_speed_boosts_configuration_hardware_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostRatesTokenMining: mining_speed_boosts_rates_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostRatesHardwareMining: mining_speed_boosts_rates_hardware_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostSamplingTokenMining: mining_speed_boosts_sampling_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostSamplingHardwareMining: mining_speed_boosts_sampling_hardware_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostEligibilityTokenMining: mining_speed_boosts_eligibility_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostEligibilityHardwareMining: mining_speed_boosts_eligibility_hardware_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostLodgementsTokenMining: mining_speed_boosts_lodgements_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostLodgementsHardwareMining: mining_speed_boosts_lodgements_hardware_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostExecutionTokenMining: mining_speed_boosts_execution_token_mining::{Module, Call, Storage, Event<T>},
+        RoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
+        RoamingNetworks: roaming_networks::{Module, Call, Storage, Event<T>},
+        RoamingOrganizations: roaming_organizations::{Module, Call, Storage, Event<T>},
+        RoamingNetworkServers: roaming_network_servers::{Module, Call, Storage, Event<T>},
+        RoamingDevices: roaming_devices::{Module, Call, Storage, Event<T>},
+        RoamingRoutingProfiles: roaming_routing_profiles::{Module, Call, Storage, Event<T>},
+        RoamingServiceProfiles: roaming_service_profiles::{Module, Call, Storage, Event<T>},
+        RoamingAccountingPolicies: roaming_accounting_policies::{Module, Call, Storage, Event<T>},
+        RoamingAgreementPolicies: roaming_agreement_policies::{Module, Call, Storage, Event<T>},
+        RoamingNetworkProfiles: roaming_network_profiles::{Module, Call, Storage, Event<T>},
+        RoamingDeviceProfiles: roaming_device_profiles::{Module, Call, Storage, Event<T>},
+        RoamingSessions: roaming_sessions::{Module, Call, Storage, Event<T>},
+        RoamingBillingPolicies: roaming_billing_policies::{Module, Call, Storage, Event<T>},
+        RoamingChargingPolicies: roaming_charging_policies::{Module, Call, Storage, Event<T>},
+        RoamingPacketBundles: roaming_packet_bundles::{Module, Call, Storage, Event<T>},
+        MiningConfigToken: mining_config_token::{Module, Call, Storage, Event<T>},
+        MiningConfigHardware: mining_config_hardware::{Module, Call, Storage, Event<T>},
+        MiningRatesToken: mining_rates_token::{Module, Call, Storage, Event<T>},
+        MiningRatesHardware: mining_rates_hardware::{Module, Call, Storage, Event<T>},
+        MiningSamplingToken: mining_sampling_token::{Module, Call, Storage, Event<T>},
+        MiningSamplingHardware: mining_sampling_hardware::{Module, Call, Storage, Event<T>},
+        MiningEligibilityToken: mining_eligibility_token::{Module, Call, Storage, Event<T>},
+        MiningEligibilityHardware: mining_eligibility_hardware::{Module, Call, Storage, Event<T>},
+        MiningClaimsToken: mining_claims_token::{Module, Call, Storage, Event<T>},
+        MiningClaimsHardware: mining_claims_hardware::{Module, Call, Storage, Event<T>},
+        MiningExecutionToken: mining_execution_token::{Module, Call, Storage, Event<T>},
     }
 );
 
