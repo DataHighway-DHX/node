@@ -997,6 +997,7 @@ dependencies = [
  "mining-speed-boosts-configuration-token-mining",
  "mining-speed-boosts-eligibility-hardware-mining",
  "mining-speed-boosts-eligibility-token-mining",
+ "mining-speed-boosts-execution-token-mining",
  "mining-speed-boosts-lodgements-hardware-mining",
  "mining-speed-boosts-lodgements-token-mining",
  "mining-speed-boosts-rates-hardware-mining",
@@ -3215,6 +3216,29 @@ dependencies = [
  "frame-support",
  "frame-system",
  "mining-speed-boosts-configuration-token-mining",
+ "mining-speed-boosts-rates-token-mining",
+ "mining-speed-boosts-sampling-token-mining",
+ "pallet-balances",
+ "pallet-randomness-collective-flip",
+ "pallet-transaction-payment",
+ "parity-scale-codec",
+ "roaming-operators",
+ "safe-mix",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "mining-speed-boosts-execution-token-mining"
+version = "0.1.0"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "mining-speed-boosts-configuration-token-mining",
+ "mining-speed-boosts-eligibility-token-mining",
+ "mining-speed-boosts-lodgements-token-mining",
  "mining-speed-boosts-rates-token-mining",
  "mining-speed-boosts-sampling-token-mining",
  "pallet-balances",

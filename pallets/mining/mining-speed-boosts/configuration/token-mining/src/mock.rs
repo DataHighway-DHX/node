@@ -93,11 +93,7 @@ impl roaming_operators::Trait for Test {
 impl Trait for Test {
     type Event = ();
     type MiningSpeedBoostConfigurationTokenMiningIndex = u64;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
-    // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
+    type MiningSpeedBoostConfigurationTokenMiningTokenLockAmount = u64;
     // Mining Speed Boost Token Mining Config
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
     type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;

@@ -95,9 +95,7 @@ impl roaming_networks::Trait for Test {
 }
 impl Trait for Test {
     type Event = ();
-    type RoamingBillingPolicyFrequencyInDays = u64;
     type RoamingBillingPolicyIndex = u64;
-    type RoamingBillingPolicyNextBillingAt = u64;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;

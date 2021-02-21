@@ -566,7 +566,6 @@ impl roaming_accounting_policies::Trait for Runtime {
 impl roaming_agreement_policies::Trait for Runtime {
     type Event = Event;
     type RoamingAgreementPolicyActivationType = Vec<u8>;
-    type RoamingAgreementPolicyExpiry = u64;
     type RoamingAgreementPolicyIndex = u64; // <pallet_timestamp::Module<Runtime> as Trait>::Moment` timestamp::Module<Runtime>::Moment;
 }
 
@@ -587,23 +586,16 @@ impl roaming_device_profiles::Trait for Runtime {
 impl roaming_sessions::Trait for Runtime {
     type Event = Event;
     type RoamingSessionIndex = u64;
-    type RoamingSessionJoinRequestAcceptAcceptedAt = u64;
-    type RoamingSessionJoinRequestAcceptExpiry = u64;
-    type RoamingSessionJoinRequestRequestedAt = u64;
 }
 
 impl roaming_billing_policies::Trait for Runtime {
     type Event = Event;
-    type RoamingBillingPolicyFrequencyInDays = u64;
     type RoamingBillingPolicyIndex = u64;
-    type RoamingBillingPolicyNextBillingAt = u64;
 }
 
 impl roaming_charging_policies::Trait for Runtime {
     type Event = Event;
-    type RoamingChargingPolicyDelayAfterBillingInDays = u64;
     type RoamingChargingPolicyIndex = u64;
-    type RoamingChargingPolicyNextChargingAt = u64;
 }
 
 impl roaming_packet_bundles::Trait for Runtime {
@@ -611,10 +603,8 @@ impl roaming_packet_bundles::Trait for Runtime {
     type RoamingPacketBundleExternalDataStorageHash = Hash;
     type RoamingPacketBundleIndex = u64;
     type RoamingPacketBundleReceivedAtHome = bool;
-    type RoamingPacketBundleReceivedEndedAt = u64;
     type RoamingPacketBundleReceivedPacketsCount = u64;
     type RoamingPacketBundleReceivedPacketsOkCount = u64;
-    type RoamingPacketBundleReceivedStartedAt = u64;
 }
 
 impl mining_speed_boosts_configuration_token_mining::Trait for Runtime {
@@ -623,11 +613,7 @@ impl mining_speed_boosts_configuration_token_mining::Trait for Runtime {
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
     type MiningSpeedBoostConfigurationTokenMiningIndex = u64;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
-    // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
+    type MiningSpeedBoostConfigurationTokenMiningTokenLockAmount = u64;
     // Mining Speed Boost Token Mining Config
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
     type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
@@ -639,8 +625,6 @@ impl mining_speed_boosts_configuration_hardware_mining::Trait for Runtime {
     // type MiningSpeedBoostConfigurationHardwareMiningHardwareType =
     // MiningSpeedBoostConfigurationHardwareMiningHardwareTypes;
     type MiningSpeedBoostConfigurationHardwareMiningHardwareID = u64;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate = u64;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate = u64;
     // Mining Speed Boost Hardware Mining Config
     type MiningSpeedBoostConfigurationHardwareMiningHardwareSecure = bool;
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
@@ -679,14 +663,12 @@ impl mining_speed_boosts_rates_hardware_mining::Trait for Runtime {
 impl mining_speed_boosts_sampling_token_mining::Trait for Runtime {
     type Event = Event;
     type MiningSpeedBoostSamplingTokenMiningIndex = u64;
-    type MiningSpeedBoostSamplingTokenMiningSampleDate = u64;
-    type MiningSpeedBoostSamplingTokenMiningSampleTokensLocked = u64;
+    type MiningSpeedBoostSamplingTokenMiningSampleLockedAmount = u64;
 }
 
 impl mining_speed_boosts_sampling_hardware_mining::Trait for Runtime {
     type Event = Event;
     type MiningSpeedBoostSamplingHardwareMiningIndex = u64;
-    type MiningSpeedBoostSamplingHardwareMiningSampleDate = u64;
     type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
 }
 
@@ -694,8 +676,7 @@ impl mining_speed_boosts_eligibility_token_mining::Trait for Runtime {
     type Event = Event;
     type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility = u64;
     type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
-    type MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage = u32;
-    // type MiningSpeedBoostEligibilityTokenMiningDateAudited = u64;
+    type MiningSpeedBoostEligibilityTokenMiningLockedPercentage = u32;
     // type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
 }
 
@@ -704,7 +685,6 @@ impl mining_speed_boosts_eligibility_hardware_mining::Trait for Runtime {
     type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility = u64;
     type MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage = u32;
     type MiningSpeedBoostEligibilityHardwareMiningIndex = u64;
-    // type MiningSpeedBoostEligibilityHardwareMiningDateAudited = u64;
     // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
 }
 
@@ -712,14 +692,17 @@ impl mining_speed_boosts_lodgements_token_mining::Trait for Runtime {
     type Event = Event;
     type MiningSpeedBoostLodgementsTokenMiningIndex = u64;
     type MiningSpeedBoostLodgementsTokenMiningLodgementAmount = u64;
-    type MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = u64;
 }
 
 impl mining_speed_boosts_lodgements_hardware_mining::Trait for Runtime {
     type Event = Event;
     type MiningSpeedBoostLodgementsHardwareMiningIndex = u64;
     type MiningSpeedBoostLodgementsHardwareMiningLodgementAmount = u64;
-    type MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed = u64;
+}
+
+impl mining_speed_boosts_execution_token_mining::Trait for Runtime {
+    type Event = Event;
+    type MiningSpeedBoostExecutionTokenMiningIndex = u64;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -768,6 +751,7 @@ construct_runtime!(
         DataHighwayMiningSpeedBoostEligibilityHardwareMining: mining_speed_boosts_eligibility_hardware_mining::{Module, Call, Storage, Event<T>},
         DataHighwayMiningSpeedBoostLodgementsTokenMining: mining_speed_boosts_lodgements_token_mining::{Module, Call, Storage, Event<T>},
         DataHighwayMiningSpeedBoostLodgementsHardwareMining: mining_speed_boosts_lodgements_hardware_mining::{Module, Call, Storage, Event<T>},
+        DataHighwayMiningSpeedBoostExecutionTokenMining: mining_speed_boosts_execution_token_mining::{Module, Call, Storage, Event<T>},
     }
 );
 

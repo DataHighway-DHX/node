@@ -181,7 +181,6 @@ mod tests {
     impl RoamingAgreementPolicyTrait for Test {
         type Event = ();
         type RoamingAgreementPolicyActivationType = Vec<u8>;
-        type RoamingAgreementPolicyExpiry = u64;
         type RoamingAgreementPolicyIndex = u64;
     }
     impl RoamingAccountingPolicyTrait for Test {
@@ -208,15 +207,11 @@ mod tests {
     }
     impl RoamingBillingPolicyTrait for Test {
         type Event = ();
-        type RoamingBillingPolicyFrequencyInDays = u64;
         type RoamingBillingPolicyIndex = u64;
-        type RoamingBillingPolicyNextBillingAt = u64;
     }
     impl RoamingChargingPolicyTrait for Test {
         type Event = ();
-        type RoamingChargingPolicyDelayAfterBillingInDays = u64;
         type RoamingChargingPolicyIndex = u64;
-        type RoamingChargingPolicyNextChargingAt = u64;
     }
     impl RoamingNetworkProfileTrait for Test {
         type Event = ();
@@ -402,7 +397,7 @@ mod tests {
                 RoamingAgreementPolicyTestModule::roaming_agreement_policy_configs(0),
                 Some(RoamingAgreementPolicyConfig {
                     policy_activation_type: b"passive".to_vec(),
-                    policy_expiry: 2019,
+                    policy_expiry_block: 2019,
                 })
             );
 
@@ -488,8 +483,8 @@ mod tests {
             assert_eq!(
                 RoamingBillingPolicyTestModule::roaming_billing_policy_configs(0),
                 Some(RoamingBillingPolicyConfig {
-                    policy_next_billing_at: 102020,
-                    policy_frequency_in_days: 30,
+                    policy_next_billing_at_block: 102020,
+                    policy_frequency_in_blocks: 30,
                 })
             );
 
@@ -528,8 +523,8 @@ mod tests {
             assert_eq!(
                 RoamingChargingPolicyTestModule::roaming_charging_policy_configs(0),
                 Some(RoamingChargingPolicyConfig {
-                    policy_next_charging_at: 102020,
-                    policy_delay_after_billing_in_days: 7,
+                    policy_next_charging_at_block: 102020,
+                    policy_delay_after_billing_in_blocks: 7,
                 })
             );
 

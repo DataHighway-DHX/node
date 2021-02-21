@@ -59,12 +59,6 @@ pub trait Trait:
         + Bounded
         + Default
         + Copy;
-    type MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed: Parameter
-        + Member
-        + AtLeast32Bit
-        + Bounded
-        + Default
-        + Copy;
 }
 
 // type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
@@ -78,7 +72,7 @@ pub struct MiningSpeedBoostLodgementsHardwareMining(pub [u8; 16]);
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
 pub struct MiningSpeedBoostLodgementsHardwareMiningLodgementResult<U, V> {
     pub hardware_claim_amount: U,
-    pub hardware_claim_date_redeemed: V,
+    pub hardware_claim_block_redeemed: V,
 }
 
 decl_event!(
@@ -86,8 +80,8 @@ decl_event!(
         <T as frame_system::Trait>::AccountId,
         <T as Trait>::MiningSpeedBoostLodgementsHardwareMiningIndex,
         <T as Trait>::MiningSpeedBoostLodgementsHardwareMiningLodgementAmount,
-        <T as Trait>::MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed,
         <T as mining_speed_boosts_configuration_hardware_mining::Trait>::MiningSpeedBoostConfigurationHardwareMiningIndex,
+        <T as frame_system::Trait>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
         /// A mining_speed_boosts_lodgements_hardware_mining is created. (owner, mining_speed_boosts_lodgements_hardware_mining_id)
@@ -96,11 +90,11 @@ decl_event!(
         Transferred(AccountId, AccountId, MiningSpeedBoostLodgementsHardwareMiningIndex),
         MiningSpeedBoostLodgementsHardwareMiningLodgementResultSet(
             AccountId, MiningSpeedBoostConfigurationHardwareMiningIndex, MiningSpeedBoostLodgementsHardwareMiningIndex,
-            MiningSpeedBoostLodgementsHardwareMiningLodgementAmount, MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed
+            MiningSpeedBoostLodgementsHardwareMiningLodgementAmount, BlockNumber
         ),
         /// A mining_speed_boosts_lodgements_hardware_mining is assigned to an mining_speed_boosts_hardware_mining.
         /// (owner of mining_speed_boosts_hardware_mining, mining_speed_boosts_lodgements_hardware_mining_id, mining_speed_boosts_configuration_hardware_mining_id)
-            AssignedHardwareMiningLodgementToConfiguration(AccountId, MiningSpeedBoostLodgementsHardwareMiningIndex, MiningSpeedBoostConfigurationHardwareMiningIndex),
+        AssignedHardwareMiningLodgementToConfiguration(AccountId, MiningSpeedBoostLodgementsHardwareMiningIndex, MiningSpeedBoostConfigurationHardwareMiningIndex),
     }
 );
 
@@ -120,7 +114,7 @@ decl_storage! {
         pub MiningSpeedBoostLodgementsHardwareMiningLodgementResults get(fn mining_speed_boosts_lodgements_hardware_mining_lodgements_results): map hasher(opaque_blake2_256) (T::MiningSpeedBoostConfigurationHardwareMiningIndex, T::MiningSpeedBoostLodgementsHardwareMiningIndex) =>
             Option<MiningSpeedBoostLodgementsHardwareMiningLodgementResult<
                 T::MiningSpeedBoostLodgementsHardwareMiningLodgementAmount,
-                T::MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed
+                T::BlockNumber
             >>;
 
         /// Get mining_speed_boosts_configuration_hardware_mining_id belonging to a mining_speed_boosts_lodgements_hardware_mining_id
@@ -187,7 +181,7 @@ decl_module! {
             mining_speed_boosts_lodgements_hardware_mining_id: T::MiningSpeedBoostLodgementsHardwareMiningIndex,
             _hardware_claim_amount: Option<T::MiningSpeedBoostLodgementsHardwareMiningLodgementAmount>,
             // FIXME - the date should be generated without the extrinsic itself, not passed as an argument like this
-            _hardware_claim_date_redeemed: Option<T::MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed>,
+            _hardware_claim_block_redeemed: Option<T::BlockNumber>,
         ) {
             let sender = ensure_signed(origin)?;
 
@@ -203,7 +197,7 @@ decl_module! {
                 Some(value) => value,
                 None => 1.into() // Default
             };
-            let hardware_claim_date_redeemed = match _hardware_claim_date_redeemed {
+            let hardware_claim_block_redeemed = match _hardware_claim_block_redeemed {
                 Some(value) => value,
                 None => 1.into() // Default
             };
@@ -216,14 +210,14 @@ decl_module! {
                     if let Some(_mining_speed_boosts_lodgements_hardware_mining_lodgements_result) = mining_speed_boosts_lodgements_hardware_mining_lodgements_result {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
                         _mining_speed_boosts_lodgements_hardware_mining_lodgements_result.hardware_claim_amount = hardware_claim_amount.clone();
-                        _mining_speed_boosts_lodgements_hardware_mining_lodgements_result.hardware_claim_date_redeemed = hardware_claim_date_redeemed.clone();
+                        _mining_speed_boosts_lodgements_hardware_mining_lodgements_result.hardware_claim_block_redeemed = hardware_claim_block_redeemed.clone();
                     }
                 });
                 debug::info!("Checking mutated values");
                 let fetched_mining_speed_boosts_lodgements_hardware_mining_lodgements_result = <MiningSpeedBoostLodgementsHardwareMiningLodgementResults<T>>::get((mining_speed_boosts_configuration_hardware_mining_id, mining_speed_boosts_lodgements_hardware_mining_id));
                 if let Some(_mining_speed_boosts_lodgements_hardware_mining_lodgements_result) = fetched_mining_speed_boosts_lodgements_hardware_mining_lodgements_result {
                     debug::info!("Latest field hardware_claim_amount {:#?}", _mining_speed_boosts_lodgements_hardware_mining_lodgements_result.hardware_claim_amount);
-                    debug::info!("Latest field hardware_claim_date_redeemed {:#?}", _mining_speed_boosts_lodgements_hardware_mining_lodgements_result.hardware_claim_date_redeemed);
+                    debug::info!("Latest field hardware_claim_block_redeemed {:#?}", _mining_speed_boosts_lodgements_hardware_mining_lodgements_result.hardware_claim_block_redeemed);
                 }
             } else {
                 debug::info!("Inserting values");
@@ -233,7 +227,7 @@ decl_module! {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     hardware_claim_amount: hardware_claim_amount.clone(),
-                    hardware_claim_date_redeemed: hardware_claim_date_redeemed.clone(),
+                    hardware_claim_block_redeemed: hardware_claim_block_redeemed.clone(),
                 };
 
                 <MiningSpeedBoostLodgementsHardwareMiningLodgementResults<T>>::insert(
@@ -245,7 +239,7 @@ decl_module! {
                 let fetched_mining_speed_boosts_lodgements_hardware_mining_lodgements_result = <MiningSpeedBoostLodgementsHardwareMiningLodgementResults<T>>::get((mining_speed_boosts_configuration_hardware_mining_id, mining_speed_boosts_lodgements_hardware_mining_id));
                 if let Some(_mining_speed_boosts_lodgements_hardware_mining_lodgements_result) = fetched_mining_speed_boosts_lodgements_hardware_mining_lodgements_result {
                     debug::info!("Inserted field hardware_claim_amount {:#?}", _mining_speed_boosts_lodgements_hardware_mining_lodgements_result.hardware_claim_amount);
-                    debug::info!("Inserted field hardware_claim_date_redeemed {:#?}", _mining_speed_boosts_lodgements_hardware_mining_lodgements_result.hardware_claim_date_redeemed);
+                    debug::info!("Inserted field hardware_claim_block_redeemed {:#?}", _mining_speed_boosts_lodgements_hardware_mining_lodgements_result.hardware_claim_block_redeemed);
                 }
             }
 
@@ -254,7 +248,7 @@ decl_module! {
                 mining_speed_boosts_configuration_hardware_mining_id,
                 mining_speed_boosts_lodgements_hardware_mining_id,
                 hardware_claim_amount,
-                hardware_claim_date_redeemed,
+                hardware_claim_block_redeemed,
             ));
         }
 

@@ -59,12 +59,6 @@ pub trait Trait:
         + Bounded
         + Default
         + Copy;
-    type MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed: Parameter
-        + Member
-        + AtLeast32Bit
-        + Bounded
-        + Default
-        + Copy;
 }
 
 // type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
@@ -78,7 +72,7 @@ pub struct MiningSpeedBoostLodgementsTokenMining(pub [u8; 16]);
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
 pub struct MiningSpeedBoostLodgementsTokenMiningLodgementResult<U, V> {
     pub token_claim_amount: U,
-    pub token_claim_date_redeemed: V,
+    pub token_claim_block_redeemed: V,
 }
 
 decl_event!(
@@ -86,8 +80,8 @@ decl_event!(
         <T as frame_system::Trait>::AccountId,
         <T as Trait>::MiningSpeedBoostLodgementsTokenMiningIndex,
         <T as Trait>::MiningSpeedBoostLodgementsTokenMiningLodgementAmount,
-        <T as Trait>::MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed,
         <T as mining_speed_boosts_configuration_token_mining::Trait>::MiningSpeedBoostConfigurationTokenMiningIndex,
+        <T as frame_system::Trait>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
         /// A mining_speed_boosts_lodgements_token_mining is created. (owner, mining_speed_boosts_lodgements_token_mining_id)
@@ -96,11 +90,11 @@ decl_event!(
         Transferred(AccountId, AccountId, MiningSpeedBoostLodgementsTokenMiningIndex),
         MiningSpeedBoostLodgementsTokenMiningLodgementResultSet(
             AccountId, MiningSpeedBoostConfigurationTokenMiningIndex, MiningSpeedBoostLodgementsTokenMiningIndex,
-            MiningSpeedBoostLodgementsTokenMiningLodgementAmount, MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed
+            MiningSpeedBoostLodgementsTokenMiningLodgementAmount, BlockNumber
         ),
         /// A mining_speed_boosts_lodgements_token_mining is assigned to an mining_speed_boosts_token_mining.
         /// (owner of mining_speed_boosts_token_mining, mining_speed_boosts_lodgements_token_mining_id, mining_speed_boosts_configuration_token_mining_id)
-            AssignedTokenMiningLodgementToConfiguration(AccountId, MiningSpeedBoostLodgementsTokenMiningIndex, MiningSpeedBoostConfigurationTokenMiningIndex),
+        AssignedTokenMiningLodgementToConfiguration(AccountId, MiningSpeedBoostLodgementsTokenMiningIndex, MiningSpeedBoostConfigurationTokenMiningIndex),
     }
 );
 
@@ -120,7 +114,7 @@ decl_storage! {
         pub MiningSpeedBoostLodgementsTokenMiningLodgementResults get(fn mining_speed_boosts_lodgements_token_mining_lodgements_results): map hasher(opaque_blake2_256) (T::MiningSpeedBoostConfigurationTokenMiningIndex, T::MiningSpeedBoostLodgementsTokenMiningIndex) =>
             Option<MiningSpeedBoostLodgementsTokenMiningLodgementResult<
                 T::MiningSpeedBoostLodgementsTokenMiningLodgementAmount,
-                T::MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed
+                T::BlockNumber
             >>;
 
         /// Get mining_speed_boosts_configuration_token_mining_id belonging to a mining_speed_boosts_lodgements_token_mining_id
@@ -192,19 +186,18 @@ decl_module! {
 
             // Check that the extrinsic call is made after the end date defined in the provided configuration
 
-            // FIXME - add system time now
-            let time_now = 123.into();
-            // Get the config associated with the given configuration_token_mining
-            if let Some(configuration_token_mining_config) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_configs(mining_speed_boosts_configuration_token_mining_id) {
-              if let _token_lock_period_end_date = configuration_token_mining_config.token_lock_period_end_date {
-                // FIXME - get this to work when add system time
-                // ensure!(time_now > token_lock_period_end_date, "Lodgement may not be made until after the end date of the lock period");
-              } else {
-                return Err(DispatchError::Other("Cannot find token_mining_config end_date associated with the claim"));
-              }
-            } else {
-              return Err(DispatchError::Other("Cannot find token_mining_config associated with the claim"));
-            }
+            // FIXME
+            // let current_block = <frame_system::Module<T>>::block_number();
+            // // Get the config associated with the given configuration_token_mining
+            // if let Some(configuration_token_mining_config) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_configs(mining_speed_boosts_configuration_token_mining_id) {
+            //   if let _token_lock_interval_blocks = configuration_token_mining_config.token_lock_interval_blocks {
+            //     ensure!(current_block > _token_lock_interval_blocks, "Lodgement may not be made until after the end of the lock interval");
+            // } else {
+            //     return Err(DispatchError::Other("Cannot find token_mining_config end block associated with the claim"));
+            //   }
+            // } else {
+            //   return Err(DispatchError::Other("Cannot find token_mining_config associated with the claim"));
+            // }
 
             // Check that the provided eligibility amount has not already been claimed
             // i.e. there should only be a single claim instance for each configuration and eligibility in the MVP
@@ -216,9 +209,9 @@ decl_module! {
 
             // Record the claim associated with their configuration/eligibility
             let token_claim_amount: T::MiningSpeedBoostLodgementsTokenMiningLodgementAmount = 0.into();
-            let token_claim_date_redeemed: T::MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = time_now;
+            let token_claim_block_redeemed: T::BlockNumber = <frame_system::Module<T>>::block_number();
             if let Some(eligibility_token_mining) = <mining_speed_boosts_eligibility_token_mining::Module<T>>::mining_speed_boosts_eligibility_token_mining_eligibility_results((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_eligibility_token_mining_id)) {
-              if let token_mining_calculated_eligibility = eligibility_token_mining.eligibility_token_mining_calculated_eligibility {
+              if let token_mining_calculated_eligibility = eligibility_token_mining.token_calculated_eligibility {
                 ensure!(token_mining_calculated_eligibility > 0.into(), "Calculated eligibility is zero. Nothing to claim.");
                 // FIXME - unable to figure out how to cast here!
                 // token_claim_amount = (token_mining_calculated_eligibility as T::MiningSpeedBoostLodgementsTokenMiningLodgementAmount).clone();
@@ -237,14 +230,14 @@ decl_module! {
                     if let Some(_mining_speed_boosts_lodgements_token_mining_lodgements_result) = mining_speed_boosts_lodgements_token_mining_lodgements_result {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
                         _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_amount = token_claim_amount.clone();
-                        _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_date_redeemed = token_claim_date_redeemed.clone();
+                        _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_block_redeemed = token_claim_block_redeemed.clone();
                     }
                 });
                 debug::info!("Checking mutated values");
                 let fetched_mining_speed_boosts_lodgements_token_mining_lodgements_result = <MiningSpeedBoostLodgementsTokenMiningLodgementResults<T>>::get((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_lodgements_token_mining_id));
                 if let Some(_mining_speed_boosts_lodgements_token_mining_lodgements_result) = fetched_mining_speed_boosts_lodgements_token_mining_lodgements_result {
                     debug::info!("Latest field token_claim_amount {:#?}", _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_amount);
-                    debug::info!("Latest field token_claim_date_redeemed {:#?}", _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_date_redeemed);
+                    debug::info!("Latest field token_claim_block_redeemed {:#?}", _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_block_redeemed);
                 }
             } else {
                 debug::info!("Inserting values");
@@ -254,7 +247,7 @@ decl_module! {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     token_claim_amount: token_claim_amount.clone(),
-                    token_claim_date_redeemed: token_claim_date_redeemed.clone(),
+                    token_claim_block_redeemed: token_claim_block_redeemed.clone(),
                 };
 
                 <MiningSpeedBoostLodgementsTokenMiningLodgementResults<T>>::insert(
@@ -266,7 +259,7 @@ decl_module! {
                 let fetched_mining_speed_boosts_lodgements_token_mining_lodgements_result = <MiningSpeedBoostLodgementsTokenMiningLodgementResults<T>>::get((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_lodgements_token_mining_id));
                 if let Some(_mining_speed_boosts_lodgements_token_mining_lodgements_result) = fetched_mining_speed_boosts_lodgements_token_mining_lodgements_result {
                     debug::info!("Inserted field token_claim_amount {:#?}", _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_amount);
-                    debug::info!("Inserted field token_claim_date_redeemed {:#?}", _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_date_redeemed);
+                    debug::info!("Inserted field token_claim_block_redeemed {:#?}", _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_block_redeemed);
                 }
             }
 
@@ -275,7 +268,7 @@ decl_module! {
             //     mining_speed_boosts_configuration_token_mining_id,
             //     mining_speed_boosts_lodgements_token_mining_id,
             //     token_claim_amount,
-            //     token_claim_date_redeemed,
+            //     token_claim_block_redeemed,
             // ));
 
             // After the claim is stored, then if the user wins a proportion of the block reward
@@ -291,7 +284,7 @@ decl_module! {
             mining_speed_boosts_eligibility_token_mining_id: T::MiningSpeedBoostEligibilityTokenMiningIndex,
             mining_speed_boosts_lodgements_token_mining_id: T::MiningSpeedBoostLodgementsTokenMiningIndex,
             _token_claim_amount: Option<T::MiningSpeedBoostLodgementsTokenMiningLodgementAmount>,
-            _token_claim_date_redeemed: Option<T::MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed>,
+            _token_claim_block_redeemed: Option<T::BlockNumber>,
         ) {
             let sender = ensure_signed(origin)?;
 
@@ -307,9 +300,9 @@ decl_module! {
                 Some(value) => value,
                 None => 1.into() // Default
             };
-            let token_claim_date_redeemed = match _token_claim_date_redeemed {
+            let token_claim_block_redeemed = match _token_claim_block_redeemed {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => <frame_system::Module<T>>::block_number()
             };
 
             // Check if a mining_speed_boosts_lodgements_token_mining_lodgements_result already exists with the given mining_speed_boosts_lodgements_token_mining_id
@@ -320,14 +313,14 @@ decl_module! {
                     if let Some(_mining_speed_boosts_lodgements_token_mining_lodgements_result) = mining_speed_boosts_lodgements_token_mining_lodgements_result {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
                         _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_amount = token_claim_amount.clone();
-                        _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_date_redeemed = token_claim_date_redeemed.clone();
+                        _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_block_redeemed = token_claim_block_redeemed.clone();
                     }
                 });
                 debug::info!("Checking mutated values");
                 let fetched_mining_speed_boosts_lodgements_token_mining_lodgements_result = <MiningSpeedBoostLodgementsTokenMiningLodgementResults<T>>::get((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_lodgements_token_mining_id));
                 if let Some(_mining_speed_boosts_lodgements_token_mining_lodgements_result) = fetched_mining_speed_boosts_lodgements_token_mining_lodgements_result {
                     debug::info!("Latest field token_claim_amount {:#?}", _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_amount);
-                    debug::info!("Latest field token_claim_date_redeemed {:#?}", _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_date_redeemed);
+                    debug::info!("Latest field token_claim_block_redeemed {:#?}", _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_block_redeemed);
                 }
             } else {
                 debug::info!("Inserting values");
@@ -337,7 +330,7 @@ decl_module! {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     token_claim_amount: token_claim_amount.clone(),
-                    token_claim_date_redeemed: token_claim_date_redeemed.clone(),
+                    token_claim_block_redeemed: token_claim_block_redeemed.clone(),
                 };
 
                 <MiningSpeedBoostLodgementsTokenMiningLodgementResults<T>>::insert(
@@ -349,7 +342,7 @@ decl_module! {
                 let fetched_mining_speed_boosts_lodgements_token_mining_lodgements_result = <MiningSpeedBoostLodgementsTokenMiningLodgementResults<T>>::get((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_lodgements_token_mining_id));
                 if let Some(_mining_speed_boosts_lodgements_token_mining_lodgements_result) = fetched_mining_speed_boosts_lodgements_token_mining_lodgements_result {
                     debug::info!("Inserted field token_claim_amount {:#?}", _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_amount);
-                    debug::info!("Inserted field token_claim_date_redeemed {:#?}", _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_date_redeemed);
+                    debug::info!("Inserted field token_claim_block_redeemed {:#?}", _mining_speed_boosts_lodgements_token_mining_lodgements_result.token_claim_block_redeemed);
                 }
             }
 
@@ -358,7 +351,7 @@ decl_module! {
                 mining_speed_boosts_configuration_token_mining_id,
                 mining_speed_boosts_lodgements_token_mining_id,
                 token_claim_amount,
-                token_claim_date_redeemed,
+                token_claim_block_redeemed,
             ));
         }
 

@@ -57,18 +57,6 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
         + Bounded
         + Default
         + Copy;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate: Parameter
-        + Member
-        + AtLeast32Bit
-        + Bounded
-        + Default
-        + Copy;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate: Parameter
-        + Member
-        + AtLeast32Bit
-        + Bounded
-        + Default
-        + Copy;
     // // Mining Speed Boost Reward
     // type MiningSpeedBoostLodgementAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     // type MiningSpeedBoostLodgementDateRedeemed: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
@@ -88,8 +76,8 @@ pub struct MiningSpeedBoostConfigurationHardwareMiningHardwareConfig<U, V, W, X,
     pub hardware_type: V,
     pub hardware_id: W,
     pub hardware_dev_eui: X,
-    pub hardware_lock_period_start_date: Y,
-    pub hardware_lock_period_end_date: Z,
+    pub hardware_lock_start_block: Y,
+    pub hardware_lock_interval_blocks: Z,
 }
 
 decl_event!(
@@ -100,8 +88,7 @@ decl_event!(
         <T as Trait>::MiningSpeedBoostConfigurationHardwareMiningHardwareType,
         <T as Trait>::MiningSpeedBoostConfigurationHardwareMiningHardwareID,
         <T as Trait>::MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI,
-        <T as Trait>::MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate,
-        <T as Trait>::MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate,
+        <T as frame_system::Trait>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
         /// A mining_speed_boosts_configuration_hardware_mining is created. (owner, mining_speed_boosts_configuration_hardware_mining_id)
@@ -111,8 +98,7 @@ decl_event!(
         MiningSpeedBoostConfigurationHardwareMiningHardwareConfigSet(
           AccountId, MiningSpeedBoostConfigurationHardwareMiningIndex, MiningSpeedBoostConfigurationHardwareMiningHardwareSecure,
           MiningSpeedBoostConfigurationHardwareMiningHardwareType, MiningSpeedBoostConfigurationHardwareMiningHardwareID,
-          MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI, MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate,
-          MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate
+          MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI, BlockNumber, BlockNumber
         ),
     }
 );
@@ -132,8 +118,8 @@ decl_storage! {
         /// Stores mining_speed_boosts_configuration_hardware_mining_hardware_config
         pub MiningSpeedBoostConfigurationHardwareMiningHardwareConfigs get(fn mining_speed_boosts_configuration_hardware_mining_hardware_configs): map hasher(opaque_blake2_256) T::MiningSpeedBoostConfigurationHardwareMiningIndex =>
             Option<MiningSpeedBoostConfigurationHardwareMiningHardwareConfig<T::MiningSpeedBoostConfigurationHardwareMiningHardwareSecure, T::MiningSpeedBoostConfigurationHardwareMiningHardwareType,
-                T::MiningSpeedBoostConfigurationHardwareMiningHardwareID, T::MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI, T::MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate,
-                T::MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate>>;
+                T::MiningSpeedBoostConfigurationHardwareMiningHardwareID, T::MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI, T::BlockNumber,
+                T::BlockNumber>>;
     }
 }
 
@@ -180,8 +166,8 @@ decl_module! {
             _hardware_type: Option<T::MiningSpeedBoostConfigurationHardwareMiningHardwareType>,
             _hardware_id: Option<T::MiningSpeedBoostConfigurationHardwareMiningHardwareID>,
             _hardware_dev_eui: Option<T::MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI>,
-            _hardware_lock_period_start_date: Option<T::MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate>,
-            _hardware_lock_period_end_date: Option<T::MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate>,
+            _hardware_lock_start_block: Option<T::BlockNumber>,
+            _hardware_lock_interval_blocks: Option<T::BlockNumber>,
         ) {
             let sender = ensure_signed(origin)?;
 
@@ -210,11 +196,11 @@ decl_module! {
                 Some(value) => value,
                 None => Default::default() // Default
             };
-            let hardware_lock_period_start_date = match _hardware_lock_period_start_date {
+            let hardware_lock_start_block = match _hardware_lock_start_block {
                 Some(value) => value,
                 None => Default::default() // Default
             };
-            let hardware_lock_period_end_date = match _hardware_lock_period_end_date {
+            let hardware_lock_interval_blocks = match _hardware_lock_interval_blocks {
                 Some(value) => value,
                 None => Default::default() // Default
             };
@@ -231,8 +217,8 @@ decl_module! {
                         _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_type = hardware_type.clone();
                         _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_id = hardware_id.clone();
                         _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_dev_eui = hardware_dev_eui.clone();
-                        _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_lock_period_start_date = hardware_lock_period_start_date.clone();
-                        _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_lock_period_end_date = hardware_lock_period_end_date.clone();
+                        _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_lock_start_block = hardware_lock_start_block.clone();
+                        _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_lock_interval_blocks = hardware_lock_interval_blocks.clone();
                     }
                 });
                 debug::info!("Checking mutated values");
@@ -242,8 +228,8 @@ decl_module! {
                     debug::info!("Latest field hardware_type {:#?}", _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_type);
                     debug::info!("Latest field hardware_id {:#?}", _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_id);
                     debug::info!("Latest field hardware_dev_eui {:#?}", _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_dev_eui);
-                    debug::info!("Latest field hardware_lock_period_start_date {:#?}", _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_lock_period_start_date);
-                    debug::info!("Latest field hardware_lock_period_end_date {:#?}", _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_lock_period_end_date);
+                    debug::info!("Latest field hardware_lock_start_block {:#?}", _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_lock_start_block);
+                    debug::info!("Latest field hardware_lock_interval_blocks {:#?}", _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_lock_interval_blocks);
                 }
             } else {
                 debug::info!("Inserting values");
@@ -256,8 +242,8 @@ decl_module! {
                     hardware_type: hardware_type.clone(),
                     hardware_id: hardware_id.clone(),
                     hardware_dev_eui: hardware_dev_eui.clone(),
-                    hardware_lock_period_start_date: hardware_lock_period_start_date.clone(),
-                    hardware_lock_period_end_date: hardware_lock_period_end_date.clone(),
+                    hardware_lock_start_block: hardware_lock_start_block.clone(),
+                    hardware_lock_interval_blocks: hardware_lock_interval_blocks.clone(),
                 };
 
                 <MiningSpeedBoostConfigurationHardwareMiningHardwareConfigs<T>>::insert(
@@ -272,8 +258,8 @@ decl_module! {
                     debug::info!("Inserted field hardware_type {:#?}", _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_type);
                     debug::info!("Inserted field hardware_id {:#?}", _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_id);
                     debug::info!("Inserted field hardware_dev_eui {:#?}", _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_dev_eui);
-                    debug::info!("Inserted field hardware_lock_period_start_date {:#?}", _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_lock_period_start_date);
-                    debug::info!("Inserted field hardware_lock_period_end_date {:#?}", _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_lock_period_end_date);
+                    debug::info!("Inserted field hardware_lock_start_block {:#?}", _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_lock_start_block);
+                    debug::info!("Inserted field hardware_lock_interval_blocks {:#?}", _mining_speed_boosts_configuration_hardware_mining_hardware_config.hardware_lock_interval_blocks);
                 }
             }
 
@@ -284,8 +270,8 @@ decl_module! {
                 hardware_type,
                 hardware_id,
                 hardware_dev_eui,
-                hardware_lock_period_start_date,
-                hardware_lock_period_end_date,
+                hardware_lock_start_block,
+                hardware_lock_interval_blocks,
             ));
         }
     }

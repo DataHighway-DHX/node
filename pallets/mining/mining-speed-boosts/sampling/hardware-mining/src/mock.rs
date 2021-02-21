@@ -96,8 +96,6 @@ impl mining_speed_boosts_configuration_hardware_mining::Trait for Test {
     // type MiningSpeedBoostConfigurationHardwareMiningHardwareType =
     // MiningSpeedBoostConfigurationHardwareMiningHardwareTypes;
     type MiningSpeedBoostConfigurationHardwareMiningHardwareID = u64;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate = u64;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate = u64;
     // Mining Speed Boost Hardware Mining Config
     type MiningSpeedBoostConfigurationHardwareMiningHardwareSecure = bool;
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
@@ -110,7 +108,6 @@ impl mining_speed_boosts_configuration_hardware_mining::Trait for Test {
 impl Trait for Test {
     type Event = ();
     type MiningSpeedBoostSamplingHardwareMiningIndex = u64;
-    type MiningSpeedBoostSamplingHardwareMiningSampleDate = u64;
     type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
 }
 type System = frame_system::Module<Test>;

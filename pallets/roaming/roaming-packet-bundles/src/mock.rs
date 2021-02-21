@@ -108,19 +108,14 @@ impl roaming_devices::Trait for Test {
 impl roaming_sessions::Trait for Test {
     type Event = ();
     type RoamingSessionIndex = u64;
-    type RoamingSessionJoinRequestAcceptAcceptedAt = u64;
-    type RoamingSessionJoinRequestAcceptExpiry = u64;
-    type RoamingSessionJoinRequestRequestedAt = u64;
 }
 impl Trait for Test {
     type Event = ();
     type RoamingPacketBundleExternalDataStorageHash = H256;
     type RoamingPacketBundleIndex = u64;
     type RoamingPacketBundleReceivedAtHome = bool;
-    type RoamingPacketBundleReceivedEndedAt = u64;
     type RoamingPacketBundleReceivedPacketsCount = u64;
     type RoamingPacketBundleReceivedPacketsOkCount = u64;
-    type RoamingPacketBundleReceivedStartedAt = u64;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;

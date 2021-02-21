@@ -52,8 +52,6 @@ pub trait Trait:
     type RoamingPacketBundleReceivedAtHome: Parameter + Member + Default;
     type RoamingPacketBundleReceivedPacketsCount: Parameter + Member + Default;
     type RoamingPacketBundleReceivedPacketsOkCount: Parameter + Member + Default;
-    type RoamingPacketBundleReceivedStartedAt: Parameter + Member + Default;
-    type RoamingPacketBundleReceivedEndedAt: Parameter + Member + Default;
     type RoamingPacketBundleExternalDataStorageHash: Parameter + Member + Default;
 }
 
@@ -71,8 +69,8 @@ pub struct RoamingPacketBundleReceiver<U, V, W, X, Y, Z> {
     packet_bundle_received_at_home: U,
     packet_bundle_received_packets_count: V,
     packet_bundle_received_packets_ok_count: W,
-    packet_bundle_received_started_at: X,
-    packet_bundle_received_ended_at: Y,
+    packet_bundle_received_started_at_block: X,
+    packet_bundle_received_ended_at_block: Y,
     packet_bundle_external_data_storage_hash: Z,
 }
 
@@ -83,14 +81,13 @@ decl_event!(
         <T as Trait>::RoamingPacketBundleReceivedAtHome,
         <T as Trait>::RoamingPacketBundleReceivedPacketsCount,
         <T as Trait>::RoamingPacketBundleReceivedPacketsOkCount,
-        <T as Trait>::RoamingPacketBundleReceivedStartedAt,
-        <T as Trait>::RoamingPacketBundleReceivedEndedAt,
         <T as Trait>::RoamingPacketBundleExternalDataStorageHash,
         // <T as roaming_devices::Trait>::RoamingDeviceIndex,
         <T as roaming_sessions::Trait>::RoamingSessionIndex,
         <T as roaming_network_servers::Trait>::RoamingNetworkServerIndex,
         // <T as roaming_operators::Trait>::RoamingOperatorIndex,
         Balance = BalanceOf<T>,
+        <T as frame_system::Trait>::BlockNumber,
     {
         /// A roaming packet_bundle is created. (owner, roaming_packet_bundle_id)
         Created(AccountId, RoamingPacketBundleIndex),
@@ -104,8 +101,8 @@ decl_event!(
         // RoamingPacketBundleReceiverSet(AccountId, RoamingPacketBundleIndex, RoamingPacketBundleNextBillingAt, RoamingPacketBundleFrequencyInDays),
         /// A roaming packet_bundle receiver was set
         RoamingPacketBundleReceiverSet(AccountId, RoamingPacketBundleIndex, RoamingNetworkServerIndex, RoamingPacketBundleReceivedAtHome,
-            RoamingPacketBundleReceivedPacketsCount, RoamingPacketBundleReceivedPacketsOkCount, RoamingPacketBundleReceivedStartedAt,
-            RoamingPacketBundleReceivedEndedAt, RoamingPacketBundleExternalDataStorageHash),
+            RoamingPacketBundleReceivedPacketsCount, RoamingPacketBundleReceivedPacketsOkCount, BlockNumber,
+            BlockNumber, RoamingPacketBundleExternalDataStorageHash),
         // /// A roaming packet_bundle is assigned to a operator. (owner of session, roaming_packet_bundle_id, roaming_operator_id)
         // AssignedPacketBundleToOperator(AccountId, RoamingPacketBundleIndex, RoamingOperatorIndex),
         /// A roaming packet_bundle is assigned to a session. (owner of session, roaming_packet_bundle_id, roaming_session_id)
@@ -137,8 +134,8 @@ decl_storage! {
                 T::RoamingPacketBundleReceivedAtHome,
                 T::RoamingPacketBundleReceivedPacketsCount,
                 T::RoamingPacketBundleReceivedPacketsOkCount,
-                T::RoamingPacketBundleReceivedStartedAt,
-                T::RoamingPacketBundleReceivedEndedAt,
+                T::BlockNumber,
+                T::BlockNumber,
                 T::RoamingPacketBundleExternalDataStorageHash
             >>;
 
@@ -227,8 +224,8 @@ decl_module! {
             _packet_bundle_received_at_home: Option<T::RoamingPacketBundleReceivedAtHome>,
             _packet_bundle_received_packets_count: Option<T::RoamingPacketBundleReceivedPacketsCount>,
             _packet_bundle_received_packets_ok_count: Option<T::RoamingPacketBundleReceivedPacketsOkCount>,
-            _packet_bundle_received_started_at: Option<T::RoamingPacketBundleReceivedStartedAt>,
-            _packet_bundle_received_ended_at: Option<T::RoamingPacketBundleReceivedEndedAt>,
+            _packet_bundle_received_started_at_block: Option<T::BlockNumber>,
+            _packet_bundle_received_ended_at_block: Option<T::BlockNumber>,
             _packet_bundle_external_data_storage_hash: Option<T::RoamingPacketBundleExternalDataStorageHash>,
         ) {
             let sender = ensure_signed(origin)?;
@@ -263,11 +260,11 @@ decl_module! {
                 Some(value) => value,
                 None => Default::default()
             };
-            let packet_bundle_received_started_at = match _packet_bundle_received_started_at {
+            let packet_bundle_received_started_at_block = match _packet_bundle_received_started_at_block {
                 Some(value) => value,
                 None => Default::default()
             };
-            let packet_bundle_received_ended_at = match _packet_bundle_received_ended_at {
+            let packet_bundle_received_ended_at_block = match _packet_bundle_received_ended_at_block {
                 Some(value) => value,
                 None => Default::default()
             };
@@ -286,8 +283,8 @@ decl_module! {
                         _packet_bundle_receiver.packet_bundle_received_at_home = packet_bundle_received_at_home.clone();
                         _packet_bundle_receiver.packet_bundle_received_packets_count = packet_bundle_received_packets_count.clone();
                         _packet_bundle_receiver.packet_bundle_received_packets_ok_count = packet_bundle_received_packets_ok_count.clone();
-                        _packet_bundle_receiver.packet_bundle_received_started_at = packet_bundle_received_started_at.clone();
-                        _packet_bundle_receiver.packet_bundle_received_ended_at = packet_bundle_received_ended_at.clone();
+                        _packet_bundle_receiver.packet_bundle_received_started_at_block = packet_bundle_received_started_at_block.clone();
+                        _packet_bundle_receiver.packet_bundle_received_ended_at_block = packet_bundle_received_ended_at_block.clone();
                         _packet_bundle_receiver.packet_bundle_external_data_storage_hash = packet_bundle_external_data_storage_hash.clone();
                     }
                 });
@@ -297,8 +294,8 @@ decl_module! {
                     debug::info!("Latest field packet_bundle_received_at_home {:#?}", _packet_bundle_receiver.packet_bundle_received_at_home);
                     debug::info!("Latest field packet_bundle_received_packets_count {:#?}", _packet_bundle_receiver.packet_bundle_received_packets_count);
                     debug::info!("Latest field packet_bundle_received_packets_ok_count {:#?}", _packet_bundle_receiver.packet_bundle_received_packets_ok_count);
-                    debug::info!("Latest field packet_bundle_received_started_at {:#?}", _packet_bundle_receiver.packet_bundle_received_started_at);
-                    debug::info!("Latest field packet_bundle_received_ended_at {:#?}", _packet_bundle_receiver.packet_bundle_received_ended_at);
+                    debug::info!("Latest field packet_bundle_received_started_at_block {:#?}", _packet_bundle_receiver.packet_bundle_received_started_at_block);
+                    debug::info!("Latest field packet_bundle_received_ended_at_block {:#?}", _packet_bundle_receiver.packet_bundle_received_ended_at_block);
                     debug::info!("Latest field packet_bundle_external_data_storage_hash {:#?}", _packet_bundle_receiver.packet_bundle_external_data_storage_hash);
                 }
             } else {
@@ -311,8 +308,8 @@ decl_module! {
                     packet_bundle_received_at_home: packet_bundle_received_at_home.clone(),
                     packet_bundle_received_packets_count: packet_bundle_received_packets_count.clone(),
                     packet_bundle_received_packets_ok_count: packet_bundle_received_packets_ok_count.clone(),
-                    packet_bundle_received_started_at: packet_bundle_received_started_at.clone(),
-                    packet_bundle_received_ended_at: packet_bundle_received_ended_at.clone(),
+                    packet_bundle_received_started_at_block: packet_bundle_received_started_at_block.clone(),
+                    packet_bundle_received_ended_at_block: packet_bundle_received_ended_at_block.clone(),
                     packet_bundle_external_data_storage_hash: packet_bundle_external_data_storage_hash.clone()
                 };
 
@@ -327,8 +324,8 @@ decl_module! {
                     debug::info!("Inserted field packet_bundle_received_at_home {:#?}", _packet_bundle_receiver.packet_bundle_received_at_home);
                     debug::info!("Inserted field packet_bundle_received_packets_count {:#?}", _packet_bundle_receiver.packet_bundle_received_packets_count);
                     debug::info!("Inserted field packet_bundle_received_packets_ok_count {:#?}", _packet_bundle_receiver.packet_bundle_received_packets_ok_count);
-                    debug::info!("Inserted field packet_bundle_received_started_at {:#?}", _packet_bundle_receiver.packet_bundle_received_started_at);
-                    debug::info!("Inserted field packet_bundle_received_ended_at {:#?}", _packet_bundle_receiver.packet_bundle_received_ended_at);
+                    debug::info!("Inserted field packet_bundle_received_started_at_block {:#?}", _packet_bundle_receiver.packet_bundle_received_started_at_block);
+                    debug::info!("Inserted field packet_bundle_received_ended_at_block {:#?}", _packet_bundle_receiver.packet_bundle_received_ended_at_block);
                     debug::info!("Inserted field packet_bundle_external_data_storage_hash {:#?}", _packet_bundle_receiver.packet_bundle_external_data_storage_hash);
                 }
             }
@@ -340,8 +337,8 @@ decl_module! {
                 packet_bundle_received_at_home,
                 packet_bundle_received_packets_count,
                 packet_bundle_received_packets_ok_count,
-                packet_bundle_received_started_at,
-                packet_bundle_received_ended_at,
+                packet_bundle_received_started_at_block,
+                packet_bundle_received_ended_at_block,
                 packet_bundle_external_data_storage_hash
             ));
         }

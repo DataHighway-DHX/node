@@ -45,7 +45,6 @@ pub trait Trait:
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type MiningSpeedBoostSamplingHardwareMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSpeedBoostSamplingHardwareMiningSampleDate: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline: Parameter
         + Member
         + AtLeast32Bit
@@ -64,7 +63,7 @@ pub struct MiningSpeedBoostSamplingHardwareMining(pub [u8; 16]);
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
 pub struct MiningSpeedBoostSamplingHardwareMiningSamplingConfig<U, V> {
-    pub hardware_sample_date: U,
+    pub hardware_sample_block: U,
     pub hardware_sample_hardware_online: V,
 }
 
@@ -72,9 +71,9 @@ decl_event!(
     pub enum Event<T> where
         <T as frame_system::Trait>::AccountId,
         <T as Trait>::MiningSpeedBoostSamplingHardwareMiningIndex,
-        <T as Trait>::MiningSpeedBoostSamplingHardwareMiningSampleDate,
         <T as Trait>::MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline,
         <T as mining_speed_boosts_configuration_hardware_mining::Trait>::MiningSpeedBoostConfigurationHardwareMiningIndex,
+        <T as frame_system::Trait>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
         /// A mining_speed_boosts_sampling_hardware_mining is created. (owner, mining_speed_boosts_sampling_hardware_mining_id)
@@ -83,11 +82,11 @@ decl_event!(
         Transferred(AccountId, AccountId, MiningSpeedBoostSamplingHardwareMiningIndex),
         MiningSpeedBoostSamplingHardwareMiningSamplingConfigSet(
             AccountId, MiningSpeedBoostConfigurationHardwareMiningIndex, MiningSpeedBoostSamplingHardwareMiningIndex,
-            MiningSpeedBoostSamplingHardwareMiningSampleDate, MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline
+            BlockNumber, MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline
         ),
         /// A mining_speed_boosts_sampling_hardware_mining is assigned to an mining_speed_boosts_hardware_mining.
         /// (owner of mining_speed_boosts_hardware_mining, mining_speed_boosts_samplings_hardware_mining_id, mining_speed_boosts_configuration_hardware_mining_id)
-            AssignedHardwareMiningSamplingToConfiguration(AccountId, MiningSpeedBoostSamplingHardwareMiningIndex, MiningSpeedBoostConfigurationHardwareMiningIndex),
+        AssignedHardwareMiningSamplingToConfiguration(AccountId, MiningSpeedBoostSamplingHardwareMiningIndex, MiningSpeedBoostConfigurationHardwareMiningIndex),
     }
 );
 
@@ -106,7 +105,7 @@ decl_storage! {
         /// Stores mining_speed_boosts_samplings_hardware_mining_samplings_config
         pub MiningSpeedBoostSamplingHardwareMiningSamplingConfigs get(fn mining_speed_boosts_samplings_hardware_mining_samplings_configs): map hasher(opaque_blake2_256) (T::MiningSpeedBoostConfigurationHardwareMiningIndex, T::MiningSpeedBoostSamplingHardwareMiningIndex) =>
             Option<MiningSpeedBoostSamplingHardwareMiningSamplingConfig<
-                T::MiningSpeedBoostSamplingHardwareMiningSampleDate,
+                T::BlockNumber,
                 T::MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline
             >>;
 
@@ -158,7 +157,7 @@ decl_module! {
             origin,
             mining_speed_boosts_configuration_hardware_mining_id: T::MiningSpeedBoostConfigurationHardwareMiningIndex,
             mining_speed_boosts_samplings_hardware_mining_id: T::MiningSpeedBoostSamplingHardwareMiningIndex,
-            _hardware_sample_date: Option<T::MiningSpeedBoostSamplingHardwareMiningSampleDate>,
+            _hardware_sample_block: Option<T::BlockNumber>,
             _hardware_sample_hardware_online: Option<T::MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline>,
         ) {
             let sender = ensure_signed(origin)?;
@@ -171,7 +170,7 @@ decl_module! {
             ensure!(Self::mining_speed_boosts_samplings_hardware_mining_owner(mining_speed_boosts_samplings_hardware_mining_id) == Some(sender.clone()), "Only owner can set mining_speed_boosts_samplings_hardware_mining_samplings_config");
 
             // TODO - adjust default samplings
-            let hardware_sample_date = match _hardware_sample_date.clone() {
+            let hardware_sample_block = match _hardware_sample_block.clone() {
                 Some(value) => value,
                 None => 1.into() // Default
             };
@@ -187,14 +186,14 @@ decl_module! {
                 <MiningSpeedBoostSamplingHardwareMiningSamplingConfigs<T>>::mutate((mining_speed_boosts_configuration_hardware_mining_id, mining_speed_boosts_samplings_hardware_mining_id), |mining_speed_boosts_samplings_hardware_mining_samplings_config| {
                     if let Some(_mining_speed_boosts_samplings_hardware_mining_samplings_config) = mining_speed_boosts_samplings_hardware_mining_samplings_config {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-                        _mining_speed_boosts_samplings_hardware_mining_samplings_config.hardware_sample_date = hardware_sample_date.clone();
+                        _mining_speed_boosts_samplings_hardware_mining_samplings_config.hardware_sample_block = hardware_sample_block.clone();
                         _mining_speed_boosts_samplings_hardware_mining_samplings_config.hardware_sample_hardware_online = hardware_sample_hardware_online.clone();
                     }
                 });
                 debug::info!("Checking mutated values");
                 let fetched_mining_speed_boosts_samplings_hardware_mining_samplings_config = <MiningSpeedBoostSamplingHardwareMiningSamplingConfigs<T>>::get((mining_speed_boosts_configuration_hardware_mining_id, mining_speed_boosts_samplings_hardware_mining_id));
                 if let Some(_mining_speed_boosts_samplings_hardware_mining_samplings_config) = fetched_mining_speed_boosts_samplings_hardware_mining_samplings_config {
-                    debug::info!("Latest field hardware_sample_date {:#?}", _mining_speed_boosts_samplings_hardware_mining_samplings_config.hardware_sample_date);
+                    debug::info!("Latest field hardware_sample_block {:#?}", _mining_speed_boosts_samplings_hardware_mining_samplings_config.hardware_sample_block);
                     debug::info!("Latest field hardware_sample_hardware_online {:#?}", _mining_speed_boosts_samplings_hardware_mining_samplings_config.hardware_sample_hardware_online);
                 }
             } else {
@@ -204,7 +203,7 @@ decl_module! {
                 let mining_speed_boosts_samplings_hardware_mining_samplings_config_instance = MiningSpeedBoostSamplingHardwareMiningSamplingConfig {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
-                    hardware_sample_date: hardware_sample_date.clone(),
+                    hardware_sample_block: hardware_sample_block.clone(),
                     hardware_sample_hardware_online: hardware_sample_hardware_online.clone(),
                 };
 
@@ -216,7 +215,7 @@ decl_module! {
                 debug::info!("Checking inserted values");
                 let fetched_mining_speed_boosts_samplings_hardware_mining_samplings_config = <MiningSpeedBoostSamplingHardwareMiningSamplingConfigs<T>>::get((mining_speed_boosts_configuration_hardware_mining_id, mining_speed_boosts_samplings_hardware_mining_id));
                 if let Some(_mining_speed_boosts_samplings_hardware_mining_samplings_config) = fetched_mining_speed_boosts_samplings_hardware_mining_samplings_config {
-                    debug::info!("Inserted field hardware_sample_date {:#?}", _mining_speed_boosts_samplings_hardware_mining_samplings_config.hardware_sample_date);
+                    debug::info!("Inserted field hardware_sample_block {:#?}", _mining_speed_boosts_samplings_hardware_mining_samplings_config.hardware_sample_block);
                     debug::info!("Inserted field hardware_sample_hardware_online {:#?}", _mining_speed_boosts_samplings_hardware_mining_samplings_config.hardware_sample_hardware_online);
                 }
             }
@@ -225,7 +224,7 @@ decl_module! {
                 sender,
                 mining_speed_boosts_configuration_hardware_mining_id,
                 mining_speed_boosts_samplings_hardware_mining_id,
-                hardware_sample_date,
+                hardware_sample_block,
                 hardware_sample_hardware_online,
             ));
         }

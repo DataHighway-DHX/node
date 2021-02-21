@@ -63,8 +63,7 @@ pub trait Trait:
         + Bounded
         + Default
         + Copy;
-    // type MiningSpeedBoostEligibilityHardwareMiningDateAudited: Parameter + Member + AtLeast32Bit + Bounded + Default
-    // + Copy; type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID: Parameter + Member + AtLeast32Bit +
+    // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID: Parameter + Member + AtLeast32Bit +
     // Bounded + Default + Copy;
 }
 
@@ -78,10 +77,10 @@ pub struct MiningSpeedBoostEligibilityHardwareMining(pub [u8; 16]);
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
 pub struct MiningSpeedBoostEligibilityHardwareMiningEligibilityResult<U, V> {
-    pub eligibility_hardware_mining_calculated_eligibility: U,
-    pub eligibility_hardware_mining_hardware_uptime_percentage: V,
-    /* pub eligibility_hardware_mining_date_audited: W,
-     * pub eligibility_hardware_mining_auditor_account_id: X, */
+    pub hardware_calculated_eligibility: U,
+    pub hardware_uptime_percentage: V,
+    /* pub hardware_block_audited: W,
+     * pub hardware_auditor_account_id: X, */
 }
 
 decl_event!(
@@ -90,9 +89,9 @@ decl_event!(
         <T as Trait>::MiningSpeedBoostEligibilityHardwareMiningIndex,
         <T as Trait>::MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility,
         <T as Trait>::MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage,
-        // <T as Trait>::MiningSpeedBoostEligibilityHardwareMiningDateAudited,
         // <T as Trait>::MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID,
         <T as mining_speed_boosts_configuration_hardware_mining::Trait>::MiningSpeedBoostConfigurationHardwareMiningIndex,
+        // <T as frame_system::Trait>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
         /// A mining_speed_boosts_eligibility_hardware_mining is created. (owner, mining_speed_boosts_eligibility_hardware_mining_id)
@@ -102,16 +101,16 @@ decl_event!(
         // MiningSpeedBoostEligibilityHardwareMiningEligibilityResultSet(
         //   AccountId, MiningSpeedBoostConfigurationHardwareMiningIndex, MiningSpeedBoostEligibilityHardwareMiningIndex,
         //   MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility, MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage,
-        //   MiningSpeedBoostEligibilityHardwareMiningDateAudited, MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID
+        //   BlockNumber, MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID
         // ),
         MiningSpeedBoostEligibilityHardwareMiningEligibilityResultSet(
           AccountId, MiningSpeedBoostConfigurationHardwareMiningIndex, MiningSpeedBoostEligibilityHardwareMiningIndex,
           MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility, MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage
-          // MiningSpeedBoostEligibilityHardwareMiningDateAudited, MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID
+          // BlockNumber, MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID
         ),
         /// A mining_speed_boosts_eligibility_hardware_mining is assigned to an mining_speed_boosts_configuration_hardware_mining.
         /// (owner of mining_speed_boosts_hardware_mining, mining_speed_boosts_eligibility_hardware_mining_id, mining_speed_boosts_configuration_hardware_mining_id)
-            AssignedHardwareMiningEligibilityToConfiguration(AccountId, MiningSpeedBoostEligibilityHardwareMiningIndex, MiningSpeedBoostConfigurationHardwareMiningIndex),
+        AssignedHardwareMiningEligibilityToConfiguration(AccountId, MiningSpeedBoostEligibilityHardwareMiningIndex, MiningSpeedBoostConfigurationHardwareMiningIndex),
     }
 );
 
@@ -132,7 +131,7 @@ decl_storage! {
             Option<MiningSpeedBoostEligibilityHardwareMiningEligibilityResult<
                 T::MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility,
                 T::MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage,
-                // T::MiningSpeedBoostEligibilityHardwareMiningDateAudited,
+                // T::BlockNumber,
                 // T::MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID,
             >>;
 
@@ -195,9 +194,9 @@ decl_module! {
         //     ensure!(Self::mining_speed_boosts_eligibility_hardware_mining_owner(mining_speed_boosts_eligibility_hardware_mining_id) == Some(sender.clone()), "Only owner can set mining_speed_boosts_eligibility_hardware_mining_result");
 
         //     let DEFAULT_RATE_CONFIG = 0;
-        //     let mut eligibility_hardware_mining_calculated_eligibility = 0.into();
-        //     let mut part_eligibility_hardware_mining_calculated_eligibility = 0.into();
-        //     let mut eligibility_hardware_mining_hardware_uptime_percentage = 0.into();
+        //     let mut hardware_calculated_eligibility = 0.into();
+        //     let mut part_hardware_calculated_eligibility = 0.into();
+        //     let mut hardware_uptime_percentage = 0.into();
         //     let mut token_token_max_token = 0.into();
 
         //     let mut current_token_type;
@@ -229,7 +228,7 @@ decl_module! {
         //                 if let Some(current_sampling_hardware_mining_config) = <mining_speed_boosts_sampling_hardware_mining::Module<T>>::mining_speed_boosts_samplings_hardware_mining_samplings_configs(
         //                   (mining_speed_boosts_configuration_hardware_mining_id, sampling_hardware_mining_id)
         //                 ) {
-        //                   if let tokens_locked = current_sampling_hardware_mining_config.token_sample_tokens_locked {
+        //                   if let tokens_locked = current_sampling_hardware_mining_config.token_sample_locked_amount {
         //                     sample_count += 1;
 
         //                     if tokens_locked == 0 {
@@ -248,9 +247,9 @@ decl_module! {
         //                         current_hardware_mining_rate = hardware_mining_rates_config.token_token_dot;
         //                       }
         //                       current_token_max_tokens = hardware_mining_rates_config.token_token_max_token;
-        //                       eligibility_hardware_mining_hardware_uptime_percentage = current_hardware_mining_rate * (current_sample_tokens_locked / current_hardware_uptime_amount);
+        //                       hardware_uptime_percentage = current_hardware_mining_rate * (current_sample_tokens_locked / current_hardware_uptime_amount);
 
-        //                       part_eligibility_hardware_mining_calculated_eligibility = part_eligibility_hardware_mining_calculated_eligibility + eligibility_hardware_mining_hardware_uptime_percentage * current_token_max_tokens;
+        //                       part_hardware_calculated_eligibility = part_hardware_calculated_eligibility + hardware_uptime_percentage * current_token_max_tokens;
         //                     } else {
         //                       debug::info!("Mining rate config missing");
         //                       break;
@@ -259,8 +258,8 @@ decl_module! {
         //                   }
         //                 }
         //               }
-        //               eligibility_hardware_mining_calculated_eligibility = part_eligibility_hardware_mining_calculated_eligibility / sample_count;
-        //               debug::info!("Calculate eligibilty based on average {:#?}", eligibility_hardware_mining_calculated_eligibility);
+        //               hardware_calculated_eligibility = part_hardware_calculated_eligibility / sample_count;
+        //               debug::info!("Calculate eligibilty based on average {:#?}", hardware_calculated_eligibility);
         //             }
         //           }
         //         }
@@ -274,19 +273,19 @@ decl_module! {
         //         <MiningSpeedBoostEligibilityHardwareMiningEligibilityResults<T>>::mutate((mining_speed_boosts_configuration_hardware_mining_id, mining_speed_boosts_eligibility_hardware_mining_id), |mining_speed_boosts_eligibility_hardware_mining_result| {
         //             if let Some(_mining_speed_boosts_eligibility_hardware_mining_result) = mining_speed_boosts_eligibility_hardware_mining_result {
         //                 // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-        //                 _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_calculated_eligibility = eligibility_hardware_mining_calculated_eligibility.clone();
-        //                 _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_hardware_uptime_percentage = eligibility_hardware_mining_hardware_uptime_percentage.clone();
-        //                 // _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_date_audited = eligibility_hardware_mining_date_audited.clone();
-        //                 // _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_auditor_account_id = eligibility_hardware_mining_auditor_account_id.clone();
+        //                 _mining_speed_boosts_eligibility_hardware_mining_result.hardware_calculated_eligibility = hardware_calculated_eligibility.clone();
+        //                 _mining_speed_boosts_eligibility_hardware_mining_result.hardware_uptime_percentage = hardware_uptime_percentage.clone();
+        //                 // _mining_speed_boosts_eligibility_hardware_mining_result.hardware_block_audited = hardware_block_audited.clone();
+        //                 // _mining_speed_boosts_eligibility_hardware_mining_result.hardware_auditor_account_id = hardware_auditor_account_id.clone();
         //             }
         //         });
         //         debug::info!("Checking mutated values");
         //         let fetched_mining_speed_boosts_eligibility_hardware_mining_result = <MiningSpeedBoostEligibilityHardwareMiningEligibilityResults<T>>::get((mining_speed_boosts_configuration_hardware_mining_id, mining_speed_boosts_eligibility_hardware_mining_id));
         //         if let Some(_mining_speed_boosts_eligibility_hardware_mining_result) = fetched_mining_speed_boosts_eligibility_hardware_mining_result {
-        //             debug::info!("Latest field eligibility_hardware_mining_calculated_eligibility {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_calculated_eligibility);
-        //             debug::info!("Latest field eligibility_hardware_mining_hardware_uptime_percentage {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_hardware_uptime_percentage);
-        //             // debug::info!("Latest field eligibility_hardware_mining_date_audited {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_date_audited);
-        //             // debug::info!("Latest field eligibility_hardware_mining_auditor_account_id {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_auditor_account_id);
+        //             debug::info!("Latest field hardware_calculated_eligibility {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.hardware_calculated_eligibility);
+        //             debug::info!("Latest field hardware_uptime_percentage {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.hardware_uptime_percentage);
+        //             // debug::info!("Latest field hardware_block_audited {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.hardware_block_audited);
+        //             // debug::info!("Latest field hardware_auditor_account_id {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.hardware_auditor_account_id);
         //         }
         //     } else {
         //         debug::info!("Inserting values");
@@ -295,10 +294,10 @@ decl_module! {
         //         let mining_speed_boosts_eligibility_hardware_mining_result_instance = MiningSpeedBoostEligibilityHardwareMiningEligibilityResult {
         //             // Since each parameter passed into the function is optional (i.e. `Option`)
         //             // we will assign a default value if a parameter value is not provided.
-        //             eligibility_hardware_mining_calculated_eligibility: eligibility_hardware_mining_calculated_eligibility.clone(),
-        //             eligibility_hardware_mining_hardware_uptime_percentage: eligibility_hardware_mining_hardware_uptime_percentage.clone(),
-        //             // eligibility_hardware_mining_date_audited: eligibility_hardware_mining_date_audited.clone(),
-        //             // eligibility_hardware_mining_auditor_account_id: eligibility_hardware_mining_auditor_account_id.clone(),
+        //             hardware_calculated_eligibility: hardware_calculated_eligibility.clone(),
+        //             hardware_uptime_percentage: hardware_uptime_percentage.clone(),
+        //             // hardware_block_audited: hardware_block_audited.clone(),
+        //             // hardware_auditor_account_id: hardware_auditor_account_id.clone(),
         //         };
 
         //         <MiningSpeedBoostEligibilityHardwareMiningEligibilityResults<T>>::insert(
@@ -309,10 +308,10 @@ decl_module! {
         //         debug::info!("Checking inserted values");
         //         let fetched_mining_speed_boosts_eligibility_hardware_mining_result = <MiningSpeedBoostEligibilityHardwareMiningEligibilityResults<T>>::get((mining_speed_boosts_configuration_hardware_mining_id, mining_speed_boosts_eligibility_hardware_mining_id));
         //         if let Some(_mining_speed_boosts_eligibility_hardware_mining_result) = fetched_mining_speed_boosts_eligibility_hardware_mining_result {
-        //             debug::info!("Inserted field eligibility_hardware_mining_calculated_eligibility {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_calculated_eligibility);
-        //             debug::info!("Inserted field eligibility_hardware_mining_hardware_uptime_percentage {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_hardware_uptime_percentage);
-        //             // debug::info!("Inserted field eligibility_hardware_mining_date_audited {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_date_audited);
-        //             // debug::info!("Inserted field eligibility_hardware_mining_auditor_account_id {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_auditor_account_id);
+        //             debug::info!("Inserted field hardware_calculated_eligibility {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.hardware_calculated_eligibility);
+        //             debug::info!("Inserted field hardware_uptime_percentage {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.hardware_uptime_percentage);
+        //             // debug::info!("Inserted field hardware_block_audited {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.hardware_block_audited);
+        //             // debug::info!("Inserted field hardware_auditor_account_id {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.hardware_auditor_account_id);
         //         }
         //     }
 
@@ -320,10 +319,10 @@ decl_module! {
         //       sender,
         //       mining_speed_boosts_configuration_hardware_mining_id,
         //       mining_speed_boosts_eligibility_hardware_mining_id,
-        //       eligibility_hardware_mining_calculated_eligibility,
-        //       eligibility_hardware_mining_hardware_uptime_percentage,
-        //       // eligibility_hardware_mining_date_audited,
-        //       // eligibility_hardware_mining_auditor_account_id
+        //       hardware_calculated_eligibility,
+        //       hardware_uptime_percentage,
+        //       // hardware_block_audited,
+        //       // hardware_auditor_account_id
         //     ));
         // }
 
@@ -333,10 +332,10 @@ decl_module! {
             origin,
             mining_speed_boosts_configuration_hardware_mining_id: T::MiningSpeedBoostConfigurationHardwareMiningIndex,
             mining_speed_boosts_eligibility_hardware_mining_id: T::MiningSpeedBoostEligibilityHardwareMiningIndex,
-            _eligibility_hardware_mining_calculated_eligibility: Option<T::MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility>,
-            _eligibility_hardware_mining_hardware_uptime_percentage: Option<T::MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage>,
-            // _eligibility_hardware_mining_date_audited: Option<T::MiningSpeedBoostEligibilityHardwareMiningDateAudited>,
-            // _eligibility_hardware_mining_auditor_account_id: Option<T::MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID>,
+            _hardware_calculated_eligibility: Option<T::MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility>,
+            _hardware_uptime_percentage: Option<T::MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage>,
+            // _hardware_block_audited: Option<T::BlockNumber>,
+            // _hardware_auditor_account_id: Option<T::MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID>,
         ) {
             let sender = ensure_signed(origin)?;
 
@@ -348,19 +347,19 @@ decl_module! {
             ensure!(Self::mining_speed_boosts_eligibility_hardware_mining_owner(mining_speed_boosts_eligibility_hardware_mining_id) == Some(sender.clone()), "Only owner can set mining_speed_boosts_eligibility_hardware_mining_result");
 
             // TODO - adjust default eligibilitys
-            let eligibility_hardware_mining_calculated_eligibility = match _eligibility_hardware_mining_calculated_eligibility.clone() {
+            let hardware_calculated_eligibility = match _hardware_calculated_eligibility.clone() {
                 Some(value) => value,
                 None => 1.into() // Default
             };
-            let eligibility_hardware_mining_hardware_uptime_percentage = match _eligibility_hardware_mining_hardware_uptime_percentage {
+            let hardware_uptime_percentage = match _hardware_uptime_percentage {
                 Some(value) => value,
                 None => 1.into() // Default
             };
-            // let eligibility_hardware_mining_date_audited = match _eligibility_hardware_mining_date_audited {
+            // let hardware_block_audited = match _hardware_block_audited {
             //   Some(value) => value,
             //   None => 1.into() // Default
             // };
-            // let eligibility_hardware_mining_auditor_account_id = match _eligibility_hardware_mining_auditor_account_id {
+            // let hardware_auditor_account_id = match _hardware_auditor_account_id {
             //   Some(value) => value,
             //   None => 1.into() // Default
             // };
@@ -372,20 +371,20 @@ decl_module! {
                 <MiningSpeedBoostEligibilityHardwareMiningEligibilityResults<T>>::mutate((mining_speed_boosts_configuration_hardware_mining_id, mining_speed_boosts_eligibility_hardware_mining_id), |mining_speed_boosts_eligibility_hardware_mining_result| {
                     if let Some(_mining_speed_boosts_eligibility_hardware_mining_result) = mining_speed_boosts_eligibility_hardware_mining_result {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-                        _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_calculated_eligibility = eligibility_hardware_mining_calculated_eligibility.clone();
-                        _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_hardware_uptime_percentage = eligibility_hardware_mining_hardware_uptime_percentage.clone();
-                        // _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_date_audited = eligibility_hardware_mining_date_audited.clone();
-                        // _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_auditor_account_id = eligibility_hardware_mining_auditor_account_id.clone();
+                        _mining_speed_boosts_eligibility_hardware_mining_result.hardware_calculated_eligibility = hardware_calculated_eligibility.clone();
+                        _mining_speed_boosts_eligibility_hardware_mining_result.hardware_uptime_percentage = hardware_uptime_percentage.clone();
+                        // _mining_speed_boosts_eligibility_hardware_mining_result.hardware_block_audited = hardware_block_audited.clone();
+                        // _mining_speed_boosts_eligibility_hardware_mining_result.hardware_auditor_account_id = hardware_auditor_account_id.clone();
                     }
                 });
 
                 debug::info!("Checking mutated values");
                 let fetched_mining_speed_boosts_eligibility_hardware_mining_result = <MiningSpeedBoostEligibilityHardwareMiningEligibilityResults<T>>::get((mining_speed_boosts_configuration_hardware_mining_id, mining_speed_boosts_eligibility_hardware_mining_id));
                 if let Some(_mining_speed_boosts_eligibility_hardware_mining_result) = fetched_mining_speed_boosts_eligibility_hardware_mining_result {
-                    debug::info!("Latest field eligibility_hardware_mining_calculated_eligibility {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_calculated_eligibility);
-                    debug::info!("Latest field eligibility_hardware_mining_hardware_uptime_percentage {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_hardware_uptime_percentage);
-                    // debug::info!("Latest field eligibility_hardware_mining_date_audited {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_date_audited);
-                    // debug::info!("Latest field eligibility_hardware_mining_auditor_account_id {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_auditor_account_id);
+                    debug::info!("Latest field hardware_calculated_eligibility {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.hardware_calculated_eligibility);
+                    debug::info!("Latest field hardware_uptime_percentage {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.hardware_uptime_percentage);
+                    // debug::info!("Latest field hardware_block_audited {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.hardware_block_audited);
+                    // debug::info!("Latest field hardware_auditor_account_id {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.hardware_auditor_account_id);
                 }
             } else {
                 debug::info!("Inserting values");
@@ -394,10 +393,10 @@ decl_module! {
                 let mining_speed_boosts_eligibility_hardware_mining_result_instance = MiningSpeedBoostEligibilityHardwareMiningEligibilityResult {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
-                    eligibility_hardware_mining_calculated_eligibility: eligibility_hardware_mining_calculated_eligibility.clone(),
-                    eligibility_hardware_mining_hardware_uptime_percentage: eligibility_hardware_mining_hardware_uptime_percentage.clone(),
-                    // eligibility_hardware_mining_date_audited: eligibility_hardware_mining_date_audited.clone(),
-                    // eligibility_hardware_mining_auditor_account_id: eligibility_hardware_mining_auditor_account_id.clone(),
+                    hardware_calculated_eligibility: hardware_calculated_eligibility.clone(),
+                    hardware_uptime_percentage: hardware_uptime_percentage.clone(),
+                    // hardware_block_audited: hardware_block_audited.clone(),
+                    // hardware_auditor_account_id: hardware_auditor_account_id.clone(),
                 };
 
                 <MiningSpeedBoostEligibilityHardwareMiningEligibilityResults<T>>::insert(
@@ -408,10 +407,10 @@ decl_module! {
                 debug::info!("Checking inserted values");
                 let fetched_mining_speed_boosts_eligibility_hardware_mining_result = <MiningSpeedBoostEligibilityHardwareMiningEligibilityResults<T>>::get((mining_speed_boosts_configuration_hardware_mining_id, mining_speed_boosts_eligibility_hardware_mining_id));
                 if let Some(_mining_speed_boosts_eligibility_hardware_mining_result) = fetched_mining_speed_boosts_eligibility_hardware_mining_result {
-                    debug::info!("Inserted field eligibility_hardware_mining_calculated_eligibility {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_calculated_eligibility);
-                    debug::info!("Inserted field eligibility_hardware_mining_hardware_uptime_percentage {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_hardware_uptime_percentage);
-                    // debug::info!("Inserted field eligibility_hardware_mining_date_audited {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_date_audited);
-                    // debug::info!("Inserted field eligibility_hardware_mining_auditor_account_id {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.eligibility_hardware_mining_auditor_account_id);
+                    debug::info!("Inserted field hardware_calculated_eligibility {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.hardware_calculated_eligibility);
+                    debug::info!("Inserted field hardware_uptime_percentage {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.hardware_uptime_percentage);
+                    // debug::info!("Inserted field hardware_block_audited {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.hardware_block_audited);
+                    // debug::info!("Inserted field hardware_auditor_account_id {:#?}", _mining_speed_boosts_eligibility_hardware_mining_result.hardware_auditor_account_id);
                 }
             }
 
@@ -419,10 +418,10 @@ decl_module! {
                 sender,
                 mining_speed_boosts_configuration_hardware_mining_id,
                 mining_speed_boosts_eligibility_hardware_mining_id,
-                eligibility_hardware_mining_calculated_eligibility,
-                eligibility_hardware_mining_hardware_uptime_percentage,
-                // eligibility_hardware_mining_date_audited,
-                // eligibility_hardware_mining_auditor_account_id
+                hardware_calculated_eligibility,
+                hardware_uptime_percentage,
+                // hardware_block_audited,
+                // hardware_auditor_account_id
             ));
         }
 

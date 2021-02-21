@@ -96,11 +96,7 @@ impl mining_speed_boosts_configuration_token_mining::Trait for Test {
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
     type MiningSpeedBoostConfigurationTokenMiningIndex = u64;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
-    // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
+    type MiningSpeedBoostConfigurationTokenMiningTokenLockAmount = u64;
     // Mining Speed Boost Token Mining Config
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
     type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
@@ -108,8 +104,7 @@ impl mining_speed_boosts_configuration_token_mining::Trait for Test {
 impl Trait for Test {
     type Event = ();
     type MiningSpeedBoostSamplingTokenMiningIndex = u64;
-    type MiningSpeedBoostSamplingTokenMiningSampleDate = u64;
-    type MiningSpeedBoostSamplingTokenMiningSampleTokensLocked = u64;
+    type MiningSpeedBoostSamplingTokenMiningSampleLockedAmount = u64;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;
