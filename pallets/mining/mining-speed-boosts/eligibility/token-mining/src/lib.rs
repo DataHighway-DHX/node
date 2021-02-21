@@ -201,16 +201,16 @@ decl_module! {
         //     let mut token_token_max_token = 0.into();
 
         //     let mut current_token_type;
-        //     let mut current_token_locked_amount;
+        //     let mut current_token_lock_amount;
         //     // Get the config associated with the given configuration_token_mining
         //     if let Some(configuration_token_mining_config) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_configs(mining_speed_boosts_configuration_token_mining_id) {
         //       if let token_type = configuration_token_mining_config.token_type {
         //         if token_type != "".to_string() {
         //           current_token_type = token_type.clone();
 
-        //           if let token_locked_amount = configuration_token_mining_config.token_locked_amount {
-        //             if token_locked_amount != 0 {
-        //               current_token_locked_amount = token_locked_amount;
+        //           if let token_lock_amount = configuration_token_mining_config.token_lock_amount {
+        //             if token_lock_amount != 0 {
+        //               current_token_lock_amount = token_lock_amount;
 
         //               // Get list of all sampling_token_mining_ids that correspond to the given mining_speed_boosts_configuration_token_mining_id
         //               // of type MiningSpeedBoostSamplingTokenMiningIndex
@@ -248,7 +248,7 @@ decl_module! {
         //                         current_token_mining_rate = token_mining_rates_config.token_token_dot;
         //                       }
         //                       current_token_max_tokens = token_mining_rates_config.token_token_max_token;
-        //                       eligibility_token_mining_token_locked_percentage = current_token_mining_rate * (current_sample_tokens_locked / current_token_locked_amount);
+        //                       eligibility_token_mining_token_locked_percentage = current_token_mining_rate * (current_sample_tokens_locked / current_token_lock_amount);
 
         //                       part_eligibility_token_mining_calculated_eligibility = part_eligibility_token_mining_calculated_eligibility + eligibility_token_mining_token_locked_percentage * current_token_max_tokens;
         //                     } else {

@@ -36,7 +36,7 @@ mod tests {
     // Import Trait for each runtime module being tested
     use mining_speed_boosts_configuration_token_mining::{
         MiningSpeedBoostConfigurationTokenMiningTokenConfig,
-        MiningSpeedBoostConfigurationTokenMiningTokenCooldownConfig,
+        MiningSpeedBoostConfigurationTokenMiningTokenRequirementsConfig,
         Module as MiningSpeedBoostConfigurationTokenMiningModule,
         Trait as MiningSpeedBoostConfigurationTokenMiningTrait,
     };
@@ -147,7 +147,7 @@ mod tests {
         type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodMin = u64;
         type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
         // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
-        type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
+        type MiningSpeedBoostConfigurationTokenMiningTokenLockAmount = u64;
         // Mining Speed Boost Token Mining Config
         // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
         type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
@@ -273,7 +273,7 @@ mod tests {
                   Origin::signed(0),
                   0, // mining_speed_boosts_token_mining_id
                   Some(b"DHX".to_vec()), // token_type
-                  Some(10), // token_locked_amount_min
+                  Some(10), // token_lock_amount_min
                   Some(7), // token_lock_period_min
                 )
               );
@@ -282,7 +282,7 @@ mod tests {
                 Origin::signed(0),
                 0, // mining_speed_boosts_token_mining_id
                 Some(b"MXC".to_vec()), // token_type
-                Some(100), // token_locked_amount
+                Some(100), // token_lock_amount
                 Some(15), // token_lock_period
                 Some(12345), // token_lock_period_start_date
                 Some(23456), // token_lock_period_end_date
@@ -295,9 +295,9 @@ mod tests {
             assert_eq!(MiningSpeedBoostConfigurationTokenMiningTestModule::mining_speed_boosts_configuration_token_mining_owner(0), Some(0));
             assert_eq!(
                 MiningSpeedBoostConfigurationTokenMiningTestModule::mining_speed_boosts_configuration_token_mining_token_cooldown_configs(0),
-                  Some(MiningSpeedBoostConfigurationTokenMiningTokenCooldownConfig {
+                  Some(MiningSpeedBoostConfigurationTokenMiningTokenRequirementsConfig {
                       token_type: b"DHX".to_vec(), // token_type
-                      token_locked_amount_min: 10, // token_locked_amount_min
+                      token_lock_amount_min: 10, // token_lock_amount_min
                       token_lock_period_min: 7, // token_lock_period_min
                   })
               );
@@ -305,7 +305,7 @@ mod tests {
               MiningSpeedBoostConfigurationTokenMiningTestModule::mining_speed_boosts_configuration_token_mining_token_configs(0),
                 Some(MiningSpeedBoostConfigurationTokenMiningTokenConfig {
                     token_type: b"MXC".to_vec(), // token_type
-                    token_locked_amount: 100, // token_locked_amount
+                    token_lock_amount: 100, // token_lock_amount
                     token_lock_period: 15, // token_lock_period
                     token_lock_period_start_date: 12345, // token_lock_period_start_date
                     token_lock_period_end_date: 23456, // token_lock_period_end_date

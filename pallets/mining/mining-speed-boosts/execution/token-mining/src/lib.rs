@@ -212,9 +212,9 @@ decl_module! {
             // let is_token_lock_period_greater_than_token_lock_period_min = Self::token_lock_period_greater_than_token_lock_period_min(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id).is_ok();
             // ensure!(is_token_lock_period_greater_than_token_lock_period_min, "token configuration does not have a token_lock_period > token_lock_period_min");
 
-            // Ensure that the associated token configuration has a token_locked_amount > token_locked_amount_min
-            let is_token_locked_amount_greater_than_token_locked_amount_min = Self::token_locked_amount_greater_than_token_locked_amount_min(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id).is_ok();
-            ensure!(is_token_locked_amount_greater_than_token_locked_amount_min, "token configuration does not have a token_locked_amount > token_locked_amount_min");
+            // Ensure that the associated token configuration has a token_lock_amount > token_lock_amount_min
+            let is_token_lock_amount_greater_than_token_lock_amount_min = Self::token_lock_amount_greater_than_token_lock_amount_min(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id).is_ok();
+            ensure!(is_token_lock_amount_greater_than_token_lock_amount_min, "token configuration does not have a token_lock_amount > token_lock_amount_min");
 
             // Check if a mining_speed_boosts_execution_token_mining_execution_result already exists with the given mining_speed_boosts_execution_token_mining_id
             // to determine whether to insert new or mutate existing.
@@ -409,16 +409,16 @@ impl<T: Trait> Module<T> {
         }
     }
 
-    // Check that the associated token configuration has a token_locked_amount > token_locked_amount_min
-    pub fn token_locked_amount_greater_than_token_locked_amount_min(
+    // Check that the associated token configuration has a token_lock_amount > token_lock_amount_min
+    pub fn token_lock_amount_greater_than_token_lock_amount_min(
         mining_speed_boosts_execution_token_mining_id: T::MiningSpeedBoostExecutionTokenMiningIndex,
         mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
     ) -> Result<(), DispatchError> {
         if let Some(configuration_token_mining) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_configs((mining_speed_boosts_configuration_token_mining_id)) {
             if let Some(cooldown_configuration_token_mining) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_cooldown_configs((mining_speed_boosts_configuration_token_mining_id)) {
-                if let locked_amount = configuration_token_mining.token_locked_amount {
-                    if let locked_amount_min = cooldown_configuration_token_mining.token_locked_amount_min {
-                        ensure!(locked_amount > locked_amount_min, "Locked amount must be larger than the minimum locked amount of the cooldown config. Cannot execute.");
+                if let locked_amount = configuration_token_mining.token_lock_amount {
+                    if let lock_amount_min = cooldown_configuration_token_mining.token_lock_amount_min {
+                        ensure!(locked_amount > lock_amount_min, "Locked amount must be larger than the minimum locked amount of the cooldown config. Cannot execute.");
                         Ok(())
                     } else {
                         return Err(DispatchError::Other("Cannot find token_mining_config with token_lock_period_min associated with the execution"));
@@ -444,7 +444,7 @@ impl<T: Trait> Module<T> {
     ) -> Result<(), DispatchError> {
         return Ok(());
 
-        // TODO - Lock the token_locked_amount for the token_lock_period using the Balances module
+        // TODO - Lock the token_lock_amount for the token_lock_period using the Balances module
 
         // TODO - Setup a function in on_finalize that automatically checks through all the accounts that have
         // successfully been locked, whether it is the end of their cooldown period and if so sample the balance, to
