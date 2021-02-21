@@ -59,6 +59,7 @@ pub use frame_support::{
     traits::{
         Contains,
         ContainsLengthBound,
+        Currency,
         KeyOwnerProofSystem,
         Randomness,
     },
@@ -722,6 +723,7 @@ impl mining_speed_boosts_lodgements_hardware_mining::Trait for Runtime {
 
 impl mining_speed_boosts_execution_token_mining::Trait for Runtime {
     type Event = Event;
+    type Currency = Balances;
     type MiningSpeedBoostExecutionTokenMiningEndedDate = u64;
     type MiningSpeedBoostExecutionTokenMiningIndex = u64;
     type MiningSpeedBoostExecutionTokenMiningStartedDate = u64;

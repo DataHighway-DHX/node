@@ -11,8 +11,11 @@ use frame_support::{
     decl_storage,
     ensure,
     traits::{
+        Currency,
         Get,
+        LockableCurrency,
         Randomness,
+        WithdrawReasons
     },
     Parameter,
 };
@@ -24,9 +27,11 @@ use sp_runtime::{
         Bounded,
         Member,
         One,
+        Zero,
     },
     DispatchError,
 };
+
 use sp_std::prelude::*; // Imports Vec
 
 // FIXME - remove roaming_operators here, only use this approach since do not know how to use BalanceOf using only
@@ -43,9 +48,12 @@ use mining_speed_boosts_sampling_token_mining;
 // #[cfg(test)]
 // mod tests;
 
+pub type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+
 /// The module's configuration trait.
 pub trait Trait:
     frame_system::Trait
+    + pallet_balances::Trait
     + roaming_operators::Trait
     + mining_speed_boosts_configuration_token_mining::Trait
     + mining_speed_boosts_eligibility_token_mining::Trait
@@ -63,10 +71,8 @@ pub trait Trait:
     //     + Bounded
     //     + Default
     //     + Copy;
+    type Currency: LockableCurrency<Self::AccountId, Moment=Self::BlockNumber>;
 }
-
-// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
-// frame_system::Trait>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -83,12 +89,13 @@ pub struct MiningSpeedBoostExecutionTokenMiningExecutionResult<U, V, W> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Trait>::AccountId,
+        <T as frame_system::Trait>::BlockNumber,
+        Balance = <T as pallet_balances::Trait>::Balance,
         <T as Trait>::MiningSpeedBoostExecutionTokenMiningIndex,
         // <T as Trait>::MiningSpeedBoostExecutionTokenMiningExecutorAccountID,
         <T as Trait>::MiningSpeedBoostExecutionTokenMiningStartedDate,
         <T as Trait>::MiningSpeedBoostExecutionTokenMiningEndedDate,
         <T as mining_speed_boosts_configuration_token_mining::Trait>::MiningSpeedBoostConfigurationTokenMiningIndex,
-        // Balance = BalanceOf<T>,
     {
         /// A mining_speed_boosts_execution_token_mining is created. (owner, mining_speed_boosts_execution_token_mining_id)
         Created(AccountId, MiningSpeedBoostExecutionTokenMiningIndex),
@@ -102,6 +109,9 @@ decl_event!(
         /// A mining_speed_boosts_execution_token_mining is assigned to an mining_speed_boosts_token_mining.
         /// (owner of mining_speed_boosts_token_mining, mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id)
         AssignedTokenMiningExecutionToConfiguration(AccountId, MiningSpeedBoostExecutionTokenMiningIndex, MiningSpeedBoostConfigurationTokenMiningIndex),
+        TreasuryRewardTokenMiningPostCooldown(
+            Balance, BlockNumber, AccountId
+        ),
     }
 );
 
@@ -138,6 +148,48 @@ decl_module! {
     /// The module declaration.
     pub struct Module<T: Trait> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
+
+        // TODO - automatically checks through all the accounts that have
+        // successfully been locked, whether it is the end of their cooldown period and if so sample the balance, to
+        // determine their elegibility, and perform the lodgement for reward and unlock their tokens
+        fn on_finalize(current_block_number: T::BlockNumber) {
+            debug::info!("execution/token-mining - on_finalize");
+            debug::info!("current block number {:#?}", current_block_number);
+
+            let fetched_mining_speed_boosts_execution_token_mining_execution_result = <MiningSpeedBoostExecutionTokenMiningExecutionResults<T>>::get((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_execution_token_mining_id));
+            if let Some(_mining_speed_boosts_execution_token_mining_execution_result) = fetched_mining_speed_boosts_execution_token_mining_execution_result {
+                debug::info!("Inserted field token_execution_executor_account_id {:#?}", _mining_speed_boosts_execution_token_mining_execution_result.token_execution_executor_account_id);
+                debug::info!("Inserted field token_execution_started_date {:#?}", _mining_speed_boosts_execution_token_mining_execution_result.token_execution_started_date);
+                debug::info!("Inserted field token_execution_ended_date {:#?}", _mining_speed_boosts_execution_token_mining_execution_result.token_execution_ended_date);
+                let token_execution_interval = _mining_speed_boosts_execution_token_mining_execution_result.token_execution_ended_date;
+                if let Some(cooldown_configuration_token_mining) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_cooldown_configs((mining_speed_boosts_configuration_token_mining_id)) {
+                    if let lock_period_min = cooldown_configuration_token_mining.token_lock_period_min {
+                        // Reference: https://github.com/hicommonwealth/edgeware-node/blob/master/modules/edge-treasury-reward/src/lib.rs#L42
+                        if <frame_system::Module<T>>::block_number() % lock_period_min == Zero::zero() {
+                            // // Unlock the funds. Store updated status
+
+                            // // Fetch the reward ratio, i.e. let reward = Self::current_payout();
+
+                            // // Calculate the reward based on the reward ratio (i.e. 1 DHX per 10 DHX that was locked)
+
+                            // // Distribute the reward to the account that has locked the funds
+                            // <T as Trait>::Currency::transfer(
+                            //     &<pallet_treasury::Module<T>>::account_id(),
+                            //     token_execution_executor_account_id,
+                            //     reward
+                            // );
+
+                            // // Emit event since treasury unlocked locked tokens and rewarded customer the reward ratio
+                            // Self::deposit_event(RawEvent::TreasuryRewardTokenMiningPostCooldown(
+                            //     <pallet_balances::Module<T>>::free_balance(token_execution_executor_account_id),
+                            //     <frame_system::Module<T>>::block_number(),
+                            //     token_execution_executor_account_id
+                            // );
+                        }
+                    }
+                }
+            }
+		}
 
         /// Create a new mining mining_speed_boosts_execution_token_mining
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
@@ -216,6 +268,25 @@ decl_module! {
             let is_token_locked_amount_greater_than_token_locked_amount_min = Self::token_locked_amount_greater_than_token_locked_amount_min(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id).is_ok();
             ensure!(is_token_locked_amount_greater_than_token_locked_amount_min, "token configuration does not have a token_locked_amount > token_locked_amount_min");
 
+            Self::execution(
+                sender.clone(),
+                mining_speed_boosts_configuration_token_mining_id,
+                mining_speed_boosts_execution_token_mining_id,
+                token_execution_executor_account_id.clone(),
+                token_execution_started_date,
+                token_execution_ended_date,
+            );
+            debug::info!("Executed");
+
+            ensure!(Self::execution(
+                sender.clone(),
+                mining_speed_boosts_configuration_token_mining_id,
+                mining_speed_boosts_execution_token_mining_id,
+                token_execution_executor_account_id.clone(),
+                token_execution_started_date,
+                token_execution_ended_date,
+            ).is_ok(), "Cannot execute");
+
             // Check if a mining_speed_boosts_execution_token_mining_execution_result already exists with the given mining_speed_boosts_execution_token_mining_id
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_mining_speed_boosts_execution_token_mining_execution_result_index(mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_execution_token_mining_id).is_ok() {
@@ -269,21 +340,6 @@ decl_module! {
                 token_execution_started_date,
                 token_execution_ended_date,
             ));
-
-
-
-            if Self::execution(
-                sender.clone(),
-                mining_speed_boosts_configuration_token_mining_id,
-                mining_speed_boosts_execution_token_mining_id,
-                token_execution_executor_account_id.clone(),
-                token_execution_started_date,
-                token_execution_ended_date,
-            ).is_ok() {
-                debug::info!("Executed");
-            } else {
-                debug::info!("Cannot execute");
-            }
         }
 
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
@@ -320,7 +376,7 @@ decl_module! {
             <TokenMiningExecutionConfiguration<T>>::insert(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id);
 
             Self::deposit_event(RawEvent::AssignedTokenMiningExecutionToConfiguration(sender, mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id));
-            }
+        }
     }
 }
 
@@ -367,7 +423,7 @@ impl<T: Trait> Module<T> {
     ) -> Result<(), DispatchError> {
         // Check that the extrinsic call is made after the start date defined in the provided configuration
 
-        // FIXME - add system time now
+        // FIXME - add system time now, change to using T::BlockNumber
         // let time_now = 123.into();
         // Get the config associated with the given configuration_token_mining
         if let Some(configuration_token_mining_config) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_configs(mining_speed_boosts_configuration_token_mining_id) {
@@ -434,6 +490,7 @@ impl<T: Trait> Module<T> {
         }
     }
 
+    // Lock the token_locked_amount for the token_lock_period using the Balances module, or until it is unlocked
     pub fn execution(
         sender: T::AccountId,
         mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
@@ -442,14 +499,22 @@ impl<T: Trait> Module<T> {
         _token_execution_started_date: T::MiningSpeedBoostExecutionTokenMiningStartedDate,
         _token_execution_ended_date: T::MiningSpeedBoostExecutionTokenMiningEndedDate,
     ) -> Result<(), DispatchError> {
-        return Ok(());
 
-        // TODO - Lock the token_locked_amount for the token_lock_period using the Balances module
-
-        // TODO - Setup a function in on_finalize that automatically checks through all the accounts that have
-        // successfully been locked, whether it is the end of their cooldown period and if so sample the balance, to
-        // determine their elegibility, and perform the lodgement for reward and unlock their tokens
-        // TODO - Update tests for the above
+        if let Some(configuration_token_mining) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_configs((mining_speed_boosts_configuration_token_mining_id)) {
+            if let locked_amount = configuration_token_mining.token_locked_amount {
+                <T as Trait>::Currency>::set_lock(
+                    Some(Self::mining_speed_boosts_execution_token_mining(mining_speed_boosts_execution_token_mining_id)),
+                    &_token_execution_executor_account_id,
+                    locked_amount,
+                    WithdrawReasons::all()
+                );
+                return Ok(());
+            } else {
+                return Err(DispatchError::Other("Cannot find token_mining_config with token_lock_period associated with the execution"));
+            }
+        } else {
+            return Err(DispatchError::Other("Cannot find token_mining_config associated with the execution"));
+        }
     }
 
     pub fn has_value_for_mining_speed_boosts_execution_token_mining_execution_result_index(
