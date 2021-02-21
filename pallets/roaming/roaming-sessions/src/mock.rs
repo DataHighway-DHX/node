@@ -108,9 +108,6 @@ impl roaming_devices::Trait for Test {
 impl Trait for Test {
     type Event = ();
     type RoamingSessionIndex = u64;
-    type RoamingSessionJoinRequestAcceptAcceptedAt = u64;
-    type RoamingSessionJoinRequestAcceptExpiry = u64;
-    type RoamingSessionJoinRequestRequestedAt = u64;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;

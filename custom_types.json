@@ -33,10 +33,9 @@
   "RoamingAgreementPolicy": "[u8; 16]",
   "RoamingAgreementPolicyIndex": "u64",
   "RoamingAgreementPolicyActivationType": "Text",
-  "RoamingAgreementPolicyExpiry": "Moment",
   "RoamingAgreementPolicyConfig": {
     "policy_activation_type": "Text",
-    "policy_expiry": "u64"
+    "policy_expiry_block": "Moment"
   },
   "RoamingNetworkProfile": "[u8; 16]",
   "RoamingNetworkProfileIndex": "u64",
@@ -54,47 +53,38 @@
   },
   "RoamingSession": "[u8; 16]",
   "RoamingSessionIndex": "u64",
-  "RoamingSessionJoinRequestRequestedAt": "Moment",
-  "RoamingSessionJoinRequestAcceptExpiry": "Moment",
-  "RoamingSessionJoinRequestAcceptAcceptedAt": "Moment",
   "RoamingSessionJoinRequest": {
     "session_network_server_id": "Moment",
-    "session_join_request_requested_at": "Moment"
+    "session_join_requested_at_block": "Moment"
   },
   "RoamingSessionJoinAccept": {
     "session_join_request_accept_expiry": "Moment",
-    "session_join_request_accept_accepted_at": "Moment"
+    "session_join_request_accept_accepted_at_block": "Moment"
   },
   "RoamingBillingPolicy": "[u8; 16]",
   "RoamingBillingPolicyIndex": "u64",
-  "RoamingBillingPolicyNextBillingAt": "Moment",
-  "RoamingBillingPolicyFrequencyInDays": "u64",
   "RoamingBillingPolicyConfig": {
-    "policy_next_billing_at": "Moment",
-    "policy_frequency_in_days": "u64"
+    "policy_next_billing_at_block": "Moment",
+    "policy_frequency_in_blocks": "Moment"
   },
   "RoamingChargingPolicy": "[u8; 16]",
   "RoamingChargingPolicyIndex": "u64",
-  "RoamingChargingPolicyNextChargingAt": "Moment",
-  "RoamingChargingPolicyDelayAfterBillingInDays": "u64",
   "RoamingChargingPolicyConfig": {
-    "policy_next_charging_at": "Moment",
-    "policy_delay_after_billing_in_days": "u64"
+    "policy_next_charging_at_block": "Moment",
+    "policy_delay_after_billing_in_blocks": "u64"
   },
   "RoamingPacketBundle": "[u8; 16]",
   "RoamingPacketBundleIndex": "u64",
   "RoamingPacketBundleReceivedAtHome": "bool",
   "RoamingPacketBundleReceivedPacketsCount": "u64",
   "RoamingPacketBundleReceivedPacketsOkCount": "u64",
-  "RoamingPacketBundleReceivedStartedAt": "Moment",
-  "RoamingPacketBundleReceivedEndedAt": "Moment",
   "RoamingPacketBundleExternalDataStorageHash": "Hash",
   "RoamingPacketBundleReceiver": {
     "packet_bundle_received_at_home": "bool",
     "packet_bundle_received_packets_count": "u64",
     "packet_bundle_received_packets_ok_count": "u64",
-    "packet_bundle_received_started_at": "Moment",
-    "packet_bundle_received_ended_at": "Moment",
+    "packet_bundle_received_started_at_block": "Moment",
+    "packet_bundle_received_ended_at_block": "Moment",
     "packet_bundle_external_data_storage_hash": "Hash"
   },
   "MiningSpeedBoostRatesTokenMining": "[u8; 16]",
@@ -131,16 +121,11 @@
   "MiningSpeedBoostConfigurationTokenMiningIndex": "u64",
   "MiningSpeedBoostConfigurationTokenMiningTokenType": "Text",
   "MiningSpeedBoostConfigurationTokenMiningTokenLockAmount": "u64",
-  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod": "u32",
-  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate": "u64",
-  "MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate": "u64",
-  "MiningSpeedBoostConfigurationTokenMiningTokenLockMinBlocks": "u32",
   "MiningSpeedBoostConfigurationTokenMiningTokenConfig": {
     "token_type": "Text",
     "token_lock_amount": "u64",
-    "token_lock_period": "u32",
-    "token_lock_period_start_date": "Moment",
-    "token_lock_period_end_date": "Moment"
+    "token_lock_start_block": "Moment",
+    "token_lock_interval_blocks": "Moment"
   },
   "MiningSpeedBoostConfigurationTokenMiningTokenRequirementsConfig": {
     "token_type": "Text",
@@ -153,80 +138,70 @@
   "MiningSpeedBoostConfigurationHardwareMiningHardwareType": "Text",
   "MiningSpeedBoostConfigurationHardwareMiningHardwareID": "u64",
   "MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI": "u64",
-  "MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate": "u64",
-  "MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate": "u64",
   "MiningSpeedBoostConfigurationHardwareMiningHardwareConfig": {
     "hardware_secure": "bool",
     "hardware_type": "Text",
     "hardware_id": "u64",
     "hardware_dev_eui": "u64",
-    "hardware_lock_period_start_date": "Moment",
-    "hardware_lock_period_end_date": "Moment"
+    "hardware_lock_start_block": "Moment",
+    "hardware_lock_interval_blocks": "Moment"
   },
   "MiningSpeedBoostSamplingTokenMining": "[u8; 16]",
   "MiningSpeedBoostSamplingTokenMiningIndex": "u64",
-  "MiningSpeedBoostSamplingTokenMiningSampleDate": "u64",
-  "MiningSpeedBoostSamplingTokenMiningSampleTokensLocked": "u64",
+  "MiningSpeedBoostSamplingTokenMiningSampleLockedAmount": "u64",
   "MiningSpeedBoostSamplingTokenMiningSamplingConfig": {
-    "token_sample_date": "Moment",
-    "token_sample_tokens_locked": "u64"
+    "token_sample_block": "Moment",
+    "token_sample_locked_amount": "u64"
   },
   "MiningSpeedBoostSamplingHardwareMining": "[u8; 16]",
   "MiningSpeedBoostSamplingHardwareMiningIndex": "u64",
-  "MiningSpeedBoostSamplingHardwareMiningSampleDate": "u64",
   "MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline": "u64",
   "MiningSpeedBoostSamplingHardwareMiningSamplingConfig": {
-    "hardware_sample_date": "Moment",
+    "hardware_sample_block": "Moment",
     "hardware_sample_hardware_online": "bool"
   },
   "MiningSpeedBoostEligibilityTokenMining": "[u8; 16]",
   "MiningSpeedBoostEligibilityTokenMiningIndex": "u64",
   "MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility": "u64",
-  "MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage": "u32",
-  "MiningSpeedBoostEligibilityTokenMiningDateAudited": "u64",
+  "MiningSpeedBoostEligibilityTokenMiningLockedPercentage": "u32",
   "MiningSpeedBoostEligibilityTokenMiningAuditorAccountID": "u64",
   "MiningSpeedBoostEligibilityTokenMiningEligibilityResult": {
     "token_calculated_eligibility": "u64",
     "token_token_locked_percentage": "u32",
-    "token_date_audited": "u64",
+    "token_date_audited": "Moment",
     "token_auditor_account_id": "u64"
   },
   "MiningSpeedBoostEligibilityHardwareMining": "[u8; 16]",
   "MiningSpeedBoostEligibilityHardwareMiningIndex": "u64",
   "MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility": "u64",
   "MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage": "u32",
-  "MiningSpeedBoostEligibilityHardwareMiningDateAudited": "u64",
   "MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID": "u64",
   "MiningSpeedBoostEligibilityHardwareMiningEligibilityResult": {
     "hardware_calculated_eligibility": "u64",
-    "hardware_hardware_uptime_percentage": "u32",
-    "hardware_date_audited": "u64",
+    "hardware_uptime_percentage": "u32",
+    "hardware_block_audited": "Moment",
     "hardware_auditor_account_id": "u64"
   },
   "MiningSpeedBoostLodgementsTokenMining": "[u8; 16]",
   "MiningSpeedBoostLodgementsTokenMiningIndex": "u64",
   "MiningSpeedBoostLodgementsTokenMiningLodgementAmount": "u64",
-  "MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed": "u64",
   "MiningSpeedBoostLodgementsTokenMiningLodgementResult": {
     "token_claim_amount": "u64",
-    "token_date_redeemed": "u64"
+    "token_claim_block_redeemed": "u64"
   },
   "MiningSpeedBoostLodgementsHardwareMining": "[u8; 16]",
   "MiningSpeedBoostLodgementsHardwareMiningIndex": "u64",
   "MiningSpeedBoostLodgementsHardwareMiningLodgementAmount": "u64",
-  "MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed": "u64",
   "MiningSpeedBoostLodgementsHardwareMiningLodgementResult": {
     "hardware_claim_amount": "u64",
-    "hardware_date_redeemed": "u64"
+    "hardware_claim_block_redeemed": "u64"
   },
   "MiningSpeedBoostExecutionTokenMining": "[u8; 16]",
   "MiningSpeedBoostExecutionTokenMiningIndex": "u64",
   "MiningSpeedBoostExecutionTokenMiningExecutorAccountID": "u64",
-  "MiningSpeedBoostExecutionTokenMiningStartedDate": "u64",
-  "MiningSpeedBoostExecutionTokenMiningEndedDate": "u64",
   "MiningSpeedBoostExecutionTokenMiningExecutionResult": {
     "token_execution_exector_account_id": "u64",
-    "token_execution_started_date": "Moment",
-    "token_execution_ended_date": "Moment"
+    "token_execution_started_block": "Moment",
+    "token_execution_ended_block": "Moment"
   }
 }

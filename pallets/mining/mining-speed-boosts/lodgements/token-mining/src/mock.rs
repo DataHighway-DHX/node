@@ -96,11 +96,6 @@ impl mining_speed_boosts_configuration_token_mining::Trait for Test {
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
     type MiningSpeedBoostConfigurationTokenMiningIndex = u64;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockMinBlocks = u32;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
-    // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
     type MiningSpeedBoostConfigurationTokenMiningTokenLockAmount = u64;
     // Mining Speed Boost Token Mining Config
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
@@ -110,8 +105,7 @@ impl mining_speed_boosts_eligibility_token_mining::Trait for Test {
     type Event = ();
     type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility = u64;
     type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
-    type MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage = u32;
-    // type MiningSpeedBoostEligibilityTokenMiningDateAudited = u64;
+    type MiningSpeedBoostEligibilityTokenMiningLockedPercentage = u32;
     // type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
 }
 impl mining_speed_boosts_rates_token_mining::Trait for Test {
@@ -128,14 +122,12 @@ impl mining_speed_boosts_rates_token_mining::Trait for Test {
 impl mining_speed_boosts_sampling_token_mining::Trait for Test {
     type Event = ();
     type MiningSpeedBoostSamplingTokenMiningIndex = u64;
-    type MiningSpeedBoostSamplingTokenMiningSampleDate = u64;
-    type MiningSpeedBoostSamplingTokenMiningSampleTokensLocked = u64;
+    type MiningSpeedBoostSamplingTokenMiningSampleLockedAmount = u64;
 }
 impl Trait for Test {
     type Event = ();
     type MiningSpeedBoostLodgementsTokenMiningIndex = u64;
     type MiningSpeedBoostLodgementsTokenMiningLodgementAmount = u64;
-    type MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = u64;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;

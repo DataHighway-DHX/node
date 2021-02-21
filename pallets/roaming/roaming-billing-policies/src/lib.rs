@@ -40,8 +40,6 @@ mod tests;
 pub trait Trait: frame_system::Trait + roaming_operators::Trait + roaming_networks::Trait {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type RoamingBillingPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type RoamingBillingPolicyNextBillingAt: Parameter + Member + Default;
-    type RoamingBillingPolicyFrequencyInDays: Parameter + Member + Default;
 }
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
@@ -52,25 +50,24 @@ pub struct RoamingBillingPolicy(pub [u8; 16]);
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
 // Generic type parameters - Balance
 pub struct RoamingBillingPolicyConfig<U, V> {
-    pub policy_next_billing_at: U,
-    pub policy_frequency_in_days: V,
+    pub policy_next_billing_at_block: U,
+    pub policy_frequency_in_blocks: V,
 }
 
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Trait>::AccountId,
         <T as Trait>::RoamingBillingPolicyIndex,
-        <T as Trait>::RoamingBillingPolicyNextBillingAt,
-        <T as Trait>::RoamingBillingPolicyFrequencyInDays,
         <T as roaming_networks::Trait>::RoamingNetworkIndex,
         <T as roaming_operators::Trait>::RoamingOperatorIndex,
+        <T as frame_system::Trait>::BlockNumber,
     {
         /// A roaming billing_policy is created. (owner, roaming_billing_policy_id)
         Created(AccountId, RoamingBillingPolicyIndex),
         /// A roaming billing_policy is transferred. (from, to, roaming_billing_policy_id)
         Transferred(AccountId, AccountId, RoamingBillingPolicyIndex),
         /// A roaming billing_policy configuration
-        RoamingBillingPolicyConfigSet(AccountId, RoamingBillingPolicyIndex, RoamingBillingPolicyNextBillingAt, RoamingBillingPolicyFrequencyInDays),
+        RoamingBillingPolicyConfigSet(AccountId, RoamingBillingPolicyIndex, BlockNumber, BlockNumber),
         /// A roaming billing_policy is assigned to a operator. (owner of network, roaming_billing_policy_id, roaming_operator_id)
         AssignedBillingPolicyToOperator(AccountId, RoamingBillingPolicyIndex, RoamingOperatorIndex),
         /// A roaming billing_policy is assigned to a network. (owner of network, roaming_billing_policy_id, roaming_network_id)
@@ -91,7 +88,7 @@ decl_storage! {
         pub RoamingBillingPolicyOwners get(fn roaming_billing_policy_owner): map hasher(opaque_blake2_256) T::RoamingBillingPolicyIndex => Option<T::AccountId>;
 
         /// Get roaming billing_policy config
-        pub RoamingBillingPolicyConfigs get(fn roaming_billing_policy_configs): map hasher(opaque_blake2_256) T::RoamingBillingPolicyIndex => Option<RoamingBillingPolicyConfig<T::RoamingBillingPolicyNextBillingAt, T::RoamingBillingPolicyFrequencyInDays>>;
+        pub RoamingBillingPolicyConfigs get(fn roaming_billing_policy_configs): map hasher(opaque_blake2_256) T::RoamingBillingPolicyIndex => Option<RoamingBillingPolicyConfig<T::BlockNumber, T::BlockNumber>>;
 
         /// Get roaming billing_policy network
         pub RoamingBillingPolicyNetwork get(fn roaming_billing_policy_network): map hasher(opaque_blake2_256) T::RoamingBillingPolicyIndex => Option<T::RoamingNetworkIndex>;
@@ -146,8 +143,8 @@ decl_module! {
         pub fn set_config(
             origin,
             roaming_billing_policy_id: T::RoamingBillingPolicyIndex,
-            _policy_next_billing_at: Option<T::RoamingBillingPolicyNextBillingAt>,
-            _policy_frequency_in_days: Option<T::RoamingBillingPolicyFrequencyInDays>,
+            _policy_next_billing_at_block: Option<T::BlockNumber>,
+            _policy_frequency_in_blocks: Option<T::BlockNumber>,
         ) {
             let sender = ensure_signed(origin)?;
 
@@ -161,11 +158,11 @@ decl_module! {
             // let is_owned_by_parent_relationship = Self::is_owned_by_required_parent_relationship(roaming_billing_policy_id, sender.clone()).is_ok();
             // ensure!(is_owned_by_parent_relationship, "Ownership by parent does not exist");
 
-            let policy_next_billing_at = match _policy_next_billing_at {
+            let policy_next_billing_at_block = match _policy_next_billing_at_block {
                 Some(value) => value,
                 None => Default::default() // Default
             };
-            let policy_frequency_in_days = match _policy_frequency_in_days {
+            let policy_frequency_in_blocks = match _policy_frequency_in_blocks {
                 Some(value) => value,
                 None => Default::default() // <timestamp::Module<T>>::get() // Default
             };
@@ -177,15 +174,15 @@ decl_module! {
                 <RoamingBillingPolicyConfigs<T>>::mutate(roaming_billing_policy_id, |policy_config| {
                     if let Some(_policy_config) = policy_config {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-                        _policy_config.policy_next_billing_at = policy_next_billing_at.clone();
-                        _policy_config.policy_frequency_in_days = policy_frequency_in_days.clone();
+                        _policy_config.policy_next_billing_at_block = policy_next_billing_at_block.clone();
+                        _policy_config.policy_frequency_in_blocks = policy_frequency_in_blocks.clone();
                     }
                 });
                 debug::info!("Checking mutated values");
                 let fetched_policy_config = <RoamingBillingPolicyConfigs<T>>::get(roaming_billing_policy_id);
                 if let Some(_policy_config) = fetched_policy_config {
-                    debug::info!("Latest field policy_next_billing_at {:#?}", _policy_config.policy_next_billing_at);
-                    debug::info!("Latest field policy_frequency_in_days {:#?}", _policy_config.policy_frequency_in_days);
+                    debug::info!("Latest field policy_next_billing_at_block {:#?}", _policy_config.policy_next_billing_at_block);
+                    debug::info!("Latest field policy_frequency_in_blocks {:#?}", _policy_config.policy_frequency_in_blocks);
                 }
             } else {
                 debug::info!("Inserting values");
@@ -194,8 +191,8 @@ decl_module! {
                 let roaming_billing_policy_config_instance = RoamingBillingPolicyConfig {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
-                    policy_next_billing_at: policy_next_billing_at.clone(),
-                    policy_frequency_in_days: policy_frequency_in_days.clone()
+                    policy_next_billing_at_block: policy_next_billing_at_block.clone(),
+                    policy_frequency_in_blocks: policy_frequency_in_blocks.clone()
                 };
 
                 <RoamingBillingPolicyConfigs<T>>::insert(
@@ -206,16 +203,16 @@ decl_module! {
                 debug::info!("Checking inserted values");
                 let fetched_policy_config = <RoamingBillingPolicyConfigs<T>>::get(roaming_billing_policy_id);
                 if let Some(_policy_config) = fetched_policy_config {
-                    debug::info!("Inserted field policy_next_billing_at {:#?}", _policy_config.policy_next_billing_at);
-                    debug::info!("Inserted field policy_frequency_in_days {:#?}", _policy_config.policy_frequency_in_days);
+                    debug::info!("Inserted field policy_next_billing_at_block {:#?}", _policy_config.policy_next_billing_at_block);
+                    debug::info!("Inserted field policy_frequency_in_blocks {:#?}", _policy_config.policy_frequency_in_blocks);
                 }
             }
 
             Self::deposit_event(RawEvent::RoamingBillingPolicyConfigSet(
                 sender,
                 roaming_billing_policy_id,
-                policy_next_billing_at,
-                policy_frequency_in_days
+                policy_next_billing_at_block,
+                policy_frequency_in_blocks
             ));
         }
 

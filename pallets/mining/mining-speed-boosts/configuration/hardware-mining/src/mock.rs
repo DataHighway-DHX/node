@@ -96,8 +96,6 @@ impl Trait for Test {
     // type MiningSpeedBoostConfigurationHardwareMiningHardwareType =
     // MiningSpeedBoostConfigurationHardwareMiningHardwareTypes;
     type MiningSpeedBoostConfigurationHardwareMiningHardwareID = u64;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate = u64;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate = u64;
     // Mining Speed Boost Hardware Mining Config
     type MiningSpeedBoostConfigurationHardwareMiningHardwareSecure = bool;
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)

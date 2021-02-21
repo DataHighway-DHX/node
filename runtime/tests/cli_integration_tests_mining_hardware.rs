@@ -136,8 +136,6 @@ mod tests {
         // type MiningSpeedBoostConfigurationHardwareMiningHardwareType =
         // MiningSpeedBoostConfigurationHardwareMiningHardwareTypes;
         type MiningSpeedBoostConfigurationHardwareMiningHardwareID = u64;
-        type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate = u64;
-        type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate = u64;
         // Mining Speed Boost Hardware Mining Config
         type MiningSpeedBoostConfigurationHardwareMiningHardwareSecure = bool;
         // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
@@ -161,7 +159,6 @@ mod tests {
     impl MiningSpeedBoostSamplingHardwareMiningTrait for Test {
         type Event = ();
         type MiningSpeedBoostSamplingHardwareMiningIndex = u64;
-        type MiningSpeedBoostSamplingHardwareMiningSampleDate = u64;
         type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
     }
     impl MiningSpeedBoostEligibilityHardwareMiningTrait for Test {
@@ -169,14 +166,12 @@ mod tests {
         type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility = u64;
         type MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage = u32;
         type MiningSpeedBoostEligibilityHardwareMiningIndex = u64;
-        // type MiningSpeedBoostEligibilityHardwareMiningDateAudited = u64;
         // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
     }
     impl MiningSpeedBoostLodgementsHardwareMiningTrait for Test {
         type Event = ();
         type MiningSpeedBoostLodgementsHardwareMiningIndex = u64;
         type MiningSpeedBoostLodgementsHardwareMiningLodgementAmount = u64;
-        type MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed = u64;
     }
 
     type System = frame_system::Module<Test>;
@@ -268,8 +263,8 @@ mod tests {
                 Some(b"gateway".to_vec()), // hardware_type
                 Some(1), // hardware_id
                 Some(12345), // hardware_dev_eui
-                Some(23456), // hardware_lock_period_start_date
-                Some(34567), // hardware_lock_period_end_date
+                Some(23456), // hardware_lock_start_block
+                Some(34567), // hardware_lock_interval_blocks
               )
             );
 
@@ -284,8 +279,8 @@ mod tests {
                     hardware_type: b"gateway".to_vec(),
                     hardware_id: 1,
                     hardware_dev_eui: 12345,
-                    hardware_lock_period_start_date: 23456,
-                    hardware_lock_period_end_date: 34567,
+                    hardware_lock_start_block: 23456,
+                    hardware_lock_interval_blocks: 34567,
                 })
             );
 
@@ -298,7 +293,7 @@ mod tests {
                     Origin::signed(0),
                     0, // mining_speed_boosts_sampling_hardware_mining_id
                     0, // mining_speed_boosts_sampling_hardware_mining_sample_id
-                    Some(23456), // hardware_sample_date
+                    Some(23456), // hardware_sample_block
                     Some(1), // hardware_sample_hardware_online
                 )
             );
@@ -311,7 +306,7 @@ mod tests {
             assert_eq!(
               MiningSpeedBoostSamplingHardwareMiningTestModule::mining_speed_boosts_samplings_hardware_mining_samplings_configs((0, 0)),
                 Some(MiningSpeedBoostSamplingHardwareMiningSamplingConfig {
-                    hardware_sample_date: 23456, // hardware_sample_date
+                    hardware_sample_block: 23456, // hardware_sample_block
                     hardware_sample_hardware_online: 1 // hardware_sample_hardware_online
                 })
             );
@@ -328,11 +323,11 @@ mod tests {
             //     ),
             //     Some(
             //         MiningSpeedBoostEligibilityHardwareMiningEligibilityResult {
-            //             eligibility_hardware_mining_calculated_eligibility: 1.1
+            //             hardware_calculated_eligibility: 1.1
             //             // to determine eligibility for proportion (incase user moves funds around during lock period)
-            //             eligibility_hardware_mining_hardware_uptime_percentage: 0.3,
-            //             // eligibility_hardware_mining_date_audited: 123,
-            //             // eligibility_hardware_mining_auditor_account_id: 123
+            //             hardware_uptime_percentage: 0.3,
+            //             // hardware_block_audited: 123,
+            //             // hardware_auditor_account_id: 123
             //         }
             //     )
             // ))
@@ -343,17 +338,17 @@ mod tests {
                     Origin::signed(0),
                     0, // mining_speed_boosts_configuration_hardware_mining_id
                     0, // mining_speed_boosts_eligibility_hardware_mining_id
-                    Some(1), // mining_speed_boosts_eligibility_hardware_mining_calculated_eligibility
-                    Some(1), // mining_speed_boosts_eligibility_hardware_mining_hardware_uptime_percentage
-                    // 123, // mining_speed_boosts_eligibility_hardware_mining_date_audited
-                    // 123, // mining_speed_boosts_eligibility_hardware_mining_auditor_account_id
+                    Some(1), // mining_speed_boosts_hardware_calculated_eligibility
+                    Some(1), // mining_speed_boosts_hardware_uptime_percentage
+                    // 123, // mining_speed_boosts_hardware_block_audited
+                    // 123, // mining_speed_boosts_hardware_auditor_account_id
                     // Some({
                     //     MiningSpeedBoostEligibilityHardwareMiningEligibilityResult {
-                    //         eligibility_hardware_mining_calculated_eligibility: 1,
+                    //         hardware_calculated_eligibility: 1,
                     //         // to determine eligibility for proportion (incase user moves funds around during lock period)
-                    //         eligibility_hardware_mining_hardware_uptime_percentage: 1,
-                    //         // eligibility_hardware_mining_date_audited: 123,
-                    //         // eligibility_hardware_mining_auditor_account_id: 123
+                    //         hardware_uptime_percentage: 1,
+                    //         // hardware_block_audited: 123,
+                    //         // hardware_auditor_account_id: 123
                     //     }
                     // }),
                 )
@@ -367,11 +362,11 @@ mod tests {
             assert_eq!(
                 MiningSpeedBoostEligibilityHardwareMiningTestModule::mining_speed_boosts_eligibility_hardware_mining_eligibility_results((0, 0)),
                 Some(MiningSpeedBoostEligibilityHardwareMiningEligibilityResult {
-                    eligibility_hardware_mining_calculated_eligibility: 1,
+                    hardware_calculated_eligibility: 1,
                     // to determine eligibility for proportion (incase user moves funds around during lock period)
-                    eligibility_hardware_mining_hardware_uptime_percentage: 1,
-                    // eligibility_hardware_mining_date_audited: 123,
-                    // eligibility_hardware_mining_auditor_account_id: 123
+                    hardware_uptime_percentage: 1,
+                    // hardware_block_audited: 123,
+                    // hardware_auditor_account_id: 123
                 })
             );
 
@@ -396,7 +391,7 @@ mod tests {
                     0, // mining_speed_boosts_eligibility_hardware_mining_id
                     0, // mining_speed_boosts_lodgements_hardware_mining_id
                     Some(1), // hardware_claim_amount
-                    Some(34567), // hardware_claim_date_redeemed
+                    Some(34567), // hardware_claim_block_redeemed
                 )
             );
 
@@ -408,7 +403,7 @@ mod tests {
               MiningSpeedBoostLodgementsHardwareMiningTestModule::mining_speed_boosts_lodgements_hardware_mining_lodgements_results((0, 0)),
                 Some(MiningSpeedBoostLodgementsHardwareMiningLodgementResult {
                     hardware_claim_amount: 1,
-                    hardware_claim_date_redeemed: 34567,
+                    hardware_claim_block_redeemed: 34567,
                 })
             );
         });

@@ -104,7 +104,6 @@ impl roaming_accounting_policies::Trait for Test {
 impl Trait for Test {
     type Event = ();
     type RoamingAgreementPolicyActivationType = Vec<u8>;
-    type RoamingAgreementPolicyExpiry = u64;
     type RoamingAgreementPolicyIndex = u64;
 }
 type System = frame_system::Module<Test>;

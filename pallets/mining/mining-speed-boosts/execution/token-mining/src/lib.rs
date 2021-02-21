@@ -55,8 +55,6 @@ pub trait Trait:
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type MiningSpeedBoostExecutionTokenMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSpeedBoostExecutionTokenMiningStartedDate: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSpeedBoostExecutionTokenMiningEndedDate: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     // type MiningSpeedBoostExecutionTokenMiningExecutorAccountID: Parameter
     //     + Member
     //     + AtLeast32Bit
@@ -76,8 +74,8 @@ pub struct MiningSpeedBoostExecutionTokenMining(pub [u8; 16]);
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
 pub struct MiningSpeedBoostExecutionTokenMiningExecutionResult<U, V, W> {
     pub token_execution_executor_account_id: U,
-    pub token_execution_started_date: V,
-    pub token_execution_ended_date: W,
+    pub token_execution_started_block: V,
+    pub token_execution_ended_block: W,
 }
 
 decl_event!(
@@ -85,9 +83,8 @@ decl_event!(
         <T as frame_system::Trait>::AccountId,
         <T as Trait>::MiningSpeedBoostExecutionTokenMiningIndex,
         // <T as Trait>::MiningSpeedBoostExecutionTokenMiningExecutorAccountID,
-        <T as Trait>::MiningSpeedBoostExecutionTokenMiningStartedDate,
-        <T as Trait>::MiningSpeedBoostExecutionTokenMiningEndedDate,
         <T as mining_speed_boosts_configuration_token_mining::Trait>::MiningSpeedBoostConfigurationTokenMiningIndex,
+        <T as frame_system::Trait>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
         /// A mining_speed_boosts_execution_token_mining is created. (owner, mining_speed_boosts_execution_token_mining_id)
@@ -96,8 +93,7 @@ decl_event!(
         Transferred(AccountId, AccountId, MiningSpeedBoostExecutionTokenMiningIndex),
         MiningSpeedBoostExecutionTokenMiningExecutionResultSet(
             AccountId, MiningSpeedBoostConfigurationTokenMiningIndex, MiningSpeedBoostExecutionTokenMiningIndex,
-            AccountId, MiningSpeedBoostExecutionTokenMiningStartedDate,
-            MiningSpeedBoostExecutionTokenMiningEndedDate
+            AccountId, BlockNumber, BlockNumber
         ),
         /// A mining_speed_boosts_execution_token_mining is assigned to an mining_speed_boosts_token_mining.
         /// (owner of mining_speed_boosts_token_mining, mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id)
@@ -121,8 +117,8 @@ decl_storage! {
         pub MiningSpeedBoostExecutionTokenMiningExecutionResults get(fn mining_speed_boosts_execution_token_mining_execution_results): map hasher(opaque_blake2_256) (T::MiningSpeedBoostConfigurationTokenMiningIndex, T::MiningSpeedBoostExecutionTokenMiningIndex) =>
             Option<MiningSpeedBoostExecutionTokenMiningExecutionResult<
                 T::AccountId,
-                T::MiningSpeedBoostExecutionTokenMiningStartedDate,
-                T::MiningSpeedBoostExecutionTokenMiningEndedDate
+                T::BlockNumber,
+                T::BlockNumber
             >>;
 
         /// Get mining_speed_boosts_configuration_token_mining_id belonging to a mining_speed_boosts_execution_token_mining_id
@@ -173,8 +169,8 @@ decl_module! {
             origin,
             mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
             mining_speed_boosts_execution_token_mining_id: T::MiningSpeedBoostExecutionTokenMiningIndex,
-            _token_execution_started_date: Option<T::MiningSpeedBoostExecutionTokenMiningStartedDate>,
-            _token_execution_ended_date: Option<T::MiningSpeedBoostExecutionTokenMiningEndedDate>,
+            _token_execution_started_block: Option<T::BlockNumber>,
+            _token_execution_ended_block: Option<T::BlockNumber>,
         ) {
             let sender = ensure_signed(origin)?;
 
@@ -195,22 +191,24 @@ decl_module! {
 
             // TODO - adjust defaults
             let token_execution_executor_account_id = sender.clone();
-            let token_execution_started_date = match _token_execution_started_date.clone() {
+            let token_execution_started_block = match _token_execution_started_block.clone() {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => <frame_system::Module<T>>::block_number()
             };
-            let token_execution_ended_date = match _token_execution_ended_date {
+            let token_execution_ended_block = match _token_execution_ended_block {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => <frame_system::Module<T>>::block_number() + 1.into() // Default
             };
 
-            // Ensure that the associated token configuration has a token_execution_started_date > time_now
-            let is_token_execution_started_date_greater_than_time_now = Self::token_execution_started_date_greater_than_time_now(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id).is_ok();
-            ensure!(is_token_execution_started_date_greater_than_time_now, "token execution does not have a token_execution_started_date > time_now");
+            // FIXME
+            // // Ensure that the associated token configuration has a token_execution_started_block > current_block
+            // let is_token_execution_started_block_greater_than_current_block = Self::token_execution_started_block_greater_than_current_block(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id).is_ok();
+            // ensure!(is_token_execution_started_block_greater_than_current_block, "token execution does not have a token_execution_started_block > current_block");
 
-            // // Ensure that the associated token configuration has a token_lock_period > token_lock_min_blocks
-            // let is_token_lock_period_greater_than_token_lock_min_blocks = Self::token_lock_period_greater_than_token_lock_min_blocks(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id).is_ok();
-            // ensure!(is_token_lock_period_greater_than_token_lock_min_blocks, "token configuration does not have a token_lock_period > token_lock_min_blocks");
+            // FIXME
+            // // Ensure that the associated token configuration has a token_lock_interval_blocks > token_lock_min_blocks
+            // let is_token_lock_interval_blocks_greater_than_token_lock_min_blocks = Self::token_lock_interval_blocks_greater_than_token_lock_min_blocks(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id).is_ok();
+            // ensure!(is_token_lock_interval_blocks_greater_than_token_lock_min_blocks, "token configuration does not have a token_lock_interval_blocks > token_lock_min_blocks");
 
             // Ensure that the associated token configuration has a token_lock_amount > token_lock_min_amount
             let is_token_lock_amount_greater_than_token_lock_min_amount = Self::token_lock_amount_greater_than_token_lock_min_amount(mining_speed_boosts_execution_token_mining_id, mining_speed_boosts_configuration_token_mining_id).is_ok();
@@ -224,16 +222,16 @@ decl_module! {
                     if let Some(_mining_speed_boosts_execution_token_mining_execution_result) = mining_speed_boosts_execution_token_mining_execution_result {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
                         _mining_speed_boosts_execution_token_mining_execution_result.token_execution_executor_account_id = token_execution_executor_account_id.clone();
-                        _mining_speed_boosts_execution_token_mining_execution_result.token_execution_started_date = token_execution_started_date.clone();
-                        _mining_speed_boosts_execution_token_mining_execution_result.token_execution_ended_date = token_execution_ended_date.clone();
+                        _mining_speed_boosts_execution_token_mining_execution_result.token_execution_started_block = token_execution_started_block.clone();
+                        _mining_speed_boosts_execution_token_mining_execution_result.token_execution_ended_block = token_execution_ended_block.clone();
                     }
                 });
                 debug::info!("Checking mutated values");
                 let fetched_mining_speed_boosts_execution_token_mining_execution_result = <MiningSpeedBoostExecutionTokenMiningExecutionResults<T>>::get((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_execution_token_mining_id));
                 if let Some(_mining_speed_boosts_execution_token_mining_execution_result) = fetched_mining_speed_boosts_execution_token_mining_execution_result {
                     debug::info!("Latest field token_execution_executor_account_id {:#?}", _mining_speed_boosts_execution_token_mining_execution_result.token_execution_executor_account_id);
-                    debug::info!("Latest field token_execution_started_date {:#?}", _mining_speed_boosts_execution_token_mining_execution_result.token_execution_started_date);
-                    debug::info!("Latest field token_execution_ended_date {:#?}", _mining_speed_boosts_execution_token_mining_execution_result.token_execution_ended_date);
+                    debug::info!("Latest field token_execution_started_block {:#?}", _mining_speed_boosts_execution_token_mining_execution_result.token_execution_started_block);
+                    debug::info!("Latest field token_execution_ended_block {:#?}", _mining_speed_boosts_execution_token_mining_execution_result.token_execution_ended_block);
                 }
             } else {
                 debug::info!("Inserting values");
@@ -243,8 +241,8 @@ decl_module! {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     token_execution_executor_account_id: token_execution_executor_account_id.clone(),
-                    token_execution_started_date: token_execution_started_date.clone(),
-                    token_execution_ended_date: token_execution_ended_date.clone(),
+                    token_execution_started_block: token_execution_started_block.clone(),
+                    token_execution_ended_block: token_execution_ended_block.clone(),
                 };
 
                 <MiningSpeedBoostExecutionTokenMiningExecutionResults<T>>::insert(
@@ -256,8 +254,8 @@ decl_module! {
                 let fetched_mining_speed_boosts_execution_token_mining_execution_result = <MiningSpeedBoostExecutionTokenMiningExecutionResults<T>>::get((mining_speed_boosts_configuration_token_mining_id, mining_speed_boosts_execution_token_mining_id));
                 if let Some(_mining_speed_boosts_execution_token_mining_execution_result) = fetched_mining_speed_boosts_execution_token_mining_execution_result {
                     debug::info!("Inserted field token_execution_executor_account_id {:#?}", _mining_speed_boosts_execution_token_mining_execution_result.token_execution_executor_account_id);
-                    debug::info!("Inserted field token_execution_started_date {:#?}", _mining_speed_boosts_execution_token_mining_execution_result.token_execution_started_date);
-                    debug::info!("Inserted field token_execution_ended_date {:#?}", _mining_speed_boosts_execution_token_mining_execution_result.token_execution_ended_date);
+                    debug::info!("Inserted field token_execution_started_block {:#?}", _mining_speed_boosts_execution_token_mining_execution_result.token_execution_started_block);
+                    debug::info!("Inserted field token_execution_ended_block {:#?}", _mining_speed_boosts_execution_token_mining_execution_result.token_execution_ended_block);
                 }
             }
 
@@ -266,8 +264,8 @@ decl_module! {
                 mining_speed_boosts_configuration_token_mining_id,
                 mining_speed_boosts_execution_token_mining_id,
                 token_execution_executor_account_id.clone(),
-                token_execution_started_date,
-                token_execution_ended_date,
+                token_execution_started_block,
+                token_execution_ended_block,
             ));
 
 
@@ -277,8 +275,8 @@ decl_module! {
                 mining_speed_boosts_configuration_token_mining_id,
                 mining_speed_boosts_execution_token_mining_id,
                 token_execution_executor_account_id.clone(),
-                token_execution_started_date,
-                token_execution_ended_date,
+                token_execution_started_block,
+                token_execution_ended_block,
             ).is_ok() {
                 debug::info!("Executed");
             } else {
@@ -360,20 +358,18 @@ impl<T: Trait> Module<T> {
         }
     }
 
-    // Check that the token execution has a token_execution_started_date > time_now
-    pub fn token_execution_started_date_greater_than_time_now(
+    // Check that the token execution has a token_execution_started_block > current_block
+    pub fn token_execution_started_block_greater_than_current_block(
         mining_speed_boosts_execution_token_mining_id: T::MiningSpeedBoostExecutionTokenMiningIndex,
         mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
     ) -> Result<(), DispatchError> {
         // Check that the extrinsic call is made after the start date defined in the provided configuration
 
-        // FIXME - add system time now
-        // let time_now = 123.into();
+        let current_block = <frame_system::Module<T>>::block_number();
         // Get the config associated with the given configuration_token_mining
         if let Some(configuration_token_mining_config) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_configs(mining_speed_boosts_configuration_token_mining_id) {
-            if let _token_lock_period_start_date = configuration_token_mining_config.token_lock_period_start_date {
-                // FIXME - get this to work when add system time
-                // ensure!(time_now > token_lock_period_start_date, "Execution may not be made until after the start date of the lock period in the configuration");
+            if let _token_lock_start_block = configuration_token_mining_config.token_lock_start_block {
+                ensure!(current_block > _token_lock_start_block, "Execution may not be made until after the start block of the lock period in the configuration");
                 Ok(())
             } else {
                 return Err(DispatchError::Other("Cannot find token_mining_config start_date associated with the execution"));
@@ -383,23 +379,22 @@ impl<T: Trait> Module<T> {
         }
     }
 
-    // Check that the associated token configuration has a token_lock_period > token_lock_min_blocks
-    pub fn token_lock_period_greater_than_token_lock_min_blocks(
+    // Check that the associated token configuration has a token_lock_interval_blocks > token_lock_min_blocks
+    pub fn token_lock_interval_blocks_greater_than_token_lock_min_blocks(
         mining_speed_boosts_execution_token_mining_id: T::MiningSpeedBoostExecutionTokenMiningIndex,
         mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
     ) -> Result<(), DispatchError> {
         if let Some(configuration_token_mining) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_configs((mining_speed_boosts_configuration_token_mining_id)) {
             if let Some(cooldown_configuration_token_mining) = <mining_speed_boosts_configuration_token_mining::Module<T>>::mining_speed_boosts_configuration_token_mining_token_cooldown_configs((mining_speed_boosts_configuration_token_mining_id)) {
-                if let lock_period = configuration_token_mining.token_lock_period {
-                    if let lock_period_min = cooldown_configuration_token_mining.token_lock_min_blocks {
-                        // FIXME - fix this type error so we can use this function
-                        // ensure!(lock_period > lock_period_min, "Lock period must be longer than the minimum lock period of the cooldown config. Cannot execute.");
+                if let token_lock_interval_blocks = configuration_token_mining.token_lock_interval_blocks {
+                    if let token_lock_min_blocks = cooldown_configuration_token_mining.token_lock_min_blocks {
+                        ensure!(token_lock_interval_blocks > token_lock_min_blocks, "Lock period must be longer than the minimum lock period of the cooldown config. Cannot execute.");
                         Ok(())
                     } else {
                         return Err(DispatchError::Other("Cannot find token_mining_config with token_lock_min_blocks associated with the execution"));
                     }
                 } else {
-                    return Err(DispatchError::Other("Cannot find token_mining_config with token_lock_period associated with the execution"));
+                    return Err(DispatchError::Other("Cannot find token_mining_config with token_lock_interval_blocks associated with the execution"));
                 }
             } else {
                 return Err(DispatchError::Other("Cannot find token_mining_cooldown_config associated with the execution"));
@@ -424,7 +419,7 @@ impl<T: Trait> Module<T> {
                         return Err(DispatchError::Other("Cannot find token_mining_config with token_lock_min_blocks associated with the execution"));
                     }
                 } else {
-                    return Err(DispatchError::Other("Cannot find token_mining_config with token_lock_period associated with the execution"));
+                    return Err(DispatchError::Other("Cannot find token_mining_config with token_lock_interval_blocks associated with the execution"));
                 }
             } else {
                 return Err(DispatchError::Other("Cannot find token_mining_cooldown_config associated with the execution"));
@@ -439,12 +434,12 @@ impl<T: Trait> Module<T> {
         mining_speed_boosts_configuration_token_mining_id: T::MiningSpeedBoostConfigurationTokenMiningIndex,
         mining_speed_boosts_execution_token_mining_id: T::MiningSpeedBoostExecutionTokenMiningIndex,
         _token_execution_executor_account_id: T::AccountId,
-        _token_execution_started_date: T::MiningSpeedBoostExecutionTokenMiningStartedDate,
-        _token_execution_ended_date: T::MiningSpeedBoostExecutionTokenMiningEndedDate,
+        _token_execution_started_block: T::BlockNumber,
+        _token_execution_ended_block: T::BlockNumber,
     ) -> Result<(), DispatchError> {
         return Ok(());
 
-        // TODO - Lock the token_lock_amount for the token_lock_period using the Balances module
+        // TODO - Lock the token_lock_amount for the token_lock_interval_blocks using the Balances module
 
         // TODO - Setup a function in on_finalize that automatically checks through all the accounts that have
         // successfully been locked, whether it is the end of their cooldown period and if so sample the balance, to
