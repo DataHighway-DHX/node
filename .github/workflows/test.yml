@@ -83,17 +83,17 @@ jobs:
           cargo +nightly-2020-10-06 test -p roaming-billing-policies &&
           cargo +nightly-2020-10-06 test -p roaming-charging-policies &&
           cargo +nightly-2020-10-06 test -p roaming-packet-bundles &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-configuration-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-configuration-hardware-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-rates-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-rates-hardware-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-sampling-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-sampling-hardware-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-eligibility-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-eligibility-hardware-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-lodgements-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-lodgements-hardware-mining &&
-          cargo +nightly-2020-10-06 test -p mining-speed-boosts-execution-token-mining
+          cargo +nightly-2020-10-06 test -p mining-configuration-token-mining &&
+          cargo +nightly-2020-10-06 test -p mining-configuration-hardware-mining &&
+          cargo +nightly-2020-10-06 test -p mining-rates-token-mining &&
+          cargo +nightly-2020-10-06 test -p mining-rates-hardware-mining &&
+          cargo +nightly-2020-10-06 test -p mining-sampling-token-mining &&
+          cargo +nightly-2020-10-06 test -p mining-sampling-hardware-mining &&
+          cargo +nightly-2020-10-06 test -p mining-eligibility-token-mining &&
+          cargo +nightly-2020-10-06 test -p mining-eligibility-hardware-mining &&
+          cargo +nightly-2020-10-06 test -p mining-lodgements-token-mining &&
+          cargo +nightly-2020-10-06 test -p mining-lodgements-hardware-mining &&
+          cargo +nightly-2020-10-06 test -p mining-execution-token-mining
 
   lints:
     name: Lints

@@ -1,5 +1,5 @@
 [package]
-name = "mining-speed-boosts-lodgements-hardware-mining"
+name = "mining-lodgements-hardware-mining"
 version = "0.1.0"
 authors = ["Luke Schoen"]
 edition = "2018"
@@ -20,10 +20,10 @@ std = [
     'sp-std/std',
 
     'roaming-operators/std',
-    'mining-speed-boosts-configuration-hardware-mining/std',
-    'mining-speed-boosts-eligibility-hardware-mining/std',
-    'mining-speed-boosts-rates-hardware-mining/std',
-    'mining-speed-boosts-sampling-hardware-mining/std'
+    'mining-configuration-hardware-mining/std',
+    'mining-eligibility-hardware-mining/std',
+    'mining-rates-hardware-mining/std',
+    'mining-sampling-hardware-mining/std'
 ]
 
 [dependencies]
@@ -40,9 +40,9 @@ sp-runtime = { version = '2.0.0', default_features = false }
 sp-std = { version = '2.0.0', default_features = false }
 
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../../roaming/roaming-operators' }
-mining-speed-boosts-configuration-hardware-mining = { default_features = false, package = 'mining-speed-boosts-configuration-hardware-mining', path = '../../../../mining/mining-speed-boosts/configuration/hardware-mining' }
-mining-speed-boosts-eligibility-hardware-mining = { default_features = false, package = 'mining-speed-boosts-eligibility-hardware-mining', path = '../../../../mining/mining-speed-boosts/eligibility/hardware-mining' }
-mining-speed-boosts-rates-hardware-mining = { default_features = false, package = 'mining-speed-boosts-rates-hardware-mining', path = '../../../../mining/mining-speed-boosts/rates/hardware-mining' }
-mining-speed-boosts-sampling-hardware-mining = { default_features = false, package = 'mining-speed-boosts-sampling-hardware-mining', path = '../../../../mining/mining-speed-boosts/sampling/hardware-mining' }
+mining-configuration-hardware-mining = { default_features = false, package = 'mining-configuration-hardware-mining', path = '../../../../mining/mining/configuration/hardware-mining' }
+mining-eligibility-hardware-mining = { default_features = false, package = 'mining-eligibility-hardware-mining', path = '../../../../mining/mining/eligibility/hardware-mining' }
+mining-rates-hardware-mining = { default_features = false, package = 'mining-rates-hardware-mining', path = '../../../../mining/mining/rates/hardware-mining' }
+mining-sampling-hardware-mining = { default_features = false, package = 'mining-sampling-hardware-mining', path = '../../../../mining/mining/sampling/hardware-mining' }
 
 [dev-dependencies]

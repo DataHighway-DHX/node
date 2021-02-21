@@ -1,5 +1,5 @@
 [package]
-name = "mining-speed-boosts-configuration-hardware-mining"
+name = "mining-configuration-hardware-mining"
 version = "0.1.0"
 authors = ["Luke Schoen"]
 edition = "2018"

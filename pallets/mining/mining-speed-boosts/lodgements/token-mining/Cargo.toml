@@ -1,5 +1,5 @@
 [package]
-name = "mining-speed-boosts-lodgements-token-mining"
+name = "mining-lodgements-token-mining"
 version = "0.1.0"
 authors = ["Luke Schoen"]
 edition = "2018"
@@ -20,10 +20,10 @@ std = [
     'sp-std/std',
 
     'roaming-operators/std',
-    'mining-speed-boosts-configuration-token-mining/std',
-    'mining-speed-boosts-eligibility-token-mining/std',
-    'mining-speed-boosts-rates-token-mining/std',
-    'mining-speed-boosts-sampling-token-mining/std',
+    'mining-configuration-token-mining/std',
+    'mining-eligibility-token-mining/std',
+    'mining-rates-token-mining/std',
+    'mining-sampling-token-mining/std',
 ]
 
 [dependencies]
@@ -40,9 +40,9 @@ sp-runtime = { version = '2.0.0', default_features = false }
 sp-std = { version = '2.0.0', default_features = false }
 
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../../roaming/roaming-operators' }
-mining-speed-boosts-configuration-token-mining = { default_features = false, package = 'mining-speed-boosts-configuration-token-mining', path = '../../../../mining/mining-speed-boosts/configuration/token-mining' }
-mining-speed-boosts-eligibility-token-mining = { default_features = false, package = 'mining-speed-boosts-eligibility-token-mining', path = '../../../../mining/mining-speed-boosts/eligibility/token-mining' }
-mining-speed-boosts-rates-token-mining = { default_features = false, package = 'mining-speed-boosts-rates-token-mining', path = '../../../../mining/mining-speed-boosts/rates/token-mining' }
-mining-speed-boosts-sampling-token-mining = { default_features = false, package = 'mining-speed-boosts-sampling-token-mining', path = '../../../../mining/mining-speed-boosts/sampling/token-mining' }
+mining-configuration-token-mining = { default_features = false, package = 'mining-configuration-token-mining', path = '../../../../mining/mining/configuration/token-mining' }
+mining-eligibility-token-mining = { default_features = false, package = 'mining-eligibility-token-mining', path = '../../../../mining/mining/eligibility/token-mining' }
+mining-rates-token-mining = { default_features = false, package = 'mining-rates-token-mining', path = '../../../../mining/mining/rates/token-mining' }
+mining-sampling-token-mining = { default_features = false, package = 'mining-sampling-token-mining', path = '../../../../mining/mining/sampling/token-mining' }
 
 [dev-dependencies]

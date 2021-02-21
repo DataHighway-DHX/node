@@ -31,7 +31,7 @@ use sp_runtime::{
 use sp_std::prelude::*; // Imports Vec
 
 // FIXME - remove roaming_operators here, only use this approach since do not know how to use BalanceOf using only
-// mining-speed-boosts runtime module
+// mining runtime module
 
 #[cfg(test)]
 mod mock;
