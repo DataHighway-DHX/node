@@ -54,17 +54,17 @@ std = [
     'roaming-billing-policies/std',
     'roaming-charging-policies/std',
     'roaming-packet-bundles/std',
-    'mining-config-token-mining/std',
-    'mining-config-hardware-mining/std',
-    'mining-rates-token-mining/std',
-    'mining-rates-hardware-mining/std',
-    'mining-sampling-token-mining/std',
-    'mining-sampling-hardware-mining/std',
-    'mining-eligibility-token-mining/std',
-    'mining-eligibility-hardware-mining/std',
-    'mining-claims-token-mining/std',
-    'mining-claims-hardware-mining/std',
-    'mining-execution-token-mining/std',
+    'mining-config-token/std',
+    'mining-config-hardware/std',
+    'mining-rates-token/std',
+    'mining-rates-hardware/std',
+    'mining-sampling-token/std',
+    'mining-sampling-hardware/std',
+    'mining-eligibility-token/std',
+    'mining-eligibility-hardware/std',
+    'mining-claims-token/std',
+    'mining-claims-hardware/std',
+    'mining-execution-token/std',
 ]
 
 [dependencies]
@@ -119,17 +119,17 @@ roaming-sessions = { default_features = false, package = 'roaming-sessions', pat
 roaming-billing-policies = { default_features = false, package = 'roaming-billing-policies', path = '../pallets/roaming/roaming-billing-policies' }
 roaming-charging-policies = { default_features = false, package = 'roaming-charging-policies', path = '../pallets/roaming/roaming-charging-policies' }
 roaming-packet-bundles = { default_features = false, package = 'roaming-packet-bundles', path = '../pallets/roaming/roaming-packet-bundles' }
-mining-config-token-mining = { default_features = false, package = 'mining-config-token-mining', path = '../pallets/mining/config/token-mining' }
-mining-config-hardware-mining = { default_features = false, package = 'mining-config-hardware-mining', path = '../pallets/mining/config/hardware-mining' }
-mining-rates-token-mining = { default_features = false, package = 'mining-rates-token-mining', path = '../pallets/mining/rates/token-mining' }
-mining-rates-hardware-mining = { default_features = false, package = 'mining-rates-hardware-mining', path = '../pallets/mining/rates/hardware-mining' }
-mining-sampling-token-mining = { default_features = false, package = 'mining-sampling-token-mining', path = '../pallets/mining/sampling/token-mining' }
-mining-sampling-hardware-mining = { default_features = false, package = 'mining-sampling-hardware-mining', path = '../pallets/mining/sampling/hardware-mining' }
-mining-eligibility-token-mining = { default_features = false, package = 'mining-eligibility-token-mining', path = '../pallets/mining/eligibility/token-mining' }
-mining-eligibility-hardware-mining = { default_features = false, package = 'mining-eligibility-hardware-mining', path = '../pallets/mining/eligibility/hardware-mining' }
-mining-claims-token-mining = { default_features = false, package = 'mining-claims-token-mining', path = '../pallets/mining/claims/token-mining' }
-mining-claims-hardware-mining = { default_features = false, package = 'mining-claims-hardware-mining', path = '../pallets/mining/claims/hardware-mining' }
-mining-execution-token-mining = { default_features = false, package = 'mining-execution-token-mining', path = '../pallets/mining/execution/token-mining' }
+mining-config-token = { default_features = false, package = 'mining-config-token', path = '../pallets/mining/config/token' }
+mining-config-hardware = { default_features = false, package = 'mining-config-hardware', path = '../pallets/mining/config/hardware' }
+mining-rates-token = { default_features = false, package = 'mining-rates-token', path = '../pallets/mining/rates/token' }
+mining-rates-hardware = { default_features = false, package = 'mining-rates-hardware', path = '../pallets/mining/rates/hardware' }
+mining-sampling-token = { default_features = false, package = 'mining-sampling-token', path = '../pallets/mining/sampling/token' }
+mining-sampling-hardware = { default_features = false, package = 'mining-sampling-hardware', path = '../pallets/mining/sampling/hardware' }
+mining-eligibility-token = { default_features = false, package = 'mining-eligibility-token', path = '../pallets/mining/eligibility/token' }
+mining-eligibility-hardware = { default_features = false, package = 'mining-eligibility-hardware', path = '../pallets/mining/eligibility/hardware' }
+mining-claims-token = { default_features = false, package = 'mining-claims-token', path = '../pallets/mining/claims/token' }
+mining-claims-hardware = { default_features = false, package = 'mining-claims-hardware', path = '../pallets/mining/claims/hardware' }
+mining-execution-token = { default_features = false, package = 'mining-execution-token', path = '../pallets/mining/execution/token' }
 module-primitives = { default-features = false, path = '../pallets/primitives' }
 
 [build-dependencies]

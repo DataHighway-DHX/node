@@ -92,16 +92,16 @@ cargo test -p roaming-sessions &&
 cargo test -p roaming-billing-policies &&
 cargo test -p roaming-charging-policies &&
 cargo test -p roaming-packet-bundles &&
-cargo test -p mining-config-token-mining &&
-cargo test -p mining-config-hardware-mining &&
-cargo test -p mining-rates-token-mining &&
-cargo test -p mining-rates-hardware-mining &&
-cargo test -p mining-sampling-token-mining &&
-cargo test -p mining-sampling-hardware-mining &&
-cargo test -p mining-eligibility-token-mining &&
-cargo test -p mining-eligibility-hardware-mining &&
-cargo test -p mining-claims-token-mining &&
-cargo test -p mining-claims-hardware-mining
+cargo test -p mining-config-token &&
+cargo test -p mining-config-hardware &&
+cargo test -p mining-rates-token &&
+cargo test -p mining-rates-hardware &&
+cargo test -p mining-sampling-token &&
+cargo test -p mining-sampling-hardware &&
+cargo test -p mining-eligibility-token &&
+cargo test -p mining-eligibility-hardware &&
+cargo test -p mining-claims-token &&
+cargo test -p mining-claims-hardware
 ```
 
 ### Run Integration Tests Only

@@ -90,25 +90,25 @@ impl roaming_operators::Trait for Test {
     type Randomness = Randomness;
     type RoamingOperatorIndex = u64;
 }
-impl mining_config_token_mining::Trait for Test {
+impl mining_config_token::Trait for Test {
     type Event = ();
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
-    type MiningConfigTokenMiningIndex = u64;
-    type MiningConfigTokenMiningTokenLockAmount = u64;
+    type MiningConfigTokenIndex = u64;
+    type MiningConfigTokenTokenLockAmount = u64;
     // Mining Speed Boost Token Mining Config
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningConfigTokenMiningTokenType = Vec<u8>;
+    type MiningConfigTokenTokenType = Vec<u8>;
 }
 impl Trait for Test {
     type Event = ();
-    type MiningSamplingTokenMiningIndex = u64;
-    type MiningSamplingTokenMiningSampleLockedAmount = u64;
+    type MiningSamplingTokenIndex = u64;
+    type MiningSamplingTokenSampleLockedAmount = u64;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;
-pub type MiningSamplingTokenMiningTestModule = Module<Test>;
+pub type MiningSamplingTokenTestModule = Module<Test>;
 type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
 // This function basically just builds a genesis storage key/value store according to

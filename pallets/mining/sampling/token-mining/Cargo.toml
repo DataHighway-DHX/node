@@ -1,5 +1,5 @@
 [package]
-name = "mining-sampling-token-mining"
+name = "mining-sampling-token"
 version = "0.1.0"
 authors = ["Luke Schoen"]
 edition = "2018"
@@ -20,7 +20,7 @@ std = [
     'sp-std/std',
 
     'roaming-operators/std',
-    'mining-config-token-mining/std',
+    'mining-config-token/std',
 ]
 
 [dependencies]
@@ -37,6 +37,6 @@ sp-runtime = { version = '2.0.0', default_features = false }
 sp-std = { version = '2.0.0', default_features = false }
 
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
-mining-config-token-mining = { default_features = false, package = 'mining-config-token-mining', path = '../../../mining/config/token-mining' }
+mining-config-token = { default_features = false, package = 'mining-config-token', path = '../../../mining/config/token' }
 
 [dev-dependencies]

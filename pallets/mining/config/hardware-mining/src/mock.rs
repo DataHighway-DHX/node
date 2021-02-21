@@ -92,19 +92,19 @@ impl roaming_operators::Trait for Test {
 }
 impl Trait for Test {
     type Event = ();
-    type MiningConfigHardwareMiningHardwareDevEUI = u64;
-    // type MiningConfigHardwareMiningHardwareType =
-    // MiningConfigHardwareMiningHardwareTypes;
-    type MiningConfigHardwareMiningHardwareID = u64;
+    type MiningConfigHardwareHardwareDevEUI = u64;
+    // type MiningConfigHardwareHardwareType =
+    // MiningConfigHardwareHardwareTypes;
+    type MiningConfigHardwareHardwareID = u64;
     // Mining Speed Boost Hardware Mining Config
-    type MiningConfigHardwareMiningHardwareSecure = bool;
+    type MiningConfigHardwareHardwareSecure = bool;
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningConfigHardwareMiningHardwareType = Vec<u8>;
-    type MiningConfigHardwareMiningIndex = u64;
+    type MiningConfigHardwareHardwareType = Vec<u8>;
+    type MiningConfigHardwareIndex = u64;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;
-pub type MiningConfigHardwareMiningTestModule = Module<Test>;
+pub type MiningConfigHardwareTestModule = Module<Test>;
 type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
 // This function basically just builds a genesis storage key/value store according to

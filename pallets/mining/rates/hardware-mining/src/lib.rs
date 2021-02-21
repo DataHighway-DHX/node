@@ -41,28 +41,28 @@ mod tests;
 /// The module's configuration trait.
 pub trait Trait: frame_system::Trait + roaming_operators::Trait {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
-    type MiningRatesHardwareMiningIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningRatesHardwareMiningHardwareSecure: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningRatesHardwareMiningHardwareInsecure: Parameter
+    type MiningRatesHardwareIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningRatesHardwareHardwareSecure: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningRatesHardwareHardwareInsecure: Parameter
         + Member
         + AtLeast32Bit
         + Bounded
         + Default
         + Copy;
-    type MiningRatesHardwareMiningMaxHardware: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningRatesHardwareMiningCategory1MaxTokenBonusPerGateway: Parameter
+    type MiningRatesHardwareMaxHardware: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningRatesHardwareCategory1MaxTokenBonusPerGateway: Parameter
         + Member
         + AtLeast32Bit
         + Bounded
         + Default
         + Copy;
-    type MiningRatesHardwareMiningCategory2MaxTokenBonusPerGateway: Parameter
+    type MiningRatesHardwareCategory2MaxTokenBonusPerGateway: Parameter
         + Member
         + AtLeast32Bit
         + Bounded
         + Default
         + Copy;
-    type MiningRatesHardwareMiningCategory3MaxTokenBonusPerGateway: Parameter
+    type MiningRatesHardwareCategory3MaxTokenBonusPerGateway: Parameter
         + Member
         + AtLeast32Bit
         + Bounded
@@ -75,11 +75,11 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
-pub struct MiningRatesHardwareMining(pub [u8; 16]);
+pub struct MiningRatesHardware(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
-pub struct MiningRatesHardwareMiningRatesConfig<U, V, W, X, Y, Z> {
+pub struct MiningRatesHardwareRatesConfig<U, V, W, X, Y, Z> {
     pub hardware_hardware_secure: U,
     pub hardware_hardware_insecure: V,
     pub hardware_max_hardware: W,
@@ -91,48 +91,48 @@ pub struct MiningRatesHardwareMiningRatesConfig<U, V, W, X, Y, Z> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Trait>::AccountId,
-        <T as Trait>::MiningRatesHardwareMiningIndex,
-        <T as Trait>::MiningRatesHardwareMiningHardwareSecure,
-        <T as Trait>::MiningRatesHardwareMiningHardwareInsecure,
-        <T as Trait>::MiningRatesHardwareMiningMaxHardware,
-        <T as Trait>::MiningRatesHardwareMiningCategory1MaxTokenBonusPerGateway,
-        <T as Trait>::MiningRatesHardwareMiningCategory2MaxTokenBonusPerGateway,
-        <T as Trait>::MiningRatesHardwareMiningCategory3MaxTokenBonusPerGateway,
+        <T as Trait>::MiningRatesHardwareIndex,
+        <T as Trait>::MiningRatesHardwareHardwareSecure,
+        <T as Trait>::MiningRatesHardwareHardwareInsecure,
+        <T as Trait>::MiningRatesHardwareMaxHardware,
+        <T as Trait>::MiningRatesHardwareCategory1MaxTokenBonusPerGateway,
+        <T as Trait>::MiningRatesHardwareCategory2MaxTokenBonusPerGateway,
+        <T as Trait>::MiningRatesHardwareCategory3MaxTokenBonusPerGateway,
         // Balance = BalanceOf<T>,
     {
-        /// A mining_rates_hardware_mining is created. (owner, mining_rates_hardware_mining_id)
-        Created(AccountId, MiningRatesHardwareMiningIndex),
-        /// A mining_rates_hardware_mining is transferred. (from, to, mining_rates_hardware_mining_id)
-        Transferred(AccountId, AccountId, MiningRatesHardwareMiningIndex),
-        MiningRatesHardwareMiningRatesConfigSet(
-            AccountId, MiningRatesHardwareMiningIndex, MiningRatesHardwareMiningHardwareSecure,
-            MiningRatesHardwareMiningHardwareInsecure, MiningRatesHardwareMiningMaxHardware,
-            MiningRatesHardwareMiningCategory1MaxTokenBonusPerGateway,
-            MiningRatesHardwareMiningCategory2MaxTokenBonusPerGateway,
-            MiningRatesHardwareMiningCategory3MaxTokenBonusPerGateway
+        /// A mining_rates_hardware is created. (owner, mining_rates_hardware_id)
+        Created(AccountId, MiningRatesHardwareIndex),
+        /// A mining_rates_hardware is transferred. (from, to, mining_rates_hardware_id)
+        Transferred(AccountId, AccountId, MiningRatesHardwareIndex),
+        MiningRatesHardwareRatesConfigSet(
+            AccountId, MiningRatesHardwareIndex, MiningRatesHardwareHardwareSecure,
+            MiningRatesHardwareHardwareInsecure, MiningRatesHardwareMaxHardware,
+            MiningRatesHardwareCategory1MaxTokenBonusPerGateway,
+            MiningRatesHardwareCategory2MaxTokenBonusPerGateway,
+            MiningRatesHardwareCategory3MaxTokenBonusPerGateway
         ),
     }
 );
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as MiningRatesHardwareMining {
-        /// Stores all the mining_rates_hardware_minings, key is the mining_rates_hardware_mining id / index
-        pub MiningRatesHardwareMinings get(fn mining_rates_hardware_mining): map hasher(opaque_blake2_256) T::MiningRatesHardwareMiningIndex => Option<MiningRatesHardwareMining>;
+    trait Store for Module<T: Trait> as MiningRatesHardware {
+        /// Stores all the mining_rates_hardwares, key is the mining_rates_hardware id / index
+        pub MiningRatesHardwares get(fn mining_rates_hardware): map hasher(opaque_blake2_256) T::MiningRatesHardwareIndex => Option<MiningRatesHardware>;
 
-        /// Stores the total number of mining_rates_hardware_minings. i.e. the next mining_rates_hardware_mining index
-        pub MiningRatesHardwareMiningCount get(fn mining_rates_hardware_mining_count): T::MiningRatesHardwareMiningIndex;
+        /// Stores the total number of mining_rates_hardwares. i.e. the next mining_rates_hardware index
+        pub MiningRatesHardwareCount get(fn mining_rates_hardware_count): T::MiningRatesHardwareIndex;
 
-        /// Stores mining_rates_hardware_mining owner
-        pub MiningRatesHardwareMiningOwners get(fn mining_rates_hardware_mining_owner): map hasher(opaque_blake2_256) T::MiningRatesHardwareMiningIndex => Option<T::AccountId>;
+        /// Stores mining_rates_hardware owner
+        pub MiningRatesHardwareOwners get(fn mining_rates_hardware_owner): map hasher(opaque_blake2_256) T::MiningRatesHardwareIndex => Option<T::AccountId>;
 
-        /// Stores mining_rates_hardware_mining_rates_config
-        pub MiningRatesHardwareMiningRatesConfigs get(fn mining_rates_hardware_mining_rates_configs): map hasher(opaque_blake2_256) T::MiningRatesHardwareMiningIndex =>
-            Option<MiningRatesHardwareMiningRatesConfig<T::MiningRatesHardwareMiningHardwareSecure,
-            T::MiningRatesHardwareMiningHardwareInsecure, T::MiningRatesHardwareMiningMaxHardware,
-            T::MiningRatesHardwareMiningCategory1MaxTokenBonusPerGateway,
-            T::MiningRatesHardwareMiningCategory2MaxTokenBonusPerGateway,
-            T::MiningRatesHardwareMiningCategory3MaxTokenBonusPerGateway>>;
+        /// Stores mining_rates_hardware_rates_config
+        pub MiningRatesHardwareRatesConfigs get(fn mining_rates_hardware_rates_configs): map hasher(opaque_blake2_256) T::MiningRatesHardwareIndex =>
+            Option<MiningRatesHardwareRatesConfig<T::MiningRatesHardwareHardwareSecure,
+            T::MiningRatesHardwareHardwareInsecure, T::MiningRatesHardwareMaxHardware,
+            T::MiningRatesHardwareCategory1MaxTokenBonusPerGateway,
+            T::MiningRatesHardwareCategory2MaxTokenBonusPerGateway,
+            T::MiningRatesHardwareCategory3MaxTokenBonusPerGateway>>;
     }
 }
 
@@ -142,54 +142,54 @@ decl_module! {
     pub struct Module<T: Trait> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
-        /// Create a new mining mining_rates_hardware_mining
+        /// Create a new mining mining_rates_hardware
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
-            let mining_rates_hardware_mining_id = Self::next_mining_rates_hardware_mining_id()?;
+            let mining_rates_hardware_id = Self::next_mining_rates_hardware_id()?;
 
             // Generate a random 128bit value
             let unique_id = Self::random_value(&sender);
 
-            // Create and store mining_rates_hardware_mining
-            let mining_rates_hardware_mining = MiningRatesHardwareMining(unique_id);
-            Self::insert_mining_rates_hardware_mining(&sender, mining_rates_hardware_mining_id, mining_rates_hardware_mining);
+            // Create and store mining_rates_hardware
+            let mining_rates_hardware = MiningRatesHardware(unique_id);
+            Self::insert_mining_rates_hardware(&sender, mining_rates_hardware_id, mining_rates_hardware);
 
-            Self::deposit_event(RawEvent::Created(sender, mining_rates_hardware_mining_id));
+            Self::deposit_event(RawEvent::Created(sender, mining_rates_hardware_id));
         }
 
-        /// Transfer a mining_rates_hardware_mining to new owner
+        /// Transfer a mining_rates_hardware to new owner
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
-        pub fn transfer(origin, to: T::AccountId, mining_rates_hardware_mining_id: T::MiningRatesHardwareMiningIndex) {
+        pub fn transfer(origin, to: T::AccountId, mining_rates_hardware_id: T::MiningRatesHardwareIndex) {
             let sender = ensure_signed(origin)?;
 
-            ensure!(Self::mining_rates_hardware_mining_owner(mining_rates_hardware_mining_id) == Some(sender.clone()), "Only owner can transfer mining mining_rates_hardware_mining");
+            ensure!(Self::mining_rates_hardware_owner(mining_rates_hardware_id) == Some(sender.clone()), "Only owner can transfer mining mining_rates_hardware");
 
-            Self::update_owner(&to, mining_rates_hardware_mining_id);
+            Self::update_owner(&to, mining_rates_hardware_id);
 
-            Self::deposit_event(RawEvent::Transferred(sender, to, mining_rates_hardware_mining_id));
+            Self::deposit_event(RawEvent::Transferred(sender, to, mining_rates_hardware_id));
         }
 
-        /// Set mining_rates_hardware_mining_rates_config
+        /// Set mining_rates_hardware_rates_config
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
-        pub fn set_mining_rates_hardware_mining_rates_config(
+        pub fn set_mining_rates_hardware_rates_config(
             origin,
-            mining_rates_hardware_mining_id: T::MiningRatesHardwareMiningIndex,
-            _hardware_hardware_secure: Option<T::MiningRatesHardwareMiningHardwareSecure>,
-            _hardware_hardware_insecure: Option<T::MiningRatesHardwareMiningHardwareInsecure>,
-            _hardware_max_hardware: Option<T::MiningRatesHardwareMiningMaxHardware>,
-            _hardware_category_1_max_token_bonus_per_gateway: Option<T::MiningRatesHardwareMiningCategory1MaxTokenBonusPerGateway>,
-            _hardware_category_2_max_token_bonus_per_gateway: Option<T::MiningRatesHardwareMiningCategory2MaxTokenBonusPerGateway>,
-            _hardware_category_3_max_token_bonus_per_gateway: Option<T::MiningRatesHardwareMiningCategory3MaxTokenBonusPerGateway>
+            mining_rates_hardware_id: T::MiningRatesHardwareIndex,
+            _hardware_hardware_secure: Option<T::MiningRatesHardwareHardwareSecure>,
+            _hardware_hardware_insecure: Option<T::MiningRatesHardwareHardwareInsecure>,
+            _hardware_max_hardware: Option<T::MiningRatesHardwareMaxHardware>,
+            _hardware_category_1_max_token_bonus_per_gateway: Option<T::MiningRatesHardwareCategory1MaxTokenBonusPerGateway>,
+            _hardware_category_2_max_token_bonus_per_gateway: Option<T::MiningRatesHardwareCategory2MaxTokenBonusPerGateway>,
+            _hardware_category_3_max_token_bonus_per_gateway: Option<T::MiningRatesHardwareCategory3MaxTokenBonusPerGateway>
         ) {
             let sender = ensure_signed(origin)?;
 
-            // Ensure that the mining_rates_hardware_mining_id whose config we want to change actually exists
-            let is_mining_rates_hardware_mining = Self::exists_mining_rates_hardware_mining(mining_rates_hardware_mining_id).is_ok();
-            ensure!(is_mining_rates_hardware_mining, "MiningRatesHardwareMining does not exist");
+            // Ensure that the mining_rates_hardware_id whose config we want to change actually exists
+            let is_mining_rates_hardware = Self::exists_mining_rates_hardware(mining_rates_hardware_id).is_ok();
+            ensure!(is_mining_rates_hardware, "MiningRatesHardware does not exist");
 
-            // Ensure that the caller is owner of the mining_rates_hardware_mining_rates_config they are trying to change
-            ensure!(Self::mining_rates_hardware_mining_owner(mining_rates_hardware_mining_id) == Some(sender.clone()), "Only owner can set mining_rates_hardware_mining_rates_config");
+            // Ensure that the caller is owner of the mining_rates_hardware_rates_config they are trying to change
+            ensure!(Self::mining_rates_hardware_owner(mining_rates_hardware_id) == Some(sender.clone()), "Only owner can set mining_rates_hardware_rates_config");
 
             // TODO - adjust default rates
             let hardware_hardware_secure = match _hardware_hardware_secure.clone() {
@@ -217,36 +217,36 @@ decl_module! {
                 None => 250000.into() // Default
             };
 
-            // Check if a mining_rates_hardware_mining_rates_config already exists with the given mining_rates_hardware_mining_id
+            // Check if a mining_rates_hardware_rates_config already exists with the given mining_rates_hardware_id
             // to determine whether to insert new or mutate existing.
-            if Self::has_value_for_mining_rates_hardware_mining_rates_config_index(mining_rates_hardware_mining_id).is_ok() {
+            if Self::has_value_for_mining_rates_hardware_rates_config_index(mining_rates_hardware_id).is_ok() {
                 debug::info!("Mutating values");
-                <MiningRatesHardwareMiningRatesConfigs<T>>::mutate(mining_rates_hardware_mining_id, |mining_rates_hardware_mining_rates_config| {
-                    if let Some(_mining_rates_hardware_mining_rates_config) = mining_rates_hardware_mining_rates_config {
+                <MiningRatesHardwareRatesConfigs<T>>::mutate(mining_rates_hardware_id, |mining_rates_hardware_rates_config| {
+                    if let Some(_mining_rates_hardware_rates_config) = mining_rates_hardware_rates_config {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-                        _mining_rates_hardware_mining_rates_config.hardware_hardware_secure = hardware_hardware_secure.clone();
-                        _mining_rates_hardware_mining_rates_config.hardware_hardware_insecure = hardware_hardware_insecure.clone();
-                        _mining_rates_hardware_mining_rates_config.hardware_max_hardware = hardware_max_hardware.clone();
-                        _mining_rates_hardware_mining_rates_config.hardware_category_1_max_token_bonus_per_gateway = hardware_category_1_max_token_bonus_per_gateway.clone();
-                        _mining_rates_hardware_mining_rates_config.hardware_category_2_max_token_bonus_per_gateway = hardware_category_2_max_token_bonus_per_gateway.clone();
-                        _mining_rates_hardware_mining_rates_config.hardware_category_3_max_token_bonus_per_gateway = hardware_category_3_max_token_bonus_per_gateway.clone();
+                        _mining_rates_hardware_rates_config.hardware_hardware_secure = hardware_hardware_secure.clone();
+                        _mining_rates_hardware_rates_config.hardware_hardware_insecure = hardware_hardware_insecure.clone();
+                        _mining_rates_hardware_rates_config.hardware_max_hardware = hardware_max_hardware.clone();
+                        _mining_rates_hardware_rates_config.hardware_category_1_max_token_bonus_per_gateway = hardware_category_1_max_token_bonus_per_gateway.clone();
+                        _mining_rates_hardware_rates_config.hardware_category_2_max_token_bonus_per_gateway = hardware_category_2_max_token_bonus_per_gateway.clone();
+                        _mining_rates_hardware_rates_config.hardware_category_3_max_token_bonus_per_gateway = hardware_category_3_max_token_bonus_per_gateway.clone();
                     }
                 });
                 debug::info!("Checking mutated values");
-                let fetched_mining_rates_hardware_mining_rates_config = <MiningRatesHardwareMiningRatesConfigs<T>>::get(mining_rates_hardware_mining_id);
-                if let Some(_mining_rates_hardware_mining_rates_config) = fetched_mining_rates_hardware_mining_rates_config {
-                    debug::info!("Latest field hardware_hardware_secure {:#?}", _mining_rates_hardware_mining_rates_config.hardware_hardware_secure);
-                    debug::info!("Latest field hardware_hardware_insecure {:#?}", _mining_rates_hardware_mining_rates_config.hardware_hardware_insecure);
-                    debug::info!("Latest field hardware_max_hardware {:#?}", _mining_rates_hardware_mining_rates_config.hardware_max_hardware);
-                    debug::info!("Latest field hardware_category_1_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_mining_rates_config.hardware_category_1_max_token_bonus_per_gateway);
-                    debug::info!("Latest field hardware_category_2_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_mining_rates_config.hardware_category_2_max_token_bonus_per_gateway);
-                    debug::info!("Latest field hardware_category_3_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_mining_rates_config.hardware_category_3_max_token_bonus_per_gateway);
+                let fetched_mining_rates_hardware_rates_config = <MiningRatesHardwareRatesConfigs<T>>::get(mining_rates_hardware_id);
+                if let Some(_mining_rates_hardware_rates_config) = fetched_mining_rates_hardware_rates_config {
+                    debug::info!("Latest field hardware_hardware_secure {:#?}", _mining_rates_hardware_rates_config.hardware_hardware_secure);
+                    debug::info!("Latest field hardware_hardware_insecure {:#?}", _mining_rates_hardware_rates_config.hardware_hardware_insecure);
+                    debug::info!("Latest field hardware_max_hardware {:#?}", _mining_rates_hardware_rates_config.hardware_max_hardware);
+                    debug::info!("Latest field hardware_category_1_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_1_max_token_bonus_per_gateway);
+                    debug::info!("Latest field hardware_category_2_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_2_max_token_bonus_per_gateway);
+                    debug::info!("Latest field hardware_category_3_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_3_max_token_bonus_per_gateway);
                 }
             } else {
                 debug::info!("Inserting values");
 
-                // Create a new mining mining_rates_hardware_mining_rates_config instance with the input params
-                let mining_rates_hardware_mining_rates_config_instance = MiningRatesHardwareMiningRatesConfig {
+                // Create a new mining mining_rates_hardware_rates_config instance with the input params
+                let mining_rates_hardware_rates_config_instance = MiningRatesHardwareRatesConfig {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     hardware_hardware_secure: hardware_hardware_secure.clone(),
@@ -257,26 +257,26 @@ decl_module! {
                     hardware_category_3_max_token_bonus_per_gateway: hardware_category_3_max_token_bonus_per_gateway.clone(),
                 };
 
-                <MiningRatesHardwareMiningRatesConfigs<T>>::insert(
-                    mining_rates_hardware_mining_id,
-                    &mining_rates_hardware_mining_rates_config_instance
+                <MiningRatesHardwareRatesConfigs<T>>::insert(
+                    mining_rates_hardware_id,
+                    &mining_rates_hardware_rates_config_instance
                 );
 
                 debug::info!("Checking inserted values");
-                let fetched_mining_rates_hardware_mining_rates_config = <MiningRatesHardwareMiningRatesConfigs<T>>::get(mining_rates_hardware_mining_id);
-                if let Some(_mining_rates_hardware_mining_rates_config) = fetched_mining_rates_hardware_mining_rates_config {
-                    debug::info!("Inserted field hardware_hardware_secure {:#?}", _mining_rates_hardware_mining_rates_config.hardware_hardware_secure);
-                    debug::info!("Inserted field hardware_hardware_insecure {:#?}", _mining_rates_hardware_mining_rates_config.hardware_hardware_insecure);
-                    debug::info!("Inserted field hardware_max_hardware {:#?}", _mining_rates_hardware_mining_rates_config.hardware_max_hardware);
-                    debug::info!("Inserted field hardware_category_1_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_mining_rates_config.hardware_category_1_max_token_bonus_per_gateway);
-                    debug::info!("Inserted field hardware_category_2_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_mining_rates_config.hardware_category_2_max_token_bonus_per_gateway);
-                    debug::info!("Inserted field hardware_category_3_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_mining_rates_config.hardware_category_3_max_token_bonus_per_gateway);
+                let fetched_mining_rates_hardware_rates_config = <MiningRatesHardwareRatesConfigs<T>>::get(mining_rates_hardware_id);
+                if let Some(_mining_rates_hardware_rates_config) = fetched_mining_rates_hardware_rates_config {
+                    debug::info!("Inserted field hardware_hardware_secure {:#?}", _mining_rates_hardware_rates_config.hardware_hardware_secure);
+                    debug::info!("Inserted field hardware_hardware_insecure {:#?}", _mining_rates_hardware_rates_config.hardware_hardware_insecure);
+                    debug::info!("Inserted field hardware_max_hardware {:#?}", _mining_rates_hardware_rates_config.hardware_max_hardware);
+                    debug::info!("Inserted field hardware_category_1_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_1_max_token_bonus_per_gateway);
+                    debug::info!("Inserted field hardware_category_2_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_2_max_token_bonus_per_gateway);
+                    debug::info!("Inserted field hardware_category_3_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_3_max_token_bonus_per_gateway);
                 }
             }
 
-            Self::deposit_event(RawEvent::MiningRatesHardwareMiningRatesConfigSet(
+            Self::deposit_event(RawEvent::MiningRatesHardwareRatesConfigSet(
                 sender,
-                mining_rates_hardware_mining_id,
+                mining_rates_hardware_id,
                 hardware_hardware_secure,
                 hardware_hardware_insecure,
                 hardware_max_hardware,
@@ -289,51 +289,51 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-    pub fn is_mining_rates_hardware_mining_owner(
-        mining_rates_hardware_mining_id: T::MiningRatesHardwareMiningIndex,
+    pub fn is_mining_rates_hardware_owner(
+        mining_rates_hardware_id: T::MiningRatesHardwareIndex,
         sender: T::AccountId,
     ) -> Result<(), DispatchError> {
         ensure!(
-            Self::mining_rates_hardware_mining_owner(&mining_rates_hardware_mining_id)
+            Self::mining_rates_hardware_owner(&mining_rates_hardware_id)
                 .map(|owner| owner == sender)
                 .unwrap_or(false),
-            "Sender is not owner of MiningRatesHardwareMining"
+            "Sender is not owner of MiningRatesHardware"
         );
         Ok(())
     }
 
-    pub fn exists_mining_rates_hardware_mining(
-        mining_rates_hardware_mining_id: T::MiningRatesHardwareMiningIndex,
-    ) -> Result<MiningRatesHardwareMining, DispatchError> {
-        match Self::mining_rates_hardware_mining(mining_rates_hardware_mining_id) {
+    pub fn exists_mining_rates_hardware(
+        mining_rates_hardware_id: T::MiningRatesHardwareIndex,
+    ) -> Result<MiningRatesHardware, DispatchError> {
+        match Self::mining_rates_hardware(mining_rates_hardware_id) {
             Some(value) => Ok(value),
-            None => Err(DispatchError::Other("MiningRatesHardwareMining does not exist")),
+            None => Err(DispatchError::Other("MiningRatesHardware does not exist")),
         }
     }
 
-    pub fn exists_mining_rates_hardware_mining_rates_config(
-        mining_rates_hardware_mining_id: T::MiningRatesHardwareMiningIndex,
+    pub fn exists_mining_rates_hardware_rates_config(
+        mining_rates_hardware_id: T::MiningRatesHardwareIndex,
     ) -> Result<(), DispatchError> {
-        match Self::mining_rates_hardware_mining_rates_configs(
-            mining_rates_hardware_mining_id,
+        match Self::mining_rates_hardware_rates_configs(
+            mining_rates_hardware_id,
         ) {
             Some(_value) => Ok(()),
-            None => Err(DispatchError::Other("MiningRatesHardwareMiningRatesConfig does not exist")),
+            None => Err(DispatchError::Other("MiningRatesHardwareRatesConfig does not exist")),
         }
     }
 
-    pub fn has_value_for_mining_rates_hardware_mining_rates_config_index(
-        mining_rates_hardware_mining_id: T::MiningRatesHardwareMiningIndex,
+    pub fn has_value_for_mining_rates_hardware_rates_config_index(
+        mining_rates_hardware_id: T::MiningRatesHardwareIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if mining_rates_hardware_mining_rates_config has a value that is defined");
-        let fetched_mining_rates_hardware_mining_rates_config =
-            <MiningRatesHardwareMiningRatesConfigs<T>>::get(mining_rates_hardware_mining_id);
-        if let Some(_value) = fetched_mining_rates_hardware_mining_rates_config {
-            debug::info!("Found value for mining_rates_hardware_mining_rates_config");
+        debug::info!("Checking if mining_rates_hardware_rates_config has a value that is defined");
+        let fetched_mining_rates_hardware_rates_config =
+            <MiningRatesHardwareRatesConfigs<T>>::get(mining_rates_hardware_id);
+        if let Some(_value) = fetched_mining_rates_hardware_rates_config {
+            debug::info!("Found value for mining_rates_hardware_rates_config");
             return Ok(());
         }
-        debug::info!("No value for mining_rates_hardware_mining_rates_config");
-        Err(DispatchError::Other("No value for mining_rates_hardware_mining_rates_config"))
+        debug::info!("No value for mining_rates_hardware_rates_config");
+        Err(DispatchError::Other("No value for mining_rates_hardware_rates_config"))
     }
 
     fn random_value(sender: &T::AccountId) -> [u8; 16] {
@@ -346,38 +346,38 @@ impl<T: Trait> Module<T> {
         payload.using_encoded(blake2_128)
     }
 
-    fn next_mining_rates_hardware_mining_id()
-    -> Result<T::MiningRatesHardwareMiningIndex, DispatchError> {
-        let mining_rates_hardware_mining_id = Self::mining_rates_hardware_mining_count();
-        if mining_rates_hardware_mining_id ==
-            <T::MiningRatesHardwareMiningIndex as Bounded>::max_value()
+    fn next_mining_rates_hardware_id()
+    -> Result<T::MiningRatesHardwareIndex, DispatchError> {
+        let mining_rates_hardware_id = Self::mining_rates_hardware_count();
+        if mining_rates_hardware_id ==
+            <T::MiningRatesHardwareIndex as Bounded>::max_value()
         {
-            return Err(DispatchError::Other("MiningRatesHardwareMining count overflow"));
+            return Err(DispatchError::Other("MiningRatesHardware count overflow"));
         }
-        Ok(mining_rates_hardware_mining_id)
+        Ok(mining_rates_hardware_id)
     }
 
-    fn insert_mining_rates_hardware_mining(
+    fn insert_mining_rates_hardware(
         owner: &T::AccountId,
-        mining_rates_hardware_mining_id: T::MiningRatesHardwareMiningIndex,
-        mining_rates_hardware_mining: MiningRatesHardwareMining,
+        mining_rates_hardware_id: T::MiningRatesHardwareIndex,
+        mining_rates_hardware: MiningRatesHardware,
     ) {
-        // Create and store mining mining_rates_hardware_mining
-        <MiningRatesHardwareMinings<T>>::insert(
-            mining_rates_hardware_mining_id,
-            mining_rates_hardware_mining,
+        // Create and store mining mining_rates_hardware
+        <MiningRatesHardwares<T>>::insert(
+            mining_rates_hardware_id,
+            mining_rates_hardware,
         );
-        <MiningRatesHardwareMiningCount<T>>::put(mining_rates_hardware_mining_id + One::one());
-        <MiningRatesHardwareMiningOwners<T>>::insert(
-            mining_rates_hardware_mining_id,
+        <MiningRatesHardwareCount<T>>::put(mining_rates_hardware_id + One::one());
+        <MiningRatesHardwareOwners<T>>::insert(
+            mining_rates_hardware_id,
             owner.clone(),
         );
     }
 
     fn update_owner(
         to: &T::AccountId,
-        mining_rates_hardware_mining_id: T::MiningRatesHardwareMiningIndex,
+        mining_rates_hardware_id: T::MiningRatesHardwareIndex,
     ) {
-        <MiningRatesHardwareMiningOwners<T>>::insert(mining_rates_hardware_mining_id, to);
+        <MiningRatesHardwareOwners<T>>::insert(mining_rates_hardware_id, to);
     }
 }

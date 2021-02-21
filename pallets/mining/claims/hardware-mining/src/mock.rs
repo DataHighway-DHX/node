@@ -90,53 +90,53 @@ impl roaming_operators::Trait for Test {
     type Randomness = Randomness;
     type RoamingOperatorIndex = u64;
 }
-impl mining_config_hardware_mining::Trait for Test {
+impl mining_config_hardware::Trait for Test {
     type Event = ();
-    type MiningConfigHardwareMiningHardwareDevEUI = u64;
-    // type MiningConfigHardwareMiningHardwareType =
-    // MiningConfigHardwareMiningHardwareTypes;
-    type MiningConfigHardwareMiningHardwareID = u64;
+    type MiningConfigHardwareHardwareDevEUI = u64;
+    // type MiningConfigHardwareHardwareType =
+    // MiningConfigHardwareHardwareTypes;
+    type MiningConfigHardwareHardwareID = u64;
     // Mining Speed Boost Hardware Mining Config
-    type MiningConfigHardwareMiningHardwareSecure = bool;
+    type MiningConfigHardwareHardwareSecure = bool;
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningConfigHardwareMiningHardwareType = Vec<u8>;
+    type MiningConfigHardwareHardwareType = Vec<u8>;
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
-    type MiningConfigHardwareMiningIndex = u64;
+    type MiningConfigHardwareIndex = u64;
 }
-impl mining_eligibility_hardware_mining::Trait for Test {
+impl mining_eligibility_hardware::Trait for Test {
     type Event = ();
-    type MiningEligibilityHardwareMiningCalculatedEligibility = u64;
-    type MiningEligibilityHardwareMiningHardwareUptimePercentage = u32;
-    type MiningEligibilityHardwareMiningIndex = u64;
-    // type MiningEligibilityHardwareMiningAuditorAccountID = u64;
+    type MiningEligibilityHardwareCalculatedEligibility = u64;
+    type MiningEligibilityHardwareHardwareUptimePercentage = u32;
+    type MiningEligibilityHardwareIndex = u64;
+    // type MiningEligibilityHardwareAuditorAccountID = u64;
 }
-impl mining_rates_hardware_mining::Trait for Test {
+impl mining_rates_hardware::Trait for Test {
     type Event = ();
-    type MiningRatesHardwareMiningCategory1MaxTokenBonusPerGateway = u32;
-    type MiningRatesHardwareMiningCategory2MaxTokenBonusPerGateway = u32;
-    type MiningRatesHardwareMiningCategory3MaxTokenBonusPerGateway = u32;
-    type MiningRatesHardwareMiningHardwareInsecure = u32;
+    type MiningRatesHardwareCategory1MaxTokenBonusPerGateway = u32;
+    type MiningRatesHardwareCategory2MaxTokenBonusPerGateway = u32;
+    type MiningRatesHardwareCategory3MaxTokenBonusPerGateway = u32;
+    type MiningRatesHardwareHardwareInsecure = u32;
     // Mining Speed Boost Rate
-    type MiningRatesHardwareMiningHardwareSecure = u32;
-    type MiningRatesHardwareMiningIndex = u64;
+    type MiningRatesHardwareHardwareSecure = u32;
+    type MiningRatesHardwareIndex = u64;
     // Mining Speed Boost Max Rates
-    type MiningRatesHardwareMiningMaxHardware = u32;
+    type MiningRatesHardwareMaxHardware = u32;
 }
-impl mining_sampling_hardware_mining::Trait for Test {
+impl mining_sampling_hardware::Trait for Test {
     type Event = ();
-    type MiningSamplingHardwareMiningIndex = u64;
-    type MiningSamplingHardwareMiningSampleHardwareOnline = u64;
+    type MiningSamplingHardwareIndex = u64;
+    type MiningSamplingHardwareSampleHardwareOnline = u64;
 }
 impl Trait for Test {
     type Event = ();
-    type MiningClaimsHardwareMiningIndex = u64;
-    type MiningClaimsHardwareMiningClaimAmount = u64;
+    type MiningClaimsHardwareIndex = u64;
+    type MiningClaimsHardwareClaimAmount = u64;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;
-pub type MiningClaimsHardwareMiningTestModule = Module<Test>;
+pub type MiningClaimsHardwareTestModule = Module<Test>;
 type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
 // This function basically just builds a genesis storage key/value store according to

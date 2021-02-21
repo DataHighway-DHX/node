@@ -83,17 +83,17 @@ jobs:
           cargo +nightly-2020-10-06 test -p roaming-billing-policies &&
           cargo +nightly-2020-10-06 test -p roaming-charging-policies &&
           cargo +nightly-2020-10-06 test -p roaming-packet-bundles &&
-          cargo +nightly-2020-10-06 test -p mining-config-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-config-hardware-mining &&
-          cargo +nightly-2020-10-06 test -p mining-rates-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-rates-hardware-mining &&
-          cargo +nightly-2020-10-06 test -p mining-sampling-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-sampling-hardware-mining &&
-          cargo +nightly-2020-10-06 test -p mining-eligibility-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-eligibility-hardware-mining &&
-          cargo +nightly-2020-10-06 test -p mining-claims-token-mining &&
-          cargo +nightly-2020-10-06 test -p mining-claims-hardware-mining &&
-          cargo +nightly-2020-10-06 test -p mining-execution-token-mining
+          cargo +nightly-2020-10-06 test -p mining-config-token &&
+          cargo +nightly-2020-10-06 test -p mining-config-hardware &&
+          cargo +nightly-2020-10-06 test -p mining-rates-token &&
+          cargo +nightly-2020-10-06 test -p mining-rates-hardware &&
+          cargo +nightly-2020-10-06 test -p mining-sampling-token &&
+          cargo +nightly-2020-10-06 test -p mining-sampling-hardware &&
+          cargo +nightly-2020-10-06 test -p mining-eligibility-token &&
+          cargo +nightly-2020-10-06 test -p mining-eligibility-hardware &&
+          cargo +nightly-2020-10-06 test -p mining-claims-token &&
+          cargo +nightly-2020-10-06 test -p mining-claims-hardware &&
+          cargo +nightly-2020-10-06 test -p mining-execution-token
 
   lints:
     name: Lints

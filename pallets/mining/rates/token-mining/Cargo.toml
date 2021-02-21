@@ -1,5 +1,5 @@
 [package]
-name = "mining-rates-token-mining"
+name = "mining-rates-token"
 version = "0.1.0"
 authors = ["Luke Schoen"]
 edition = "2018"
