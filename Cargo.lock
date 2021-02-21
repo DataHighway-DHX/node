@@ -993,13 +993,13 @@ dependencies = [
  "frame-support",
  "frame-system",
  "frame-system-rpc-runtime-api",
+ "mining-claims-hardware",
+ "mining-claims-token",
  "mining-config-hardware",
  "mining-config-token",
  "mining-eligibility-hardware",
  "mining-eligibility-token",
  "mining-execution-token",
- "mining-claims-hardware",
- "mining-claims-token",
  "mining-rates-hardware",
  "mining-rates-token",
  "mining-sampling-hardware",
@@ -3153,6 +3153,50 @@ dependencies = [
 ]
 
 [[package]]
+name = "mining-claims-hardware"
+version = "0.1.0"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "mining-config-hardware",
+ "mining-eligibility-hardware",
+ "mining-rates-hardware",
+ "mining-sampling-hardware",
+ "pallet-balances",
+ "pallet-randomness-collective-flip",
+ "pallet-transaction-payment",
+ "parity-scale-codec",
+ "roaming-operators",
+ "safe-mix",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "mining-claims-token"
+version = "0.1.0"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "mining-config-token",
+ "mining-eligibility-token",
+ "mining-rates-token",
+ "mining-sampling-token",
+ "pallet-balances",
+ "pallet-randomness-collective-flip",
+ "pallet-transaction-payment",
+ "parity-scale-codec",
+ "roaming-operators",
+ "safe-mix",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "mining-config-hardware"
 version = "0.1.0"
 dependencies = [
@@ -3236,51 +3280,7 @@ version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-config-token",
- "mining-eligibility-token",
  "mining-claims-token",
- "mining-rates-token",
- "mining-sampling-token",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-claims-hardware"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "mining-config-hardware",
- "mining-eligibility-hardware",
- "mining-rates-hardware",
- "mining-sampling-hardware",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-claims-token"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
  "mining-config-token",
  "mining-eligibility-token",
  "mining-rates-token",
