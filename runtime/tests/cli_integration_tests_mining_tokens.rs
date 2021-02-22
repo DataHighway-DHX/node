@@ -256,7 +256,7 @@ mod tests {
 
             // Call Functions
             assert_ok!(MiningConfigTokenTestModule::create(Origin::signed(0)));
-            assert_ok!(MiningConfigTokenTestModule::set_mining_config_token_token_cooldown_config(
+            assert_ok!(MiningConfigTokenTestModule::set_mining_config_token_cooldown_config(
                 Origin::signed(0),
                 0,                     // mining_token_id
                 Some(b"DHX".to_vec()), // token_type
@@ -277,7 +277,7 @@ mod tests {
             assert!(MiningConfigTokenTestModule::mining_config_token(0).is_some());
             assert_eq!(MiningConfigTokenTestModule::mining_config_token_owner(0), Some(0));
             assert_eq!(
-                MiningConfigTokenTestModule::mining_config_token_token_cooldown_configs(0),
+                MiningConfigTokenTestModule::mining_config_token_cooldown_configs(0),
                 Some(MiningConfigTokenRequirementsConfig {
                     token_type: b"DHX".to_vec(), // token_type
                     token_lock_min_amount: 10,   // token_lock_min_amount
@@ -285,7 +285,7 @@ mod tests {
                 })
             );
             assert_eq!(
-                MiningConfigTokenTestModule::mining_config_token_token_configs(0),
+                MiningConfigTokenTestModule::mining_config_token_configs(0),
                 Some(MiningConfigTokenConfig {
                     token_type: b"MXC".to_vec(),       // token_type
                     token_lock_amount: 100,            // token_lock_amount
@@ -459,6 +459,9 @@ mod tests {
             );
             // TODO - check that the locked amount has actually been locked and check that a sampling, eligibility, and
             // claim were all run automatically afterwards assert!(false);
+
+            // TODO - allow user to request to stop mining, and trigger the cooldown period until they can
+            // access their tokens that are locked for mining.
         });
     }
 }

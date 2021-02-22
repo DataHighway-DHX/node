@@ -35,6 +35,7 @@ frame-system = { version = '2.0.0', default_features = false }
 pallet-balances = { version = '2.0.0', default_features = false }
 pallet-randomness-collective-flip = { version = '2.0.0', default_features = false }
 pallet-transaction-payment = { version = '2.0.0', default_features = false }
+pallet-treasury = { version = '2.0.0', default-features = false }
 sp-core = { version = '2.0.0', default_features = false }
 sp-io = { version = '2.0.0', default_features = false }
 sp-runtime = { version = '2.0.0', default_features = false }

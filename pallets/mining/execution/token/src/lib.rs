@@ -12,6 +12,7 @@ use frame_support::{
     ensure,
     traits::{
         Currency,
+        ExistenceRequirement,
         Get,
         LockableCurrency,
         Randomness,
@@ -32,6 +33,7 @@ use sp_runtime::{
     DispatchError,
 };
 use sp_std::prelude::*; // Imports Vec
+use pallet_treasury;
 
 // FIXME - remove roaming_operators here, only use this approach since do not know how to use BalanceOf using only
 // mining runtime module
@@ -51,6 +53,7 @@ use mining_sampling_token;
 pub trait Trait:
     frame_system::Trait
     + pallet_balances::Trait
+    + pallet_treasury::Trait
     + roaming_operators::Trait
     + mining_config_token::Trait
     + mining_eligibility_token::Trait
@@ -151,42 +154,81 @@ decl_module! {
             debug::info!("execution/token-mining - on_finalize");
             debug::info!("current block number {:#?}", current_block_number);
 
-            let mining_execution_token_count = Self::mining_execution_token_count();
+            let config_token_count = <mining_config_token::Module<T>>::mining_config_token_count();
+            let execution_token_count = Self::mining_execution_token_count();
 
-            for i in mining_execution_token_count {
-                // FIXME - do not hard-code (0, 0), we want to iterate through them all, not just one
-                let fetched_mining_execution_token_result = <MiningExecutionTokenResults<T>>::get((0, 0));
-                // let fetched_mining_execution_token_result = <MiningExecutionTokenResults<T>>::get((mining_config_token_id, mining_execution_token_id));
-                if let Some(_mining_execution_token_result) = fetched_mining_execution_token_result {
-                    debug::info!("Inserted field token_execution_executor_account_id {:#?}", _mining_execution_token_result.token_execution_executor_account_id);
-                    debug::info!("Inserted field token_execution_started_block {:#?}", _mining_execution_token_result.token_execution_started_block);
-                    debug::info!("Inserted field token_execution_ended_block {:#?}", _mining_execution_token_result.token_execution_ended_block);
-                    let token_execution_interval = _mining_execution_token_result.token_execution_ended_block;
-                    // FIXME - do not hard-code (0), we want to iterate through them all, not just one
-                    if let Some(cooldown_configuration_token) = <mining_config_token::Module<T>>::mining_config_token_token_cooldown_configs((0)) {
-                    // if let Some(cooldown_configuration_token) = <mining_config_token::Module<T>>::mining_config_token_token_cooldown_configs((mining_config_token_id)) {
-                        if let token_lock_min_blocks = cooldown_configuration_token.token_lock_min_blocks {
-                            // Reference: https://github.com/hicommonwealth/edgeware-node/blob/master/modules/edge-treasury-reward/src/lib.rs#L42
-                            if <frame_system::Module<T>>::block_number() % token_lock_min_blocks == Zero::zero() {
-                                // // Unlock the funds. Store updated status
+            // Loop through all combinations of (mining_config_token_id, mining_execution_token_id)
+            for idx_c in config_token_count.into() {
+                for idx_e in execution_token_count.into() {
+                    let fetched_mining_execution_token_result = <MiningExecutionTokenResults<T>>::get((idx_c, idx_e));
 
-                                // // Fetch the reward ratio, i.e. let reward = Self::current_payout();
+                    if let Some(_mining_execution_token_result) = fetched_mining_execution_token_result {
+                        debug::info!("token_execution_executor_account_id {:#?}", _mining_execution_token_result.token_execution_executor_account_id);
+                        debug::info!("token_execution_started_block {:#?}", _mining_execution_token_result.token_execution_started_block);
+                        debug::info!("token_execution_ended_block {:#?}", _mining_execution_token_result.token_execution_ended_block);
 
-                                // // Calculate the reward based on the reward ratio (i.e. 1 DHX per 10 DHX that was locked)
+                        let fetched_mining_config_token_cooldown_config = <mining_config_token::Module<T>>::mining_config_token_cooldown_configs(idx_c);
+                        if let Some(_mining_config_token_cooldown_config) = fetched_mining_config_token_cooldown_config {
+                            // debug::info!("token_type {:#?}", _mining_config_token_cooldown_config.token_type);
+                            debug::info!("token_lock_min_blocks {:#?}", _mining_config_token_cooldown_config.token_lock_min_blocks);
 
-                                // // Distribute the reward to the account that has locked the funds
-                                // <T as Trait>::Currency::transfer(
-                                //     &<pallet_treasury::Module<T>>::account_id(),
-                                //     token_execution_executor_account_id,
-                                //     reward
-                                // );
+                            if let token_lock_min_blocks = _mining_config_token_cooldown_config.token_lock_min_blocks {
+                                if let Some(configuration_token) = <mining_config_token::Module<T>>::mining_config_token_configs((idx_c)) {
+                                    if let token_lock_amount = configuration_token.token_lock_amount {
 
-                                // // Emit event since treasury unlocked locked tokens and rewarded customer the reward ratio
-                                // Self::deposit_event(RawEvent::TreasuryRewardTokenMiningPostCooldown(
-                                //     <pallet_balances::Module<T>>::free_balance(token_execution_executor_account_id),
-                                //     <frame_system::Module<T>>::block_number(),
-                                //     token_execution_executor_account_id
-                                // );
+                                        // If the end of the mining period has been reached, then stop giving them rewards,
+                                        // and unlock their bonded tokens after waiting the cooldown period of _mining_config_token_cooldown_config.token_lock_min_blocks
+                                        // after the end of their mining period.
+                                        if <frame_system::Module<T>>::block_number() == _mining_execution_token_result.token_execution_ended_block + 7.into() {
+                                            // TODO - Unlock the funds. Store updated status
+                                            // We only want to unlock the rewards they have earned.
+                                            // The amount of tokens that they originally locked to mine the rewards will remain locked until the end of their mining period
+                                            // (FIXME - or until they request to stop mining, which hasn't been implemented yet),
+                                            // and then they cannot move those locked tokens for the cooldown period and receive no further rewards.
+                                            <T as Trait>::Currency>::remove_lock(
+                                                Some(Self::mining_execution_token(idx_e)), // where idx_e is mining_execution_token_id
+                                                &_mining_execution_token_result.token_execution_executor_account_id,
+                                            );
+                                        } else if <frame_system::Module<T>>::block_number() <= _mining_execution_token_result.token_execution_ended_block {
+                                            // Check if cooldown period has been reached before start distributing rewards.
+                                            // If so then we unlock and transfer the reward tokens to the user from the treasury.
+                                            // Reference: https://github.com/hicommonwealth/edgeware-node/blob/master/modules/edge-treasury-reward/src/lib.rs#L42
+                                            if <frame_system::Module<T>>::block_number() % token_lock_min_blocks == Zero::zero() {
+                                                // FIXME - assumes there is only one rates config index so hard-coded 0, but we could have many
+                                                let fetched_mining_rates_token_rates_config = <mining_rates_token::Module<T>>::mining_rates_token_rates_configs(0.into());
+                                                if let Some(_mining_rates_token_rates_config) = fetched_mining_rates_token_rates_config {
+                                                    debug::info!("token_execution_ended_block {:#?}", _mining_execution_token_result.token_execution_ended_block);
+
+                                                    // TODO - choose the token rate that corresponds to the _mining_config_token_cooldown_config.token_type
+                                                    // and use this to determine the reward ratio.
+                                                    // in the meantime until this is fixed, we will just assume the user is mining MXC and choose the rate for that
+
+                                                    // Reward ratio
+                                                    let reward_ratio = _mining_rates_token_rates_config.token_token_mxc;
+
+                                                    // Calculate the reward based on the reward ratio (i.e. 1 DHX per 10 DHX that was locked)
+                                                    // e.g. (1.1 - 1) * 10 DHX, where 1.1 is ratio of mining reward for the MXC token
+                                                    let reward = (reward_ratio - 1.into()) * token_lock_amount;
+
+                                                    // Distribute the reward to the account that has locked the funds
+                                                    <T as Trait>::Currency::transfer(
+                                                        &<pallet_treasury::Module<T>>::account_id(),
+                                                        &_mining_execution_token_result.token_execution_executor_account_id,
+                                                        reward,
+                                                        ExistenceRequirement::KeepAlive
+                                                    );
+
+                                                    // Emit event since treasury unlocked locked tokens and rewarded customer the reward ratio
+                                                    Self::deposit_event(RawEvent::TreasuryRewardTokenMiningPostCooldown(
+                                                        <pallet_balances::Module<T>>::free_balance(&_mining_execution_token_result.token_execution_executor_account_id),
+                                                        <frame_system::Module<T>>::block_number(),
+                                                        &_mining_execution_token_result.token_execution_executor_account_id
+                                                    ));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -428,7 +470,7 @@ impl<T: Trait> Module<T> {
         let current_block = <frame_system::Module<T>>::block_number();
         // Get the config associated with the given configuration_token
         if let Some(configuration_token_config) =
-            <mining_config_token::Module<T>>::mining_config_token_token_configs(mining_config_token_id)
+            <mining_config_token::Module<T>>::mining_config_token_configs(mining_config_token_id)
         {
             if let _token_lock_start_block = configuration_token_config.token_lock_start_block {
                 ensure!(
@@ -450,10 +492,10 @@ impl<T: Trait> Module<T> {
         mining_config_token_id: T::MiningConfigTokenIndex,
     ) -> Result<(), DispatchError> {
         if let Some(configuration_token) =
-            <mining_config_token::Module<T>>::mining_config_token_token_configs((mining_config_token_id))
+            <mining_config_token::Module<T>>::mining_config_token_configs((mining_config_token_id))
         {
             if let Some(cooldown_configuration_token) =
-                <mining_config_token::Module<T>>::mining_config_token_token_cooldown_configs((mining_config_token_id))
+                <mining_config_token::Module<T>>::mining_config_token_cooldown_configs((mining_config_token_id))
             {
                 if let token_lock_interval_blocks = configuration_token.token_lock_interval_blocks {
                     if let token_lock_min_blocks = cooldown_configuration_token.token_lock_min_blocks {
@@ -487,10 +529,10 @@ impl<T: Trait> Module<T> {
         mining_config_token_id: T::MiningConfigTokenIndex,
     ) -> Result<(), DispatchError> {
         if let Some(configuration_token) =
-            <mining_config_token::Module<T>>::mining_config_token_token_configs((mining_config_token_id))
+            <mining_config_token::Module<T>>::mining_config_token_configs((mining_config_token_id))
         {
             if let Some(cooldown_configuration_token) =
-                <mining_config_token::Module<T>>::mining_config_token_token_cooldown_configs((mining_config_token_id))
+                <mining_config_token::Module<T>>::mining_config_token_cooldown_configs((mining_config_token_id))
             {
                 if let lock_amount = configuration_token.token_lock_amount {
                     if let lock_min_amount = cooldown_configuration_token.token_lock_min_amount {
@@ -527,17 +569,22 @@ impl<T: Trait> Module<T> {
         _token_execution_started_block: T::BlockNumber,
         _token_execution_ended_block: T::BlockNumber,
     ) -> Result<(), DispatchError> {
-        if let Some(configuration_token) = <mining_config_token::Module<T>>::mining_config_token_token_configs((mining_config_token_id)) {
+        if let Some(configuration_token) =
+            <mining_config_token::Module<T>>::mining_config_token_configs((mining_config_token_id))
+        {
             if let lock_amount = configuration_token.token_lock_amount {
-                <T as Trait>::Currency>::set_lock(
-                    Some(Self::mining_execution_token(mining_execution_token_id)),
-                    &_token_execution_executor_account_id,
-                    lock_amount,
-                    WithdrawReasons::all()
-                );
+                <T as Trait>::Currency >
+                    ::set_lock(
+                        Some(Self::mining_execution_token(mining_execution_token_id)),
+                        &_token_execution_executor_account_id,
+                        lock_amount,
+                        WithdrawReasons::all(),
+                    );
                 return Ok(());
             } else {
-                return Err(DispatchError::Other("Cannot find token_mining_config with token_lock_period associated with the execution"));
+                return Err(DispatchError::Other(
+                    "Cannot find token_mining_config with token_lock_period associated with the execution",
+                ));
             }
         } else {
             return Err(DispatchError::Other("Cannot find token_mining_config associated with the execution"));

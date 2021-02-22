@@ -3288,6 +3288,7 @@ dependencies = [
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",
+ "pallet-treasury",
  "parity-scale-codec",
  "roaming-operators",
  "safe-mix",
