@@ -59,6 +59,7 @@ pub use frame_support::{
     traits::{
         Contains,
         ContainsLengthBound,
+        Currency,
         KeyOwnerProofSystem,
         Randomness,
     },
@@ -701,6 +702,7 @@ impl mining_claims_hardware::Trait for Runtime {
 }
 
 impl mining_execution_token::Trait for Runtime {
+    type Currency = Balances;
     type Event = Event;
     type MiningExecutionTokenIndex = u64;
 }

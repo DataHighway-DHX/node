@@ -51,7 +51,7 @@ mod tests {
         Trait as MiningEligibilityTokenTrait,
     };
     use mining_execution_token::{
-        MiningExecutionTokenExecutionResult,
+        MiningExecutionTokenResult,
         Module as MiningExecutionTokenModule,
         Trait as MiningExecutionTokenTrait,
     };
@@ -437,7 +437,7 @@ mod tests {
             // Override by DAO if necessary
             //
             // Execute is called to start the mining if all checks pass
-            assert_ok!(MiningExecutionTokenTestModule::set_mining_execution_token_execution_result(
+            assert_ok!(MiningExecutionTokenTestModule::set_mining_execution_token_result(
                 Origin::signed(0),
                 0,           // mining_config_token_id
                 0,           // mining_execution_token_id
@@ -450,8 +450,8 @@ mod tests {
             assert!(MiningExecutionTokenTestModule::mining_execution_token(0).is_some());
             assert_eq!(MiningExecutionTokenTestModule::mining_execution_token_owner(0), Some(0));
             assert_eq!(
-                MiningExecutionTokenTestModule::mining_execution_token_execution_results((0, 0)),
-                Some(MiningExecutionTokenExecutionResult {
+                MiningExecutionTokenTestModule::mining_execution_token_results((0, 0)),
+                Some(MiningExecutionTokenResult {
                     token_execution_executor_account_id: 0,
                     token_execution_started_block: 12345,
                     token_execution_ended_block: 34567,

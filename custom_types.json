@@ -199,7 +199,7 @@
   "MiningExecutionToken": "[u8; 16]",
   "MiningExecutionTokenIndex": "u64",
   "MiningExecutionTokenExecutorAccountID": "u64",
-  "MiningExecutionTokenExecutionResult": {
+  "MiningExecutionTokenResult": {
     "token_execution_exector_account_id": "u64",
     "token_execution_started_block": "Moment",
     "token_execution_ended_block": "Moment"
