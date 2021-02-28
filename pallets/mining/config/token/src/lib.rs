@@ -46,10 +46,10 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
     // Mining Speed Boost Token Mining Config
     type MiningConfigTokenType: Parameter + Member + Default;
     type MiningConfigTokenLockAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type Currency: Currency<Self::AccountId>;
 }
 
-type BalanceOf<T> =
-    <<T as roaming_operators::Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]

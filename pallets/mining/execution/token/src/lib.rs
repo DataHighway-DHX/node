@@ -15,6 +15,7 @@ use frame_support::{
         ExistenceRequirement,
         Get,
         LockableCurrency,
+        LockIdentifier,
         Randomness,
         WithdrawReasons,
     },
@@ -69,10 +70,8 @@ pub trait Trait:
     //     + Bounded
     //     + Default
     //     + Copy;
-    type Currency: LockableCurrency<Self::AccountId, Moment = Self::BlockNumber>;
+    type Currency: Currency<Self::AccountId> + LockableCurrency<Self::AccountId, Moment = Self::BlockNumber>;
 }
-
-pub type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -86,13 +85,17 @@ pub struct MiningExecutionTokenResult<U, V, W> {
     pub token_execution_ended_block: W,
 }
 
+// Type aliases
+type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+type MiningExecutionTokenResultOf<T> = MiningExecutionTokenResult<<T as frame_system::Trait>::AccountId, <T as frame_system::Trait>::BlockNumber, <T as frame_system::Trait>::BlockNumber>;
+
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
+        AccountId = <T as frame_system::Trait>::AccountId,
         <T as Trait>::MiningExecutionTokenIndex,
         // <T as Trait>::MiningExecutionTokenExecutorAccountID,
         <T as mining_config_token::Trait>::MiningConfigTokenIndex,
-        <T as frame_system::Trait>::BlockNumber,
+        BlockNumber = <T as frame_system::Trait>::BlockNumber,
         // Balance = BalanceOf<T>,
         Balance = <T as pallet_balances::Trait>::Balance,
     {
@@ -126,12 +129,7 @@ decl_storage! {
         pub MiningExecutionTokenOwners get(fn mining_execution_token_owner): map hasher(opaque_blake2_256) T::MiningExecutionTokenIndex => Option<T::AccountId>;
 
         /// Stores mining_execution_token_result
-        pub MiningExecutionTokenResults get(fn mining_execution_token_results): map hasher(opaque_blake2_256) (T::MiningConfigTokenIndex, T::MiningExecutionTokenIndex) =>
-            Option<MiningExecutionTokenResult<
-                T::AccountId,
-                T::BlockNumber,
-                T::BlockNumber
-            >>;
+        pub MiningExecutionTokenResults get(fn mining_execution_token_results): map hasher(opaque_blake2_256) (T::MiningConfigTokenIndex, T::MiningExecutionTokenIndex) => Option<MiningExecutionTokenResultOf<T>>;
 
         /// Get mining_config_token_id belonging to a mining_execution_token_id
         pub TokenExecutionConfiguration get(fn token_execution_configuration): map hasher(opaque_blake2_256) T::MiningExecutionTokenIndex => Option<T::MiningConfigTokenIndex>;
@@ -157,9 +155,13 @@ decl_module! {
             let config_token_count = <mining_config_token::Module<T>>::mining_config_token_count();
             let execution_token_count = Self::mining_execution_token_count();
 
+            // FIXME - is there an upper bound on the size of these sets and
+            // the computation of this nested loop? what max size or custom weight function?
+            // See https://substrate.dev/recipes/map-set.html
+            //
             // Loop through all combinations of (mining_config_token_id, mining_execution_token_id)
-            for idx_c in config_token_count.into() {
-                for idx_e in execution_token_count.into() {
+            for idx_c in 0..config_token_count.into() {
+                for idx_e in 0..execution_token_count.into() {
                     let fetched_mining_execution_token_result = <MiningExecutionTokenResults<T>>::get((idx_c, idx_e));
 
                     if let Some(_mining_execution_token_result) = fetched_mining_execution_token_result {
@@ -185,10 +187,13 @@ decl_module! {
                                             // The amount of tokens that they originally locked to mine the rewards will remain locked until the end of their mining period
                                             // (FIXME - or until they request to stop mining, which hasn't been implemented yet),
                                             // and then they cannot move those locked tokens for the cooldown period and receive no further rewards.
-                                            <T as Trait>::Currency>::remove_lock(
-                                                Some(Self::mining_execution_token(idx_e)), // where idx_e is mining_execution_token_id
-                                                &_mining_execution_token_result.token_execution_executor_account_id,
-                                            );
+
+                                            if let Some(execution_token) = Self::mining_execution_token((idx_e)) {
+                                                // <T as Trait>::Currency::remove_lock(
+                                                //     execution_token, // where idx_e is mining_execution_token_id
+                                                //     &_mining_execution_token_result.token_execution_executor_account_id,
+                                                // );
+                                            }
                                         } else if <frame_system::Module<T>>::block_number() <= _mining_execution_token_result.token_execution_ended_block {
                                             // Check if cooldown period has been reached before start distributing rewards.
                                             // If so then we unlock and transfer the reward tokens to the user from the treasury.
@@ -208,22 +213,25 @@ decl_module! {
 
                                                     // Calculate the reward based on the reward ratio (i.e. 1 DHX per 10 DHX that was locked)
                                                     // e.g. (1.1 - 1) * 10 DHX, where 1.1 is ratio of mining reward for the MXC token
-                                                    let reward = (reward_ratio - 1.into()) * token_lock_amount;
+
+                                                    // let reward = (reward_ratio - 1.into()) * token_lock_amount;
 
                                                     // Distribute the reward to the account that has locked the funds
-                                                    <T as Trait>::Currency::transfer(
-                                                        &<pallet_treasury::Module<T>>::account_id(),
-                                                        &_mining_execution_token_result.token_execution_executor_account_id,
-                                                        reward,
-                                                        ExistenceRequirement::KeepAlive
-                                                    );
+
+                                                    // <T as Trait>::Currency::transfer(
+                                                    //     &<pallet_treasury::Module<T>>::account_id(),
+                                                    //     &_mining_execution_token_result.token_execution_executor_account_id,
+                                                    //     reward,
+                                                    //     ExistenceRequirement::KeepAlive
+                                                    // );
 
                                                     // Emit event since treasury unlocked locked tokens and rewarded customer the reward ratio
-                                                    Self::deposit_event(RawEvent::TreasuryRewardTokenMiningPostCooldown(
-                                                        <pallet_balances::Module<T>>::free_balance(&_mining_execution_token_result.token_execution_executor_account_id),
-                                                        <frame_system::Module<T>>::block_number(),
-                                                        &_mining_execution_token_result.token_execution_executor_account_id
-                                                    ));
+
+                                                    // Self::deposit_event(RawEvent::TreasuryRewardTokenMiningPostCooldown(
+                                                    //     <pallet_balances::Module<T>>::free_balance(_mining_execution_token_result.token_execution_executor_account_id),
+                                                    //     <frame_system::Module<T>>::block_number(),
+                                                    //     _mining_execution_token_result.token_execution_executor_account_id
+                                                    // ));
                                                 }
                                             }
                                         }
@@ -569,18 +577,25 @@ impl<T: Trait> Module<T> {
         _token_execution_started_block: T::BlockNumber,
         _token_execution_ended_block: T::BlockNumber,
     ) -> Result<(), DispatchError> {
+        // const EXAMPLE_ID: LockIdentifier = *b"example ";
+
         if let Some(configuration_token) =
             <mining_config_token::Module<T>>::mining_config_token_configs((mining_config_token_id))
         {
             if let lock_amount = configuration_token.token_lock_amount {
-                <T as Trait>::Currency >
-                    ::set_lock(
-                        Some(Self::mining_execution_token(mining_execution_token_id)),
-                        &_token_execution_executor_account_id,
-                        lock_amount,
-                        WithdrawReasons::all(),
-                    );
-                return Ok(());
+                if let Some(execution_token) = Self::mining_execution_token(mining_execution_token_id) {
+                    // <T as Trait>::Currency::set_lock(
+                    //     execution_token, // EXAMPLE_ID,
+                    //     &_token_execution_executor_account_id,
+                    //     lock_amount,
+                    //     WithdrawReasons::all(),
+                    // );
+                    return Ok(());
+                } else {
+                    return Err(DispatchError::Other(
+                        "Cannot find mining_execution_token_id associated with the execution",
+                    ));
+                }
             } else {
                 return Err(DispatchError::Other(
                     "Cannot find token_mining_config with token_lock_period associated with the execution",
