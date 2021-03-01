@@ -3,6 +3,7 @@
 use codec::{
     Decode,
     Encode,
+    Compact,
 };
 use frame_support::{
     debug,
@@ -63,7 +64,7 @@ pub trait Trait:
     + mining_claims_token::Trait
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
-    type MiningExecutionTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningExecutionTokenIndex: Parameter + Member + Bounded + Default + Copy + Encode + Decode + From<Compact<u64>> + Into<u64>;
     // type MiningExecutionTokenExecutorAccountID: Parameter
     //     + Member
     //     + AtLeast32Bit
