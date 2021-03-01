@@ -46,10 +46,10 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
     // Mining Speed Boost Token Mining Config
     type MiningConfigTokenType: Parameter + Member + Default;
     type MiningConfigTokenLockAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type Currency: Currency<Self::AccountId>;
 }
 
-type BalanceOf<T> =
-    <<T as roaming_operators::Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -83,10 +83,10 @@ pub struct MiningConfigTokenExecutionResult<U, V, W> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
+        AccountId = <T as frame_system::Trait>::AccountId,
         <T as Trait>::MiningConfigTokenIndex,
         <T as Trait>::MiningConfigTokenType,
-        <T as frame_system::Trait>::BlockNumber,
+        BlockNumber = <T as frame_system::Trait>::BlockNumber,
         Balance = BalanceOf<T>,
     {
         /// A mining_config_token is created. (owner, mining_config_token_id)
@@ -123,7 +123,7 @@ decl_storage! {
             Option<MiningConfigTokenConfig<T::MiningConfigTokenType, BalanceOf<T>, T::BlockNumber, T::BlockNumber>>;
 
         /// Stores mining_config_token_token_cooldown_config
-        pub MiningConfigTokenRequirementsConfigs get(fn mining_config_token_token_cooldown_configs): map hasher(opaque_blake2_256) T::MiningConfigTokenIndex =>
+        pub MiningConfigTokenRequirementsConfigs get(fn mining_config_token_cooldown_configs): map hasher(opaque_blake2_256) T::MiningConfigTokenIndex =>
             Option<MiningConfigTokenRequirementsConfig<T::MiningConfigTokenType, BalanceOf<T>, T::BlockNumber>>;
 
         /// Stores mining_config_token_execution_result
@@ -172,7 +172,7 @@ decl_module! {
 
         /// Set mining_config_token_token_config
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
-        pub fn set_mining_config_token_token_config(
+        pub fn set_mining_config_token_config(
             origin,
             mining_config_token_id: T::MiningConfigTokenIndex,
             _token_type: Option<T::MiningConfigTokenType>,
@@ -278,7 +278,7 @@ decl_module! {
 
         /// Set mining_config_token_token_cooldown_config
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
-        pub fn set_mining_config_token_token_cooldown_config(
+        pub fn set_mining_config_token_cooldown_config(
             origin,
             mining_config_token_id: T::MiningConfigTokenIndex,
             _token_type: Option<T::MiningConfigTokenType>,
@@ -551,7 +551,7 @@ impl<T: Trait> Module<T> {
             Self::mining_config_token_configs((mining_config_token_id))
         {
             if let Some(cooldown_configuration_token) =
-                Self::mining_config_token_token_cooldown_configs((mining_config_token_id))
+                Self::mining_config_token_cooldown_configs((mining_config_token_id))
             {
                 if let token_lock_interval_blocks = configuration_token.token_lock_interval_blocks {
                     if let token_lock_min_blocks = cooldown_configuration_token.token_lock_min_blocks {
@@ -587,12 +587,12 @@ impl<T: Trait> Module<T> {
             Self::mining_config_token_configs((mining_config_token_id))
         {
             if let Some(cooldown_configuration_token) =
-                Self::mining_config_token_token_cooldown_configs((mining_config_token_id))
+                Self::mining_config_token_cooldown_configs((mining_config_token_id))
             {
-                if let locked_amount = configuration_token.token_lock_amount {
+                if let lock_amount = configuration_token.token_lock_amount {
                     if let lock_min_amount = cooldown_configuration_token.token_lock_min_amount {
                         ensure!(
-                            locked_amount > lock_min_amount,
+                            lock_amount > lock_min_amount,
                             "Locked amount must be larger than the minimum locked amount of the cooldown config. \
                              Cannot execute."
                         );
