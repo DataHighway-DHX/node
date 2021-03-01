@@ -119,7 +119,7 @@ decl_storage! {
         pub MiningConfigTokenOwners get(fn mining_config_token_owner): map hasher(opaque_blake2_256) T::MiningConfigTokenIndex => Option<T::AccountId>;
 
         /// Stores mining_config_token_token_config
-        pub MiningConfigTokenConfigs get(fn mining_config_token_token_configs): map hasher(opaque_blake2_256) T::MiningConfigTokenIndex =>
+        pub MiningConfigTokenConfigs get(fn mining_config_token_configs): map hasher(opaque_blake2_256) T::MiningConfigTokenIndex =>
             Option<MiningConfigTokenConfig<T::MiningConfigTokenType, BalanceOf<T>, T::BlockNumber, T::BlockNumber>>;
 
         /// Stores mining_config_token_token_cooldown_config
@@ -390,7 +390,7 @@ decl_module! {
             let token_execution_interval_blocks;
 
             if let Some(configuration_token_config) =
-                Self::mining_config_token_token_configs(mining_config_token_id)
+                Self::mining_config_token_configs(mining_config_token_id)
             {
                 if let _token_lock_start_block = configuration_token_config.token_lock_start_block {
                     token_execution_started_block = _token_lock_start_block.clone();
@@ -512,7 +512,7 @@ impl<T: Trait> Module<T> {
     pub fn exists_mining_config_token_token_config(
         mining_config_token_id: T::MiningConfigTokenIndex,
     ) -> Result<(), DispatchError> {
-        match Self::mining_config_token_token_configs(mining_config_token_id) {
+        match Self::mining_config_token_configs(mining_config_token_id) {
             Some(_value) => Ok(()),
             None => Err(DispatchError::Other("MiningConfigTokenConfig does not exist")),
         }
@@ -527,7 +527,7 @@ impl<T: Trait> Module<T> {
         let current_block = <frame_system::Module<T>>::block_number();
         // Get the config associated with the given configuration_token
         if let Some(configuration_token_config) =
-            Self::mining_config_token_token_configs(mining_config_token_id)
+            Self::mining_config_token_configs(mining_config_token_id)
         {
             if let _token_lock_start_block = configuration_token_config.token_lock_start_block {
                 ensure!(
@@ -548,7 +548,7 @@ impl<T: Trait> Module<T> {
         mining_config_token_id: T::MiningConfigTokenIndex,
     ) -> Result<(), DispatchError> {
         if let Some(configuration_token) =
-            Self::mining_config_token_token_configs((mining_config_token_id))
+            Self::mining_config_token_configs((mining_config_token_id))
         {
             if let Some(cooldown_configuration_token) =
                 Self::mining_config_token_token_cooldown_configs((mining_config_token_id))
@@ -584,7 +584,7 @@ impl<T: Trait> Module<T> {
         mining_config_token_id: T::MiningConfigTokenIndex,
     ) -> Result<(), DispatchError> {
         if let Some(configuration_token) =
-            Self::mining_config_token_token_configs((mining_config_token_id))
+            Self::mining_config_token_configs((mining_config_token_id))
         {
             if let Some(cooldown_configuration_token) =
                 Self::mining_config_token_token_cooldown_configs((mining_config_token_id))

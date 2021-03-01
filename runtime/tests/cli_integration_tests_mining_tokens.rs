@@ -279,7 +279,7 @@ mod tests {
                 })
             );
             assert_eq!(
-                MiningConfigTokenTestModule::mining_config_token_token_configs(0),
+                MiningConfigTokenTestModule::mining_config_token_configs(0),
                 Some(MiningConfigTokenConfig {
                     token_type: b"MXC".to_vec(),       // token_type
                     token_lock_amount: 100,            // token_lock_amount
