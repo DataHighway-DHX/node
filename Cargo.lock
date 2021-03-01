@@ -999,7 +999,6 @@ dependencies = [
  "mining-config-token",
  "mining-eligibility-hardware",
  "mining-eligibility-token",
- "mining-execution-token",
  "mining-rates-hardware",
  "mining-rates-token",
  "mining-sampling-hardware",
@@ -3260,29 +3259,6 @@ dependencies = [
  "frame-support",
  "frame-system",
  "mining-config-token",
- "mining-rates-token",
- "mining-sampling-token",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-execution-token"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "mining-claims-token",
- "mining-config-token",
- "mining-eligibility-token",
  "mining-rates-token",
  "mining-sampling-token",
  "pallet-balances",

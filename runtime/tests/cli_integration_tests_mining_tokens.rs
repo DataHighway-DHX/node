@@ -2,7 +2,6 @@
 extern crate mining_claims_token as mining_claims_token;
 extern crate mining_config_token as mining_config_token;
 extern crate mining_eligibility_token as mining_eligibility_token;
-extern crate mining_execution_token as mining_execution_token;
 extern crate mining_rates_token as mining_rates_token;
 extern crate mining_sampling_token as mining_sampling_token;
 extern crate roaming_operators as roaming_operators;
@@ -49,11 +48,6 @@ mod tests {
         MiningEligibilityTokenResult,
         Module as MiningEligibilityTokenModule,
         Trait as MiningEligibilityTokenTrait,
-    };
-    use mining_execution_token::{
-        MiningExecutionTokenExecutionResult,
-        Module as MiningExecutionTokenModule,
-        Trait as MiningExecutionTokenTrait,
     };
     use mining_rates_token::{
         MiningRatesTokenConfig,
@@ -428,33 +422,29 @@ mod tests {
                 })
             );
 
-            // Create Mining Speed Boost Execution Token Mining
-
-            // Call Functions
-            assert_ok!(MiningExecutionTokenTestModule::create(Origin::signed(0)));
-            assert_ok!(MiningExecutionTokenTestModule::assign_execution_to_configuration(Origin::signed(0), 0, 0));
+            // Create Mining Speed Boost Config Token Mining
 
             // Override by DAO if necessary
             //
             // Execute is called to start the mining if all checks pass
-            assert_ok!(MiningExecutionTokenTestModule::set_mining_execution_token_execution_result(
+            assert_ok!(MiningConfigTokenTestModule::set_mining_config_token_execution_result(
                 Origin::signed(0),
                 0,           // mining_config_token_id
-                0,           // mining_execution_token_id
+                0,           // mining_config_token_id
                 Some(12345), // token_execution_started_block
-                Some(34567)  // token_execution_ended_block
+                Some(34567)  // token_execution_interval_blocks
             ));
 
             // Verify Storage
-            assert_eq!(MiningExecutionTokenTestModule::mining_execution_token_count(), 1);
-            assert!(MiningExecutionTokenTestModule::mining_execution_token(0).is_some());
-            assert_eq!(MiningExecutionTokenTestModule::mining_execution_token_owner(0), Some(0));
+            assert_eq!(MiningConfigTokenTestModule::mining_config_token_count(), 1);
+            assert!(MiningConfigTokenTestModule::mining_config_token(0).is_some());
+            assert_eq!(MiningConfigTokenTestModule::mining_config_token_owner(0), Some(0));
             assert_eq!(
-                MiningExecutionTokenTestModule::mining_execution_token_execution_results((0, 0)),
-                Some(MiningExecutionTokenExecutionResult {
+                MiningConfigTokenTestModule::mining_config_token_execution_results((0, 0)),
+                Some(MiningConfigTokenExecutionResult {
                     token_execution_executor_account_id: 0,
                     token_execution_started_block: 12345,
-                    token_execution_ended_block: 34567,
+                    token_execution_interval_blocks: 34567,
                 })
             );
             // TODO - check that the locked amount has actually been locked and check that a sampling, eligibility, and

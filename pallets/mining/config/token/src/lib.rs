@@ -73,6 +73,14 @@ pub struct MiningConfigTokenRequirementsConfig<U, V, W> {
     pub token_lock_min_blocks: W,
 }
 
+#[cfg_attr(feature = "std", derive(Debug))]
+#[derive(Encode, Decode, Default, Clone, PartialEq)]
+pub struct MiningConfigTokenExecutionResult<U, V, W> {
+    pub token_execution_executor_account_id: U,
+    pub token_execution_started_block: V,
+    pub token_execution_interval_blocks: W,
+}
+
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Trait>::AccountId,
@@ -91,6 +99,9 @@ decl_event!(
         MiningConfigTokenRequirementsConfigSet(
             AccountId, MiningConfigTokenIndex, MiningConfigTokenType, Balance,
             BlockNumber
+        ),
+        MiningConfigTokenExecutionResultSet(
+            AccountId, MiningConfigTokenIndex,AccountId, BlockNumber, BlockNumber
         ),
     }
 );
@@ -114,6 +125,14 @@ decl_storage! {
         /// Stores mining_config_token_token_cooldown_config
         pub MiningConfigTokenRequirementsConfigs get(fn mining_config_token_token_cooldown_configs): map hasher(opaque_blake2_256) T::MiningConfigTokenIndex =>
             Option<MiningConfigTokenRequirementsConfig<T::MiningConfigTokenType, BalanceOf<T>, T::BlockNumber>>;
+
+        /// Stores mining_config_token_execution_result
+        pub MiningConfigTokenExecutionResults get(fn mining_config_token_execution_results): map hasher(opaque_blake2_256) T::MiningConfigTokenIndex =>
+            Option<MiningConfigTokenExecutionResult<
+                T::AccountId,
+                T::BlockNumber,
+                T::BlockNumber
+            >>;
     }
 }
 
@@ -341,6 +360,131 @@ decl_module! {
                 token_lock_min_blocks,
             ));
         }
+
+        /// Set mining_config_token_execution_result
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
+        pub fn set_mining_config_token_execution_result(
+            origin,
+            mining_config_token_id: T::MiningConfigTokenIndex,
+        ) {
+            let sender = ensure_signed(origin)?;
+
+            // Ensure that the mining_config_token_id whose config we want to change actually exists
+            let is_mining_config_token = Self::exists_mining_config_token(mining_config_token_id).is_ok();
+            ensure!(is_mining_config_token, "MiningConfigToken does not exist");
+
+            // Ensure that the caller is owner of the mining_config_token_token_config they are trying to change
+            ensure!(Self::mining_config_token_owner(mining_config_token_id) == Some(sender.clone()), "Only owner can set mining_config_token_token_config");
+
+            // Check that only allow the owner of the configuration that the execution belongs to call this extrinsic to set and execute
+            ensure!(
+                Self::is_mining_config_token_owner(
+                    mining_config_token_id, sender.clone()
+                ).is_ok(),
+                "Only the configuration_token owner can execute their associated execution"
+            );
+
+            // Assign config values to the execution values
+            let token_execution_executor_account_id = sender.clone();
+            let token_execution_started_block;
+            let token_execution_interval_blocks;
+
+            if let Some(configuration_token_config) =
+                Self::mining_config_token_token_configs(mining_config_token_id)
+            {
+                if let _token_lock_start_block = configuration_token_config.token_lock_start_block {
+                    token_execution_started_block = _token_lock_start_block.clone();
+                } else {
+                    return Err(DispatchError::Other("Cannot find token_lock_start_block associated with the config"));
+                }
+
+                if let _token_lock_interval_blocks = configuration_token_config.token_lock_interval_blocks {
+                    token_execution_interval_blocks = _token_lock_interval_blocks.clone();
+                } else {
+                    return Err(DispatchError::Other("Cannot find token_lock_interval_blocks associated with the config"));
+                }
+            } else {
+                return Err(DispatchError::Other("Cannot find token_config associated with the execution"));
+            }
+
+            // TODO - we could just use the token_execution_started_block that we queried already instead of calling it again within this function
+            // Ensure that the associated token configuration has a token_execution_started_block > current_block
+            let is_token_execution_started_block_greater_than_current_block = Self::token_execution_started_block_greater_than_current_block(mining_config_token_id).is_ok();
+            ensure!(is_token_execution_started_block_greater_than_current_block, "token execution does not have a token_execution_started_block > current_block");
+
+            // Ensure that the associated token configuration has a token_lock_interval_blocks > token_lock_min_blocks
+            let is_token_lock_interval_blocks_greater_than_token_lock_min_blocks = Self::token_lock_interval_blocks_greater_than_token_lock_min_blocks(mining_config_token_id).is_ok();
+            ensure!(is_token_lock_interval_blocks_greater_than_token_lock_min_blocks, "token configuration does not have a token_lock_interval_blocks > token_lock_min_blocks");
+
+            // Ensure that the associated token configuration has a token_lock_amount > token_lock_min_amount
+            let is_token_lock_amount_greater_than_token_lock_min_amount = Self::token_lock_amount_greater_than_token_lock_min_amount(mining_config_token_id).is_ok();
+            ensure!(is_token_lock_amount_greater_than_token_lock_min_amount, "token configuration does not have a token_lock_amount > token_lock_min_amount");
+
+            // Check if a mining_config_token_execution_result already exists with the given mining_config_token_id
+            // to determine whether to insert new or mutate existing.
+            if Self::has_value_for_mining_config_token_execution_result_index(mining_config_token_id).is_ok() {
+                debug::info!("Mutating values");
+                <MiningConfigTokenExecutionResults<T>>::mutate((mining_config_token_id), |mining_config_token_execution_result| {
+                    if let Some(_mining_config_token_execution_result) = mining_config_token_execution_result {
+                        // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
+                        _mining_config_token_execution_result.token_execution_executor_account_id = token_execution_executor_account_id.clone();
+                        _mining_config_token_execution_result.token_execution_started_block = token_execution_started_block.clone();
+                        _mining_config_token_execution_result.token_execution_interval_blocks = token_execution_interval_blocks.clone();
+                    }
+                });
+                debug::info!("Checking mutated values");
+                let fetched_mining_config_token_execution_result = <MiningConfigTokenExecutionResults<T>>::get((mining_config_token_id));
+                if let Some(_mining_config_token_execution_result) = fetched_mining_config_token_execution_result {
+                    debug::info!("Latest field token_execution_executor_account_id {:#?}", _mining_config_token_execution_result.token_execution_executor_account_id);
+                    debug::info!("Latest field token_execution_started_block {:#?}", _mining_config_token_execution_result.token_execution_started_block);
+                    debug::info!("Latest field token_execution_interval_blocks {:#?}", _mining_config_token_execution_result.token_execution_interval_blocks);
+                }
+            } else {
+                debug::info!("Inserting values");
+
+                // Create a new mining mining_config_token_execution_result instance with the input params
+                let mining_config_token_execution_result_instance = MiningConfigTokenExecutionResult {
+                    // Since each parameter passed into the function is optional (i.e. `Option`)
+                    // we will assign a default value if a parameter value is not provided.
+                    token_execution_executor_account_id: token_execution_executor_account_id.clone(),
+                    token_execution_started_block: token_execution_started_block.clone(),
+                    token_execution_interval_blocks: token_execution_interval_blocks.clone(),
+                };
+
+                <MiningConfigTokenExecutionResults<T>>::insert(
+                    mining_config_token_id,
+                    &mining_config_token_execution_result_instance
+                );
+
+                debug::info!("Checking inserted values");
+                let fetched_mining_config_token_execution_result = <MiningConfigTokenExecutionResults<T>>::get(mining_config_token_id);
+                if let Some(_mining_config_token_execution_result) = fetched_mining_config_token_execution_result {
+                    debug::info!("Inserted field token_execution_executor_account_id {:#?}", _mining_config_token_execution_result.token_execution_executor_account_id);
+                    debug::info!("Inserted field token_execution_started_block {:#?}", _mining_config_token_execution_result.token_execution_started_block);
+                    debug::info!("Inserted field token_execution_interval_blocks {:#?}", _mining_config_token_execution_result.token_execution_interval_blocks);
+                }
+            }
+
+            Self::deposit_event(RawEvent::MiningConfigTokenExecutionResultSet(
+                sender.clone(),
+                mining_config_token_id,
+                token_execution_executor_account_id.clone(),
+                token_execution_started_block,
+                token_execution_interval_blocks,
+            ));
+
+            if Self::execution(
+                sender.clone(),
+                mining_config_token_id,
+                token_execution_executor_account_id.clone(),
+                token_execution_started_block,
+                token_execution_interval_blocks,
+            ).is_ok() {
+                debug::info!("Executed");
+            } else {
+                debug::info!("Cannot execute");
+            }
+        }
     }
 }
 
@@ -374,6 +518,103 @@ impl<T: Trait> Module<T> {
         }
     }
 
+    // Check that the token execution has a token_execution_started_block > current_block
+    pub fn token_execution_started_block_greater_than_current_block(
+        mining_config_token_id: T::MiningConfigTokenIndex,
+    ) -> Result<(), DispatchError> {
+        // Check that the extrinsic call is made after the start date defined in the provided configuration
+
+        let current_block = <frame_system::Module<T>>::block_number();
+        // Get the config associated with the given configuration_token
+        if let Some(configuration_token_config) =
+            Self::mining_config_token_token_configs(mining_config_token_id)
+        {
+            if let _token_lock_start_block = configuration_token_config.token_lock_start_block {
+                ensure!(
+                    current_block > _token_lock_start_block,
+                    "Execution may not be made until after the start block of the lock period in the configuration"
+                );
+                Ok(())
+            } else {
+                return Err(DispatchError::Other("Cannot find token_config start_date associated with the execution"));
+            }
+        } else {
+            return Err(DispatchError::Other("Cannot find token_config associated with the execution"));
+        }
+    }
+
+    // Check that the associated token configuration has a token_lock_interval_blocks > token_lock_min_blocks
+    pub fn token_lock_interval_blocks_greater_than_token_lock_min_blocks(
+        mining_config_token_id: T::MiningConfigTokenIndex,
+    ) -> Result<(), DispatchError> {
+        if let Some(configuration_token) =
+            Self::mining_config_token_token_configs((mining_config_token_id))
+        {
+            if let Some(cooldown_configuration_token) =
+                Self::mining_config_token_token_cooldown_configs((mining_config_token_id))
+            {
+                if let token_lock_interval_blocks = configuration_token.token_lock_interval_blocks {
+                    if let token_lock_min_blocks = cooldown_configuration_token.token_lock_min_blocks {
+                        ensure!(
+                            token_lock_interval_blocks > token_lock_min_blocks,
+                            "Lock period must be longer than the minimum lock period of the cooldown config. Cannot \
+                             execute."
+                        );
+                        Ok(())
+                    } else {
+                        return Err(DispatchError::Other(
+                            "Cannot find token_config with token_lock_min_blocks associated with the execution",
+                        ));
+                    }
+                } else {
+                    return Err(DispatchError::Other(
+                        "Cannot find token_config with token_lock_interval_blocks associated with the execution",
+                    ));
+                }
+            } else {
+                return Err(DispatchError::Other("Cannot find token_cooldown_config associated with the execution"));
+            }
+        } else {
+            return Err(DispatchError::Other("Cannot find token_config associated with the execution"));
+        }
+    }
+
+    // Check that the associated token configuration has a token_lock_amount > token_lock_min_amount
+    pub fn token_lock_amount_greater_than_token_lock_min_amount(
+        mining_config_token_id: T::MiningConfigTokenIndex,
+    ) -> Result<(), DispatchError> {
+        if let Some(configuration_token) =
+            Self::mining_config_token_token_configs((mining_config_token_id))
+        {
+            if let Some(cooldown_configuration_token) =
+                Self::mining_config_token_token_cooldown_configs((mining_config_token_id))
+            {
+                if let locked_amount = configuration_token.token_lock_amount {
+                    if let lock_min_amount = cooldown_configuration_token.token_lock_min_amount {
+                        ensure!(
+                            locked_amount > lock_min_amount,
+                            "Locked amount must be larger than the minimum locked amount of the cooldown config. \
+                             Cannot execute."
+                        );
+                        Ok(())
+                    } else {
+                        return Err(DispatchError::Other(
+                            "Cannot find token_config with token_lock_min_blocks associated with the execution",
+                        ));
+                    }
+                } else {
+                    return Err(DispatchError::Other(
+                        "Cannot find token_config with token_lock_interval_blocks associated with the execution",
+                    ));
+                }
+            } else {
+                return Err(DispatchError::Other("Cannot find token_cooldown_config associated with the execution"));
+            }
+        } else {
+            return Err(DispatchError::Other("Cannot find token_config associated with the execution"));
+        }
+    }
+
     pub fn has_value_for_mining_config_token_token_config_index(
         mining_config_token_id: T::MiningConfigTokenIndex,
     ) -> Result<(), DispatchError> {
@@ -399,6 +640,37 @@ impl<T: Trait> Module<T> {
         }
         debug::info!("No value for mining_config_token_token_cooldown_config");
         Err(DispatchError::Other("No value for mining_config_token_token_cooldown_config"))
+    }
+
+    pub fn has_value_for_mining_config_token_execution_result_index(
+        mining_config_token_id: T::MiningConfigTokenIndex,
+    ) -> Result<(), DispatchError> {
+        debug::info!("Checking if mining_config_token_execution_result has a value that is defined");
+        let fetched_mining_config_token_execution_result =
+            <MiningConfigTokenExecutionResults<T>>::get(mining_config_token_id);
+        if let Some(_value) = fetched_mining_config_token_execution_result {
+            debug::info!("Found value for mining_config_token_execution_result");
+            return Ok(());
+        }
+        debug::info!("No value for mining_config_token_execution_result");
+        Err(DispatchError::Other("No value for mining_config_token_execution_result"))
+    }
+
+    pub fn execution(
+        sender: T::AccountId,
+        mining_config_token_id: T::MiningConfigTokenIndex,
+        _token_execution_executor_account_id: T::AccountId,
+        _token_execution_started_block: T::BlockNumber,
+        _token_execution_interval_blocks: T::BlockNumber,
+    ) -> Result<(), DispatchError> {
+        return Ok(());
+
+        // TODO - Lock the token_lock_amount for the token_lock_interval_blocks using the Balances module
+
+        // TODO - Setup a function in on_finalize that automatically checks through all the accounts that have
+        // successfully been locked, whether it is the end of their cooldown period and if so sample the balance, to
+        // determine their elegibility, and perform the claim for reward and unlock their tokens
+        // TODO - Update tests for the above
     }
 
     fn random_value(sender: &T::AccountId) -> [u8; 16] {

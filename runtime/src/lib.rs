@@ -700,11 +700,6 @@ impl mining_claims_hardware::Trait for Runtime {
     type MiningClaimsHardwareIndex = u64;
 }
 
-impl mining_execution_token::Trait for Runtime {
-    type Event = Event;
-    type MiningExecutionTokenIndex = u64;
-}
-
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
     pub enum Runtime where
@@ -751,7 +746,6 @@ construct_runtime!(
         MiningEligibilityHardware: mining_eligibility_hardware::{Module, Call, Storage, Event<T>},
         MiningClaimsToken: mining_claims_token::{Module, Call, Storage, Event<T>},
         MiningClaimsHardware: mining_claims_hardware::{Module, Call, Storage, Event<T>},
-        MiningExecutionToken: mining_execution_token::{Module, Call, Storage, Event<T>},
     }
 );
 
