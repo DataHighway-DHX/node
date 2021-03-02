@@ -90,9 +90,9 @@ impl roaming_operators::Trait for Test {
     type RoamingOperatorIndex = u64;
 }
 impl Trait for Test {
-    type Event = ();
     type DOTRate = u64;
     type DecimalsAfterPoint = u32;
+    type Event = ();
     type ExchangeRateIndex = u64;
     type FILRate = u64;
     type HBTCRate = u64;
