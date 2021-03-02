@@ -1,4 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(step_trait)]
 
 use codec::{
     Decode,
@@ -43,7 +44,7 @@ mod tests;
 /// The module's configuration trait.
 pub trait Trait: frame_system::Trait + roaming_operators::Trait + mining_rates_token::Trait {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
-    type MiningConfigTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningConfigTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + sp_std::iter::Step;
     // Mining Speed Boost Token Mining Config
     type MiningConfigTokenType: Parameter + Member + Default;
     type MiningConfigTokenLockAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
@@ -157,7 +158,7 @@ decl_module! {
             // See https://substrate.dev/recipes/map-set.html
             //
             // Loop through all mining_config_token_id
-            for idx_c in 0..config_token_count.into() {
+            for idx_c in 0u32.into()..config_token_count {
                 let fetched_mining_execution_token_result = <MiningConfigTokenExecutionResults<T>>::get(idx_c);
 
                 if let Some(_mining_execution_token_result) = fetched_mining_execution_token_result {
@@ -203,7 +204,7 @@ decl_module! {
                                         // Reference: https://github.com/hicommonwealth/edgeware-node/blob/master/modules/edge-treasury-reward/src/lib.rs#L42
                                         if <frame_system::Module<T>>::block_number() % token_lock_min_blocks == Zero::zero() {
                                             // FIXME - assumes there is only one rates config index so hard-coded 0, but we could have many
-                                            let fetched_mining_rates_token_rates_config = <mining_rates_token::Module<T>>::mining_rates_token_rates_configs(0.into());
+                                            let fetched_mining_rates_token_rates_config = <mining_rates_token::Module<T>>::mining_rates_token_rates_configs(0u32.into());
                                             if let Some(_mining_rates_token_rates_config) = fetched_mining_rates_token_rates_config {
                                                 debug::info!("token_execution_interval_blocks {:#?}", _mining_execution_token_result.token_execution_interval_blocks);
 
