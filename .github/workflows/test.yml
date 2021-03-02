@@ -93,7 +93,8 @@ jobs:
           cargo +nightly-2020-10-06 test -p mining-eligibility-hardware &&
           cargo +nightly-2020-10-06 test -p mining-claims-token &&
           cargo +nightly-2020-10-06 test -p mining-claims-hardware &&
-          cargo +nightly-2020-10-06 test -p mining-execution-token
+          cargo +nightly-2020-10-06 test -p mining-execution-token && 
+          cargo +nightly-2020-10-06 test -p exchange-rate 
 
   lints:
     name: Lints
