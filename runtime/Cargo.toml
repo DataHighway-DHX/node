@@ -65,6 +65,7 @@ std = [
     'mining-claims-token/std',
     'mining-claims-hardware/std',
     'mining-execution-token/std',
+    'exchange-rate/std',
 ]
 
 [dependencies]
@@ -130,6 +131,7 @@ mining-eligibility-hardware = { default_features = false, package = 'mining-elig
 mining-claims-token = { default_features = false, package = 'mining-claims-token', path = '../pallets/mining/claims/token' }
 mining-claims-hardware = { default_features = false, package = 'mining-claims-hardware', path = '../pallets/mining/claims/hardware' }
 mining-execution-token = { default_features = false, package = 'mining-execution-token', path = '../pallets/mining/execution/token' }
+exchange-rate = { default_features = false, package = 'exchange-rate', path = '../pallets/exchange-rate' }
 module-primitives = { default-features = false, path = '../pallets/primitives' }
 
 [build-dependencies]
