@@ -203,5 +203,18 @@
     "token_execution_exector_account_id": "u64",
     "token_execution_started_block": "Moment",
     "token_execution_ended_block": "Moment"
-  }
+  },
+  "ExchangeRateIndex": "u64",
+  "ExchangeRateConfig": {
+    "hbtc": "u64",
+    "dot": "u64",
+    "iota": "u64",
+    "fil": "u64",
+    "decimals_after_point": "u32"
+  },
+  "HBTCRate": "u64",
+  "DOTRate": "u64",
+  "IOTARate": "u64",
+  "FILRate": "u64",
+  "DecimalsAfterPoint": "u32"
 }

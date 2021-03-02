@@ -29,6 +29,12 @@ use sp_runtime::{
 };
 use sp_std::prelude::*;
 
+#[cfg(test)]
+mod mock;
+
+#[cfg(test)]
+mod tests;
+
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct ExchangeRate(pub [u8; 16]);
@@ -119,14 +125,6 @@ decl_module! {
             Self::update_owner(&to, exchange_rate_id);
 
             Self::deposit_event(RawEvent::Transferred(sender, to, exchange_rate_id));
-        }
-
-        #[weight = 10_000 + T::DbWeight::get().writes(1)]
-        pub fn set_hbtc(
-            origin,
-            rate: T::HBTCRate,
-        ) {
-
         }
 
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
