@@ -3219,6 +3219,7 @@ version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
+ "mining-rates-token",
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",

@@ -25,6 +25,7 @@ use sp_runtime::{
         Bounded,
         Member,
         One,
+        Zero,
     },
     DispatchError,
 };
@@ -40,7 +41,7 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait {
+pub trait Trait: frame_system::Trait + roaming_operators::Trait + mining_rates_token::Trait {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type MiningConfigTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     // Mining Speed Boost Token Mining Config
@@ -141,6 +142,109 @@ decl_module! {
     /// The module declaration.
     pub struct Module<T: Trait> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
+
+        // TODO - automatically checks through all the accounts that have
+        // successfully been locked, whether it is the end of their cooldown period and if so sample the balance, to
+        // determine their elegibility, and perform the lodgement for reward and unlock their tokens
+        fn on_finalize(current_block_number: T::BlockNumber) {
+            debug::info!("execution/token-mining - on_finalize");
+            debug::info!("current block number {:#?}", current_block_number);
+
+            let config_token_count = Self::mining_config_token_count();
+
+            // FIXME - is there an upper bound on the size of these sets and
+            // the computation of this nested loop? what max size or custom weight function?
+            // See https://substrate.dev/recipes/map-set.html
+            //
+            // Loop through all mining_config_token_id
+            for idx_c in 0..config_token_count.into() {
+                let fetched_mining_execution_token_result = <MiningConfigTokenExecutionResults<T>>::get(idx_c);
+
+                if let Some(_mining_execution_token_result) = fetched_mining_execution_token_result {
+                    debug::info!("token_execution_executor_account_id {:#?}", _mining_execution_token_result.token_execution_executor_account_id);
+                    debug::info!("token_execution_started_block {:#?}", _mining_execution_token_result.token_execution_started_block);
+                    debug::info!("token_execution_interval_blocks {:#?}", _mining_execution_token_result.token_execution_interval_blocks);
+
+                    let fetched_mining_config_token_cooldown_config = Self::mining_config_token_cooldown_configs(idx_c);
+                    if let Some(_mining_config_token_cooldown_config) = fetched_mining_config_token_cooldown_config {
+                        // debug::info!("token_type {:#?}", _mining_config_token_cooldown_config.token_type);
+                        debug::info!("token_lock_min_blocks {:#?}", _mining_config_token_cooldown_config.token_lock_min_blocks);
+
+                        if let token_lock_min_blocks = _mining_config_token_cooldown_config.token_lock_min_blocks {
+                            if let Some(configuration_token) = Self::mining_config_token_configs((idx_c)) {
+                                if let token_lock_amount = configuration_token.token_lock_amount {
+
+                                    // FIXME - remove hard-coded and integrate
+                                    // const MINING_REQUESTED_END_BLOCK = One::one() * 10;
+
+                                    // If the end of the mining period has been reached, then stop giving them rewards,
+                                    // and unlock their bonded tokens after waiting the cooldown period of _mining_config_token_cooldown_config.token_lock_min_blocks
+                                    // after the end of their mining period.
+
+                                    if <frame_system::Module<T>>::block_number() >= _mining_execution_token_result.token_execution_interval_blocks {
+                                        if <frame_system::Module<T>>::block_number() > _mining_execution_token_result.token_execution_interval_blocks + token_lock_min_blocks {
+                                        // if <frame_system::Module<T>>::block_number() > MINING_REQUESTED_END_BLOCK + token_lock_min_blocks {
+                                            // TODO - Unlock the funds. Store updated status
+                                            // We only want to unlock the rewards they have earned.
+                                            // The amount of tokens that they originally locked to mine the rewards will remain locked until the end of their mining period
+                                            // (FIXME - or until they request to stop mining, which hasn't been implemented yet),
+                                            // and then they cannot move those locked tokens for the cooldown period and receive no further rewards.
+
+                                            if let Some(mining_config_token) = Self::mining_config_token(idx_c) {
+                                                // <T as Trait>::Currency::remove_lock(
+                                                //     mining_config_token, // where idx_c is mining_config_token_id
+                                                //     &_mining_execution_token_result.token_execution_executor_account_id,
+                                                // );
+                                            }
+                                        }
+                                    } else if <frame_system::Module<T>>::block_number() < _mining_execution_token_result.token_execution_interval_blocks {
+                                        // Check if cooldown period has been reached before start distributing rewards.
+                                        // If so then we unlock and transfer the reward tokens to the user from the treasury.
+                                        // Reference: https://github.com/hicommonwealth/edgeware-node/blob/master/modules/edge-treasury-reward/src/lib.rs#L42
+                                        if <frame_system::Module<T>>::block_number() % token_lock_min_blocks == Zero::zero() {
+                                            // FIXME - assumes there is only one rates config index so hard-coded 0, but we could have many
+                                            let fetched_mining_rates_token_rates_config = <mining_rates_token::Module<T>>::mining_rates_token_rates_configs(0.into());
+                                            if let Some(_mining_rates_token_rates_config) = fetched_mining_rates_token_rates_config {
+                                                debug::info!("token_execution_interval_blocks {:#?}", _mining_execution_token_result.token_execution_interval_blocks);
+
+                                                // TODO - choose the token rate that corresponds to the _mining_config_token_cooldown_config.token_type
+                                                // and use this to determine the reward ratio.
+                                                // in the meantime until this is fixed, we will just assume the user is mining MXC and choose the rate for that
+
+                                                // Reward ratio
+                                                let reward_ratio = _mining_rates_token_rates_config.token_token_mxc;
+
+                                                // Calculate the reward based on the reward ratio (i.e. 1 DHX per 10 DHX that was locked)
+                                                // e.g. (1.1 - 1) * 10 DHX, where 1.1 is ratio of mining reward for the MXC token
+
+                                                // let reward = (reward_ratio - 1.into()) * token_lock_amount;
+
+                                                // Distribute the reward to the account that has locked the funds
+
+                                                // <T as Trait>::Currency::transfer(
+                                                //     &<pallet_treasury::Module<T>>::account_id(),
+                                                //     &_mining_execution_token_result.token_execution_executor_account_id,
+                                                //     reward,
+                                                //     ExistenceRequirement::KeepAlive
+                                                // );
+
+                                                // Emit event since treasury unlocked locked tokens and rewarded customer the reward ratio
+
+                                                // Self::deposit_event(RawEvent::TreasuryRewardTokenMiningPostCooldown(
+                                                //     <pallet_balances::Module<T>>::free_balance(_mining_execution_token_result.token_execution_executor_account_id),
+                                                //     <frame_system::Module<T>>::block_number(),
+                                                //     _mining_execution_token_result.token_execution_executor_account_id
+                                                // ));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         /// Create a new mining mining_config_token
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
@@ -420,6 +524,23 @@ decl_module! {
             let is_token_lock_amount_greater_than_token_lock_min_amount = Self::token_lock_amount_greater_than_token_lock_min_amount(mining_config_token_id).is_ok();
             ensure!(is_token_lock_amount_greater_than_token_lock_min_amount, "token configuration does not have a token_lock_amount > token_lock_min_amount");
 
+            Self::execution(
+                sender.clone(),
+                mining_config_token_id,
+                token_execution_executor_account_id.clone(),
+                token_execution_started_block,
+                token_execution_interval_blocks,
+            );
+            debug::info!("Executed");
+
+            ensure!(Self::execution(
+                sender.clone(),
+                mining_config_token_id,
+                token_execution_executor_account_id.clone(),
+                token_execution_started_block,
+                token_execution_interval_blocks,
+            ).is_ok(), "Cannot execute");
+
             // Check if a mining_config_token_execution_result already exists with the given mining_config_token_id
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_mining_config_token_execution_result_index(mining_config_token_id).is_ok() {
@@ -664,6 +785,7 @@ impl<T: Trait> Module<T> {
         _token_execution_interval_blocks: T::BlockNumber,
     ) -> Result<(), DispatchError> {
         return Ok(());
+        // const EXAMPLE_ID: LockIdentifier = *b"example ";
 
         // TODO - Lock the token_lock_amount for the token_lock_interval_blocks using the Balances module
 
@@ -671,6 +793,31 @@ impl<T: Trait> Module<T> {
         // successfully been locked, whether it is the end of their cooldown period and if so sample the balance, to
         // determine their elegibility, and perform the claim for reward and unlock their tokens
         // TODO - Update tests for the above
+        if let Some(configuration_token) =
+            Self::mining_config_token_configs((mining_config_token_id))
+        {
+            if let lock_amount = configuration_token.token_lock_amount {
+                if let Some(execution_results) = Self::mining_config_token_execution_results(mining_config_token_id) {
+                    // <T as Trait>::Currency::set_lock(
+                    //     execution_token, // EXAMPLE_ID,
+                    //     &_token_execution_executor_account_id,
+                    //     lock_amount,
+                    //     WithdrawReasons::all(),
+                    // );
+                    return Ok(());
+                } else {
+                    return Err(DispatchError::Other(
+                        "Cannot find mining_config_token_id associated with the execution",
+                    ));
+                }
+            } else {
+                return Err(DispatchError::Other(
+                    "Cannot find token_mining_config with token_lock_period associated with the execution",
+                ));
+            }
+        } else {
+            return Err(DispatchError::Other("Cannot find token_mining_config associated with the execution"));
+        }
     }
 
     fn random_value(sender: &T::AccountId) -> [u8; 16] {

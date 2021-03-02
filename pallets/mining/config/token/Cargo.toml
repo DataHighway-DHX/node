@@ -22,6 +22,7 @@ std = [
     'sp-std/std',
 
     'roaming-operators/std',
+    'mining-rates-token/std',
 ]
 
 [dependencies]
@@ -39,5 +40,6 @@ sp-runtime = { version = '2.0.0', default_features = false }
 sp-std = { version = '2.0.0', default_features = false }
 
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
+mining-rates-token = { default_features = false, package = 'mining-rates-token', path = '../../../mining/rates/token' }
 
 [dev-dependencies]
