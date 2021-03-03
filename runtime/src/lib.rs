@@ -705,6 +705,16 @@ impl mining_execution_token::Trait for Runtime {
     type MiningExecutionTokenIndex = u64;
 }
 
+impl exchange_rate::Trait for Runtime {
+    type DOTRate = u64;
+    type DecimalsAfterPoint = u32;
+    type Event = Event;
+    type ExchangeRateIndex = u64;
+    type FILRate = u64;
+    type HBTCRate = u64;
+    type IOTARate = u64;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
     pub enum Runtime where
@@ -752,6 +762,7 @@ construct_runtime!(
         MiningClaimsToken: mining_claims_token::{Module, Call, Storage, Event<T>},
         MiningClaimsHardware: mining_claims_hardware::{Module, Call, Storage, Event<T>},
         MiningExecutionToken: mining_execution_token::{Module, Call, Storage, Event<T>},
+        ExchangeRate: exchange_rate::{Module, Call, Storage, Event<T>},
     }
 );
 

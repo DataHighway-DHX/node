@@ -989,6 +989,7 @@ dependencies = [
 name = "datahighway-runtime"
 version = "1.0.0"
 dependencies = [
+ "exchange-rate",
  "frame-executive",
  "frame-support",
  "frame-system",
@@ -1223,6 +1224,24 @@ name = "event-listener"
 version = "2.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "829694371bd7bbc6aee17c4ff624aad8bf9f4dc06c6f9f6071eaa08c89530d10"
+
+[[package]]
+name = "exchange-rate"
+version = "0.1.0"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "pallet-balances",
+ "pallet-randomness-collective-flip",
+ "pallet-transaction-payment",
+ "parity-scale-codec",
+ "roaming-operators",
+ "safe-mix",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
 
 [[package]]
 name = "exit-future"
