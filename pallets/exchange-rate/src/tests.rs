@@ -106,7 +106,15 @@ fn set_config_works() {
         // Setup
         assert_ok!(ExchangeRateTestModule::create(Origin::signed(1)));
         // Call Functions
-        assert_ok!(ExchangeRateTestModule::set_config(Origin::signed(1), 0, Some(777), Some(778), None, Some(779), Some(3)));
+        assert_ok!(ExchangeRateTestModule::set_config(
+            Origin::signed(1),
+            0,
+            Some(777),
+            Some(778),
+            None,
+            Some(779),
+            Some(3)
+        ));
         // Verify Storage
         assert_eq!(ExchangeRateTestModule::exchange_rate_count(), 1);
         assert!(ExchangeRateTestModule::exchange_rates(0).is_some());
@@ -141,4 +149,3 @@ fn et_config_basic_errors() {
         assert_eq!(ExchangeRateTestModule::exchange_rate_owner(0), Some(1));
     });
 }
-
