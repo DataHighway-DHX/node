@@ -15,7 +15,10 @@ use frame_support::{
         Currency,
         ExistenceRequirement,
         Get,
+        LockIdentifier,
+        LockableCurrency,
         Randomness,
+        WithdrawReasons,
     },
     Parameter,
 };
@@ -51,6 +54,7 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait + mining_rates_t
     type MiningConfigTokenType: Parameter + Member + Default;
     type MiningConfigTokenLockAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type Currency: Currency<Self::AccountId>;
+    type CurrencyLockable: LockableCurrency<Self::AccountId, Moment=Self::BlockNumber>;
 }
 
 type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
@@ -198,10 +202,10 @@ decl_module! {
                                             // and then they cannot move those locked tokens for the cooldown period and receive no further rewards.
 
                                             if let Some(mining_config_token) = Self::mining_config_token(idx_c) {
-                                                // <T as Trait>::Currency::remove_lock(
-                                                //     mining_config_token, // where idx_c is mining_config_token_id
-                                                //     &_mining_execution_token_result.token_execution_executor_account_id,
-                                                // );
+                                                T::CurrencyLockable::remove_lock(
+                                                    mining_config_token, // where idx_c is mining_config_token_id
+                                                    &_mining_execution_token_result.token_execution_executor_account_id,
+                                                );
                                             }
                                         }
                                     } else if <frame_system::Module<T>>::block_number() < _mining_execution_token_result.token_execution_interval_blocks {
@@ -804,8 +808,6 @@ impl<T: Trait> Module<T> {
         _token_execution_interval_blocks: T::BlockNumber,
     ) -> Result<(), DispatchError> {
         return Ok(());
-        // const EXAMPLE_ID: LockIdentifier = *b"example ";
-
         // TODO - Lock the token_lock_amount for the token_lock_interval_blocks using the Balances module
 
         // TODO - Setup a function in on_finalize that automatically checks through all the accounts that have
@@ -816,18 +818,24 @@ impl<T: Trait> Module<T> {
             Self::mining_config_token_configs((mining_config_token_id))
         {
             if let lock_amount = configuration_token.token_lock_amount {
-                if let Some(execution_results) = Self::mining_config_token_execution_results(mining_config_token_id) {
-                    // <T as Trait>::Currency::set_lock(
-                    //     execution_token, // EXAMPLE_ID,
-                    //     &_token_execution_executor_account_id,
-                    //     lock_amount,
-                    //     WithdrawReasons::all(),
-                    // );
-                    return Ok(());
-                } else {
-                    return Err(DispatchError::Other(
-                        "Cannot find mining_config_token_id associated with the execution",
-                    ));
+                let lock_amount_lockable_currency_try = TryInto::<T::CurrencyLockable>::try_into(lock_amount).ok();
+                if let lock_amount_lockable_currency = Some(lock_amount_lockable_currency_try) {
+                    if let Some(execution_results) = Self::mining_config_token_execution_results(mining_config_token_id) {
+                        const EXAMPLE_ID: LockIdentifier = *b"example ";
+
+                        T::CurrencyLockable::set_lock(
+                            // execution_token, // EXAMPLE_ID,
+                            EXAMPLE_ID,
+                            &_token_execution_executor_account_id,
+                            lock_amount_lockable_currency,
+                            WithdrawReasons::all(),
+                        );
+                        return Ok(());
+                    } else {
+                        return Err(DispatchError::Other(
+                            "Cannot find mining_config_token_id associated with the execution",
+                        ));
+                    }
                 }
             } else {
                 return Err(DispatchError::Other(
