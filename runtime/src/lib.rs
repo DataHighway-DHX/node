@@ -515,7 +515,7 @@ impl pallet_staking::Trait for Runtime {
 }
 
 impl roaming_operators::Trait for Runtime {
-    type Currency = Balances;
+    // type Currency = Balances;
     type Event = Event;
     type Randomness = RandomnessCollectiveFlip;
     type RoamingOperatorIndex = u64;
@@ -609,6 +609,7 @@ impl roaming_packet_bundles::Trait for Runtime {
 
 impl mining_config_token::Trait for Runtime {
     type Currency = Balances;
+    type Balance = Balance;
     type Event = Event;
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;

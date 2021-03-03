@@ -47,14 +47,13 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait + mining_rates_token::Trait + pallet_treasury::Trait + pallet_balances::Trait {
+pub trait Trait: frame_system::Trait + mining_rates_token::Trait + pallet_treasury::Trait + pallet_balances::Trait {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type MiningConfigTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + sp_std::iter::Step;
     // Mining Speed Boost Token Mining Config
     type MiningConfigTokenType: Parameter + Member + Default;
     type MiningConfigTokenLockAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type Currency: Currency<Self::AccountId>;
-    type CurrencyLockable: LockableCurrency<Self::AccountId, Moment=Self::BlockNumber>;
+    type Currency: LockableCurrency<Self::AccountId, Moment=Self::BlockNumber>;
 }
 
 type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
@@ -96,7 +95,6 @@ decl_event!(
         <T as Trait>::MiningConfigTokenType,
         BlockNumber = <T as frame_system::Trait>::BlockNumber,
         BalanceOfCurrency = BalanceOf<T>,
-        Balance = <T as pallet_balances::Trait>::Balance,
     {
         /// A mining_config_token is created. (owner, mining_config_token_id)
         Created(AccountId, MiningConfigTokenIndex),
@@ -113,7 +111,7 @@ decl_event!(
             AccountId, MiningConfigTokenIndex,AccountId, BlockNumber, BlockNumber
         ),
         TreasuryRewardTokenMiningPostCooldown(
-            Balance, BlockNumber, AccountId
+            BalanceOfCurrency, BlockNumber, AccountId
         ),
     }
 );
@@ -202,7 +200,7 @@ decl_module! {
                                             // and then they cannot move those locked tokens for the cooldown period and receive no further rewards.
 
                                             if let Some(mining_config_token) = Self::mining_config_token(idx_c) {
-                                                T::CurrencyLockable::remove_lock(
+                                                T::Currency::remove_lock(
                                                     mining_config_token, // where idx_c is mining_config_token_id
                                                     &_mining_execution_token_result.token_execution_executor_account_id,
                                                 );
@@ -818,12 +816,12 @@ impl<T: Trait> Module<T> {
             Self::mining_config_token_configs((mining_config_token_id))
         {
             if let lock_amount = configuration_token.token_lock_amount {
-                let lock_amount_lockable_currency_try = TryInto::<T::CurrencyLockable>::try_into(lock_amount).ok();
+                let lock_amount_lockable_currency_try = TryInto::<T::Currency>::try_into(lock_amount).ok();
                 if let lock_amount_lockable_currency = Some(lock_amount_lockable_currency_try) {
                     if let Some(execution_results) = Self::mining_config_token_execution_results(mining_config_token_id) {
                         const EXAMPLE_ID: LockIdentifier = *b"example ";
 
-                        T::CurrencyLockable::set_lock(
+                        T::Currency::set_lock(
                             // execution_token, // EXAMPLE_ID,
                             EXAMPLE_ID,
                             &_token_execution_executor_account_id,
@@ -836,6 +834,10 @@ impl<T: Trait> Module<T> {
                             "Cannot find mining_config_token_id associated with the execution",
                         ));
                     }
+                } else {
+                    return Err(DispatchError::Other(
+                        "Cannot find lock_amount_lockable_currency associated with the execution",
+                    ));
                 }
             } else {
                 return Err(DispatchError::Other(
