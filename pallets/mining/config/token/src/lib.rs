@@ -13,6 +13,7 @@ use frame_support::{
     ensure,
     traits::{
         Currency,
+        ExistenceRequirement,
         Get,
         Randomness,
     },
@@ -43,7 +44,7 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait + mining_rates_token::Trait {
+pub trait Trait: frame_system::Trait + roaming_operators::Trait + mining_rates_token::Trait + pallet_treasury::Trait {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type MiningConfigTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + sp_std::iter::Step;
     // Mining Speed Boost Token Mining Config
@@ -230,12 +231,20 @@ decl_module! {
 
                                                 // Distribute the reward to the account that has locked the funds
 
-                                                // <T as Trait>::Currency::transfer(
-                                                //     &<pallet_treasury::Module<T>>::account_id(),
-                                                //     &_mining_execution_token_result.token_execution_executor_account_id,
-                                                //     reward,
-                                                //     ExistenceRequirement::KeepAlive
-                                                // );
+                                                let treasury_account_id: T::AccountId = <pallet_treasury::Module<T>>::account_id();
+
+                                                if let Some(reward_to_pay_to_try) = reward {
+                                                    let reward_to_pay_as_balance_to_try = TryInto::<BalanceOf<T>>::try_into(reward_to_pay_to_try).ok();
+                                                    if let Some(reward_to_pay) = reward_to_pay_as_balance_to_try {
+                                                        <T as Trait>::Currency::transfer(
+                                                            &treasury_account_id,
+                                                            &_mining_execution_token_result.token_execution_executor_account_id,
+                                                            reward_to_pay,
+                                                            ExistenceRequirement::KeepAlive
+                                                        );
+                                                    }
+                                                }
+
 
                                                 // Emit event since treasury unlocked locked tokens and rewarded customer the reward ratio
 
