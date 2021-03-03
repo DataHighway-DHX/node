@@ -30,6 +30,7 @@ use sp_runtime::{
     },
     DispatchError,
 };
+use sp_std::convert::TryInto;
 use sp_std::prelude::*; // Imports Vec
 
 // FIXME - remove roaming_operators here, only use this approach since do not know how to use BalanceOf using only
@@ -219,9 +220,12 @@ decl_module! {
                                                 // Calculate the reward based on the reward ratio (i.e. 1 DHX per 10 DHX that was locked)
                                                 // e.g. (1.1 - 1) * 10 DHX, where 1.1 is ratio of mining reward for the MXC token
                                                 let total_ratio: T::MiningRatesTokenTokenMXC = reward_ratio - 1u32.into();
-                                                if let total = Some(balance_to_u32(total_ratio)) {
-                                                    let reward: u32 = total * token_lock_amount.into();
-                                                }
+                                                let total = TryInto::<u32>::try_into(total_ratio).ok();
+                                                let lock_amount = TryInto::<u32>::try_into(token_lock_amount).ok();
+                                                let reward: Option<u32> = match (total, lock_amount) {
+                                                    (Some(a), Some(b)) => Some(a * b),
+                                                    _ => None,
+                                                };
 
                                                 // Distribute the reward to the account that has locked the funds
 
@@ -614,10 +618,6 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-    pub fn balance_to_u32(input: BalanceOf<T>) -> Option<u32> {
-        <T as Into<u32>>::into(input).is_some()
-    }
-
     pub fn is_mining_config_token_owner(
         mining_config_token_id: T::MiningConfigTokenIndex,
         sender: T::AccountId,
