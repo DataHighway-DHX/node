@@ -95,6 +95,7 @@ decl_event!(
         <T as Trait>::MiningConfigTokenType,
         BlockNumber = <T as frame_system::Trait>::BlockNumber,
         BalanceOfCurrency = BalanceOf<T>,
+        Balance = <T as pallet_balances::Trait>::Balance,
     {
         /// A mining_config_token is created. (owner, mining_config_token_id)
         Created(AccountId, MiningConfigTokenIndex),
@@ -108,10 +109,10 @@ decl_event!(
             BlockNumber
         ),
         MiningConfigTokenExecutionResultSet(
-            AccountId, MiningConfigTokenIndex,AccountId, BlockNumber, BlockNumber
+            AccountId, MiningConfigTokenIndex, AccountId, BlockNumber, BlockNumber
         ),
         TreasuryRewardTokenMiningPostCooldown(
-            BalanceOfCurrency, BlockNumber, AccountId
+            Balance, BlockNumber, AccountId
         ),
     }
 );
@@ -200,7 +201,7 @@ decl_module! {
                                             // and then they cannot move those locked tokens for the cooldown period and receive no further rewards.
 
                                             if let Some(mining_config_token) = Self::mining_config_token(idx_c) {
-                                                T::Currency::remove_lock(
+                                                <T as pallet_balances::Trait>::Currency::remove_lock(
                                                     mining_config_token, // where idx_c is mining_config_token_id
                                                     &_mining_execution_token_result.token_execution_executor_account_id,
                                                 );
@@ -805,7 +806,7 @@ impl<T: Trait> Module<T> {
         _token_execution_started_block: T::BlockNumber,
         _token_execution_interval_blocks: T::BlockNumber,
     ) -> Result<(), DispatchError> {
-        return Ok(());
+        // return Ok(());
         // TODO - Lock the token_lock_amount for the token_lock_interval_blocks using the Balances module
 
         // TODO - Setup a function in on_finalize that automatically checks through all the accounts that have
@@ -816,12 +817,12 @@ impl<T: Trait> Module<T> {
             Self::mining_config_token_configs((mining_config_token_id))
         {
             if let lock_amount = configuration_token.token_lock_amount {
-                let lock_amount_lockable_currency_try = TryInto::<T::Currency>::try_into(lock_amount).ok();
+                let lock_amount_lockable_currency_try = TryInto::<<T as pallet_balances::Trait>::Currency>::try_into(lock_amount).ok();
                 if let lock_amount_lockable_currency = Some(lock_amount_lockable_currency_try) {
                     if let Some(execution_results) = Self::mining_config_token_execution_results(mining_config_token_id) {
                         const EXAMPLE_ID: LockIdentifier = *b"example ";
 
-                        T::Currency::set_lock(
+                        <T as pallet_balances::Trait>::Currency::set_lock(
                             // execution_token, // EXAMPLE_ID,
                             EXAMPLE_ID,
                             &_token_execution_executor_account_id,

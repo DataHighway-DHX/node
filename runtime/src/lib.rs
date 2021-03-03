@@ -608,8 +608,8 @@ impl roaming_packet_bundles::Trait for Runtime {
 }
 
 impl mining_config_token::Trait for Runtime {
-    type Currency = Balances;
-    type Balance = Balance;
+    // type Currency = Balances;
+    // type Balance = Balance;
     type Event = Event;
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
@@ -639,6 +639,7 @@ impl mining_config_hardware::Trait for Runtime {
 
 impl mining_rates_token::Trait for Runtime {
     type Event = Event;
+    type Randomness = RandomnessCollectiveFlip;
     type MiningRatesTokenIndex = u64;
     type MiningRatesTokenMaxLoyalty = u32;
     // Mining Speed Boost Max Rates
