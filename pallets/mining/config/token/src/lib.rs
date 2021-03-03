@@ -44,7 +44,7 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait + mining_rates_token::Trait + pallet_treasury::Trait {
+pub trait Trait: frame_system::Trait + roaming_operators::Trait + mining_rates_token::Trait + pallet_treasury::Trait + pallet_balances::Trait {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type MiningConfigTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + sp_std::iter::Step;
     // Mining Speed Boost Token Mining Config
@@ -91,21 +91,25 @@ decl_event!(
         <T as Trait>::MiningConfigTokenIndex,
         <T as Trait>::MiningConfigTokenType,
         BlockNumber = <T as frame_system::Trait>::BlockNumber,
-        Balance = BalanceOf<T>,
+        BalanceOfCurrency = BalanceOf<T>,
+        Balance = <T as pallet_balances::Trait>::Balance,
     {
         /// A mining_config_token is created. (owner, mining_config_token_id)
         Created(AccountId, MiningConfigTokenIndex),
         /// A mining_config_token is transferred. (from, to, mining_config_token_id)
         Transferred(AccountId, AccountId, MiningConfigTokenIndex),
         MiningConfigTokenConfigSet(
-            AccountId, MiningConfigTokenIndex, MiningConfigTokenType, Balance, BlockNumber, BlockNumber
+            AccountId, MiningConfigTokenIndex, MiningConfigTokenType, BalanceOfCurrency, BlockNumber, BlockNumber
         ),
         MiningConfigTokenRequirementsConfigSet(
-            AccountId, MiningConfigTokenIndex, MiningConfigTokenType, Balance,
+            AccountId, MiningConfigTokenIndex, MiningConfigTokenType, BalanceOfCurrency,
             BlockNumber
         ),
         MiningConfigTokenExecutionResultSet(
             AccountId, MiningConfigTokenIndex,AccountId, BlockNumber, BlockNumber
+        ),
+        TreasuryRewardTokenMiningPostCooldown(
+            Balance, BlockNumber, AccountId
         ),
     }
 );
@@ -230,7 +234,6 @@ decl_module! {
                                                 };
 
                                                 // Distribute the reward to the account that has locked the funds
-
                                                 let treasury_account_id: T::AccountId = <pallet_treasury::Module<T>>::account_id();
 
                                                 if let Some(reward_to_pay_to_try) = reward {
@@ -245,14 +248,12 @@ decl_module! {
                                                     }
                                                 }
 
-
                                                 // Emit event since treasury unlocked locked tokens and rewarded customer the reward ratio
-
-                                                // Self::deposit_event(RawEvent::TreasuryRewardTokenMiningPostCooldown(
-                                                //     <pallet_balances::Module<T>>::free_balance(_mining_execution_token_result.token_execution_executor_account_id),
-                                                //     <frame_system::Module<T>>::block_number(),
-                                                //     _mining_execution_token_result.token_execution_executor_account_id
-                                                // ));
+                                                Self::deposit_event(RawEvent::TreasuryRewardTokenMiningPostCooldown(
+                                                    <pallet_balances::Module<T>>::free_balance(&_mining_execution_token_result.token_execution_executor_account_id),
+                                                    <frame_system::Module<T>>::block_number(),
+                                                    _mining_execution_token_result.token_execution_executor_account_id
+                                                ));
                                             }
                                         }
                                     }
