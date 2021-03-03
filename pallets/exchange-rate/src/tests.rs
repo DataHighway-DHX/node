@@ -130,7 +130,7 @@ fn set_config_works() {
 }
 
 #[test]
-fn et_config_basic_errors() {
+fn set_config_basic_errors() {
     new_test_ext().execute_with(|| {
         // Setup
         assert_ok!(ExchangeRateTestModule::create(Origin::signed(1)));
