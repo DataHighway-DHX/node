@@ -176,15 +176,15 @@ decl_module! {
                                 if let token_lock_amount = configuration_token.token_lock_amount {
 
                                     // FIXME - remove hard-coded and integrate
-                                    // const MINING_REQUESTED_END_BLOCK = One::one() * 10;
+                                    let MINING_REQUESTED_END_BLOCK: T::BlockNumber = 10.into();
 
                                     // If the end of the mining period has been reached, then stop giving them rewards,
                                     // and unlock their bonded tokens after waiting the cooldown period of _mining_config_token_cooldown_config.token_lock_min_blocks
                                     // after the end of their mining period.
 
                                     if <frame_system::Module<T>>::block_number() >= _mining_execution_token_result.token_execution_interval_blocks {
-                                        if <frame_system::Module<T>>::block_number() > _mining_execution_token_result.token_execution_interval_blocks + token_lock_min_blocks {
-                                        // if <frame_system::Module<T>>::block_number() > MINING_REQUESTED_END_BLOCK + token_lock_min_blocks {
+                                        // if <frame_system::Module<T>>::block_number() > _mining_execution_token_result.token_execution_interval_blocks + token_lock_min_blocks {
+                                        if <frame_system::Module<T>>::block_number() > MINING_REQUESTED_END_BLOCK as T::BlockNumber + token_lock_min_blocks {
                                             // TODO - Unlock the funds. Store updated status
                                             // We only want to unlock the rewards they have earned.
                                             // The amount of tokens that they originally locked to mine the rewards will remain locked until the end of their mining period
@@ -204,7 +204,8 @@ decl_module! {
                                         // Reference: https://github.com/hicommonwealth/edgeware-node/blob/master/modules/edge-treasury-reward/src/lib.rs#L42
                                         if <frame_system::Module<T>>::block_number() % token_lock_min_blocks == Zero::zero() {
                                             // FIXME - assumes there is only one rates config index so hard-coded 0, but we could have many
-                                            let fetched_mining_rates_token_rates_config = <mining_rates_token::Module<T>>::mining_rates_token_rates_configs(0u32.into());
+                                            let RATE_HARD_CODED: T::MiningRatesTokenIndex = 0u32.into();
+                                            let fetched_mining_rates_token_rates_config = <mining_rates_token::Module<T>>::mining_rates_token_rates_configs(RATE_HARD_CODED);
                                             if let Some(_mining_rates_token_rates_config) = fetched_mining_rates_token_rates_config {
                                                 debug::info!("token_execution_interval_blocks {:#?}", _mining_execution_token_result.token_execution_interval_blocks);
 
@@ -213,12 +214,14 @@ decl_module! {
                                                 // in the meantime until this is fixed, we will just assume the user is mining MXC and choose the rate for that
 
                                                 // Reward ratio
-                                                let reward_ratio = _mining_rates_token_rates_config.token_token_mxc;
-
+                                                let reward_ratio: T::MiningRatesTokenTokenMXC = _mining_rates_token_rates_config.token_token_mxc;
+                                                //
                                                 // Calculate the reward based on the reward ratio (i.e. 1 DHX per 10 DHX that was locked)
                                                 // e.g. (1.1 - 1) * 10 DHX, where 1.1 is ratio of mining reward for the MXC token
-
-                                                // let reward = (reward_ratio - 1.into()) * token_lock_amount;
+                                                let total_ratio: T::MiningRatesTokenTokenMXC = reward_ratio - 1u32.into();
+                                                if let total = Some(balance_to_u32(total_ratio)) {
+                                                    let reward: u32 = total * token_lock_amount.into();
+                                                }
 
                                                 // Distribute the reward to the account that has locked the funds
 
@@ -611,6 +614,10 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
+    pub fn balance_to_u32(input: BalanceOf<T>) -> Option<u32> {
+        <T as Into<u32>>::into(input).is_some()
+    }
+
     pub fn is_mining_config_token_owner(
         mining_config_token_id: T::MiningConfigTokenIndex,
         sender: T::AccountId,
