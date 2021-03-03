@@ -226,9 +226,11 @@ decl_module! {
                                                 // }
 
                                                 let total = TryInto::<u32>::try_into(total_ratio).ok();
-                                                let lock_amount = TryInto::<u32>::try_into(token_lock_amount).ok();
+                                                // let lock_amount = TryInto::<u32>::try_into(token_lock_amount).ok();
+                                                let lock_amount = Self::balance_to_u32(token_lock_amount).ok();
+
                                                 let reward: Option<u32> = match (total, lock_amount) {
-                                                    (Some(a), Some(b)) => Some(a * b),
+                                                    (Some(a), b) => Some(a) * b,
                                                     _ => None,
                                                 };
 
@@ -623,9 +625,13 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-    // pub fn balance_to_u32(input: BalanceOf<T>) -> Option<u32> {
-    //     <T as Into<u32>>::into(input).is_some()
-    // }
+    pub fn balance_to_u32(input: BalanceOf<T>) -> Result<(), DispatchError> {
+        let output = match TryInto::<u32>::try_into(input) {
+            Ok(output) => return Ok(output),
+            Err(e) => Err(DispatchError::Other("Unable to convert Balance to u32")),
+        };
+        Ok(output)
+    }
 
     pub fn is_mining_config_token_owner(
         mining_config_token_id: T::MiningConfigTokenIndex,
