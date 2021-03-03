@@ -221,16 +221,10 @@ decl_module! {
                                                 // e.g. (1.1 - 1) * 10 DHX, where 1.1 is ratio of mining reward for the MXC token
                                                 let total_ratio: T::MiningRatesTokenTokenMXC = reward_ratio - 1u32.into();
 
-                                                // if let total = Some(balance_to_u32(total_ratio)) {
-                                                //     let reward: u32 = total * token_lock_amount.into();
-                                                // }
-
                                                 let total = TryInto::<u32>::try_into(total_ratio).ok();
-                                                // let lock_amount = TryInto::<u32>::try_into(token_lock_amount).ok();
-                                                let lock_amount = Self::balance_to_u32(token_lock_amount).ok();
-
+                                                let lock_amount = TryInto::<u32>::try_into(token_lock_amount).ok();
                                                 let reward: Option<u32> = match (total, lock_amount) {
-                                                    (Some(a), b) => Some(a) * b,
+                                                    (Some(a), Some(b)) => Some(a * b),
                                                     _ => None,
                                                 };
 
@@ -625,14 +619,6 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-    pub fn balance_to_u32(input: BalanceOf<T>) -> Result<(), DispatchError> {
-        let output = match TryInto::<u32>::try_into(input) {
-            Ok(output) => return Ok(output),
-            Err(e) => Err(DispatchError::Other("Unable to convert Balance to u32")),
-        };
-        Ok(output)
-    }
-
     pub fn is_mining_config_token_owner(
         mining_config_token_id: T::MiningConfigTokenIndex,
         sender: T::AccountId,
