@@ -38,3 +38,6 @@ Refer to [EXAMPLES.md](./EXAMPLES.md) for different examples of how to configure
 
 ### Run a Validator node (Harbour testnet)
 * [Setup Validator Node](https://dev.datahighway.com/docs/en/tutorials/tutorials-nodes-validator-setup)
+
+### Run a Collator node as a parachain to Polkadot (Chachacha/Rococo)
+* [Setup Collator Node](https://dev.datahighway.com/docs/en/tutorials/tutorials-nodes-collators-setup)
