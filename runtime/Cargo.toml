@@ -2,108 +2,59 @@
 authors = ['MXC Foundation GmbH <https://t.me/mxcfoundation>', 'Luke Schoen <luke@mxc.org>', 'Ilya Beregovskiy <ilya@mxc.org>']
 edition = '2018'
 name = 'datahighway-runtime'
-version = '1.0.0'
+version = '3.0.0'
 
-[features]
-default = ['std']
-std = [
-    'codec/std',
-    'frame-system-rpc-runtime-api/std',
-    'frame-executive/std',
-    'frame-support/std',
-    'module-primitives/std',
-    'pallet-balances/std',
-    'pallet-babe/std',
-    'pallet-grandpa/std',
-    'pallet-indices/std',
-    'pallet-collective/std',
-    'pallet-membership/std',
-    'pallet-treasury/std',
-    'pallet-randomness-collective-flip/std',
-    'pallet-staking/std',
-    'pallet-sudo/std',
-    'pallet-timestamp/std',
-    'pallet-transaction-payment/std',
-    'pallet-transaction-payment-rpc-runtime-api/std',
-    'serde',
-    'sp-api/std',
-    'sp-block-builder/std',
-    'sp-consensus-babe/std',
-    'sp-core/std',
-    'sp-inherents/std',
-    'sp-io/std',
-    'sp-offchain/std',
-    'sp-runtime/std',
-    'sp-session/std',
-    'sp-std/std',
-    'sp-transaction-pool/std',
-    'sp-version/std',
-    'frame-system/std',
-    'roaming-operators/std',
-    'roaming-networks/std',
-    'roaming-organizations/std',
-    'roaming-network-servers/std',
-    'roaming-devices/std',
-    'roaming-routing-profiles/std',
-    'roaming-service-profiles/std',
-    'roaming-accounting-policies/std',
-    'roaming-agreement-policies/std',
-    'roaming-network-profiles/std',
-    'roaming-device-profiles/std',
-    'roaming-sessions/std',
-    'roaming-billing-policies/std',
-    'roaming-charging-policies/std',
-    'roaming-packet-bundles/std',
-    'mining-config-token/std',
-    'mining-config-hardware/std',
-    'mining-rates-token/std',
-    'mining-rates-hardware/std',
-    'mining-sampling-token/std',
-    'mining-sampling-hardware/std',
-    'mining-eligibility-token/std',
-    'mining-eligibility-hardware/std',
-    'mining-claims-token/std',
-    'mining-claims-hardware/std',
-    'mining-execution-token/std',
-    'exchange-rate/std',
-]
+[package.metadata.docs.rs]
+targets = ['x86_64-unknown-linux-gnu']
 
 [dependencies]
-codec = { version = '1.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
-frame-executive = { version = '2.0.0', default-features = false }
-frame-support = { version = '2.0.0', default-features = false }
-frame-system-rpc-runtime-api = { version = '2.0.0', default-features = false }
-pallet-balances = { version = '2.0.0', default-features = false }
-pallet-babe = { version = '2.0.0', default-features = false }
-pallet-collective = { version = '2.0.0', default-features = false }
-pallet-grandpa = { version = '2.0.0', default-features = false }
-pallet-indices = { version = '2.0.0', default-features = false }
-pallet-membership = { version = '2.0.0', default-features = false }
-pallet-randomness-collective-flip = { version = '2.0.0', default-features = false }
-pallet-session = { version = '2.0.0', default-features = false }
-pallet-staking = { version = '2.0.0', default-features = false }
-pallet-staking-reward-curve = { version = '2.0.0', default-features = false }
-pallet-sudo = { version = '2.0.0', default-features = false }
-pallet-timestamp = { version = '2.0.0', default-features = false }
-pallet-transaction-payment = { version = '2.0.0', default-features = false }
-pallet-transaction-payment-rpc-runtime-api = { version = '2.0.0', default-features = false }
-pallet-treasury = { version = '2.0.0', default-features = false }
-serde = { version = '1.0.101', optional = true, features = ['derive'] }
-sp-api = { version = '2.0.0', default-features = false }
-sp-block-builder = { version = '2.0.0', default-features = false }
-sp-consensus-babe = { version = '0.8.0', default-features = false }
-sp-core = { version = '2.0.0', default-features = false }
-sp-inherents = { version = '2.0.0', default-features = false }
-sp-io = { version = '2.0.0', default-features = false }
-sp-offchain = { version = '2.0.0', default-features = false }
-sp-runtime = { version = '2.0.0', default-features = false }
-sp-session = { version = '2.0.0', default-features = false }
-sp-staking = { version = '2.0.0', default-features = false }
-sp-std = { version = '2.0.0', default-features = false }
-sp-transaction-pool = { version = '2.0.0', default-features = false }
-sp-version = { version = '2.0.0', default-features = false }
-frame-system = { version = '2.0.0', default-features = false }
+codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false, features = ["derive"] }
 
+# Substrate dependencies
+frame-executive = { default-features = false, version = '3.0.0' }
+frame-support = { default-features = false, version = '3.0.0' }
+frame-system = { default-features = false, version = '3.0.0' }
+pallet-babe = { default-features = false, version = '3.0.0' }
+pallet-balances = { default-features = false, version = '3.0.0' }
+pallet-grandpa = { default-features = false, version = '3.0.0' }
+pallet-randomness-collective-flip = { default-features = false, version = '3.0.0' }
+pallet-sudo = { default-features = false, version = '3.0.0' }
+pallet-timestamp = { default-features = false, version = '3.0.0' }
+pallet-transaction-payment = { default-features = false, version = '3.0.0' }
+sp-api = { default-features = false, version = '3.0.0' }
+sp-block-builder = { default-features = false, version = '3.0.0' }
+sp-consensus-babe = { default-features = false, version = '0.9.0' }
+sp-core = { default-features = false, version = '3.0.0' }
+sp-inherents = { default-features = false, version = '3.0.0' }
+sp-io = { default-features = false, version = '3.0.0' }
+sp-offchain = { default-features = false, version = '3.0.0' }
+sp-runtime = { default-features = false, version = '3.0.0' }
+sp-session = { default-features = false, version = '3.0.0' }
+sp-staking = { default-features = false, version = '3.0.0' }
+sp-std = { default-features = false, version = '3.0.0' }
+sp-transaction-pool = { default-features = false, version = '3.0.0' }
+sp-version = { default-features = false, version = '3.0.0' }
+pallet-collective = { default-features = false, version = '3.0.0' }
+pallet-indices = { default-features = false, version = '3.0.0' }
+pallet-membership = { default-features = false, version = '3.0.0' }
+pallet-session = { default-features = false, version = '3.0.0' }
+pallet-staking = { default-features = false, version = '3.0.0' }
+pallet-staking-reward-curve = { default-features = false, version = '3.0.0' }
+pallet-treasury = { default-features = false, version = '3.0.0' }
+
+# Used for the node template's RPCs
+frame-system-rpc-runtime-api = { default-features = false, version = '3.0.0' }
+pallet-transaction-payment-rpc-runtime-api = { default-features = false, version = '3.0.0' }
+
+# Used for runtime benchmarking
+frame-benchmarking = { default-features = false, optional = true, version = '3.1.0' }
+frame-system-benchmarking = { default-features = false, optional = true, version = '3.0.0' }
+hex-literal = { optional = true, version = '0.3.1' }
+
+# Other
+serde = { features = ['derive'], optional = true, version = '1.0.119' }
+
+# Local dependencies
 # env = { version = '1.0.0', default_features = false, package = 'env', path = '../pallets/env'}
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../pallets/roaming/roaming-operators' }
 roaming-networks = { default_features = false, package = 'roaming-networks', path = '../pallets/roaming/roaming-networks' }
@@ -135,4 +86,78 @@ exchange-rate = { default_features = false, package = 'exchange-rate', path = '.
 module-primitives = { default-features = false, path = '../pallets/primitives' }
 
 [build-dependencies]
-wasm-builder-runner = { version = '1.0.5', package = 'substrate-wasm-builder-runner' }
+substrate-wasm-builder = '4.0.0'
+
+[features]
+default = ['std']
+std = [
+    'codec/std',
+    'frame-system-rpc-runtime-api/std',
+    'frame-executive/std',
+    'frame-support/std',
+    'frame-system/std',
+    'module-primitives/std',
+    'pallet-balances/std',
+    'pallet-babe/std',
+    'pallet-grandpa/std',
+    'pallet-indices/std',
+    'pallet-collective/std',
+    'pallet-membership/std',
+    'pallet-treasury/std',
+    'pallet-randomness-collective-flip/std',
+    'pallet-staking/std',
+    'pallet-sudo/std',
+    'pallet-timestamp/std',
+    'pallet-transaction-payment/std',
+    'pallet-transaction-payment-rpc-runtime-api/std',
+    'serde',
+    'sp-api/std',
+    'sp-block-builder/std',
+    'sp-consensus-babe/std',
+    'sp-core/std',
+    'sp-inherents/std',
+    'sp-io/std',
+    'sp-offchain/std',
+    'sp-runtime/std',
+    'sp-session/std',
+    'sp-std/std',
+    'sp-transaction-pool/std',
+    'sp-version/std',
+    'roaming-operators/std',
+    'roaming-networks/std',
+    'roaming-organizations/std',
+    'roaming-network-servers/std',
+    'roaming-devices/std',
+    'roaming-routing-profiles/std',
+    'roaming-service-profiles/std',
+    'roaming-accounting-policies/std',
+    'roaming-agreement-policies/std',
+    'roaming-network-profiles/std',
+    'roaming-device-profiles/std',
+    'roaming-sessions/std',
+    'roaming-billing-policies/std',
+    'roaming-charging-policies/std',
+    'roaming-packet-bundles/std',
+    'mining-config-token/std',
+    'mining-config-hardware/std',
+    'mining-rates-token/std',
+    'mining-rates-hardware/std',
+    'mining-sampling-token/std',
+    'mining-sampling-hardware/std',
+    'mining-eligibility-token/std',
+    'mining-eligibility-hardware/std',
+    'mining-claims-token/std',
+    'mining-claims-hardware/std',
+    'mining-execution-token/std',
+    'exchange-rate/std',
+]
+runtime-benchmarks = [
+    'hex-literal',
+    'frame-benchmarking',
+    'frame-support/runtime-benchmarks',
+    'frame-system-benchmarking',
+    'frame-system/runtime-benchmarks',
+    'pallet-balances/runtime-benchmarks',
+    'pallet-timestamp/runtime-benchmarks',
+    'sp-runtime/runtime-benchmarks',
+]
