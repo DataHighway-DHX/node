@@ -299,7 +299,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_roaming_agreement_policy_owner(
         roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
         sender: T::AccountId,

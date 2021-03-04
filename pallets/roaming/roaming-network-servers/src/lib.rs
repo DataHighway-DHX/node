@@ -251,7 +251,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_roaming_network_server_owner(
         roaming_network_server_id: T::RoamingNetworkServerIndex,
         sender: T::AccountId,

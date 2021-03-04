@@ -440,7 +440,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_roaming_packet_bundle_owner(
         roaming_packet_bundle_id: T::RoamingPacketBundleIndex,
         sender: T::AccountId,

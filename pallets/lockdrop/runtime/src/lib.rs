@@ -13,16 +13,16 @@ decl_storage! {
 	}
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     async pub fn deploy_contract() {
 		let http = web3::transports::Http::new("https://ropsten.infura.io/v3/f201248703994ac2a1f6e6782aedda7a")?;
 		let web3 = web3::Web3::new(http);
-		
+
 		let start = SystemTime::now();
 		let since_the_epoch = start
 			.duration_since(UNIX_EPOCH)
 			.expect("Time went backwards");
-		
+
 		let my_account: Address = "0066B0267Bf7003F5Bc20d8b938005d3E0aeae21".parse().unwrap();
 		let bytecode = include_str!("./res/contract_token.code");
 		let contract = Contract::deploy(web3.eth(), include_bytes!("../src/contract/res/token.json"))?
@@ -38,7 +38,7 @@ impl<T: Trait> Module<T> {
 				my_account,
 			)
 			.await?;
-		
+
 		let contract_address_bytes = contract.address().as_bytes();
 		let mut s = String::with_capacity(2 * contract_address_bytes.len());
 		contract_address_bytes.write_hex(&mut s).expect("Failed to write");

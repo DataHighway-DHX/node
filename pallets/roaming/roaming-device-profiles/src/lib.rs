@@ -273,7 +273,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn exists_roaming_device_profile(
         roaming_device_profile_id: T::RoamingDeviceProfileIndex,
     ) -> Result<RoamingDeviceProfile, DispatchError> {

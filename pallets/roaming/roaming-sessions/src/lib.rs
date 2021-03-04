@@ -362,7 +362,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_roaming_session_owner(
         roaming_session_id: T::RoamingSessionIndex,
         sender: T::AccountId,

@@ -453,7 +453,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_eligibility_token_owner(
         mining_eligibility_token_id: T::MiningEligibilityTokenIndex,
         sender: T::AccountId,

@@ -453,7 +453,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_eligibility_hardware_owner(
         mining_eligibility_hardware_id: T::MiningEligibilityHardwareIndex,
         sender: T::AccountId,

@@ -283,7 +283,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_rates_hardware_owner(
         mining_rates_hardware_id: T::MiningRatesHardwareIndex,
         sender: T::AccountId,

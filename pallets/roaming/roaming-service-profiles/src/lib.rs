@@ -206,7 +206,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn exists_roaming_service_profile(
         roaming_service_profile_id: T::RoamingServiceProfileIndex,
     ) -> Result<RoamingServiceProfile, DispatchError> {

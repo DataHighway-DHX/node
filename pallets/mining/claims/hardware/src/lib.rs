@@ -285,7 +285,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_claims_hardware_owner(
         mining_claims_hardware_id: T::MiningClaimsHardwareIndex,
         sender: T::AccountId,

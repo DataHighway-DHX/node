@@ -183,7 +183,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn exists_roaming_routing_profile(
         roaming_routing_profile_id: T::RoamingRoutingProfileIndex,
     ) -> Result<RoamingRoutingProfile, DispatchError> {

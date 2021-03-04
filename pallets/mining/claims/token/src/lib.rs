@@ -388,7 +388,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_claims_token_owner(
         mining_claims_token_id: T::MiningClaimsTokenIndex,
         sender: T::AccountId,

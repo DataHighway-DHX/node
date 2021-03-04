@@ -237,7 +237,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_exchange_rate_owner(
         exchange_rate_id: T::ExchangeRateIndex,
         sender: T::AccountId,

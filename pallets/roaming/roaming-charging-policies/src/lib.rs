@@ -291,7 +291,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_roaming_charging_policy_owner(
         roaming_charging_policy_id: T::RoamingChargingPolicyIndex,
         sender: T::AccountId,

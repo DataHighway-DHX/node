@@ -260,7 +260,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_samplings_hardware_owner(
         mining_samplings_hardware_id: T::MiningSamplingHardwareIndex,
         sender: T::AccountId,

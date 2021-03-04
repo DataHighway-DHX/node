@@ -253,7 +253,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_roaming_device_owner(
         roaming_device_id: T::RoamingDeviceIndex,
         sender: T::AccountId,
