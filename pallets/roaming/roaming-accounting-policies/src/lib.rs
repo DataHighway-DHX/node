@@ -41,8 +41,8 @@ pub trait Config: frame_system::Config + roaming_operators::Config + roaming_net
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingAccountingPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingAccountingPolicyType: Parameter + Member + Default;
-    type RoamingAccountingPolicyUplinkFeeFactor: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
-    type RoamingAccountingPolicyDownlinkFeeFactor: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
+    type RoamingAccountingPolicyUplinkFeeFactor: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type RoamingAccountingPolicyDownlinkFeeFactor: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
 type BalanceOf<T> =
@@ -168,15 +168,15 @@ decl_module! {
             };
             let subscription_fee = match _subscription_fee {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let uplink_fee_factor = match _uplink_fee_factor {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let downlink_fee_factor = match _downlink_fee_factor {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
 
             // Check if a roaming accounting policy config already exists with the given roaming accounting policy id

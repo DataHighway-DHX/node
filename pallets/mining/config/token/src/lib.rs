@@ -48,8 +48,8 @@ pub trait Config: frame_system::Config + roaming_operators::Config {
     type MiningConfigTokenLockAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningConfigTokenLockStartBlocks: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningConfigTokenLockIntervalBlocks: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningConfigTokenLockMinAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
-    type MiningConfigTokenLockMinBlocks: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
+    type MiningConfigTokenLockMinAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningConfigTokenLockMinBlocks: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
 type BalanceOf<T> =
@@ -285,11 +285,11 @@ decl_module! {
             };
             let token_lock_min_amount = match _token_lock_min_amount {
                 Some(value) => value,
-                None => 10.into() // Default
+                None => 10u32.into() // Default
             };
             let token_lock_min_blocks = match _token_lock_min_blocks {
                 Some(value) => value,
-                None => 7.into() // Default
+                None => 7u32.into() // Default
             };
 
             // Check if a mining_config_token_token_cooldown_config already exists with the given mining_config_token_id

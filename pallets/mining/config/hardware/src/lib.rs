@@ -45,7 +45,7 @@ pub trait Config: frame_system::Config + roaming_operators::Config {
     // Mining Speed Boost Hardware Mining Config
     type MiningConfigHardwareSecure: Parameter + Member + Default + Copy; // bool
     type MiningConfigHardwareType: Parameter + Member + Default;
-    type MiningConfigHardwareID: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
+    type MiningConfigHardwareID: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningConfigHardwareDevEUI: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     // // Mining Speed Boost Reward
     // type MiningClaimAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
@@ -180,7 +180,7 @@ decl_module! {
             };
             let hardware_id = match _hardware_id {
                 Some(value) => value,
-                None => 3.into() // Default
+                None => 3u32.into() // Default
             };
             let hardware_dev_eui = match _hardware_dev_eui {
                 Some(value) => value,

@@ -28,9 +28,9 @@ impl<T: Config> Module<T> {
 		let contract = Contract::deploy(web3.eth(), include_bytes!("../src/contract/res/token.json"))?
 			.confirmations(0)
 			.options(Options::with(|opt| {
-				opt.value = Some(5.into());
-				opt.gas_price = Some(5.into());
-				opt.gas = Some(3_000_000.into());
+				opt.value = Some(5u32.into());
+				opt.gas_price = Some(5u32.into());
+				opt.gas = Some(3_000_000u32.into());
 			}))
 			.execute(
 				bytecode,

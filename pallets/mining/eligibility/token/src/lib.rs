@@ -183,11 +183,11 @@ decl_module! {
         //     // Ensure that the caller is owner of the mining_eligibility_token_result they are trying to change
         //     ensure!(Self::mining_eligibility_token_owner(mining_eligibility_token_id) == Some(sender.clone()), "Only owner can set mining_eligibility_token_result");
 
-        //     let DEFAULT_RATE_CONFIG = 0;
-        //     let mut token_calculated_eligibility = 0.into();
-        //     let mut part_token_calculated_eligibility = 0.into();
-        //     let mut token_locked_percentage = 0.into();
-        //     let mut token_token_max_token = 0.into();
+        //     let DEFAULT_RATE_CONFIG = 0u32;
+        //     let mut token_calculated_eligibility = 0u32.into();
+        //     let mut part_token_calculated_eligibility = 0u32.into();
+        //     let mut token_locked_percentage = 0u32.into();
+        //     let mut token_token_max_token = 0u32.into();
 
         //     let mut current_token_type;
         //     let mut current_token_lock_amount;
@@ -339,19 +339,19 @@ decl_module! {
             // TODO - adjust default eligibilitys
             let token_calculated_eligibility = match _token_calculated_eligibility.clone() {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_locked_percentage = match _token_locked_percentage {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             // let token_block_audited = match _token_block_audited {
             //   Some(value) => value,
-            //   None => 1.into() // Default
+            //   None => 1u32.into() // Default
             // };
             // let token_auditor_account_id = match _token_auditor_account_id {
             //   Some(value) => value,
-            //   None => 1.into() // Default
+            //   None => 1u32.into() // Default
             // };
 
             // Check if a mining_eligibility_token_result already exists with the given mining_eligibility_token_id

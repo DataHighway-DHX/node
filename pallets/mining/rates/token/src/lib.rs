@@ -42,11 +42,11 @@ mod tests;
 pub trait Config: frame_system::Config + roaming_operators::Config {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningRatesTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningRatesTokenTokenMXC: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
-    type MiningRatesTokenTokenIOTA: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
-    type MiningRatesTokenTokenDOT: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
-    type MiningRatesTokenMaxToken: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
-    type MiningRatesTokenMaxLoyalty: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
+    type MiningRatesTokenTokenMXC: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningRatesTokenTokenIOTA: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningRatesTokenTokenDOT: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningRatesTokenMaxToken: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningRatesTokenMaxLoyalty: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
 // type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
@@ -165,23 +165,23 @@ decl_module! {
             // TODO - adjust default rates
             let token_token_mxc = match _token_token_mxc.clone() {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_token_iota = match _token_token_iota {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_token_dot = match _token_token_dot {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_max_token = match _token_max_token {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_max_loyalty = match _token_max_loyalty {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
 
             // FIXME - how to use float and overcome error:

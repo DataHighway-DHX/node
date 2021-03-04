@@ -43,7 +43,7 @@ mod tests;
 pub trait Config: frame_system::Config + roaming_operators::Config + mining_config_hardware::Config {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningSamplingHardwareIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSamplingHardwareSampleHardwareOnline: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
+    type MiningSamplingHardwareSampleHardwareOnline: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
 // type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
@@ -165,11 +165,11 @@ decl_module! {
             // TODO - adjust default samplings
             let hardware_sample_block = match _hardware_sample_block.clone() {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let hardware_sample_hardware_online = match _hardware_sample_hardware_online {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
 
             // Check if a mining_samplings_hardware_samplings_config already exists with the given mining_samplings_hardware_id
