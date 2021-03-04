@@ -772,6 +772,7 @@ construct_runtime!(
         TransactionPayment: pallet_transaction_payment::{Module, Storage},
         Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
         Council: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
+        CouncilMembership: pallet_members::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
         Treasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
         Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
         Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>, ValidateUnsigned},

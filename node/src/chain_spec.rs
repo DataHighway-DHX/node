@@ -7,7 +7,7 @@ use datahighway_runtime::{
     AccountId,
     BabeConfig,
     BalancesConfig,
-    GeneralCouncilMembershipConfig,
+    CouncilMembershipConfig,
     GenesisConfig,
     GrandpaConfig,
     IndicesConfig,
@@ -397,7 +397,7 @@ fn dev_genesis(
             authorities: vec![],
         }),
         pallet_collective_Instance1: Some(Default::default()),
-        pallet_membership_Instance1: Some(GeneralCouncilMembershipConfig {
+        pallet_membership_Instance1: Some(CouncilMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
         }),
@@ -455,24 +455,10 @@ fn testnet_genesis(
             authorities: vec![],
         }),
         pallet_collective_Instance1: Some(Default::default()),
-        pallet_membership_Instance1: Some(GeneralCouncilMembershipConfig {
+        pallet_membership_Instance1: Some(CouncilMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
         }),
         pallet_treasury: Some(Default::default()),
     }
-}
-// Result<Box<ChainSpec>, String>
-pub fn load_spec(id: &str) -> Result<Box<dyn sc_service::ChainSpec>, String> {
-    let option = match Alternative::from(id) {
-        Some(spec) => Some(spec.load()?),
-        _path => None,
-    };
-
-    let spec = Box::new(match option {
-        Some(v) => v,
-        None => ChainSpec::from_json_file(std::path::PathBuf::from(id))?,
-    }) as Box<dyn sc_service::ChainSpec>;
-
-    return Ok(spec);
 }
