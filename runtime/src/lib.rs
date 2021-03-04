@@ -21,9 +21,11 @@ use sp_api::impl_runtime_apis;
 use sp_core::{
     crypto::KeyTypeId,
     u32_trait::{
+        _1,
         _2,
         _3,
         _4,
+        _5,
     },
     OpaqueMetadata,
 };
@@ -113,7 +115,7 @@ pub use sp_runtime::{
     Perquintill,
 };
 pub use pallet_staking::StakerStatus;
-use pallet_session::historical as pallet_session_historical;
+// use pallet_session::historical as pallet_session_historical;
 
 /// Opaque types. These are used by the CLI to instantiate machinery that don't need to know
 /// the specifics of the runtime. They can then be made to be agnostic over specific formats
@@ -170,21 +172,21 @@ pub fn native_version() -> NativeVersion {
     }
 }
 
-pub struct DealWithFees;
-impl OnUnbalanced<NegativeImbalance> for DealWithFees {
-    fn on_unbalanceds<B>(mut fees_then_tips: impl Iterator<Item = NegativeImbalance>) {
-        if let Some(fees) = fees_then_tips.next() {
-            // for fees, 80% to treasury, 20% to author
-            let mut split = fees.ration(80, 20);
-            if let Some(tips) = fees_then_tips.next() {
-                // for tips, if any, 80% to treasury, 20% to author (though this can be anything)
-                tips.ration_merge_into(80, 20, &mut split);
-            }
-            Treasury::on_unbalanced(split.0);
-            Author::on_unbalanced(split.1);
-        }
-    }
-}
+// pub struct DealWithFees;
+// impl OnUnbalanced<NegativeImbalance> for DealWithFees {
+//     fn on_unbalanceds<B>(mut fees_then_tips: impl Iterator<Item = NegativeImbalance>) {
+//         if let Some(fees) = fees_then_tips.next() {
+//             // for fees, 80% to treasury, 20% to author
+//             let mut split = fees.ration(80, 20);
+//             if let Some(tips) = fees_then_tips.next() {
+//                 // for tips, if any, 80% to treasury, 20% to author (though this can be anything)
+//                 tips.ration_merge_into(80, 20, &mut split);
+//             }
+//             Treasury::on_unbalanced(split.0);
+//             Author::on_unbalanced(split.1);
+//         }
+//     }
+// }
 
 // #[cfg(feature = "std")]
 // pub fn wasm_binary_unwrap() -> &'static [u8] {
@@ -305,24 +307,28 @@ impl pallet_babe::Config for Runtime {
     type EpochChangeTrigger = pallet_babe::ExternalTrigger;
     type EpochDuration = EpochDuration;
     type ExpectedBlockTime = ExpectedBlockTime;
-    type HandleEquivocation = pallet_babe::EquivocationHandler<Self::KeyOwnerIdentification, Offences, ReportLongevity>;
+    // type HandleEquivocation = pallet_babe::EquivocationHandler<Self::KeyOwnerIdentification, Offences, ReportLongevity>;
+    type HandleEquivocation = ();
     type KeyOwnerIdentification =
         <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, pallet_babe::AuthorityId)>>::IdentificationTuple;
     type KeyOwnerProof =
         <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, pallet_babe::AuthorityId)>>::Proof;
-    type KeyOwnerProofSystem = Historical;
+    // type KeyOwnerProofSystem = Historical;
+    type KeyOwnerProofSystem = ();
     type WeightInfo = ();
 }
 
 impl pallet_grandpa::Config for Runtime {
     type Call = Call;
     type Event = Event;
-    type HandleEquivocation =
-        pallet_grandpa::EquivocationHandler<Self::KeyOwnerIdentification, Offences, ReportLongevity>;
+    type HandleEquivocation = ();
+    // type HandleEquivocation =
+    //     pallet_grandpa::EquivocationHandler<Self::KeyOwnerIdentification, Offences, ReportLongevity>;
     type KeyOwnerIdentification =
         <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::IdentificationTuple;
     type KeyOwnerProof = <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::Proof;
-    type KeyOwnerProofSystem = Historical;
+    // type KeyOwnerProofSystem = Historical;
+    type KeyOwnerProofSystem = ();
     type WeightInfo = ();
 }
 
@@ -363,7 +369,9 @@ parameter_types! {
 
 impl pallet_transaction_payment::Config for Runtime {
     type FeeMultiplierUpdate = TargetedFeeAdjustment<Self, TargetBlockFullness, AdjustmentVariable, MinimumMultiplier>;
-    type OnChargeTransaction = CurrencyAdapter<Balances, DealWithFees>;
+    // FIXME
+    // type OnChargeTransaction = CurrencyAdapter<Balances, DealWithFees>;
+    type OnChargeTransaction = ();
     type TransactionByteFee = TransactionByteFee;
     type WeightToFee = IdentityFee<Balance>;
 }
@@ -385,23 +393,23 @@ impl pallet_indices::Config for Runtime {
     type WeightInfo = pallet_indices::weights::SubstrateWeight<Runtime>;
 }
 
-parameter_types! {
-	pub const UncleGenerations: BlockNumber = 5;
-}
+// parameter_types! {
+// 	pub const UncleGenerations: BlockNumber = 5;
+// }
 
-impl pallet_authorship::Config for Runtime {
-    type EventHandler = (Staking, ImOnline);
-    type FilterUncle = ();
-    type FindAuthor = pallet_session::FindAccountFromAuthorIndex<Self, Babe>;
-    type UncleGenerations = UncleGenerations;
-}
+// impl pallet_authorship::Config for Runtime {
+//     type EventHandler = (Staking, ImOnline);
+//     type FilterUncle = ();
+//     type FindAuthor = pallet_session::FindAccountFromAuthorIndex<Self, Babe>;
+//     type UncleGenerations = UncleGenerations;
+// }
 
 impl_opaque_keys! {
 	pub struct SessionKeys {
 		pub grandpa: Grandpa,
 		pub babe: Babe,
-		pub im_online: ImOnline,
-		pub authority_discovery: AuthorityDiscovery,
+		// pub im_online: ImOnline,
+		// pub authority_discovery: AuthorityDiscovery,
 	}
 }
 
@@ -415,17 +423,17 @@ impl pallet_session::Config for Runtime {
     type Keys = SessionKeys;
     type NextSessionRotation = Babe;
     type SessionHandler = <SessionKeys as OpaqueKeys>::KeyTypeIdProviders;
-    type SessionManager = pallet_session::historical::NoteHistoricalRoot<Self, Staking>;
+    // type SessionManager = pallet_session::historical::NoteHistoricalRoot<Self, Staking>;
     type ShouldEndSession = Babe;
     type ValidatorId = <Self as frame_system::Config>::AccountId;
     type ValidatorIdOf = pallet_staking::StashOf<Self>;
     type WeightInfo = pallet_session::weights::SubstrateWeight<Runtime>;
 }
 
-impl pallet_session::historical::Config for Runtime {
-    type FullIdentification = pallet_staking::Exposure<AccountId, Balance>;
-    type FullIdentificationOf = pallet_staking::ExposureOf<Runtime>;
-}
+// impl pallet_session::historical::Config for Runtime {
+//     type FullIdentification = pallet_staking::Exposure<AccountId, Balance>;
+//     type FullIdentificationOf = pallet_staking::ExposureOf<Runtime>;
+// }
 
 pallet_staking_reward_curve::build! {
     const REWARD_CURVE: PiecewiseLinear<'static> = curve!(
@@ -472,7 +480,7 @@ impl pallet_staking::Config for Runtime {
     type Currency = Balances;
     type CurrencyToVote = U128CurrencyToVote;
     type ElectionLookahead = ElectionLookahead;
-    type ElectionProvider = ElectionProviderMultiPhase;
+    // type ElectionProvider = ElectionProviderMultiPhase;
     type Event = Event;
     type MaxIterations = MaxIterations;
     type MaxNominatorRewardedPerValidator = MaxNominatorRewardedPerValidator;
@@ -493,7 +501,7 @@ impl pallet_staking::Config for Runtime {
     type SlashCancelOrigin = EnsureOneOf<
         AccountId,
         EnsureRoot<AccountId>,
-        pallet_collective::EnsureProportionAtLeast<_3, _4, AccountId, CouncilCollective>,
+        pallet_collective::EnsureProportionAtLeast<_3, _4, AccountId, GeneralCouncilInstance>,
     >;
     type SlashDeferDuration = SlashDeferDuration;
     type UnixTime = Timestamp;
@@ -507,8 +515,8 @@ parameter_types! {
     pub const CouncilMaxMembers: u32 = 100;
 }
 
-type CouncilCollective = pallet_collective::Instance1;
-impl pallet_collective::Config<CouncilCollective> for Runtime {
+type GeneralCouncilInstance = pallet_collective::Instance1;
+impl pallet_collective::Config<GeneralCouncilInstance> for Runtime {
     type DefaultVote = pallet_collective::PrimeDefaultVote;
     type Event = Event;
     type MaxMembers = CouncilMaxMembers;
@@ -516,24 +524,68 @@ impl pallet_collective::Config<CouncilCollective> for Runtime {
     type MotionDuration = CouncilMotionDuration;
     type Origin = Origin;
     type Proposal = Call;
-    type WeightInfo = pallet_collective::weights::SubstrateWeight<Runtime>;
+    type WeightInfo = ();
 }
 
-type EnsureRootOrHalfCouncil = EnsureOneOf<
-    AccountId,
-    EnsureRoot<AccountId>,
-    pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>,
->;
-impl pallet_membership::Config<pallet_membership::Instance1> for Runtime {
-    type AddOrigin = EnsureRootOrHalfCouncil;
+type GeneralCouncilMembershipInstance = pallet_membership::Instance1;
+impl pallet_membership::Config<GeneralCouncilMembershipInstance> for Runtime {
+    type AddOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
     type Event = Event;
-    type MembershipChanged = TechnicalCommittee;
-    type MembershipInitialized = TechnicalCommittee;
-    type PrimeOrigin = EnsureRootOrHalfCouncil;
-    type RemoveOrigin = EnsureRootOrHalfCouncil;
-    type ResetOrigin = EnsureRootOrHalfCouncil;
-    type SwapOrigin = EnsureRootOrHalfCouncil;
+    type MembershipChanged = GeneralCouncil;
+    type MembershipInitialized = GeneralCouncil;
+    type PrimeOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
+    type RemoveOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
+    type ResetOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
+    type SwapOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
 }
+
+pub struct GeneralCouncilProvider;
+impl Contains<AccountId> for GeneralCouncilProvider {
+    fn contains(who: &AccountId) -> bool {
+        GeneralCouncil::is_member(who)
+    }
+
+    fn sorted_members() -> Vec<AccountId> {
+        GeneralCouncil::members()
+    }
+}
+impl ContainsLengthBound for GeneralCouncilProvider {
+    fn min_len() -> usize {
+        0
+    }
+
+    fn max_len() -> usize {
+        100000
+    }
+}
+
+// type CouncilCollective = pallet_collective::Instance1;
+// impl pallet_collective::Config<CouncilCollective> for Runtime {
+//     type DefaultVote = pallet_collective::PrimeDefaultVote;
+//     type Event = Event;
+//     type MaxMembers = CouncilMaxMembers;
+//     type MaxProposals = CouncilMaxProposals;
+//     type MotionDuration = CouncilMotionDuration;
+//     type Origin = Origin;
+//     type Proposal = Call;
+//     type WeightInfo = pallet_collective::weights::SubstrateWeight<Runtime>;
+// }
+
+// type EnsureRootOrHalfCouncil = EnsureOneOf<
+//     AccountId,
+//     EnsureRoot<AccountId>,
+//     pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>,
+// >;
+// impl pallet_membership::Config<pallet_membership::Instance1> for Runtime {
+//     type AddOrigin = EnsureRootOrHalfCouncil;
+//     type Event = Event;
+//     type MembershipChanged = TechnicalCommittee;
+//     type MembershipInitialized = TechnicalCommittee;
+//     type PrimeOrigin = EnsureRootOrHalfCouncil;
+//     type RemoveOrigin = EnsureRootOrHalfCouncil;
+//     type ResetOrigin = EnsureRootOrHalfCouncil;
+//     type SwapOrigin = EnsureRootOrHalfCouncil;
+// }
 
 // pub struct GeneralCouncilProvider;
 // impl Contains<AccountId> for GeneralCouncilProvider {
@@ -577,7 +629,7 @@ impl pallet_treasury::Config for Runtime {
     type ApproveOrigin = EnsureOneOf<
         AccountId,
         EnsureRoot<AccountId>,
-        pallet_collective::EnsureProportionAtLeast<_3, _5, AccountId, CouncilCollective>,
+        pallet_collective::EnsureProportionAtLeast<_3, _5, AccountId, GeneralCouncilInstance>,
     >;
     type Burn = Burn;
     type BurnDestination = ();
@@ -590,9 +642,9 @@ impl pallet_treasury::Config for Runtime {
     type RejectOrigin = EnsureOneOf<
         AccountId,
         EnsureRoot<AccountId>,
-        pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>,
+        pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, GeneralCouncilInstance>,
     >;
-    type SpendFunds = Bounties;
+    // type SpendFunds = Bounties;
     type SpendPeriod = SpendPeriod;
     type WeightInfo = pallet_treasury::weights::SubstrateWeight<Runtime>;
 }
@@ -829,8 +881,8 @@ construct_runtime!(
     {
         System: frame_system::{Module, Call, Config, Storage, Event<T>},
         RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
-        Offences: pallet_offences::{Module, Call, Storage, Event},
-        Historical: pallet_session_historical::{Module},
+        // Offences: pallet_offences::{Module, Call, Storage, Event},
+        // Historical: pallet_session_historical::{Module},
         Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
         Babe: pallet_babe::{Module, Call, Storage, Config, ValidateUnsigned},
         Grandpa: pallet_grandpa::{Module, Call, Storage, Config, Event, ValidateUnsigned},
@@ -838,13 +890,13 @@ construct_runtime!(
         Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
         TransactionPayment: pallet_transaction_payment::{Module, Storage},
         Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
-        ImOnline: pallet_im_online::{Module, Call, Storage, Event<T>, ValidateUnsigned, Config<T>},
-        AuthorityDiscovery: pallet_authority_discovery::{Module, Call, Config},
-        Council: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
-        CouncilMembership: pallet_members::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
+        // ImOnline: pallet_im_online::{Module, Call, Storage, Event<T>, ValidateUnsigned, Config<T>},
+        // AuthorityDiscovery: pallet_authority_discovery::{Module, Call, Config},
+        GeneralCouncil: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
+        GeneralCouncilMembership: pallet_membership::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
         Treasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
         Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
-        ElectionProviderMultiPhase: pallet_election_provider_multi_phase::{Module, Call, Storage, Event<T>, ValidateUnsigned},
+        // ElectionProviderMultiPhase: pallet_election_provider_multi_phase::{Module, Call, Storage, Event<T>, ValidateUnsigned},
         Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>, ValidateUnsigned},
         RoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
         RoamingNetworks: roaming_networks::{Module, Call, Storage, Event<T>},
@@ -989,16 +1041,16 @@ impl_runtime_apis! {
             )
         }
 
-        fn generate_key_ownership_proof(
-            _set_id: fg_primitives::SetId,
-            authority_id: GrandpaId,
-        ) -> Option<fg_primitives::OpaqueKeyOwnershipProof> {
-            use codec::Encode;
+        // fn generate_key_ownership_proof(
+        //     _set_id: fg_primitives::SetId,
+        //     authority_id: GrandpaId,
+        // ) -> Option<fg_primitives::OpaqueKeyOwnershipProof> {
+        //     use codec::Encode;
 
-            Historical::prove((fg_primitives::KEY_TYPE, authority_id))
-                .map(|p| p.encode())
-                .map(fg_primitives::OpaqueKeyOwnershipProof::new)
-        }
+        //     Historical::prove((fg_primitives::KEY_TYPE, authority_id))
+        //         .map(|p| p.encode())
+        //         .map(fg_primitives::OpaqueKeyOwnershipProof::new)
+        // }
     }
 
     impl sp_consensus_babe::BabeApi<Block> for Runtime {
@@ -1030,16 +1082,16 @@ impl_runtime_apis! {
             Babe::next_epoch()
         }
 
-        fn generate_key_ownership_proof(
-            _slot: sp_consensus_babe::Slot,
-            authority_id: sp_consensus_babe::AuthorityId,
-        ) -> Option<sp_consensus_babe::OpaqueKeyOwnershipProof> {
-            use codec::Encode;
+        // fn generate_key_ownership_proof(
+        //     _slot: sp_consensus_babe::Slot,
+        //     authority_id: sp_consensus_babe::AuthorityId,
+        // ) -> Option<sp_consensus_babe::OpaqueKeyOwnershipProof> {
+        //     use codec::Encode;
 
-            Historical::prove((sp_consensus_babe::KEY_TYPE, authority_id))
-                .map(|p| p.encode())
-                .map(sp_consensus_babe::OpaqueKeyOwnershipProof::new)
-        }
+        //     Historical::prove((sp_consensus_babe::KEY_TYPE, authority_id))
+        //         .map(|p| p.encode())
+        //         .map(sp_consensus_babe::OpaqueKeyOwnershipProof::new)
+        // }
 
         fn submit_report_equivocation_unsigned_extrinsic(
             equivocation_proof: sp_consensus_babe::EquivocationProof<<Block as BlockT>::Header>,
