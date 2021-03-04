@@ -5,7 +5,11 @@
 // Make the WASM binary available.
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
-mod constants;
+pub mod constants;
+use constants::{
+    currency::*,
+    time::*,
+};
 mod types;
 
 use pallet_grandpa::{
@@ -49,10 +53,17 @@ use sp_runtime::{
     MultiSignature,
 };
 use sp_std::prelude::*;
-use sp_version::NativeVersion;
 #[cfg(feature = "std")]
+use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
-
+use frame_system::{
+    limits::{
+        BlockLength,
+        BlockWeights,
+    },
+    EnsureOneOf,
+    EnsureRoot,
+};
 // A few exports that help ease life for downstream crates.
 pub use frame_support::{
     construct_runtime,
@@ -62,6 +73,7 @@ pub use frame_support::{
         ContainsLengthBound,
         KeyOwnerProofSystem,
         Randomness,
+        U128CurrencyToVote,
     },
     weights::{
         constants::{
@@ -70,6 +82,7 @@ pub use frame_support::{
             RocksDbWeight,
             WEIGHT_PER_SECOND,
         },
+        DispatchClass,
         IdentityFee,
         Weight,
     },
@@ -77,8 +90,12 @@ pub use frame_support::{
 };
 pub use pallet_balances::Call as BalancesCall;
 pub use pallet_timestamp::Call as TimestampCall;
-use pallet_transaction_payment::{
+pub use pallet_transaction_payment::{
     CurrencyAdapter,
+    Multiplier,
+    TargetedFeeAdjustment,
+};
+use pallet_transaction_payment::{
     FeeDetails,
     RuntimeDispatchInfo,
 };
@@ -93,8 +110,10 @@ pub use sp_runtime::{
     Perbill,
     Percent,
     Permill,
+    Perquintill,
 };
 pub use pallet_staking::StakerStatus;
+use pallet_session::historical as pallet_session_historical;
 
 /// Opaque types. These are used by the CLI to instantiate machinery that don't need to know
 /// the specifics of the runtime. They can then be made to be agnostic over specific formats
@@ -151,7 +170,21 @@ pub fn native_version() -> NativeVersion {
     }
 }
 
-const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
+pub struct DealWithFees;
+impl OnUnbalanced<NegativeImbalance> for DealWithFees {
+    fn on_unbalanceds<B>(mut fees_then_tips: impl Iterator<Item = NegativeImbalance>) {
+        if let Some(fees) = fees_then_tips.next() {
+            // for fees, 80% to treasury, 20% to author
+            let mut split = fees.ration(80, 20);
+            if let Some(tips) = fees_then_tips.next() {
+                // for tips, if any, 80% to treasury, 20% to author (though this can be anything)
+                tips.ration_merge_into(80, 20, &mut split);
+            }
+            Treasury::on_unbalanced(split.0);
+            Author::on_unbalanced(split.1);
+        }
+    }
+}
 
 // #[cfg(feature = "std")]
 // pub fn wasm_binary_unwrap() -> &'static [u8] {
@@ -161,15 +194,39 @@ const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
 //     )
 // }
 
+/// We assume that ~10% of the block weight is consumed by `on_initialize` handlers.
+/// This is used to limit the maximal weight of a single extrinsic.
+const AVERAGE_ON_INITIALIZE_RATIO: Perbill = Perbill::from_percent(10);
+/// We allow `Normal` extrinsics to fill up the block up to 75%, the rest can be used
+/// by  Operational  extrinsics.
+const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
+/// We allow for 2 seconds of compute with a 6 second average block time.
+const MAXIMUM_BLOCK_WEIGHT: Weight = 2 * WEIGHT_PER_SECOND;
+
 parameter_types! {
-    pub const Version: RuntimeVersion = VERSION;
     pub const BlockHashCount: BlockNumber = 2400;
-    /// We allow for 2 seconds of compute with a 6 second average block time.
-	pub BlockWeights: frame_system::limits::BlockWeights = frame_system::limits::BlockWeights
-		::with_sensible_defaults(2 * WEIGHT_PER_SECOND, NORMAL_DISPATCH_RATIO);
-	pub BlockLength: frame_system::limits::BlockLength = frame_system::limits::BlockLength
-		::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
-	pub const SS58Prefix: u8 = 42;
+    pub const Version: RuntimeVersion = VERSION;
+    pub RuntimeBlockLength: BlockLength =
+        BlockLength::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
+    pub RuntimeBlockWeights: BlockWeights = BlockWeights::builder()
+        .base_block(BlockExecutionWeight::get())
+        .for_class(DispatchClass::all(), |weights| {
+            weights.base_extrinsic = ExtrinsicBaseWeight::get();
+        })
+        .for_class(DispatchClass::Normal, |weights| {
+            weights.max_total = Some(NORMAL_DISPATCH_RATIO * MAXIMUM_BLOCK_WEIGHT);
+        })
+        .for_class(DispatchClass::Operational, |weights| {
+            weights.max_total = Some(MAXIMUM_BLOCK_WEIGHT);
+            // Operational transactions have some extra reserved space, so that they
+            // are included even if block reached `MAXIMUM_BLOCK_WEIGHT`.
+            weights.reserved = Some(
+                MAXIMUM_BLOCK_WEIGHT - NORMAL_DISPATCH_RATIO * MAXIMUM_BLOCK_WEIGHT
+            );
+        })
+        .avg_block_initialization(AVERAGE_ON_INITIALIZE_RATIO)
+        .build_or_panic();
+    pub const SS58Prefix: u8 = 42;
 }
 
 // Configure FRAME pallets to include in runtime.
@@ -221,21 +278,21 @@ impl frame_system::Config for Runtime {
     type SystemWeightInfo = ();
     /// Version of the runtime.
     type Version = Version;
-    /// Portion of the block weight that is available to all normal transactions.
+    // /// Portion of the block weight that is available to all normal transactions.
     // type AvailableBlockRatio = AvailableBlockRatio;
-    /// The weight of the overhead invoked on the block import process, independent of the
-    /// extrinsics included in that block.
+    // /// The weight of the overhead invoked on the block import process, independent of the
+    // /// extrinsics included in that block.
     // type BlockExecutionWeight = BlockExecutionWeight;
-    /// The base weight of any extrinsic processed by the runtime, independent of the
-    /// logic of that extrinsic. (Signature verification, nonce increment, fee, etc...)
+    // /// The base weight of any extrinsic processed by the runtime, independent of the
+    // /// logic of that extrinsic. (Signature verification, nonce increment, fee, etc...)
     // type ExtrinsicBaseWeight = ExtrinsicBaseWeight;
-    /// Maximum size of all encoded transactions (in bytes) that are allowed in one block.
+    // /// Maximum size of all encoded transactions (in bytes) that are allowed in one block.
     // type MaximumBlockLength = MaximumBlockLength;
-    /// Maximum weight of each block.
+    // /// Maximum weight of each block.
     // type MaximumBlockWeight = MaximumBlockWeight;
-    /// The maximum weight that a single extrinsic of `Normal` dispatch class can have,
-    /// idependent of the logic of that extrinsics. (Roughly max block weight - average on
-    /// initialize cost).
+    // /// The maximum weight that a single extrinsic of `Normal` dispatch class can have,
+    // /// idependent of the logic of that extrinsics. (Roughly max block weight - average on
+    // /// initialize cost).
     // type MaximumExtrinsicWeight = MaximumExtrinsicWeight;
 }
 
@@ -398,7 +455,7 @@ parameter_types! {
         .get(DispatchClass::Normal)
         .max_extrinsic.expect("Normal extrinsics have a weight limit configured; qed")
         .saturating_sub(BlockExecutionWeight::get());
-    // pub const StakingUnsignedPriority: TransactionPriority = TransactionPriority::max_value() / 2;
+    pub const StakingUnsignedPriority: TransactionPriority = TransactionPriority::max_value() / 2;
 }
 
 impl<C> frame_system::offchain::SendTransactionTypes<C> for Runtime
@@ -772,6 +829,8 @@ construct_runtime!(
     {
         System: frame_system::{Module, Call, Config, Storage, Event<T>},
         RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
+        Offences: pallet_offences::{Module, Call, Storage, Event},
+        Historical: pallet_session_historical::{Module},
         Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
         Babe: pallet_babe::{Module, Call, Storage, Config, ValidateUnsigned},
         Grandpa: pallet_grandpa::{Module, Call, Storage, Config, Event, ValidateUnsigned},
@@ -779,10 +838,13 @@ construct_runtime!(
         Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
         TransactionPayment: pallet_transaction_payment::{Module, Storage},
         Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
+        ImOnline: pallet_im_online::{Module, Call, Storage, Event<T>, ValidateUnsigned, Config<T>},
+        AuthorityDiscovery: pallet_authority_discovery::{Module, Call, Config},
         Council: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
         CouncilMembership: pallet_members::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
         Treasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
         Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
+        ElectionProviderMultiPhase: pallet_election_provider_multi_phase::{Module, Call, Storage, Event<T>, ValidateUnsigned},
         Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>, ValidateUnsigned},
         RoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
         RoamingNetworks: roaming_networks::{Module, Call, Storage, Event<T>},
