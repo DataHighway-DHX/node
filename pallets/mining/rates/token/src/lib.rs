@@ -69,12 +69,12 @@ pub struct MiningRatesTokenConfig<U, V, W, X, Y> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::MiningRatesTokenIndex,
-        <T as Trait>::MiningRatesTokenTokenMXC,
-        <T as Trait>::MiningRatesTokenTokenIOTA,
-        <T as Trait>::MiningRatesTokenTokenDOT,
-        <T as Trait>::MiningRatesTokenMaxToken,
-        <T as Trait>::MiningRatesTokenMaxLoyalty,
+        <T as Config>::MiningRatesTokenIndex,
+        <T as Config>::MiningRatesTokenTokenMXC,
+        <T as Config>::MiningRatesTokenTokenIOTA,
+        <T as Config>::MiningRatesTokenTokenDOT,
+        <T as Config>::MiningRatesTokenMaxToken,
+        <T as Config>::MiningRatesTokenMaxLoyalty,
         // Balance = BalanceOf<T>,
     {
         /// A mining_rates_token is created. (owner, mining_rates_token_id)
@@ -185,7 +185,7 @@ decl_module! {
             };
 
             // FIXME - how to use float and overcome error:
-            //  the trait `std::str::FromStr` is not implemented for `<T as Trait>::MiningRatesTokenMaxToken
+            //  the trait `std::str::FromStr` is not implemented for `<T as Config>::MiningRatesTokenMaxToken
             // if token_token_mxc > "1.2".parse().unwrap() || token_token_iota > "1.2".parse().unwrap() || token_token_dot > "1.2".parse().unwrap() || token_max_token > "1.6".parse().unwrap() || token_max_loyalty > "1.2".parse().unwrap() {
             //   debug::info!("Token rate cannot be this large");
 

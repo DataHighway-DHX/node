@@ -76,10 +76,10 @@ pub struct MiningEligibilityHardwareResult<U, V> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::MiningEligibilityHardwareIndex,
-        <T as Trait>::MiningEligibilityHardwareCalculatedEligibility,
-        <T as Trait>::MiningEligibilityHardwareUptimePercentage,
-        // <T as Trait>::MiningEligibilityHardwareAuditorAccountID,
+        <T as Config>::MiningEligibilityHardwareIndex,
+        <T as Config>::MiningEligibilityHardwareCalculatedEligibility,
+        <T as Config>::MiningEligibilityHardwareUptimePercentage,
+        // <T as Config>::MiningEligibilityHardwareAuditorAccountID,
         <T as mining_config_hardware::Config>::MiningConfigHardwareIndex,
         // <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,

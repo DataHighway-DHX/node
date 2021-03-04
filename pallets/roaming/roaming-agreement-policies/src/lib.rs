@@ -60,8 +60,8 @@ pub struct RoamingAgreementPolicyConfig<U, V> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::RoamingAgreementPolicyIndex,
-        <T as Trait>::RoamingAgreementPolicyActivationType,
+        <T as Config>::RoamingAgreementPolicyIndex,
+        <T as Config>::RoamingAgreementPolicyActivationType,
         <T as roaming_accounting_policies::Config>::RoamingAccountingPolicyIndex,
         <T as roaming_networks::Config>::RoamingNetworkIndex,
         <T as frame_system::Config>::BlockNumber,

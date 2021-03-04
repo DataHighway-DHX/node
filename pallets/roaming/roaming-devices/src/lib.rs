@@ -55,7 +55,7 @@ pub struct RoamingDevice(pub [u8; 16]);
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::RoamingDeviceIndex,
+        <T as Config>::RoamingDeviceIndex,
         <T as roaming_network_servers::Config>::RoamingNetworkServerIndex,
         <T as roaming_organizations::Config>::RoamingOrganizationIndex,
         Balance = BalanceOf<T>,

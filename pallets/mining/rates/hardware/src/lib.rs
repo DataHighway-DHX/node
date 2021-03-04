@@ -86,13 +86,13 @@ pub struct MiningRatesHardwareConfig<U, V, W, X, Y, Z> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::MiningRatesHardwareIndex,
-        <T as Trait>::MiningRatesHardwareSecure,
-        <T as Trait>::MiningRatesHardwareInsecure,
-        <T as Trait>::MiningRatesHardwareMaxHardware,
-        <T as Trait>::MiningRatesHardwareCategory1MaxTokenBonusPerGateway,
-        <T as Trait>::MiningRatesHardwareCategory2MaxTokenBonusPerGateway,
-        <T as Trait>::MiningRatesHardwareCategory3MaxTokenBonusPerGateway,
+        <T as Config>::MiningRatesHardwareIndex,
+        <T as Config>::MiningRatesHardwareSecure,
+        <T as Config>::MiningRatesHardwareInsecure,
+        <T as Config>::MiningRatesHardwareMaxHardware,
+        <T as Config>::MiningRatesHardwareCategory1MaxTokenBonusPerGateway,
+        <T as Config>::MiningRatesHardwareCategory2MaxTokenBonusPerGateway,
+        <T as Config>::MiningRatesHardwareCategory3MaxTokenBonusPerGateway,
         // Balance = BalanceOf<T>,
     {
         /// A mining_rates_hardware is created. (owner, mining_rates_hardware_id)

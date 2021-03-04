@@ -62,12 +62,12 @@ pub trait Config: frame_system::Config + roaming_operators::Config {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::ExchangeRateIndex,
-        <T as Trait>::HBTCRate,
-        <T as Trait>::DOTRate,
-        <T as Trait>::IOTARate,
-        <T as Trait>::FILRate,
-        <T as Trait>::DecimalsAfterPoint,
+        <T as Config>::ExchangeRateIndex,
+        <T as Config>::HBTCRate,
+        <T as Config>::DOTRate,
+        <T as Config>::IOTARate,
+        <T as Config>::FILRate,
+        <T as Config>::DecimalsAfterPoint,
     {
         /// A exchange_rate is created. (owner, exchange_rate_index)
         Created(AccountId, ExchangeRateIndex),

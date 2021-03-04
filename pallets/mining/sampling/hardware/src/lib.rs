@@ -63,8 +63,8 @@ pub struct MiningSamplingHardwareConfig<U, V> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::MiningSamplingHardwareIndex,
-        <T as Trait>::MiningSamplingHardwareSampleHardwareOnline,
+        <T as Config>::MiningSamplingHardwareIndex,
+        <T as Config>::MiningSamplingHardwareSampleHardwareOnline,
         <T as mining_config_hardware::Config>::MiningConfigHardwareIndex,
         <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,

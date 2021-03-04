@@ -76,10 +76,10 @@ pub struct MiningEligibilityTokenResult<U, V> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::MiningEligibilityTokenIndex,
-        <T as Trait>::MiningEligibilityTokenCalculatedEligibility,
-        <T as Trait>::MiningEligibilityTokenLockedPercentage,
-        // <T as Trait>::MiningEligibilityTokenAuditorAccountID,
+        <T as Config>::MiningEligibilityTokenIndex,
+        <T as Config>::MiningEligibilityTokenCalculatedEligibility,
+        <T as Config>::MiningEligibilityTokenLockedPercentage,
+        // <T as Config>::MiningEligibilityTokenAuditorAccountID,
         <T as mining_config_token::Config>::MiningConfigTokenIndex,
         // <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,

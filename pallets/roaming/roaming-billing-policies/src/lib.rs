@@ -58,7 +58,7 @@ pub struct RoamingBillingPolicyConfig<U, V> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::RoamingBillingPolicyIndex,
+        <T as Config>::RoamingBillingPolicyIndex,
         <T as roaming_networks::Config>::RoamingNetworkIndex,
         <T as roaming_operators::Config>::RoamingOperatorIndex,
         <T as frame_system::Config>::BlockNumber,

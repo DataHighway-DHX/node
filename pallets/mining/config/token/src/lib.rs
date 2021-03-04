@@ -76,8 +76,8 @@ pub struct MiningConfigTokenRequirementsConfig<U, V, W> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::MiningConfigTokenIndex,
-        <T as Trait>::MiningConfigTokenType,
+        <T as Config>::MiningConfigTokenIndex,
+        <T as Config>::MiningConfigTokenType,
         <T as frame_system::Config>::BlockNumber,
         Balance = BalanceOf<T>,
     {

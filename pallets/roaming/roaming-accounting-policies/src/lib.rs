@@ -65,10 +65,10 @@ pub struct RoamingAccountingPolicyConfig<U, V, W, X> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::RoamingAccountingPolicyIndex,
-        <T as Trait>::RoamingAccountingPolicyType,
-        <T as Trait>::RoamingAccountingPolicyUplinkFeeFactor,
-        <T as Trait>::RoamingAccountingPolicyDownlinkFeeFactor,
+        <T as Config>::RoamingAccountingPolicyIndex,
+        <T as Config>::RoamingAccountingPolicyType,
+        <T as Config>::RoamingAccountingPolicyUplinkFeeFactor,
+        <T as Config>::RoamingAccountingPolicyDownlinkFeeFactor,
         <T as roaming_networks::Config>::RoamingNetworkIndex,
         Balance = BalanceOf<T>,
     {

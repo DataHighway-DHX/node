@@ -63,8 +63,8 @@ pub struct MiningSamplingTokenConfig<U, V> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::MiningSamplingTokenIndex,
-        <T as Trait>::MiningSamplingTokenSampleLockedAmount,
+        <T as Config>::MiningSamplingTokenIndex,
+        <T as Config>::MiningSamplingTokenSampleLockedAmount,
         <T as mining_config_token::Config>::MiningConfigTokenIndex,
         <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,

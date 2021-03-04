@@ -77,11 +77,11 @@ pub struct RoamingPacketBundleReceiver<U, V, W, X, Y, Z> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::RoamingPacketBundleIndex,
-        <T as Trait>::RoamingPacketBundleReceivedAtHome,
-        <T as Trait>::RoamingPacketBundleReceivedPacketsCount,
-        <T as Trait>::RoamingPacketBundleReceivedPacketsOkCount,
-        <T as Trait>::RoamingPacketBundleExternalDataStorageHash,
+        <T as Config>::RoamingPacketBundleIndex,
+        <T as Config>::RoamingPacketBundleReceivedAtHome,
+        <T as Config>::RoamingPacketBundleReceivedPacketsCount,
+        <T as Config>::RoamingPacketBundleReceivedPacketsOkCount,
+        <T as Config>::RoamingPacketBundleExternalDataStorageHash,
         // <T as roaming_devices::Config>::RoamingDeviceIndex,
         <T as roaming_sessions::Config>::RoamingSessionIndex,
         <T as roaming_network_servers::Config>::RoamingNetworkServerIndex,

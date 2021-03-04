@@ -73,11 +73,11 @@ pub struct MiningConfigHardwareConfig<U, V, W, X, Y, Z> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::MiningConfigHardwareIndex,
-        <T as Trait>::MiningConfigHardwareSecure,
-        <T as Trait>::MiningConfigHardwareType,
-        <T as Trait>::MiningConfigHardwareID,
-        <T as Trait>::MiningConfigHardwareDevEUI,
+        <T as Config>::MiningConfigHardwareIndex,
+        <T as Config>::MiningConfigHardwareSecure,
+        <T as Config>::MiningConfigHardwareType,
+        <T as Config>::MiningConfigHardwareID,
+        <T as Config>::MiningConfigHardwareDevEUI,
         <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,
     {

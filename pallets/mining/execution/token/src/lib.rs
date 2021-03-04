@@ -81,8 +81,8 @@ pub struct MiningExecutionTokenExecutionResult<U, V, W> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::MiningExecutionTokenIndex,
-        // <T as Trait>::MiningExecutionTokenExecutorAccountID,
+        <T as Config>::MiningExecutionTokenIndex,
+        // <T as Config>::MiningExecutionTokenExecutorAccountID,
         <T as mining_config_token::Config>::MiningConfigTokenIndex,
         <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,

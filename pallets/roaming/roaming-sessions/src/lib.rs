@@ -68,7 +68,7 @@ pub struct RoamingSessionJoinAccept<U, V> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::RoamingSessionIndex,
+        <T as Config>::RoamingSessionIndex,
         <T as roaming_devices::Config>::RoamingDeviceIndex,
         <T as roaming_network_servers::Config>::RoamingNetworkServerIndex,
         <T as frame_system::Config>::BlockNumber,

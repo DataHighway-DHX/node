@@ -62,11 +62,11 @@ pub struct RoamingDeviceProfileConfig<U, V, W, X> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::RoamingDeviceProfileIndex,
-        <T as Trait>::RoamingDeviceProfileDevAddr,
-        <T as Trait>::RoamingDeviceProfileDevEUI,
-        <T as Trait>::RoamingDeviceProfileJoinEUI,
-        <T as Trait>::RoamingDeviceProfileVendorID,
+        <T as Config>::RoamingDeviceProfileIndex,
+        <T as Config>::RoamingDeviceProfileDevAddr,
+        <T as Config>::RoamingDeviceProfileDevEUI,
+        <T as Config>::RoamingDeviceProfileJoinEUI,
+        <T as Config>::RoamingDeviceProfileVendorID,
         <T as roaming_devices::Config>::RoamingDeviceIndex,
     {
         /// A roaming device_profile is created. (owner, roaming_device_profile_id)

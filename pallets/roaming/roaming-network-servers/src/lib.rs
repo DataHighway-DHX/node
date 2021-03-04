@@ -53,7 +53,7 @@ pub struct RoamingNetworkServer(pub [u8; 16]);
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::RoamingNetworkServerIndex,
+        <T as Config>::RoamingNetworkServerIndex,
         <T as roaming_networks::Config>::RoamingNetworkIndex,
         <T as roaming_operators::Config>::RoamingOperatorIndex,
         Balance = BalanceOf<T>,

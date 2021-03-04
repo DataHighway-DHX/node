@@ -73,8 +73,8 @@ pub struct MiningClaimsTokenClaimResult<U, V> {
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::MiningClaimsTokenIndex,
-        <T as Trait>::MiningClaimsTokenClaimAmount,
+        <T as Config>::MiningClaimsTokenIndex,
+        <T as Config>::MiningClaimsTokenClaimAmount,
         <T as mining_config_token::Config>::MiningConfigTokenIndex,
         <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,

@@ -51,8 +51,8 @@ pub struct RoamingRoutingProfile(pub [u8; 16]);
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
-        <T as Trait>::RoamingRoutingProfileIndex,
-        <T as Trait>::RoamingRoutingProfileAppServer,
+        <T as Config>::RoamingRoutingProfileIndex,
+        <T as Config>::RoamingRoutingProfileAppServer,
         <T as roaming_devices::Config>::RoamingDeviceIndex,
     {
         /// A roaming routing_profile is created. (owner, roaming_routing_profile_id)
