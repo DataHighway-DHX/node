@@ -46,6 +46,10 @@ pub trait Config: frame_system::Config + roaming_operators::Config {
     // Mining Speed Boost Token Mining Config
     type MiningConfigTokenType: Parameter + Member + Default;
     type MiningConfigTokenLockAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningConfigTokenLockStartBlocks: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningConfigTokenLockIntervalBlocks: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningConfigTokenLockMinAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
+    type MiningConfigTokenLockMinBlocks: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
 }
 
 type BalanceOf<T> =

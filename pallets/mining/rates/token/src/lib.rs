@@ -42,11 +42,11 @@ mod tests;
 pub trait Config: frame_system::Config + roaming_operators::Config {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningRatesTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningRatesTokenTokenMXC: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningRatesTokenTokenIOTA: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningRatesTokenTokenDOT: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningRatesTokenMaxToken: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningRatesTokenMaxLoyalty: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningRatesTokenTokenMXC: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
+    type MiningRatesTokenTokenIOTA: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
+    type MiningRatesTokenTokenDOT: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
+    type MiningRatesTokenMaxToken: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
+    type MiningRatesTokenMaxLoyalty: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
 }
 
 // type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as

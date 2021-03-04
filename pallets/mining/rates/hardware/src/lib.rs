@@ -42,27 +42,30 @@ mod tests;
 pub trait Config: frame_system::Config + roaming_operators::Config {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningRatesHardwareIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningRatesHardwareSecure: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningRatesHardwareInsecure: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningRatesHardwareMaxHardware: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningRatesHardwareSecure: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
+    type MiningRatesHardwareInsecure: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
+    type MiningRatesHardwareMaxHardware: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
     type MiningRatesHardwareCategory1MaxTokenBonusPerGateway: Parameter
         + Member
         + AtLeast32Bit
         + Bounded
         + Default
-        + Copy;
+        + Copy
+        + From<i32>;
     type MiningRatesHardwareCategory2MaxTokenBonusPerGateway: Parameter
         + Member
         + AtLeast32Bit
         + Bounded
         + Default
-        + Copy;
+        + Copy
+        + From<i32>;
     type MiningRatesHardwareCategory3MaxTokenBonusPerGateway: Parameter
         + Member
         + AtLeast32Bit
         + Bounded
         + Default
-        + Copy;
+        + Copy
+        + From<i32>;
 }
 
 // type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as

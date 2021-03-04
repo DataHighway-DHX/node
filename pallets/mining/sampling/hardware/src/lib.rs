@@ -43,7 +43,7 @@ mod tests;
 pub trait Config: frame_system::Config + roaming_operators::Config + mining_config_hardware::Config {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningSamplingHardwareIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningSamplingHardwareSampleHardwareOnline: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningSamplingHardwareSampleHardwareOnline: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
 }
 
 // type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as

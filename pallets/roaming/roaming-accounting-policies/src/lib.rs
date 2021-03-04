@@ -41,8 +41,8 @@ pub trait Config: frame_system::Config + roaming_operators::Config + roaming_net
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingAccountingPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingAccountingPolicyType: Parameter + Member + Default;
-    type RoamingAccountingPolicyUplinkFeeFactor: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type RoamingAccountingPolicyDownlinkFeeFactor: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type RoamingAccountingPolicyUplinkFeeFactor: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
+    type RoamingAccountingPolicyDownlinkFeeFactor: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<i32>;
 }
 
 type BalanceOf<T> =
