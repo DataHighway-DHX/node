@@ -40,14 +40,14 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait:
-    frame_system::Trait
-    + roaming_operators::Trait
-    + roaming_network_servers::Trait
-    + roaming_devices::Trait
-    + roaming_sessions::Trait
+pub trait Config:
+    frame_system::Config
+    + roaming_operators::Config
+    + roaming_network_servers::Config
+    + roaming_devices::Config
+    + roaming_sessions::Config
 {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingPacketBundleIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingPacketBundleReceivedAtHome: Parameter + Member + Default;
     type RoamingPacketBundleReceivedPacketsCount: Parameter + Member + Default;
@@ -56,7 +56,7 @@ pub trait Trait:
 }
 
 type BalanceOf<T> =
-    <<T as roaming_operators::Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+    <<T as roaming_operators::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -76,18 +76,18 @@ pub struct RoamingPacketBundleReceiver<U, V, W, X, Y, Z> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
+        <T as frame_system::Config>::AccountId,
         <T as Trait>::RoamingPacketBundleIndex,
         <T as Trait>::RoamingPacketBundleReceivedAtHome,
         <T as Trait>::RoamingPacketBundleReceivedPacketsCount,
         <T as Trait>::RoamingPacketBundleReceivedPacketsOkCount,
         <T as Trait>::RoamingPacketBundleExternalDataStorageHash,
-        // <T as roaming_devices::Trait>::RoamingDeviceIndex,
-        <T as roaming_sessions::Trait>::RoamingSessionIndex,
-        <T as roaming_network_servers::Trait>::RoamingNetworkServerIndex,
-        // <T as roaming_operators::Trait>::RoamingOperatorIndex,
+        // <T as roaming_devices::Config>::RoamingDeviceIndex,
+        <T as roaming_sessions::Config>::RoamingSessionIndex,
+        <T as roaming_network_servers::Config>::RoamingNetworkServerIndex,
+        // <T as roaming_operators::Config>::RoamingOperatorIndex,
         Balance = BalanceOf<T>,
-        <T as frame_system::Trait>::BlockNumber,
+        <T as frame_system::Config>::BlockNumber,
     {
         /// A roaming packet_bundle is created. (owner, roaming_packet_bundle_id)
         Created(AccountId, RoamingPacketBundleIndex),

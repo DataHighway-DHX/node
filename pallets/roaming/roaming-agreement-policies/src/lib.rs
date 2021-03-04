@@ -38,10 +38,10 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait:
-    frame_system::Trait + roaming_operators::Trait + roaming_networks::Trait + roaming_accounting_policies::Trait
+pub trait Config:
+    frame_system::Config + roaming_operators::Config + roaming_networks::Config + roaming_accounting_policies::Config
 {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingAgreementPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingAgreementPolicyActivationType: Parameter + Member + Default;
 }
@@ -59,12 +59,12 @@ pub struct RoamingAgreementPolicyConfig<U, V> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
+        <T as frame_system::Config>::AccountId,
         <T as Trait>::RoamingAgreementPolicyIndex,
         <T as Trait>::RoamingAgreementPolicyActivationType,
-        <T as roaming_accounting_policies::Trait>::RoamingAccountingPolicyIndex,
-        <T as roaming_networks::Trait>::RoamingNetworkIndex,
-        <T as frame_system::Trait>::BlockNumber,
+        <T as roaming_accounting_policies::Config>::RoamingAccountingPolicyIndex,
+        <T as roaming_networks::Config>::RoamingNetworkIndex,
+        <T as frame_system::Config>::BlockNumber,
     {
         /// A roaming agreement_policy is created. (owner, roaming_agreement_policy_id)
         Created(AccountId, RoamingAgreementPolicyIndex),

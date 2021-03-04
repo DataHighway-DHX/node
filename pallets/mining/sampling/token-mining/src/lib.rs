@@ -40,10 +40,10 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait:
-    frame_system::Trait + roaming_operators::Trait + mining_config_token::Trait
+pub trait Config:
+    frame_system::Config + roaming_operators::Config + mining_config_token::Config
 {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningSamplingTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningSamplingTokenSampleLockedAmount: Parameter
         + Member
@@ -53,8 +53,8 @@ pub trait Trait:
         + Copy;
 }
 
-// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
-// frame_system::Trait>::AccountId>>::Balance;
+// type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
+// frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -69,11 +69,11 @@ pub struct MiningSamplingTokenConfig<U, V> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
+        <T as frame_system::Config>::AccountId,
         <T as Trait>::MiningSamplingTokenIndex,
         <T as Trait>::MiningSamplingTokenSampleLockedAmount,
-        <T as mining_config_token::Trait>::MiningConfigTokenIndex,
-        <T as frame_system::Trait>::BlockNumber,
+        <T as mining_config_token::Config>::MiningConfigTokenIndex,
+        <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
         /// A mining_sampling_token is created. (owner, mining_sampling_token_id)

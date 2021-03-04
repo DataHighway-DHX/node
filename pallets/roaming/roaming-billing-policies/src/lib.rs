@@ -38,8 +38,8 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait + roaming_networks::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config + roaming_operators::Config + roaming_networks::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingBillingPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
@@ -57,11 +57,11 @@ pub struct RoamingBillingPolicyConfig<U, V> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
+        <T as frame_system::Config>::AccountId,
         <T as Trait>::RoamingBillingPolicyIndex,
-        <T as roaming_networks::Trait>::RoamingNetworkIndex,
-        <T as roaming_operators::Trait>::RoamingOperatorIndex,
-        <T as frame_system::Trait>::BlockNumber,
+        <T as roaming_networks::Config>::RoamingNetworkIndex,
+        <T as roaming_operators::Config>::RoamingOperatorIndex,
+        <T as frame_system::Config>::BlockNumber,
     {
         /// A roaming billing_policy is created. (owner, roaming_billing_policy_id)
         Created(AccountId, RoamingBillingPolicyIndex),

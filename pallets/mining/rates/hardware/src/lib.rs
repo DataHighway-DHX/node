@@ -39,8 +39,8 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config + roaming_operators::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningRatesHardwareIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningRatesHardwareSecure: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningRatesHardwareInsecure: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
@@ -65,8 +65,8 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
         + Copy;
 }
 
-// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
-// frame_system::Trait>::AccountId>>::Balance;
+// type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
+// frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -85,7 +85,7 @@ pub struct MiningRatesHardwareConfig<U, V, W, X, Y, Z> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
+        <T as frame_system::Config>::AccountId,
         <T as Trait>::MiningRatesHardwareIndex,
         <T as Trait>::MiningRatesHardwareSecure,
         <T as Trait>::MiningRatesHardwareInsecure,

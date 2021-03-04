@@ -60,8 +60,8 @@ mod tests {
     };
     use roaming_operators;
 
-    // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Trait>::Origin {
-    // 	<Runtime as frame_system::Trait>::Origin::signed((*who).clone())
+    // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Config>::Origin {
+    // 	<Runtime as frame_system::Config>::Origin::signed((*who).clone())
     // }
 
     impl_outer_origin! {
@@ -76,7 +76,7 @@ mod tests {
         pub const MaximumBlockLength: u32 = 2 * 1024;
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
-    impl frame_system::Trait for Test {
+    impl frame_system::Config for Test {
         type AccountData = pallet_balances::AccountData<u64>;
         type AccountId = u64;
         type AvailableBlockRatio = AvailableBlockRatio;
@@ -107,7 +107,7 @@ mod tests {
     parameter_types! {
         pub const ExistentialDeposit: u64 = 1;
     }
-    impl pallet_balances::Trait for Test {
+    impl pallet_balances::Config for Test {
         type AccountStore = System;
         type Balance = u64;
         type DustRemoval = ();
@@ -116,7 +116,7 @@ mod tests {
         type MaxLocks = ();
         type WeightInfo = ();
     }
-    impl pallet_transaction_payment::Trait for Test {
+    impl pallet_transaction_payment::Config for Test {
         type Currency = Balances;
         type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
@@ -124,7 +124,7 @@ mod tests {
         type WeightToFee = IdentityFee<u64>;
     }
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
-    impl roaming_operators::Trait for Test {
+    impl roaming_operators::Config for Test {
         type Currency = Balances;
         type Event = ();
         type Randomness = Randomness;

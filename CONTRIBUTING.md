@@ -142,9 +142,9 @@ cargo clippy --release -- -D warnings
 The following is a temporary fix. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
 
 ```
-rustup component add clippy --toolchain nightly-2020-10-06-x86_64-unknown-linux-gnu
-rustup component add clippy-preview --toolchain nightly-2020-10-06-x86_64-unknown-linux-gnu
-cargo +nightly-2020-10-06 clippy-preview -Zunstable-options
+rustup component add clippy --toolchain nightly-2021-03-03-x86_64-unknown-linux-gnu
+rustup component add clippy-preview --toolchain nightly-2021-03-03-x86_64-unknown-linux-gnu
+cargo +nightly-2021-03-03 clippy-preview -Zunstable-options
 ```
 
 #### Clippy and Continuous Integration (CI)
@@ -170,7 +170,7 @@ The styles are defined in the rustfmt.toml configuration file, which was generat
 #### Install RustFmt
 
 ```bash
-rustup component add rustfmt --toolchain nightly-2020-10-06-x86_64-unknown-linux-gnu
+rustup component add rustfmt --toolchain nightly-2021-03-03-x86_64-unknown-linux-gnu
 ```
 
 #### Check Formating Changes that RustFmt before applying them
@@ -215,7 +215,7 @@ substrate-module-new <module-name> <author>
 	so we must manually change this to the latest Rust Nightly version only
 	when it is known to work.
 		```bash
-		rustup toolchain install nightly-2020-10-06
+		rustup toolchain install nightly-2021-03-03
 		rustup update stable
 		rustup target add wasm32-unknown-unknown --toolchain nightly
 		```
@@ -225,7 +225,7 @@ substrate-module-new <module-name> <author>
 	and because developers may forget to update to the latest version of Rust
 	Nightly locally. So the solution is to install a specific version of
 	Rust Nightly in .github/workflows/rust.yml (i.e.
-	`rustup toolchain install nightly-2020-10-06`), since for example
+	`rustup toolchain install nightly-2021-03-03`), since for example
 	the latest Rust Nightly version nightly-2020-02-20 may cause our CI tests
 	to fail (i.e. https://github.com/DataHighway-DHX/node/issues/32)
 
@@ -271,6 +271,16 @@ substrate-module-new <module-name> <author>
 * Question: Why I try to connect to my Substrate node usig Polkadot.js, by going to https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944, why do I get error `WebSocket connection to 'ws://127.0.0.1:9944/' failed: Unknown reason, API-WS: disconnected from ws://127.0.0.1:9944: 1006:: Abnormal Closure`
 	* Answer:
 		* Try using a different web browser. Brave may not work, however Chrome might. Try running Polkadot.js app locally instead. See https://stackoverflow.com/questions/45572440/how-to-access-an-insecure-websocket-from-a-secure-website
+
+* Question: If I update to the latest version of Substrate 'master' branch instead of just stable. How resolve an error like:
+```
+error[E0034]: multiple applicable items in scope
+   --> /Users/me/.cargo/registry/src/github.com-1ecc6299db9ec823/bitvec-0.20.1/src/order.rs:476:7
+    |
+476 |             R::BITS,
+    |                ^^^^ multiple `BITS` found
+```
+    * Answer: Try downgrading one of the dependencies that are mentioned with say `cargo update -p funty --precise 1.1.0`. Do a search of Substrate Technical on Element to see where other's have asked the same question.
 
 ## Technical Support <a id="chapter-c00ab7"></a>
 

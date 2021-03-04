@@ -36,8 +36,8 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait + roaming_devices::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config + roaming_operators::Config + roaming_devices::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingDeviceProfileIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingDeviceProfileDevAddr: Parameter + Member + Default;
     type RoamingDeviceProfileDevEUI: Parameter + Member + Default;
@@ -61,13 +61,13 @@ pub struct RoamingDeviceProfileConfig<U, V, W, X> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
+        <T as frame_system::Config>::AccountId,
         <T as Trait>::RoamingDeviceProfileIndex,
         <T as Trait>::RoamingDeviceProfileDevAddr,
         <T as Trait>::RoamingDeviceProfileDevEUI,
         <T as Trait>::RoamingDeviceProfileJoinEUI,
         <T as Trait>::RoamingDeviceProfileVendorID,
-        <T as roaming_devices::Trait>::RoamingDeviceIndex,
+        <T as roaming_devices::Config>::RoamingDeviceIndex,
     {
         /// A roaming device_profile is created. (owner, roaming_device_profile_id)
         Created(AccountId, RoamingDeviceProfileIndex),
