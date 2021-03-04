@@ -5,9 +5,9 @@ authors = ['Laminar Developers <hello@laminar.one>', 'MXC Foundation GmbH <https
 edition = '2018'
 
 [dependencies]
-serde = { version = '1.0.101', optional = true, features = ['derive'] }
+serde = { version = '1.0.119', features = ['derive'], optional = true }
 codec = { package = 'parity-scale-codec', version = '1.0.0', default-features = false }
-sp-runtime = { version = '2.0.0', default-features = false }
+sp-runtime = { version = '3.0.0', default-features = false }
 bitmask = { version = '0.5.0', default-features = false }
 sp-std = { version = '2.0.0', default-features = false }
 
