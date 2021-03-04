@@ -82,7 +82,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingDeviceProfiles {
+    trait Store for Module<T: Config> as RoamingDeviceProfiles {
         /// Stores all the roaming device_profiles, key is the roaming device_profile id / index
         pub RoamingDeviceProfiles get(fn roaming_device_profile): map hasher(opaque_blake2_256) T::RoamingDeviceProfileIndex => Option<RoamingDeviceProfile>;
 

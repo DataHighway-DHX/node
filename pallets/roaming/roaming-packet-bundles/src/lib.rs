@@ -112,7 +112,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingPacketBundles {
+    trait Store for Module<T: Config> as RoamingPacketBundles {
         /// Stores all the roaming packet_bundle, key is the roaming packet_bundle id / index
         pub RoamingPacketBundles get(fn roaming_packet_bundle): map hasher(opaque_blake2_256) T::RoamingPacketBundleIndex => Option<RoamingPacketBundle>;
 

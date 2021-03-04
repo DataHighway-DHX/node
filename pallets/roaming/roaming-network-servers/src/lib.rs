@@ -75,7 +75,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingNetworkServers {
+    trait Store for Module<T: Config> as RoamingNetworkServers {
         /// Stores all the roaming network_servers, key is the roaming network_server id / index
         pub RoamingNetworkServers get(fn roaming_network_server): map hasher(opaque_blake2_256) T::RoamingNetworkServerIndex => Option<RoamingNetworkServer>;
 

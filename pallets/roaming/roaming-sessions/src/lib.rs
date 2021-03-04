@@ -88,7 +88,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingSessions {
+    trait Store for Module<T: Config> as RoamingSessions {
         /// Stores all the roaming sessions, key is the roaming session id / index
         pub RoamingSessions get(fn roaming_session): map hasher(opaque_blake2_256) T::RoamingSessionIndex => Option<RoamingSession>;
 

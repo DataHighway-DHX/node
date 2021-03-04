@@ -82,7 +82,7 @@ decl_event!(
 );
 
 decl_storage! {
-    trait Store for Module<T: Trait> as ExchangeRate {
+    trait Store for Module<T: Config> as ExchangeRate {
         pub ExchangeRates get(fn exchange_rates): map hasher(opaque_blake2_256) T::ExchangeRateIndex => Option<ExchangeRate>;
         pub ExchangeRateOwners get(fn exchange_rate_owner): map hasher(opaque_blake2_256) T::ExchangeRateIndex => Option<T::AccountId>;
         pub ExchangeRateCount get(fn exchange_rate_count): T::ExchangeRateIndex;

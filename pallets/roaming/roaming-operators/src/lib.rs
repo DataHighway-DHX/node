@@ -68,7 +68,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingOperators {
+    trait Store for Module<T: Config> as RoamingOperators {
         /// Stores all the roaming operators, key is the roaming operator id / index
         pub RoamingOperators get(fn roaming_operator): map hasher(opaque_blake2_256) T::RoamingOperatorIndex => Option<RoamingOperator>;
 

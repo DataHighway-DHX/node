@@ -103,7 +103,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as MiningExecutionToken {
+    trait Store for Module<T: Config> as MiningExecutionToken {
         /// Stores all the mining_execution_tokens, key is the mining_execution_token id / index
         pub MiningExecutionTokens get(fn mining_execution_token): map hasher(opaque_blake2_256) T::MiningExecutionTokenIndex => Option<MiningExecutionToken>;
 

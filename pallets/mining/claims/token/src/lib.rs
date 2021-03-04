@@ -95,7 +95,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as MiningClaimsToken {
+    trait Store for Module<T: Config> as MiningClaimsToken {
         /// Stores all the mining_claims_tokens, key is the mining_claims_token id / index
         pub MiningClaimsTokens get(fn mining_claims_token): map hasher(opaque_blake2_256) T::MiningClaimsTokenIndex => Option<MiningClaimsToken>;
 

@@ -78,7 +78,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingBillingPolicies {
+    trait Store for Module<T: Config> as RoamingBillingPolicies {
         /// Stores all the roaming billing_policy, key is the roaming billing_policy id / index
         pub RoamingBillingPolicies get(fn roaming_billing_policy): map hasher(opaque_blake2_256) T::RoamingBillingPolicyIndex => Option<RoamingBillingPolicy>;
 
