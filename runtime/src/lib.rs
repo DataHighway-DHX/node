@@ -77,7 +77,15 @@ pub use frame_support::{
 };
 pub use pallet_balances::Call as BalancesCall;
 pub use pallet_timestamp::Call as TimestampCall;
-use pallet_transaction_payment::CurrencyAdapter;
+use pallet_transaction_payment::{
+    CurrencyAdapter,
+    FeeDetails,
+    RuntimeDispatchInfo,
+};
+use sp_inherents::{
+    CheckInherentsResult,
+    InherentData,
+};
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{
@@ -874,7 +882,7 @@ impl_runtime_apis! {
             data.create_extrinsics()
         }
 
-        fn check_inherents(block: Block, data: InherentData) -> CheckInherentsResult {
+        fn check_inherents(block: Block, data: sp_inherents::InherentData) -> CheckInherentsResult {
             data.check_extrinsics(&block)
         }
 
