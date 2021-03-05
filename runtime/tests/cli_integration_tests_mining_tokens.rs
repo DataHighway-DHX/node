@@ -456,6 +456,8 @@ mod tests {
             //
             // Or is it going to be necessary to implement our own custom lock pallet that adds this?
             // https://github.com/kulupu/kulupu/blob/master/frame/lockdrop/src/lib.rs#L238
+            //
+            // See question posted here https://matrix.to/#/!HzySYSaIhtyWrwiwEV:matrix.org/$161495341266906GzpcB:matrix.org?via=matrix.parity.io&via=matrix.org&via=corepaper.org
 
             // TODO - allow user to request to stop mining, and trigger the cooldown period until they can
             // access their tokens that are locked for mining.
