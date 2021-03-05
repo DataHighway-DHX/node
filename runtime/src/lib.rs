@@ -607,8 +607,8 @@ impl roaming_packet_bundles::Trait for Runtime {
 }
 
 impl mining_config_token::Trait for Runtime {
-    type Event = Event;
     type Currency = Balances;
+    type Event = Event;
     type MiningConfigTokenIndex = u64;
     type MiningConfigTokenLockAmount = u64;
     type MiningConfigTokenType = Vec<u8>;

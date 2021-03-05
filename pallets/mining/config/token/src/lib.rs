@@ -34,8 +34,10 @@ use sp_runtime::{
     },
     DispatchError,
 };
-use sp_std::convert::TryInto;
-use sp_std::prelude::*; // Imports Vec
+use sp_std::{
+    convert::TryInto,
+    prelude::*,
+}; // Imports Vec
 
 // FIXME - remove roaming_operators here, only use this approach since do not know how to use BalanceOf using only
 // mining runtime module
@@ -47,9 +49,15 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait + mining_rates_token::Trait + pallet_treasury::Trait + pallet_balances::Trait {
+pub trait Trait:
+    frame_system::Trait
+    + roaming_operators::Trait
+    + mining_rates_token::Trait
+    + pallet_treasury::Trait
+    + pallet_balances::Trait
+{
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
-    type Currency: LockableCurrency<Self::AccountId, Moment=Self::BlockNumber>;
+    type Currency: LockableCurrency<Self::AccountId, Moment = Self::BlockNumber>;
     type MiningConfigTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + sp_std::iter::Step;
     // Mining Speed Boost Token Mining Config
     type MiningConfigTokenType: Parameter + Member + Default;
@@ -671,9 +679,7 @@ impl<T: Trait> Module<T> {
 
         let current_block = <frame_system::Module<T>>::block_number();
         // Get the config associated with the given configuration_token
-        if let Some(configuration_token_config) =
-            Self::mining_config_token_configs(mining_config_token_id)
-        {
+        if let Some(configuration_token_config) = Self::mining_config_token_configs(mining_config_token_id) {
             if let _token_lock_start_block = configuration_token_config.token_lock_start_block {
                 ensure!(
                     current_block > _token_lock_start_block,
@@ -692,9 +698,7 @@ impl<T: Trait> Module<T> {
     pub fn token_lock_interval_blocks_greater_than_token_lock_min_blocks(
         mining_config_token_id: T::MiningConfigTokenIndex,
     ) -> Result<(), DispatchError> {
-        if let Some(configuration_token) =
-            Self::mining_config_token_configs((mining_config_token_id))
-        {
+        if let Some(configuration_token) = Self::mining_config_token_configs((mining_config_token_id)) {
             if let Some(cooldown_configuration_token) =
                 Self::mining_config_token_cooldown_configs((mining_config_token_id))
             {
@@ -728,9 +732,7 @@ impl<T: Trait> Module<T> {
     pub fn token_lock_amount_greater_than_token_lock_min_amount(
         mining_config_token_id: T::MiningConfigTokenIndex,
     ) -> Result<(), DispatchError> {
-        if let Some(configuration_token) =
-            Self::mining_config_token_configs((mining_config_token_id))
-        {
+        if let Some(configuration_token) = Self::mining_config_token_configs((mining_config_token_id)) {
             if let Some(cooldown_configuration_token) =
                 Self::mining_config_token_cooldown_configs((mining_config_token_id))
             {
@@ -815,13 +817,13 @@ impl<T: Trait> Module<T> {
         // successfully been locked, whether it is the end of their cooldown period and if so sample the balance, to
         // determine their elegibility, and perform the claim for reward and unlock their tokens
         // TODO - Update tests for the above
-        if let Some(configuration_token) =
-            Self::mining_config_token_configs((mining_config_token_id))
-        {
+        if let Some(configuration_token) = Self::mining_config_token_configs((mining_config_token_id)) {
             if let lock_amount = configuration_token.token_lock_amount {
                 if let Some(lock_amount_lockable_currency_try) = TryInto::<BalanceOf<T>>::try_into(lock_amount).ok() {
                     if let lock_amount_lockable_currency = lock_amount_lockable_currency_try {
-                        if let Some(execution_results) = Self::mining_config_token_execution_results(mining_config_token_id) {
+                        if let Some(execution_results) =
+                            Self::mining_config_token_execution_results(mining_config_token_id)
+                        {
                             const EXAMPLE_ID: LockIdentifier = *b"example ";
 
                             <T as Trait>::Currency::set_lock(
@@ -843,9 +845,7 @@ impl<T: Trait> Module<T> {
                         ));
                     }
                 } else {
-                    return Err(DispatchError::Other(
-                        "Cannot find lock_amount associated with the execution",
-                    ));
+                    return Err(DispatchError::Other("Cannot find lock_amount associated with the execution"));
                 }
             } else {
                 return Err(DispatchError::Other(
