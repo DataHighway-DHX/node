@@ -201,7 +201,7 @@ decl_module! {
                                             // and then they cannot move those locked tokens for the cooldown period and receive no further rewards.
 
                                             if let Some(mining_config_token) = Self::mining_config_token(idx_c) {
-                                                <T as pallet_balances::Trait>::Currency::remove_lock(
+                                                <T as Trait>::Currency::remove_lock(
                                                     mining_config_token, // where idx_c is mining_config_token_id
                                                     &_mining_execution_token_result.token_execution_executor_account_id,
                                                 );
@@ -817,27 +817,32 @@ impl<T: Trait> Module<T> {
             Self::mining_config_token_configs((mining_config_token_id))
         {
             if let lock_amount = configuration_token.token_lock_amount {
-                let lock_amount_lockable_currency_try = TryInto::<<T as pallet_balances::Trait>::Currency>::try_into(lock_amount).ok();
-                if let lock_amount_lockable_currency = Some(lock_amount_lockable_currency_try) {
-                    if let Some(execution_results) = Self::mining_config_token_execution_results(mining_config_token_id) {
-                        const EXAMPLE_ID: LockIdentifier = *b"example ";
+                if let lock_amount_lockable_currency_try = TryInto::BalanceOf<T>::try_into(lock_amount).ok() {
+                    if let lock_amount_lockable_currency = lock_amount_lockable_currency_try {
+                        if let Some(execution_results) = Self::mining_config_token_execution_results(mining_config_token_id) {
+                            const EXAMPLE_ID: LockIdentifier = *b"example ";
 
-                        <T as pallet_balances::Trait>::Currency::set_lock(
-                            // execution_token, // EXAMPLE_ID,
-                            EXAMPLE_ID,
-                            &_token_execution_executor_account_id,
-                            lock_amount_lockable_currency,
-                            WithdrawReasons::all(),
-                        );
-                        return Ok(());
+                            <T as Trait>::Currency::set_lock(
+                                // execution_token, // EXAMPLE_ID,
+                                EXAMPLE_ID,
+                                &_token_execution_executor_account_id,
+                                lock_amount_lockable_currency,
+                                WithdrawReasons::all(),
+                            );
+                            return Ok(());
+                        } else {
+                            return Err(DispatchError::Other(
+                                "Cannot find mining_config_token_id associated with the execution",
+                            ));
+                        }
                     } else {
                         return Err(DispatchError::Other(
-                            "Cannot find mining_config_token_id associated with the execution",
+                            "Cannot find lock_amount_lockable_currency associated with the execution",
                         ));
                     }
                 } else {
                     return Err(DispatchError::Other(
-                        "Cannot find lock_amount_lockable_currency associated with the execution",
+                        "Cannot find lock_amount associated with the execution",
                     ));
                 }
             } else {

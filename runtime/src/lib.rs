@@ -612,7 +612,7 @@ impl mining_config_token::Trait for Runtime {
     // type Balance = Balance;
     type Event = Event;
     // FIXME - restore when stop temporarily using roaming-operators
-    // type Currency = Balances;
+    type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
     type MiningConfigTokenIndex = u64;
     type MiningConfigTokenLockAmount = u64;
