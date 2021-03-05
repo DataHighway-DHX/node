@@ -18,6 +18,8 @@ std = [
     'sp-io/std',
     'sp-runtime/std',
     'sp-std/std',
+
+    'roaming-operators/std',
 ]
 
 [dependencies]
@@ -32,5 +34,7 @@ sp-core = { version = '2.0.0', default_features = false }
 sp-io = { version = '2.0.0', default_features = false }
 sp-runtime = { version = '2.0.0', default_features = false }
 sp-std = { version = '2.0.0', default_features = false }
+
+roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
 
 [dev-dependencies]

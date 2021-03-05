@@ -47,14 +47,13 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + mining_rates_token::Trait + pallet_treasury::Trait + pallet_balances::Trait {
+pub trait Trait: frame_system::Trait + roaming_operators::Trait + mining_rates_token::Trait + pallet_treasury::Trait + pallet_balances::Trait {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Currency: LockableCurrency<Self::AccountId, Moment=Self::BlockNumber>;
     type MiningConfigTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + sp_std::iter::Step;
     // Mining Speed Boost Token Mining Config
     type MiningConfigTokenType: Parameter + Member + Default;
     type MiningConfigTokenLockAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type Currency: LockableCurrency<Self::AccountId, Moment=Self::BlockNumber>;
-    type Randomness: Randomness<Self::Hash>;
 }
 
 type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
@@ -860,7 +859,7 @@ impl<T: Trait> Module<T> {
 
     fn random_value(sender: &T::AccountId) -> [u8; 16] {
         let payload = (
-            <T as Trait>::Randomness::random(&[0]),
+            <T as roaming_operators::Trait>::Randomness::random(&[0]),
             sender,
             <frame_system::Module<T>>::extrinsic_index(),
             <frame_system::Module<T>>::block_number(),

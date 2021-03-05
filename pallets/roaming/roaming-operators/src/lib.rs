@@ -184,7 +184,7 @@ impl<T: Trait> Module<T> {
 
     fn random_value(sender: &T::AccountId) -> [u8; 16] {
         let payload = (
-            T::Randomness::random(&[0]),
+            <T as Trait>::Randomness::random(&[0]),
             sender,
             <frame_system::Module<T>>::extrinsic_index(),
             <frame_system::Module<T>>::block_number(),

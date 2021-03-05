@@ -639,7 +639,6 @@ impl mining_config_hardware::Trait for Runtime {
 
 impl mining_rates_token::Trait for Runtime {
     type Event = Event;
-    type Randomness = RandomnessCollectiveFlip;
     type MiningRatesTokenIndex = u64;
     type MiningRatesTokenMaxLoyalty = u32;
     // Mining Speed Boost Max Rates
