@@ -54,6 +54,7 @@ pub trait Trait: frame_system::Trait + mining_rates_token::Trait + pallet_treasu
     type MiningConfigTokenType: Parameter + Member + Default;
     type MiningConfigTokenLockAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type Currency: LockableCurrency<Self::AccountId, Moment=Self::BlockNumber>;
+    type Randomness: Randomness<Self::Hash>;
 }
 
 type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
@@ -201,8 +202,10 @@ decl_module! {
                                             // and then they cannot move those locked tokens for the cooldown period and receive no further rewards.
 
                                             if let Some(mining_config_token) = Self::mining_config_token(idx_c) {
+                                                const EXAMPLE_ID: LockIdentifier = *b"example ";
+
                                                 <T as Trait>::Currency::remove_lock(
-                                                    mining_config_token, // where idx_c is mining_config_token_id
+                                                    EXAMPLE_ID, // FIXME - somehow replace with: mining_config_token, // where idx_c is mining_config_token_id
                                                     &_mining_execution_token_result.token_execution_executor_account_id,
                                                 );
                                             }
@@ -817,7 +820,7 @@ impl<T: Trait> Module<T> {
             Self::mining_config_token_configs((mining_config_token_id))
         {
             if let lock_amount = configuration_token.token_lock_amount {
-                if let lock_amount_lockable_currency_try = TryInto::BalanceOf<T>::try_into(lock_amount).ok() {
+                if let Some(lock_amount_lockable_currency_try) = TryInto::<BalanceOf<T>>::try_into(lock_amount).ok() {
                     if let lock_amount_lockable_currency = lock_amount_lockable_currency_try {
                         if let Some(execution_results) = Self::mining_config_token_execution_results(mining_config_token_id) {
                             const EXAMPLE_ID: LockIdentifier = *b"example ";
@@ -857,7 +860,7 @@ impl<T: Trait> Module<T> {
 
     fn random_value(sender: &T::AccountId) -> [u8; 16] {
         let payload = (
-            T::Randomness::random(&[0]),
+            <T as Trait>::Randomness::random(&[0]),
             sender,
             <frame_system::Module<T>>::extrinsic_index(),
             <frame_system::Module<T>>::block_number(),
