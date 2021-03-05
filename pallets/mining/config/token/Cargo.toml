@@ -15,7 +15,6 @@ std = [
     'pallet-randomness-collective-flip/std',
     'pallet-transaction-payment/std',
     'pallet-treasury/std',
-
     'sp-core/std',
     'sp-io/std',
     'sp-runtime/std',
