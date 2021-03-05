@@ -447,9 +447,9 @@ mod tests {
                     token_execution_interval_blocks: 34567,
                 })
             );
+
             // TODO - check that the locked amount has actually been locked and check that a sampling, eligibility, and
             // claim were all run automatically afterwards assert!(false);
-
             // TODO - allow user to request to stop mining, and trigger the cooldown period until they can
             // access their tokens that are locked for mining.
         });

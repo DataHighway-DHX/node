@@ -543,7 +543,6 @@ impl roaming_devices::Trait for Runtime {
 
 impl roaming_routing_profiles::Trait for Runtime {
     type Event = Event;
-    // https://polkadot.js.org/api/types/#primitive-types
     type RoamingRoutingProfileAppServer = Vec<u8>;
     type RoamingRoutingProfileIndex = u64;
 }
@@ -566,7 +565,7 @@ impl roaming_accounting_policies::Trait for Runtime {
 impl roaming_agreement_policies::Trait for Runtime {
     type Event = Event;
     type RoamingAgreementPolicyActivationType = Vec<u8>;
-    type RoamingAgreementPolicyIndex = u64; // <pallet_timestamp::Module<Runtime> as Trait>::Moment` timestamp::Module<Runtime>::Moment;
+    type RoamingAgreementPolicyIndex = u64;
 }
 
 impl roaming_network_profiles::Trait for Runtime {
@@ -608,30 +607,18 @@ impl roaming_packet_bundles::Trait for Runtime {
 }
 
 impl mining_config_token::Trait for Runtime {
-    // type Currency = Balances;
-    // type Balance = Balance;
     type Event = Event;
-    // FIXME - restore when stop temporarily using roaming-operators
     type Currency = Balances;
-    // type Randomness = RandomnessCollectiveFlip;
     type MiningConfigTokenIndex = u64;
     type MiningConfigTokenLockAmount = u64;
-    // Mining Speed Boost Token Mining Config
-    // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
     type MiningConfigTokenType = Vec<u8>;
 }
 
 impl mining_config_hardware::Trait for Runtime {
     type Event = Event;
     type MiningConfigHardwareDevEUI = u64;
-    // type MiningConfigHardwareType =
-    // MiningConfigHardwareTypes;
     type MiningConfigHardwareID = u64;
-    // FIXME - restore when stop temporarily using roaming-operators
-    // type Currency = Balances;
-    // type Randomness = RandomnessCollectiveFlip;
     type MiningConfigHardwareIndex = u64;
-    // Mining Speed Boost Hardware Mining Config
     type MiningConfigHardwareSecure = bool;
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
     type MiningConfigHardwareType = Vec<u8>;
