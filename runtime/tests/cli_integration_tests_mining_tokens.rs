@@ -450,6 +450,13 @@ mod tests {
 
             // TODO - check that the locked amount has actually been locked and check that a sampling, eligibility, and
             // claim were all run automatically afterwards assert!(false);
+            //
+            // how to get the lock info for a given lock identifier using frame_support's methods?
+            // https://substrate.dev/rustdocs/v3.0.0/frame_support/traits/trait.LockableCurrency.html#required-methods
+            //
+            // Or is it going to be necessary to implement our own custom lock pallet that adds this?
+            // https://github.com/kulupu/kulupu/blob/master/frame/lockdrop/src/lib.rs#L238
+
             // TODO - allow user to request to stop mining, and trigger the cooldown period until they can
             // access their tokens that are locked for mining.
         });
