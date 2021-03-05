@@ -515,7 +515,7 @@ impl pallet_staking::Trait for Runtime {
 }
 
 impl roaming_operators::Trait for Runtime {
-    // type Currency = Balances;
+    type Currency = Balances;
     type Event = Event;
     type Randomness = RandomnessCollectiveFlip;
     type RoamingOperatorIndex = u64;
