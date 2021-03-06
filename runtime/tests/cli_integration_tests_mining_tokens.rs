@@ -210,13 +210,11 @@ mod tests {
         type OnSlash = ();
         type ProposalBond = ProposalBond;
         type ProposalBondMinimum = ProposalBondMinimum;
-        // type RejectOrigin = pallet_collective::EnsureMembers<_2, AccountId, GeneralCouncilInstance>;
         type RejectOrigin = frame_system::EnsureRoot<u64>;
         type SpendPeriod = SpendPeriod;
         type TipCountdown = TipCountdown;
         type TipFindersFee = TipFindersFee;
         type TipReportDepositBase = TipReportDepositBase;
-        // type Tippers = GeneralCouncilProvider;
         type Tippers = TenToFourteen;
         // Just gets burned.
         type WeightInfo = ();
