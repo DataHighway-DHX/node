@@ -14,12 +14,23 @@ mod tests {
         assert_ok,
         impl_outer_origin,
         parameter_types,
+        traits::{
+            Contains,
+            ContainsLengthBound,
+        },
         weights::{
             IdentityFee,
             Weight,
         },
     };
-
+    use std::cell::RefCell;
+    use sp_core::{
+        u32_trait::{
+            _2,
+            _3,
+            _4,
+        },
+    };
     use sp_core::H256;
     use sp_runtime::{
         testing::Header,
@@ -29,7 +40,9 @@ mod tests {
             Zero,
         },
         DispatchResult,
+        ModuleId,
         Perbill,
+        Percent,
         Permill,
     };
     // Import Trait for each runtime module being tested
@@ -41,6 +54,7 @@ mod tests {
     use mining_config_token::{
         MiningConfigTokenConfig,
         MiningConfigTokenRequirementsConfig,
+        MiningConfigTokenExecutionResult,
         Module as MiningConfigTokenModule,
         Trait as MiningConfigTokenTrait,
     };
@@ -58,6 +72,10 @@ mod tests {
         MiningSamplingTokenConfig,
         Module as MiningSamplingTokenModule,
         Trait as MiningSamplingTokenTrait,
+    };
+    use datahighway_runtime::{
+        AccountId,
+        Balance,
     };
     use roaming_operators;
 
@@ -124,6 +142,86 @@ mod tests {
         type TransactionByteFee = ();
         type WeightToFee = IdentityFee<u64>;
     }
+
+    thread_local! {
+        static TEN_TO_FOURTEEN: RefCell<Vec<u128>> = RefCell::new(vec![10,11,12,13,14]);
+    }
+    pub struct TenToFourteen;
+    impl Contains<u64> for TenToFourteen {
+        fn sorted_members() -> Vec<u64> {
+            TEN_TO_FOURTEEN.with(|v| v.borrow().clone())
+        }
+
+        #[cfg(feature = "runtime-benchmarks")]
+        fn add(new: &u64) {
+            TEN_TO_FOURTEEN.with(|v| {
+                let mut members = v.borrow_mut();
+                members.push(*new);
+                members.sort();
+            })
+        }
+    }
+    impl ContainsLengthBound for TenToFourteen {
+        fn max_len() -> usize {
+            TEN_TO_FOURTEEN.with(|v| v.borrow().len())
+        }
+
+        fn min_len() -> usize {
+            0
+        }
+    }
+
+    // Copied from ./runtime/src/constants.rs
+    const MILLISECS_PER_BLOCK: u64 = 4320;
+    const MINUTES: u64 = 60_000 / (MILLISECS_PER_BLOCK as u64);
+    const HOURS: u64 = MINUTES * 60;
+    const DAYS: u64 = HOURS * 24;
+    parameter_types! {
+        pub const ProposalBond: Permill = Permill::from_percent(5);
+        pub const ProposalBondMinimum: u64 = 1;
+        pub const SpendPeriod: u64 = 1 * DAYS;
+        pub const Burn: Permill = Permill::from_percent(0);
+        pub const TipCountdown: u64 = 1 * DAYS;
+        pub const TipFindersFee: Percent = Percent::from_percent(20);
+        pub const TipReportDepositBase: u64 = 1;
+        pub const MaximumReasonLength: u32 = 16384;
+        pub const BountyValueMinimum: u64 = 1;
+        pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
+        pub const BountyDepositBase: u64 = 80;
+        pub const BountyDepositPayoutDelay: u32 = 3;
+        pub const BountyUpdatePeriod: u32 = 20;
+        pub const DataDepositPerByte: u64 = 1;
+        pub const TreasuryModuleId: ModuleId = ModuleId(*b"py/trsry");
+    }
+    impl pallet_treasury::Trait for Test {
+        // type ApproveOrigin = pallet_collective::EnsureMembers<_4, AccountId, GeneralCouncilInstance>;
+        type ApproveOrigin = frame_system::EnsureRoot<u128>;
+        type BountyCuratorDeposit = BountyCuratorDeposit;
+        type BountyDepositBase = BountyDepositBase;
+        type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
+        type BountyUpdatePeriod = BountyUpdatePeriod;
+        type BountyValueMinimum = BountyValueMinimum;
+        type Burn = Burn;
+        type BurnDestination = ();
+        type Currency = Balances;
+        type DataDepositPerByte = DataDepositPerByte;
+        type Event = ();
+        type MaximumReasonLength = MaximumReasonLength;
+        type ModuleId = TreasuryModuleId;
+        type OnSlash = ();
+        type ProposalBond = ProposalBond;
+        type ProposalBondMinimum = ProposalBondMinimum;
+        // type RejectOrigin = pallet_collective::EnsureMembers<_2, AccountId, GeneralCouncilInstance>;
+        type RejectOrigin = frame_system::EnsureRoot<u128>;
+        type SpendPeriod = SpendPeriod;
+        type TipCountdown = TipCountdown;
+        type TipFindersFee = TipFindersFee;
+        type TipReportDepositBase = TipReportDepositBase;
+        // type Tippers = GeneralCouncilProvider;
+        type Tippers = TenToFourteen;
+        // Just gets burned.
+        type WeightInfo = ();
+    }
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
     impl roaming_operators::Trait for Test {
         type Currency = Balances;
@@ -132,24 +230,19 @@ mod tests {
         type RoamingOperatorIndex = u64;
     }
     impl MiningConfigTokenTrait for Test {
+        type Currency = Balances;
         type Event = ();
-        // type Currency = Balances;
-        // type Randomness = Randomness;
         type MiningConfigTokenIndex = u64;
         type MiningConfigTokenLockAmount = u64;
-        // Mining Speed Boost Token Mining Config
-        // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
         type MiningConfigTokenType = Vec<u8>;
     }
     impl MiningRatesTokenTrait for Test {
         type Event = ();
         type MiningRatesTokenIndex = u64;
         type MiningRatesTokenMaxLoyalty = u32;
-        // Mining Speed Boost Max Rates
         type MiningRatesTokenMaxToken = u32;
         type MiningRatesTokenTokenDOT = u32;
         type MiningRatesTokenTokenIOTA = u32;
-        // Mining Speed Boost Rate
         type MiningRatesTokenTokenMXC = u32;
     }
     impl MiningSamplingTokenTrait for Test {
@@ -169,10 +262,6 @@ mod tests {
         type MiningClaimsTokenClaimAmount = u64;
         type MiningClaimsTokenIndex = u64;
     }
-    impl MiningExecutionTokenTrait for Test {
-        type Event = ();
-        type MiningExecutionTokenIndex = u64;
-    }
 
     type System = frame_system::Module<Test>;
     pub type Balances = pallet_balances::Module<Test>;
@@ -181,7 +270,6 @@ mod tests {
     pub type MiningSamplingTokenTestModule = MiningSamplingTokenModule<Test>;
     pub type MiningEligibilityTokenTestModule = MiningEligibilityTokenModule<Test>;
     pub type MiningClaimsTokenTestModule = MiningClaimsTokenModule<Test>;
-    pub type MiningExecutionTokenTestModule = MiningExecutionTokenModule<Test>;
     type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
