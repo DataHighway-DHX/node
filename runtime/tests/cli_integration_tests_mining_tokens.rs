@@ -144,7 +144,7 @@ mod tests {
     }
 
     thread_local! {
-        static TEN_TO_FOURTEEN: RefCell<Vec<u128>> = RefCell::new(vec![10,11,12,13,14]);
+        static TEN_TO_FOURTEEN: RefCell<Vec<u64>> = RefCell::new(vec![10,11,12,13,14]);
     }
     pub struct TenToFourteen;
     impl Contains<u64> for TenToFourteen {
@@ -194,8 +194,7 @@ mod tests {
         pub const TreasuryModuleId: ModuleId = ModuleId(*b"py/trsry");
     }
     impl pallet_treasury::Trait for Test {
-        // type ApproveOrigin = pallet_collective::EnsureMembers<_4, AccountId, GeneralCouncilInstance>;
-        type ApproveOrigin = frame_system::EnsureRoot<u128>;
+        type ApproveOrigin = frame_system::EnsureRoot<u64>;
         type BountyCuratorDeposit = BountyCuratorDeposit;
         type BountyDepositBase = BountyDepositBase;
         type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
@@ -212,7 +211,7 @@ mod tests {
         type ProposalBond = ProposalBond;
         type ProposalBondMinimum = ProposalBondMinimum;
         // type RejectOrigin = pallet_collective::EnsureMembers<_2, AccountId, GeneralCouncilInstance>;
-        type RejectOrigin = frame_system::EnsureRoot<u128>;
+        type RejectOrigin = frame_system::EnsureRoot<u64>;
         type SpendPeriod = SpendPeriod;
         type TipCountdown = TipCountdown;
         type TipFindersFee = TipFindersFee;
@@ -518,9 +517,6 @@ mod tests {
             assert_ok!(MiningConfigTokenTestModule::set_mining_config_token_execution_result(
                 Origin::signed(0),
                 0,           // mining_config_token_id
-                0,           // mining_config_token_id
-                Some(12345), // token_execution_started_block
-                Some(34567)  // token_execution_interval_blocks
             ));
 
             // Verify Storage
@@ -528,7 +524,7 @@ mod tests {
             assert!(MiningConfigTokenTestModule::mining_config_token(0).is_some());
             assert_eq!(MiningConfigTokenTestModule::mining_config_token_owner(0), Some(0));
             assert_eq!(
-                MiningConfigTokenTestModule::mining_config_token_execution_results((0, 0)),
+                MiningConfigTokenTestModule::mining_config_token_execution_results(0u64),
                 Some(MiningConfigTokenExecutionResult {
                     token_execution_executor_account_id: 0,
                     token_execution_started_block: 12345,
