@@ -148,11 +148,15 @@ decl_module! {
         ) {
             let sender = ensure_signed(origin)?;
 
-            // ensure!(is_origin_whitelisted_supernode(sender.clone()), "Only whitelisted Supernode accounts request proxy rewards");
+            ensure!(is_origin_whitelisted_supernode(sender.clone()), "Only whitelisted Supernode account members may request proxy rewards");
 
             // ensure!(is_supernode_claim_reasonable(_proxy_claim_total_reward_amount, _proxy_claim_rewardees_data), "Supernode claim has been deemed unreasonable");
 
-            // ensure!(is_valid_reward_data(_proxy_claim_rewardees_data), "Rewardee data is invalid");
+            if let Some(rewardees_data) = _proxy_claim_rewardees_data {
+                ensure!(is_valid_reward_data(rewardees_data), "Rewardees data is invalid");
+            } else {
+                debug::info!("Proxy claim rewardees data missing");
+            }
 
             debug::info!("Setting the proxy eligibility results");
 
@@ -316,6 +320,53 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
+    pub fn is_origin_whitelisted_supernode(
+        sender: T::AccountId,
+    ) -> Result<(), DispatchError> {
+        ensure!(
+            // FIXME - implement this pallet
+            <member_supernodes::Module<T>>::is_member_supernode(sender.clone()).is_ok(),
+            "Sender is not a whitelisted Supernode member"
+        );
+        Ok(())
+    }
+
+    pub fn is_valid_reward_data(
+        _proxy_claim_rewardees_data: Vec<RewardeeData<T>
+    ) -> Result<(), DispatchError> {
+        let current_block = <frame_system::Module<T>>::block_number();
+        let mut rewardees_data_count = 0;
+        let mut is_valid = 1;
+        // FIXME - use cooldown in config runtime or move to abstract constant instead of hard-code here
+        let MIN_COOLDOWN_PERIOD = 20000 * 7; // 7 days @ 20k blocks produced per day
+
+        // Iterate through all rewardees data
+        for (index, rewardees_data) in _proxy_claim_rewardees_data.iter().enumerate() {
+            rewardees_data_count += 1;
+            debug::info!("rewardees_data_count {:#?}", rewardees_data_count);
+
+            if let Some(_proxy_claim_start_block) = _proxy_claim_rewardees_data.proxy_claim_start_block {
+                if let Some(_proxy_claim_interval_blocks) = _proxy_claim_rewardees_data.proxy_claim_interval_blocks {
+                    if _proxy_claim_start_block < current_block {
+                        debug::info!("invalid _proxy_claim_start_block: {:#?}", _proxy_claim_start_block);
+                        is_valid == 0;
+                        break;
+                    } else if _proxy_claim_start_block + _proxy_claim_interval_blocks < MIN_COOLDOWN_PERIOD.into() {
+                        debug::info!("unable to claim reward for lock duration less than cooldown period");
+                        is_valid == 0;
+                        break;
+                    } else {
+                        continue;
+                    }
+                }
+            }
+        }
+        if is_valid == 0 {
+            return Err(DispatchError::Other("Invalid rewardees data"));
+        }
+        Ok(())
+    }
+
     pub fn is_mining_eligibility_proxy_owner(
         mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
         sender: T::AccountId,
