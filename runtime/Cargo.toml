@@ -62,6 +62,7 @@ std = [
     'mining-sampling-hardware/std',
     'mining-eligibility-token/std',
     'mining-eligibility-hardware/std',
+    'mining-eligibility-proxy/std',
     'mining-claims-token/std',
     'mining-claims-hardware/std',
     'mining-execution-token/std',
@@ -128,6 +129,7 @@ mining-sampling-token = { default_features = false, package = 'mining-sampling-t
 mining-sampling-hardware = { default_features = false, package = 'mining-sampling-hardware', path = '../pallets/mining/sampling/hardware' }
 mining-eligibility-token = { default_features = false, package = 'mining-eligibility-token', path = '../pallets/mining/eligibility/token' }
 mining-eligibility-hardware = { default_features = false, package = 'mining-eligibility-hardware', path = '../pallets/mining/eligibility/hardware' }
+mining-eligibility-proxy = { default_features = false, package = 'mining-eligibility-proxy', path = '../pallets/mining/eligibility/proxy' }
 mining-claims-token = { default_features = false, package = 'mining-claims-token', path = '../pallets/mining/claims/token' }
 mining-claims-hardware = { default_features = false, package = 'mining-claims-hardware', path = '../pallets/mining/claims/hardware' }
 mining-execution-token = { default_features = false, package = 'mining-execution-token', path = '../pallets/mining/execution/token' }

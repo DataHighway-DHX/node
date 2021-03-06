@@ -688,6 +688,13 @@ impl mining_eligibility_hardware::Trait for Runtime {
     // type MiningEligibilityHardwareAuditorAccountID = u64;
 }
 
+impl mining_eligibility_proxy::Trait for Runtime {
+    type Event = Event;
+    type MiningEligibilityProxyIndex = u64;
+    type MiningEligibilityProxyClaimTotalRewardAmount = u32;
+    type MiningEligibilityProxyClaimBlockRedeemed = u64;
+}
+
 impl mining_claims_token::Trait for Runtime {
     type Event = Event;
     type MiningClaimsTokenClaimAmount = u64;
@@ -759,6 +766,7 @@ construct_runtime!(
         MiningSamplingHardware: mining_sampling_hardware::{Module, Call, Storage, Event<T>},
         MiningEligibilityToken: mining_eligibility_token::{Module, Call, Storage, Event<T>},
         MiningEligibilityHardware: mining_eligibility_hardware::{Module, Call, Storage, Event<T>},
+        MiningEligibilityProxy: mining_eligibility_proxy::{Module, Call, Storage, Event<T>},
         MiningClaimsToken: mining_claims_token::{Module, Call, Storage, Event<T>},
         MiningClaimsHardware: mining_claims_hardware::{Module, Call, Storage, Event<T>},
         MiningExecutionToken: mining_execution_token::{Module, Call, Storage, Event<T>},
