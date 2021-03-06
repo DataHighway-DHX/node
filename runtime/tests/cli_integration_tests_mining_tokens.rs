@@ -521,6 +521,8 @@ mod tests {
             assert_eq!(MiningConfigTokenTestModule::mining_config_token_count(), 1);
             assert!(MiningConfigTokenTestModule::mining_config_token(0).is_some());
             assert_eq!(MiningConfigTokenTestModule::mining_config_token_owner(0), Some(0));
+            // Note: Refer to Edgeware's tests that use on_finalize https://github.com/hicommonwealth/edgeware-node/blob/master/modules/edge-treasury-reward/src/tests.rs#L177
+            System::set_block_number(0);
             assert_eq!(
                 MiningConfigTokenTestModule::mining_config_token_execution_results(0u64),
                 Some(MiningConfigTokenExecutionResult {
