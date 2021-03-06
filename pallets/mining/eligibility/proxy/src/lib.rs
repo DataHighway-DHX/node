@@ -71,11 +71,11 @@ pub struct MiningEligibilityProxyClaimRewardeeData<U, V, W, X> {
     pub proxy_claim_interval_blocks: X, // Blocks after the start block that the mining claim requesting rewards covers
 }
 
-type RewardeeData<U, V, W, X> = MiningEligibilityProxyClaimRewardeeData<
-    <U as frame_system::Trait>::AccountId,
-    <V as Trait>::MiningEligibilityProxyIndex,
-    <W as Trait>::MiningEligibilityProxyClaimTotalRewardAmount,
-    <X as frame_system::Trait>::BlockNumber,
+type RewardeeData<T> = MiningEligibilityProxyClaimRewardeeData<
+    <T as frame_system::Trait>::AccountId,
+    <T as Trait>::MiningEligibilityProxyIndex,
+    <T as Trait>::MiningEligibilityProxyClaimTotalRewardAmount,
+    <T as frame_system::Trait>::BlockNumber,
 >;
 
 decl_event!(
@@ -88,7 +88,7 @@ decl_event!(
         Created(AccountId, MiningEligibilityProxyIndex),
         MiningEligibilityProxyResultSet(
           AccountId, MiningEligibilityProxyIndex,
-          MiningEligibilityProxyClaimTotalRewardAmount, Vec<RewardeeData<u64, u64, u32, u64>>,
+          MiningEligibilityProxyClaimTotalRewardAmount, Vec<RewardeeData<T>>,
           BlockNumber
         ),
     }
@@ -111,7 +111,7 @@ decl_storage! {
             Option<MiningEligibilityProxyResult<
                 T::AccountId,
                 T::MiningEligibilityProxyClaimTotalRewardAmount,
-                Vec<RewardeeData<u64, u64, u32, u64>>,
+                Vec<RewardeeData<T>>,
                 T::BlockNumber,
             >>;
     }
@@ -144,7 +144,7 @@ decl_module! {
             origin,
             mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
             _proxy_claim_total_reward_amount: Option<T::MiningEligibilityProxyClaimTotalRewardAmount>,
-            _proxy_claim_rewardees_data: Option<Vec<RewardeeData<u64, u64, u32, u64>>>,
+            _proxy_claim_rewardees_data: Option<Vec<RewardeeData<T>>>,
         ) {
             let sender = ensure_signed(origin)?;
 
@@ -396,7 +396,7 @@ impl<T: Trait> Module<T> {
         _proxy_claim_requestor_account_id: T::AccountId,
         mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
         _proxy_claim_total_reward_amount: Option<T::MiningEligibilityProxyClaimTotalRewardAmount>,
-        _proxy_claim_rewardees_data: Option<Vec<RewardeeData<u64, u64, u32, u64>>>,
+        _proxy_claim_rewardees_data: Option<Vec<RewardeeData<T>>>,
     ) {
         // Ensure that the mining_eligibility_proxy_id whose config we want to change actually exists
         let is_mining_eligibility_proxy = Self::exists_mining_eligibility_proxy(mining_eligibility_proxy_id).is_ok();
@@ -412,11 +412,10 @@ impl<T: Trait> Module<T> {
             None => 1.into() // Default
         };
         // FIXME - change to ensure and check that data structure is valid or early exit
-        let proxy_claim_rewardees_data = _proxy_claim_rewardees_data;
-        // let proxy_claim_rewardees_data = match _proxy_claim_rewardees_data {
-        //     Some(value) => value,
-        //     None => 1.into() // Default
-        // };
+        let proxy_claim_rewardees_data = match _proxy_claim_rewardees_data {
+            Some(value) => value,
+            None => 1.into() // Default
+        };
         let current_block = <frame_system::Module<T>>::block_number();
         let proxy_claim_block_redeemed = current_block;
 
