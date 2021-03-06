@@ -36,10 +36,7 @@ use sp_std::prelude::*; // Imports Vec
 // mod tests;
 
 /// The module's configuration trait.
-pub trait Trait:
-    frame_system::Trait
-    + roaming_operators::Trait
-{
+pub trait Trait: frame_system::Trait + roaming_operators::Trait {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type MiningEligibilityProxyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningEligibilityProxyClaimTotalRewardAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
@@ -56,7 +53,8 @@ pub struct MiningEligibilityProxy(pub [u8; 16]);
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
 pub struct MiningEligibilityProxyResult<U, V, W, X> {
-    pub proxy_claim_requestor_account_id: U, // Supernode (proxy) account id requesting DHX rewards as proxy to distribute to its miners
+    pub proxy_claim_requestor_account_id: U, /* Supernode (proxy) account id requesting DHX rewards as proxy to
+                                              * distribute to its miners */
     pub proxy_claim_total_reward_amount: V,
     pub proxy_claim_rewardees_data: W,
     pub proxy_claim_block_redeemed: X,
@@ -66,9 +64,10 @@ pub struct MiningEligibilityProxyResult<U, V, W, X> {
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
 pub struct MiningEligibilityProxyClaimRewardeeData<U, V, W, X> {
     pub proxy_claim_rewardee_account_id: U, // Rewardee miner associated with supernode (proxy) account id
-    pub proxy_claim_reward_amount: V, // Reward in DHX tokens for specific rewardee miner
-    pub proxy_claim_start_block: W, // Start block associated with mining claim
-    pub proxy_claim_interval_blocks: X, // Blocks after the start block that the mining claim requesting rewards covers
+    pub proxy_claim_reward_amount: V,       // Reward in DHX tokens for specific rewardee miner
+    pub proxy_claim_start_block: W,         // Start block associated with mining claim
+    pub proxy_claim_interval_blocks: X,     /* Blocks after the start block that the mining claim requesting rewards
+                                             * covers */
 }
 
 type RewardeeData<T> = MiningEligibilityProxyClaimRewardeeData<
@@ -171,9 +170,7 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-    pub fn is_origin_whitelisted_supernode(
-        sender: T::AccountId,
-    ) -> Result<(), DispatchError> {
+    pub fn is_origin_whitelisted_supernode(sender: T::AccountId) -> Result<(), DispatchError> {
         ensure!(
             // FIXME - implement this pallet
             <member_supernodes::Module<T>>::is_member_supernode(sender.clone()).is_ok(),
@@ -196,9 +193,7 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn is_valid_reward_data(
-        _proxy_claim_rewardees_data: Vec<RewardeeData<T>>,
-    ) -> Result<(), DispatchError> {
+    pub fn is_valid_reward_data(_proxy_claim_rewardees_data: Vec<RewardeeData<T>>) -> Result<(), DispatchError> {
         let current_block = <frame_system::Module<T>>::block_number();
         let mut rewardees_data_count = 0;
         let mut is_valid = 1;
@@ -257,8 +252,7 @@ impl<T: Trait> Module<T> {
     pub fn exists_mining_eligibility_proxy_result(
         mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
     ) -> Result<(), DispatchError> {
-        match Self::mining_eligibility_proxy_eligibility_results(mining_eligibility_proxy_id)
-        {
+        match Self::mining_eligibility_proxy_eligibility_results(mining_eligibility_proxy_id) {
             Some(_value) => Ok(()),
             None => Err(DispatchError::Other("MiningEligibilityProxyResult does not exist")),
         }
@@ -325,12 +319,12 @@ impl<T: Trait> Module<T> {
         // FIXME - change to ensure and check that a value is provided or early exit
         let proxy_claim_total_reward_amount = match _proxy_claim_total_reward_amount.clone() {
             Some(value) => value,
-            None => 1.into() // Default
+            None => 1.into(), // Default
         };
         // FIXME - change to ensure and check that data structure is valid or early exit
         let proxy_claim_rewardees_data = match _proxy_claim_rewardees_data {
             Some(value) => value,
-            None => 1.into() // Default
+            None => 1.into(), // Default
         };
         let current_block = <frame_system::Module<T>>::block_number();
         let proxy_claim_block_redeemed = current_block;
@@ -339,23 +333,44 @@ impl<T: Trait> Module<T> {
         // to determine whether to insert new or mutate existing.
         if Self::has_value_for_mining_eligibility_proxy_result_index(mining_eligibility_proxy_id).is_ok() {
             debug::info!("Mutating values");
-            <MiningEligibilityProxyResults<T>>::mutate(mining_eligibility_proxy_id, |mining_eligibility_proxy_result| {
-                if let Some(_mining_eligibility_proxy_result) = mining_eligibility_proxy_result {
-                    // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-                    _mining_eligibility_proxy_result.proxy_claim_requestor_account_id = proxy_claim_requestor_account_id.clone();
-                    _mining_eligibility_proxy_result.proxy_claim_total_reward_amount = proxy_claim_total_reward_amount.clone();
-                    _mining_eligibility_proxy_result.proxy_claim_rewardees_data = proxy_claim_rewardees_data.clone();
-                    _mining_eligibility_proxy_result.proxy_claim_block_redeemed = proxy_claim_block_redeemed.clone();
-                }
-            });
+            <MiningEligibilityProxyResults<T>>::mutate(
+                mining_eligibility_proxy_id,
+                |mining_eligibility_proxy_result| {
+                    if let Some(_mining_eligibility_proxy_result) = mining_eligibility_proxy_result {
+                        // Only update the value of a key in a KV pair if the corresponding parameter value has been
+                        // provided
+                        _mining_eligibility_proxy_result.proxy_claim_requestor_account_id =
+                            proxy_claim_requestor_account_id.clone();
+                        _mining_eligibility_proxy_result.proxy_claim_total_reward_amount =
+                            proxy_claim_total_reward_amount.clone();
+                        _mining_eligibility_proxy_result.proxy_claim_rewardees_data =
+                            proxy_claim_rewardees_data.clone();
+                        _mining_eligibility_proxy_result.proxy_claim_block_redeemed =
+                            proxy_claim_block_redeemed.clone();
+                    }
+                },
+            );
 
             debug::info!("Checking mutated values");
-            let fetched_mining_eligibility_proxy_result = <MiningEligibilityProxyResults<T>>::get(mining_eligibility_proxy_id);
+            let fetched_mining_eligibility_proxy_result =
+                <MiningEligibilityProxyResults<T>>::get(mining_eligibility_proxy_id);
             if let Some(_mining_eligibility_proxy_result) = fetched_mining_eligibility_proxy_result {
-                debug::info!("Latest field proxy_claim_requestor_account_id {:#?}", _mining_eligibility_proxy_result.proxy_claim_requestor_account_id);
-                debug::info!("Latest field proxy_claim_total_reward_amount {:#?}", _mining_eligibility_proxy_result.proxy_claim_total_reward_amount);
-                debug::info!("Latest field proxy_claim_rewardees_data {:#?}", _mining_eligibility_proxy_result.proxy_claim_rewardees_data);
-                debug::info!("Latest field proxy_claim_block_redeemed {:#?}", _mining_eligibility_proxy_result.proxy_claim_block_redeemed);
+                debug::info!(
+                    "Latest field proxy_claim_requestor_account_id {:#?}",
+                    _mining_eligibility_proxy_result.proxy_claim_requestor_account_id
+                );
+                debug::info!(
+                    "Latest field proxy_claim_total_reward_amount {:#?}",
+                    _mining_eligibility_proxy_result.proxy_claim_total_reward_amount
+                );
+                debug::info!(
+                    "Latest field proxy_claim_rewardees_data {:#?}",
+                    _mining_eligibility_proxy_result.proxy_claim_rewardees_data
+                );
+                debug::info!(
+                    "Latest field proxy_claim_block_redeemed {:#?}",
+                    _mining_eligibility_proxy_result.proxy_claim_block_redeemed
+                );
             }
         } else {
             debug::info!("Inserting values");
@@ -368,21 +383,33 @@ impl<T: Trait> Module<T> {
                 proxy_claim_total_reward_amount: proxy_claim_total_reward_amount.clone(),
                 proxy_claim_rewardees_data: proxy_claim_rewardees_data.clone(),
                 proxy_claim_block_redeemed: proxy_claim_block_redeemed.clone(),
-
             };
 
             <MiningEligibilityProxyResults<T>>::insert(
                 mining_eligibility_proxy_id,
-                &mining_eligibility_proxy_result_instance
+                &mining_eligibility_proxy_result_instance,
             );
 
             debug::info!("Checking inserted values");
-            let fetched_mining_eligibility_proxy_result = <MiningEligibilityProxyResults<T>>::get(mining_eligibility_proxy_id);
+            let fetched_mining_eligibility_proxy_result =
+                <MiningEligibilityProxyResults<T>>::get(mining_eligibility_proxy_id);
             if let Some(_mining_eligibility_proxy_result) = fetched_mining_eligibility_proxy_result {
-                debug::info!("Inserted field proxy_claim_requestor_account_id {:#?}", _mining_eligibility_proxy_result.proxy_claim_requestor_account_id);
-                debug::info!("Inserted field proxy_claim_total_reward_amount {:#?}", _mining_eligibility_proxy_result.proxy_claim_total_reward_amount);
-                debug::info!("Inserted field proxy_claim_rewardees_data {:#?}", _mining_eligibility_proxy_result.proxy_claim_rewardees_data);
-                debug::info!("Inserted field proxy_claim_block_redeemed {:#?}", _mining_eligibility_proxy_result.proxy_claim_block_redeemed);
+                debug::info!(
+                    "Inserted field proxy_claim_requestor_account_id {:#?}",
+                    _mining_eligibility_proxy_result.proxy_claim_requestor_account_id
+                );
+                debug::info!(
+                    "Inserted field proxy_claim_total_reward_amount {:#?}",
+                    _mining_eligibility_proxy_result.proxy_claim_total_reward_amount
+                );
+                debug::info!(
+                    "Inserted field proxy_claim_rewardees_data {:#?}",
+                    _mining_eligibility_proxy_result.proxy_claim_rewardees_data
+                );
+                debug::info!(
+                    "Inserted field proxy_claim_block_redeemed {:#?}",
+                    _mining_eligibility_proxy_result.proxy_claim_block_redeemed
+                );
             }
         }
 
