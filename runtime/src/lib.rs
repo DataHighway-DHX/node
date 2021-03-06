@@ -690,9 +690,9 @@ impl mining_eligibility_hardware::Trait for Runtime {
 
 impl mining_eligibility_proxy::Trait for Runtime {
     type Event = Event;
-    type MiningEligibilityProxyIndex = u64;
-    type MiningEligibilityProxyClaimTotalRewardAmount = u32;
     type MiningEligibilityProxyClaimBlockRedeemed = u64;
+    type MiningEligibilityProxyClaimTotalRewardAmount = u32;
+    type MiningEligibilityProxyIndex = u64;
 }
 
 impl mining_claims_token::Trait for Runtime {

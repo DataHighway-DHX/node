@@ -29,11 +29,11 @@ use sp_runtime::{
 };
 use sp_std::prelude::*; // Imports Vec
 
-#[cfg(test)]
-mod mock;
+// #[cfg(test)]
+// mod mock;
 
-#[cfg(test)]
-mod tests;
+// #[cfg(test)]
+// mod tests;
 
 /// The module's configuration trait.
 pub trait Trait:
@@ -150,7 +150,7 @@ decl_module! {
 
             ensure!(is_origin_whitelisted_supernode(sender.clone()), "Only whitelisted Supernode account members may request proxy rewards");
 
-            // ensure!(is_supernode_claim_reasonable(_proxy_claim_total_reward_amount, _proxy_claim_rewardees_data), "Supernode claim has been deemed unreasonable");
+            ensure!(is_supernode_claim_reasonable(_proxy_claim_total_reward_amount), "Supernode claim has been deemed unreasonable");
 
             if let Some(rewardees_data) = _proxy_claim_rewardees_data {
                 ensure!(is_valid_reward_data(rewardees_data), "Rewardees data is invalid");
@@ -167,155 +167,6 @@ decl_module! {
                 _proxy_claim_rewardees_data,
             );
         }
-
-        // FIXME - implement this and fix the type errors and uncomment it in the integration tests
-        // /// Calculate mining_eligibility_proxy_result
-        // pub fn calculate_mining_eligibility_proxy_result(
-        //     origin,
-        //     mining_config_token_id: T::MiningConfigTokenIndex,
-        //     mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
-        // ) {
-        //     let sender = ensure_signed(origin)?;
-
-        //     // Ensure that the mining_eligibility_proxy_id whose config we want to change actually exists
-        //     let is_mining_eligibility_proxy = Self::exists_mining_eligibility_proxy(mining_eligibility_proxy_id).is_ok();
-        //     ensure!(is_mining_eligibility_proxy, "MiningEligibilityProxy does not exist");
-
-        //     // Ensure that the caller is owner of the mining_eligibility_proxy_result they are trying to change
-        //     ensure!(Self::mining_eligibility_proxy_owner(mining_eligibility_proxy_id) == Some(sender.clone()), "Only owner can set mining_eligibility_proxy_result");
-
-        //     let DEFAULT_RATE_CONFIG = 0;
-        //     let mut proxy_claim_total_reward_amount = 0.into();
-        //     let mut part_proxy_claim_total_reward_amount = 0.into();
-        //     let mut proxy_claim_rewardees_data = 0.into();
-        //     let mut token_token_max_token = 0.into();
-
-        //     let mut current_token_type;
-        //     let mut current_token_lock_amount;
-        //     // Get the config associated with the given configuration_token
-        //     if let Some(configuration_token_config) = <mining_config_token::Module<T>>::mining_config_token_token_configs(mining_config_token_id) {
-        //       if let token_type = configuration_token_config.token_type {
-        //         if token_type != "".to_string() {
-        //           current_token_type = token_type.clone();
-
-        //           if let token_lock_amount = configuration_token_config.token_lock_amount {
-        //             if token_lock_amount != 0 {
-        //               current_token_lock_amount = token_lock_amount;
-
-        //               // Get list of all sampling_token_ids that correspond to the given mining_config_token_id
-        //               // of type MiningSamplingTokenIndex
-        //               let sampling_token_ids = <mining_sampling_token::Module<T>>
-        //                 ::token_config_samplings(mining_config_token_id);
-
-        //               let mut sample_count = 0;
-        //               let mut current_sample_tokens_locked = 0;
-        //               let mut current_token_rate = 0;
-        //               let mut current_token_max_tokens = 0;
-        //               let mut total = 0;
-        //               // Iteratve through all the associated samples
-        //               for (index, sampling_token_id) in sampling_token_ids.iter().enumerate() {
-        //                 // Retrieve the current corresponding sampling_token_config
-        //                 // of type MiningSamplingTokenConfig
-        //                 if let Some(current_sampling_token_config) = <mining_sampling_token::Module<T>>::mining_samplings_token_samplings_configs(
-        //                   (mining_config_token_id, sampling_token_id)
-        //                 ) {
-        //                   if let tokens_locked = current_sampling_token_config.token_sample_locked_amount {
-        //                     sample_count += 1;
-
-        //                     if tokens_locked == 0 {
-        //                       debug::info!("Mining rate sample has nothing locked. Skipping to next sampling.");
-        //                       continue;
-        //                     }
-        //                     current_sample_tokens_locked = tokens_locked;
-
-        //                     if let Some(token_rates_config) = <mining_rates_token::Module<T>>::mining_rates_token_rates_configs(DEFAULT_RATE_CONFIG) {
-
-        //                       if current_token_type == "MXC".to_string() {
-        //                         current_token_rate = token_rates_config.token_token_mxc;
-        //                       } else if current_token_type == "IOTA".to_string() {
-        //                         current_token_rate = token_rates_config.token_token_iota;
-        //                       } else if current_token_type == "DOT".to_string() {
-        //                         current_token_rate = token_rates_config.token_token_dot;
-        //                       }
-        //                       current_token_max_tokens = token_rates_config.token_token_max_token;
-        //                       proxy_claim_rewardees_data = current_token_rate * (current_sample_tokens_locked / current_token_lock_amount);
-
-        //                       part_proxy_claim_total_reward_amount = part_proxy_claim_total_reward_amount + proxy_claim_rewardees_data * current_token_max_tokens;
-        //                     } else {
-        //                       debug::info!("Mining rate config missing");
-        //                       // break;
-        //                       return Err(DispatchError::Other("Mining rate config missing"));
-        //                     }
-        //                   }
-        //                 }
-        //               }
-        //               proxy_claim_total_reward_amount = part_proxy_claim_total_reward_amount / sample_count;
-        //               debug::info!("Calculate eligibilty based on average {:#?}", proxy_claim_total_reward_amount);
-        //             }
-        //           }
-        //         }
-        //       }
-        //     }
-
-        //     // Check if a mining_eligibility_proxy_result already exists with the given mining_eligibility_proxy_id
-        //     // to determine whether to insert new or mutate existing.
-        //     if Self::has_value_for_mining_eligibility_proxy_result_index(mining_config_token_id, mining_eligibility_proxy_id).is_ok() {
-        //         debug::info!("Mutating values");
-        //         <MiningEligibilityProxyResults<T>>::mutate((mining_config_token_id, mining_eligibility_proxy_id), |mining_eligibility_proxy_result| {
-        //             if let Some(_mining_eligibility_proxy_result) = mining_eligibility_proxy_result {
-        //                 // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-        //                 _mining_eligibility_proxy_result.proxy_claim_total_reward_amount = proxy_claim_total_reward_amount.clone();
-        //                 _mining_eligibility_proxy_result.proxy_claim_rewardees_data = proxy_claim_rewardees_data.clone();
-        //                 // _mining_eligibility_proxy_result.proxy_claim_block_redeemed = proxy_claim_block_redeemed.clone();
-        //                 // _mining_eligibility_proxy_result.proxy_claim_requestor_account_id = proxy_claim_requestor_account_id.clone();
-        //             }
-        //         });
-        //         debug::info!("Checking mutated values");
-        //         let fetched_mining_eligibility_proxy_result = <MiningEligibilityProxyResults<T>>::get((mining_config_token_id, mining_eligibility_proxy_id));
-        //         if let Some(_mining_eligibility_proxy_result) = fetched_mining_eligibility_proxy_result {
-        //             debug::info!("Latest field proxy_claim_total_reward_amount {:#?}", _mining_eligibility_proxy_result.proxy_claim_total_reward_amount);
-        //             debug::info!("Latest field proxy_claim_rewardees_data {:#?}", _mining_eligibility_proxy_result.proxy_claim_rewardees_data);
-        //             // debug::info!("Latest field proxy_claim_block_redeemed {:#?}", _mining_eligibility_proxy_result.proxy_claim_block_redeemed);
-        //             // debug::info!("Latest field proxy_claim_requestor_account_id {:#?}", _mining_eligibility_proxy_result.proxy_claim_requestor_account_id);
-        //         }
-        //     } else {
-        //         debug::info!("Inserting values");
-
-        //         // Create a new mining mining_eligibility_proxy_result instance with the input params
-        //         let mining_eligibility_proxy_result_instance = MiningEligibilityProxyResult {
-        //             // Since each parameter passed into the function is optional (i.e. `Option`)
-        //             // we will assign a default value if a parameter value is not provided.
-        //             proxy_claim_total_reward_amount: proxy_claim_total_reward_amount.clone(),
-        //             proxy_claim_rewardees_data: proxy_claim_rewardees_data.clone(),
-        //             // proxy_claim_block_redeemed: proxy_claim_block_redeemed.clone(),
-        //             // proxy_claim_requestor_account_id: proxy_claim_requestor_account_id.clone(),
-        //         };
-
-        //         <MiningEligibilityProxyResults<T>>::insert(
-        //             (mining_config_token_id, mining_eligibility_proxy_id),
-        //             &mining_eligibility_proxy_result_instance
-        //         );
-
-        //         debug::info!("Checking inserted values");
-        //         let fetched_mining_eligibility_proxy_result = <MiningEligibilityProxyResults<T>>::get((mining_config_token_id, mining_eligibility_proxy_id));
-        //         if let Some(_mining_eligibility_proxy_result) = fetched_mining_eligibility_proxy_result {
-        //             debug::info!("Inserted field proxy_claim_total_reward_amount {:#?}", _mining_eligibility_proxy_result.proxy_claim_total_reward_amount);
-        //             debug::info!("Inserted field proxy_claim_rewardees_data {:#?}", _mining_eligibility_proxy_result.proxy_claim_rewardees_data);
-        //             // debug::info!("Inserted field proxy_claim_block_redeemed {:#?}", _mining_eligibility_proxy_result.proxy_claim_block_redeemed);
-        //             // debug::info!("Inserted field proxy_claim_requestor_account_id {:#?}", _mining_eligibility_proxy_result.proxy_claim_requestor_account_id);
-        //         }
-        //     }
-
-        //     Self::deposit_event(RawEvent::MiningEligibilityProxyResultSet(
-        //       sender,
-        //       mining_config_token_id,
-        //       mining_eligibility_proxy_id,
-        //       proxy_claim_total_reward_amount,
-        //       proxy_claim_rewardees_data,
-        //       // proxy_claim_block_redeemed,
-        //       // proxy_claim_requestor_account_id
-        //     ));
-        // }
     }
 }
 
@@ -331,8 +182,22 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
+    pub fn is_supernode_claim_reasonable(
+        proxy_claim_total_reward_amount: T::MiningEligibilityProxyClaimTotalRewardAmount,
+    ) -> Result<(), DispatchError> {
+        let current_block = <frame_system::Module<T>>::block_number();
+        // block reward max is 5000 DHX per day until year 2023, so by 2024 we'd be up to
+        // 20000 * 4 * 365 = 29200000 block, then reduces to 4800 DHX per day, and so on per halving cycle.
+        // assume worse case scenario of only one supernode requesting
+        // rewards on behalf of users that collectively earnt the max DHX produced on that day.
+        if proxy_claim_total_reward_amount > 5000 && current_block < 29200000 {
+            return Err(DispatchError::Other("Unreasonable proxy reward claim"));
+        }
+        Ok(())
+    }
+
     pub fn is_valid_reward_data(
-        _proxy_claim_rewardees_data: Vec<RewardeeData<T>
+        _proxy_claim_rewardees_data: Vec<RewardeeData<T>>,
     ) -> Result<(), DispatchError> {
         let current_block = <frame_system::Module<T>>::block_number();
         let mut rewardees_data_count = 0;
