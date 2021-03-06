@@ -2,7 +2,6 @@
 extern crate mining_claims_token as mining_claims_token;
 extern crate mining_config_token as mining_config_token;
 extern crate mining_eligibility_token as mining_eligibility_token;
-extern crate mining_execution_token as mining_execution_token;
 extern crate mining_rates_token as mining_rates_token;
 extern crate mining_sampling_token as mining_sampling_token;
 extern crate roaming_operators as roaming_operators;
@@ -15,12 +14,23 @@ mod tests {
         assert_ok,
         impl_outer_origin,
         parameter_types,
+        traits::{
+            Contains,
+            ContainsLengthBound,
+        },
         weights::{
             IdentityFee,
             Weight,
         },
     };
-
+    use std::cell::RefCell;
+    use sp_core::{
+        u32_trait::{
+            _2,
+            _3,
+            _4,
+        },
+    };
     use sp_core::H256;
     use sp_runtime::{
         testing::Header,
@@ -30,7 +40,9 @@ mod tests {
             Zero,
         },
         DispatchResult,
+        ModuleId,
         Perbill,
+        Percent,
         Permill,
     };
     // Import Trait for each runtime module being tested
@@ -42,6 +54,7 @@ mod tests {
     use mining_config_token::{
         MiningConfigTokenConfig,
         MiningConfigTokenRequirementsConfig,
+        MiningConfigTokenExecutionResult,
         Module as MiningConfigTokenModule,
         Trait as MiningConfigTokenTrait,
     };
@@ -49,11 +62,6 @@ mod tests {
         MiningEligibilityTokenResult,
         Module as MiningEligibilityTokenModule,
         Trait as MiningEligibilityTokenTrait,
-    };
-    use mining_execution_token::{
-        MiningExecutionTokenExecutionResult,
-        Module as MiningExecutionTokenModule,
-        Trait as MiningExecutionTokenTrait,
     };
     use mining_rates_token::{
         MiningRatesTokenConfig,
@@ -64,6 +72,10 @@ mod tests {
         MiningSamplingTokenConfig,
         Module as MiningSamplingTokenModule,
         Trait as MiningSamplingTokenTrait,
+    };
+    use datahighway_runtime::{
+        AccountId,
+        Balance,
     };
     use roaming_operators;
 
@@ -130,6 +142,83 @@ mod tests {
         type TransactionByteFee = ();
         type WeightToFee = IdentityFee<u64>;
     }
+
+    thread_local! {
+        static TEN_TO_FOURTEEN: RefCell<Vec<u64>> = RefCell::new(vec![10,11,12,13,14]);
+    }
+    pub struct TenToFourteen;
+    impl Contains<u64> for TenToFourteen {
+        fn sorted_members() -> Vec<u64> {
+            TEN_TO_FOURTEEN.with(|v| v.borrow().clone())
+        }
+
+        #[cfg(feature = "runtime-benchmarks")]
+        fn add(new: &u64) {
+            TEN_TO_FOURTEEN.with(|v| {
+                let mut members = v.borrow_mut();
+                members.push(*new);
+                members.sort();
+            })
+        }
+    }
+    impl ContainsLengthBound for TenToFourteen {
+        fn max_len() -> usize {
+            TEN_TO_FOURTEEN.with(|v| v.borrow().len())
+        }
+
+        fn min_len() -> usize {
+            0
+        }
+    }
+
+    // Copied from ./runtime/src/constants.rs
+    const MILLISECS_PER_BLOCK: u64 = 4320;
+    const MINUTES: u64 = 60_000 / (MILLISECS_PER_BLOCK as u64);
+    const HOURS: u64 = MINUTES * 60;
+    const DAYS: u64 = HOURS * 24;
+    parameter_types! {
+        pub const ProposalBond: Permill = Permill::from_percent(5);
+        pub const ProposalBondMinimum: u64 = 1;
+        pub const SpendPeriod: u64 = 1 * DAYS;
+        pub const Burn: Permill = Permill::from_percent(0);
+        pub const TipCountdown: u64 = 1 * DAYS;
+        pub const TipFindersFee: Percent = Percent::from_percent(20);
+        pub const TipReportDepositBase: u64 = 1;
+        pub const MaximumReasonLength: u32 = 16384;
+        pub const BountyValueMinimum: u64 = 1;
+        pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
+        pub const BountyDepositBase: u64 = 80;
+        pub const BountyDepositPayoutDelay: u32 = 3;
+        pub const BountyUpdatePeriod: u32 = 20;
+        pub const DataDepositPerByte: u64 = 1;
+        pub const TreasuryModuleId: ModuleId = ModuleId(*b"py/trsry");
+    }
+    impl pallet_treasury::Trait for Test {
+        type ApproveOrigin = frame_system::EnsureRoot<u64>;
+        type BountyCuratorDeposit = BountyCuratorDeposit;
+        type BountyDepositBase = BountyDepositBase;
+        type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
+        type BountyUpdatePeriod = BountyUpdatePeriod;
+        type BountyValueMinimum = BountyValueMinimum;
+        type Burn = Burn;
+        type BurnDestination = ();
+        type Currency = Balances;
+        type DataDepositPerByte = DataDepositPerByte;
+        type Event = ();
+        type MaximumReasonLength = MaximumReasonLength;
+        type ModuleId = TreasuryModuleId;
+        type OnSlash = ();
+        type ProposalBond = ProposalBond;
+        type ProposalBondMinimum = ProposalBondMinimum;
+        type RejectOrigin = frame_system::EnsureRoot<u64>;
+        type SpendPeriod = SpendPeriod;
+        type TipCountdown = TipCountdown;
+        type TipFindersFee = TipFindersFee;
+        type TipReportDepositBase = TipReportDepositBase;
+        type Tippers = TenToFourteen;
+        // Just gets burned.
+        type WeightInfo = ();
+    }
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
     impl roaming_operators::Trait for Test {
         type Currency = Balances;
@@ -138,24 +227,19 @@ mod tests {
         type RoamingOperatorIndex = u64;
     }
     impl MiningConfigTokenTrait for Test {
+        type Currency = Balances;
         type Event = ();
-        // type Currency = Balances;
-        // type Randomness = Randomness;
         type MiningConfigTokenIndex = u64;
         type MiningConfigTokenLockAmount = u64;
-        // Mining Speed Boost Token Mining Config
-        // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
         type MiningConfigTokenType = Vec<u8>;
     }
     impl MiningRatesTokenTrait for Test {
         type Event = ();
         type MiningRatesTokenIndex = u64;
         type MiningRatesTokenMaxLoyalty = u32;
-        // Mining Speed Boost Max Rates
         type MiningRatesTokenMaxToken = u32;
         type MiningRatesTokenTokenDOT = u32;
         type MiningRatesTokenTokenIOTA = u32;
-        // Mining Speed Boost Rate
         type MiningRatesTokenTokenMXC = u32;
     }
     impl MiningSamplingTokenTrait for Test {
@@ -175,10 +259,6 @@ mod tests {
         type MiningClaimsTokenClaimAmount = u64;
         type MiningClaimsTokenIndex = u64;
     }
-    impl MiningExecutionTokenTrait for Test {
-        type Event = ();
-        type MiningExecutionTokenIndex = u64;
-    }
 
     type System = frame_system::Module<Test>;
     pub type Balances = pallet_balances::Module<Test>;
@@ -187,7 +267,6 @@ mod tests {
     pub type MiningSamplingTokenTestModule = MiningSamplingTokenModule<Test>;
     pub type MiningEligibilityTokenTestModule = MiningEligibilityTokenModule<Test>;
     pub type MiningClaimsTokenTestModule = MiningClaimsTokenModule<Test>;
-    pub type MiningExecutionTokenTestModule = MiningExecutionTokenModule<Test>;
     type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
@@ -256,14 +335,14 @@ mod tests {
 
             // Call Functions
             assert_ok!(MiningConfigTokenTestModule::create(Origin::signed(0)));
-            assert_ok!(MiningConfigTokenTestModule::set_mining_config_token_token_cooldown_config(
+            assert_ok!(MiningConfigTokenTestModule::set_mining_config_token_cooldown_config(
                 Origin::signed(0),
                 0,                     // mining_token_id
                 Some(b"DHX".to_vec()), // token_type
                 Some(10),              // token_lock_min_amount
                 Some(7),               // token_lock_min_blocks
             ));
-            assert_ok!(MiningConfigTokenTestModule::set_mining_config_token_token_config(
+            assert_ok!(MiningConfigTokenTestModule::set_mining_config_token_config(
                 Origin::signed(0),
                 0,                     // mining_token_id
                 Some(b"MXC".to_vec()), // token_type
@@ -277,7 +356,7 @@ mod tests {
             assert!(MiningConfigTokenTestModule::mining_config_token(0).is_some());
             assert_eq!(MiningConfigTokenTestModule::mining_config_token_owner(0), Some(0));
             assert_eq!(
-                MiningConfigTokenTestModule::mining_config_token_token_cooldown_configs(0),
+                MiningConfigTokenTestModule::mining_config_token_cooldown_configs(0),
                 Some(MiningConfigTokenRequirementsConfig {
                     token_type: b"DHX".to_vec(), // token_type
                     token_lock_min_amount: 10,   // token_lock_min_amount
@@ -285,7 +364,7 @@ mod tests {
                 })
             );
             assert_eq!(
-                MiningConfigTokenTestModule::mining_config_token_token_configs(0),
+                MiningConfigTokenTestModule::mining_config_token_configs(0),
                 Some(MiningConfigTokenConfig {
                     token_type: b"MXC".to_vec(),       // token_type
                     token_lock_amount: 100,            // token_lock_amount
@@ -428,37 +507,44 @@ mod tests {
                 })
             );
 
-            // Create Mining Speed Boost Execution Token Mining
-
-            // Call Functions
-            assert_ok!(MiningExecutionTokenTestModule::create(Origin::signed(0)));
-            assert_ok!(MiningExecutionTokenTestModule::assign_execution_to_configuration(Origin::signed(0), 0, 0));
+            // Create Mining Speed Boost Config Token Mining
 
             // Override by DAO if necessary
             //
             // Execute is called to start the mining if all checks pass
-            assert_ok!(MiningExecutionTokenTestModule::set_mining_execution_token_execution_result(
+            assert_ok!(MiningConfigTokenTestModule::set_mining_config_token_execution_result(
                 Origin::signed(0),
                 0,           // mining_config_token_id
-                0,           // mining_execution_token_id
-                Some(12345), // token_execution_started_block
-                Some(34567)  // token_execution_ended_block
             ));
 
             // Verify Storage
-            assert_eq!(MiningExecutionTokenTestModule::mining_execution_token_count(), 1);
-            assert!(MiningExecutionTokenTestModule::mining_execution_token(0).is_some());
-            assert_eq!(MiningExecutionTokenTestModule::mining_execution_token_owner(0), Some(0));
+            assert_eq!(MiningConfigTokenTestModule::mining_config_token_count(), 1);
+            assert!(MiningConfigTokenTestModule::mining_config_token(0).is_some());
+            assert_eq!(MiningConfigTokenTestModule::mining_config_token_owner(0), Some(0));
+            // Note: Refer to Edgeware's tests that use on_finalize https://github.com/hicommonwealth/edgeware-node/blob/master/modules/edge-treasury-reward/src/tests.rs#L177
+            System::set_block_number(0);
             assert_eq!(
-                MiningExecutionTokenTestModule::mining_execution_token_execution_results((0, 0)),
-                Some(MiningExecutionTokenExecutionResult {
+                MiningConfigTokenTestModule::mining_config_token_execution_results(0u64),
+                Some(MiningConfigTokenExecutionResult {
                     token_execution_executor_account_id: 0,
                     token_execution_started_block: 12345,
-                    token_execution_ended_block: 34567,
+                    token_execution_interval_blocks: 34567,
                 })
             );
+
             // TODO - check that the locked amount has actually been locked and check that a sampling, eligibility, and
             // claim were all run automatically afterwards assert!(false);
+            //
+            // how to get the lock info for a given lock identifier using frame_support's methods?
+            // https://substrate.dev/rustdocs/v3.0.0/frame_support/traits/trait.LockableCurrency.html#required-methods
+            //
+            // Or is it going to be necessary to implement our own custom lock pallet that adds this?
+            // https://github.com/kulupu/kulupu/blob/master/frame/lockdrop/src/lib.rs#L238
+            //
+            // See question posted here https://matrix.to/#/!HzySYSaIhtyWrwiwEV:matrix.org/$161495341266906GzpcB:matrix.org?via=matrix.parity.io&via=matrix.org&via=corepaper.org
+
+            // TODO - allow user to request to stop mining, and trigger the cooldown period until they can
+            // access their tokens that are locked for mining.
         });
     }
 }

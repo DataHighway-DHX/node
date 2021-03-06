@@ -41,7 +41,7 @@ mod tests;
 /// The module's configuration trait.
 pub trait Trait: frame_system::Trait + roaming_operators::Trait {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
-    type MiningRatesTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type MiningRatesTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy + From<u64> + Into<u64>;
     type MiningRatesTokenTokenMXC: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningRatesTokenTokenIOTA: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningRatesTokenTokenDOT: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
@@ -303,7 +303,7 @@ impl<T: Trait> Module<T> {
 
     fn random_value(sender: &T::AccountId) -> [u8; 16] {
         let payload = (
-            T::Randomness::random(&[0]),
+            <T as roaming_operators::Trait>::Randomness::random(&[0]),
             sender,
             <frame_system::Module<T>>::extrinsic_index(),
             <frame_system::Module<T>>::block_number(),

@@ -124,8 +124,8 @@
   "MiningConfigTokenConfig": {
     "token_type": "Text",
     "token_lock_amount": "u64",
-    "token_lock_start_block": "Moment",
-    "token_lock_interval_blocks": "Moment"
+    "token_lock_start_block": "u64",
+    "token_lock_interval_blocks": "u64"
   },
   "MiningConfigTokenRequirementsConfig": {
     "token_type": "Text",
@@ -145,6 +145,12 @@
     "hardware_dev_eui": "u64",
     "hardware_lock_start_block": "Moment",
     "hardware_lock_interval_blocks": "Moment"
+  },
+  "MiningConfigTokenExecutorAccountID": "u64",
+  "MiningConfigTokenExecutionResult": {
+    "token_execution_executor_account_id": "u64",
+    "token_execution_started_block": "u64",
+    "token_execution_interval_blocks": "u64"
   },
   "MiningSamplingToken": "[u8; 16]",
   "MiningSamplingTokenIndex": "u64",
@@ -195,14 +201,6 @@
   "MiningClaimsHardwareClaimResult": {
     "hardware_claim_amount": "u64",
     "hardware_claim_block_redeemed": "u64"
-  },
-  "MiningExecutionToken": "[u8; 16]",
-  "MiningExecutionTokenIndex": "u64",
-  "MiningExecutionTokenExecutorAccountID": "u64",
-  "MiningExecutionTokenExecutionResult": {
-    "token_execution_exector_account_id": "u64",
-    "token_execution_started_block": "Moment",
-    "token_execution_ended_block": "Moment"
   },
   "ExchangeRateIndex": "u64",
   "ExchangeRateConfig": {

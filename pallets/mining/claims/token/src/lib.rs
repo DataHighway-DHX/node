@@ -184,7 +184,7 @@ decl_module! {
             // FIXME
             // let current_block = <frame_system::Module<T>>::block_number();
             // // Get the config associated with the given configuration_token
-            // if let Some(configuration_token_config) = <mining_config_token::Module<T>>::mining_config_token_token_configs(mining_config_token_id) {
+            // if let Some(configuration_token_config) = <mining_config_token::Module<T>>::mining_config_token_configs(mining_config_token_id) {
             //   if let _token_lock_interval_blocks = configuration_token_config.token_lock_interval_blocks {
             //     ensure!(current_block > _token_lock_interval_blocks, "Claim may not be made until after the end of the lock interval");
             // } else {
@@ -475,7 +475,7 @@ impl<T: Trait> Module<T> {
 
     fn random_value(sender: &T::AccountId) -> [u8; 16] {
         let payload = (
-            T::Randomness::random(&[0]),
+            <T as roaming_operators::Trait>::Randomness::random(&[0]),
             sender,
             <frame_system::Module<T>>::extrinsic_index(),
             <frame_system::Module<T>>::block_number(),
