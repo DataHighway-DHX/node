@@ -57,8 +57,10 @@ pub use frame_support::{
     construct_runtime,
     parameter_types,
     traits::{
+        ChangeMembers,
         Contains,
         ContainsLengthBound,
+        InitializeMembers,
         KeyOwnerProofSystem,
         Randomness,
     },
@@ -74,6 +76,7 @@ pub use frame_support::{
     },
     StorageValue,
 };
+pub use frame_system::EnsureSigned;
 pub use pallet_balances::Call as BalancesCall;
 pub use pallet_staking::StakerStatus;
 pub use pallet_timestamp::Call as TimestampCall;
@@ -716,7 +719,14 @@ impl exchange_rate::Trait for Runtime {
 }
 
 impl membership_supernodes::Trait for Runtime {
+    type AddOrigin = EnsureSigned<AccountId>;
     type Event = Event;
+    type MembershipChanged = GeneralCouncil;
+    type MembershipInitialized = GeneralCouncil;
+    type PrimeOrigin = EnsureSigned<AccountId>;
+    type RemoveOrigin = EnsureSigned<AccountId>;
+    type ResetOrigin = EnsureSigned<AccountId>;
+    type SwapOrigin = EnsureSigned<AccountId>;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
