@@ -715,6 +715,10 @@ impl exchange_rate::Trait for Runtime {
     type IOTARate = u64;
 }
 
+impl membership_supernodes::Trait for Runtime {
+    type Event = Event;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
     pub enum Runtime where
@@ -763,6 +767,7 @@ construct_runtime!(
         MiningClaimsHardware: mining_claims_hardware::{Module, Call, Storage, Event<T>},
         MiningExecutionToken: mining_execution_token::{Module, Call, Storage, Event<T>},
         ExchangeRate: exchange_rate::{Module, Call, Storage, Event<T>},
+        MembershipSupernodes: membership_supernodes::{Module, Call, Storage, Event<T>},
     }
 );
 

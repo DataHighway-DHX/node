@@ -66,6 +66,7 @@ std = [
     'mining-claims-hardware/std',
     'mining-execution-token/std',
     'exchange-rate/std',
+    'membership-supernodes/std',
 ]
 
 [dependencies]
@@ -132,7 +133,8 @@ mining-claims-token = { default_features = false, package = 'mining-claims-token
 mining-claims-hardware = { default_features = false, package = 'mining-claims-hardware', path = '../pallets/mining/claims/hardware' }
 mining-execution-token = { default_features = false, package = 'mining-execution-token', path = '../pallets/mining/execution/token' }
 exchange-rate = { default_features = false, package = 'exchange-rate', path = '../pallets/exchange-rate' }
-module-primitives = { default-features = false, path = '../pallets/primitives' }
+module-primitives = { default_features = false, path = '../pallets/primitives' }
+membership-supernodes = { default_features = false, package = 'membership-supernodes', path = '../pallets/membership/supernodes' }
 
 [build-dependencies]
 wasm-builder-runner = { version = '1.0.5', package = 'substrate-wasm-builder-runner' }
