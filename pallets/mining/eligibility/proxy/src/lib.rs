@@ -11,6 +11,8 @@ use frame_support::{
     decl_storage,
     ensure,
     traits::{
+        Currency,
+        ExistenceRequirement,
         Get,
         Randomness,
     },
@@ -27,7 +29,10 @@ use sp_runtime::{
     },
     DispatchError,
 };
-use sp_std::prelude::*; // Imports Vec
+use sp_std::{
+    convert::TryInto,
+    prelude::*,
+};
 
 // #[cfg(test)]
 // mod mock;
@@ -36,15 +41,17 @@ use sp_std::prelude::*; // Imports Vec
 // mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait {
+pub trait Trait:
+    frame_system::Trait + roaming_operators::Trait + pallet_treasury::Trait + pallet_balances::Trait
+{
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Currency: Currency<Self::AccountId>;
     type MiningEligibilityProxyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningEligibilityProxyClaimTotalRewardAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningEligibilityProxyClaimBlockRedeemed: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
-// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
-// frame_system::Trait>::AccountId>>::Balance;
+type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -142,19 +149,34 @@ decl_module! {
         pub fn proxy_eligibility_claim(
             origin,
             mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
-            _proxy_claim_total_reward_amount: Option<T::MiningEligibilityProxyClaimTotalRewardAmount>,
+            _proxy_claim_total_reward_amount: T::MiningEligibilityProxyClaimTotalRewardAmount,
             _proxy_claim_rewardees_data: Option<Vec<RewardeeData<T>>>,
         ) {
             let sender = ensure_signed(origin)?;
 
-            ensure!(is_origin_whitelisted_supernode(sender.clone()), "Only whitelisted Supernode account members may request proxy rewards");
+            ensure!(Self::is_origin_whitelisted_supernode(sender.clone()).is_ok(), "Only whitelisted Supernode account members may request proxy rewards");
 
-            ensure!(is_supernode_claim_reasonable(_proxy_claim_total_reward_amount), "Supernode claim has been deemed unreasonable");
+            ensure!(Self::is_supernode_claim_reasonable(_proxy_claim_total_reward_amount).is_ok(), "Supernode claim has been deemed unreasonable");
 
             if let Some(rewardees_data) = _proxy_claim_rewardees_data {
-                ensure!(is_valid_reward_data(rewardees_data), "Rewardees data is invalid");
+                ensure!(Self::is_valid_reward_data(rewardees_data), "Rewardees data is invalid");
             } else {
                 debug::info!("Proxy claim rewardees data missing");
+            }
+
+            debug::info!("Transferring claim to proxy Supernode");
+            // Distribute the reward to the account that has locked the funds
+            let treasury_account_id: T::AccountId = <pallet_treasury::Module<T>>::account_id();
+
+            let reward_to_pay_as_balance_to_try = TryInto::<BalanceOf<T>>::try_into(_proxy_claim_total_reward_amount).ok();
+
+            if let Some(reward_to_pay) = reward_to_pay_as_balance_to_try {
+                <T as Trait>::Currency::transfer(
+                    &treasury_account_id,
+                    &sender,
+                    reward_to_pay,
+                    ExistenceRequirement::KeepAlive
+                );
             }
 
             debug::info!("Setting the proxy eligibility results");
@@ -172,7 +194,8 @@ decl_module! {
 impl<T: Trait> Module<T> {
     pub fn is_origin_whitelisted_supernode(sender: T::AccountId) -> Result<(), DispatchError> {
         ensure!(
-            // FIXME - implement this pallet
+            // FIXME - implement this pallet using members from Society pallet or delegate
+            // supernode accounts using Proxy pallet
             <member_supernodes::Module<T>>::is_member_supernode(sender.clone()).is_ok(),
             "Sender is not a whitelisted Supernode member"
         );
@@ -187,7 +210,7 @@ impl<T: Trait> Module<T> {
         // 20000 * 4 * 365 = 29200000 block, then reduces to 4800 DHX per day, and so on per halving cycle.
         // assume worse case scenario of only one supernode requesting
         // rewards on behalf of users that collectively earnt the max DHX produced on that day.
-        if proxy_claim_total_reward_amount > 5000 && current_block < 29200000 {
+        if proxy_claim_total_reward_amount > 5000.into() && current_block < 29200000.into() {
             return Err(DispatchError::Other("Unreasonable proxy reward claim"));
         }
         Ok(())
@@ -198,15 +221,15 @@ impl<T: Trait> Module<T> {
         let mut rewardees_data_count = 0;
         let mut is_valid = 1;
         // FIXME - use cooldown in config runtime or move to abstract constant instead of hard-code here
-        let MIN_COOLDOWN_PERIOD = 20000 * 7; // 7 days @ 20k blocks produced per day
+        let MIN_COOLDOWN_PERIOD = 20000.into() * 7.into(); // 7 days @ 20k blocks produced per day
 
         // Iterate through all rewardees data
         for (index, rewardees_data) in _proxy_claim_rewardees_data.iter().enumerate() {
             rewardees_data_count += 1;
             debug::info!("rewardees_data_count {:#?}", rewardees_data_count);
 
-            if let Some(_proxy_claim_start_block) = _proxy_claim_rewardees_data.proxy_claim_start_block {
-                if let Some(_proxy_claim_interval_blocks) = _proxy_claim_rewardees_data.proxy_claim_interval_blocks {
+            if let _proxy_claim_start_block = rewardees_data.proxy_claim_start_block {
+                if let _proxy_claim_interval_blocks = rewardees_data.proxy_claim_interval_blocks {
                     if _proxy_claim_start_block < current_block {
                         debug::info!("invalid _proxy_claim_start_block: {:#?}", _proxy_claim_start_block);
                         is_valid == 0;
@@ -305,22 +328,18 @@ impl<T: Trait> Module<T> {
     fn set_mining_eligibility_proxy_eligibility_result(
         _proxy_claim_requestor_account_id: T::AccountId,
         mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
-        _proxy_claim_total_reward_amount: Option<T::MiningEligibilityProxyClaimTotalRewardAmount>,
+        _proxy_claim_total_reward_amount: T::MiningEligibilityProxyClaimTotalRewardAmount,
         _proxy_claim_rewardees_data: Option<Vec<RewardeeData<T>>>,
     ) {
         // Ensure that the mining_eligibility_proxy_id whose config we want to change actually exists
-        let is_mining_eligibility_proxy = Self::exists_mining_eligibility_proxy(mining_eligibility_proxy_id).is_ok();
-        ensure!(is_mining_eligibility_proxy, "MiningEligibilityProxy does not exist");
+        let is_mining_eligibility_proxy = Self::exists_mining_eligibility_proxy(mining_eligibility_proxy_id);
+        ensure!(is_mining_eligibility_proxy.is_ok(), "MiningEligibilityProxy does not exist");
 
         // Ensure that the caller is owner of the mining_eligibility_proxy_result they are trying to change
         Self::is_mining_eligibility_proxy_owner(mining_eligibility_proxy_id, _proxy_claim_requestor_account_id);
 
         let proxy_claim_requestor_account_id = _proxy_claim_requestor_account_id;
-        // FIXME - change to ensure and check that a value is provided or early exit
-        let proxy_claim_total_reward_amount = match _proxy_claim_total_reward_amount.clone() {
-            Some(value) => value,
-            None => 1.into(), // Default
-        };
+        let proxy_claim_total_reward_amount = _proxy_claim_total_reward_amount.clone();
         // FIXME - change to ensure and check that data structure is valid or early exit
         let proxy_claim_rewardees_data = match _proxy_claim_rewardees_data {
             Some(value) => value,
