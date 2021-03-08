@@ -528,14 +528,14 @@ impl pallet_staking::Trait for Runtime {
 
 // EnsureRoot means that Supernode members may only be added by Sudo
 impl pallet_membership::Trait<pallet_membership::Instance1> for Runtime {
-	type Event = Event;
-	type AddOrigin = EnsureRoot<AccountId>;
-	type RemoveOrigin = EnsureRoot<AccountId>;
-	type SwapOrigin = EnsureRoot<AccountId>;
-	type ResetOrigin = EnsureRoot<AccountId>;
-	type PrimeOrigin = EnsureRoot<AccountId>;
-	type MembershipInitialized = GeneralCouncil;
-	type MembershipChanged = GeneralCouncil;
+    type AddOrigin = EnsureRoot<AccountId>;
+    type Event = Event;
+    type MembershipChanged = GeneralCouncil;
+    type MembershipInitialized = GeneralCouncil;
+    type PrimeOrigin = EnsureRoot<AccountId>;
+    type RemoveOrigin = EnsureRoot<AccountId>;
+    type ResetOrigin = EnsureRoot<AccountId>;
+    type SwapOrigin = EnsureRoot<AccountId>;
 }
 
 impl roaming_operators::Trait for Runtime {

@@ -3280,6 +3280,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "pallet-balances",
+ "pallet-membership",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",
  "pallet-treasury",

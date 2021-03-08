@@ -12,6 +12,7 @@ std = [
     'frame-system/std',
     'safe-mix/std',
     'pallet-balances/std',
+    'pallet-membership/std',
     'pallet-randomness-collective-flip/std',
     'pallet-transaction-payment/std',
     'pallet-treasury/std',
@@ -29,6 +30,7 @@ safe-mix = { version = '1.0.0', default-features = false }
 frame-support = { version = '2.0.0', default_features = false }
 frame-system = { version = '2.0.0', default_features = false }
 pallet-balances = { version = '2.0.0', default_features = false }
+pallet-membership = { version = '2.0.0', default-features = false }
 pallet-randomness-collective-flip = { version = '2.0.0', default_features = false }
 pallet-transaction-payment = { version = '2.0.0', default_features = false }
 pallet-treasury = { version = '2.0.0', default-features = false }

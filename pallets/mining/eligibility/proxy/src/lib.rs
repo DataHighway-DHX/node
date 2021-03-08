@@ -42,7 +42,11 @@ use sp_std::{
 
 /// The module's configuration trait.
 pub trait Trait:
-    frame_system::Trait + roaming_operators::Trait + pallet_treasury::Trait + pallet_balances::Trait
+    frame_system::Trait
+    + roaming_operators::Trait
+    + pallet_treasury::Trait
+    + pallet_balances::Trait
+    + pallet_membership::Trait
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type Currency: Currency<Self::AccountId>;
@@ -194,23 +198,12 @@ decl_module! {
 impl<T: Trait> Module<T> {
     pub fn is_origin_whitelisted_supernode(sender: T::AccountId) -> Result<(), DispatchError> {
         let member_to_find = sender.clone();
-
-        // Good
+        // TODO - somehow use `Contains` instead https://crates.parity.io/frame_support/traits/trait.Contains.html
         let mut iter = <pallet_membership::Module<T>>::members.iter().filter(|&x| *x == member_to_find);
         match iter.next() {
             Some(value) => Ok(value),
             None => Err(DispatchError::Other("Sender is not a whitelisted Supernode member")),
         }
-
-        // // Bad
-        // for (index, member_account_id) in <pallet_membership::Module<T>>::members.iter().enumerate() {
-        //     debug::info!("index {:#?} {:#?}", index);
-        //     debug::info!("member_account_id {:#?} {:#?}", member_account_id);
-        //     if member_account_id == member_to_find {
-        //         Ok(())
-        //     }
-        // }
-        // return Err(DispatchError::Other("Sender is not a whitelisted Supernode member"));
     }
 
     pub fn is_supernode_claim_reasonable(
