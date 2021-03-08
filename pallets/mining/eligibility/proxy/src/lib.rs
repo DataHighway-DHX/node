@@ -193,13 +193,24 @@ decl_module! {
 
 impl<T: Trait> Module<T> {
     pub fn is_origin_whitelisted_supernode(sender: T::AccountId) -> Result<(), DispatchError> {
-        ensure!(
-            // FIXME - implement this pallet using members from Society pallet or delegate
-            // supernode accounts using Proxy pallet
-            <member_supernodes::Module<T>>::is_member_supernode(sender.clone()).is_ok(),
-            "Sender is not a whitelisted Supernode member"
-        );
-        Ok(())
+        let member_to_find = sender.clone();
+
+        // Good
+        let mut iter = <pallet_membership::Module<T>>::members.iter().filter(|&x| *x == member_to_find);
+        match iter.next() {
+            Some(value) => Ok(value),
+            None => Err(DispatchError::Other("Sender is not a whitelisted Supernode member")),
+        }
+
+        // // Bad
+        // for (index, member_account_id) in <pallet_membership::Module<T>>::members.iter().enumerate() {
+        //     debug::info!("index {:#?} {:#?}", index);
+        //     debug::info!("member_account_id {:#?} {:#?}", member_account_id);
+        //     if member_account_id == member_to_find {
+        //         Ok(())
+        //     }
+        // }
+        // return Err(DispatchError::Other("Sender is not a whitelisted Supernode member"));
     }
 
     pub fn is_supernode_claim_reasonable(

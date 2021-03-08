@@ -364,6 +364,18 @@ impl ContainsLengthBound for GeneralCouncilProvider {
     }
 }
 
+type GeneralCouncilMembershipInstance = pallet_membership::Instance1;
+impl pallet_membership::Trait<GeneralCouncilMembershipInstance> for Runtime {
+    type AddOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
+    type Event = Event;
+    type MembershipChanged = GeneralCouncil;
+    type MembershipInitialized = GeneralCouncil;
+    type PrimeOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
+    type RemoveOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
+    type ResetOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
+    type SwapOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
+}
+
 parameter_types! {
     pub const ProposalBond: Permill = Permill::from_percent(5);
     pub const ProposalBondMinimum: Balance = 1_000_000_000_000_000_000;
@@ -512,6 +524,18 @@ impl pallet_staking::Trait for Runtime {
     type UnixTime = Timestamp;
     type UnsignedPriority = StakingUnsignedPriority;
     type WeightInfo = ();
+}
+
+// EnsureRoot means that Supernode members may only be added by Sudo
+impl pallet_membership::Trait<pallet_membership::Instance1> for Runtime {
+	type Event = Event;
+	type AddOrigin = EnsureRoot<AccountId>;
+	type RemoveOrigin = EnsureRoot<AccountId>;
+	type SwapOrigin = EnsureRoot<AccountId>;
+	type ResetOrigin = EnsureRoot<AccountId>;
+	type PrimeOrigin = EnsureRoot<AccountId>;
+	type MembershipInitialized = GeneralCouncil;
+	type MembershipChanged = GeneralCouncil;
 }
 
 impl roaming_operators::Trait for Runtime {
