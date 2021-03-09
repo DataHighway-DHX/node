@@ -198,6 +198,9 @@ impl<T: Trait> Module<T> {
     pub fn is_origin_whitelisted_supernode(sender: T::AccountId) -> Result<(), DispatchError> {
         let member_to_find = sender.clone();
         // use `Contains` instead https://crates.parity.io/frame_support/traits/trait.Contains.html
+
+        // FIXME - change to something like: pallet_membership::Module::<T>::contains(member_to_find)
+
         let member_exists = <pallet_membership::Module<T>>::members().contains(&member_to_find.into());
         ensure!(member_exists, "Sender is not a whitelisted Supernode member");
 

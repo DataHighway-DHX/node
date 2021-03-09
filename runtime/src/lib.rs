@@ -746,7 +746,6 @@ impl mining_eligibility_proxy::Trait for Runtime {
     type Currency = Balances;
     type Event = Event;
     type MiningEligibilityProxyClaimBlockRedeemed = u64;
-    type MiningEligibilityProxyClaimTotalRewardAmount = u32;
     type MiningEligibilityProxyIndex = u64;
 }
 
