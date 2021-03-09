@@ -46,12 +46,12 @@ pub trait Trait:
     + roaming_operators::Trait
     + pallet_treasury::Trait
     + pallet_balances::Trait
+    + pallet_collective::Trait
     + pallet_membership::Trait
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type Currency: Currency<Self::AccountId>;
     type MiningEligibilityProxyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type MiningEligibilityProxyClaimTotalRewardAmount: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningEligibilityProxyClaimBlockRedeemed: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
@@ -120,7 +120,7 @@ decl_storage! {
         pub MiningEligibilityProxyResults get(fn mining_eligibility_proxy_eligibility_results): map hasher(opaque_blake2_256) T::MiningEligibilityProxyIndex =>
             Option<MiningEligibilityProxyResult<
                 T::AccountId,
-                T::MiningEligibilityProxyClaimTotalRewardAmount,
+                BalanceOf<T>,
                 // Vec<RewardeeData<T>>,
                 T::BlockNumber,
             >>;
@@ -130,7 +130,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Trait> for enum Call where origin: <T as frame_system::Trait>::Origin {
         fn deposit_event() = default;
 
         /// Create a new mining mining_eligibility_proxy
@@ -153,7 +153,7 @@ decl_module! {
         pub fn proxy_eligibility_claim(
             origin,
             mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
-            _proxy_claim_total_reward_amount: T::MiningEligibilityProxyClaimTotalRewardAmount,
+            _proxy_claim_total_reward_amount: BalanceOf<T>,
             // _proxy_claim_rewardees_data: Option<Vec<RewardeeData<T>>>,
         ) {
             let sender = ensure_signed(origin)?;
@@ -173,7 +173,6 @@ decl_module! {
             let treasury_account_id: T::AccountId = <pallet_treasury::Module<T>>::account_id();
 
             let reward_to_pay_as_balance_to_try = TryInto::<BalanceOf<T>>::try_into(_proxy_claim_total_reward_amount).ok();
-
             if let Some(reward_to_pay) = reward_to_pay_as_balance_to_try {
                 <T as Trait>::Currency::transfer(
                     &treasury_account_id,
@@ -198,16 +197,15 @@ decl_module! {
 impl<T: Trait> Module<T> {
     pub fn is_origin_whitelisted_supernode(sender: T::AccountId) -> Result<(), DispatchError> {
         let member_to_find = sender.clone();
-        // TODO - somehow use `Contains` instead https://crates.parity.io/frame_support/traits/trait.Contains.html
-        let mut iter = <pallet_membership::Module<T>>::members().iter().filter(|&x| *x == member_to_find.into());
-        match iter.next() {
-            Some(value) => Ok(()),
-            None => Err(DispatchError::Other("Sender is not a whitelisted Supernode member")),
-        }
+        // use `Contains` instead https://crates.parity.io/frame_support/traits/trait.Contains.html
+        let member_exists = <pallet_membership::Module<T>>::members().contains(&member_to_find.into());
+        ensure!(member_exists, "Sender is not a whitelisted Supernode member");
+
+        Ok(())
     }
 
     pub fn is_supernode_claim_reasonable(
-        proxy_claim_total_reward_amount: T::MiningEligibilityProxyClaimTotalRewardAmount,
+        proxy_claim_total_reward_amount: BalanceOf<T>,
     ) -> Result<(), DispatchError> {
         let current_block = <frame_system::Module<T>>::block_number();
         // block reward max is 5000 DHX per day until year 2023, so by 2024 we'd be up to
@@ -272,7 +270,7 @@ impl<T: Trait> Module<T> {
         mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
     ) -> Result<(), DispatchError> {
         match Self::mining_eligibility_proxy(mining_eligibility_proxy_id) {
-            Some(value) => Ok(()),
+            Some(_value) => Ok(()),
             None => Err(DispatchError::Other("MiningEligibilityProxy does not exist")),
         }
     }
@@ -333,17 +331,22 @@ impl<T: Trait> Module<T> {
     fn set_mining_eligibility_proxy_eligibility_result(
         _proxy_claim_requestor_account_id: T::AccountId,
         mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
-        _proxy_claim_total_reward_amount: T::MiningEligibilityProxyClaimTotalRewardAmount,
+        _proxy_claim_total_reward_amount: BalanceOf<T>,
         // _proxy_claim_rewardees_data: Option<Vec<RewardeeData<T>>>,
     ) {
         // Ensure that the mining_eligibility_proxy_id whose config we want to change actually exists
         let is_mining_eligibility_proxy = Self::exists_mining_eligibility_proxy(mining_eligibility_proxy_id);
-        ensure!(is_mining_eligibility_proxy.is_ok(), "MiningEligibilityProxy does not exist");
+        // FIXME - why does this cause error `expected `()`, found enum `std::result::Result``
+        // its because there is no return type in this function.
+        // ensure!(is_mining_eligibility_proxy.is_ok(), "MiningEligibilityProxy does not exist");
+        if !is_mining_eligibility_proxy.is_ok() {
+            debug::info!("Error no supernode exists with given id");
+        }
 
         // Ensure that the caller is owner of the mining_eligibility_proxy_result they are trying to change
-        Self::is_mining_eligibility_proxy_owner(mining_eligibility_proxy_id, _proxy_claim_requestor_account_id);
+        Self::is_mining_eligibility_proxy_owner(mining_eligibility_proxy_id, _proxy_claim_requestor_account_id.clone());
 
-        let proxy_claim_requestor_account_id = _proxy_claim_requestor_account_id;
+        let proxy_claim_requestor_account_id = _proxy_claim_requestor_account_id.clone();
         let proxy_claim_total_reward_amount = _proxy_claim_total_reward_amount.clone();
         // FIXME - change to ensure and check that data structure is valid or early exit
         // let proxy_claim_rewardees_data = match _proxy_claim_rewardees_data {

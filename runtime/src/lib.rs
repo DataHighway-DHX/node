@@ -47,6 +47,9 @@ use sp_runtime::{
     ApplyExtrinsicResult,
     MultiSignature,
 };
+use frame_system::{
+    EnsureRoot,
+};
 use sp_std::prelude::*;
 #[cfg(feature = "std")]
 use sp_version::NativeVersion;
@@ -315,18 +318,18 @@ impl pallet_sudo::Trait for Runtime {
 }
 
 parameter_types! {
-    pub const CouncilMotionDuration: BlockNumber = 5 * DAYS;
-    pub const CouncilMaxProposals: u32 = 100;
-    pub const CouncilMaxMembers: u32 = 100;
+    pub const GeneralCouncilMotionDuration: BlockNumber = 5 * DAYS;
+    pub const GeneralCouncilMaxProposals: u32 = 100;
+    pub const GeneralCouncilMaxMembers: u32 = 100;
 }
 
 type GeneralCouncilInstance = pallet_collective::Instance1;
 impl pallet_collective::Trait<GeneralCouncilInstance> for Runtime {
     type DefaultVote = pallet_collective::PrimeDefaultVote;
     type Event = Event;
-    type MaxMembers = CouncilMaxMembers;
-    type MaxProposals = CouncilMaxProposals;
-    type MotionDuration = CouncilMotionDuration;
+    type MaxMembers = GeneralCouncilMaxMembers;
+    type MaxProposals = GeneralCouncilMaxProposals;
+    type MotionDuration = GeneralCouncilMotionDuration;
     type Origin = Origin;
     type Proposal = Call;
     type WeightInfo = ();
@@ -362,18 +365,6 @@ impl ContainsLengthBound for GeneralCouncilProvider {
     fn max_len() -> usize {
         100000
     }
-}
-
-type GeneralCouncilMembershipInstance = pallet_membership::Instance1;
-impl pallet_membership::Trait<GeneralCouncilMembershipInstance> for Runtime {
-    type AddOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
-    type Event = Event;
-    type MembershipChanged = GeneralCouncil;
-    type MembershipInitialized = GeneralCouncil;
-    type PrimeOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
-    type RemoveOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
-    type ResetOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
-    type SwapOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
 }
 
 parameter_types! {
@@ -526,16 +517,55 @@ impl pallet_staking::Trait for Runtime {
     type WeightInfo = ();
 }
 
+parameter_types! {
+    pub const SupernodeCouncilMotionDuration: BlockNumber = 5 * DAYS;
+    pub const SupernodeCouncilMaxProposals: u32 = 100;
+    pub const SupernodeCouncilMaxMembers: u32 = 100;
+}
+
+type SupernodeCouncilInstance = pallet_collective::Instance2;
+impl pallet_collective::Trait<SupernodeCouncilInstance> for Runtime {
+    type DefaultVote = pallet_collective::PrimeDefaultVote;
+    type Event = Event;
+    type MaxMembers = SupernodeCouncilMaxMembers;
+    type MaxProposals = SupernodeCouncilMaxProposals;
+    type MotionDuration = SupernodeCouncilMotionDuration;
+    type Origin = Origin;
+    type Proposal = Call;
+    type WeightInfo = ();
+}
+
 // EnsureRoot means that Supernode members may only be added by Sudo
-impl pallet_membership::Trait<pallet_membership::Instance1> for Runtime {
+type SupernodeCouncilMembershipInstance = pallet_membership::Instance2;
+impl pallet_membership::Trait<SupernodeCouncilMembershipInstance> for Runtime {
     type AddOrigin = EnsureRoot<AccountId>;
     type Event = Event;
-    type MembershipChanged = GeneralCouncil;
-    type MembershipInitialized = GeneralCouncil;
+    type MembershipChanged = SupernodeCouncil;
+    type MembershipInitialized = SupernodeCouncil;
     type PrimeOrigin = EnsureRoot<AccountId>;
     type RemoveOrigin = EnsureRoot<AccountId>;
     type ResetOrigin = EnsureRoot<AccountId>;
     type SwapOrigin = EnsureRoot<AccountId>;
+}
+
+pub struct SupernodeCouncilProvider;
+impl Contains<AccountId> for SupernodeCouncilProvider {
+    fn contains(who: &AccountId) -> bool {
+        SupernodeCouncil::is_member(who)
+    }
+
+    fn sorted_members() -> Vec<AccountId> {
+        SupernodeCouncil::members()
+    }
+}
+impl ContainsLengthBound for SupernodeCouncilProvider {
+    fn min_len() -> usize {
+        0
+    }
+
+    fn max_len() -> usize {
+        100000
+    }
 }
 
 impl roaming_operators::Trait for Runtime {
@@ -765,6 +795,8 @@ construct_runtime!(
         Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
         GeneralCouncil: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
         GeneralCouncilMembership: pallet_membership::<Instance1>::{Module, Call, Storage, Event<T>, Config<T>},
+        SupernodeCouncil: pallet_collective::<Instance2>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
+        SupernodeCouncilMembership: pallet_membership::<Instance2>::{Module, Call, Storage, Event<T>, Config<T>},
         PalletTreasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
         Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
         Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>},
