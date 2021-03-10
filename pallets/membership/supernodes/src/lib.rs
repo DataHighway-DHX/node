@@ -69,8 +69,11 @@ decl_module! {
 
         /// Adds a member to the membership set unless the max is reached
         #[weight = 10_000]
-        pub fn add_member(origin) -> DispatchResult {
-            let new_member = ensure_signed(origin)?;
+        pub fn add_member(
+            origin,
+            new_member: T::AccountId,
+        ) -> DispatchResult {
+            let _sender = ensure_signed(origin)?;
 
             let mut members = Members::<T>::get();
             ensure!(members.len() < MAX_MEMBERS, Error::<T>::MembershipLimitReached);
@@ -94,8 +97,11 @@ decl_module! {
 
         /// Removes a member.
         #[weight = 10_000]
-        fn remove_member(origin) -> DispatchResult {
-            let old_member = ensure_signed(origin)?;
+        fn remove_member(
+            origin,
+            old_member: T::AccountId,
+        ) -> DispatchResult {
+            let _sender = ensure_signed(origin)?;
 
             let mut members = Members::<T>::get();
 
