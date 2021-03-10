@@ -212,8 +212,8 @@ impl<T: Trait> Module<T> {
 
         // Check whether the caller is a member
         // https://crates.parity.io/frame_support/traits/trait.Contains.html
-        ensure!(members.contains(&caller), Error::<T>::NotAMember);
-        // ensure!(members.contains(&caller), Err(DispatchError::Other("Not a member")));
+        // ensure!(members.contains(&caller), Error::<T>::NotAMember);
+        ensure!(members.contains(&caller), DispatchError::Other("Not a member"));
 
         // If the previous call didn't error, then the caller is a member, so emit the event
         Self::deposit_event(RawEvent::IsAMember(caller));
