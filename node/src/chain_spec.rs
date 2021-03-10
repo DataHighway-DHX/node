@@ -16,7 +16,6 @@ use datahighway_runtime::{
     StakerStatus,
     StakingConfig,
     SudoConfig,
-    SupernodeCouncilMembershipConfig,
     SystemConfig,
 };
 use hex_literal::hex;
@@ -402,11 +401,6 @@ fn dev_genesis(
             members: vec![root_key.clone()],
             phantom: Default::default(),
         }),
-        pallet_collective_Instance2: Some(Default::default()),
-        pallet_membership_Instance2: Some(SupernodeCouncilMembershipConfig {
-            members: vec![root_key.clone()],
-            phantom: Default::default(),
-        }),
         pallet_treasury: Some(Default::default()),
     }
 }
@@ -462,11 +456,6 @@ fn testnet_genesis(
         }),
         pallet_collective_Instance1: Some(Default::default()),
         pallet_membership_Instance1: Some(GeneralCouncilMembershipConfig {
-            members: vec![root_key.clone()],
-            phantom: Default::default(),
-        }),
-        pallet_collective_Instance2: Some(Default::default()),
-        pallet_membership_Instance2: Some(SupernodeCouncilMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
         }),

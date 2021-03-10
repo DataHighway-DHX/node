@@ -517,57 +517,6 @@ impl pallet_staking::Trait for Runtime {
     type WeightInfo = ();
 }
 
-parameter_types! {
-    pub const SupernodeCouncilMotionDuration: BlockNumber = 5 * DAYS;
-    pub const SupernodeCouncilMaxProposals: u32 = 100;
-    pub const SupernodeCouncilMaxMembers: u32 = 100;
-}
-
-type SupernodeCouncilInstance = pallet_collective::Instance2;
-impl pallet_collective::Trait<SupernodeCouncilInstance> for Runtime {
-    type DefaultVote = pallet_collective::PrimeDefaultVote;
-    type Event = Event;
-    type MaxMembers = SupernodeCouncilMaxMembers;
-    type MaxProposals = SupernodeCouncilMaxProposals;
-    type MotionDuration = SupernodeCouncilMotionDuration;
-    type Origin = Origin;
-    type Proposal = Call;
-    type WeightInfo = ();
-}
-
-// EnsureRoot means that Supernode members may only be added by Sudo
-type SupernodeCouncilMembershipInstance = pallet_membership::Instance2;
-impl pallet_membership::Trait<SupernodeCouncilMembershipInstance> for Runtime {
-    type AddOrigin = EnsureRoot<AccountId>;
-    type Event = Event;
-    type MembershipChanged = SupernodeCouncil;
-    type MembershipInitialized = SupernodeCouncil;
-    type PrimeOrigin = EnsureRoot<AccountId>;
-    type RemoveOrigin = EnsureRoot<AccountId>;
-    type ResetOrigin = EnsureRoot<AccountId>;
-    type SwapOrigin = EnsureRoot<AccountId>;
-}
-
-pub struct SupernodeCouncilProvider;
-impl Contains<AccountId> for SupernodeCouncilProvider {
-    fn contains(who: &AccountId) -> bool {
-        SupernodeCouncil::is_member(who)
-    }
-
-    fn sorted_members() -> Vec<AccountId> {
-        SupernodeCouncil::members()
-    }
-}
-impl ContainsLengthBound for SupernodeCouncilProvider {
-    fn min_len() -> usize {
-        0
-    }
-
-    fn max_len() -> usize {
-        100000
-    }
-}
-
 impl roaming_operators::Trait for Runtime {
     type Currency = Balances;
     type Event = Event;
@@ -794,8 +743,6 @@ construct_runtime!(
         Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
         GeneralCouncil: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
         GeneralCouncilMembership: pallet_membership::<Instance1>::{Module, Call, Storage, Event<T>, Config<T>},
-        SupernodeCouncil: pallet_collective::<Instance2>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
-        SupernodeCouncilMembership: pallet_membership::<Instance2>::{Module, Call, Storage, Event<T>, Config<T>},
         PalletTreasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
         Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
         Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>},
