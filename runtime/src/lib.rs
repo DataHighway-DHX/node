@@ -696,6 +696,8 @@ impl mining_eligibility_proxy::Trait for Runtime {
     type Event = Event;
     type MiningEligibilityProxyClaimBlockRedeemed = u64;
     type MiningEligibilityProxyIndex = u64;
+    // Check membership
+    type MembershipSource = MembershipSupernodes;
 }
 
 impl mining_claims_token::Trait for Runtime {
@@ -746,6 +748,7 @@ construct_runtime!(
         PalletTreasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
         Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
         Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>},
+        MembershipSupernodes: membership_supernodes::{Module, Call, Storage, Event<T>},
         RoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
         RoamingNetworks: roaming_networks::{Module, Call, Storage, Event<T>},
         RoamingOrganizations: roaming_organizations::{Module, Call, Storage, Event<T>},
