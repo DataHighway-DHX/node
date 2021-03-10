@@ -8,6 +8,7 @@ include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 mod constants;
 mod types;
 
+use frame_system::EnsureRoot;
 use pallet_grandpa::{
     fg_primitives,
     AuthorityId as GrandpaId,
@@ -47,9 +48,6 @@ use sp_runtime::{
     ApplyExtrinsicResult,
     MultiSignature,
 };
-use frame_system::{
-    EnsureRoot,
-};
 use sp_std::prelude::*;
 #[cfg(feature = "std")]
 use sp_version::NativeVersion;
@@ -77,6 +75,7 @@ pub use frame_support::{
     },
     StorageValue,
 };
+pub use membership_supernodes;
 pub use pallet_balances::Call as BalancesCall;
 pub use pallet_staking::StakerStatus;
 pub use pallet_timestamp::Call as TimestampCall;
@@ -88,7 +87,6 @@ pub use sp_runtime::{
     Percent,
     Permill,
 };
-pub use membership_supernodes;
 
 /// Opaque types. These are used by the CLI to instantiate machinery that don't need to know
 /// the specifics of the runtime. They can then be made to be agnostic over specific formats
@@ -695,10 +693,10 @@ impl mining_eligibility_hardware::Trait for Runtime {
 impl mining_eligibility_proxy::Trait for Runtime {
     type Currency = Balances;
     type Event = Event;
-    type MiningEligibilityProxyClaimBlockRedeemed = u64;
-    type MiningEligibilityProxyIndex = u64;
     // Check membership
     type MembershipSource = MembershipSupernodes;
+    type MiningEligibilityProxyClaimBlockRedeemed = u64;
+    type MiningEligibilityProxyIndex = u64;
 }
 
 impl mining_claims_token::Trait for Runtime {

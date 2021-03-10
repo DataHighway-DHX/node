@@ -1,5 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use account_set::AccountSet;
 use codec::{
     Decode,
     Encode,
@@ -34,7 +35,6 @@ use sp_std::{
     convert::TryInto,
     prelude::*,
 };
-use account_set::AccountSet;
 
 // #[cfg(test)]
 // mod mock;
@@ -44,10 +44,7 @@ use account_set::AccountSet;
 
 /// The module's configuration trait.
 pub trait Trait:
-    frame_system::Trait
-    + roaming_operators::Trait
-    + pallet_treasury::Trait
-    + pallet_balances::Trait
+    frame_system::Trait + roaming_operators::Trait + pallet_treasury::Trait + pallet_balances::Trait
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type Currency: Currency<Self::AccountId>;
@@ -131,10 +128,10 @@ decl_storage! {
 }
 
 decl_error! {
-	pub enum Error for Module<T: Trait> {
-		/// The caller is not a member
-		NotAMember,
-	}
+    pub enum Error for Module<T: Trait> {
+        /// The caller is not a member
+        NotAMember,
+    }
 }
 
 // The module's dispatchable functions.
@@ -224,9 +221,7 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn is_supernode_claim_reasonable(
-        proxy_claim_total_reward_amount: BalanceOf<T>,
-    ) -> Result<(), DispatchError> {
+    pub fn is_supernode_claim_reasonable(proxy_claim_total_reward_amount: BalanceOf<T>) -> Result<(), DispatchError> {
         let current_block = <frame_system::Module<T>>::block_number();
         // block reward max is 5000 DHX per day until year 2023, so by 2024 we'd be up to
         // 20000 * 4 * 365 = 29200000 block, then reduces to 4800 DHX per day, and so on per halving cycle.
