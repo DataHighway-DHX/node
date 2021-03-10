@@ -274,6 +274,7 @@ substrate-module-new <module-name> <author>
 
 * Question: Why is loose coupling important?
     * Answer: Because sometimes things just won't work [see example here](https://matrix.to/#/!HzySYSaIhtyWrwiwEV:matrix.org/$161531016088601OZAjp:matrix.parity.io?via=matrix.parity.io&via=matrix.org&via=corepaper.org)
+        * Substrate Seminar example https://youtu.be/VVU3Io2dACY?t=4425
 
 ## Technical Support <a id="chapter-c00ab7"></a>
 

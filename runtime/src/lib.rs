@@ -88,6 +88,7 @@ pub use sp_runtime::{
     Percent,
     Permill,
 };
+pub use membership_supernodes;
 
 /// Opaque types. These are used by the CLI to instantiate machinery that don't need to know
 /// the specifics of the runtime. They can then be made to be agnostic over specific formats
@@ -725,6 +726,10 @@ impl exchange_rate::Trait for Runtime {
     type FILRate = u64;
     type HBTCRate = u64;
     type IOTARate = u64;
+}
+
+impl membership_supernodes::Trait for Runtinme {
+    type Event = Event;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.

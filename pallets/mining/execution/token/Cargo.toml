@@ -28,7 +28,7 @@ std = [
 ]
 
 [dependencies]
-codec = { version = '1.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
+codec = { version = '1.3.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
 safe-mix = { version = '1.0.0', default-features = false }
 frame-support = { version = '2.0.0', default_features = false }
 frame-system = { version = '2.0.0', default_features = false }
