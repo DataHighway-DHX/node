@@ -21,6 +21,8 @@ std = [
     'sp-std/std',
 
     'roaming-operators/std',
+    'account-set/std',
+    'membership-supernodes/std',
 ]
 
 [dependencies]
@@ -38,7 +40,7 @@ sp-runtime = { version = '2.0.0', default_features = false }
 sp-std = { version = '2.0.0', default_features = false }
 
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
-# account-set = { path = '../../../../traits/account-set', default-features = false }
-# membership-supernodes = { path = '../../../membership/supernodes', default-features = false }
+account-set = { path = '../../../../traits/account-set', default-features = false }
+membership-supernodes = { path = '../../../membership/supernodes', default-features = false }
 
 [dev-dependencies]

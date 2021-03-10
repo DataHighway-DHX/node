@@ -6,6 +6,7 @@ use codec::{
 };
 use frame_support::{
     debug,
+    decl_error,
     decl_event,
     decl_module,
     decl_storage,
@@ -33,6 +34,7 @@ use sp_std::{
     convert::TryInto,
     prelude::*,
 };
+use account_set::AccountSet;
 
 // #[cfg(test)]
 // mod mock;
@@ -49,6 +51,8 @@ pub trait Trait:
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type Currency: Currency<Self::AccountId>;
+    // Loosely coupled
+    type MembershipSource: AccountSet<AccountId = Self::AccountId>;
     type MiningEligibilityProxyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningEligibilityProxyClaimBlockRedeemed: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
@@ -99,6 +103,7 @@ decl_event!(
         //   MiningEligibilityProxyClaimTotalRewardAmount, Vec<RewardeeData<T>>,
         //   BlockNumber
         // ),
+        IsAMember(AccountId),
     }
 );
 
@@ -123,6 +128,13 @@ decl_storage! {
                 T::BlockNumber,
             >>;
     }
+}
+
+decl_error! {
+	pub enum Error for Module<T: Trait> {
+		/// The caller is not a member
+		NotAMember,
+	}
 }
 
 // The module's dispatchable functions.
@@ -156,7 +168,7 @@ decl_module! {
         ) {
             let sender = ensure_signed(origin)?;
 
-            ensure!(Self::is_origin_whitelisted_supernode(sender.clone()).is_ok(), "Only whitelisted Supernode account members may request proxy rewards");
+            ensure!(Self::is_origin_whitelisted_member_supernodes(sender.clone()).is_ok(), "Only whitelisted Supernode account members may request proxy rewards");
 
             ensure!(Self::is_supernode_claim_reasonable(_proxy_claim_total_reward_amount).is_ok(), "Supernode claim has been deemed unreasonable");
 
@@ -193,15 +205,21 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
-    pub fn is_origin_whitelisted_supernode(sender: T::AccountId) -> Result<(), DispatchError> {
-        // let member_to_find = sender.clone();
-        // use `Contains` instead https://crates.parity.io/frame_support/traits/trait.Contains.html
+    /// Checks whether the caller is a member of the set of account IDs provided by the
+    /// MembershipSource type. Emits an event if they are, and errors if not.
+    pub fn is_origin_whitelisted_member_supernodes(sender: T::AccountId) -> Result<(), DispatchError> {
+        let caller = sender.clone();
 
-        // FIXME - change to something like: pallet_membership::Module::<T>::contains(member_to_find)
+        // Get the members from the `membership-supernodes` pallet
+        let members = T::MembershipSource::accounts();
 
-        // FIXME - change to use loose coupling. see Substrate recipes
-        // let member_exists = <pallet_membership::Module<T>>::members().contains(&member_to_find.into());
-        // ensure!(member_exists, "Sender is not a whitelisted Supernode member");
+        // Check whether the caller is a member
+        // https://crates.parity.io/frame_support/traits/trait.Contains.html
+        ensure!(members.contains(&caller), Error::<T>::NotAMember);
+        // ensure!(members.contains(&caller), Err(DispatchError::Other("Not a member")));
+
+        // If the previous call didn't error, then the caller is a member, so emit the event
+        Self::deposit_event(RawEvent::IsAMember(caller));
 
         Ok(())
     }

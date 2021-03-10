@@ -728,7 +728,7 @@ impl exchange_rate::Trait for Runtime {
     type IOTARate = u64;
 }
 
-impl membership_supernodes::Trait for Runtinme {
+impl membership_supernodes::Trait for Runtime {
     type Event = Event;
 }
 
