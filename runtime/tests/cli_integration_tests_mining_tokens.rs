@@ -17,7 +17,11 @@ mod tests {
         assert_ok,
         impl_outer_origin,
         parameter_types,
-        traits::EnsureOrigin,
+        traits::{
+            Contains,
+            ContainsLengthBound,
+            EnsureOrigin,
+        },
         weights::{
             IdentityFee,
             Weight,
@@ -25,6 +29,14 @@ mod tests {
     };
     use frame_system::EnsureRoot;
 
+    use std::cell::RefCell;
+    use sp_core::{
+        u32_trait::{
+            _2,
+            _3,
+            _4,
+        },
+    };
     use sp_core::H256;
     use sp_runtime::{
         testing::Header,
@@ -82,6 +94,12 @@ mod tests {
         Trait as MiningSamplingTokenTrait,
     };
     use roaming_operators;
+    use datahighway_runtime::{
+        AccountId,
+        Balance,
+        BlockNumber,
+        DAYS,
+    };
 
     // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Trait>::Origin {
     // 	<Runtime as frame_system::Trait>::Origin::signed((*who).clone())
@@ -139,7 +157,6 @@ mod tests {
         type MaxLocks = ();
         type WeightInfo = ();
     }
-    type BlockNumber = u32;
     impl pallet_transaction_payment::Trait for Test {
         type Currency = Balances;
         type FeeMultiplierUpdate = ();
@@ -147,14 +164,43 @@ mod tests {
         type TransactionByteFee = ();
         type WeightToFee = IdentityFee<u64>;
     }
+
+    thread_local! {
+        static TEN_TO_FOURTEEN: RefCell<Vec<u64>> = RefCell::new(vec![10,11,12,13,14]);
+    }
+    pub struct TenToFourteen;
+    impl Contains<u64> for TenToFourteen {
+        fn sorted_members() -> Vec<u64> {
+            TEN_TO_FOURTEEN.with(|v| v.borrow().clone())
+        }
+
+        #[cfg(feature = "runtime-benchmarks")]
+        fn add(new: &u64) {
+            TEN_TO_FOURTEEN.with(|v| {
+                let mut members = v.borrow_mut();
+                members.push(*new);
+                members.sort();
+            })
+        }
+    }
+    impl ContainsLengthBound for TenToFourteen {
+        fn max_len() -> usize {
+            TEN_TO_FOURTEEN.with(|v| v.borrow().len())
+        }
+
+        fn min_len() -> usize {
+            0
+        }
+    }
+
     parameter_types! {
         pub const ProposalBond: Permill = Permill::from_percent(5);
-        pub const ProposalBondMinimum: BlockNumber = 1_000_000_000_000_000_000;
-        pub const SpendPeriod: BlockNumber = 1;
+        pub const ProposalBondMinimum: u64 = 1_000_000_000_000_000_000;
+        pub const SpendPeriod: BlockNumber = 1 * DAYS;
         pub const Burn: Permill = Permill::from_percent(0);
         pub const TipCountdown: BlockNumber = 1;
         pub const TipFindersFee: Percent = Percent::from_percent(20);
-        pub const TipReportDepositBase: u32 = 1_000_000_000_000_000_000;
+        pub const TipReportDepositBase: u64 = 1_000_000_000_000_000_000;
         pub const MaximumReasonLength: u32 = 16384;
         pub const BountyValueMinimum: u64 = 1;
         pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
@@ -183,15 +229,12 @@ mod tests {
         type OnSlash = ();
         type ProposalBond = ProposalBond;
         type ProposalBondMinimum = ProposalBondMinimum;
-        // type RejectOrigin = pallet_collective::EnsureMembers<_2, AccountId, GeneralCouncilInstance>;
         type RejectOrigin = EnsureRoot<u64>;
         type SpendPeriod = SpendPeriod;
         type TipCountdown = TipCountdown;
         type TipFindersFee = TipFindersFee;
         type TipReportDepositBase = TipReportDepositBase;
-        // FIXME - upgrade to Substrate 3 since does not use Tippers, only then
-        // can we add tests for the eligibility/proxy code
-        // type Tippers = GeneralCouncilProvider;
+        type Tippers = TenToFourteen;
         type WeightInfo = ();
     }
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
