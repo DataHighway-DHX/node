@@ -184,7 +184,6 @@
   },
   "MiningEligibilityProxy": "[u8; 16]",
   "MiningEligibilityProxyIndex": "u64",
-  "MiningEligibilityProxyClaimBlockRedeemed": "u64",
   "MiningEligibilityProxyResult": {
     "proxy_claim_requestor_account_id": "u64",
     "proxy_claim_total_reward_amount": "u32",

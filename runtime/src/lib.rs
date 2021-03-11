@@ -695,7 +695,6 @@ impl mining_eligibility_proxy::Trait for Runtime {
     type Event = Event;
     // Check membership
     type MembershipSource = MembershipSupernodes;
-    type MiningEligibilityProxyClaimBlockRedeemed = u64;
     type MiningEligibilityProxyIndex = u64;
 }
 
