@@ -2,7 +2,7 @@
 extern crate membership_supernodes as membership_supernodes;
 extern crate mining_claims_token as mining_claims_token;
 extern crate mining_config_token as mining_config_token;
-// extern crate mining_eligibility_proxy as mining_eligibility_proxy;
+extern crate mining_eligibility_proxy as mining_eligibility_proxy;
 extern crate mining_eligibility_token as mining_eligibility_token;
 extern crate mining_execution_token as mining_execution_token;
 extern crate mining_rates_token as mining_rates_token;
@@ -55,12 +55,12 @@ mod tests {
         Module as MiningConfigTokenModule,
         Trait as MiningConfigTokenTrait,
     };
-    // use mining_eligibility_proxy::{
-    //     MiningEligibilityProxyClaimRewardeeData,
-    //     MiningEligibilityProxyResult,
-    //     Module as MiningEligibilityProxyModule,
-    //     Trait as MiningEligibilityProxyTrait,
-    // };
+    use mining_eligibility_proxy::{
+        MiningEligibilityProxyClaimRewardeeData,
+        MiningEligibilityProxyResult,
+        Module as MiningEligibilityProxyModule,
+        Trait as MiningEligibilityProxyTrait,
+    };
     use mining_eligibility_token::{
         MiningEligibilityTokenResult,
         Module as MiningEligibilityTokenModule,
@@ -147,53 +147,53 @@ mod tests {
         type TransactionByteFee = ();
         type WeightToFee = IdentityFee<u64>;
     }
-    // parameter_types! {
-    //     pub const ProposalBond: Permill = Permill::from_percent(5);
-    //     pub const ProposalBondMinimum: BlockNumber = 1_000_000_000_000_000_000;
-    //     pub const SpendPeriod: BlockNumber = 1;
-    //     pub const Burn: Permill = Permill::from_percent(0);
-    //     pub const TipCountdown: BlockNumber = 1;
-    //     pub const TipFindersFee: Percent = Percent::from_percent(20);
-    //     pub const TipReportDepositBase: u32 = 1_000_000_000_000_000_000;
-    //     pub const MaximumReasonLength: u32 = 16384;
-    //     pub const BountyValueMinimum: u64 = 1;
-    //     pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
-    //     pub const BountyDepositBase: u64 = 80;
-    //     pub const BountyDepositPayoutDelay: u32 = 3;
-    //     pub const BountyUpdatePeriod: u32 = 20;
-    //     pub const DataDepositPerByte: u64 = 1;
-    //     pub const TreasuryModuleId: ModuleId = ModuleId(*b"py/trsry");
-    // }
+    parameter_types! {
+        pub const ProposalBond: Permill = Permill::from_percent(5);
+        pub const ProposalBondMinimum: BlockNumber = 1_000_000_000_000_000_000;
+        pub const SpendPeriod: BlockNumber = 1;
+        pub const Burn: Permill = Permill::from_percent(0);
+        pub const TipCountdown: BlockNumber = 1;
+        pub const TipFindersFee: Percent = Percent::from_percent(20);
+        pub const TipReportDepositBase: u32 = 1_000_000_000_000_000_000;
+        pub const MaximumReasonLength: u32 = 16384;
+        pub const BountyValueMinimum: u64 = 1;
+        pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
+        pub const BountyDepositBase: u64 = 80;
+        pub const BountyDepositPayoutDelay: u32 = 3;
+        pub const BountyUpdatePeriod: u32 = 20;
+        pub const DataDepositPerByte: u64 = 1;
+        pub const TreasuryModuleId: ModuleId = ModuleId(*b"py/trsry");
+    }
 
-    // impl pallet_treasury::Trait for Test {
-    //     // type ApproveOrigin = pallet_collective::EnsureMembers<_4, AccountId, GeneralCouncilInstance>;
-    //     type ApproveOrigin = EnsureRoot<u64>;
-    //     type BountyCuratorDeposit = BountyCuratorDeposit;
-    //     type BountyDepositBase = BountyDepositBase;
-    //     type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
-    //     type BountyUpdatePeriod = BountyUpdatePeriod;
-    //     type BountyValueMinimum = BountyValueMinimum;
-    //     type Burn = Burn;
-    //     type BurnDestination = ();
-    //     type Currency = Balances;
-    //     type DataDepositPerByte = DataDepositPerByte;
-    //     type Event = ();
-    //     type MaximumReasonLength = MaximumReasonLength;
-    //     type ModuleId = TreasuryModuleId;
-    //     type OnSlash = ();
-    //     type ProposalBond = ProposalBond;
-    //     type ProposalBondMinimum = ProposalBondMinimum;
-    //     // type RejectOrigin = pallet_collective::EnsureMembers<_2, AccountId, GeneralCouncilInstance>;
-    //     type RejectOrigin = EnsureRoot<u64>;
-    //     type SpendPeriod = SpendPeriod;
-    //     type TipCountdown = TipCountdown;
-    //     type TipFindersFee = TipFindersFee;
-    //     type TipReportDepositBase = TipReportDepositBase;
-    //     // FIXME - upgrade to Substrate 3 since does not use Tippers, only then
-    //     // can we add tests for the eligibility/proxy code
-    //     // type Tippers = GeneralCouncilProvider;
-    //     type WeightInfo = ();
-    // }
+    impl pallet_treasury::Trait for Test {
+        // type ApproveOrigin = pallet_collective::EnsureMembers<_4, AccountId, GeneralCouncilInstance>;
+        type ApproveOrigin = EnsureRoot<u64>;
+        type BountyCuratorDeposit = BountyCuratorDeposit;
+        type BountyDepositBase = BountyDepositBase;
+        type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
+        type BountyUpdatePeriod = BountyUpdatePeriod;
+        type BountyValueMinimum = BountyValueMinimum;
+        type Burn = Burn;
+        type BurnDestination = ();
+        type Currency = Balances;
+        type DataDepositPerByte = DataDepositPerByte;
+        type Event = ();
+        type MaximumReasonLength = MaximumReasonLength;
+        type ModuleId = TreasuryModuleId;
+        type OnSlash = ();
+        type ProposalBond = ProposalBond;
+        type ProposalBondMinimum = ProposalBondMinimum;
+        // type RejectOrigin = pallet_collective::EnsureMembers<_2, AccountId, GeneralCouncilInstance>;
+        type RejectOrigin = EnsureRoot<u64>;
+        type SpendPeriod = SpendPeriod;
+        type TipCountdown = TipCountdown;
+        type TipFindersFee = TipFindersFee;
+        type TipReportDepositBase = TipReportDepositBase;
+        // FIXME - upgrade to Substrate 3 since does not use Tippers, only then
+        // can we add tests for the eligibility/proxy code
+        // type Tippers = GeneralCouncilProvider;
+        type WeightInfo = ();
+    }
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
     impl roaming_operators::Trait for Test {
         type Currency = Balances;
@@ -234,12 +234,12 @@ mod tests {
         type MiningEligibilityTokenLockedPercentage = u32;
         // type MiningEligibilityTokenAuditorAccountID = u64;
     }
-    // impl MiningEligibilityProxyTrait for Test {
-    //     type Currency = Balances;
-    //     type Event = ();
-    //     type MembershipSource = MembershipSupernodes;
-    //     type MiningEligibilityProxyIndex = u64;
-    // }
+    impl MiningEligibilityProxyTrait for Test {
+        type Currency = Balances;
+        type Event = ();
+        type MembershipSource = MembershipSupernodes;
+        type MiningEligibilityProxyIndex = u64;
+    }
     impl MiningClaimsTokenTrait for Test {
         type Event = ();
         type MiningClaimsTokenClaimAmount = u64;
@@ -259,7 +259,7 @@ mod tests {
     pub type MiningRatesTokenTestModule = MiningRatesTokenModule<Test>;
     pub type MiningSamplingTokenTestModule = MiningSamplingTokenModule<Test>;
     pub type MiningEligibilityTokenTestModule = MiningEligibilityTokenModule<Test>;
-    // pub type MiningEligibilityProxyTestModule = MiningEligibilityProxyModule<Test>;
+    pub type MiningEligibilityProxyTestModule = MiningEligibilityProxyModule<Test>;
     pub type MiningClaimsTokenTestModule = MiningClaimsTokenModule<Test>;
     pub type MiningExecutionTokenTestModule = MiningExecutionTokenModule<Test>;
     pub type MembershipSupernodesTestModule = MembershipSupernodesModule<Test>;
