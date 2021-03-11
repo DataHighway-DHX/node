@@ -21,7 +21,6 @@ use frame_support::{
     Parameter,
 };
 use frame_system::ensure_signed;
-use serde::{Serialize, Deserialize};
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -60,7 +59,7 @@ type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trai
 #[cfg_attr(feature = "std", derive())]
 pub struct MiningEligibilityProxy(pub [u8; 16]);
 
-#[derive(Encode, Decode, Debug, Default, Clone, PartialEq, Serialize)]
+#[derive(Encode, Decode, Debug, Default, Clone, PartialEq)]
 #[cfg_attr(feature = "std", derive())]
 pub struct MiningEligibilityProxyResult<U, V, W, X> {
     pub proxy_claim_requestor_account_id: U, /* Supernode (proxy) account id requesting DHX rewards as proxy to
@@ -70,13 +69,9 @@ pub struct MiningEligibilityProxyResult<U, V, W, X> {
     pub proxy_claim_block_redeemed: X,
 }
 
-#[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq, Serialize)]
+#[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "std", derive())]
-pub struct MiningEligibilityProxyClaimRewardeeData<T, U, V, W, X> where
-    <T as frame_system::Trait>::AccountId: Serialize,
-    <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance: Serialize,
-    <T as frame_system::Trait>::BlockNumber: Serialize,
-{
+pub struct MiningEligibilityProxyClaimRewardeeData<U, V, W, X> {
     pub proxy_claim_rewardee_account_id: U, // Rewardee miner associated with supernode (proxy) account id
     pub proxy_claim_reward_amount: V,       // Reward in DHX tokens for specific rewardee miner
     pub proxy_claim_start_block: W,         // Start block associated with mining claim
@@ -412,10 +407,10 @@ impl<T: Trait> Module<T> {
                     "Latest field proxy_claim_total_reward_amount {:#?}",
                     _mining_eligibility_proxy_result.proxy_claim_total_reward_amount
                 );
-                debug::info!(
-                    "Latest field proxy_claim_rewardees_data {:#?}",
-                    serde_json::to_string_pretty(&_mining_eligibility_proxy_result.proxy_claim_rewardees_data)
-                );
+                // debug::info!(
+                //     "Latest field proxy_claim_rewardees_data {:#?}",
+                //     serde_json::to_string_pretty(&_mining_eligibility_proxy_result.proxy_claim_rewardees_data)
+                // );
                 debug::info!(
                     "Latest field proxy_claim_block_redeemed {:#?}",
                     _mining_eligibility_proxy_result.proxy_claim_block_redeemed
@@ -451,10 +446,10 @@ impl<T: Trait> Module<T> {
                     "Inserted field proxy_claim_total_reward_amount {:#?}",
                     _mining_eligibility_proxy_result.proxy_claim_total_reward_amount
                 );
-                debug::info!(
-                    "Inserted field proxy_claim_rewardees_data {:#?}",
-                    serde_json::to_string_pretty(&_mining_eligibility_proxy_result.proxy_claim_rewardees_data)
-                );
+                // debug::info!(
+                //     "Inserted field proxy_claim_rewardees_data {:#?}",
+                //     serde_json::to_string_pretty(&_mining_eligibility_proxy_result.proxy_claim_rewardees_data)
+                // );
                 debug::info!(
                     "Inserted field proxy_claim_block_redeemed {:#?}",
                     _mining_eligibility_proxy_result.proxy_claim_block_redeemed

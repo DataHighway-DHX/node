@@ -3310,8 +3310,6 @@ dependencies = [
  "parity-scale-codec",
  "roaming-operators",
  "safe-mix",
- "serde",
- "serde_json",
  "sp-core",
  "sp-io",
  "sp-runtime",
