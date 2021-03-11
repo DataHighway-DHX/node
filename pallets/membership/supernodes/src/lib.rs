@@ -97,7 +97,7 @@ decl_module! {
 
         /// Removes a member.
         #[weight = 10_000]
-        fn remove_member(
+        pub fn remove_member(
             origin,
             old_member: T::AccountId,
         ) -> DispatchResult {

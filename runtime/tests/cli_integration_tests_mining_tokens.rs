@@ -14,6 +14,7 @@ mod tests {
     use super::*;
 
     use frame_support::{
+        assert_err,
         assert_ok,
         impl_outer_origin,
         parameter_types,
@@ -579,45 +580,55 @@ mod tests {
             // TODO - check that the locked amount has actually been locked and check that a sampling, eligibility, and
             // claim were all run automatically afterwards assert!(false);
 
-            // TODO - restore the below after update to Substrate 3
+            // Eligibility Proxy Tests
 
-            // // Eligibility Proxy Tests
-            // assert_ok!(MiningEligibilityProxyTestModule::create(Origin::signed(0)));
+            assert_ok!(MembershipSupernodesTestModule::add_member(Origin::signed(1), 0));
 
-            // let rewardee_data = MiningEligibilityProxyClaimRewardeeData {
-            //     proxy_claim_rewardee_account_id: 0,
-            //     proxy_claim_reward_amount: 1000,
-            //     proxy_claim_start_block: 0,
-            //     proxy_claim_interval_blocks: 10,
-            // };
-            // let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, u64, u64>> =
-            //     Vec::new();
-            // proxy_claim_rewardees_data.push(rewardee_data);
+            assert_ok!(MiningEligibilityProxyTestModule::create(Origin::signed(0)));
 
-            // // Override by DAO if necessary
-            // assert_ok!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
-            //     Origin::signed(0),
-            //     0,    // mining_eligibility_proxy_id
-            //     1000, // _proxy_claim_total_reward_amount
-            //     Some(proxy_claim_rewardees_data),
-            // ));
+            let rewardee_data = MiningEligibilityProxyClaimRewardeeData {
+                proxy_claim_rewardee_account_id: 0,
+                proxy_claim_reward_amount: 1000,
+                proxy_claim_start_block: 0,
+                proxy_claim_interval_blocks: 10,
+            };
+            let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, u64, u64>> =
+                Vec::new();
+            proxy_claim_rewardees_data.push(rewardee_data);
 
-            // // Verify Storage
-            // assert_eq!(MiningEligibilityProxyTestModule::mining_eligibility_proxy_count(), 1);
-            // assert!(MiningEligibilityProxyTestModule::mining_eligibility_proxy(0).is_some());
-            // assert_eq!(MiningEligibilityProxyTestModule::mining_eligibility_proxy_owner(0), Some(0));
+            // Override by DAO if necessary
+            assert_ok!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
+                Origin::signed(0),
+                0,    // mining_eligibility_proxy_id
+                1000, // _proxy_claim_total_reward_amount
+                Some(proxy_claim_rewardees_data.clone()),
+            ));
 
-            // // Check that data about the proxy claim and rewardee data has been stored.
+            assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::signed(1), 0));
 
-            // assert_eq!(
-            //     MiningEligibilityProxyTestModule::mining_eligibility_proxy_eligibility_results(0),
-            //     Some(MiningEligibilityProxyResult {
-            //         proxy_claim_requestor_account_id: 0u64,
-            //         proxy_claim_total_reward_amount: 1000u64,
-            //         proxy_claim_rewardees_data: proxy_claim_rewardees_data,
-            //         proxy_claim_block_redeemed: 11u64, // current block
-            //     })
-            // );
+            assert_err!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
+                Origin::signed(0),
+                0,    // mining_eligibility_proxy_id
+                1000, // _proxy_claim_total_reward_amount
+                Some(proxy_claim_rewardees_data.clone()),
+            ), "Only whitelisted Supernode account members may request proxy rewards");
+
+            // Verify Storage
+            assert_eq!(MiningEligibilityProxyTestModule::mining_eligibility_proxy_count(), 1);
+            assert!(MiningEligibilityProxyTestModule::mining_eligibility_proxy(0).is_some());
+            assert_eq!(MiningEligibilityProxyTestModule::mining_eligibility_proxy_owner(0), Some(0));
+
+            // Check that data about the proxy claim and rewardee data has been stored.
+
+            assert_eq!(
+                MiningEligibilityProxyTestModule::mining_eligibility_proxy_eligibility_results(0),
+                Some(MiningEligibilityProxyResult {
+                    proxy_claim_requestor_account_id: 0u64,
+                    proxy_claim_total_reward_amount: 1000u64,
+                    proxy_claim_rewardees_data: proxy_claim_rewardees_data.clone(),
+                    proxy_claim_block_redeemed: 1u64, // current block
+                })
+            );
         });
     }
 }
