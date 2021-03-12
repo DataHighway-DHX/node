@@ -36,9 +36,9 @@ sp-io = { version = '2.0.0', default-features = false }
 [features]
 default = ['std']
 std = [
-	'account-set/std',
+    'account-set/std',
     'codec/std',
-	'frame-support/std',
-	'frame-system/std',
-	'sp-runtime/std',
+    'frame-support/std',
+    'frame-system/std',
+    'sp-runtime/std',
 ]

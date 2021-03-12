@@ -30,15 +30,14 @@ mod tests {
     };
     use frame_system::EnsureRoot;
 
-    use std::cell::RefCell;
     use sp_core::{
         u32_trait::{
             _2,
             _3,
             _4,
         },
+        H256,
     };
-    use sp_core::H256;
     use sp_runtime::{
         testing::Header,
         traits::{
@@ -53,7 +52,14 @@ mod tests {
         Percent,
         Permill,
     };
+    use std::cell::RefCell;
     // Import Trait for each runtime module being tested
+    use datahighway_runtime::{
+        AccountId,
+        Balance,
+        BlockNumber,
+        DAYS,
+    };
     use membership_supernodes::{
         Module as MembershipSupernodesModule,
         Trait as MembershipSupernodesTrait,
@@ -96,12 +102,6 @@ mod tests {
         Trait as MiningSamplingTokenTrait,
     };
     use roaming_operators;
-    use datahighway_runtime::{
-        AccountId,
-        Balance,
-        BlockNumber,
-        DAYS,
-    };
 
     // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Trait>::Origin {
     // 	<Runtime as frame_system::Trait>::Origin::signed((*who).clone())
@@ -214,7 +214,6 @@ mod tests {
     }
 
     impl pallet_treasury::Trait for Test {
-        // type ApproveOrigin = pallet_collective::EnsureMembers<_4, AccountId, GeneralCouncilInstance>;
         type ApproveOrigin = EnsureRoot<u64>;
         type BountyCuratorDeposit = BountyCuratorDeposit;
         type BountyDepositBase = BountyDepositBase;
@@ -610,12 +609,15 @@ mod tests {
             assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::root(), 0));
             assert_err!(MembershipSupernodesTestModule::add_member(Origin::signed(1), 0), DispatchError::BadOrigin);
 
-            assert_err!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
-                Origin::signed(0),
-                0,    // mining_eligibility_proxy_id
-                1000, // _proxy_claim_total_reward_amount
-                Some(proxy_claim_rewardees_data.clone()),
-            ), "Only whitelisted Supernode account members may request proxy rewards");
+            assert_err!(
+                MiningEligibilityProxyTestModule::proxy_eligibility_claim(
+                    Origin::signed(0),
+                    0,    // mining_eligibility_proxy_id
+                    1000, // _proxy_claim_total_reward_amount
+                    Some(proxy_claim_rewardees_data.clone()),
+                ),
+                "Only whitelisted Supernode account members may request proxy rewards"
+            );
 
             // Verify Storage
             assert_eq!(MiningEligibilityProxyTestModule::mining_eligibility_proxy_count(), 1);
