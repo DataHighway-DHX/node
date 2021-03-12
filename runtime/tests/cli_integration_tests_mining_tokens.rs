@@ -611,7 +611,7 @@ mod tests {
             // practice only the Supernode Centre's account would be added with membership of Member Supernodes.
 
             // The implementation uses ensure_root, so only the root origin may add and remove members (not account 1)
-            assert_ok!(MembershipSupernodesTestModule::add_member(Origin::root(), 0));
+            assert_ok!(MembershipSupernodesTestModule::add_member(Origin::signed(0), 0));
             assert_err!(MembershipSupernodesTestModule::add_member(Origin::signed(1), 0), DispatchError::BadOrigin);
 
             assert_ok!(MiningEligibilityProxyTestModule::create(Origin::signed(0)));
@@ -661,7 +661,7 @@ mod tests {
             assert_eq!(Balances::free_balance(0), (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000));
             assert_eq!(Balances::reserved_balance(0), 0);
 
-            assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::root(), 0));
+            assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::signed(0), 0));
             assert_err!(MembershipSupernodesTestModule::add_member(Origin::signed(1), 0), DispatchError::BadOrigin);
 
             assert_err!(
