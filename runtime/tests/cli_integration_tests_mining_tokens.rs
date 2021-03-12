@@ -46,6 +46,7 @@ mod tests {
             IdentityLookup,
             Zero,
         },
+        DispatchError,
         DispatchResult,
         ModuleId,
         Perbill,
@@ -582,7 +583,9 @@ mod tests {
 
             // Eligibility Proxy Tests
 
-            assert_ok!(MembershipSupernodesTestModule::add_member(Origin::signed(1), 0));
+            // The implementation uses ensure_root, so only the root origin may add and remove members (not account 1)
+            assert_ok!(MembershipSupernodesTestModule::add_member(Origin::root(), 0));
+            assert_err!(MembershipSupernodesTestModule::add_member(Origin::signed(1), 0), DispatchError::BadOrigin);
 
             assert_ok!(MiningEligibilityProxyTestModule::create(Origin::signed(0)));
 
@@ -604,7 +607,8 @@ mod tests {
                 Some(proxy_claim_rewardees_data.clone()),
             ));
 
-            assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::signed(1), 0));
+            assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::root(), 0));
+            assert_err!(MembershipSupernodesTestModule::add_member(Origin::signed(1), 0), DispatchError::BadOrigin);
 
             assert_err!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
                 Origin::signed(0),

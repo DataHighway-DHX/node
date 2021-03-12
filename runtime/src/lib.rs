@@ -8,7 +8,6 @@ include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 mod constants;
 mod types;
 
-use frame_system::EnsureRoot;
 use pallet_grandpa::{
     fg_primitives,
     AuthorityId as GrandpaId,
