@@ -128,32 +128,29 @@ decl_module! {
     pub struct Module<T: Trait> for enum Call where origin: <T as frame_system::Trait>::Origin {
         fn deposit_event() = default;
 
-        /// Create a new mining mining_eligibility_proxy
-        #[weight = 10_000 + T::DbWeight::get().writes(1)]
-        pub fn create(origin) {
-            let sender = ensure_signed(origin)?;
-            let mining_eligibility_proxy_id = Self::next_mining_eligibility_proxy_id()?;
-
-            // Generate a random 128bit value
-            let unique_id = Self::random_value(&sender);
-
-            // Create and store mining_eligibility_proxy
-            let mining_eligibility_proxy = MiningEligibilityProxy(unique_id);
-            Self::insert_mining_eligibility_proxy(&sender, mining_eligibility_proxy_id, mining_eligibility_proxy);
-
-            Self::deposit_event(RawEvent::Created(sender, mining_eligibility_proxy_id));
-        }
-
+        /// Transfer tokens claimed by the Supernode Centre on behalf of a Supernode from the
+        /// on-chain DHX DAO unlocked reserves of the Treasury account to the Supernode Centre's address,
+        /// but only if the claimed amount is deemed reasonable and if there is valid data
+        /// provided about the recipient accounts associated with the Supernode.
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn proxy_eligibility_claim(
             origin,
-            mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
             _proxy_claim_total_reward_amount: BalanceOf<T>,
             _proxy_claim_rewardees_data: Option<Vec<RewardeeData<T>>>,
         ) -> Result<(), DispatchError> {
             let sender = ensure_signed(origin)?;
 
             ensure!(Self::is_origin_whitelisted_member_supernodes(sender.clone()).is_ok(), "Only whitelisted Supernode account members may request proxy rewards");
+
+            let mining_eligibility_proxy_id;
+            match Self::create(sender.clone()) {
+                Ok(proxy_id) => {
+                    mining_eligibility_proxy_id = proxy_id.into();
+                },
+                Err(_) => {
+                    return Err(DispatchError::Other("Proxy claim rewardees data missing"));
+                }
+            }
 
             ensure!(Self::is_supernode_claim_reasonable(_proxy_claim_total_reward_amount).is_ok(), "Supernode claim has been deemed unreasonable");
 
@@ -193,6 +190,23 @@ decl_module! {
 }
 
 impl<T: Trait> Module<T> {
+    /// Create a new mining mining_eligibility_proxy
+    // #[weight = 10_000 + T::DbWeight::get().writes(1)]
+    pub fn create(sender: T::AccountId) -> Result<T::MiningEligibilityProxyIndex, DispatchError> {
+        let mining_eligibility_proxy_id = Self::next_mining_eligibility_proxy_id()?;
+
+        // Generate a random 128bit value
+        let unique_id = Self::random_value(&sender);
+
+        // Create and store mining_eligibility_proxy
+        let mining_eligibility_proxy = MiningEligibilityProxy(unique_id);
+        Self::insert_mining_eligibility_proxy(&sender, mining_eligibility_proxy_id, mining_eligibility_proxy);
+
+        Self::deposit_event(RawEvent::Created(sender, mining_eligibility_proxy_id));
+        return Ok(mining_eligibility_proxy_id);
+    }
+
+
     /// Checks whether the caller is a member of the set of account IDs provided by the
     /// MembershipSource type. Emits an event if they are, and errors if not.
     pub fn is_origin_whitelisted_member_supernodes(sender: T::AccountId) -> Result<(), DispatchError> {

@@ -635,9 +635,9 @@ mod tests {
             assert_eq!(Balances::free_balance(0), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
             assert_eq!(Balances::reserved_balance(0), 0);
 
+            // This will generate mining_eligibility_proxy_id 0
             assert_ok!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
                 Origin::signed(0),
-                0,    // mining_eligibility_proxy_id
                 1000, // _proxy_claim_total_reward_amount
                 Some(proxy_claim_rewardees_data.clone()),
             ));
@@ -664,10 +664,10 @@ mod tests {
             assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::signed(0), 0));
             assert_err!(MembershipSupernodesTestModule::add_member(Origin::signed(1), 0), DispatchError::BadOrigin);
 
+            // This tries to generate mining_eligibility_proxy_id 0
             assert_err!(
                 MiningEligibilityProxyTestModule::proxy_eligibility_claim(
                     Origin::signed(0),
-                    0,    // mining_eligibility_proxy_id
                     1000, // _proxy_claim_total_reward_amount
                     Some(proxy_claim_rewardees_data.clone()),
                 ),
