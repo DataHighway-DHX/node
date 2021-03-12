@@ -7,7 +7,6 @@ use codec::{
 };
 use frame_support::{
     debug,
-    decl_error,
     decl_event,
     decl_module,
     decl_storage,
@@ -35,12 +34,6 @@ use sp_std::{
     convert::TryInto,
     prelude::*,
 };
-
-// #[cfg(test)]
-// mod mock;
-
-// #[cfg(test)]
-// mod tests;
 
 /// The module's configuration trait.
 pub trait Trait:
@@ -129,13 +122,6 @@ decl_storage! {
     }
 }
 
-decl_error! {
-    pub enum Error for Module<T: Trait> {
-        /// The caller is not a member
-        NotAMember,
-    }
-}
-
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
@@ -148,7 +134,7 @@ decl_module! {
             let sender = ensure_signed(origin)?;
             let mining_eligibility_proxy_id = Self::next_mining_eligibility_proxy_id()?;
 
-            // Geneeligibility a random 128bit value
+            // Generate a random 128bit value
             let unique_id = Self::random_value(&sender);
 
             // Create and store mining_eligibility_proxy
@@ -217,7 +203,6 @@ impl<T: Trait> Module<T> {
 
         // Check whether the caller is a member
         // https://crates.parity.io/frame_support/traits/trait.Contains.html
-        // ensure!(members.contains(&caller), Error::<T>::NotAMember);
         ensure!(members.contains(&caller), DispatchError::Other("Not a member"));
 
         // If the previous call didn't error, then the caller is a member, so emit the event

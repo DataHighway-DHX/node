@@ -9,6 +9,8 @@ extern crate mining_rates_token as mining_rates_token;
 extern crate mining_sampling_token as mining_sampling_token;
 extern crate roaming_operators as roaming_operators;
 
+const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u64 = 30000000;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -80,6 +82,7 @@ mod tests {
         MiningEligibilityProxyResult,
         Module as MiningEligibilityProxyModule,
         Trait as MiningEligibilityProxyTrait,
+        Event as MiningEligibilityProxyEvent,
     };
     use mining_eligibility_token::{
         MiningEligibilityTokenResult,
@@ -314,8 +317,9 @@ mod tests {
     // our desired mockup.
     pub fn new_test_ext() -> sp_io::TestExternalities {
         let mut t = frame_system::GenesisConfig::default().build_storage::<Test>().unwrap();
+
         pallet_balances::GenesisConfig::<Test> {
-            balances: vec![(1, 10), (2, 20), (3, 30)],
+            balances: vec![(0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE), (1, 10), (2, 20), (3, 30)],
         }
         .assimilate_storage(&mut t)
         .unwrap();
@@ -324,10 +328,24 @@ mod tests {
         ext
     }
 
+    fn events() -> Vec<frame_system::RawEvent<MiningEligibilityProxyEvent<Test>>> {
+        let evt = System::events().into_iter().map(|evt| evt.event).collect::<Vec<_>>();
+
+        System::reset_events();
+
+        evt
+    }
+
+    fn last_event() -> frame_system::RawEvent<MiningEligibilityProxyEvent<Test>> {
+        // System::events().pop().expect("Event expected").event
+        System::events().pop().map(|e| e.event).expect("Event expected")
+    }
+
     // Create Users on Data Highway
     #[test]
     fn setup_users() {
         new_test_ext().execute_with(|| {
+            assert_eq!(Balances::free_balance(0), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
             assert_eq!(Balances::free_balance(1), 10);
             assert_eq!(Balances::free_balance(2), 20);
             assert_eq!(Balances::free_balance(3), 30);
@@ -580,7 +598,16 @@ mod tests {
             // TODO - check that the locked amount has actually been locked and check that a sampling, eligibility, and
             // claim were all run automatically afterwards assert!(false);
 
-            // Eligibility Proxy Tests
+            // Mining Eligibility Proxy Tests
+            //
+            // A member of the Supernode Centre requests as a proxy on behalf of a specific Supernode and their users
+            // a claim for an amount of DHX tokens to be sent to them from the Treasury's DHX DAO unlocked reserves.
+            // They provide data about the various user accounts belonging to that Supernode are to be
+            // rewarded for their mining participation from a start block until an interval of blocks later,
+            // and accounts that are to be rewarded must have completed their cooldown period after they started to
+            // mine, and must not be in a cooldown period after requesting to stop mining.
+            // Only the Root account may add and remove any account's membership of Member Supernodes, but in
+            // practice only the Supernode Centre's account would be added with membership of Member Supernodes.
 
             // The implementation uses ensure_root, so only the root origin may add and remove members (not account 1)
             assert_ok!(MembershipSupernodesTestModule::add_member(Origin::root(), 0));
@@ -589,7 +616,7 @@ mod tests {
             assert_ok!(MiningEligibilityProxyTestModule::create(Origin::signed(0)));
 
             let rewardee_data = MiningEligibilityProxyClaimRewardeeData {
-                proxy_claim_rewardee_account_id: 0,
+                proxy_claim_rewardee_account_id: 3,
                 proxy_claim_reward_amount: 1000,
                 proxy_claim_start_block: 0,
                 proxy_claim_interval_blocks: 10,
@@ -598,13 +625,38 @@ mod tests {
                 Vec::new();
             proxy_claim_rewardees_data.push(rewardee_data);
 
-            // Override by DAO if necessary
+            System::set_block_number(10);
+
+            // Check balance of account proxy_claim_rewardee_account_id prior to treasury rewarding it.
+            assert_eq!(Balances::free_balance(1), 10);
+            assert_eq!(Balances::reserved_balance(1), 0);
+            // Check balance of treasury prior to paying the proxy_claim_reward_amount.
+            assert_eq!(Balances::free_balance(0), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
+            assert_eq!(Balances::reserved_balance(0), 0);
+
             assert_ok!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
                 Origin::signed(0),
                 0,    // mining_eligibility_proxy_id
                 1000, // _proxy_claim_total_reward_amount
                 Some(proxy_claim_rewardees_data.clone()),
             ));
+
+            // Check balance of account proxy_claim_rewardee_account_id after treasury rewards it.
+            assert_eq!(
+                last_event(),
+                MiningEligibilityProxyEvent::MiningEligibilityProxyResultSet(
+                    0u64, // proxy_claim_requestor_account_id
+                    0u64, // mining_eligibility_proxy_id
+                    1000u64, // proxy_claim_total_reward_amount
+                    proxy_claim_rewardees_data.clone(), // proxy_claim_rewardees_data
+                    10u64, // proxy_claim_block_redeemed
+                ),
+            );
+            // assert_eq!(Balances::free_balance(1), 1010);
+            assert_eq!(Balances::reserved_balance(1), 0);
+            // Check balance of treasury after paying the proxy_claim_reward_amount.
+            assert_eq!(Balances::free_balance(0), (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000));
+            assert_eq!(Balances::reserved_balance(0), 0);
 
             assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::root(), 0));
             assert_err!(MembershipSupernodesTestModule::add_member(Origin::signed(1), 0), DispatchError::BadOrigin);
@@ -625,14 +677,13 @@ mod tests {
             assert_eq!(MiningEligibilityProxyTestModule::mining_eligibility_proxy_owner(0), Some(0));
 
             // Check that data about the proxy claim and rewardee data has been stored.
-
             assert_eq!(
                 MiningEligibilityProxyTestModule::mining_eligibility_proxy_eligibility_results(0),
                 Some(MiningEligibilityProxyResult {
                     proxy_claim_requestor_account_id: 0u64,
                     proxy_claim_total_reward_amount: 1000u64,
                     proxy_claim_rewardees_data: proxy_claim_rewardees_data.clone(),
-                    proxy_claim_block_redeemed: 1u64, // current block
+                    proxy_claim_block_redeemed: 10u64, // current block
                 })
             );
         });
