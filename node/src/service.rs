@@ -11,17 +11,19 @@ use sc_client_api::{
 };
 use sc_executor::native_executor_instance;
 pub use sc_executor::NativeExecutor;
-use sc_finality_grandpa::{
-    // FinalityProofProvider as GrandpaFinalityProofProvider,
-    SharedVoterState,
-};
+// use sc_finality_grandpa::{
+//     FinalityProofProvider as GrandpaFinalityProofProvider,
+//     SharedVoterState,
+// };
 use sc_keystore::LocalKeystore;
 use sc_service::{
     error::Error as ServiceError,
-    Configuration,
+    // Configuration,
+    config::{Configuration}, error::{Error as ServiceError},
     TaskManager,
 };
 use sc_telemetry::TelemetrySpan;
+// use sc_telemetry::TelemetryConnectionNotifier;
 use sp_inherents::InherentDataProviders;
 use std::{
     sync::Arc,
@@ -354,7 +356,7 @@ pub fn new_full(config: Configuration) -> Result<TaskManager, ServiceError> {
             telemetry_on_connect: telemetry_connection_notifier.map(|x| x.on_connect_stream()),
             voting_rule: sc_finality_grandpa::VotingRulesBuilder::default().build(),
             prometheus_registry,
-            shared_voter_state: SharedVoterState::empty(),
+            shared_voter_state: sc_finality_grandpa::SharedVoterState::empty(),
         };
 
         // the GRANDPA voter task is considered infallible, i.e.
