@@ -417,6 +417,7 @@ impl pallet_tips::Config for Runtime {
     type TipCountdown = TipCountdown;
     type TipFindersFee = TipFindersFee;
     type TipReportDepositBase = TipReportDepositBase;
+    // TODO - change value to `Elections`. See Substrate 3 migration guide
     type Tippers = GeneralCouncilProvider;
     type WeightInfo = pallet_tips::weights::SubstrateWeight<Runtime>;
 }
