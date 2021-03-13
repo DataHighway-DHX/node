@@ -165,7 +165,7 @@ parameter_types! {
 
 // Configure FRAME pallets to include in runtime.
 
-impl frame_system::Trait for Runtime {
+impl frame_system::Config for Runtime {
     /// The data to be stored in an account.
     type AccountData = pallet_balances::AccountData<Balance>;
     /// The identifier used to distinguish between accounts.
@@ -229,7 +229,7 @@ parameter_types! {
     pub const ExpectedBlockTime: Moment = MILLISECS_PER_BLOCK;
 }
 
-impl pallet_babe::Trait for Runtime {
+impl pallet_babe::Config for Runtime {
     type EpochChangeTrigger = pallet_babe::ExternalTrigger;
     type EpochDuration = EpochDuration;
     type ExpectedBlockTime = ExpectedBlockTime;
@@ -241,7 +241,7 @@ impl pallet_babe::Trait for Runtime {
     type WeightInfo = ();
 }
 
-impl pallet_grandpa::Trait for Runtime {
+impl pallet_grandpa::Config for Runtime {
     type Call = Call;
     type Event = Event;
     type HandleEquivocation = ();
@@ -252,7 +252,7 @@ impl pallet_grandpa::Trait for Runtime {
     type WeightInfo = ();
 }
 
-impl pallet_indices::Trait for Runtime {
+impl pallet_indices::Config for Runtime {
     /// The type for recording indexing into the account enumeration. If this ever overflows, there
     /// will be problems!
     type AccountIndex = AccountIndex;
@@ -274,7 +274,7 @@ parameter_types! {
     pub const MinimumPeriod: u64 = SLOT_DURATION / 2;
 }
 
-impl pallet_timestamp::Trait for Runtime {
+impl pallet_timestamp::Config for Runtime {
     type MinimumPeriod = MinimumPeriod;
     /// A timestamp: milliseconds since the unix epoch.
     type Moment = Moment;
@@ -287,7 +287,7 @@ parameter_types! {
     pub const MaxLocks: u32 = 50;
 }
 
-impl pallet_balances::Trait for Runtime {
+impl pallet_balances::Config for Runtime {
     type AccountStore = System;
     /// The type for recording an account's balance.
     type Balance = Balance;
@@ -303,7 +303,7 @@ parameter_types! {
     pub const TransactionByteFee: Balance = 1;
 }
 
-impl pallet_transaction_payment::Trait for Runtime {
+impl pallet_transaction_payment::Config for Runtime {
     type Currency = Balances;
     type FeeMultiplierUpdate = ();
     type OnTransactionPayment = ();
@@ -311,7 +311,7 @@ impl pallet_transaction_payment::Trait for Runtime {
     type WeightToFee = IdentityFee<Balance>;
 }
 
-impl pallet_sudo::Trait for Runtime {
+impl pallet_sudo::Config for Runtime {
     type Call = Call;
     type Event = Event;
 }
@@ -384,7 +384,7 @@ parameter_types! {
     pub const TreasuryModuleId: ModuleId = ModuleId(*b"py/trsry");
 }
 
-impl pallet_treasury::Trait for Runtime {
+impl pallet_treasury::Config for Runtime {
     type ApproveOrigin = pallet_collective::EnsureMembers<_4, AccountId, GeneralCouncilInstance>;
     type BountyCuratorDeposit = BountyCuratorDeposit;
     type BountyDepositBase = BountyDepositBase;
@@ -415,7 +415,7 @@ parameter_types! {
     pub const DisabledValidatorsThreshold: Perbill = Perbill::from_percent(17);
 }
 
-impl pallet_session::Trait for Runtime {
+impl pallet_session::Config for Runtime {
     type DisabledValidatorsThreshold = DisabledValidatorsThreshold;
     type Event = Event;
     type Keys = opaque::SessionKeys;
@@ -428,7 +428,7 @@ impl pallet_session::Trait for Runtime {
     type WeightInfo = ();
 }
 
-impl pallet_session::historical::Trait for Runtime {
+impl pallet_session::historical::Config for Runtime {
     type FullIdentification = pallet_staking::Exposure<AccountId, Balance>;
     type FullIdentificationOf = pallet_staking::ExposureOf<Runtime>;
 }
@@ -489,7 +489,7 @@ where
     type OverarchingCall = Call;
 }
 
-impl pallet_staking::Trait for Runtime {
+impl pallet_staking::Config for Runtime {
     type BondingDuration = BondingDuration;
     type Call = Call;
     type Currency = Balances;
@@ -516,48 +516,48 @@ impl pallet_staking::Trait for Runtime {
     type WeightInfo = ();
 }
 
-impl roaming_operators::Trait for Runtime {
+impl roaming_operators::Config for Runtime {
     type Currency = Balances;
     type Event = Event;
     type Randomness = RandomnessCollectiveFlip;
     type RoamingOperatorIndex = u64;
 }
 
-impl roaming_networks::Trait for Runtime {
+impl roaming_networks::Config for Runtime {
     type Event = Event;
     type RoamingNetworkIndex = u64;
 }
 
-impl roaming_organizations::Trait for Runtime {
+impl roaming_organizations::Config for Runtime {
     type Event = Event;
     type RoamingOrganizationIndex = u64;
 }
 
-impl roaming_network_servers::Trait for Runtime {
+impl roaming_network_servers::Config for Runtime {
     type Event = Event;
     type RoamingNetworkServerIndex = u64;
 }
 
-impl roaming_devices::Trait for Runtime {
+impl roaming_devices::Config for Runtime {
     type Event = Event;
     type RoamingDeviceIndex = u64;
 }
 
-impl roaming_routing_profiles::Trait for Runtime {
+impl roaming_routing_profiles::Config for Runtime {
     type Event = Event;
     // https://polkadot.js.org/api/types/#primitive-types
     type RoamingRoutingProfileAppServer = Vec<u8>;
     type RoamingRoutingProfileIndex = u64;
 }
 
-impl roaming_service_profiles::Trait for Runtime {
+impl roaming_service_profiles::Config for Runtime {
     type Event = Event;
     type RoamingServiceProfileDownlinkRate = u32;
     type RoamingServiceProfileIndex = u64;
     type RoamingServiceProfileUplinkRate = u32;
 }
 
-impl roaming_accounting_policies::Trait for Runtime {
+impl roaming_accounting_policies::Config for Runtime {
     type Event = Event;
     type RoamingAccountingPolicyDownlinkFeeFactor = u32;
     type RoamingAccountingPolicyIndex = u64;
@@ -565,18 +565,18 @@ impl roaming_accounting_policies::Trait for Runtime {
     type RoamingAccountingPolicyUplinkFeeFactor = u32;
 }
 
-impl roaming_agreement_policies::Trait for Runtime {
+impl roaming_agreement_policies::Config for Runtime {
     type Event = Event;
     type RoamingAgreementPolicyActivationType = Vec<u8>;
     type RoamingAgreementPolicyIndex = u64; // <pallet_timestamp::Module<Runtime> as Trait>::Moment` timestamp::Module<Runtime>::Moment;
 }
 
-impl roaming_network_profiles::Trait for Runtime {
+impl roaming_network_profiles::Config for Runtime {
     type Event = Event;
     type RoamingNetworkProfileIndex = u64;
 }
 
-impl roaming_device_profiles::Trait for Runtime {
+impl roaming_device_profiles::Config for Runtime {
     type Event = Event;
     type RoamingDeviceProfileDevAddr = Vec<u8>;
     type RoamingDeviceProfileDevEUI = Vec<u8>;
@@ -585,22 +585,22 @@ impl roaming_device_profiles::Trait for Runtime {
     type RoamingDeviceProfileVendorID = Vec<u8>;
 }
 
-impl roaming_sessions::Trait for Runtime {
+impl roaming_sessions::Config for Runtime {
     type Event = Event;
     type RoamingSessionIndex = u64;
 }
 
-impl roaming_billing_policies::Trait for Runtime {
+impl roaming_billing_policies::Config for Runtime {
     type Event = Event;
     type RoamingBillingPolicyIndex = u64;
 }
 
-impl roaming_charging_policies::Trait for Runtime {
+impl roaming_charging_policies::Config for Runtime {
     type Event = Event;
     type RoamingChargingPolicyIndex = u64;
 }
 
-impl roaming_packet_bundles::Trait for Runtime {
+impl roaming_packet_bundles::Config for Runtime {
     type Event = Event;
     type RoamingPacketBundleExternalDataStorageHash = Hash;
     type RoamingPacketBundleIndex = u64;
@@ -609,7 +609,7 @@ impl roaming_packet_bundles::Trait for Runtime {
     type RoamingPacketBundleReceivedPacketsOkCount = u64;
 }
 
-impl mining_config_token::Trait for Runtime {
+impl mining_config_token::Config for Runtime {
     type Event = Event;
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
@@ -621,7 +621,7 @@ impl mining_config_token::Trait for Runtime {
     type MiningConfigTokenType = Vec<u8>;
 }
 
-impl mining_config_hardware::Trait for Runtime {
+impl mining_config_hardware::Config for Runtime {
     type Event = Event;
     type MiningConfigHardwareDevEUI = u64;
     // type MiningConfigHardwareType =
@@ -637,7 +637,7 @@ impl mining_config_hardware::Trait for Runtime {
     type MiningConfigHardwareType = Vec<u8>;
 }
 
-impl mining_rates_token::Trait for Runtime {
+impl mining_rates_token::Config for Runtime {
     type Event = Event;
     type MiningRatesTokenIndex = u64;
     type MiningRatesTokenMaxLoyalty = u32;
@@ -649,7 +649,7 @@ impl mining_rates_token::Trait for Runtime {
     type MiningRatesTokenTokenMXC = u32;
 }
 
-impl mining_rates_hardware::Trait for Runtime {
+impl mining_rates_hardware::Config for Runtime {
     type Event = Event;
     type MiningRatesHardwareCategory1MaxTokenBonusPerGateway = u32;
     type MiningRatesHardwareCategory2MaxTokenBonusPerGateway = u32;
@@ -662,19 +662,19 @@ impl mining_rates_hardware::Trait for Runtime {
     type MiningRatesHardwareSecure = u32;
 }
 
-impl mining_sampling_token::Trait for Runtime {
+impl mining_sampling_token::Config for Runtime {
     type Event = Event;
     type MiningSamplingTokenIndex = u64;
     type MiningSamplingTokenSampleLockedAmount = u64;
 }
 
-impl mining_sampling_hardware::Trait for Runtime {
+impl mining_sampling_hardware::Config for Runtime {
     type Event = Event;
     type MiningSamplingHardwareIndex = u64;
     type MiningSamplingHardwareSampleHardwareOnline = u64;
 }
 
-impl mining_eligibility_token::Trait for Runtime {
+impl mining_eligibility_token::Config for Runtime {
     type Event = Event;
     type MiningEligibilityTokenCalculatedEligibility = u64;
     type MiningEligibilityTokenIndex = u64;
@@ -682,7 +682,7 @@ impl mining_eligibility_token::Trait for Runtime {
     // type MiningEligibilityTokenAuditorAccountID = u64;
 }
 
-impl mining_eligibility_hardware::Trait for Runtime {
+impl mining_eligibility_hardware::Config for Runtime {
     type Event = Event;
     type MiningEligibilityHardwareCalculatedEligibility = u64;
     type MiningEligibilityHardwareIndex = u64;
@@ -690,24 +690,24 @@ impl mining_eligibility_hardware::Trait for Runtime {
     // type MiningEligibilityHardwareAuditorAccountID = u64;
 }
 
-impl mining_claims_token::Trait for Runtime {
+impl mining_claims_token::Config for Runtime {
     type Event = Event;
     type MiningClaimsTokenClaimAmount = u64;
     type MiningClaimsTokenIndex = u64;
 }
 
-impl mining_claims_hardware::Trait for Runtime {
+impl mining_claims_hardware::Config for Runtime {
     type Event = Event;
     type MiningClaimsHardwareClaimAmount = u64;
     type MiningClaimsHardwareIndex = u64;
 }
 
-impl mining_execution_token::Trait for Runtime {
+impl mining_execution_token::Config for Runtime {
     type Event = Event;
     type MiningExecutionTokenIndex = u64;
 }
 
-impl exchange_rate::Trait for Runtime {
+impl exchange_rate::Config for Runtime {
     type DOTRate = u64;
     type DecimalsAfterPoint = u32;
     type Event = Event;
