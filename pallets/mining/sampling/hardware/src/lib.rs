@@ -41,7 +41,7 @@ mod tests;
 
 /// The module's configuration trait.
 pub trait Trait: frame_system::Trait + roaming_operators::Trait + mining_config_hardware::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningSamplingHardwareIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningSamplingHardwareSampleHardwareOnline: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }

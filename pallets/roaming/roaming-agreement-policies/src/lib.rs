@@ -41,7 +41,7 @@ mod tests;
 pub trait Trait:
     frame_system::Trait + roaming_operators::Trait + roaming_networks::Trait + roaming_accounting_policies::Trait
 {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingAgreementPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingAgreementPolicyActivationType: Parameter + Member + Default;
 }

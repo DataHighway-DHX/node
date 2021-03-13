@@ -53,7 +53,7 @@ pub trait Trait:
     + mining_sampling_token::Trait
     + mining_claims_token::Trait
 {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningExecutionTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     // type MiningExecutionTokenExecutorAccountID: Parameter
     //     + Member

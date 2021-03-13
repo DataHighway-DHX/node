@@ -47,7 +47,7 @@ pub trait Trait:
     + roaming_devices::Trait
     + roaming_sessions::Trait
 {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingPacketBundleIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingPacketBundleReceivedAtHome: Parameter + Member + Default;
     type RoamingPacketBundleReceivedPacketsCount: Parameter + Member + Default;

@@ -49,7 +49,7 @@ pub trait Trait:
     + mining_config_token::Trait
     + mining_sampling_token::Trait
 {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningEligibilityTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningEligibilityTokenCalculatedEligibility: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningEligibilityTokenLockedPercentage: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;

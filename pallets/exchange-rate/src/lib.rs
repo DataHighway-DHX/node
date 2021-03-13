@@ -50,7 +50,7 @@ pub struct ExchangeRateConfig<H, D, I, F, P> {
 }
 
 pub trait Trait: frame_system::Trait + roaming_operators::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type ExchangeRateIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type HBTCRate: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type DOTRate: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;

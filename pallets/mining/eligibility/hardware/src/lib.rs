@@ -49,7 +49,7 @@ pub trait Trait:
     + mining_config_hardware::Trait
     + mining_sampling_hardware::Trait
 {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningEligibilityHardwareIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningEligibilityHardwareCalculatedEligibility: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningEligibilityHardwareUptimePercentage: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
