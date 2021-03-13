@@ -30,5 +30,6 @@ members = [
     'pallets/mining/eligibility/hardware',
     'pallets/mining/claims/token',
     'pallets/mining/claims/hardware',
+    'pallets/treasury/dao',
     'runtime',
 ]

@@ -54,11 +54,11 @@ pub struct MiningEligibilityProxy(pub [u8; 16]);
 
 #[derive(Encode, Decode, Debug, Default, Clone, PartialEq)]
 #[cfg_attr(feature = "std", derive())]
-pub struct MiningEligibilityProxyResult<U, V, W, X> {
+pub struct MiningEligibilityProxyResult<U, V, X> {
     pub proxy_claim_requestor_account_id: U, /* Supernode (proxy) account id requesting DHX rewards as proxy to
                                               * distribute to its miners */
     pub proxy_claim_total_reward_amount: V,
-    pub proxy_claim_rewardees_data: W,
+    // pub proxy_claim_rewardees_data: W,
     pub proxy_claim_block_redeemed: X,
 }
 
@@ -85,14 +85,14 @@ decl_event!(
         <T as Trait>::MiningEligibilityProxyIndex,
         BalanceOf = BalanceOf<T>,
         <T as frame_system::Trait>::BlockNumber,
-        RewardeeData = RewardeeData<T>,
+        // RewardeeData = RewardeeData<T>,
     {
         Created(AccountId, MiningEligibilityProxyIndex),
         MiningEligibilityProxyResultSet(
             AccountId,
             MiningEligibilityProxyIndex,
             BalanceOf,
-            Vec<RewardeeData>,
+            // Vec<RewardeeData>,
             BlockNumber,
         ),
         IsAMember(AccountId),
@@ -116,7 +116,7 @@ decl_storage! {
             Option<MiningEligibilityProxyResult<
                 T::AccountId,
                 BalanceOf<T>,
-                Vec<RewardeeData<T>>,
+                // Vec<RewardeeData<T>>,
                 T::BlockNumber,
             >>;
     }
@@ -136,7 +136,7 @@ decl_module! {
         pub fn proxy_eligibility_claim(
             origin,
             _proxy_claim_total_reward_amount: BalanceOf<T>,
-            _proxy_claim_rewardees_data: Option<Vec<RewardeeData<T>>>,
+            // _proxy_claim_rewardees_data: Option<Vec<RewardeeData<T>>>,
         ) -> Result<(), DispatchError> {
             let sender = ensure_signed(origin)?;
 
@@ -152,17 +152,25 @@ decl_module! {
                 }
             }
 
-            ensure!(Self::is_supernode_claim_reasonable(_proxy_claim_total_reward_amount).is_ok(), "Supernode claim has been deemed unreasonable");
+            // ensure!(Self::is_supernode_claim_reasonable(_proxy_claim_total_reward_amount).is_ok(), "Supernode claim has been deemed unreasonable");
 
-            if let Some(rewardees_data) = _proxy_claim_rewardees_data {
-                Self::is_valid_reward_data(rewardees_data.clone());
+            // if let Some(rewardees_data) = _proxy_claim_rewardees_data {
+            //     Self::is_valid_reward_data(rewardees_data.clone());
 
                 debug::info!("Transferring claim to proxy Supernode");
                 // Distribute the reward to the account that has locked the funds
                 let treasury_account_id: T::AccountId = <pallet_treasury::Module<T>>::account_id();
+                // let max_payout = pallet_treasury::Module::<T>::pot();
+                debug::info!("Treasury account id: {:?}", treasury_account_id.clone());
+                debug::info!("Requestor to receive reward: {:?}", sender.clone());
+                // debug::info!("Treasury balance max payout: {:?}", max_payout.clone());
 
                 let reward_to_pay_as_balance_to_try = TryInto::<BalanceOf<T>>::try_into(_proxy_claim_total_reward_amount).ok();
                 if let Some(reward_to_pay) = reward_to_pay_as_balance_to_try {
+                    // ensure!(max_payout > reward_to_pay, "Reward cannot exceed treasury balance");
+
+                    debug::info!("Treasury paying reward");
+
                     <T as Trait>::Currency::transfer(
                         &treasury_account_id,
                         &sender,
@@ -177,14 +185,14 @@ decl_module! {
                     sender.clone(),
                     mining_eligibility_proxy_id,
                     _proxy_claim_total_reward_amount,
-                    rewardees_data,
+                    // rewardees_data,
                 );
 
                 return Ok(());
-            } else {
-                debug::info!("Proxy claim rewardees data missing");
-                return Err(DispatchError::Other("Proxy claim rewardees data missing"));
-            }
+            // } else {
+            //     debug::info!("Proxy claim rewardees data missing");
+            //     return Err(DispatchError::Other("Proxy claim rewardees data missing"));
+            // }
         }
     }
 }
@@ -205,7 +213,6 @@ impl<T: Trait> Module<T> {
         Self::deposit_event(RawEvent::Created(sender, mining_eligibility_proxy_id));
         return Ok(mining_eligibility_proxy_id);
     }
-
 
     /// Checks whether the caller is a member of the set of account IDs provided by the
     /// MembershipSource type. Emits an event if they are, and errors if not.
@@ -352,7 +359,7 @@ impl<T: Trait> Module<T> {
         _proxy_claim_requestor_account_id: T::AccountId,
         mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
         _proxy_claim_total_reward_amount: BalanceOf<T>,
-        _proxy_claim_rewardees_data: Vec<RewardeeData<T>>,
+        // _proxy_claim_rewardees_data: Vec<RewardeeData<T>>,
     ) {
         // Ensure that the mining_eligibility_proxy_id whose config we want to change actually exists
         let is_mining_eligibility_proxy = Self::exists_mining_eligibility_proxy(mining_eligibility_proxy_id);
@@ -368,7 +375,7 @@ impl<T: Trait> Module<T> {
 
         let proxy_claim_requestor_account_id = _proxy_claim_requestor_account_id.clone();
         let proxy_claim_total_reward_amount = _proxy_claim_total_reward_amount.clone();
-        let proxy_claim_rewardees_data = _proxy_claim_rewardees_data.clone();
+        // let proxy_claim_rewardees_data = _proxy_claim_rewardees_data.clone();
         let current_block = <frame_system::Module<T>>::block_number();
         let proxy_claim_block_redeemed = current_block;
 
@@ -386,8 +393,8 @@ impl<T: Trait> Module<T> {
                             proxy_claim_requestor_account_id.clone();
                         _mining_eligibility_proxy_result.proxy_claim_total_reward_amount =
                             proxy_claim_total_reward_amount.clone();
-                        _mining_eligibility_proxy_result.proxy_claim_rewardees_data =
-                            proxy_claim_rewardees_data.clone();
+                        // _mining_eligibility_proxy_result.proxy_claim_rewardees_data =
+                        //     proxy_claim_rewardees_data.clone();
                         _mining_eligibility_proxy_result.proxy_claim_block_redeemed =
                             proxy_claim_block_redeemed.clone();
                     }
@@ -424,7 +431,7 @@ impl<T: Trait> Module<T> {
                 // we will assign a default value if a parameter value is not provided.
                 proxy_claim_requestor_account_id: proxy_claim_requestor_account_id.clone(),
                 proxy_claim_total_reward_amount: proxy_claim_total_reward_amount.clone(),
-                proxy_claim_rewardees_data: proxy_claim_rewardees_data.clone(),
+                // proxy_claim_rewardees_data: proxy_claim_rewardees_data.clone(),
                 proxy_claim_block_redeemed: proxy_claim_block_redeemed.clone(),
             };
 
@@ -460,7 +467,7 @@ impl<T: Trait> Module<T> {
             proxy_claim_requestor_account_id,
             mining_eligibility_proxy_id,
             proxy_claim_total_reward_amount,
-            proxy_claim_rewardees_data,
+            // proxy_claim_rewardees_data,
             proxy_claim_block_redeemed,
         ));
     }

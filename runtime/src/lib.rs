@@ -86,6 +86,7 @@ pub use sp_runtime::{
     Percent,
     Permill,
 };
+pub use treasury_dao;
 
 /// Opaque types. These are used by the CLI to instantiate machinery that don't need to know
 /// the specifics of the runtime. They can then be made to be agnostic over specific formats
@@ -728,6 +729,11 @@ impl membership_supernodes::Trait for Runtime {
     type Event = Event;
 }
 
+impl treasury_dao::Trait for Runtime {
+    type Currency = Balances;
+    type Event = Event;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
     pub enum Runtime where
@@ -747,6 +753,7 @@ construct_runtime!(
         GeneralCouncil: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
         GeneralCouncilMembership: pallet_membership::<Instance1>::{Module, Call, Storage, Event<T>, Config<T>},
         PalletTreasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
+        TreasuryDAO: treasury_dao::{Module, Call, Event<T>},
         Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
         Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>},
         MembershipSupernodes: membership_supernodes::{Module, Call, Storage, Event<T>},

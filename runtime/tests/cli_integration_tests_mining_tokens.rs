@@ -78,11 +78,11 @@ mod tests {
         Trait as MiningConfigTokenTrait,
     };
     use mining_eligibility_proxy::{
+        Event as MiningEligibilityProxyEvent,
         MiningEligibilityProxyClaimRewardeeData,
         MiningEligibilityProxyResult,
         Module as MiningEligibilityProxyModule,
         Trait as MiningEligibilityProxyTrait,
-        Event as MiningEligibilityProxyEvent,
     };
     use mining_eligibility_token::{
         MiningEligibilityTokenResult,
