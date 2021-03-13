@@ -29,6 +29,7 @@ use sp_runtime::{
     generic,
     impl_opaque_keys,
     traits::{
+        AccountIdLookup,
         BlakeTwo256,
         Block as BlockT,
         Convert,
@@ -197,7 +198,7 @@ impl frame_system::Trait for Runtime {
     /// The index type for storing how many extrinsics an account has signed.
     type Index = Index;
     /// The lookup mechanism to get account ID from whatever is passed in dispatchers.
-    type Lookup = IdentityLookup<AccountId>;
+    type Lookup = AccountIdLookup<AccountId>;
     /// Maximum size of all encoded transactions (in bytes) that are allowed in one block.
     type MaximumBlockLength = MaximumBlockLength;
     /// Maximum weight of each block.
