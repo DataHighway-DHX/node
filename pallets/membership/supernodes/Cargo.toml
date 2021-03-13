@@ -16,7 +16,7 @@ categories = [
 compatibility_version = "2.0.0"
 
 [dependencies]
-codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false, features = ["derive"] }
+codec = { package = 'parity-scale-codec', version = '2.0.0', default-features = false, features = ['derive'] }
 
 # Substrate packages
 frame-support = { version = '2.0.0', default-features = false }

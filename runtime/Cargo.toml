@@ -69,7 +69,7 @@ std = [
 ]
 
 [dependencies]
-codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false, features = ["derive"] }
+codec = { package = 'parity-scale-codec', version = '2.0.0', default-features = false, features = ['derive'] }
 frame-executive = { version = '2.0.0', default-features = false }
 frame-support = { version = '2.0.0', default-features = false }
 frame-system-rpc-runtime-api = { version = '2.0.0', default-features = false }
