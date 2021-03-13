@@ -19,17 +19,17 @@ compatibility_version = "2.0.0"
 codec = { package = 'parity-scale-codec', version = '2.0.0', default-features = false, features = ['derive'] }
 
 # Substrate packages
-frame-support = { version = '2.0.0', default-features = false }
-frame-system = { version = '2.0.0', default-features = false }
-sp-runtime = { version = '2.0.0', default-features = false }
-sp-std = { version = '2.0.0', default-features = false }
+frame-support = { version = '3.0.0', default-features = false }
+frame-system = { version = '3.0.0', default-features = false }
+sp-runtime = { version = '3.0.0', default-features = false }
+sp-std = { version = '3.0.0', default-features = false }
 
 # local packages
 account-set = { path = '../../../traits/account-set', default-features = false }
 
 [dev-dependencies]
-sp-core = { version = '2.0.0', default-features = false }
-sp-io = { version = '2.0.0', default-features = false }
+sp-core = { version = '3.0.0', default-features = false }
+sp-io = { version = '3.0.0', default-features = false }
 
 [features]
 default = ['std']

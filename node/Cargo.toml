@@ -31,8 +31,8 @@ sc-basic-authorship = '0.8.0'
 sc-cli = { features = ['wasmtime'], version = '0.8.0' }
 sc-client-api = '2.0.0'
 sc-consensus-epochs = { version = '0.8.0' }
-sc-chain-spec = { version = '2.0.0' }
-sc-keystore = { version = '2.0.0' }
+sc-chain-spec = { version = '3.0.0' }
+sc-keystore = { version = '0.9.0' }
 sc-consensus = '0.8.0'
 sc-consensus-aura = '0.8.0'
 sc-executor = { features = ['wasmtime'], version = '0.8.0' }
@@ -54,7 +54,7 @@ sp-transaction-pool = '2.0.0'
 sp-consensus-babe = { version = '0.8.0' }
 sc-consensus-babe = { version = '0.8.0' }
 sc-consensus-babe-rpc = { version = '0.8.0' }
-sc-telemetry = { version = '2.0.0' }
+sc-telemetry = { version = '3.0.0' }
 substrate-frame-rpc-system = '2.0.0'
 
 serde_json = '1.0.47'
