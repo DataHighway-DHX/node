@@ -360,44 +360,65 @@ parameter_types! {
     pub const ProposalBondMinimum: Balance = 1_000_000_000_000_000_000;
     pub const SpendPeriod: BlockNumber = 1 * DAYS;
     pub const Burn: Permill = Permill::from_percent(0);
-    pub const TipCountdown: BlockNumber = 1 * DAYS;
-    pub const TipFindersFee: Percent = Percent::from_percent(20);
-    pub const TipReportDepositBase: Balance = 1_000_000_000_000_000_000;
+    // pub const TipCountdown: BlockNumber = 1 * DAYS;
+    // pub const TipFindersFee: Percent = Percent::from_percent(20);
+    // pub const TipReportDepositBase: Balance = 1_000_000_000_000_000_000;
     pub const MaximumReasonLength: u32 = 16384;
     pub const BountyValueMinimum: u64 = 1;
     pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
     pub const BountyDepositBase: u64 = 80;
     pub const BountyDepositPayoutDelay: u32 = 3;
     pub const BountyUpdatePeriod: u32 = 20;
-    pub const DataDepositPerByte: u64 = 1;
+    // pub const DataDepositPerByte: u64 = 1;
     pub const TreasuryModuleId: ModuleId = ModuleId(*b"py/trsry");
 }
 
 impl pallet_treasury::Config for Runtime {
-    type ApproveOrigin = pallet_collective::EnsureMembers<_4, AccountId, GeneralCouncilInstance>;
+    type ApproveOrigin = EnsureOneOf<
+        AccountId,
+        EnsureRoot<AccountId>,
+        pallet_collective::EnsureProportionAtLeast<_3, _5, AccountId, GeneralCouncilInstance>,
+    >;
+    type Burn = Burn;
+    type BurnDestination = ();
+    type Currency = Balances;
+    type Event = Event;
+    type ModuleId = TreasuryModuleId;
+    type OnSlash = ();
+    type ProposalBond = ProposalBond;
+    type ProposalBondMinimum = ProposalBondMinimum;
+    type RejectOrigin = EnsureOneOf<
+        AccountId,
+        EnsureRoot<AccountId>,
+        pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, GeneralCouncilInstance>,
+    >;
+    type SpendFunds = Bounties;
+    type SpendPeriod = SpendPeriod;
+    // Just gets burned.
+    type WeightInfo = pallet_treasury::weights::SubstrateWeight<Runtime>;
+}
+
+impl pallet_bounties::Config for Runtime {
     type BountyCuratorDeposit = BountyCuratorDeposit;
     type BountyDepositBase = BountyDepositBase;
     type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
     type BountyUpdatePeriod = BountyUpdatePeriod;
     type BountyValueMinimum = BountyValueMinimum;
-    type Burn = Burn;
-    type BurnDestination = ();
-    type Currency = Balances;
     type DataDepositPerByte = DataDepositPerByte;
     type Event = Event;
     type MaximumReasonLength = MaximumReasonLength;
-    type ModuleId = TreasuryModuleId;
-    type OnSlash = ();
-    type ProposalBond = ProposalBond;
-    type ProposalBondMinimum = ProposalBondMinimum;
-    type RejectOrigin = pallet_collective::EnsureMembers<_2, AccountId, GeneralCouncilInstance>;
-    type SpendPeriod = SpendPeriod;
+    type WeightInfo = pallet_bounties::weights::SubstrateWeight<Runtime>;
+}
+
+impl pallet_tips::Config for Runtime {
+    type DataDepositPerByte = DataDepositPerByte;
+    type Event = Event;
+    type MaximumReasonLength = MaximumReasonLength;
     type TipCountdown = TipCountdown;
     type TipFindersFee = TipFindersFee;
     type TipReportDepositBase = TipReportDepositBase;
     type Tippers = GeneralCouncilProvider;
-    // Just gets burned.
-    type WeightInfo = ();
+    type WeightInfo = pallet_tips::weights::SubstrateWeight<Runtime>;
 }
 
 parameter_types! {
