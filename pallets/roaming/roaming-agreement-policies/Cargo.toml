@@ -27,19 +27,19 @@ std = [
 [dependencies]
 codec = { package = 'parity-scale-codec', version = '2.0.0', default-features = false, features = ['derive'] }
 safe-mix = { version = '1.0.0', default-features = false }
-frame-support = { version = '3.0.0', default_features = false }
-frame-system = { version = '3.0.0', default_features = false }
-pallet-balances = { version = '3.0.0', default_features = false }
-pallet-randomness-collective-flip = { version = '3.0.0', default_features = false }
-pallet-transaction-payment = { version = '3.0.0', default_features = false }
-sp-core = { version = '3.0.0', default_features = false }
-sp-io = { version = '3.0.0', default_features = false }
-sp-runtime = { version = '3.0.0', default_features = false }
-sp-std = { version = '3.0.0', default_features = false }
+frame-support = { version = '3.0.0', default-features = false }
+frame-system = { version = '3.0.0', default-features = false }
+pallet-balances = { version = '3.0.0', default-features = false }
+pallet-randomness-collective-flip = { version = '3.0.0', default-features = false }
+pallet-transaction-payment = { version = '3.0.0', default-features = false }
+sp-core = { version = '3.0.0', default-features = false }
+sp-io = { version = '3.0.0', default-features = false }
+sp-runtime = { version = '3.0.0', default-features = false }
+sp-std = { version = '3.0.0', default-features = false }
 
-# env = { default_features = false, package = 'env', path = '../../env' }
-roaming-networks = { default_features = false, package = 'roaming-networks', path = '../roaming-networks' }
-roaming-accounting-policies = { default_features = false, package = 'roaming-accounting-policies', path = '../roaming-accounting-policies' }
-roaming-operators = { default_features = false, package = 'roaming-operators', path = '../roaming-operators' }
+# env = { default-features = false, package = 'env', path = '../../env' }
+roaming-networks = { default-features = false, package = 'roaming-networks', path = '../roaming-networks' }
+roaming-accounting-policies = { default-features = false, package = 'roaming-accounting-policies', path = '../roaming-accounting-policies' }
+roaming-operators = { default-features = false, package = 'roaming-operators', path = '../roaming-operators' }
 
 [dev-dependencies]
