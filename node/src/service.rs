@@ -207,7 +207,6 @@ pub fn new_full(config: Configuration) -> Result<TaskManager, ServiceError> {
             env: proposer,
             block_import,
             sync_oracle: network.clone(),
-            inherent_data_providers: inherent_data_providers.clone(),
             force_authoring,
             babe_link,
             can_author_with,
@@ -261,7 +260,7 @@ pub fn new_full(config: Configuration) -> Result<TaskManager, ServiceError> {
             .spawn_essential_handle()
             .spawn_blocking("grandpa-voter", sc_finality_grandpa::run_grandpa_voter(grandpa_config)?);
     } else {
-        sc_finality_grandpa::setup_disabled_grandpa(client, &inherent_data_providers, network)?;
+        sc_finality_grandpa::setup_disabled_grandpa(network.clone())?;
     }
 
     network_starter.start_network();
