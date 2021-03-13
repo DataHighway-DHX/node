@@ -15,7 +15,7 @@ use sc_consensus_babe::{
 };
 
 use sc_consensus_epochs::SharedEpochChanges;
-use sc_keystore::KeyStorePtr;
+use sc_keystore::SyncCryptoStorePtr;
 use sp_api::ProvideRuntimeApi;
 use sp_blockchain::{
     Error as BlockChainError,
@@ -36,7 +36,7 @@ pub struct BabeDeps {
     /// BABE pending epoch changes.
     pub shared_epoch_changes: SharedEpochChanges<Block, Epoch>,
     /// The keystore that manages the keys of the node.
-    pub keystore: KeyStorePtr,
+    pub keystore: SyncCryptoStorePtr,
 }
 
 /// Full client dependencies.
