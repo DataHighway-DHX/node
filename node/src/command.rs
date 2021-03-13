@@ -17,6 +17,8 @@
 
 use crate::{
     chain_spec::load_spec as chain_load_spec,
+    // // Substrate 3
+    // chain_spec,
     cli::{
         Cli,
         Subcommand,
@@ -71,6 +73,7 @@ pub fn run() -> sc_cli::Result<()> {
     let cli = Cli::from_args();
 
     match &cli.subcommand {
+        Some(Subcommand::Key(cmd)) => cmd.run(&cli),
         Some(Subcommand::BuildSpec(cmd)) => {
             let runner = cli.create_runner(cmd)?;
             runner.sync_run(|config| cmd.run(config.chain_spec, config.network))
@@ -137,12 +140,26 @@ pub fn run() -> sc_cli::Result<()> {
                 Ok((cmd.run(client, backend), task_manager))
             })
         }
+        Some(Subcommand::Benchmark(cmd)) => {
+            if cfg!(feature = "runtime-benchmarks") {
+                let runner = cli.create_runner(cmd)?;
+
+                runner.sync_run(|config| cmd.run::<Block, service::Executor>(config))
+            } else {
+                Err("Benchmarking wasn't enabled when building the node. You can enable it with `--features \
+                     runtime-benchmarks`."
+                    .into())
+            }
+        }
         None => {
             let runner = cli.create_runner(&cli.run)?;
             runner.run_node_until_exit(|config| {
-                match config.role {
-                    Role::Light => service::new_light(config),
-                    _ => service::new_full(config),
+                async move {
+                    match config.role {
+                        Role::Light => service::new_light(config),
+                        _ => service::new_full(config),
+                    }
+                    .map_err(sc_cli::Error::Service)
                 }
             })
         }
