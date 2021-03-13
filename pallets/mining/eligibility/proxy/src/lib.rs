@@ -36,8 +36,8 @@ use sp_std::{
 };
 
 /// The module's configuration trait.
-pub trait Trait:
-    frame_system::Trait + roaming_operators::Trait + pallet_treasury::Trait + pallet_balances::Trait
+pub trait Config:
+    frame_system::Config + roaming_operators::Config + pallet_treasury::Config + pallet_balances::Config
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type Currency: Currency<Self::AccountId>;
@@ -46,7 +46,7 @@ pub trait Trait:
     type MiningEligibilityProxyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
-type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+type BalanceOf<T> = <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive())]
@@ -73,18 +73,18 @@ pub struct MiningEligibilityProxyClaimRewardeeData<U, V, W, X> {
 }
 
 type RewardeeData<T> = MiningEligibilityProxyClaimRewardeeData<
-    <T as frame_system::Trait>::AccountId,
+    <T as frame_system::Config>::AccountId,
     BalanceOf<T>,
-    <T as frame_system::Trait>::BlockNumber,
-    <T as frame_system::Trait>::BlockNumber,
+    <T as frame_system::Config>::BlockNumber,
+    <T as frame_system::Config>::BlockNumber,
 >;
 
 decl_event!(
     pub enum Event<T> where
-        AccountId = <T as frame_system::Trait>::AccountId,
-        <T as Trait>::MiningEligibilityProxyIndex,
+        AccountId = <T as frame_system::Config>::AccountId,
+        <T as Config>::MiningEligibilityProxyIndex,
         BalanceOf = BalanceOf<T>,
-        <T as frame_system::Trait>::BlockNumber,
+        <T as frame_system::Config>::BlockNumber,
         // RewardeeData = RewardeeData<T>,
     {
         Created(AccountId, MiningEligibilityProxyIndex),
@@ -101,7 +101,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as MiningEligibilityProxy {
+    trait Store for Module<T: Config> as MiningEligibilityProxy {
         /// Stores all the mining_eligibility_proxys, key is the mining_eligibility_proxy id / index
         pub MiningEligibilityProxys get(fn mining_eligibility_proxy): map hasher(opaque_blake2_256) T::MiningEligibilityProxyIndex => Option<MiningEligibilityProxy>;
 
@@ -125,7 +125,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: <T as frame_system::Trait>::Origin {
+    pub struct Module<T: Config> for enum Call where origin: <T as frame_system::Config>::Origin {
         fn deposit_event() = default;
 
         /// Transfer tokens claimed by the Supernode Centre on behalf of a Supernode from the
@@ -171,7 +171,7 @@ decl_module! {
 
                     debug::info!("Treasury paying reward");
 
-                    <T as Trait>::Currency::transfer(
+                    <T as Config>::Currency::transfer(
                         &treasury_account_id,
                         &sender,
                         reward_to_pay,
@@ -197,7 +197,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     /// Create a new mining mining_eligibility_proxy
     // #[weight = 10_000 + T::DbWeight::get().writes(1)]
     pub fn create(sender: T::AccountId) -> Result<T::MiningEligibilityProxyIndex, DispatchError> {

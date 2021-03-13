@@ -38,8 +38,8 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait:
-    frame_system::Trait + roaming_operators::Trait + roaming_devices::Trait + roaming_network_servers::Trait
+pub trait Config:
+    frame_system::Config + roaming_operators::Config + roaming_devices::Config + roaming_network_servers::Config
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingSessionIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
@@ -67,11 +67,11 @@ pub struct RoamingSessionJoinAccept<U, V> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::RoamingSessionIndex,
-        <T as roaming_devices::Trait>::RoamingDeviceIndex,
-        <T as roaming_network_servers::Trait>::RoamingNetworkServerIndex,
-        <T as frame_system::Trait>::BlockNumber,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::RoamingSessionIndex,
+        <T as roaming_devices::Config>::RoamingDeviceIndex,
+        <T as roaming_network_servers::Config>::RoamingNetworkServerIndex,
+        <T as frame_system::Config>::BlockNumber,
     {
         /// A roaming session is created. (owner, roaming_session_id)
         Created(AccountId, RoamingSessionIndex),
@@ -88,7 +88,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingSessions {
+    trait Store for Module<T: Config> as RoamingSessions {
         /// Stores all the roaming sessions, key is the roaming session id / index
         pub RoamingSessions get(fn roaming_session): map hasher(opaque_blake2_256) T::RoamingSessionIndex => Option<RoamingSession>;
 
@@ -115,7 +115,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new roaming session
@@ -362,7 +362,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_roaming_session_owner(
         roaming_session_id: T::RoamingSessionIndex,
         sender: T::AccountId,

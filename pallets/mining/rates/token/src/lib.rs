@@ -39,7 +39,7 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait {
+pub trait Config: frame_system::Config + roaming_operators::Config {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningRatesTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningRatesTokenTokenMXC: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
@@ -49,8 +49,8 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
     type MiningRatesTokenMaxLoyalty: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
-// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
-// frame_system::Trait>::AccountId>>::Balance;
+// type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
+// frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -68,13 +68,13 @@ pub struct MiningRatesTokenConfig<U, V, W, X, Y> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::MiningRatesTokenIndex,
-        <T as Trait>::MiningRatesTokenTokenMXC,
-        <T as Trait>::MiningRatesTokenTokenIOTA,
-        <T as Trait>::MiningRatesTokenTokenDOT,
-        <T as Trait>::MiningRatesTokenMaxToken,
-        <T as Trait>::MiningRatesTokenMaxLoyalty,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::MiningRatesTokenIndex,
+        <T as Config>::MiningRatesTokenTokenMXC,
+        <T as Config>::MiningRatesTokenTokenIOTA,
+        <T as Config>::MiningRatesTokenTokenDOT,
+        <T as Config>::MiningRatesTokenMaxToken,
+        <T as Config>::MiningRatesTokenMaxLoyalty,
         // Balance = BalanceOf<T>,
     {
         /// A mining_rates_token is created. (owner, mining_rates_token_id)
@@ -91,7 +91,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as MiningRatesToken {
+    trait Store for Module<T: Config> as MiningRatesToken {
         /// Stores all the mining_rates_tokens, key is the mining_rates_token id / index
         pub MiningRatesTokens get(fn mining_rates_token): map hasher(opaque_blake2_256) T::MiningRatesTokenIndex => Option<MiningRatesToken>;
 
@@ -111,7 +111,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new mining mining_rates_token
@@ -185,7 +185,7 @@ decl_module! {
             };
 
             // FIXME - how to use float and overcome error:
-            //  the trait `std::str::FromStr` is not implemented for `<T as Trait>::MiningRatesTokenMaxToken
+            //  the trait `std::str::FromStr` is not implemented for `<T as Config>::MiningRatesTokenMaxToken
             // if token_token_mxc > "1.2".parse().unwrap() || token_token_iota > "1.2".parse().unwrap() || token_token_dot > "1.2".parse().unwrap() || token_max_token > "1.6".parse().unwrap() || token_max_loyalty > "1.2".parse().unwrap() {
             //   debug::info!("Token rate cannot be this large");
 
@@ -258,7 +258,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_rates_token_owner(
         mining_rates_token_id: T::MiningRatesTokenIndex,
         sender: T::AccountId,

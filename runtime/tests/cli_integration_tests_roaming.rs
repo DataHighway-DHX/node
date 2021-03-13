@@ -38,67 +38,67 @@ mod tests {
         Perbill,
         Permill,
     };
-    // Import Trait for each runtime module being tested
+    // Import Config for each runtime module being tested
     use roaming_accounting_policies::{
         Module as RoamingAccountingPolicyModule,
         RoamingAccountingPolicyConfig,
-        Trait as RoamingAccountingPolicyTrait,
+        Config as RoamingAccountingPolicyConfig,
     };
     use roaming_agreement_policies::{
         Module as RoamingAgreementPolicyModule,
         RoamingAgreementPolicyConfig,
-        Trait as RoamingAgreementPolicyTrait,
+        Config as RoamingAgreementPolicyConfig,
     };
     use roaming_billing_policies::{
         Module as RoamingBillingPolicyModule,
         RoamingBillingPolicyConfig,
-        Trait as RoamingBillingPolicyTrait,
+        Config as RoamingBillingPolicyConfig,
     };
     use roaming_charging_policies::{
         Module as RoamingChargingPolicyModule,
         RoamingChargingPolicyConfig,
-        Trait as RoamingChargingPolicyTrait,
+        Config as RoamingChargingPolicyConfig,
     };
     use roaming_device_profiles::{
         Module as RoamingDeviceProfileModule,
         RoamingDeviceProfileConfig,
-        Trait as RoamingDeviceProfileTrait,
+        Config as RoamingDeviceProfileConfig,
     };
     use roaming_devices::{
         Module as RoamingDeviceModule,
-        Trait as RoamingDeviceTrait,
+        Config as RoamingDeviceConfig,
     };
     use roaming_network_profiles::{
         Module as RoamingNetworkProfileModule,
-        Trait as RoamingNetworkProfileTrait,
+        Config as RoamingNetworkProfileConfig,
     };
     use roaming_network_servers::{
         Module as RoamingNetworkServerModule,
-        Trait as RoamingNetworkServerTrait,
+        Config as RoamingNetworkServerConfig,
     };
     use roaming_networks::{
         Module as RoamingNetworkModule,
-        Trait as RoamingNetworkTrait,
+        Config as RoamingNetworkConfig,
     };
     use roaming_operators::{
         Module as RoamingOperatorModule,
-        Trait as RoamingOperatorTrait,
+        Config as RoamingOperatorConfig,
     };
     use roaming_organizations::{
         Module as RoamingOrganizationModule,
-        Trait as RoamingOrganizationTrait,
+        Config as RoamingOrganizationConfig,
     };
     use roaming_routing_profiles::{
         Module as RoamingRoutingProfileModule,
-        Trait as RoamingRoutingProfileTrait,
+        Config as RoamingRoutingProfileConfig,
     };
     use roaming_service_profiles::{
         Module as RoamingServiceProfileModule,
-        Trait as RoamingServiceProfileTrait,
+        Config as RoamingServiceProfileConfig,
     };
 
-    // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Trait>::Origin {
-    // 	<Runtime as frame_system::Trait>::Origin::signed((*who).clone())
+    // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Config>::Origin {
+    // 	<Runtime as frame_system::Config>::Origin::signed((*who).clone())
     // }
 
     impl_outer_origin! {
@@ -113,7 +113,7 @@ mod tests {
         pub const MaximumBlockLength: u32 = 2 * 1024;
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
-    impl frame_system::Trait for Test {
+    impl frame_system::Config for Test {
         type AccountData = pallet_balances::AccountData<u64>;
         type AccountId = u64;
         type AvailableBlockRatio = AvailableBlockRatio;
@@ -144,7 +144,7 @@ mod tests {
     parameter_types! {
         pub const ExistentialDeposit: u64 = 1;
     }
-    impl pallet_balances::Trait for Test {
+    impl pallet_balances::Config for Test {
         type AccountStore = System;
         type Balance = u64;
         type DustRemoval = ();
@@ -153,71 +153,71 @@ mod tests {
         type MaxLocks = ();
         type WeightInfo = ();
     }
-    impl pallet_transaction_payment::Trait for Test {
+    impl pallet_transaction_payment::Config for Test {
         type Currency = Balances;
         type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
         type TransactionByteFee = ();
         type WeightToFee = IdentityFee<u64>;
     }
-    impl RoamingOperatorTrait for Test {
+    impl RoamingOperatorConfig for Test {
         type Currency = Balances;
         type Event = ();
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
-    impl RoamingNetworkTrait for Test {
+    impl RoamingNetworkConfig for Test {
         type Event = ();
         type RoamingNetworkIndex = u64;
     }
-    impl RoamingOrganizationTrait for Test {
+    impl RoamingOrganizationConfig for Test {
         type Event = ();
         type RoamingOrganizationIndex = u64;
     }
-    impl RoamingNetworkServerTrait for Test {
+    impl RoamingNetworkServerConfig for Test {
         type Event = ();
         type RoamingNetworkServerIndex = u64;
     }
-    impl RoamingAgreementPolicyTrait for Test {
+    impl RoamingAgreementPolicyConfig for Test {
         type Event = ();
         type RoamingAgreementPolicyActivationType = Vec<u8>;
         type RoamingAgreementPolicyIndex = u64;
     }
-    impl RoamingAccountingPolicyTrait for Test {
+    impl RoamingAccountingPolicyConfig for Test {
         type Event = ();
         type RoamingAccountingPolicyDownlinkFeeFactor = u32;
         type RoamingAccountingPolicyIndex = u64;
         type RoamingAccountingPolicyType = Vec<u8>;
         type RoamingAccountingPolicyUplinkFeeFactor = u32;
     }
-    impl RoamingRoutingProfileTrait for Test {
+    impl RoamingRoutingProfileConfig for Test {
         type Event = ();
         type RoamingRoutingProfileAppServer = Vec<u8>;
         type RoamingRoutingProfileIndex = u64;
     }
-    impl RoamingDeviceTrait for Test {
+    impl RoamingDeviceConfig for Test {
         type Event = ();
         type RoamingDeviceIndex = u64;
     }
-    impl RoamingServiceProfileTrait for Test {
+    impl RoamingServiceProfileConfig for Test {
         type Event = ();
         type RoamingServiceProfileDownlinkRate = u32;
         type RoamingServiceProfileIndex = u64;
         type RoamingServiceProfileUplinkRate = u32;
     }
-    impl RoamingBillingPolicyTrait for Test {
+    impl RoamingBillingPolicyConfig for Test {
         type Event = ();
         type RoamingBillingPolicyIndex = u64;
     }
-    impl RoamingChargingPolicyTrait for Test {
+    impl RoamingChargingPolicyConfig for Test {
         type Event = ();
         type RoamingChargingPolicyIndex = u64;
     }
-    impl RoamingNetworkProfileTrait for Test {
+    impl RoamingNetworkProfileConfig for Test {
         type Event = ();
         type RoamingNetworkProfileIndex = u64;
     }
-    impl RoamingDeviceProfileTrait for Test {
+    impl RoamingDeviceProfileConfig for Test {
         type Event = ();
         type RoamingDeviceProfileDevAddr = Vec<u8>;
         type RoamingDeviceProfileDevEUI = Vec<u8>;

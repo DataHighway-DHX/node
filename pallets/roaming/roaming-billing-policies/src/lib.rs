@@ -38,7 +38,7 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait + roaming_networks::Trait {
+pub trait Config: frame_system::Config + roaming_operators::Config + roaming_networks::Config {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingBillingPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
@@ -57,11 +57,11 @@ pub struct RoamingBillingPolicyConfig<U, V> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::RoamingBillingPolicyIndex,
-        <T as roaming_networks::Trait>::RoamingNetworkIndex,
-        <T as roaming_operators::Trait>::RoamingOperatorIndex,
-        <T as frame_system::Trait>::BlockNumber,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::RoamingBillingPolicyIndex,
+        <T as roaming_networks::Config>::RoamingNetworkIndex,
+        <T as roaming_operators::Config>::RoamingOperatorIndex,
+        <T as frame_system::Config>::BlockNumber,
     {
         /// A roaming billing_policy is created. (owner, roaming_billing_policy_id)
         Created(AccountId, RoamingBillingPolicyIndex),
@@ -78,7 +78,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingBillingPolicies {
+    trait Store for Module<T: Config> as RoamingBillingPolicies {
         /// Stores all the roaming billing_policy, key is the roaming billing_policy id / index
         pub RoamingBillingPolicies get(fn roaming_billing_policy): map hasher(opaque_blake2_256) T::RoamingBillingPolicyIndex => Option<RoamingBillingPolicy>;
 
@@ -108,7 +108,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new roaming billing_policy
@@ -291,7 +291,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_roaming_billing_policy_owner(
         roaming_billing_policy_id: T::RoamingBillingPolicyIndex,
         sender: T::AccountId,

@@ -49,7 +49,7 @@ pub struct ExchangeRateConfig<H, D, I, F, P> {
     pub decimals_after_point: P,
 }
 
-pub trait Trait: frame_system::Trait + roaming_operators::Trait {
+pub trait Config: frame_system::Config + roaming_operators::Config {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type ExchangeRateIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type HBTCRate: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
@@ -61,13 +61,13 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::ExchangeRateIndex,
-        <T as Trait>::HBTCRate,
-        <T as Trait>::DOTRate,
-        <T as Trait>::IOTARate,
-        <T as Trait>::FILRate,
-        <T as Trait>::DecimalsAfterPoint,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::ExchangeRateIndex,
+        <T as Config>::HBTCRate,
+        <T as Config>::DOTRate,
+        <T as Config>::IOTARate,
+        <T as Config>::FILRate,
+        <T as Config>::DecimalsAfterPoint,
     {
         /// A exchange_rate is created. (owner, exchange_rate_index)
         Created(AccountId, ExchangeRateIndex),
@@ -82,7 +82,7 @@ decl_event!(
 );
 
 decl_storage! {
-    trait Store for Module<T: Trait> as ExchangeRate {
+    trait Store for Module<T: Config> as ExchangeRate {
         pub ExchangeRates get(fn exchange_rates): map hasher(opaque_blake2_256) T::ExchangeRateIndex => Option<ExchangeRate>;
         pub ExchangeRateOwners get(fn exchange_rate_owner): map hasher(opaque_blake2_256) T::ExchangeRateIndex => Option<T::AccountId>;
         pub ExchangeRateCount get(fn exchange_rate_count): T::ExchangeRateIndex;
@@ -92,7 +92,7 @@ decl_storage! {
 }
 
 decl_module! {
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         #[weight = 10_000 + T::DbWeight::get().writes(3)]
@@ -237,7 +237,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_exchange_rate_owner(
         exchange_rate_id: T::ExchangeRateIndex,
         sender: T::AccountId,

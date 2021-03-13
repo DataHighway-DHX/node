@@ -33,42 +33,42 @@ mod tests {
         Perbill,
         Permill,
     };
-    // Import Trait for each runtime module being tested
+    // Import Config for each runtime module being tested
     use mining_claims_token::{
         MiningClaimsTokenClaimResult,
         Module as MiningClaimsTokenModule,
-        Trait as MiningClaimsTokenTrait,
+        Config as MiningClaimsTokenConfig,
     };
     use mining_config_token::{
         MiningConfigTokenConfig,
         MiningConfigTokenRequirementsConfig,
         Module as MiningConfigTokenModule,
-        Trait as MiningConfigTokenTrait,
+        Config as MiningConfigTokenConfig,
     };
     use mining_eligibility_token::{
         MiningEligibilityTokenResult,
         Module as MiningEligibilityTokenModule,
-        Trait as MiningEligibilityTokenTrait,
+        Config as MiningEligibilityTokenConfig,
     };
     use mining_execution_token::{
         MiningExecutionTokenExecutionResult,
         Module as MiningExecutionTokenModule,
-        Trait as MiningExecutionTokenTrait,
+        Config as MiningExecutionTokenConfig,
     };
     use mining_rates_token::{
         MiningRatesTokenConfig,
         Module as MiningRatesTokenModule,
-        Trait as MiningRatesTokenTrait,
+        Config as MiningRatesTokenConfig,
     };
     use mining_sampling_token::{
         MiningSamplingTokenConfig,
         Module as MiningSamplingTokenModule,
-        Trait as MiningSamplingTokenTrait,
+        Config as MiningSamplingTokenConfig,
     };
     use roaming_operators;
 
-    // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Trait>::Origin {
-    // 	<Runtime as frame_system::Trait>::Origin::signed((*who).clone())
+    // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Config>::Origin {
+    // 	<Runtime as frame_system::Config>::Origin::signed((*who).clone())
     // }
 
     impl_outer_origin! {
@@ -83,7 +83,7 @@ mod tests {
         pub const MaximumBlockLength: u32 = 2 * 1024;
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
     }
-    impl frame_system::Trait for Test {
+    impl frame_system::Config for Test {
         type AccountData = pallet_balances::AccountData<u64>;
         type AccountId = u64;
         type AvailableBlockRatio = AvailableBlockRatio;
@@ -114,7 +114,7 @@ mod tests {
     parameter_types! {
         pub const ExistentialDeposit: u64 = 1;
     }
-    impl pallet_balances::Trait for Test {
+    impl pallet_balances::Config for Test {
         type AccountStore = System;
         type Balance = u64;
         type DustRemoval = ();
@@ -123,7 +123,7 @@ mod tests {
         type MaxLocks = ();
         type WeightInfo = ();
     }
-    impl pallet_transaction_payment::Trait for Test {
+    impl pallet_transaction_payment::Config for Test {
         type Currency = Balances;
         type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
@@ -131,13 +131,13 @@ mod tests {
         type WeightToFee = IdentityFee<u64>;
     }
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
-    impl roaming_operators::Trait for Test {
+    impl roaming_operators::Config for Test {
         type Currency = Balances;
         type Event = ();
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
-    impl MiningConfigTokenTrait for Test {
+    impl MiningConfigTokenConfig for Test {
         type Event = ();
         // type Currency = Balances;
         // type Randomness = Randomness;
@@ -147,7 +147,7 @@ mod tests {
         // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
         type MiningConfigTokenType = Vec<u8>;
     }
-    impl MiningRatesTokenTrait for Test {
+    impl MiningRatesTokenConfig for Test {
         type Event = ();
         type MiningRatesTokenIndex = u64;
         type MiningRatesTokenMaxLoyalty = u32;
@@ -158,24 +158,24 @@ mod tests {
         // Mining Speed Boost Rate
         type MiningRatesTokenTokenMXC = u32;
     }
-    impl MiningSamplingTokenTrait for Test {
+    impl MiningSamplingTokenConfig for Test {
         type Event = ();
         type MiningSamplingTokenIndex = u64;
         type MiningSamplingTokenSampleLockedAmount = u64;
     }
-    impl MiningEligibilityTokenTrait for Test {
+    impl MiningEligibilityTokenConfig for Test {
         type Event = ();
         type MiningEligibilityTokenCalculatedEligibility = u64;
         type MiningEligibilityTokenIndex = u64;
         type MiningEligibilityTokenLockedPercentage = u32;
         // type MiningEligibilityTokenAuditorAccountID = u64;
     }
-    impl MiningClaimsTokenTrait for Test {
+    impl MiningClaimsTokenConfig for Test {
         type Event = ();
         type MiningClaimsTokenClaimAmount = u64;
         type MiningClaimsTokenIndex = u64;
     }
-    impl MiningExecutionTokenTrait for Test {
+    impl MiningExecutionTokenConfig for Test {
         type Event = ();
         type MiningExecutionTokenIndex = u64;
     }

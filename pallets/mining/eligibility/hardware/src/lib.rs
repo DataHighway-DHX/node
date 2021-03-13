@@ -42,12 +42,12 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait:
-    frame_system::Trait
-    + roaming_operators::Trait
-    + mining_rates_hardware::Trait
-    + mining_config_hardware::Trait
-    + mining_sampling_hardware::Trait
+pub trait Config:
+    frame_system::Config
+    + roaming_operators::Config
+    + mining_rates_hardware::Config
+    + mining_config_hardware::Config
+    + mining_sampling_hardware::Config
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningEligibilityHardwareIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
@@ -57,8 +57,8 @@ pub trait Trait:
     // Bounded + Default + Copy;
 }
 
-// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
-// frame_system::Trait>::AccountId>>::Balance;
+// type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
+// frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -75,13 +75,13 @@ pub struct MiningEligibilityHardwareResult<U, V> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::MiningEligibilityHardwareIndex,
-        <T as Trait>::MiningEligibilityHardwareCalculatedEligibility,
-        <T as Trait>::MiningEligibilityHardwareUptimePercentage,
-        // <T as Trait>::MiningEligibilityHardwareAuditorAccountID,
-        <T as mining_config_hardware::Trait>::MiningConfigHardwareIndex,
-        // <T as frame_system::Trait>::BlockNumber,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::MiningEligibilityHardwareIndex,
+        <T as Config>::MiningEligibilityHardwareCalculatedEligibility,
+        <T as Config>::MiningEligibilityHardwareUptimePercentage,
+        // <T as Config>::MiningEligibilityHardwareAuditorAccountID,
+        <T as mining_config_hardware::Config>::MiningConfigHardwareIndex,
+        // <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
         /// A mining_eligibility_hardware is created. (owner, mining_eligibility_hardware_id)
@@ -106,7 +106,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as MiningEligibilityHardware {
+    trait Store for Module<T: Config> as MiningEligibilityHardware {
         /// Stores all the mining_eligibility_hardwares, key is the mining_eligibility_hardware id / index
         pub MiningEligibilityHardwares get(fn mining_eligibility_hardware): map hasher(opaque_blake2_256) T::MiningEligibilityHardwareIndex => Option<MiningEligibilityHardware>;
 
@@ -136,7 +136,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new mining mining_eligibility_hardware
@@ -453,7 +453,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_eligibility_hardware_owner(
         mining_eligibility_hardware_id: T::MiningEligibilityHardwareIndex,
         sender: T::AccountId,

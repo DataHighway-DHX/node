@@ -323,7 +323,7 @@ parameter_types! {
 }
 
 type GeneralCouncilInstance = pallet_collective::Instance1;
-impl pallet_collective::Trait<GeneralCouncilInstance> for Runtime {
+impl pallet_collective::Config<GeneralCouncilInstance> for Runtime {
     type DefaultVote = pallet_collective::PrimeDefaultVote;
     type Event = Event;
     type MaxMembers = CouncilMaxMembers;
@@ -335,7 +335,7 @@ impl pallet_collective::Trait<GeneralCouncilInstance> for Runtime {
 }
 
 type GeneralCouncilMembershipInstance = pallet_membership::Instance1;
-impl pallet_membership::Trait<GeneralCouncilMembershipInstance> for Runtime {
+impl pallet_membership::Config<GeneralCouncilMembershipInstance> for Runtime {
     type AddOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
     type Event = Event;
     type MembershipChanged = GeneralCouncil;
@@ -568,7 +568,7 @@ impl roaming_accounting_policies::Config for Runtime {
 impl roaming_agreement_policies::Config for Runtime {
     type Event = Event;
     type RoamingAgreementPolicyActivationType = Vec<u8>;
-    type RoamingAgreementPolicyIndex = u64; // <pallet_timestamp::Module<Runtime> as Trait>::Moment` timestamp::Module<Runtime>::Moment;
+    type RoamingAgreementPolicyIndex = u64; // <pallet_timestamp::Module<Runtime> as Config>::Moment` timestamp::Module<Runtime>::Moment;
 }
 
 impl roaming_network_profiles::Config for Runtime {

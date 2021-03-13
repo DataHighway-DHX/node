@@ -40,7 +40,7 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait {
+pub trait Config: frame_system::Config + roaming_operators::Config {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningConfigTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     // Mining Speed Boost Token Mining Config
@@ -49,7 +49,7 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
 }
 
 type BalanceOf<T> =
-    <<T as roaming_operators::Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+    <<T as roaming_operators::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -75,10 +75,10 @@ pub struct MiningConfigTokenRequirementsConfig<U, V, W> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::MiningConfigTokenIndex,
-        <T as Trait>::MiningConfigTokenType,
-        <T as frame_system::Trait>::BlockNumber,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::MiningConfigTokenIndex,
+        <T as Config>::MiningConfigTokenType,
+        <T as frame_system::Config>::BlockNumber,
         Balance = BalanceOf<T>,
     {
         /// A mining_config_token is created. (owner, mining_config_token_id)
@@ -97,7 +97,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as MiningConfigToken {
+    trait Store for Module<T: Config> as MiningConfigToken {
         /// Stores all the mining_config_tokens, key is the mining_config_token id / index
         pub MiningConfigTokens get(fn mining_config_token): map hasher(opaque_blake2_256) T::MiningConfigTokenIndex => Option<MiningConfigToken>;
 
@@ -120,7 +120,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new mining mining_config_token
@@ -344,7 +344,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_config_token_owner(
         mining_config_token_id: T::MiningConfigTokenIndex,
         sender: T::AccountId,

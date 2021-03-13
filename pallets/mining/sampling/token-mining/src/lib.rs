@@ -40,8 +40,8 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait:
-    frame_system::Trait + roaming_operators::Trait + mining_config_token::Trait
+pub trait Config:
+    frame_system::Config + roaming_operators::Config + mining_config_token::Config
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningSamplingTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
@@ -53,8 +53,8 @@ pub trait Trait:
         + Copy;
 }
 
-// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
-// frame_system::Trait>::AccountId>>::Balance;
+// type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
+// frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -69,11 +69,11 @@ pub struct MiningSamplingTokenConfig<U, V> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::MiningSamplingTokenIndex,
-        <T as Trait>::MiningSamplingTokenSampleLockedAmount,
-        <T as mining_config_token::Trait>::MiningConfigTokenIndex,
-        <T as frame_system::Trait>::BlockNumber,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::MiningSamplingTokenIndex,
+        <T as Config>::MiningSamplingTokenSampleLockedAmount,
+        <T as mining_config_token::Config>::MiningConfigTokenIndex,
+        <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
         /// A mining_sampling_token is created. (owner, mining_sampling_token_id)
@@ -92,7 +92,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as MiningSamplingToken {
+    trait Store for Module<T: Config> as MiningSamplingToken {
         /// Stores all the mining_samplings_tokens, key is the mining_samplings_token id / index
         pub MiningSamplingTokens get(fn mining_samplings_token): map hasher(opaque_blake2_256) T::MiningSamplingTokenIndex => Option<MiningSamplingToken>;
 
@@ -120,7 +120,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new mining mining_samplings_token
@@ -267,7 +267,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_samplings_token_owner(
         mining_samplings_token_id: T::MiningSamplingTokenIndex,
         sender: T::AccountId,

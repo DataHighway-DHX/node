@@ -36,7 +36,7 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait + roaming_devices::Trait {
+pub trait Config: frame_system::Config + roaming_operators::Config + roaming_devices::Config {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingDeviceProfileIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingDeviceProfileDevAddr: Parameter + Member + Default;
@@ -61,13 +61,13 @@ pub struct RoamingDeviceProfileConfig<U, V, W, X> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::RoamingDeviceProfileIndex,
-        <T as Trait>::RoamingDeviceProfileDevAddr,
-        <T as Trait>::RoamingDeviceProfileDevEUI,
-        <T as Trait>::RoamingDeviceProfileJoinEUI,
-        <T as Trait>::RoamingDeviceProfileVendorID,
-        <T as roaming_devices::Trait>::RoamingDeviceIndex,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::RoamingDeviceProfileIndex,
+        <T as Config>::RoamingDeviceProfileDevAddr,
+        <T as Config>::RoamingDeviceProfileDevEUI,
+        <T as Config>::RoamingDeviceProfileJoinEUI,
+        <T as Config>::RoamingDeviceProfileVendorID,
+        <T as roaming_devices::Config>::RoamingDeviceIndex,
     {
         /// A roaming device_profile is created. (owner, roaming_device_profile_id)
         Created(AccountId, RoamingDeviceProfileIndex),
@@ -82,7 +82,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingDeviceProfiles {
+    trait Store for Module<T: Config> as RoamingDeviceProfiles {
         /// Stores all the roaming device_profiles, key is the roaming device_profile id / index
         pub RoamingDeviceProfiles get(fn roaming_device_profile): map hasher(opaque_blake2_256) T::RoamingDeviceProfileIndex => Option<RoamingDeviceProfile>;
 
@@ -106,7 +106,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new roaming device_profile
@@ -273,7 +273,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn exists_roaming_device_profile(
         roaming_device_profile_id: T::RoamingDeviceProfileIndex,
     ) -> Result<RoamingDeviceProfile, DispatchError> {
