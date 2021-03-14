@@ -371,6 +371,11 @@ fn dev_genesis(
     endowed_accounts: Vec<AccountId>,
     _enable_println: bool,
 ) -> GenesisConfig {
+    // let num_endowed_accounts = endowed_accounts.len();
+
+    // const ENDOWMENT: Balance = 10_000_000 * DOLLARS;
+    // const STASH: Balance = ENDOWMENT / 1000;
+
     GenesisConfig {
         frame_system: Some(SystemConfig {
             code: wasm_binary_unwrap().to_vec(),
@@ -390,6 +395,7 @@ fn dev_genesis(
             )
             .collect(),
         }),
+        pallet_bounties: Some(Default::default()),
         pallet_session: Some(SessionConfig {
             keys: initial_authorities
                 .iter()
@@ -407,6 +413,14 @@ fn dev_genesis(
             slash_reward_fraction: Perbill::from_percent(10),
             ..Default::default()
         }),
+        // pallet_elections_phragmen: Some(ElectionsConfig {
+        //     members: endowed_accounts
+        //         .iter()
+        //         .take((num_endowed_accounts + 1) / 2)
+        //         .cloned()
+        //         .map(|member| (member, STASH))
+        //         .collect(),
+        // }),
         pallet_sudo: Some(SudoConfig {
             key: root_key.clone(),
         }),
@@ -422,6 +436,7 @@ fn dev_genesis(
             phantom: Default::default(),
         }),
         pallet_treasury: Some(Default::default()),
+        pallet_tips: Some(Default::default()),
     }
 }
 
@@ -448,6 +463,7 @@ fn testnet_genesis(
                 .map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE))
                 .collect(),
         }),
+        pallet_bounties: Some(Default::default()),
         pallet_session: Some(SessionConfig {
             keys: initial_authorities
                 .iter()
@@ -479,6 +495,7 @@ fn testnet_genesis(
             members: vec![root_key.clone()],
             phantom: Default::default(),
         }),
+        pallet_tips: Some(Default::default()),
         pallet_treasury: Some(Default::default()),
     }
 }

@@ -14,13 +14,15 @@ std = [
     'module-primitives/std',
     'pallet-balances/std',
     'pallet-babe/std',
-    'pallet-bounties/std',
+    # 'pallet-bounties/std',
     'pallet-grandpa/std',
     'pallet-indices/std',
     'pallet-collective/std',
+    # 'sp-election-providers/std',
+    # 'pallet-election-provider-multi-phase/std',
     'pallet-membership/std',
     # 'pallet-offences/std',
-    'pallet-tips/std',
+    # 'pallet-tips/std',
     'pallet-treasury/std',
     'pallet-randomness-collective-flip/std',
     'pallet-staking/std',
@@ -78,8 +80,10 @@ frame-support = { version = '3.0.0', default-features = false }
 frame-system-rpc-runtime-api = { version = '3.0.0', default-features = false }
 pallet-balances = { version = '3.0.0', default-features = false }
 pallet-babe = { version = '3.0.0', default-features = false }
-pallet-bounties = { version = '3.0.0', default-features = false }
+# pallet-bounties = { version = '3.0.0', default-features = false }
 pallet-collective = { version = '3.0.0', default-features = false }
+# sp-election-providers = { version = '3.0.0', default-features = false }
+# pallet-election-provider-multi-phase = { version = '3.0.0', default-features = false }
 pallet-grandpa = { version = '3.0.0', default-features = false }
 pallet-indices = { version = '3.0.0', default-features = false }
 pallet-membership = { version = '3.0.0', default-features = false }
@@ -90,7 +94,7 @@ pallet-staking = { version = '3.0.0', default-features = false }
 pallet-staking-reward-curve = { version = '3.0.0', default-features = false }
 pallet-sudo = { version = '3.0.0', default-features = false }
 pallet-timestamp = { version = '3.0.0', default-features = false }
-pallet-tips = { version = '3.0.0', default-features = false }
+# pallet-tips = { version = '3.0.0', default-features = false }
 pallet-transaction-payment = { version = '3.0.0', default-features = false }
 pallet-transaction-payment-rpc-runtime-api = { version = '3.0.0', default-features = false }
 pallet-treasury = { version = '3.0.0', default-features = false }

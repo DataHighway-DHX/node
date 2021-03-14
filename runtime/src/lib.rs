@@ -483,35 +483,35 @@ impl pallet_treasury::Config for Runtime {
         EnsureRoot<AccountId>,
         pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, GeneralCouncilInstance>,
     >;
-    type SpendFunds = Bounties;
+    type SpendFunds = ();
     type SpendPeriod = SpendPeriod;
     // Just gets burned.
     type WeightInfo = pallet_treasury::weights::SubstrateWeight<Runtime>;
 }
 
-impl pallet_bounties::Config for Runtime {
-    type BountyCuratorDeposit = BountyCuratorDeposit;
-    type BountyDepositBase = BountyDepositBase;
-    type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
-    type BountyUpdatePeriod = BountyUpdatePeriod;
-    type BountyValueMinimum = BountyValueMinimum;
-    type DataDepositPerByte = DataDepositPerByte;
-    type Event = Event;
-    type MaximumReasonLength = MaximumReasonLength;
-    type WeightInfo = pallet_bounties::weights::SubstrateWeight<Runtime>;
-}
+// impl pallet_bounties::Config for Runtime {
+//     type BountyCuratorDeposit = BountyCuratorDeposit;
+//     type BountyDepositBase = BountyDepositBase;
+//     type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
+//     type BountyUpdatePeriod = BountyUpdatePeriod;
+//     type BountyValueMinimum = BountyValueMinimum;
+//     type DataDepositPerByte = DataDepositPerByte;
+//     type Event = Event;
+//     type MaximumReasonLength = MaximumReasonLength;
+//     type WeightInfo = pallet_bounties::weights::SubstrateWeight<Runtime>;
+// }
 
-impl pallet_tips::Config for Runtime {
-    type DataDepositPerByte = DataDepositPerByte;
-    type Event = Event;
-    type MaximumReasonLength = MaximumReasonLength;
-    type TipCountdown = TipCountdown;
-    type TipFindersFee = TipFindersFee;
-    type TipReportDepositBase = TipReportDepositBase;
-    // TODO - change value to `Elections`. See Substrate 3 migration guide
-    type Tippers = GeneralCouncilProvider;
-    type WeightInfo = pallet_tips::weights::SubstrateWeight<Runtime>;
-}
+// impl pallet_tips::Config for Runtime {
+//     type DataDepositPerByte = DataDepositPerByte;
+//     type Event = Event;
+//     type MaximumReasonLength = MaximumReasonLength;
+//     type TipCountdown = TipCountdown;
+//     type TipFindersFee = TipFindersFee;
+//     type TipReportDepositBase = TipReportDepositBase;
+//     // TODO - change value to `Elections`. See Substrate 3 migration guide
+//     type Tippers = GeneralCouncilProvider;
+//     type WeightInfo = pallet_tips::weights::SubstrateWeight<Runtime>;
+// }
 
 parameter_types! {
     pub const DisabledValidatorsThreshold: Perbill = Perbill::from_percent(17);
@@ -568,6 +568,43 @@ pallet_staking_reward_curve::build! {
 //     }
 // }
 
+// parameter_types! {
+//     // phase durations. 1/4 of the last session for each.
+//     pub const SignedPhase: u32 = EPOCH_DURATION_IN_BLOCKS / 4;
+//     pub const UnsignedPhase: u32 = EPOCH_DURATION_IN_BLOCKS / 4;
+
+//     // fallback: no need to do on-chain phragmen initially.
+//     pub const Fallback: pallet_election_provider_multi_phase::FallbackStrategy =
+//         pallet_election_provider_multi_phase::FallbackStrategy::Nothing;
+
+//     pub SolutionImprovementThreshold: Perbill = Perbill::from_rational_approximation(1u32, 10_000);
+
+//     // miner configs
+//     pub const MultiPhaseUnsignedPriority: TransactionPriority = StakingUnsignedPriority::get() - 1u64;
+//     pub const MinerMaxIterations: u32 = 10;
+//     pub MinerMaxWeight: Weight = RuntimeBlockWeights::get()
+//         .get(DispatchClass::Normal)
+//         .max_extrinsic.expect("Normal extrinsics have a weight limit configured; qed")
+//         .saturating_sub(BlockExecutionWeight::get());
+// }
+
+// impl pallet_election_provider_multi_phase::Config for Runtime {
+//     type BenchmarkingConfig = ();
+//     type CompactSolution = pallet_staking::CompactAssignments;
+//     type Currency = Balances;
+//     type DataProvider = Staking;
+//     type Event = Event;
+//     type Fallback = Fallback;
+//     type MinerMaxIterations = MinerMaxIterations;
+//     type MinerMaxWeight = MinerMaxWeight;
+//     type MinerTxPriority = MultiPhaseUnsignedPriority;
+//     type OnChainAccuracy = Perbill;
+//     type SignedPhase = SignedPhase;
+//     type SolutionImprovementThreshold = MinSolutionScoreBump;
+//     type UnsignedPhase = UnsignedPhase;
+//     type WeightInfo = pallet_election_provider_multi_phase::weights::SubstrateWeight<Runtime>;
+// }
+
 parameter_types! {
     // 1 hour session, 6 hour era
     pub const SessionsPerEra: sp_staking::SessionIndex = 6;
@@ -601,7 +638,9 @@ impl pallet_staking::Config for Runtime {
     type Currency = Balances;
     type CurrencyToVote = U128CurrencyToVote;
     type ElectionLookahead = ElectionLookahead;
-    type ElectionProvider = ElectionProviderMultiPhase;
+    // FIXME
+    // type ElectionProvider = ElectionProviderMultiPhase;
+    // type ElectionProvider = GeneralCouncilProvider;
     type Event = Event;
     type MaxIterations = MaxIterations;
     type MaxNominatorRewardedPerValidator = MaxNominatorRewardedPerValidator;
@@ -848,12 +887,13 @@ construct_runtime!(
         Indices: pallet_indices::{Module, Call, Storage, Config<T>, Event<T>},
         Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
         TransactionPayment: pallet_transaction_payment::{Module, Storage},
+        // ElectionProviderMultiPhase: pallet_election_provider_multi_phase::{Module, Call, Storage, Event<T>, ValidateUnsigned},
         Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
         GeneralCouncil: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
         GeneralCouncilMembership: pallet_membership::<Instance1>::{Module, Call, Storage, Event<T>, Config<T>},
         TechnicalCommittee: pallet_collective::<Instance2>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
-        Bounties: pallet_bounties::{Module, Call, Storage, Config, Event<T>},
-        Tips: pallet_tips::{Module, Call, Storage, Config, Event<T>},
+        // Bounties: pallet_bounties::{Module, Call, Storage, Config, Event<T>},
+        // Tips: pallet_tips::{Module, Call, Storage, Config, Event<T>},
         Treasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
         Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
         Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>, ValidateUnsigned},
@@ -988,13 +1028,12 @@ impl_runtime_apis! {
             >,
             _key_owner_proof: fg_primitives::OpaqueKeyOwnershipProof,
         ) -> Option<()> {
-            None
-            // let key_owner_proof = key_owner_proof.decode()?;
+            let key_owner_proof = _key_owner_proof.decode()?;
 
-            // Grandpa::submit_unsigned_equivocation_report(
-            //     equivocation_proof,
-            //     key_owner_proof,
-            // )
+            Grandpa::submit_unsigned_equivocation_report(
+                _equivocation_proof,
+                key_owner_proof,
+            )
         }
 
         fn generate_key_ownership_proof(
@@ -1004,12 +1043,11 @@ impl_runtime_apis! {
             // NOTE: this is the only implementation possible since we've
             // defined our key owner proof type as a bottom type (i.e. a type
             // with no values).
-            None
-            // use codec::Encode;
+            use codec::Encode;
 
-            // Historical::prove((fg_primitives::KEY_TYPE, _authority_id))
-            //     .map(|p| p.encode())
-            //     .map(fg_primitives::OpaqueKeyOwnershipProof::new)
+            Historical::prove((fg_primitives::KEY_TYPE, _authority_id))
+                .map(|p| p.encode())
+                .map(fg_primitives::OpaqueKeyOwnershipProof::new)
         }
     }
 
