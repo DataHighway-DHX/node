@@ -1,5 +1,4 @@
-use grandpa_primitives::AuthorityId as GrandpaId;
-// use sp_finality_grandpa::AuthorityId as GrandpaId;
+use sp_finality_grandpa::AuthorityId as GrandpaId;
 use hex_literal::hex;
 use datahighway_runtime::{
     // opaque::{
@@ -9,6 +8,7 @@ use datahighway_runtime::{
     constants::currency::*,
     wasm_binary_unwrap,
     AccountId,
+    AuthorityDiscoveryConfig,
     BabeConfig,
     BalancesConfig,
     Block,
@@ -34,7 +34,7 @@ use serde::{
     Serialize,
 };
 use serde_json::map::Map;
-// use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
+use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
 use sp_consensus_babe::AuthorityId as BabeId;
 
 use sp_core::{
@@ -97,12 +97,13 @@ where
 }
 
 /// Helper function to generate an authority key from seed
-pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, GrandpaId, BabeId) {
+pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, GrandpaId, BabeId, AuthorityDiscoveryId) {
     (
         get_account_id_from_seed::<sr25519::Public>(&format!("{}//stash", seed)),
         get_account_id_from_seed::<sr25519::Public>(seed),
         get_from_seed::<GrandpaId>(seed),
         get_from_seed::<BabeId>(seed),
+        get_from_seed::<AuthorityDiscoveryId>(seed),
     )
 }
 
@@ -165,6 +166,7 @@ impl Alternative {
                                 get_authority_keys_from_seed("Bob"),
                                 get_authority_keys_from_seed("Charlie"),
                                 get_authority_keys_from_seed("Dave"),
+                                get_authority_keys_from_seed("Eve"),
                             ],
                             get_account_id_from_seed::<sr25519::Public>("Alice"),
                             vec![
@@ -220,6 +222,7 @@ impl Alternative {
                                 get_authority_keys_from_seed("Bob"),
                                 get_authority_keys_from_seed("Charlie"),
                                 get_authority_keys_from_seed("Dave"),
+                                get_authority_keys_from_seed("Eve"),
                             ],
                             get_account_id_from_seed::<sr25519::Public>("Alice"),
                             vec![
@@ -273,6 +276,9 @@ impl Alternative {
                                         .unchecked_into(),
                                     hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"]
                                         .unchecked_into(),
+                                    // FIXME - just copy/pasted
+                                    hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"]
+                                        .unchecked_into(),
                                 ),
                                 (
                                     hex!["420a7b4a8c9f2388eded13c17841d2a0e08ea7c87eda84310da54f3ccecd3931"].into(),
@@ -281,6 +287,9 @@ impl Alternative {
                                         .unchecked_into(),
                                     hex!["1e91a7902c89289f97756c4e20c0e9536f34de61c7c21af7773d670b0e644030"]
                                         .unchecked_into(),
+                                    // FIXME - just copy/pasted
+                                    hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"]
+                                    .unchecked_into(),
                                 ),
                                 (
                                     hex!["ceecb6cc08c20ff44052ff19952a810d08363aa26ea4fb0a64a62a4630d37f28"].into(),
@@ -289,6 +298,9 @@ impl Alternative {
                                         .unchecked_into(),
                                     hex!["aaabcb653ce5dfd63035430dba10ce9aed5d064883b9e2b19ec5d9b26a457f57"]
                                         .unchecked_into(),
+                                    // FIXME - just copy/pasted
+                                    hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"]
+                                        .unchecked_into(),
                                 ),
                                 (
                                     hex!["68bac5586028dd40db59a7becec349b42cd4229f9d3c31875c3eb7a57241cd42"].into(),
@@ -296,6 +308,9 @@ impl Alternative {
                                     hex!["f4807d86cca169a81d42fcf9c7abddeff107b0a73e9e7a809257ac7e4a164741"]
                                         .unchecked_into(),
                                     hex!["a49ac1053a40a2c7c33ffa41cb285cef7c3bc9db7e03a16d174cc8b5b5ac0247"]
+                                        .unchecked_into(),
+                                    // FIXME - just copy/pasted
+                                    hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"]
                                         .unchecked_into(),
                                 ),
                             ],
@@ -349,13 +364,13 @@ fn session_keys(
     grandpa: GrandpaId,
     babe: BabeId,
     // im_online: ImOnlineId,
-    // authority_discovery: AuthorityDiscoveryId,
+    authority_discovery: AuthorityDiscoveryId,
 ) -> SessionKeys {
     SessionKeys {
         grandpa,
         babe,
         // im_online,
-        // authority_discovery,
+        authority_discovery,
     }
 }
 
@@ -366,7 +381,7 @@ const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_
 const INITIAL_STAKING: u128 = 1_000_000_000_000_000_000_u128;
 
 fn dev_genesis(
-    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
+    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId, AuthorityDiscoveryId)>,
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     _enable_println: bool,
@@ -395,11 +410,11 @@ fn dev_genesis(
             )
             .collect(),
         }),
-        pallet_bounties: Some(Default::default()),
+        // pallet_bounties: Some(Default::default()),
         pallet_session: Some(SessionConfig {
             keys: initial_authorities
                 .iter()
-                .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone())))
+                .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone(), x.4.clone())))
                 .collect::<Vec<_>>(),
         }),
         pallet_staking: Some(StakingConfig {
@@ -430,18 +445,25 @@ fn dev_genesis(
         pallet_grandpa: Some(GrandpaConfig {
             authorities: vec![],
         }),
+        // pallet_im_online: Some(ImOnlineConfig {
+        //     keys: vec![],
+        // }),
+        pallet_authority_discovery: Some(AuthorityDiscoveryConfig {
+            keys: vec![],
+        }),
         pallet_collective_Instance1: Some(Default::default()),
         pallet_membership_Instance1: Some(GeneralCouncilMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
         }),
+        pallet_collective_Instance2: Some(Default::default()),
         pallet_treasury: Some(Default::default()),
-        pallet_tips: Some(Default::default()),
+        // pallet_tips: Some(Default::default()),
     }
 }
 
 fn testnet_genesis(
-    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
+    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId, AuthorityDiscoveryId)>,
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     // No println
@@ -463,11 +485,11 @@ fn testnet_genesis(
                 .map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE))
                 .collect(),
         }),
-        pallet_bounties: Some(Default::default()),
+        // pallet_bounties: Some(Default::default()),
         pallet_session: Some(SessionConfig {
             keys: initial_authorities
                 .iter()
-                .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone())))
+                .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone(), x.4.clone())))
                 .collect::<Vec<_>>(),
         }),
         pallet_staking: Some(StakingConfig {
@@ -490,12 +512,19 @@ fn testnet_genesis(
         pallet_grandpa: Some(GrandpaConfig {
             authorities: vec![],
         }),
+        // pallet_im_online: Some(ImOnlineConfig {
+        //     keys: vec![],
+        // }),
+        pallet_authority_discovery: Some(AuthorityDiscoveryConfig {
+            keys: vec![],
+        }),
         pallet_collective_Instance1: Some(Default::default()),
         pallet_membership_Instance1: Some(GeneralCouncilMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
         }),
-        pallet_tips: Some(Default::default()),
+        pallet_collective_Instance2: Some(Default::default()),
+        // pallet_tips: Some(Default::default()),
         pallet_treasury: Some(Default::default()),
     }
 }

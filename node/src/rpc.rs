@@ -4,19 +4,31 @@ use std::{
 };
 
 use datahighway_runtime::{
-    opaque::Block,
+    opaque::{
+        Block,
+    },
     AccountId,
     Balance,
+    BlockNumber,
+    Hash,
     Index,
 };
 pub use sc_rpc_api::DenyUnsafe;
+use sc_client_api::AuxStore;
 use sc_consensus_babe::{
     Config,
     Epoch,
 };
-
+use sc_consensus_babe_rpc::BabeRpcHandler;
 use sc_consensus_epochs::SharedEpochChanges;
-use sc_keystore::SyncCryptoStorePtr;
+use sc_finality_grandpa::{
+    FinalityProofProvider,
+    GrandpaJustificationStream,
+    SharedAuthoritySet,
+    SharedVoterState,
+};
+use sc_finality_grandpa_rpc::GrandpaRpcHandler;
+use sc_rpc::SubscriptionTaskExecutor;
 use sp_api::ProvideRuntimeApi;
 use sp_block_builder::BlockBuilder;
 use sp_blockchain::{
@@ -26,7 +38,20 @@ use sp_blockchain::{
 };
 use sp_consensus::SelectChain;
 use sp_consensus_babe::BabeApi;
+use sp_keystore::SyncCryptoStorePtr;
 use sp_transaction_pool::TransactionPool;
+
+/// Light client extra dependencies.
+pub struct LightDeps<C, F, P> {
+    /// The client instance to use.
+    pub client: Arc<C>,
+    /// Transaction pool instance.
+    pub pool: Arc<P>,
+    /// Remote access to the blockchain (async).
+    pub remote_blockchain: Arc<dyn sc_client_api::light::RemoteBlockchain<Block>>,
+    /// Fetcher instance.
+    pub fetcher: Arc<F>,
+}
 
 /// Extra dependencies for BABE.
 pub struct BabeDeps {
@@ -83,7 +108,7 @@ where
         + Sync
         + Send
         + 'static,
-    C::Api: AccountNonceApi<Block, AccountId, Index>,
+    C::Api: substrate_frame_rpc_system::AccountNonceApi<Block, AccountId, Index>,
     C::Api: pallet_transaction_payment_rpc::TransactionPaymentRuntimeApi<Block, Balance>,
     C::Api: BabeApi<Block>,
     C::Api: BlockBuilder<Block>,
@@ -131,7 +156,7 @@ where
         finality_provider,
     } = grandpa;
 
-    io.extend_with(SystemApi::to_delegate(FullSystem::new(client.clone(), pool, deny_unsafe))); TODO#ILYA
+    io.extend_with(SystemApi::to_delegate(FullSystem::new(client.clone(), pool, deny_unsafe))); // TODO#ILYA
     io.extend_with(TransactionPaymentApi::to_delegate(TransactionPayment::new(client.clone())));
     io.extend_with(sc_consensus_babe_rpc::BabeApi::to_delegate(BabeRpcHandler::new(
         client.clone(),
@@ -158,6 +183,38 @@ where
     )));
     // TODO: Add Oracle
     // io.extend_with(OracleApi::to_delegate(Oracle::new(client))); TODO#ILYA
+
+    io
+}
+
+
+/// Instantiate all Light RPC extensions.
+pub fn create_light<C, P, M, F>(deps: LightDeps<C, F, P>) -> jsonrpc_core::IoHandler<M>
+where
+    C: sp_blockchain::HeaderBackend<Block>,
+    C: Send + Sync + 'static,
+    F: sc_client_api::light::Fetcher<Block> + 'static,
+    P: TransactionPool + 'static,
+    M: jsonrpc_core::Metadata + Default,
+{
+    use substrate_frame_rpc_system::{
+        LightSystem,
+        SystemApi,
+    };
+
+    let LightDeps {
+        client,
+        pool,
+        remote_blockchain,
+        fetcher,
+    } = deps;
+    let mut io = jsonrpc_core::IoHandler::default();
+    io.extend_with(SystemApi::<Hash, AccountId, Index>::to_delegate(LightSystem::new(
+        client,
+        remote_blockchain,
+        fetcher,
+        pool,
+    )));
 
     io
 }

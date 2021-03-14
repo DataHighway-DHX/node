@@ -8,6 +8,7 @@ use pallet_grandpa::{
     AuthorityList as GrandpaAuthorityList,
 };
 use sp_api::impl_runtime_apis;
+use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
 use sp_core::{
     crypto::KeyTypeId,
     u32_trait::{
@@ -110,6 +111,10 @@ pub use sp_runtime::BuildStorage;
 /// to even the core data structures.
 pub mod opaque {
     use super::*;
+    pub use super::{
+        BlockNumber,
+        Hash,
+    };
 
     /// Opaque block header type.
     pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
@@ -126,7 +131,7 @@ impl_opaque_keys! {
         pub babe: Babe,
         pub grandpa: Grandpa,
         // pub im_online: ImOnline,
-        // pub authority_discovery: AuthorityDiscovery,
+        pub authority_discovery: AuthorityDiscovery,
     }
 }
 
@@ -290,6 +295,8 @@ impl pallet_babe::Config for Runtime {
 //     type OnOffenceHandler = Staking;
 //     type WeightSoftLimit = OffencesWeightSoftLimit;
 // }
+
+impl pallet_authority_discovery::Config for Runtime {}
 
 impl pallet_grandpa::Config for Runtime {
     // type Call = Call;
@@ -879,6 +886,7 @@ construct_runtime!(
     {
         System: frame_system::{Module, Call, Config, Storage, Event<T>},
         RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
+        AuthorityDiscovery: pallet_authority_discovery::{Module, Call, Config},
         // Offences: pallet_offences::{Module, Call, Storage, Event},
         Historical: pallet_session_historical::{Module},
         Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
@@ -1101,6 +1109,12 @@ impl_runtime_apis! {
             Historical::prove((sp_consensus_babe::KEY_TYPE, authority_id))
                 .map(|p| p.encode())
                 .map(sp_consensus_babe::OpaqueKeyOwnershipProof::new)
+        }
+    }
+
+    impl sp_authority_discovery::AuthorityDiscoveryApi<Block> for Runtime {
+        fn authorities() -> Vec<AuthorityDiscoveryId> {
+            AuthorityDiscovery::authorities()
         }
     }
 

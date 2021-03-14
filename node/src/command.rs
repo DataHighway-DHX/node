@@ -25,6 +25,11 @@ use crate::{
     },
     service,
 };
+use datahighway_runtime::{
+    opaque::{
+        Block,
+    },
+};
 
 use sc_cli::{
     ChainSpec,

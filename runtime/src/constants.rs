@@ -18,7 +18,7 @@ pub mod currency {
 
 /// Time.
 pub mod time {
-    use crate::types::{
+    pub use crate::types::{
         BlockNumber,
         Moment,
     };
