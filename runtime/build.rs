@@ -6,3 +6,4 @@ fn main() {
         .export_heap_base()
         .import_memory()
         .build()
+}

@@ -14,10 +14,13 @@ std = [
     'module-primitives/std',
     'pallet-balances/std',
     'pallet-babe/std',
+    'pallet-bounties/std',
     'pallet-grandpa/std',
     'pallet-indices/std',
     'pallet-collective/std',
     'pallet-membership/std',
+    # 'pallet-offences/std',
+    'pallet-tips/std',
     'pallet-treasury/std',
     'pallet-randomness-collective-flip/std',
     'pallet-staking/std',
@@ -80,6 +83,7 @@ pallet-collective = { version = '3.0.0', default-features = false }
 pallet-grandpa = { version = '3.0.0', default-features = false }
 pallet-indices = { version = '3.0.0', default-features = false }
 pallet-membership = { version = '3.0.0', default-features = false }
+# pallet-offences = { version = "3.0.0", default-features = false }
 pallet-randomness-collective-flip = { version = '3.0.0', default-features = false }
 pallet-session = { version = '3.0.0', default-features = false }
 pallet-staking = { version = '3.0.0', default-features = false }

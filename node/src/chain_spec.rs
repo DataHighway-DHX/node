@@ -1,36 +1,42 @@
+use grandpa_primitives::AuthorityId as GrandpaId;
+// use sp_finality_grandpa::AuthorityId as GrandpaId;
+use hex_literal::hex;
 use datahighway_runtime::{
-    opaque::{
-        Block,
-        SessionKeys,
-    },
+    // opaque::{
+    //     Block,
+    //     SessionKeys,
+    // },
+    constants::currency::*,
     wasm_binary_unwrap,
     AccountId,
     BabeConfig,
     BalancesConfig,
+    Block,
     GeneralCouncilMembershipConfig,
     GenesisConfig,
     GrandpaConfig,
     IndicesConfig,
     SessionConfig,
+    SessionKeys,
     Signature,
     StakerStatus,
     StakingConfig,
     SudoConfig,
     SystemConfig,
 };
-use hex_literal::hex;
+// use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 use sc_chain_spec::ChainSpecExtension;
 use sc_service;
+use sc_service::ChainType;
 use sc_telemetry::TelemetryEndpoints;
 use serde::{
     Deserialize,
     Serialize,
 };
 use serde_json::map::Map;
+// use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
 use sp_consensus_babe::AuthorityId as BabeId;
-use sp_finality_grandpa::AuthorityId as GrandpaId;
 
-use sc_service::ChainType;
 use sp_core::{
     crypto::{
         UncheckedFrom,
@@ -49,6 +55,15 @@ pub use sp_runtime::{
     Permill,
 };
 
+// // TODO - move into primitives runtime module?
+// pub use node_primitives::{
+//     AccountId,
+//     Balance,
+//     Signature,
+// };
+
+type AccountPublic = <Signature as Verify>::Signer;
+
 // Note this is the URL for the telemetry server
 const POLKADOT_STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
 
@@ -60,34 +75,18 @@ const POLKADOT_STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit
 #[serde(rename_all = "camelCase")]
 pub struct Extensions {
     /// Block numbers with known hashes.
-    pub fork_blocks: sc_client_api::client::ForkBlocks<Block>,
+    pub fork_blocks: sc_client_api::ForkBlocks<Block>,
     /// Known bad block hashes.
-    pub bad_blocks: sc_client_api::client::BadBlocks<Block>,
+    pub bad_blocks: sc_client_api::BadBlocks<Block>,
 }
 
 /// Specialized `ChainSpec`. This is a specialization of the general Substrate ChainSpec type.
 pub type ChainSpec = sc_service::GenericChainSpec<GenesisConfig, Extensions>;
 
-/// The chain specification option. This is expected to come in from the CLI and
-/// is little more than one of a number of alternatives which can easily be converted
-/// from a string (`--chain=...`) into a `ChainSpec`.
-#[derive(Clone, Debug)]
-pub enum Alternative {
-    /// Whatever the current runtime is, with just Alice as an auth.
-    Development,
-    /// Whatever the current runtime is, with simple Alice/Bob auths.
-    LocalTestnet,
-    // DataHighwayTestnet,
-    DataHighwayTestnetLatest,
-    DataHighwayTestnetHarbour,
-}
-
 /// Helper function to generate a crypto pair from seed
 pub fn get_from_seed<TPublic: Public>(seed: &str) -> <TPublic::Pair as Pair>::Public {
     TPublic::Pair::from_string(&format!("//{}", seed), None).expect("static values are valid; qed").public()
 }
-
-type AccountPublic = <Signature as Verify>::Signer;
 
 /// Helper function to generate an account ID from seed
 pub fn get_account_id_from_seed<TPublic: Public>(seed: &str) -> AccountId
@@ -105,6 +104,20 @@ pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, Grandp
         get_from_seed::<GrandpaId>(seed),
         get_from_seed::<BabeId>(seed),
     )
+}
+
+/// The chain specification option. This is expected to come in from the CLI and
+/// is little more than one of a number of alternatives which can easily be converted
+/// from a string (`--chain=...`) into a `ChainSpec`.
+#[derive(Clone, Debug)]
+pub enum Alternative {
+    /// Whatever the current runtime is, with just Alice as an auth.
+    Development,
+    /// Whatever the current runtime is, with simple Alice/Bob auths.
+    LocalTestnet,
+    // DataHighwayTestnet,
+    DataHighwayTestnetLatest,
+    DataHighwayTestnetHarbour,
 }
 
 impl Alternative {
@@ -332,10 +345,17 @@ impl Alternative {
     }
 }
 
-fn session_keys(grandpa: GrandpaId, babe: BabeId) -> SessionKeys {
+fn session_keys(
+    grandpa: GrandpaId,
+    babe: BabeId,
+    // im_online: ImOnlineId,
+    // authority_discovery: AuthorityDiscoveryId,
+) -> SessionKeys {
     SessionKeys {
         grandpa,
         babe,
+        // im_online,
+        // authority_discovery,
     }
 }
 
