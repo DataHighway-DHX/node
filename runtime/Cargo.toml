@@ -1,5 +1,5 @@
 [package]
-authors = ['MXC Foundation GmbH <https://t.me/mxcfoundation>', 'Luke Schoen <luke@mxc.org>', 'Ilya Beregovskiy <ilya@mxc.org>']
+authors = ['MXC Foundation gGmbH <https://t.me/mxcfoundation>', 'Luke Schoen <luke@mxc.org>', 'Ilya Beregovskiy <ilya@mxc.org>']
 edition = '2018'
 name = 'datahighway-runtime'
 version = '1.0.0'
