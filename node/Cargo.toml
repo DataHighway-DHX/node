@@ -30,6 +30,7 @@ frame-benchmarking-cli = '3.0.0'
 # https://substrate.dev/rustdocs/v3.0.0/node_rpc/index.html
 # node-rpc = '2.0.0'
 pallet-authority-discovery = '3.0.0'
+pallet-im-online = '3.0.0'
 pallet-transaction-payment-rpc = '3.0.0'
 sc-authority-discovery = '0.9.0'
 sc-basic-authorship = '0.9.0'

@@ -1,4 +1,3 @@
-use sp_finality_grandpa::AuthorityId as GrandpaId;
 use hex_literal::hex;
 use datahighway_runtime::{
     // opaque::{
@@ -15,6 +14,7 @@ use datahighway_runtime::{
     GeneralCouncilMembershipConfig,
     GenesisConfig,
     GrandpaConfig,
+    ImOnlineConfig,
     IndicesConfig,
     SessionConfig,
     SessionKeys,
@@ -24,7 +24,7 @@ use datahighway_runtime::{
     SudoConfig,
     SystemConfig,
 };
-// use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
+use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 use sc_chain_spec::ChainSpecExtension;
 use sc_service;
 use sc_service::ChainType;
@@ -36,7 +36,6 @@ use serde::{
 use serde_json::map::Map;
 use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
 use sp_consensus_babe::AuthorityId as BabeId;
-
 use sp_core::{
     crypto::{
         UncheckedFrom,
@@ -46,6 +45,7 @@ use sp_core::{
     Pair,
     Public,
 };
+use sp_finality_grandpa::AuthorityId as GrandpaId;
 use sp_runtime::traits::{
     IdentifyAccount,
     Verify,
@@ -97,12 +97,13 @@ where
 }
 
 /// Helper function to generate an authority key from seed
-pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, GrandpaId, BabeId, AuthorityDiscoveryId) {
+pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, GrandpaId, BabeId, ImOnlineId, AuthorityDiscoveryId) {
     (
         get_account_id_from_seed::<sr25519::Public>(&format!("{}//stash", seed)),
         get_account_id_from_seed::<sr25519::Public>(seed),
         get_from_seed::<GrandpaId>(seed),
         get_from_seed::<BabeId>(seed),
+        get_from_seed::<ImOnlineId>(seed),
         get_from_seed::<AuthorityDiscoveryId>(seed),
     )
 }
@@ -167,6 +168,7 @@ impl Alternative {
                                 get_authority_keys_from_seed("Charlie"),
                                 get_authority_keys_from_seed("Dave"),
                                 get_authority_keys_from_seed("Eve"),
+                                get_authority_keys_from_seed("Ferdie"),
                             ],
                             get_account_id_from_seed::<sr25519::Public>("Alice"),
                             vec![
@@ -223,6 +225,7 @@ impl Alternative {
                                 get_authority_keys_from_seed("Charlie"),
                                 get_authority_keys_from_seed("Dave"),
                                 get_authority_keys_from_seed("Eve"),
+                                get_authority_keys_from_seed("Ferdie"),
                             ],
                             get_account_id_from_seed::<sr25519::Public>("Alice"),
                             vec![
@@ -276,7 +279,10 @@ impl Alternative {
                                         .unchecked_into(),
                                     hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"]
                                         .unchecked_into(),
-                                    // FIXME - just copy/pasted
+                                    // FIXME - im_online just copy/pasted
+                                    hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"]
+                                        .unchecked_into(),
+                                    // FIXME - authority_discovery just copy/pasted
                                     hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"]
                                         .unchecked_into(),
                                 ),
@@ -287,9 +293,12 @@ impl Alternative {
                                         .unchecked_into(),
                                     hex!["1e91a7902c89289f97756c4e20c0e9536f34de61c7c21af7773d670b0e644030"]
                                         .unchecked_into(),
-                                    // FIXME - just copy/pasted
+                                    // FIXME - im_online just copy/pasted
                                     hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"]
-                                    .unchecked_into(),
+                                        .unchecked_into(),
+                                    // FIXME - authority_discovery just copy/pasted
+                                    hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"]
+                                        .unchecked_into(),
                                 ),
                                 (
                                     hex!["ceecb6cc08c20ff44052ff19952a810d08363aa26ea4fb0a64a62a4630d37f28"].into(),
@@ -298,7 +307,10 @@ impl Alternative {
                                         .unchecked_into(),
                                     hex!["aaabcb653ce5dfd63035430dba10ce9aed5d064883b9e2b19ec5d9b26a457f57"]
                                         .unchecked_into(),
-                                    // FIXME - just copy/pasted
+                                    // FIXME - im_online just copy/pasted
+                                    hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"]
+                                        .unchecked_into(),
+                                    // FIXME - authority_discovery just copy/pasted
                                     hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"]
                                         .unchecked_into(),
                                 ),
@@ -309,7 +321,10 @@ impl Alternative {
                                         .unchecked_into(),
                                     hex!["a49ac1053a40a2c7c33ffa41cb285cef7c3bc9db7e03a16d174cc8b5b5ac0247"]
                                         .unchecked_into(),
-                                    // FIXME - just copy/pasted
+                                    // FIXME - im_online just copy/pasted
+                                    hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"]
+                                        .unchecked_into(),
+                                    // FIXME - authority_discovery just copy/pasted
                                     hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"]
                                         .unchecked_into(),
                                 ),
@@ -363,13 +378,13 @@ impl Alternative {
 fn session_keys(
     grandpa: GrandpaId,
     babe: BabeId,
-    // im_online: ImOnlineId,
+    im_online: ImOnlineId,
     authority_discovery: AuthorityDiscoveryId,
 ) -> SessionKeys {
     SessionKeys {
         grandpa,
         babe,
-        // im_online,
+        im_online,
         authority_discovery,
     }
 }
@@ -381,7 +396,7 @@ const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_
 const INITIAL_STAKING: u128 = 1_000_000_000_000_000_000_u128;
 
 fn dev_genesis(
-    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId, AuthorityDiscoveryId)>,
+    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId, ImOnlineId, AuthorityDiscoveryId)>,
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     _enable_println: bool,
@@ -445,9 +460,9 @@ fn dev_genesis(
         pallet_grandpa: Some(GrandpaConfig {
             authorities: vec![],
         }),
-        // pallet_im_online: Some(ImOnlineConfig {
-        //     keys: vec![],
-        // }),
+        pallet_im_online: Some(ImOnlineConfig {
+            keys: vec![],
+        }),
         pallet_authority_discovery: Some(AuthorityDiscoveryConfig {
             keys: vec![],
         }),
@@ -512,9 +527,9 @@ fn testnet_genesis(
         pallet_grandpa: Some(GrandpaConfig {
             authorities: vec![],
         }),
-        // pallet_im_online: Some(ImOnlineConfig {
-        //     keys: vec![],
-        // }),
+        pallet_im_online: Some(ImOnlineConfig {
+            keys: vec![],
+        }),
         pallet_authority_discovery: Some(AuthorityDiscoveryConfig {
             keys: vec![],
         }),
