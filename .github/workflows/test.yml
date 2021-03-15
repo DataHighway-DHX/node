@@ -93,8 +93,8 @@ jobs:
           cargo +nightly-2020-10-06 test -p mining-eligibility-hardware &&
           cargo +nightly-2020-10-06 test -p mining-claims-token &&
           cargo +nightly-2020-10-06 test -p mining-claims-hardware &&
-          cargo +nightly-2020-10-06 test -p mining-execution-token && 
-          cargo +nightly-2020-10-06 test -p exchange-rate 
+          cargo +nightly-2020-10-06 test -p mining-execution-token &&
+          cargo +nightly-2020-10-06 test -p exchange-rate
 
   lints:
     name: Lints
@@ -127,10 +127,11 @@ jobs:
           rustup default nightly-2020-10-06
           rustup target add wasm32-unknown-unknown --toolchain nightly-2020-10-06
 
-      - name: Run cargo fmt
-        run: |
-          rustup component add rustfmt --toolchain nightly-2020-10-06-x86_64-unknown-linux-gnu
-          cargo +nightly-2020-10-06 fmt --all -- --check
+      # Ignore use of Rust Linting since rearranging makes it challenging to update to latest Substrate
+      # - name: Run cargo fmt
+      #   run: |
+      #     rustup component add rustfmt --toolchain nightly-2020-10-06-x86_64-unknown-linux-gnu
+      #     cargo +nightly-2020-10-06 fmt --all -- --check
 
       # Ignore use of Clippy until a clippy.toml file may be used. See README.md
       # - name: Run cargo clippy
