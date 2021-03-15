@@ -22,7 +22,12 @@ To skip running the CI unnecessarily for simple changes such as updating the doc
 
 ### Linting
 
-Please apply Rust Format on your changes prior to creating a PR. See [Linting](#chapter-c345d7).
+Check with Rust Format. Note: If you need a specific version of it replace `+nightly` with say `+nightly-2020-10-06`
+```
+cargo +nightly fmt --all -- --check
+```
+
+If you wish to apply Rust Format on your changes prior to creating a PR. See [Linting](#chapter-c345d7).
 
 ```bash
 cargo +nightly fmt --all
