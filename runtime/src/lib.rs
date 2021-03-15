@@ -11,8 +11,18 @@ use pallet_grandpa::{
     AuthorityId as GrandpaId,
     AuthorityList as GrandpaAuthorityList,
 };
-use sp_api::impl_runtime_apis;
 use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
+use pallet_session::historical as pallet_session_historical;
+pub use pallet_transaction_payment::{
+    CurrencyAdapter,
+    Multiplier,
+    TargetedFeeAdjustment,
+};
+use pallet_transaction_payment::{
+    FeeDetails,
+    RuntimeDispatchInfo,
+};
+use sp_api::impl_runtime_apis;
 use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
 use sp_core::{
     crypto::KeyTypeId,
@@ -42,6 +52,7 @@ use sp_runtime::{
         BlakeTwo256,
         Block as BlockT,
         Convert,
+        ConvertInto,
         IdentifyAccount,
         IdentityLookup,
         NumberFor,
@@ -63,7 +74,7 @@ use sp_runtime::{
     Permill,
 };
 use sp_std::prelude::*;
-#[cfg(feature = "std")]
+#[cfg(any(feature = "std", test))]
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
 
@@ -74,7 +85,12 @@ pub use frame_support::{
     traits::{
         Contains,
         ContainsLengthBound,
+        Currency,
+        Imbalance,
+        InstanceFilter,
         KeyOwnerProofSystem,
+        LockIdentifier,
+        OnUnbalanced,
         Randomness,
         U128CurrencyToVote,
     },
@@ -89,6 +105,7 @@ pub use frame_support::{
         IdentityFee,
         Weight,
     },
+    RuntimeDebug,
     StorageValue,
 };
 use frame_system::{
@@ -99,18 +116,13 @@ use frame_system::{
     EnsureOneOf,
     EnsureRoot,
 };
-use pallet_session::historical as pallet_session_historical;
-pub use pallet_transaction_payment::{
-    CurrencyAdapter,
-    Multiplier,
-    TargetedFeeAdjustment,
-};
-use pallet_transaction_payment::{
-    FeeDetails,
-    RuntimeDispatchInfo,
-};
+#[cfg(any(feature = "std", test))]
+pub use frame_system::Call as SystemCall;
+#[cfg(any(feature = "std", test))]
 pub use pallet_balances::Call as BalancesCall;
+#[cfg(any(feature = "std", test))]
 pub use pallet_staking::StakerStatus;
+#[cfg(any(feature = "std", test))]
 pub use pallet_timestamp::Call as TimestampCall;
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
@@ -120,20 +132,30 @@ pub use sp_runtime::BuildStorage;
 /// of data like extrinsics, allowing for them to continue syncing the network through upgrades
 /// to even the core data structures.
 pub mod opaque {
-    use super::*;
+    // use super::*;
     pub use super::{
+        // opaque::{
+        //   Block
+        // },
+        AccountId,
+        AccountIndex,
+        Balance,
+        Block,
         BlockNumber,
         Hash,
+        Index,
+        Moment,
+        Signature,
     };
 
-    /// Opaque block header type.
-    pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
-    /// Opaque block type.
-    pub type Block = generic::Block<Header, UncheckedExtrinsic>;
-    /// Opaque block identifier type.
-    pub type BlockId = generic::BlockId<Block>;
+    // /// Opaque block header type.
+    // pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
+    // /// Opaque block type.
+    // pub type Block = generic::Block<Header, UncheckedExtrinsic>;
+    // /// Opaque block identifier type.
+    // pub type BlockId = generic::BlockId<Block>;
 
-    pub use sp_runtime::OpaqueExtrinsic as UncheckedExtrinsic;
+    // pub use sp_runtime::OpaqueExtrinsic as UncheckedExtrinsic;
 }
 
 impl_opaque_keys! {
@@ -153,8 +175,6 @@ pub use constants::{
 };
 pub mod types;
 pub use types::*;
-
-
 
 // Make the WASM binary available.
 #[cfg(feature = "std")]
@@ -1160,6 +1180,17 @@ impl_runtime_apis! {
             Babe::next_epoch()
         }
 
+        fn generate_key_ownership_proof(
+            _slot: sp_consensus_babe::Slot,
+            authority_id: sp_consensus_babe::AuthorityId,
+        ) -> Option<sp_consensus_babe::OpaqueKeyOwnershipProof> {
+            use codec::Encode;
+
+            Historical::prove((sp_consensus_babe::KEY_TYPE, authority_id))
+                .map(|p| p.encode())
+                .map(sp_consensus_babe::OpaqueKeyOwnershipProof::new)
+        }
+
         fn submit_report_equivocation_unsigned_extrinsic(
             equivocation_proof: sp_consensus_babe::EquivocationProof<<Block as BlockT>::Header>,
             key_owner_proof: sp_consensus_babe::OpaqueKeyOwnershipProof,
@@ -1170,17 +1201,6 @@ impl_runtime_apis! {
                 equivocation_proof,
                 key_owner_proof,
             )
-        }
-
-        fn generate_key_ownership_proof(
-            _slot: sp_consensus_babe::Slot,
-            authority_id: sp_consensus_babe::AuthorityId,
-        ) -> Option<sp_consensus_babe::OpaqueKeyOwnershipProof> {
-            use codec::Encode;
-
-            Historical::prove((sp_consensus_babe::KEY_TYPE, authority_id))
-                .map(|p| p.encode())
-                .map(sp_consensus_babe::OpaqueKeyOwnershipProof::new)
         }
     }
 
