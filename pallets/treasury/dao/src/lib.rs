@@ -56,24 +56,24 @@ decl_module! {
                 let treasury_account_id: T::AccountId = <pallet_treasury::Module<T>>::account_id();
                 // FIXME - why does this give error:
                 // `the trait Wraps is not implemented for <T as frame_system::Trait>::AccountId`
-                let endowed_account_id = UncheckedFrom::unchecked_from(hex!("6d6f646c70792f74727372790000000000000000000000000000000000000000").into());
-                let balance_to_deposit = <T as Trait>::Currency::free_balance(&endowed_account_id);
+                // let endowed_account_id = UncheckedFrom::unchecked_from(hex!("6d6f646c70792f74727372790000000000000000000000000000000000000000").into());
+                // let balance_to_deposit = <T as Trait>::Currency::free_balance(&endowed_account_id);
 
-                if balance_to_deposit > 0.into() {
-                    <T as Trait>::Currency::transfer(
-                        &endowed_account_id,
-                        &treasury_account_id,
-                        balance_to_deposit,
-                        ExistenceRequirement::KeepAlive
-                    );
-                }
+                // if balance_to_deposit > 0.into() {
+                //     <T as Trait>::Currency::transfer(
+                //         &endowed_account_id,
+                //         &treasury_account_id,
+                //         balance_to_deposit,
+                //         ExistenceRequirement::KeepAlive
+                //     );
+                // }
 
-                // Emit event since treasury funded with unlocked reserves from endowed account
-                Self::deposit_event(RawEvent::TreasuryFundedWithUnlockedReserves(
-                    endowed_account_id,
-                    treasury_account_id,
-                    balance_to_deposit
-                ));
+                // // Emit event since treasury funded with unlocked reserves from endowed account
+                // Self::deposit_event(RawEvent::TreasuryFundedWithUnlockedReserves(
+                //     endowed_account_id,
+                //     treasury_account_id,
+                //     balance_to_deposit
+                // ));
             } else {
                 debug::info!("treasury-dao - on_finalize: Not genesis block");
             }

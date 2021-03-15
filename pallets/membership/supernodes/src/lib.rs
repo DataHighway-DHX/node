@@ -14,7 +14,7 @@ use frame_support::{
 };
 use frame_system::{
     self as system,
-    ensure_signed,
+    ensure_root,
 };
 use sp_std::{
     collections::btree_set::BTreeSet,
@@ -74,7 +74,7 @@ decl_module! {
             new_member: T::AccountId,
         ) -> DispatchResult {
             // let _sender = ensure_root(origin)?;
-            let _sender = ensure_signed(origin)?;
+            let _sender = ensure_root(origin)?;
 
             let mut members = Members::<T>::get();
             ensure!(members.len() < MAX_MEMBERS, Error::<T>::MembershipLimitReached);
@@ -103,7 +103,7 @@ decl_module! {
             old_member: T::AccountId,
         ) -> DispatchResult {
             // let _sender = ensure_root(origin)?;
-            let _sender = ensure_signed(origin)?;
+            let _sender = ensure_root(origin)?;
 
             let mut members = Members::<T>::get();
 
