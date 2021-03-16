@@ -141,8 +141,10 @@ impl Alternative {
                             vec![
                                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                                 get_account_id_from_seed::<sr25519::Public>("Bob"),
+                                get_account_id_from_seed::<sr25519::Public>("Charlie"),
                                 get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
                                 get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+                                get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
                             ],
                             true,
                         )
@@ -177,12 +179,14 @@ impl Alternative {
                                 get_account_id_from_seed::<sr25519::Public>("Bob"),
                                 get_account_id_from_seed::<sr25519::Public>("Charlie"),
                                 get_account_id_from_seed::<sr25519::Public>("Dave"),
+                                get_account_id_from_seed::<sr25519::Public>("Eve"),
                                 // Required otherwise get error when compiling
                                 // `Stash does not have enough balance to bond`
                                 get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
                                 get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
                                 get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
                                 get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
+                                get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
                             ],
                             true,
                         )
@@ -307,6 +311,16 @@ impl Alternative {
                                     hex!["a49ac1053a40a2c7c33ffa41cb285cef7c3bc9db7e03a16d174cc8b5b5ac0247"]
                                         .unchecked_into(),
                                     hex!["84713ddfd0e8e008ff701d51e8d6a02f32baba610bcb74013dba1ca9134d5296"]
+                                        .unchecked_into(),
+                                ),
+                                (
+                                    hex!["ca181fc1f02a0aa144885d3b6f95d333a3a84ecc448b4d9f3541b26d21729168"].into(),
+                                    hex!["f406b4141e7cab5b09e670c617ab65e911da684e4deb76d0d29e94f77a535b39"].into(),
+                                    hex!["9edf290adfc576f4de8b90a09b3b378263f34748f201a1966153f26a879e5a39"]
+                                        .unchecked_into(),
+                                    hex!["03ead710287b634d6cdf2db7be3815a48a612fd2bec3e812c6cbe3721d01e756"]
+                                        .unchecked_into(),
+                                    hex!["cb5519d6cd674e322ba038e7eea000babadfc949100144e83e2483b9811f32d1"]
                                         .unchecked_into(),
                                 ),
                             ],
