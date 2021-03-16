@@ -165,11 +165,11 @@ decl_module! {
             // TODO - adjust default samplings
             let hardware_sample_block = match _hardware_sample_block.clone() {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let hardware_sample_hardware_online = match _hardware_sample_hardware_online {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
 
             // Check if a mining_samplings_hardware_samplings_config already exists with the given mining_samplings_hardware_id

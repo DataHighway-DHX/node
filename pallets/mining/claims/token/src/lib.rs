@@ -203,11 +203,11 @@ decl_module! {
             }
 
             // Record the claim associated with their configuration/eligibility
-            let token_claim_amount: T::MiningClaimsTokenClaimAmount = 0.into();
+            let token_claim_amount: T::MiningClaimsTokenClaimAmount = 0u32.into();
             let token_claim_block_redeemed: T::BlockNumber = <frame_system::Module<T>>::block_number();
             if let Some(eligibility_token) = <mining_eligibility_token::Module<T>>::mining_eligibility_token_eligibility_results((mining_config_token_id, mining_eligibility_token_id)) {
               if let token_calculated_eligibility = eligibility_token.token_calculated_eligibility {
-                ensure!(token_calculated_eligibility > 0.into(), "Calculated eligibility is zero. Nothing to claim.");
+                ensure!(token_calculated_eligibility > 0u32.into(), "Calculated eligibility is zero. Nothing to claim.");
                 // FIXME - unable to figure out how to cast here!
                 // token_claim_amount = (token_calculated_eligibility as T::MiningClaimsTokenClaimAmount).clone();
               } else {
@@ -293,7 +293,7 @@ decl_module! {
             // TODO - adjust defaults
             let token_claim_amount = match _token_claim_amount.clone() {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_claim_block_redeemed = match _token_claim_block_redeemed {
                 Some(value) => value,

@@ -277,6 +277,24 @@ substrate-module-new <module-name> <author>
 	* Answer:
 		* Try using a different web browser. Brave may not work, however Chrome might. Try running Polkadot.js app locally instead. See https://stackoverflow.com/questions/45572440/how-to-access-an-insecure-websocket-from-a-secure-website
 
+* Question: If I update to the latest version of Substrate 'master' branch instead of just stable. How resolve an error like:
+```
+error[E0034]: multiple applicable items in scope
+   --> /Users/me/.cargo/registry/src/github.com-1ecc6299db9ec823/bitvec-0.20.1/src/order.rs:476:7
+    |
+476 |             R::BITS,
+    |                ^^^^ multiple `BITS` found
+```
+    * Answer: Try downgrading one of the dependencies that are mentioned with say `cargo update -p funty --precise 1.1.0`. Do a search of Substrate Technical on Element to see where other's have asked the same question.
+
+* Question: How resolve error like `None => 1.into() // Default ^^^^ the trait `From<i32>` is not implemented for <T as Config>::MiningClaimsTokenClaimAmount`
+    * Answer: It is not necessary to add `From<i32>` to your trait to get it to work, simply replace `None => 1.into()` with `None => 1u32.into()` since types are `i32` by default
+```
+pub trait Config: frame_system::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
+    type MiningClaimsTokenClaimAmount: Parameter + ... + From<i32>;
+```
+
 ## Technical Support <a id="chapter-c00ab7"></a>
 
 * [Discord Chat](https://discord.gg/UuZN2tE)

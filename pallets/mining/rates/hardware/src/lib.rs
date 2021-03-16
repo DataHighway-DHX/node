@@ -189,27 +189,27 @@ decl_module! {
             // TODO - adjust default rates
             let hardware_hardware_secure = match _hardware_hardware_secure.clone() {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let hardware_hardware_insecure = match _hardware_hardware_insecure {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let hardware_max_hardware = match _hardware_max_hardware {
               Some(value) => value,
-              None => 1.into() // Default
+              None => 1u32.into() // Default
             };
             let hardware_category_1_max_token_bonus_per_gateway = match _hardware_category_1_max_token_bonus_per_gateway.clone() {
                 Some(value) => value,
-                None => 1000000.into() // Default
+                None => 1000000u32.into() // Default
             };
             let hardware_category_2_max_token_bonus_per_gateway = match _hardware_category_2_max_token_bonus_per_gateway {
                 Some(value) => value,
-                None => 500000.into() // Default
+                None => 500000u32.into() // Default
             };
             let hardware_category_3_max_token_bonus_per_gateway = match _hardware_category_3_max_token_bonus_per_gateway {
                 Some(value) => value,
-                None => 250000.into() // Default
+                None => 250000u32.into() // Default
             };
 
             // Check if a mining_rates_hardware_rates_config already exists with the given mining_rates_hardware_id

@@ -168,15 +168,15 @@ decl_module! {
             };
             let subscription_fee = match _subscription_fee {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let uplink_fee_factor = match _uplink_fee_factor {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let downlink_fee_factor = match _downlink_fee_factor {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
 
             // Check if a roaming accounting policy config already exists with the given roaming accounting policy id

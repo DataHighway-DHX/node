@@ -197,7 +197,7 @@ decl_module! {
             };
             let token_execution_ended_block = match _token_execution_ended_block {
                 Some(value) => value,
-                None => <frame_system::Module<T>>::block_number() + 1.into() // Default
+                None => <frame_system::Module<T>>::block_number() + 1u32.into() // Default
             };
 
             // FIXME

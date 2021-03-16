@@ -51,7 +51,7 @@ decl_module! {
             debug::info!("treasury-dao - on_finalize");
             debug::info!("treasury-dao - current block number {:#?}", current_block_number);
 
-            if <frame_system::Module<T>>::block_number() == 0.into() {
+            if <frame_system::Module<T>>::block_number() == 0u32.into() {
                 debug::info!("treasury-dao - on_finalize: Genesis block");
                 let treasury_account_id: T::AccountId = <pallet_treasury::Module<T>>::account_id();
                 // FIXME - why does this give error:
@@ -59,7 +59,7 @@ decl_module! {
                 // let endowed_account_id = UncheckedFrom::unchecked_from(hex!("6d6f646c70792f74727372790000000000000000000000000000000000000000").into());
                 // let balance_to_deposit = <T as Config>::Currency::free_balance(&endowed_account_id);
 
-                // if balance_to_deposit > 0.into() {
+                // if balance_to_deposit > 0u32.into() {
                 //     <T as Config>::Currency::transfer(
                 //         &endowed_account_id,
                 //         &treasury_account_id,

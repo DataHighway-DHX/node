@@ -165,11 +165,11 @@ decl_module! {
             // TODO - adjust default samplings
             let token_sample_block = match _token_sample_block.clone() {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_sample_locked_amount = match _token_sample_locked_amount {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
 
             // Check if a mining_samplings_token_samplings_config already exists with the given mining_samplings_token_id

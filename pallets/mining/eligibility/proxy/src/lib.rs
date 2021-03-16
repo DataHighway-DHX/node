@@ -238,7 +238,7 @@ impl<T: Config> Module<T> {
         // 20000 * 4 * 365 = 29200000 block, then reduces to 4800 DHX per day, and so on per halving cycle.
         // assume worse case scenario of only one supernode requesting
         // rewards on behalf of users that collectively earnt the max DHX produced on that day.
-        if proxy_claim_total_reward_amount > 5000.into() && current_block < 29200000.into() {
+        if proxy_claim_total_reward_amount > 5000u32.into() && current_block < 29200000u32.into() {
             return Err(DispatchError::Other("Unreasonable proxy reward claim"));
         }
         Ok(())

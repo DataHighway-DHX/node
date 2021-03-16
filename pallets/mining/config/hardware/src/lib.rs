@@ -180,7 +180,7 @@ decl_module! {
             };
             let hardware_id = match _hardware_id {
                 Some(value) => value,
-                None => 3.into() // Default
+                None => 3u32.into() // Default
             };
             let hardware_dev_eui = match _hardware_dev_eui {
                 Some(value) => value,
