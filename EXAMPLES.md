@@ -39,6 +39,13 @@ Or just:
 rm -rf /tmp/polkadot-chains/alice /tmp/polkadot-chains/bob /tmp/polkadot-chains/charlie /tmp/polkadot-chains/node-1 /tmp/polkadot-chains/node-2 /tmp/polkadot-chains/node-3
 ```
 
+Or preferably:
+```
+rm -rf /tmp/polkadot-chains
+```
+
+Important note: Preference to using `rm -rf` since when upgrading from Substrate 2 to 3 there were polkadot-js/apps errors when `purge-chain` approach was used, but errors were resolved when used `rm -rf` approach instead.
+
 * Connect to development testnet (`--chain development` is abbreviated `--dev`)
 
 ```bash

@@ -490,35 +490,35 @@ impl pallet_treasury::Config for Runtime {
         EnsureRoot<AccountId>,
         pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, GeneralCouncilInstance>,
     >;
-    type SpendFunds = ();
+    type SpendFunds = Bounties;
     type SpendPeriod = SpendPeriod;
     // Just gets burned.
     type WeightInfo = pallet_treasury::weights::SubstrateWeight<Runtime>;
 }
 
-// impl pallet_bounties::Config for Runtime {
-//     type BountyCuratorDeposit = BountyCuratorDeposit;
-//     type BountyDepositBase = BountyDepositBase;
-//     type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
-//     type BountyUpdatePeriod = BountyUpdatePeriod;
-//     type BountyValueMinimum = BountyValueMinimum;
-//     type DataDepositPerByte = DataDepositPerByte;
-//     type Event = Event;
-//     type MaximumReasonLength = MaximumReasonLength;
-//     type WeightInfo = pallet_bounties::weights::SubstrateWeight<Runtime>;
-// }
+impl pallet_bounties::Config for Runtime {
+    type BountyCuratorDeposit = BountyCuratorDeposit;
+    type BountyDepositBase = BountyDepositBase;
+    type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
+    type BountyUpdatePeriod = BountyUpdatePeriod;
+    type BountyValueMinimum = BountyValueMinimum;
+    type DataDepositPerByte = DataDepositPerByte;
+    type Event = Event;
+    type MaximumReasonLength = MaximumReasonLength;
+    type WeightInfo = pallet_bounties::weights::SubstrateWeight<Runtime>;
+}
 
-// impl pallet_tips::Config for Runtime {
-//     type DataDepositPerByte = DataDepositPerByte;
-//     type Event = Event;
-//     type MaximumReasonLength = MaximumReasonLength;
-//     type TipCountdown = TipCountdown;
-//     type TipFindersFee = TipFindersFee;
-//     type TipReportDepositBase = TipReportDepositBase;
-//     // TODO - change value to `Elections`. See Substrate 3 migration guide
-//     type Tippers = GeneralCouncilProvider;
-//     type WeightInfo = pallet_tips::weights::SubstrateWeight<Runtime>;
-// }
+impl pallet_tips::Config for Runtime {
+    type DataDepositPerByte = DataDepositPerByte;
+    type Event = Event;
+    type MaximumReasonLength = MaximumReasonLength;
+    type TipCountdown = TipCountdown;
+    type TipFindersFee = TipFindersFee;
+    type TipReportDepositBase = TipReportDepositBase;
+    // TODO - change value to `Elections`. See Substrate 3 migration guide
+    type Tippers = GeneralCouncilProvider;
+    type WeightInfo = pallet_tips::weights::SubstrateWeight<Runtime>;
+}
 
 parameter_types! {
     pub const DisabledValidatorsThreshold: Perbill = Perbill::from_percent(17);
@@ -900,8 +900,8 @@ construct_runtime!(
         GeneralCouncil: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
         GeneralCouncilMembership: pallet_membership::<Instance1>::{Module, Call, Storage, Event<T>, Config<T>},
         TechnicalCommittee: pallet_collective::<Instance2>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
-        // Bounties: pallet_bounties::{Module, Call, Storage, Config, Event<T>},
-        // Tips: pallet_tips::{Module, Call, Storage, Config, Event<T>},
+        Bounties: pallet_bounties::{Module, Call, Storage, Config<T>, Event<T>},
+        Tips: pallet_tips::{Module, Call, Storage, Config<T>, Event<T>},
         Treasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
         Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
         Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>, ValidateUnsigned},

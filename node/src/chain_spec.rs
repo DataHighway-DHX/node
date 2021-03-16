@@ -1,10 +1,6 @@
 use sp_finality_grandpa::AuthorityId as GrandpaId;
 use hex_literal::hex;
 use datahighway_runtime::{
-    // opaque::{
-    //     Block,
-    //     SessionKeys,
-    // },
     constants::currency::*,
     wasm_binary_unwrap,
     AccountId,
@@ -12,6 +8,7 @@ use datahighway_runtime::{
     BabeConfig,
     BalancesConfig,
     Block,
+    BountiesConfig,
     GeneralCouncilMembershipConfig,
     GenesisConfig,
     GrandpaConfig,
@@ -23,6 +20,7 @@ use datahighway_runtime::{
     StakingConfig,
     SudoConfig,
     SystemConfig,
+    TipsConfig,
 };
 // use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 use sc_chain_spec::ChainSpecExtension;
@@ -54,13 +52,6 @@ pub use sp_runtime::{
     Perbill,
     Permill,
 };
-
-// // TODO - move into primitives runtime module?
-// pub use node_primitives::{
-//     AccountId,
-//     Balance,
-//     Signature,
-// };
 
 type AccountPublic = <Signature as Verify>::Signer;
 
@@ -410,7 +401,7 @@ fn dev_genesis(
             )
             .collect(),
         }),
-        // pallet_bounties: Some(Default::default()),
+        pallet_bounties: Some(Default::default()),
         pallet_session: Some(SessionConfig {
             keys: initial_authorities
                 .iter()
@@ -458,7 +449,7 @@ fn dev_genesis(
         }),
         pallet_collective_Instance2: Some(Default::default()),
         pallet_treasury: Some(Default::default()),
-        // pallet_tips: Some(Default::default()),
+        pallet_tips: Some(Default::default()),
     }
 }
 
@@ -485,7 +476,7 @@ fn testnet_genesis(
                 .map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE))
                 .collect(),
         }),
-        // pallet_bounties: Some(Default::default()),
+        pallet_bounties: Some(Default::default()),
         pallet_session: Some(SessionConfig {
             keys: initial_authorities
                 .iter()
@@ -524,7 +515,7 @@ fn testnet_genesis(
             phantom: Default::default(),
         }),
         pallet_collective_Instance2: Some(Default::default()),
-        // pallet_tips: Some(Default::default()),
+        pallet_tips: Some(Default::default()),
         pallet_treasury: Some(Default::default()),
     }
 }
