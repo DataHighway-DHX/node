@@ -51,6 +51,7 @@ use sp_runtime::{
     Perbill,
     Percent,
     Permill,
+    Perquintill,
 };
 use sp_std::prelude::*;
 #[cfg(feature = "std")]
@@ -62,8 +63,10 @@ pub use frame_support::{
     construct_runtime,
     parameter_types,
     traits::{
+        Currency,
         Contains,
         ContainsLengthBound,
+        OnUnbalanced,
         KeyOwnerProofSystem,
         Randomness,
         U128CurrencyToVote,
@@ -320,7 +323,7 @@ impl pallet_grandpa::Config for Runtime {
 }
 
 parameter_types! {
-    pub const MinimumPeriod: u64 = SLOT_DURATION / 2;
+    pub const MinimumPeriod: Moment = SLOT_DURATION / 2;
 }
 
 impl pallet_timestamp::Config for Runtime {
@@ -328,16 +331,18 @@ impl pallet_timestamp::Config for Runtime {
     /// A timestamp: milliseconds since the unix epoch.
     type Moment = u64;
     type OnTimestampSet = Babe;
-    type WeightInfo = ();
+    type WeightInfo = pallet_timestamp::weights::SubstrateWeight<Runtime>;
 }
 
 parameter_types! {
-    pub const ExistentialDeposit: u128 = 500;
+    pub const ExistentialDeposit: Balance = 1 * DOLLARS;
+    // For weight estimation, we assume that the most locks on an individual account will be 50.
+    // This number may need to be adjusted in the future if this assumption no longer holds true.
     pub const MaxLocks: u32 = 50;
 }
 
 impl pallet_balances::Config for Runtime {
-    type AccountStore = System;
+    type AccountStore = frame_system::Module<Runtime>;
     /// The type for recording an account's balance.
     type Balance = Balance;
     type DustRemoval = ();
