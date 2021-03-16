@@ -2,6 +2,10 @@
 // `construct_runtime!` does a lot of recursion and requires us to increase the limit to 256.
 #![recursion_limit = "256"]
 
+use codec::{
+    Decode,
+    Encode,
+};
 use pallet_grandpa::{
     fg_primitives,
     AuthorityId as GrandpaId,
@@ -392,8 +396,8 @@ parameter_types! {
     pub const CouncilMaxMembers: u32 = 100;
 }
 
-type GeneralCouncilInstance = pallet_collective::Instance1;
-impl pallet_collective::Config<GeneralCouncilInstance> for Runtime {
+type CouncilCollective = pallet_collective::Instance1;
+impl pallet_collective::Config<CouncilCollective> for Runtime {
     type DefaultVote = pallet_collective::PrimeDefaultVote;
     type Event = Event;
     type MaxMembers = CouncilMaxMembers;
@@ -425,7 +429,7 @@ impl pallet_collective::Config<TechnicalCollective> for Runtime {
 type EnsureRootOrHalfCouncil = EnsureOneOf<
     AccountId,
     EnsureRoot<AccountId>,
-    pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, GeneralCouncilInstance>,
+    pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>,
 >;
 impl pallet_membership::Config<pallet_membership::Instance1> for Runtime {
     type AddOrigin = EnsureRootOrHalfCouncil;
@@ -438,25 +442,25 @@ impl pallet_membership::Config<pallet_membership::Instance1> for Runtime {
     type SwapOrigin = EnsureRootOrHalfCouncil;
 }
 
-pub struct GeneralCouncilProvider;
-impl Contains<AccountId> for GeneralCouncilProvider {
-    fn contains(who: &AccountId) -> bool {
-        GeneralCouncil::is_member(who)
-    }
+// pub struct GeneralCouncilProvider;
+// impl Contains<AccountId> for GeneralCouncilProvider {
+//     fn contains(who: &AccountId) -> bool {
+//         Council::is_member(who)
+//     }
 
-    fn sorted_members() -> Vec<AccountId> {
-        GeneralCouncil::members()
-    }
-}
-impl ContainsLengthBound for GeneralCouncilProvider {
-    fn min_len() -> usize {
-        0
-    }
+//     fn sorted_members() -> Vec<AccountId> {
+//         Council::members()
+//     }
+// }
+// impl ContainsLengthBound for GeneralCouncilProvider {
+//     fn min_len() -> usize {
+//         0
+//     }
 
-    fn max_len() -> usize {
-        100000
-    }
-}
+//     fn max_len() -> usize {
+//         100000
+//     }
+// }
 
 parameter_types! {
     pub const ProposalBond: Permill = Permill::from_percent(5);
@@ -480,7 +484,7 @@ impl pallet_treasury::Config for Runtime {
     type ApproveOrigin = EnsureOneOf<
         AccountId,
         EnsureRoot<AccountId>,
-        pallet_collective::EnsureProportionAtLeast<_3, _5, AccountId, GeneralCouncilInstance>,
+        pallet_collective::EnsureProportionAtLeast<_3, _5, AccountId, CouncilCollective>,
     >;
     type Burn = Burn;
     type BurnDestination = ();
@@ -493,7 +497,7 @@ impl pallet_treasury::Config for Runtime {
     type RejectOrigin = EnsureOneOf<
         AccountId,
         EnsureRoot<AccountId>,
-        pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, GeneralCouncilInstance>,
+        pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>,
     >;
     type SpendFunds = ();
     type SpendPeriod = SpendPeriod;
@@ -673,7 +677,7 @@ impl pallet_staking::Config for Runtime {
     type SlashCancelOrigin = EnsureOneOf<
         AccountId,
         EnsureRoot<AccountId>,
-        pallet_collective::EnsureProportionAtLeast<_3, _4, AccountId, GeneralCouncilInstance>,
+        pallet_collective::EnsureProportionAtLeast<_3, _4, AccountId, CouncilCollective>,
     >;
     type SlashDeferDuration = SlashDeferDuration;
     type UnixTime = Timestamp;
@@ -902,8 +906,8 @@ construct_runtime!(
         TransactionPayment: pallet_transaction_payment::{Module, Storage},
         // ElectionProviderMultiPhase: pallet_election_provider_multi_phase::{Module, Call, Storage, Event<T>, ValidateUnsigned},
         Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
-        GeneralCouncil: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
-        GeneralCouncilMembership: pallet_membership::<Instance1>::{Module, Call, Storage, Event<T>, Config<T>},
+        Council: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
+        TechnicalMembership: pallet_membership::<Instance1>::{Module, Call, Storage, Event<T>, Config<T>},
         TechnicalCommittee: pallet_collective::<Instance2>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
         // Bounties: pallet_bounties::{Module, Call, Storage, Config, Event<T>},
         // Tips: pallet_tips::{Module, Call, Storage, Config, Event<T>},

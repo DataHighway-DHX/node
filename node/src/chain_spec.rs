@@ -12,7 +12,7 @@ use datahighway_runtime::{
     BabeConfig,
     BalancesConfig,
     Block,
-    GeneralCouncilMembershipConfig,
+    TechnicalMembershipConfig,
     GenesisConfig,
     GrandpaConfig,
     IndicesConfig,
@@ -452,7 +452,7 @@ fn dev_genesis(
             keys: vec![],
         }),
         pallet_collective_Instance1: Some(Default::default()),
-        pallet_membership_Instance1: Some(GeneralCouncilMembershipConfig {
+        pallet_membership_Instance1: Some(TechnicalMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
         }),
@@ -519,7 +519,7 @@ fn testnet_genesis(
             keys: vec![],
         }),
         pallet_collective_Instance1: Some(Default::default()),
-        pallet_membership_Instance1: Some(GeneralCouncilMembershipConfig {
+        pallet_membership_Instance1: Some(TechnicalMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
         }),
