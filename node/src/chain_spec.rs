@@ -8,7 +8,6 @@ use datahighway_runtime::{
     constants::currency::*,
     wasm_binary_unwrap,
     AccountId,
-    AuthorityDiscoveryConfig,
     BabeConfig,
     BalancesConfig,
     Block,
@@ -34,7 +33,6 @@ use serde::{
     Serialize,
 };
 use serde_json::map::Map;
-use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
 use sp_consensus_babe::AuthorityId as BabeId;
 
 use sp_core::{
@@ -97,13 +95,12 @@ where
 }
 
 /// Helper function to generate an authority key from seed
-pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, GrandpaId, BabeId, AuthorityDiscoveryId) {
+pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, GrandpaId, BabeId) {
     (
         get_account_id_from_seed::<sr25519::Public>(&format!("{}//stash", seed)),
         get_account_id_from_seed::<sr25519::Public>(seed),
         get_from_seed::<GrandpaId>(seed),
         get_from_seed::<BabeId>(seed),
-        get_from_seed::<AuthorityDiscoveryId>(seed),
     )
 }
 
@@ -141,10 +138,8 @@ impl Alternative {
                             vec![
                                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                                 get_account_id_from_seed::<sr25519::Public>("Bob"),
-                                get_account_id_from_seed::<sr25519::Public>("Charlie"),
                                 get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
                                 get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
                             ],
                             true,
                         )
@@ -168,7 +163,6 @@ impl Alternative {
                                 get_authority_keys_from_seed("Bob"),
                                 get_authority_keys_from_seed("Charlie"),
                                 get_authority_keys_from_seed("Dave"),
-                                get_authority_keys_from_seed("Eve"),
                             ],
                             get_account_id_from_seed::<sr25519::Public>("Alice"),
                             vec![
@@ -179,14 +173,12 @@ impl Alternative {
                                 get_account_id_from_seed::<sr25519::Public>("Bob"),
                                 get_account_id_from_seed::<sr25519::Public>("Charlie"),
                                 get_account_id_from_seed::<sr25519::Public>("Dave"),
-                                get_account_id_from_seed::<sr25519::Public>("Eve"),
                                 // Required otherwise get error when compiling
                                 // `Stash does not have enough balance to bond`
                                 get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
                                 get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
                                 get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
                                 get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
-                                get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
                             ],
                             true,
                         )
@@ -226,7 +218,6 @@ impl Alternative {
                                 get_authority_keys_from_seed("Bob"),
                                 get_authority_keys_from_seed("Charlie"),
                                 get_authority_keys_from_seed("Dave"),
-                                get_authority_keys_from_seed("Eve"),
                             ],
                             get_account_id_from_seed::<sr25519::Public>("Alice"),
                             vec![
@@ -273,6 +264,7 @@ impl Alternative {
                         // for j in grandpa; do subkey inspect --scheme=ed25519 "$SECRET//$i//$j"; done; done
                         testnet_genesis(
                             vec![
+                                // authority #0
                                 (
                                     hex!["f64bae0f8fbe2eb59ff1c0ff760a085f55d69af5909aed280ebda09dc364d443"].into(),
                                     hex!["ca907b74f921b74638eb40c289e9bf1142b0afcdb25e1a50383ab8f9d515da0d"].into(),
@@ -280,9 +272,8 @@ impl Alternative {
                                         .unchecked_into(),
                                     hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"]
                                         .unchecked_into(),
-                                    hex!["c9f2d61a8caeaf7745eb787e006b819d650079d639ab7f4a71108426feb8fd6c"]
-                                        .unchecked_into(),
                                 ),
+                                // authority #1
                                 (
                                     hex!["420a7b4a8c9f2388eded13c17841d2a0e08ea7c87eda84310da54f3ccecd3931"].into(),
                                     hex!["ae69db7838fb139cbf4f93bf877faf5bbef242f3f5aac6eb4f111398e9385e7d"].into(),
@@ -290,9 +281,8 @@ impl Alternative {
                                         .unchecked_into(),
                                     hex!["1e91a7902c89289f97756c4e20c0e9536f34de61c7c21af7773d670b0e644030"]
                                         .unchecked_into(),
-                                    hex!["14654170e782a531a6b7c943ca835c9d30907914f0f74aa9eb4dd32915d8b4fe"]
-                                        .unchecked_into(),
                                 ),
+                                // authority #2
                                 (
                                     hex!["ceecb6cc08c20ff44052ff19952a810d08363aa26ea4fb0a64a62a4630d37f28"].into(),
                                     hex!["7652b25328d78d264aef01184202c9771b55f5b391359309a2559ef77fbbb33d"].into(),
@@ -300,9 +290,8 @@ impl Alternative {
                                         .unchecked_into(),
                                     hex!["aaabcb653ce5dfd63035430dba10ce9aed5d064883b9e2b19ec5d9b26a457f57"]
                                         .unchecked_into(),
-                                    hex!["10055f2df9505c20daf8549ef65f0a3e9e97d3db1db136e25e80be4370a46ce7"]
-                                        .unchecked_into(),
                                 ),
+                                // authority #3
                                 (
                                     hex!["68bac5586028dd40db59a7becec349b42cd4229f9d3c31875c3eb7a57241cd42"].into(),
                                     hex!["eec96d02877a45fa524fcee1c6b7c849cbdc8cee01a95f5db168c427ae766849"].into(),
@@ -310,17 +299,14 @@ impl Alternative {
                                         .unchecked_into(),
                                     hex!["a49ac1053a40a2c7c33ffa41cb285cef7c3bc9db7e03a16d174cc8b5b5ac0247"]
                                         .unchecked_into(),
-                                    hex!["84713ddfd0e8e008ff701d51e8d6a02f32baba610bcb74013dba1ca9134d5296"]
-                                        .unchecked_into(),
                                 ),
+                                // authority #4
                                 (
                                     hex!["ca181fc1f02a0aa144885d3b6f95d333a3a84ecc448b4d9f3541b26d21729168"].into(),
                                     hex!["f406b4141e7cab5b09e670c617ab65e911da684e4deb76d0d29e94f77a535b39"].into(),
                                     hex!["9edf290adfc576f4de8b90a09b3b378263f34748f201a1966153f26a879e5a39"]
                                         .unchecked_into(),
                                     hex!["03ead710287b634d6cdf2db7be3815a48a612fd2bec3e812c6cbe3721d01e756"]
-                                        .unchecked_into(),
-                                    hex!["cb5519d6cd674e322ba038e7eea000babadfc949100144e83e2483b9811f32d1"]
                                         .unchecked_into(),
                                 ),
                             ],
@@ -329,15 +315,40 @@ impl Alternative {
                                 // Endow this account with the DHX DAO Unlocked Reserves Balance
                                 // 5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr
                                 hex!["6c029e6fc41ec44d420030071f04995bac19e59a0f0a1a610f9f0f6d689e2262"].into(),
-                                // Endow these accounts with a balance so they may bond as authorities
-                                hex!["ca907b74f921b74638eb40c289e9bf1142b0afcdb25e1a50383ab8f9d515da0d"].into(),
-                                hex!["ae69db7838fb139cbf4f93bf877faf5bbef242f3f5aac6eb4f111398e9385e7d"].into(),
-                                hex!["7652b25328d78d264aef01184202c9771b55f5b391359309a2559ef77fbbb33d"].into(),
-                                hex!["eec96d02877a45fa524fcee1c6b7c849cbdc8cee01a95f5db168c427ae766849"].into(),
+                                // Endow these accounts with a balance so they may bond as authorities.
+                                // IMPORTANT: All authorities must be included in the list below so they have
+                                // an account balance to avoid session error
+                                // `assertion failed: frame_system::Module::<T>::inc_consumers(&account).is_ok()`
+
+                                // authority #0
                                 hex!["f64bae0f8fbe2eb59ff1c0ff760a085f55d69af5909aed280ebda09dc364d443"].into(),
+                                hex!["ca907b74f921b74638eb40c289e9bf1142b0afcdb25e1a50383ab8f9d515da0d"].into(),
+                                hex!["6a9da05f3e07d68bc29fb6cf9377a1537d59f082f49cb27a47881aef9fbaeaee"].into(),
+                                hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"].into(),
+
+                                // authority #1
                                 hex!["420a7b4a8c9f2388eded13c17841d2a0e08ea7c87eda84310da54f3ccecd3931"].into(),
+                                hex!["ae69db7838fb139cbf4f93bf877faf5bbef242f3f5aac6eb4f111398e9385e7d"].into(),
+                                hex!["9af1908ac74b042f4be713e10dcf6a2def3770cfce58951c839768e7d6bbcd8e"].into(),
+                                hex!["1e91a7902c89289f97756c4e20c0e9536f34de61c7c21af7773d670b0e644030"].into(),
+
+                                // authority #2
                                 hex!["ceecb6cc08c20ff44052ff19952a810d08363aa26ea4fb0a64a62a4630d37f28"].into(),
+                                hex!["7652b25328d78d264aef01184202c9771b55f5b391359309a2559ef77fbbb33d"].into(),
+                                hex!["b8902681768fbda7a29666e1de8a18f5be3c778d92cf29139959a86e6bff13e7"].into(),
+                                hex!["aaabcb653ce5dfd63035430dba10ce9aed5d064883b9e2b19ec5d9b26a457f57"].into(),
+
+                                // authority #3
                                 hex!["68bac5586028dd40db59a7becec349b42cd4229f9d3c31875c3eb7a57241cd42"].into(),
+                                hex!["eec96d02877a45fa524fcee1c6b7c849cbdc8cee01a95f5db168c427ae766849"].into(),
+                                hex!["f4807d86cca169a81d42fcf9c7abddeff107b0a73e9e7a809257ac7e4a164741"].into(),
+                                hex!["a49ac1053a40a2c7c33ffa41cb285cef7c3bc9db7e03a16d174cc8b5b5ac0247"].into(),
+
+                                // authority #4
+                                hex!["ca181fc1f02a0aa144885d3b6f95d333a3a84ecc448b4d9f3541b26d21729168"].into(),
+                                hex!["f406b4141e7cab5b09e670c617ab65e911da684e4deb76d0d29e94f77a535b39"].into(),
+                                hex!["9edf290adfc576f4de8b90a09b3b378263f34748f201a1966153f26a879e5a39"].into(),
+                                hex!["03ead710287b634d6cdf2db7be3815a48a612fd2bec3e812c6cbe3721d01e756"].into(),
                             ],
                         )
                     },
@@ -374,13 +385,11 @@ fn session_keys(
     grandpa: GrandpaId,
     babe: BabeId,
     // im_online: ImOnlineId,
-    authority_discovery: AuthorityDiscoveryId,
 ) -> SessionKeys {
     SessionKeys {
         grandpa,
         babe,
         // im_online,
-        authority_discovery,
     }
 }
 
@@ -391,7 +400,7 @@ const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_
 const INITIAL_STAKING: u128 = 1_000_000_000_000_000_000_u128;
 
 fn dev_genesis(
-    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId, AuthorityDiscoveryId)>,
+    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     _enable_println: bool,
@@ -424,7 +433,7 @@ fn dev_genesis(
         pallet_session: Some(SessionConfig {
             keys: initial_authorities
                 .iter()
-                .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone(), x.4.clone())))
+                .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone())))
                 .collect::<Vec<_>>(),
         }),
         pallet_staking: Some(StakingConfig {
@@ -458,9 +467,6 @@ fn dev_genesis(
         // pallet_im_online: Some(ImOnlineConfig {
         //     keys: vec![],
         // }),
-        pallet_authority_discovery: Some(AuthorityDiscoveryConfig {
-            keys: vec![],
-        }),
         pallet_collective_Instance1: Some(Default::default()),
         pallet_membership_Instance1: Some(TechnicalMembershipConfig {
             members: vec![root_key.clone()],
@@ -473,7 +479,7 @@ fn dev_genesis(
 }
 
 fn testnet_genesis(
-    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId, AuthorityDiscoveryId)>,
+    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     // No println
@@ -499,7 +505,7 @@ fn testnet_genesis(
         pallet_session: Some(SessionConfig {
             keys: initial_authorities
                 .iter()
-                .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone(), x.4.clone())))
+                .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone())))
                 .collect::<Vec<_>>(),
         }),
         pallet_staking: Some(StakingConfig {
@@ -525,9 +531,6 @@ fn testnet_genesis(
         // pallet_im_online: Some(ImOnlineConfig {
         //     keys: vec![],
         // }),
-        pallet_authority_discovery: Some(AuthorityDiscoveryConfig {
-            keys: vec![],
-        }),
         pallet_collective_Instance1: Some(Default::default()),
         pallet_membership_Instance1: Some(TechnicalMembershipConfig {
             members: vec![root_key.clone()],
