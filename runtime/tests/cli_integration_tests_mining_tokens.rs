@@ -92,9 +92,9 @@ mod tests {
         type AccountId = u64;
         type BaseCallFilter = ();
         type BlockHashCount = BlockHashCount;
-        type BlockLength = ();
+        type BlockLength = RuntimeBlockLength;
         type BlockNumber = u64;
-        type BlockWeights = ();
+        type BlockWeights = RuntimeBlockLength;
         type Call = ();
         type DbWeight = ();
         // type WeightMultiplierUpdate = ();
