@@ -197,26 +197,30 @@ const MAXIMUM_BLOCK_WEIGHT: Weight = 2 * WEIGHT_PER_SECOND;
 parameter_types! {
     pub const Version: RuntimeVersion = VERSION;
     pub const BlockHashCount: BlockNumber = 2400;
-    pub RuntimeBlockLength: BlockLength =
-        BlockLength::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
-    pub RuntimeBlockWeights: BlockWeights = BlockWeights::builder()
-        .base_block(BlockExecutionWeight::get())
-        .for_class(DispatchClass::all(), |weights| {
-            weights.base_extrinsic = ExtrinsicBaseWeight::get();
-        })
-        .for_class(DispatchClass::Normal, |weights| {
-            weights.max_total = Some(NORMAL_DISPATCH_RATIO * MAXIMUM_BLOCK_WEIGHT);
-        })
-        .for_class(DispatchClass::Operational, |weights| {
-            weights.max_total = Some(MAXIMUM_BLOCK_WEIGHT);
-            // Operational transactions have some extra reserved space, so that they
-            // are included even if block reached `MAXIMUM_BLOCK_WEIGHT`.
-            weights.reserved = Some(
-                MAXIMUM_BLOCK_WEIGHT - NORMAL_DISPATCH_RATIO * MAXIMUM_BLOCK_WEIGHT
-            );
-        })
-        .avg_block_initialization(AVERAGE_ON_INITIALIZE_RATIO)
-        .build_or_panic();
+    // pub RuntimeBlockLength: BlockLength =
+    //     BlockLength::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
+    // pub RuntimeBlockWeights: BlockWeights = BlockWeights::builder()
+    //     .base_block(BlockExecutionWeight::get())
+    //     .for_class(DispatchClass::all(), |weights| {
+    //         weights.base_extrinsic = ExtrinsicBaseWeight::get();
+    //     })
+    //     .for_class(DispatchClass::Normal, |weights| {
+    //         weights.max_total = Some(NORMAL_DISPATCH_RATIO * MAXIMUM_BLOCK_WEIGHT);
+    //     })
+    //     .for_class(DispatchClass::Operational, |weights| {
+    //         weights.max_total = Some(MAXIMUM_BLOCK_WEIGHT);
+    //         // Operational transactions have some extra reserved space, so that they
+    //         // are included even if block reached `MAXIMUM_BLOCK_WEIGHT`.
+    //         weights.reserved = Some(
+    //             MAXIMUM_BLOCK_WEIGHT - NORMAL_DISPATCH_RATIO * MAXIMUM_BLOCK_WEIGHT
+    //         );
+    //     })
+    //     .avg_block_initialization(AVERAGE_ON_INITIALIZE_RATIO)
+    //     .build_or_panic();
+    // pub BlockWeights: frame_system::limits::BlockWeights = frame_system::limits::BlockWeights
+    //     ::with_sensible_defaults(2 * WEIGHT_PER_SECOND, NORMAL_DISPATCH_RATIO);
+    // pub BlockLength: frame_system::limits::BlockLength = frame_system::limits::BlockLength
+    //     ::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
     pub const SS58Prefix: u8 = 33;
 }
 
@@ -232,11 +236,11 @@ impl frame_system::Config for Runtime {
     /// Maximum number of block number to block hash mappings to keep (oldest pruned first).
     type BlockHashCount = BlockHashCount;
     /// The maximum length of a block (in bytes).
-    type BlockLength = RuntimeBlockLength;
+    type BlockLength = BlockLength;
     /// The index type for blocks.
     type BlockNumber = BlockNumber;
     /// Block & extrinsics weights: base values and limits.
-    type BlockWeights = RuntimeBlockWeights;
+    type BlockWeights = BlockWeights;
     /// The aggregated dispatch type that is available for extrinsics.
     type Call = Call;
     /// The weight of database operations that the runtime can invoke.

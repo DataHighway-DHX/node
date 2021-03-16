@@ -33,37 +33,40 @@ mod tests {
         Perbill,
         Permill,
     };
-    // Import Config for each runtime module being tested
+    pub use pallet_transaction_payment::{
+        CurrencyAdapter,
+    };
+    // Import Trait for each runtime module being tested
     use mining_claims_token::{
         MiningClaimsTokenClaimResult,
         Module as MiningClaimsTokenModule,
-        Config as MiningClaimsTokenConfig,
+        Config as MiningClaimsTokenTrait,
     };
     use mining_config_token::{
         MiningConfigTokenConfig,
         MiningConfigTokenRequirementsConfig,
         Module as MiningConfigTokenModule,
-        Config as MiningConfigTokenConfig,
+        Config as MiningConfigTokenTrait,
     };
     use mining_eligibility_token::{
         MiningEligibilityTokenResult,
         Module as MiningEligibilityTokenModule,
-        Config as MiningEligibilityTokenConfig,
+        Config as MiningEligibilityTokenTrait,
     };
     use mining_execution_token::{
         MiningExecutionTokenExecutionResult,
         Module as MiningExecutionTokenModule,
-        Config as MiningExecutionTokenConfig,
+        Config as MiningExecutionTokenTrait,
     };
     use mining_rates_token::{
         MiningRatesTokenConfig,
         Module as MiningRatesTokenModule,
-        Config as MiningRatesTokenConfig,
+        Config as MiningRatesTokenTrait,
     };
     use mining_sampling_token::{
         MiningSamplingTokenConfig,
         Module as MiningSamplingTokenModule,
-        Config as MiningSamplingTokenConfig,
+        Config as MiningSamplingTokenTrait,
     };
     use roaming_operators;
 
@@ -82,32 +85,30 @@ mod tests {
         pub const MaximumBlockWeight: Weight = 1024;
         pub const MaximumBlockLength: u32 = 2 * 1024;
         pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
+        pub const SS58Prefix: u8 = 33;
     }
     impl frame_system::Config for Test {
         type AccountData = pallet_balances::AccountData<u64>;
         type AccountId = u64;
-        type AvailableBlockRatio = AvailableBlockRatio;
         type BaseCallFilter = ();
-        type BlockExecutionWeight = ();
         type BlockHashCount = BlockHashCount;
+        type BlockLength = ();
         type BlockNumber = u64;
+        type BlockWeights = ();
         type Call = ();
         type DbWeight = ();
         // type WeightMultiplierUpdate = ();
         type Event = ();
-        type ExtrinsicBaseWeight = ();
         type Hash = H256;
         type Hashing = BlakeTwo256;
         type Header = Header;
         type Index = u64;
         type Lookup = IdentityLookup<Self::AccountId>;
-        type MaximumBlockLength = MaximumBlockLength;
-        type MaximumBlockWeight = MaximumBlockWeight;
-        type MaximumExtrinsicWeight = MaximumBlockWeight;
         type OnKilledAccount = ();
         type OnNewAccount = ();
         type Origin = Origin;
-        type PalletInfo = ();
+        type PalletInfo = PalletInfo;
+        type SS58Prefix = SS58Prefix;
         type SystemWeightInfo = ();
         type Version = ();
     }
@@ -124,9 +125,8 @@ mod tests {
         type WeightInfo = ();
     }
     impl pallet_transaction_payment::Config for Test {
-        type Currency = Balances;
         type FeeMultiplierUpdate = ();
-        type OnTransactionPayment = ();
+        type OnChargeTransaction = CurrencyAdapter<Balances, ()>;
         type TransactionByteFee = ();
         type WeightToFee = IdentityFee<u64>;
     }
@@ -137,7 +137,7 @@ mod tests {
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
-    impl MiningConfigTokenConfig for Test {
+    impl MiningConfigTokenTrait for Test {
         type Event = ();
         // type Currency = Balances;
         // type Randomness = Randomness;
@@ -147,7 +147,7 @@ mod tests {
         // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
         type MiningConfigTokenType = Vec<u8>;
     }
-    impl MiningRatesTokenConfig for Test {
+    impl MiningRatesTokenTrait for Test {
         type Event = ();
         type MiningRatesTokenIndex = u64;
         type MiningRatesTokenMaxLoyalty = u32;
@@ -158,24 +158,24 @@ mod tests {
         // Mining Speed Boost Rate
         type MiningRatesTokenTokenMXC = u32;
     }
-    impl MiningSamplingTokenConfig for Test {
+    impl MiningSamplingTokenTrait for Test {
         type Event = ();
         type MiningSamplingTokenIndex = u64;
         type MiningSamplingTokenSampleLockedAmount = u64;
     }
-    impl MiningEligibilityTokenConfig for Test {
+    impl MiningEligibilityTokenTrait for Test {
         type Event = ();
         type MiningEligibilityTokenCalculatedEligibility = u64;
         type MiningEligibilityTokenIndex = u64;
         type MiningEligibilityTokenLockedPercentage = u32;
         // type MiningEligibilityTokenAuditorAccountID = u64;
     }
-    impl MiningClaimsTokenConfig for Test {
+    impl MiningClaimsTokenTrait for Test {
         type Event = ();
         type MiningClaimsTokenClaimAmount = u64;
         type MiningClaimsTokenIndex = u64;
     }
-    impl MiningExecutionTokenConfig for Test {
+    impl MiningExecutionTokenTrait for Test {
         type Event = ();
         type MiningExecutionTokenIndex = u64;
     }
