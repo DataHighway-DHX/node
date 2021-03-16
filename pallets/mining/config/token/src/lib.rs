@@ -281,11 +281,11 @@ decl_module! {
             };
             let token_lock_min_amount = match _token_lock_min_amount {
                 Some(value) => value,
-                None => 10.into() // Default
+                None => 10u32.into() // Default
             };
             let token_lock_min_blocks = match _token_lock_min_blocks {
                 Some(value) => value,
-                None => 7.into() // Default
+                None => 7u32.into() // Default
             };
 
             // Check if a mining_config_token_token_cooldown_config already exists with the given mining_config_token_id
