@@ -603,15 +603,15 @@ mod tests {
             // This is not necessary anymore, since we are triggering create function from within a function.
             // assert_ok!(MiningEligibilityProxyTestModule::create(Origin::signed(0)));
 
-            // let rewardee_data = MiningEligibilityProxyClaimRewardeeData {
-            //     proxy_claim_rewardee_account_id: 3,
-            //     proxy_claim_reward_amount: 1000,
-            //     proxy_claim_start_block: 0,
-            //     proxy_claim_interval_blocks: 10,
-            // };
-            // let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, u64, u64>> =
-            //     Vec::new();
-            // proxy_claim_rewardees_data.push(rewardee_data);
+            let rewardee_data = MiningEligibilityProxyClaimRewardeeData {
+                proxy_claim_rewardee_account_id: 3,
+                proxy_claim_reward_amount: 1000,
+                proxy_claim_start_block: 0,
+                proxy_claim_interval_blocks: 10,
+            };
+            let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, u64, u64>> =
+                Vec::new();
+            proxy_claim_rewardees_data.push(rewardee_data);
 
             System::set_block_number(1);
 
@@ -646,7 +646,7 @@ mod tests {
             assert_ok!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
                 Origin::signed(1),
                 1000, // _proxy_claim_total_reward_amount
-                // Some(proxy_claim_rewardees_data.clone()),
+                Some(proxy_claim_rewardees_data.clone()),
             ));
 
             System::set_block_number(2);
@@ -697,7 +697,7 @@ mod tests {
                 Some(MiningEligibilityProxyResult {
                     proxy_claim_requestor_account_id: 1u64,
                     proxy_claim_total_reward_amount: 1000u64,
-                    // proxy_claim_rewardees_data: proxy_claim_rewardees_data.clone(),
+                    proxy_claim_rewardees_data: proxy_claim_rewardees_data.clone(),
                     proxy_claim_block_redeemed: 1u64, // current block
                 })
             );
