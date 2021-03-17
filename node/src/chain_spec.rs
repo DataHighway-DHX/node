@@ -139,6 +139,10 @@ impl Alternative {
                                 // is only supported in Substrate 3 and was fixed here
                                 // https://github.com/paritytech/substrate/pull/7058
                                 // so instead we will transfer funds to
+                                //
+                                // DHX DAO Unlocked Reserves Balance
+                                // 5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr
+                                hex!["6c029e6fc41ec44d420030071f04995bac19e59a0f0a1a610f9f0f6d689e2262"].into(),
                                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                                 get_account_id_from_seed::<sr25519::Public>("Bob"),
                                 get_account_id_from_seed::<sr25519::Public>("Charlie"),
@@ -176,8 +180,8 @@ impl Alternative {
                             get_account_id_from_seed::<sr25519::Public>("Alice"),
                             vec![
                                 // DHX DAO Unlocked Reserves Balance
-                                // 5FmxcuFwGK7kPmQCB3zhk3HtxxJUyb3WjxosF8jvnkrVRLUG
-                                hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
+                                // 5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr
+                                hex!["6c029e6fc41ec44d420030071f04995bac19e59a0f0a1a610f9f0f6d689e2262"].into(),
                                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                                 get_account_id_from_seed::<sr25519::Public>("Bob"),
                                 get_account_id_from_seed::<sr25519::Public>("Charlie"),
@@ -231,8 +235,8 @@ impl Alternative {
                             get_account_id_from_seed::<sr25519::Public>("Alice"),
                             vec![
                                 // Endow this account with the DHX DAO Unlocked Reserves Balance
-                                // 5FmxcuFwGK7kPmQCB3zhk3HtxxJUyb3WjxosF8jvnkrVRLUG
-                                hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
+                                // 5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr
+                                hex!["6c029e6fc41ec44d420030071f04995bac19e59a0f0a1a610f9f0f6d689e2262"].into(),
                                 // Endow these accounts with a balance so they may bond as authorities
                                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                                 get_account_id_from_seed::<sr25519::Public>("Bob"),
@@ -386,7 +390,7 @@ fn dev_genesis(
                 .map(|x| {
                     // Insert Public key (hex) of the account without the 0x prefix below
                     if x == UncheckedFrom::unchecked_from(
-                        hex!("a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21").into(),
+                        hex!("6c029e6fc41ec44d420030071f04995bac19e59a0f0a1a610f9f0f6d689e2262").into(),
                     ) {
                         println!("endowed_account treasury {:?}", x.clone());
                         return (x, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);

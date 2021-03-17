@@ -298,6 +298,7 @@ mod tests {
 
     type System = frame_system::Module<Test>;
     pub type Balances = pallet_balances::Module<Test>;
+    pub type Treasury = pallet_treasury::Module<Test>;
     pub type MiningConfigTokenTestModule = MiningConfigTokenModule<Test>;
     pub type MiningRatesTokenTestModule = MiningRatesTokenModule<Test>;
     pub type MiningSamplingTokenTestModule = MiningSamplingTokenModule<Test>;
@@ -612,30 +613,42 @@ mod tests {
             //     Vec::new();
             // proxy_claim_rewardees_data.push(rewardee_data);
 
-            System::set_block_number(10);
+            System::set_block_number(1);
 
-            // Check balance of account proxy_claim_rewardee_account_id prior to treasury rewarding it.
+            // Check balance of account Supernode Centre's proxy_claim_rewardee_account_id prior
+            // to treasury rewarding it.
             assert_eq!(Balances::free_balance(1), 10);
             assert_eq!(Balances::reserved_balance(1), 0);
-            assert_eq!(Balances::total_balance(1), 10);
-            // Check balance of treasury prior to paying the proxy_claim_reward_amount.
+            assert_eq!(Balances::total_balance(&1), 10);
+            // Check balance of temporary treasury prior to paying the treasury.
             assert_eq!(Balances::free_balance(0), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
             assert_eq!(Balances::reserved_balance(0), 0);
-            assert_eq!(Balances::total_balance(0), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
+            assert_eq!(Balances::total_balance(&0), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
 
             // let _ = Balances::deposit_creating(&0, 30000);
+            // Balances::make_free_balance_be(&Treasury::account_id(), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
+
+            // Sudo transfers the temporary treasury DHX DAO reserves to the treasury after the genesis block
+            // This is necessary because instantiable transfers to treasury in the genesis config are
+            // only available in Substrate 3, but we are using Substrate 2 still.
+            // origin, source, destination, balance
+            assert_ok!(Balances::force_transfer(RawOrigin::Root.into(), 0, Treasury::account_id(), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE));
+
+            // Check the balance of the treasury has received the funds from the temporary account
+            // to be use to pay the proxy_claim_reward_amount to proxy_claim_rewardee_account_id
+            assert_eq!(Balances::free_balance(&Treasury::account_id()), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
+            // ::pot() is a private function in Substrate 2 but in Substrate 3 it is public
+            // so currently we cannot use this until we upgrade to Substrate 3
+            // assert_eq!(Treasury::pot(), 50000);
 
             // This will generate mining_eligibility_proxy_id 0
             assert_ok!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
-                Origin::signed(0),
+                Origin::signed(1),
                 1000, // _proxy_claim_total_reward_amount
                 // Some(proxy_claim_rewardees_data.clone()),
             ));
 
-            // origin, source, destination, balance
-            // assert_ok!(Balances::force_transfer(RawOrigin::Root.into(), 0, 1, 1000));
-
-            System::set_block_number(20);
+            System::set_block_number(2);
 
             // FIXME #20210312 - unable to get this to work or find help
             // https://matrix.to/#/!HzySYSaIhtyWrwiwEV:matrix.org/$1615538012148183moxRT:matrix.org?via=matrix.parity.io&via=matrix.org&via=corepaper.org
@@ -652,11 +665,11 @@ mod tests {
             // );
             assert_eq!(Balances::free_balance(1), 1010);
             assert_eq!(Balances::reserved_balance(1), 0);
-            assert_eq!(Balances::total_balance(1), 1010);
+            assert_eq!(Balances::total_balance(&1), 1010);
             // Check balance of treasury after paying the proxy_claim_reward_amount.
-            assert_eq!(Balances::free_balance(0), (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000));
-            assert_eq!(Balances::reserved_balance(0), 0);
-            assert_eq!(Balances::total_balance(0), (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000));
+            assert_eq!(Balances::free_balance(Treasury::account_id()), (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000));
+            assert_eq!(Balances::reserved_balance(Treasury::account_id()), 0);
+            assert_eq!(Balances::total_balance(&Treasury::account_id()), (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000));
 
             // TODO - uncomment after membership supernodes PR merged
             // assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::root(), 0));
@@ -675,16 +688,16 @@ mod tests {
             // Verify Storage
             assert_eq!(MiningEligibilityProxyTestModule::mining_eligibility_proxy_count(), 1);
             assert!(MiningEligibilityProxyTestModule::mining_eligibility_proxy(0).is_some());
-            assert_eq!(MiningEligibilityProxyTestModule::mining_eligibility_proxy_owner(0), Some(0));
+            assert_eq!(MiningEligibilityProxyTestModule::mining_eligibility_proxy_owner(0), Some(1));
 
             // Check that data about the proxy claim and rewardee data has been stored.
             assert_eq!(
                 MiningEligibilityProxyTestModule::mining_eligibility_proxy_eligibility_results(0),
                 Some(MiningEligibilityProxyResult {
-                    proxy_claim_requestor_account_id: 0u64,
+                    proxy_claim_requestor_account_id: 1u64,
                     proxy_claim_total_reward_amount: 1000u64,
                     // proxy_claim_rewardees_data: proxy_claim_rewardees_data.clone(),
-                    proxy_claim_block_redeemed: 10u64, // current block
+                    proxy_claim_block_redeemed: 1u64, // current block
                 })
             );
         });
