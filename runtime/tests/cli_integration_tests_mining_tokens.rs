@@ -1,4 +1,5 @@
 // extern crate env as env;
+extern crate membership_supernodes as membership_supernodes;
 extern crate mining_claims_token as mining_claims_token;
 extern crate mining_config_token as mining_config_token;
 extern crate mining_eligibility_token as mining_eligibility_token;
@@ -51,6 +52,10 @@ mod tests {
         Permill,
     };
     use std::cell::RefCell;
+    use membership_supernodes::{
+        Module as MembershipSupernodesModule,
+        Trait as MembershipSupernodesTrait,
+    };
     // Import Trait for each runtime module being tested
     use datahighway_runtime::{
         AccountId,
@@ -295,6 +300,9 @@ mod tests {
         type Event = ();
         type MiningExecutionTokenIndex = u64;
     }
+    impl MembershipSupernodesTrait for Test {
+        type Event = ();
+    }
 
     type System = frame_system::Module<Test>;
     pub type Balances = pallet_balances::Module<Test>;
@@ -306,7 +314,9 @@ mod tests {
     pub type MiningEligibilityProxyTestModule = MiningEligibilityProxyModule<Test>;
     pub type MiningClaimsTokenTestModule = MiningClaimsTokenModule<Test>;
     pub type MiningExecutionTokenTestModule = MiningExecutionTokenModule<Test>;
+    pub type MembershipSupernodesTestModule = MembershipSupernodesModule<Test>;
     type Randomness = pallet_randomness_collective_flip::Module<Test>;
+    type MembershipSupernodes = membership_supernodes::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
@@ -579,11 +589,11 @@ mod tests {
             // TODO - check that the locked amount has actually been locked and check that a sampling, eligibility, and
             // claim were all run automatically afterwards assert!(false);
 
-
             // Mining Eligibility Proxy Tests
             //
             // A member of the Supernode Centre requests as a proxy on behalf of one or more Supernodes and their users
             // a claim for an amount of DHX tokens to be sent to them from the Treasury's DHX DAO unlocked reserves.
+            // A separate endpoint will be added for Supernodes make requests themselves.
             // They provide data about the various user accounts belonging to that Supernode are to be
             // rewarded for their mining participation from a start block until an interval of blocks later,
             // and accounts that are to be rewarded must have completed their cooldown period after they started to
@@ -595,10 +605,10 @@ mod tests {
             // needs to manually be transferred the DHX tokens by the Sudo root user first, since instantiation at
             // genesis is only available in Substrate 3.
 
-            // The implementation uses ensure_root, so only the root origin may add and remove members (not account 1)
-            // TODO - uncomment after membership supernodes PR merged
-            // assert_ok!(MembershipSupernodesTestModule::add_member(Origin::root(), 0));
-            // assert_err!(MembershipSupernodesTestModule::add_member(Origin::signed(0), 0), DispatchError::BadOrigin);
+            // The implementation uses ensure_root, so only the Sudo root origin may add and remove members
+            // (not account 0 or 1) of Member Supernodes
+            assert_ok!(MembershipSupernodesTestModule::add_member(Origin::root(), 0));
+            assert_err!(MembershipSupernodesTestModule::add_member(Origin::signed(0), 0), DispatchError::BadOrigin);
 
             // This is not necessary anymore, since we are triggering create function from within a function.
             // assert_ok!(MiningEligibilityProxyTestModule::create(Origin::signed(0)));
@@ -672,9 +682,8 @@ mod tests {
             assert_eq!(Balances::reserved_balance(Treasury::account_id()), 0);
             assert_eq!(Balances::total_balance(&Treasury::account_id()), (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000));
 
-            // TODO - uncomment after membership supernodes PR merged
-            // assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::root(), 0));
-            // assert_err!(MembershipSupernodesTestModule::remove_member(Origin::signed(0), 0), DispatchError::BadOrigin);
+            assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::root(), 0));
+            assert_err!(MembershipSupernodesTestModule::remove_member(Origin::signed(0), 0), DispatchError::BadOrigin);
 
             // This tries to generate mining_eligibility_proxy_id 0
             // assert_err!(
@@ -701,6 +710,8 @@ mod tests {
                     proxy_claim_block_redeemed: 1u64, // current block
                 })
             );
+
+            // TODO - add scenario using endpoint where an individual Supernode requests rewards.
         });
     }
 }
