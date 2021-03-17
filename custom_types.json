@@ -185,13 +185,13 @@
   "MiningEligibilityProxy": "[u8; 16]",
   "MiningEligibilityProxyIndex": "u64",
   "MiningEligibilityProxyResult": {
-    "proxy_claim_requestor_account_id": "u64",
+    "proxy_claim_requestor_account_id": "AccountId",
     "proxy_claim_total_reward_amount": "u32",
-    "proxy_claim_rewardees_data": "Vec<RewardeeData>",
+    "proxy_claim_rewardees_data": "Option<Vec<RewardeeData>>",
     "proxy_claim_block_redeemed": "u64"
   },
   "RewardeeData": {
-    "proxy_claim_rewardee_account_id": "u64",
+    "proxy_claim_rewardee_account_id": "AccountId",
     "proxy_claim_reward_amount": "u32",
     "proxy_claim_start_block": "u64",
     "proxy_claim_interval_blocks": "u64"

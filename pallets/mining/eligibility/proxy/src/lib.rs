@@ -174,7 +174,7 @@ decl_module! {
 
                 let reward_to_pay_as_balance_to_try = TryInto::<BalanceOf<T>>::try_into(_proxy_claim_total_reward_amount).ok();
                 if let Some(reward_to_pay) = reward_to_pay_as_balance_to_try {
-                    ensure!(max_payout > reward_to_pay, "Reward cannot exceed treasury balance");
+                    // ensure!(max_payout > reward_to_pay, "Reward cannot exceed treasury balance");
 
                     debug::info!("Treasury paying reward");
 
