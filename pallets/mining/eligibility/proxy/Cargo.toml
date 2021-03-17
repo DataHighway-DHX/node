@@ -1,5 +1,5 @@
 [package]
-name = "mining-claims-hardware"
+name = "mining-eligibility-proxy"
 version = "0.1.0"
 authors = ["Luke Schoen"]
 edition = "2018"
@@ -14,16 +14,15 @@ std = [
     'pallet-balances/std',
     'pallet-randomness-collective-flip/std',
     'pallet-transaction-payment/std',
+    'pallet-treasury/std',
     'sp-core/std',
     'sp-io/std',
     'sp-runtime/std',
     'sp-std/std',
 
     'roaming-operators/std',
-    'mining-config-hardware/std',
-    'mining-eligibility-hardware/std',
-    'mining-rates-hardware/std',
-    'mining-sampling-hardware/std'
+    'account-set/std',
+    'membership-supernodes/std',
 ]
 
 [dependencies]
@@ -34,15 +33,14 @@ frame-system = { version = '2.0.0', default_features = false }
 pallet-balances = { version = '2.0.0', default_features = false }
 pallet-randomness-collective-flip = { version = '2.0.0', default_features = false }
 pallet-transaction-payment = { version = '2.0.0', default_features = false }
+pallet-treasury = { version = '2.0.0', default-features = false }
 sp-core = { version = '2.0.0', default_features = false }
 sp-io = { version = '2.0.0', default_features = false }
 sp-runtime = { version = '2.0.0', default_features = false }
 sp-std = { version = '2.0.0', default_features = false }
 
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
-mining-config-hardware = { default_features = false, package = 'mining-config-hardware', path = '../../../mining/config/hardware' }
-mining-eligibility-hardware = { default_features = false, package = 'mining-eligibility-hardware', path = '../../../mining/eligibility/hardware' }
-mining-rates-hardware = { default_features = false, package = 'mining-rates-hardware', path = '../../../mining/rates/hardware' }
-mining-sampling-hardware = { default_features = false, package = 'mining-sampling-hardware', path = '../../../mining/sampling/hardware' }
+account-set = { path = '../../../../traits/account-set', default-features = false }
+membership-supernodes = { path = '../../../membership/supernodes', default-features = false }
 
 [dev-dependencies]

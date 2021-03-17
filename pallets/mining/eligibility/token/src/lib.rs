@@ -145,7 +145,7 @@ decl_module! {
             let sender = ensure_signed(origin)?;
             let mining_eligibility_token_id = Self::next_mining_eligibility_token_id()?;
 
-            // Geneeligibility a random 128bit value
+            // Generate a random 128bit value
             let unique_id = Self::random_value(&sender);
 
             // Create and store mining_eligibility_token

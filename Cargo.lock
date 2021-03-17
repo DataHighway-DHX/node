@@ -11,6 +11,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "account-set"
+version = "2.0.0"
+dependencies = [
+ "sp-std",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -994,11 +1001,13 @@ dependencies = [
  "frame-support",
  "frame-system",
  "frame-system-rpc-runtime-api",
+ "membership-supernodes",
  "mining-claims-hardware",
  "mining-claims-token",
  "mining-config-hardware",
  "mining-config-token",
  "mining-eligibility-hardware",
+ "mining-eligibility-proxy",
  "mining-eligibility-token",
  "mining-execution-token",
  "mining-rates-hardware",
@@ -1052,6 +1061,7 @@ dependencies = [
  "sp-transaction-pool",
  "sp-version",
  "substrate-wasm-builder-runner",
+ "treasury-dao",
 ]
 
 [[package]]
@@ -3098,6 +3108,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "60302e4db3a61da70c0cb7991976248362f30319e88850c487b9b95bbf059e00"
 
 [[package]]
+name = "membership-supernodes"
+version = "2.0.0"
+dependencies = [
+ "account-set",
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "memchr"
 version = "2.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3263,6 +3287,27 @@ dependencies = [
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",
+ "parity-scale-codec",
+ "roaming-operators",
+ "safe-mix",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "mining-eligibility-proxy"
+version = "0.1.0"
+dependencies = [
+ "account-set",
+ "frame-support",
+ "frame-system",
+ "membership-supernodes",
+ "pallet-balances",
+ "pallet-randomness-collective-flip",
+ "pallet-transaction-payment",
+ "pallet-treasury",
  "parity-scale-codec",
  "roaming-operators",
  "safe-mix",
@@ -8043,6 +8088,26 @@ dependencies = [
  "tracing-core",
  "tracing-log",
  "tracing-serde",
+]
+
+[[package]]
+name = "treasury-dao"
+version = "0.1.0"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "hex-literal",
+ "pallet-balances",
+ "pallet-randomness-collective-flip",
+ "pallet-transaction-payment",
+ "pallet-treasury",
+ "parity-scale-codec",
+ "roaming-operators",
+ "safe-mix",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
 ]
 
 [[package]]

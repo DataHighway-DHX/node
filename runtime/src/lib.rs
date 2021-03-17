@@ -74,6 +74,7 @@ pub use frame_support::{
     },
     StorageValue,
 };
+pub use membership_supernodes;
 pub use pallet_balances::Call as BalancesCall;
 pub use pallet_staking::StakerStatus;
 pub use pallet_timestamp::Call as TimestampCall;
@@ -85,6 +86,7 @@ pub use sp_runtime::{
     Percent,
     Permill,
 };
+pub use treasury_dao;
 
 /// Opaque types. These are used by the CLI to instantiate machinery that don't need to know
 /// the specifics of the runtime. They can then be made to be agnostic over specific formats
@@ -315,18 +317,18 @@ impl pallet_sudo::Trait for Runtime {
 }
 
 parameter_types! {
-    pub const CouncilMotionDuration: BlockNumber = 5 * DAYS;
-    pub const CouncilMaxProposals: u32 = 100;
-    pub const CouncilMaxMembers: u32 = 100;
+    pub const GeneralCouncilMotionDuration: BlockNumber = 5 * DAYS;
+    pub const GeneralCouncilMaxProposals: u32 = 100;
+    pub const GeneralCouncilMaxMembers: u32 = 100;
 }
 
 type GeneralCouncilInstance = pallet_collective::Instance1;
 impl pallet_collective::Trait<GeneralCouncilInstance> for Runtime {
     type DefaultVote = pallet_collective::PrimeDefaultVote;
     type Event = Event;
-    type MaxMembers = CouncilMaxMembers;
-    type MaxProposals = CouncilMaxProposals;
-    type MotionDuration = CouncilMotionDuration;
+    type MaxMembers = GeneralCouncilMaxMembers;
+    type MaxProposals = GeneralCouncilMaxProposals;
+    type MotionDuration = GeneralCouncilMotionDuration;
     type Origin = Origin;
     type Proposal = Call;
     type WeightInfo = ();
@@ -688,6 +690,14 @@ impl mining_eligibility_hardware::Trait for Runtime {
     // type MiningEligibilityHardwareAuditorAccountID = u64;
 }
 
+impl mining_eligibility_proxy::Trait for Runtime {
+    type Currency = Balances;
+    type Event = Event;
+    // Check membership
+    type MembershipSource = MembershipSupernodes;
+    type MiningEligibilityProxyIndex = u64;
+}
+
 impl mining_claims_token::Trait for Runtime {
     type Event = Event;
     type MiningClaimsTokenClaimAmount = u64;
@@ -715,6 +725,15 @@ impl exchange_rate::Trait for Runtime {
     type IOTARate = u64;
 }
 
+impl membership_supernodes::Trait for Runtime {
+    type Event = Event;
+}
+
+impl treasury_dao::Trait for Runtime {
+    type Currency = Balances;
+    type Event = Event;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
     pub enum Runtime where
@@ -734,8 +753,10 @@ construct_runtime!(
         GeneralCouncil: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
         GeneralCouncilMembership: pallet_membership::<Instance1>::{Module, Call, Storage, Event<T>, Config<T>},
         PalletTreasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
+        TreasuryDAO: treasury_dao::{Module, Call, Event<T>},
         Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
         Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>},
+        MembershipSupernodes: membership_supernodes::{Module, Call, Storage, Event<T>},
         RoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
         RoamingNetworks: roaming_networks::{Module, Call, Storage, Event<T>},
         RoamingOrganizations: roaming_organizations::{Module, Call, Storage, Event<T>},
@@ -759,6 +780,7 @@ construct_runtime!(
         MiningSamplingHardware: mining_sampling_hardware::{Module, Call, Storage, Event<T>},
         MiningEligibilityToken: mining_eligibility_token::{Module, Call, Storage, Event<T>},
         MiningEligibilityHardware: mining_eligibility_hardware::{Module, Call, Storage, Event<T>},
+        MiningEligibilityProxy: mining_eligibility_proxy::{Module, Call, Storage, Event<T>},
         MiningClaimsToken: mining_claims_token::{Module, Call, Storage, Event<T>},
         MiningClaimsHardware: mining_claims_hardware::{Module, Call, Storage, Event<T>},
         MiningExecutionToken: mining_execution_token::{Module, Call, Storage, Event<T>},

@@ -25,6 +25,7 @@ std = [
     'pallet-timestamp/std',
     'pallet-transaction-payment/std',
     'pallet-transaction-payment-rpc-runtime-api/std',
+    'codec/std',
     'serde',
     'sp-api/std',
     'sp-block-builder/std',
@@ -54,6 +55,7 @@ std = [
     'roaming-billing-policies/std',
     'roaming-charging-policies/std',
     'roaming-packet-bundles/std',
+    'membership-supernodes/std',
     'mining-config-token/std',
     'mining-config-hardware/std',
     'mining-rates-token/std',
@@ -62,14 +64,16 @@ std = [
     'mining-sampling-hardware/std',
     'mining-eligibility-token/std',
     'mining-eligibility-hardware/std',
+    'mining-eligibility-proxy/std',
     'mining-claims-token/std',
     'mining-claims-hardware/std',
     'mining-execution-token/std',
     'exchange-rate/std',
+    'treasury-dao/std',
 ]
 
 [dependencies]
-codec = { version = '1.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
+codec = { version = '1.3.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
 frame-executive = { version = '2.0.0', default-features = false }
 frame-support = { version = '2.0.0', default-features = false }
 frame-system-rpc-runtime-api = { version = '2.0.0', default-features = false }
@@ -88,7 +92,7 @@ pallet-timestamp = { version = '2.0.0', default-features = false }
 pallet-transaction-payment = { version = '2.0.0', default-features = false }
 pallet-transaction-payment-rpc-runtime-api = { version = '2.0.0', default-features = false }
 pallet-treasury = { version = '2.0.0', default-features = false }
-serde = { version = '1.0.101', optional = true, features = ['derive'] }
+serde = { version = '1.0.102', optional = true, features = ['derive'] }
 sp-api = { version = '2.0.0', default-features = false }
 sp-block-builder = { version = '2.0.0', default-features = false }
 sp-consensus-babe = { version = '0.8.0', default-features = false }
@@ -120,6 +124,7 @@ roaming-sessions = { default_features = false, package = 'roaming-sessions', pat
 roaming-billing-policies = { default_features = false, package = 'roaming-billing-policies', path = '../pallets/roaming/roaming-billing-policies' }
 roaming-charging-policies = { default_features = false, package = 'roaming-charging-policies', path = '../pallets/roaming/roaming-charging-policies' }
 roaming-packet-bundles = { default_features = false, package = 'roaming-packet-bundles', path = '../pallets/roaming/roaming-packet-bundles' }
+membership-supernodes = { default_features = false, package = 'membership-supernodes', path = '../pallets/membership/supernodes' }
 mining-config-token = { default_features = false, package = 'mining-config-token', path = '../pallets/mining/config/token' }
 mining-config-hardware = { default_features = false, package = 'mining-config-hardware', path = '../pallets/mining/config/hardware' }
 mining-rates-token = { default_features = false, package = 'mining-rates-token', path = '../pallets/mining/rates/token' }
@@ -128,10 +133,12 @@ mining-sampling-token = { default_features = false, package = 'mining-sampling-t
 mining-sampling-hardware = { default_features = false, package = 'mining-sampling-hardware', path = '../pallets/mining/sampling/hardware' }
 mining-eligibility-token = { default_features = false, package = 'mining-eligibility-token', path = '../pallets/mining/eligibility/token' }
 mining-eligibility-hardware = { default_features = false, package = 'mining-eligibility-hardware', path = '../pallets/mining/eligibility/hardware' }
+mining-eligibility-proxy = { default_features = false, package = 'mining-eligibility-proxy', path = '../pallets/mining/eligibility/proxy' }
 mining-claims-token = { default_features = false, package = 'mining-claims-token', path = '../pallets/mining/claims/token' }
 mining-claims-hardware = { default_features = false, package = 'mining-claims-hardware', path = '../pallets/mining/claims/hardware' }
 mining-execution-token = { default_features = false, package = 'mining-execution-token', path = '../pallets/mining/execution/token' }
 exchange-rate = { default_features = false, package = 'exchange-rate', path = '../pallets/exchange-rate' }
+treasury-dao = { default_features = false, package = 'treasury-dao', path = '../pallets/treasury/dao' }
 module-primitives = { default-features = false, path = '../pallets/primitives' }
 
 [build-dependencies]

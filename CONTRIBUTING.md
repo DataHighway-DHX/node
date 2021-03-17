@@ -277,6 +277,10 @@ substrate-module-new <module-name> <author>
 	* Answer:
 		* Try using a different web browser. Brave may not work, however Chrome might. Try running Polkadot.js app locally instead. See https://stackoverflow.com/questions/45572440/how-to-access-an-insecure-websocket-from-a-secure-website
 
+* Question: Why is loose coupling important?
+    * Answer: Because sometimes things just won't work [see example here](https://matrix.to/#/!HzySYSaIhtyWrwiwEV:matrix.org/$161531016088601OZAjp:matrix.parity.io?via=matrix.parity.io&via=matrix.org&via=corepaper.org)
+        * Substrate Seminar example https://youtu.be/VVU3Io2dACY?t=4425
+
 ## Technical Support <a id="chapter-c00ab7"></a>
 
 * [Discord Chat](https://discord.gg/UuZN2tE)
