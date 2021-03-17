@@ -693,8 +693,7 @@ impl mining_eligibility_proxy::Trait for Runtime {
     type Currency = Balances;
     type Event = Event;
     // Check membership
-    // TODO - update after merge membership supernodes PR
-    // type MembershipSource = MembershipSupernodes;
+    type MembershipSource = MembershipSupernodes;
     type MiningEligibilityProxyIndex = u64;
 }
 

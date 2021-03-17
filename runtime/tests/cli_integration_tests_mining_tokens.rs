@@ -52,10 +52,6 @@ mod tests {
         Permill,
     };
     use std::cell::RefCell;
-    use membership_supernodes::{
-        Module as MembershipSupernodesModule,
-        Trait as MembershipSupernodesTrait,
-    };
     // Import Trait for each runtime module being tested
     use datahighway_runtime::{
         AccountId,
@@ -63,11 +59,10 @@ mod tests {
         BlockNumber,
         DAYS,
     };
-    // TODO - uncomment after membership supernodes PR merged
-    // use membership_supernodes::{
-    //     Module as MembershipSupernodesModule,
-    //     Trait as MembershipSupernodesTrait,
-    // };
+    use membership_supernodes::{
+        Module as MembershipSupernodesModule,
+        Trait as MembershipSupernodesTrait,
+    };
     use mining_claims_token::{
         MiningClaimsTokenClaimResult,
         Module as MiningClaimsTokenModule,
@@ -287,8 +282,7 @@ mod tests {
     impl MiningEligibilityProxyTrait for Test {
         type Currency = Balances;
         type Event = ();
-        // TODO - uncomment after membership supernodes PR merged
-        // type MembershipSource = MembershipSupernodes;
+        type MembershipSource = MembershipSupernodes;
         type MiningEligibilityProxyIndex = u64;
     }
     impl MiningClaimsTokenTrait for Test {
@@ -317,6 +311,10 @@ mod tests {
     pub type MembershipSupernodesTestModule = MembershipSupernodesModule<Test>;
     type Randomness = pallet_randomness_collective_flip::Module<Test>;
     type MembershipSupernodes = membership_supernodes::Module<Test>;
+
+    // fn last_event() -> MiningEligibilityProxyEvent {
+    //     System::events().pop().expect("Event expected").event
+    // }
 
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
@@ -607,11 +605,8 @@ mod tests {
 
             // The implementation uses ensure_root, so only the Sudo root origin may add and remove members
             // (not account 0 or 1) of Member Supernodes
-            assert_ok!(MembershipSupernodesTestModule::add_member(Origin::root(), 0));
-            assert_err!(MembershipSupernodesTestModule::add_member(Origin::signed(0), 0), DispatchError::BadOrigin);
-
-            // This is not necessary anymore, since we are triggering create function from within a function.
-            // assert_ok!(MiningEligibilityProxyTestModule::create(Origin::signed(0)));
+            assert_ok!(MembershipSupernodesTestModule::add_member(Origin::root(), 1));
+            assert_err!(MembershipSupernodesTestModule::add_member(Origin::signed(0), 1), DispatchError::BadOrigin);
 
             let rewardee_data = MiningEligibilityProxyClaimRewardeeData {
                 proxy_claim_rewardee_account_id: 3,
@@ -659,21 +654,22 @@ mod tests {
                 Some(proxy_claim_rewardees_data.clone()),
             ));
 
-            System::set_block_number(2);
-
             // FIXME #20210312 - unable to get this to work or find help
             // https://matrix.to/#/!HzySYSaIhtyWrwiwEV:matrix.org/$1615538012148183moxRT:matrix.org?via=matrix.parity.io&via=matrix.org&via=corepaper.org
-            // // Check balance of account proxy_claim_rewardee_account_id after treasury rewards it.
+            // Check balance of account proxy_claim_rewardee_account_id after treasury rewards it.
             // assert_eq!(
             //     last_event(),
             //     MiningEligibilityProxyEvent::MiningEligibilityProxyResultSet(
-            //         0u64, // proxy_claim_requestor_account_id
+            //         1u64, // proxy_claim_requestor_account_id
             //         0u64, // mining_eligibility_proxy_id
             //         1000u64, // proxy_claim_total_reward_amount
             //         proxy_claim_rewardees_data.clone(), // proxy_claim_rewardees_data
-            //         10u64, // proxy_claim_block_redeemed
+            //         1u64, // proxy_claim_block_redeemed
             //     ),
             // );
+
+            System::set_block_number(2);
+
             assert_eq!(Balances::free_balance(1), 1010);
             assert_eq!(Balances::reserved_balance(1), 0);
             assert_eq!(Balances::total_balance(&1), 1010);
@@ -682,8 +678,8 @@ mod tests {
             assert_eq!(Balances::reserved_balance(Treasury::account_id()), 0);
             assert_eq!(Balances::total_balance(&Treasury::account_id()), (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000));
 
-            assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::root(), 0));
-            assert_err!(MembershipSupernodesTestModule::remove_member(Origin::signed(0), 0), DispatchError::BadOrigin);
+            assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::root(), 1));
+            assert_err!(MembershipSupernodesTestModule::remove_member(Origin::signed(0), 1), DispatchError::BadOrigin);
 
             // This tries to generate mining_eligibility_proxy_id 0
             // assert_err!(

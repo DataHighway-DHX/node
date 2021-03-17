@@ -1,7 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-// TODO - add after membership supernodes PR merged
-// use account_set::AccountSet;
+use account_set::AccountSet;
 use codec::{
     Decode,
     Encode,
@@ -43,8 +42,7 @@ pub trait Trait:
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type Currency: Currency<Self::AccountId>;
     // Loosely coupled
-     // TODO - add after membership supernodes PR merged
-    // type MembershipSource: AccountSet<AccountId = Self::AccountId>;
+    type MembershipSource: AccountSet<AccountId = Self::AccountId>;
     type MiningEligibilityProxyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
@@ -142,8 +140,7 @@ decl_module! {
         ) -> Result<(), DispatchError> {
             let sender = ensure_signed(origin)?;
 
-            // TODO - add after membership supernodes PR merged
-            // ensure!(Self::is_origin_whitelisted_member_supernodes(sender.clone()).is_ok(), "Only whitelisted Supernode account members may request proxy rewards");
+            ensure!(Self::is_origin_whitelisted_member_supernodes(sender.clone()).is_ok(), "Only whitelisted Supernode account members may request proxy rewards");
 
             let mining_eligibility_proxy_id;
             match Self::create(sender.clone()) {
@@ -223,22 +220,21 @@ impl<T: Trait> Module<T> {
 
     /// Checks whether the caller is a member of the set of account IDs provided by the
     /// MembershipSource type. Emits an event if they are, and errors if not.
-    // TODO - add after membership supernodes PR merged
-    // pub fn is_origin_whitelisted_member_supernodes(sender: T::AccountId) -> Result<(), DispatchError> {
-    //     let caller = sender.clone();
+    pub fn is_origin_whitelisted_member_supernodes(sender: T::AccountId) -> Result<(), DispatchError> {
+        let caller = sender.clone();
 
-    //     // Get the members from the `membership-supernodes` pallet
-    //     let members = T::MembershipSource::accounts();
+        // Get the members from the `membership-supernodes` pallet
+        let members = T::MembershipSource::accounts();
 
-    //     // Check whether the caller is a member
-    //     // https://crates.parity.io/frame_support/traits/trait.Contains.html
-    //     ensure!(members.contains(&caller), DispatchError::Other("Not a member"));
+        // Check whether the caller is a member
+        // https://crates.parity.io/frame_support/traits/trait.Contains.html
+        ensure!(members.contains(&caller), DispatchError::Other("Not a member"));
 
-    //     // If the previous call didn't error, then the caller is a member, so emit the event
-    //     Self::deposit_event(RawEvent::IsAMember(caller));
+        // If the previous call didn't error, then the caller is a member, so emit the event
+        Self::deposit_event(RawEvent::IsAMember(caller));
 
-    //     Ok(())
-    // }
+        Ok(())
+    }
 
     pub fn is_supernode_claim_reasonable(proxy_claim_total_reward_amount: BalanceOf<T>) -> Result<(), DispatchError> {
         let current_block = <frame_system::Module<T>>::block_number();
