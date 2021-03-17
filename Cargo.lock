@@ -999,6 +999,7 @@ dependencies = [
  "mining-config-hardware",
  "mining-config-token",
  "mining-eligibility-hardware",
+ "mining-eligibility-proxy",
  "mining-eligibility-token",
  "mining-execution-token",
  "mining-rates-hardware",
@@ -3263,6 +3264,25 @@ dependencies = [
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",
+ "parity-scale-codec",
+ "roaming-operators",
+ "safe-mix",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "mining-eligibility-proxy"
+version = "0.1.0"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "pallet-balances",
+ "pallet-randomness-collective-flip",
+ "pallet-transaction-payment",
+ "pallet-treasury",
  "parity-scale-codec",
  "roaming-operators",
  "safe-mix",
