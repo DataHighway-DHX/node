@@ -73,7 +73,6 @@ decl_module! {
             origin,
             new_member: T::AccountId,
         ) -> DispatchResult {
-            // let _sender = ensure_root(origin)?;
             let _sender = ensure_root(origin)?;
 
             let mut members = Members::<T>::get();
@@ -102,7 +101,6 @@ decl_module! {
             origin,
             old_member: T::AccountId,
         ) -> DispatchResult {
-            // let _sender = ensure_root(origin)?;
             let _sender = ensure_root(origin)?;
 
             let mut members = Members::<T>::get();
