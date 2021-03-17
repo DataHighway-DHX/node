@@ -621,6 +621,7 @@ mod tests {
             assert_eq!(Balances::reserved_balance(1), 0);
             assert_eq!(Balances::total_balance(&1), 10);
             // Check balance of temporary treasury prior to paying the treasury.
+            assert_eq!(Balances::usable_balance(0), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
             assert_eq!(Balances::free_balance(0), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
             assert_eq!(Balances::reserved_balance(0), 0);
             assert_eq!(Balances::total_balance(&0), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
