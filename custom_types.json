@@ -187,9 +187,7 @@
   "MiningEligibilityProxyRewardRequest": {
     "proxy_claim_requestor_account_id": "AccountId",
     "proxy_claim_total_reward_amount": "u32",
-    "proxy_claim_rewardees_data": "Option<Vec<RewardeeData>>",
-    "proxy_claim_block_redeemed": "u64",
-    "proxy_claim_timestamp_redeemed": "Moment"
+    "proxy_claim_rewardees_data": "Option<Vec<RewardeeData>>"
   },
   "RewardeeData": {
     "proxy_claim_rewardee_account_id": "AccountId",

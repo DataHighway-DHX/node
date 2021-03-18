@@ -41,7 +41,6 @@ pub trait Trait:
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type Currency: Currency<Self::AccountId>;
-    // type Moment: AtLeast32Bit + Parameter + Default + Copy;
     // Loosely coupled
     type MembershipSource: AccountSet<AccountId = Self::AccountId>;
     type MiningEligibilityProxyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
@@ -88,7 +87,7 @@ decl_event!(
         BalanceOf = BalanceOf<T>,
         <T as frame_system::Trait>::BlockNumber,
         RewardeeData = RewardeeData<T>,
-        // T::Moment,
+        <T as pallet_timestamp::Trait>::Moment,
     {
         Created(AccountId, MiningEligibilityProxyIndex),
         MiningEligibilityProxyRewardRequestSet(

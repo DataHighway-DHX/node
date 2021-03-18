@@ -58,6 +58,9 @@ mod tests {
         Balance,
         BlockNumber,
         DAYS,
+        SLOT_DURATION,
+        Moment,
+        Babe,
     };
     use membership_supernodes::{
         Module as MembershipSupernodesModule,
@@ -310,6 +313,7 @@ mod tests {
 
     type System = frame_system::Module<Test>;
     pub type Balances = pallet_balances::Module<Test>;
+    pub type Timestamp = pallet_timestamp::Module<Test>;
     pub type Treasury = pallet_treasury::Module<Test>;
     pub type MiningConfigTokenTestModule = MiningConfigTokenModule<Test>;
     pub type MiningRatesTokenTestModule = MiningRatesTokenModule<Test>;
@@ -551,7 +555,6 @@ mod tests {
                 0,           // mining_claims_token_id
                 Some(1),     // token_claim_amount
                 Some(34567),  // token_claim_block_redeemed
-                Some(111)     // token_claim_timestamp_redeemed
             ));
 
             // Verify Storage
@@ -563,7 +566,6 @@ mod tests {
                 Some(MiningClaimsTokenClaimResult {
                     token_claim_amount: 1,
                     token_claim_block_redeemed: 34567,
-                    token_claim_timestamp_redeemed: 111,
                 })
             );
 
@@ -631,6 +633,8 @@ mod tests {
             proxy_claim_rewardees_data.push(rewardee_data);
 
             System::set_block_number(1);
+
+            Timestamp::set_timestamp(1u64);
 
             // Check balance of account Supernode Centre's proxy_claim_rewardee_account_id prior
             // to treasury rewarding it.
