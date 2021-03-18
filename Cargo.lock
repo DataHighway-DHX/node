@@ -3305,6 +3305,7 @@ dependencies = [
  "membership-supernodes",
  "pallet-balances",
  "pallet-randomness-collective-flip",
+ "pallet-timestamp",
  "pallet-transaction-payment",
  "pallet-treasury",
  "parity-scale-codec",

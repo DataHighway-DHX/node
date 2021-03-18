@@ -77,7 +77,7 @@ mod tests {
     use mining_eligibility_proxy::{
         Event as MiningEligibilityProxyEvent,
         MiningEligibilityProxyClaimRewardeeData,
-        MiningEligibilityProxyResult,
+        MiningEligibilityProxyRewardRequest,
         Module as MiningEligibilityProxyModule,
         Trait as MiningEligibilityProxyTrait,
     };
@@ -146,6 +146,16 @@ mod tests {
         type PalletInfo = ();
         type SystemWeightInfo = ();
         type Version = ();
+    }
+    parameter_types! {
+        pub const MinimumPeriod: u64 = SLOT_DURATION / 2;
+    }
+    impl pallet_timestamp::Trait for Test {
+        type MinimumPeriod = MinimumPeriod;
+        /// A timestamp: milliseconds since the unix epoch.
+        type Moment = Moment;
+        type OnTimestampSet = Babe;
+        type WeightInfo = ();
     }
     parameter_types! {
         pub const ExistentialDeposit: u64 = 1;
@@ -540,7 +550,8 @@ mod tests {
                 0,           // mining_eligibility_token_id
                 0,           // mining_claims_token_id
                 Some(1),     // token_claim_amount
-                Some(34567)  // token_claim_block_redeemed
+                Some(34567),  // token_claim_block_redeemed
+                Some(111)     // token_claim_timestamp_redeemed
             ));
 
             // Verify Storage
@@ -552,6 +563,7 @@ mod tests {
                 Some(MiningClaimsTokenClaimResult {
                     token_claim_amount: 1,
                     token_claim_block_redeemed: 34567,
+                    token_claim_timestamp_redeemed: 111,
                 })
             );
 
@@ -659,12 +671,13 @@ mod tests {
             // Check balance of account proxy_claim_rewardee_account_id after treasury rewards it.
             // assert_eq!(
             //     last_event(),
-            //     MiningEligibilityProxyEvent::MiningEligibilityProxyResultSet(
+            //     MiningEligibilityProxyEvent::MiningEligibilityProxyRewardRequestSet(
             //         1u64, // proxy_claim_requestor_account_id
             //         0u64, // mining_eligibility_proxy_id
             //         1000u64, // proxy_claim_total_reward_amount
             //         proxy_claim_rewardees_data.clone(), // proxy_claim_rewardees_data
             //         1u64, // proxy_claim_block_redeemed
+            //         1u64, // proxy_claim_timestamp_redeemed
             //     ),
             // );
 
@@ -698,12 +711,13 @@ mod tests {
 
             // Check that data about the proxy claim and rewardee data has been stored.
             assert_eq!(
-                MiningEligibilityProxyTestModule::mining_eligibility_proxy_eligibility_results(0),
-                Some(MiningEligibilityProxyResult {
+                MiningEligibilityProxyTestModule::mining_eligibility_proxy_eligibility_reward_requests(0),
+                Some(MiningEligibilityProxyRewardRequest {
                     proxy_claim_requestor_account_id: 1u64,
                     proxy_claim_total_reward_amount: 1000u64,
                     proxy_claim_rewardees_data: proxy_claim_rewardees_data.clone(),
                     proxy_claim_block_redeemed: 1u64, // current block
+                    proxy_claim_timestamp_redeemed: 1u64, // current timestamp
                 })
             );
 
