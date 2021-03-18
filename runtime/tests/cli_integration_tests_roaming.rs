@@ -118,8 +118,8 @@ mod tests {
     pub struct Test;
     parameter_types! {
         pub const BlockHashCount: u64 = 250;
-        pub const RuntimeBlockLength: BlockLength = ();
-        pub const RuntimeBlockWeights: BlockWeights = ();
+        pub RuntimeBlockLength: BlockLength = ();
+        pub RuntimeBlockWeights: BlockWeights = ();
         pub const SS58Prefix: u8 = 33;
     }
     impl frame_system::Config for Test {
