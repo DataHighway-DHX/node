@@ -42,27 +42,27 @@ mod tests {
     use roaming_accounting_policies::{
         Module as RoamingAccountingPolicyModule,
         RoamingAccountingPolicySetting,
-        Config as RoamingAccountingPolicySetting,
+        Config as RoamingAccountingPolicyConfig,
     };
     use roaming_agreement_policies::{
         Module as RoamingAgreementPolicyModule,
         RoamingAgreementPolicySetting,
-        Config as RoamingAgreementPolicySetting,
+        Config as RoamingAgreementPolicyConfig,
     };
     use roaming_billing_policies::{
         Module as RoamingBillingPolicyModule,
         RoamingBillingPolicySetting,
-        Config as RoamingBillingPolicySetting,
+        Config as RoamingBillingPolicyConfig,
     };
     use roaming_charging_policies::{
         Module as RoamingChargingPolicyModule,
         RoamingChargingPolicySetting,
-        Config as RoamingChargingPolicySetting,
+        Config as RoamingChargingPolicyConfig,
     };
     use roaming_device_profiles::{
         Module as RoamingDeviceProfileModule,
         RoamingDeviceProfileSetting,
-        Config as RoamingDeviceProfileSetting,
+        Config as RoamingDeviceProfileConfig,
     };
     use roaming_devices::{
         Module as RoamingDeviceModule,
@@ -70,7 +70,7 @@ mod tests {
     };
     use roaming_network_profiles::{
         Module as RoamingNetworkProfileModule,
-        Config as RoamingNetworkProfileSetting,
+        Config as RoamingNetworkProfileConfig,
     };
     use roaming_network_servers::{
         Module as RoamingNetworkServerModule,
@@ -90,11 +90,11 @@ mod tests {
     };
     use roaming_routing_profiles::{
         Module as RoamingRoutingProfileModule,
-        Config as RoamingRoutingProfileSetting,
+        Config as RoamingRoutingProfileConfig,
     };
     use roaming_service_profiles::{
         Module as RoamingServiceProfileModule,
-        Config as RoamingServiceProfileSetting,
+        Config as RoamingServiceProfileConfig,
     };
 
     // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Config>::Origin {
@@ -178,19 +178,19 @@ mod tests {
         type Event = ();
         type RoamingNetworkServerIndex = u64;
     }
-    impl RoamingAgreementPolicySetting for Test {
+    impl RoamingAgreementPolicyConfig for Test {
         type Event = ();
         type RoamingAgreementPolicyActivationType = Vec<u8>;
         type RoamingAgreementPolicyIndex = u64;
     }
-    impl RoamingAccountingPolicySetting for Test {
+    impl RoamingAccountingPolicyConfig for Test {
         type Event = ();
         type RoamingAccountingPolicyDownlinkFeeFactor = u32;
         type RoamingAccountingPolicyIndex = u64;
         type RoamingAccountingPolicyType = Vec<u8>;
         type RoamingAccountingPolicyUplinkFeeFactor = u32;
     }
-    impl RoamingRoutingProfileSetting for Test {
+    impl RoamingRoutingProfileConfig for Test {
         type Event = ();
         type RoamingRoutingProfileAppServer = Vec<u8>;
         type RoamingRoutingProfileIndex = u64;
@@ -199,25 +199,25 @@ mod tests {
         type Event = ();
         type RoamingDeviceIndex = u64;
     }
-    impl RoamingServiceProfileSetting for Test {
+    impl RoamingServiceProfileConfig for Test {
         type Event = ();
         type RoamingServiceProfileDownlinkRate = u32;
         type RoamingServiceProfileIndex = u64;
         type RoamingServiceProfileUplinkRate = u32;
     }
-    impl RoamingBillingPolicySetting for Test {
+    impl RoamingBillingPolicyConfig for Test {
         type Event = ();
         type RoamingBillingPolicyIndex = u64;
     }
-    impl RoamingChargingPolicySetting for Test {
+    impl RoamingChargingPolicyConfig for Test {
         type Event = ();
         type RoamingChargingPolicyIndex = u64;
     }
-    impl RoamingNetworkProfileSetting for Test {
+    impl RoamingNetworkProfileConfig for Test {
         type Event = ();
         type RoamingNetworkProfileIndex = u64;
     }
-    impl RoamingDeviceProfileSetting for Test {
+    impl RoamingDeviceProfileConfig for Test {
         type Event = ();
         type RoamingDeviceProfileDevAddr = Vec<u8>;
         type RoamingDeviceProfileDevEUI = Vec<u8>;
