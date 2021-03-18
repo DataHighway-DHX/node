@@ -36,27 +36,27 @@ mod tests {
     use mining_claims_hardware::{
         MiningClaimsHardwareClaimResult,
         Module as MiningClaimsHardwareModule,
-        Config as MiningClaimsHardwareSetting,
+        Config as MiningClaimsHardwareConfig,
     };
     use mining_setting_hardware::{
         MiningSettingHardwareSetting,
         Module as MiningSettingHardwareModule,
-        Config as MiningSettingHardwareSetting,
+        Config as MiningSettingHardwareConfig,
     };
     use mining_eligibility_hardware::{
         MiningEligibilityHardwareResult,
         Module as MiningEligibilityHardwareModule,
-        Config as MiningEligibilityHardwareSetting,
+        Config as MiningEligibilityHardwareConfig,
     };
     use mining_rates_hardware::{
         MiningRatesHardwareSetting,
         Module as MiningRatesHardwareModule,
-        Config as MiningRatesHardwareSetting,
+        Config as MiningRatesHardwareConfig,
     };
     use mining_sampling_hardware::{
         MiningSamplingHardwareSetting,
         Module as MiningSamplingHardwareModule,
-        Config as MiningSamplingHardwareSetting,
+        Config as MiningSamplingHardwareConfig,
     };
     use roaming_operators;
 
@@ -130,7 +130,7 @@ mod tests {
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
-    impl MiningSettingHardwareSetting for Test {
+    impl MiningSettingHardwareConfig for Test {
         type Event = ();
         type MiningSettingHardwareDevEUI = u64;
         // type MiningSettingHardwareType =
@@ -144,7 +144,7 @@ mod tests {
         // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
         type MiningSettingHardwareType = Vec<u8>;
     }
-    impl MiningRatesHardwareSetting for Test {
+    impl MiningRatesHardwareConfig for Test {
         type Event = ();
         type MiningRatesHardwareCategory1MaxTokenBonusPerGateway = u32;
         type MiningRatesHardwareCategory2MaxTokenBonusPerGateway = u32;
@@ -156,19 +156,19 @@ mod tests {
         // Mining Speed Boost Rate
         type MiningRatesHardwareSecure = u32;
     }
-    impl MiningSamplingHardwareSetting for Test {
+    impl MiningSamplingHardwareConfig for Test {
         type Event = ();
         type MiningSamplingHardwareIndex = u64;
         type MiningSamplingHardwareSampleHardwareOnline = u64;
     }
-    impl MiningEligibilityHardwareSetting for Test {
+    impl MiningEligibilityHardwareConfig for Test {
         type Event = ();
         type MiningEligibilityHardwareCalculatedEligibility = u64;
         type MiningEligibilityHardwareIndex = u64;
         type MiningEligibilityHardwareUptimePercentage = u32;
         // type MiningEligibilityHardwareAuditorAccountID = u64;
     }
-    impl MiningClaimsHardwareSetting for Test {
+    impl MiningClaimsHardwareConfig for Test {
         type Event = ();
         type MiningClaimsHardwareClaimAmount = u64;
         type MiningClaimsHardwareIndex = u64;

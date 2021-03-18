@@ -83,8 +83,8 @@ jobs:
           cargo +nightly-2021-03-10 test -p roaming-billing-policies &&
           cargo +nightly-2021-03-10 test -p roaming-charging-policies &&
           cargo +nightly-2021-03-10 test -p roaming-packet-bundles &&
-          cargo +nightly-2021-03-10 test -p mining-config-token &&
-          cargo +nightly-2021-03-10 test -p mining-config-hardware &&
+          cargo +nightly-2021-03-10 test -p mining-setting-token &&
+          cargo +nightly-2021-03-10 test -p mining-setting-hardware &&
           cargo +nightly-2021-03-10 test -p mining-rates-token &&
           cargo +nightly-2021-03-10 test -p mining-rates-hardware &&
           cargo +nightly-2021-03-10 test -p mining-sampling-token &&

@@ -1218,8 +1218,6 @@ dependencies = [
  "frame-system-rpc-runtime-api",
  "mining-claims-hardware",
  "mining-claims-token",
- "mining-config-hardware",
- "mining-config-token",
  "mining-eligibility-hardware",
  "mining-eligibility-token",
  "mining-execution-token",
@@ -1227,6 +1225,8 @@ dependencies = [
  "mining-rates-token",
  "mining-sampling-hardware",
  "mining-sampling-token",
+ "mining-setting-hardware",
+ "mining-setting-token",
  "module-primitives",
  "pallet-babe",
  "pallet-balances",
@@ -3441,10 +3441,10 @@ version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-config-hardware",
  "mining-eligibility-hardware",
  "mining-rates-hardware",
  "mining-sampling-hardware",
+ "mining-setting-hardware",
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",
@@ -3463,46 +3463,10 @@ version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-config-token",
  "mining-eligibility-token",
  "mining-rates-token",
  "mining-sampling-token",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-config-hardware"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-config-token"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
+ "mining-setting-token",
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",
@@ -3521,9 +3485,9 @@ version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-config-hardware",
  "mining-rates-hardware",
  "mining-sampling-hardware",
+ "mining-setting-hardware",
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",
@@ -3542,9 +3506,9 @@ version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-config-token",
  "mining-rates-token",
  "mining-sampling-token",
+ "mining-setting-token",
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",
@@ -3564,10 +3528,10 @@ dependencies = [
  "frame-support",
  "frame-system",
  "mining-claims-token",
- "mining-config-token",
  "mining-eligibility-token",
  "mining-rates-token",
  "mining-sampling-token",
+ "mining-setting-token",
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",
@@ -3622,7 +3586,7 @@ version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-config-hardware",
+ "mining-setting-hardware",
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",
@@ -3641,7 +3605,43 @@ version = "0.1.0"
 dependencies = [
  "frame-support",
  "frame-system",
- "mining-config-token",
+ "mining-setting-token",
+ "pallet-balances",
+ "pallet-randomness-collective-flip",
+ "pallet-transaction-payment",
+ "parity-scale-codec",
+ "roaming-operators",
+ "safe-mix",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "mining-setting-hardware"
+version = "0.1.0"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "pallet-balances",
+ "pallet-randomness-collective-flip",
+ "pallet-transaction-payment",
+ "parity-scale-codec",
+ "roaming-operators",
+ "safe-mix",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "mining-setting-token"
+version = "0.1.0"
+dependencies = [
+ "frame-support",
+ "frame-system",
  "pallet-balances",
  "pallet-randomness-collective-flip",
  "pallet-transaction-payment",

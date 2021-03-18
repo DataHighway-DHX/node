@@ -97,8 +97,8 @@ cargo test -p roaming-sessions &&
 cargo test -p roaming-billing-policies &&
 cargo test -p roaming-charging-policies &&
 cargo test -p roaming-packet-bundles &&
-cargo test -p mining-config-token &&
-cargo test -p mining-config-hardware &&
+cargo test -p mining-setting-token &&
+cargo test -p mining-setting-hardware &&
 cargo test -p mining-rates-token &&
 cargo test -p mining-rates-hardware &&
 cargo test -p mining-sampling-token &&

@@ -20,7 +20,7 @@ std = [
     'sp-std/std',
 
     'roaming-operators/std',
-    'mining-config-token/std',
+    'mining-setting-token/std',
 ]
 
 [dependencies]
@@ -37,6 +37,6 @@ sp-runtime = { version = '3.0.0', default-features = false }
 sp-std = { version = '3.0.0', default-features = false }
 
 roaming-operators = { default-features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
-mining-config-token = { default-features = false, package = 'mining-config-token', path = '../../../mining/setting/token' }
+mining-setting-token = { default-features = false, package = 'mining-setting-token', path = '../../../mining/setting/token' }
 
 [dev-dependencies]

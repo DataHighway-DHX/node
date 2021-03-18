@@ -40,33 +40,33 @@ mod tests {
     use mining_claims_token::{
         MiningClaimsTokenClaimResult,
         Module as MiningClaimsTokenModule,
-        Config as MiningClaimsTokenTrait,
+        Config as MiningClaimsTokenConfig,
     };
     use mining_setting_token::{
         MiningSettingTokenSetting,
         MiningSettingTokenRequirementsSetting,
         Module as MiningSettingTokenModule,
-        Config as MiningSettingTokenTrait,
+        Config as MiningSettingTokenConfig,
     };
     use mining_eligibility_token::{
         MiningEligibilityTokenResult,
         Module as MiningEligibilityTokenModule,
-        Config as MiningEligibilityTokenTrait,
+        Config as MiningEligibilityTokenConfig,
     };
     use mining_execution_token::{
         MiningExecutionTokenExecutionResult,
         Module as MiningExecutionTokenModule,
-        Config as MiningExecutionTokenTrait,
+        Config as MiningExecutionTokenConfig,
     };
     use mining_rates_token::{
         MiningRatesTokenSetting,
         Module as MiningRatesTokenModule,
-        Config as MiningRatesTokenTrait,
+        Config as MiningRatesTokenConfig,
     };
     use mining_sampling_token::{
         MiningSamplingTokenSetting,
         Module as MiningSamplingTokenModule,
-        Config as MiningSamplingTokenTrait,
+        Config as MiningSamplingTokenConfig,
     };
     use roaming_operators;
 
@@ -137,7 +137,7 @@ mod tests {
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
-    impl MiningSettingTokenTrait for Test {
+    impl MiningSettingTokenConfig for Test {
         type Event = ();
         // type Currency = Balances;
         // type Randomness = Randomness;
@@ -147,7 +147,7 @@ mod tests {
         // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
         type MiningSettingTokenType = Vec<u8>;
     }
-    impl MiningRatesTokenTrait for Test {
+    impl MiningRatesTokenConfig for Test {
         type Event = ();
         type MiningRatesTokenIndex = u64;
         type MiningRatesTokenMaxLoyalty = u32;
@@ -158,24 +158,24 @@ mod tests {
         // Mining Speed Boost Rate
         type MiningRatesTokenTokenMXC = u32;
     }
-    impl MiningSamplingTokenTrait for Test {
+    impl MiningSamplingTokenConfig for Test {
         type Event = ();
         type MiningSamplingTokenIndex = u64;
         type MiningSamplingTokenSampleLockedAmount = u64;
     }
-    impl MiningEligibilityTokenTrait for Test {
+    impl MiningEligibilityTokenConfig for Test {
         type Event = ();
         type MiningEligibilityTokenCalculatedEligibility = u64;
         type MiningEligibilityTokenIndex = u64;
         type MiningEligibilityTokenLockedPercentage = u32;
         // type MiningEligibilityTokenAuditorAccountID = u64;
     }
-    impl MiningClaimsTokenTrait for Test {
+    impl MiningClaimsTokenConfig for Test {
         type Event = ();
         type MiningClaimsTokenClaimAmount = u64;
         type MiningClaimsTokenIndex = u64;
     }
-    impl MiningExecutionTokenTrait for Test {
+    impl MiningExecutionTokenConfig for Test {
         type Event = ();
         type MiningExecutionTokenIndex = u64;
     }

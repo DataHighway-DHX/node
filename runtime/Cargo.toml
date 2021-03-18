@@ -65,8 +65,8 @@ roaming-sessions = { default-features = false, package = 'roaming-sessions', pat
 roaming-billing-policies = { default-features = false, package = 'roaming-billing-policies', path = '../pallets/roaming/roaming-billing-policies' }
 roaming-charging-policies = { default-features = false, package = 'roaming-charging-policies', path = '../pallets/roaming/roaming-charging-policies' }
 roaming-packet-bundles = { default-features = false, package = 'roaming-packet-bundles', path = '../pallets/roaming/roaming-packet-bundles' }
-mining-config-token = { default-features = false, package = 'mining-config-token', path = '../pallets/mining/setting/token' }
-mining-config-hardware = { default-features = false, package = 'mining-config-hardware', path = '../pallets/mining/setting/hardware' }
+mining-setting-token = { default-features = false, package = 'mining-setting-token', path = '../pallets/mining/setting/token' }
+mining-setting-hardware = { default-features = false, package = 'mining-setting-hardware', path = '../pallets/mining/setting/hardware' }
 mining-rates-token = { default-features = false, package = 'mining-rates-token', path = '../pallets/mining/rates/token' }
 mining-rates-hardware = { default-features = false, package = 'mining-rates-hardware', path = '../pallets/mining/rates/hardware' }
 mining-sampling-token = { default-features = false, package = 'mining-sampling-token', path = '../pallets/mining/sampling/token' }
@@ -134,8 +134,8 @@ std = [
     'roaming-billing-policies/std',
     'roaming-charging-policies/std',
     'roaming-packet-bundles/std',
-    'mining-config-token/std',
-    'mining-config-hardware/std',
+    'mining-setting-token/std',
+    'mining-setting-hardware/std',
     'mining-rates-token/std',
     'mining-rates-hardware/std',
     'mining-sampling-token/std',

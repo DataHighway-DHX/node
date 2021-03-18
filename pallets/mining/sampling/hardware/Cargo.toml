@@ -20,7 +20,7 @@ std = [
     'sp-std/std',
 
     'roaming-operators/std',
-    'mining-config-hardware/std',
+    'mining-setting-hardware/std',
 ]
 
 [dependencies]
@@ -37,6 +37,6 @@ sp-runtime = { version = '3.0.0', default-features = false }
 sp-std = { version = '3.0.0', default-features = false }
 
 roaming-operators = { default-features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
-mining-config-hardware = { default-features = false, package = 'mining-config-hardware', path = '../../../mining/setting/hardware' }
+mining-setting-hardware = { default-features = false, package = 'mining-setting-hardware', path = '../../../mining/setting/hardware' }
 
 [dev-dependencies]
