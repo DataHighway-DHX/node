@@ -23,6 +23,7 @@ std = [
     'mining-rates-hardware/std',
     'mining-setting-hardware/std',
     'mining-sampling-hardware/std',
+    'serde',
 ]
 
 [dependencies]
@@ -42,5 +43,7 @@ roaming-operators = { default-features = false, package = 'roaming-operators', p
 mining-setting-hardware = { default-features = false, package = 'mining-setting-hardware', path = '../../../mining/setting/hardware' }
 mining-rates-hardware = { default-features = false, package = 'mining-rates-hardware', path = '../../../mining/rates/hardware' }
 mining-sampling-hardware = { default-features = false, package = 'mining-sampling-hardware', path = '../../../mining/sampling/hardware' }
+
+serde = { version = '1.0.101', optional = true, features = ['derive'] }
 
 [dev-dependencies]

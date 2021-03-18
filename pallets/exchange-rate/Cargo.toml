@@ -20,6 +20,7 @@ std = [
     'sp-std/std',
 
     'roaming-operators/std',
+    'serde',
 ]
 
 [dependencies]
@@ -36,5 +37,7 @@ sp-runtime = { version = '3.0.0', default-features = false }
 sp-std = { version = '3.0.0', default-features = false }
 
 roaming-operators = { default-features = false, package = 'roaming-operators', path = '../roaming/roaming-operators' }
+
+serde = { version = '1.0.101', optional = true, features = ['derive'] }
 
 [dev-dependencies]

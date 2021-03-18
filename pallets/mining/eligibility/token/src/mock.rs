@@ -6,7 +6,6 @@ use crate::{
 };
 
 use frame_support::{
-    impl_outer_origin,
     parameter_types,
     weights::{
         IdentityFee,
@@ -24,12 +23,22 @@ use sp_runtime::{
     Perbill,
 };
 
-impl_outer_origin! {
-    pub enum Origin for Test {}
-}
+type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
+type Block = frame_system::mocking::MockBlock<Test>;
 
-#[derive(Clone, Eq, PartialEq)]
-pub struct Test;
+frame_support::construct_runtime!(
+    pub enum Test where
+        Block = Block,
+        NodeBlock = Block,
+        UncheckedExtrinsic = UncheckedExtrinsic,
+    {
+        System: frame_system::{Module, Call, Config, Storage, Event<T>},
+        Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
+        TransactionPayment: pallet_transaction_payment::{Module, Storage},
+        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
+    }
+);
+
 parameter_types! {
     pub const BlockHashCount: u64 = 250;
 }
@@ -41,7 +50,7 @@ impl frame_system::Config for Test {
     type BlockNumber = u64;
     type BlockLength = ();
     type BlockWeights = ();
-    type Call = ();
+    type Call = Call;
     type DbWeight = ();
     type Event = ();
     type Hash = H256;
@@ -82,7 +91,7 @@ impl pallet_transaction_payment::Config for Test {
 impl roaming_operators::Config for Test {
     type Currency = Balances;
     type Event = ();
-    type Randomness = Randomness;
+    type Randomness = RandomnessCollectiveFlip;
     type RoamingOperatorIndex = u64;
 }
 impl mining_rates_token::Config for Test {
@@ -117,10 +126,8 @@ impl Config for Test {
     type MiningEligibilityTokenLockedPercentage = u32;
     // type MiningEligibilityTokenAuditorAccountID = u64;
 }
-type System = frame_system::Module<Test>;
-pub type Balances = pallet_balances::Module<Test>;
+
 pub type MiningEligibilityTokenTestModule = Module<Test>;
-type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
 // This function basically just builds a genesis storage key/value store according to
 // our desired mockup.

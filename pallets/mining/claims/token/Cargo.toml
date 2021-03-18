@@ -24,6 +24,7 @@ std = [
     'mining-eligibility-token/std',
     'mining-rates-token/std',
     'mining-sampling-token/std',
+    'serde',
 ]
 
 [dependencies]
@@ -44,5 +45,7 @@ mining-setting-token = { default-features = false, package = 'mining-setting-tok
 mining-eligibility-token = { default-features = false, package = 'mining-eligibility-token', path = '../../../mining/eligibility/token' }
 mining-rates-token = { default-features = false, package = 'mining-rates-token', path = '../../../mining/rates/token' }
 mining-sampling-token = { default-features = false, package = 'mining-sampling-token', path = '../../../mining/sampling/token' }
+
+serde = { version = '1.0.101', optional = true, features = ['derive'] }
 
 [dev-dependencies]

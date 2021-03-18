@@ -13,11 +13,7 @@ mod tests {
 
     use frame_support::{
         assert_ok,
-        impl_outer_origin,
         parameter_types,
-        traits::{
-            PalletInfo,
-        },
         weights::{
             IdentityFee,
             Weight,
@@ -82,28 +78,24 @@ mod tests {
     // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Config>::Origin {
     // 	<Runtime as frame_system::Config>::Origin::signed((*who).clone())
     // }
-
-    impl_outer_origin! {
-        pub enum Origin for Test {}
-    }
-
-    pub struct PanicPalletInfo;
-    impl PalletInfo for PanicPalletInfo {
-        fn index<P: 'static>() -> Option<usize> {
-            unimplemented!("PanicPalletInfo mustn't be triggered by tests");
+    type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
+    type Block = frame_system::mocking::MockBlock<Test>;
+    
+    frame_support::construct_runtime!(
+        pub enum Test where
+            Block = Block,
+            NodeBlock = Block,
+            UncheckedExtrinsic = UncheckedExtrinsic,
+        {
+            System: frame_system::{Module, Call, Config, Storage, Event<T>},
+            Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
+            RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
+            TransactionPayment: pallet_transaction_payment::{Module, Storage},
         }
+    ); 
 
-        fn name<P: 'static>() -> Option<&'static str> {
-            unimplemented!("PanicPalletInfo mustn't be triggered by tests");
-        }
-    }
-
-    #[derive(Clone, Eq, PartialEq)]
-    pub struct Test;
     parameter_types! {
         pub const BlockHashCount: u64 = 250;
-        pub RuntimeBlockLength: BlockLength = ();
-        pub RuntimeBlockWeights: BlockWeights = ();
         pub const SS58Prefix: u8 = 33;
     }
     impl frame_system::Config for Test {
@@ -111,10 +103,10 @@ mod tests {
         type AccountId = u64;
         type BaseCallFilter = ();
         type BlockHashCount = BlockHashCount;
-        type BlockLength = RuntimeBlockLength;
+        type BlockLength = ();
         type BlockNumber = u64;
-        type BlockWeights = RuntimeBlockWeights;
-        type Call = ();
+        type BlockWeights = ();
+        type Call = Call;
         type DbWeight = ();
         // type WeightMultiplierUpdate = ();
         type Event = ();
@@ -126,7 +118,7 @@ mod tests {
         type OnKilledAccount = ();
         type OnNewAccount = ();
         type Origin = Origin;
-        type PalletInfo = PanicPalletInfo;
+        type PalletInfo = PalletInfo;
         type SS58Prefix = SS58Prefix;
         type SystemWeightInfo = ();
         type Version = ();
@@ -153,7 +145,7 @@ mod tests {
     impl roaming_operators::Config for Test {
         type Currency = Balances;
         type Event = ();
-        type Randomness = Randomness;
+        type Randomness = RandomnessCollectiveFlip;
         type RoamingOperatorIndex = u64;
     }
     impl MiningSettingTokenConfig for Test {
@@ -199,8 +191,6 @@ mod tests {
         type MiningExecutionTokenIndex = u64;
     }
 
-    type System = frame_system::Module<Test>;
-    pub type Balances = pallet_balances::Module<Test>;
     pub type MiningSettingTokenTestModule = MiningSettingTokenModule<Test>;
     pub type MiningRatesTokenTestModule = MiningRatesTokenModule<Test>;
     pub type MiningSamplingTokenTestModule = MiningSamplingTokenModule<Test>;

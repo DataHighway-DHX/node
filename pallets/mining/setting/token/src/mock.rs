@@ -35,14 +35,10 @@ frame_support::construct_runtime!(
         System: frame_system::{Module, Call, Config, Storage, Event<T>},
         Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
         TransactionPayment: pallet_transaction_payment::{Module, Storage},
-        RoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
-        Vesting: pallet_vesting::{Module, Call, Storage, Config<T>, Event<T>},
-        Claims: claims::{Module, Call, Storage, Config<T>, Event<T>, ValidateUnsigned},
+        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
     }
-)
+);
 
-#[derive(Clone, Eq, PartialEq)]
-pub struct Test;
 parameter_types! {
     pub const BlockHashCount: u64 = 250;
 }
@@ -54,7 +50,7 @@ impl frame_system::Config for Test {
     type BlockNumber = u64;
     type BlockLength = ();
     type BlockWeights = ();
-    type Call = ();
+    type Call = Call;
     type DbWeight = ();
     type Event = ();
     type Hash = H256;
@@ -95,7 +91,7 @@ impl pallet_transaction_payment::Config for Test {
 impl roaming_operators::Config for Test {
     type Currency = Balances;
     type Event = ();
-    type Randomness = Randomness;
+    type Randomness = RandomnessCollectiveFlip;
     type RoamingOperatorIndex = u64;
 }
 impl Config for Test {
@@ -106,10 +102,8 @@ impl Config for Test {
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
     type MiningSettingTokenType = Vec<u8>;
 }
-type System = frame_system::Module<Test>;
-pub type Balances = pallet_balances::Module<Test>;
+
 pub type MiningSettingTokenTestModule = Module<Test>;
-type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
 // This function basically just builds a genesis storage key/value store according to
 // our desired mockup.

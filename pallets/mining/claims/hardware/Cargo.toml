@@ -23,7 +23,8 @@ std = [
     'mining-setting-hardware/std',
     'mining-eligibility-hardware/std',
     'mining-rates-hardware/std',
-    'mining-sampling-hardware/std'
+    'mining-sampling-hardware/std',
+    'serde',
 ]
 
 [dependencies]
@@ -44,5 +45,7 @@ mining-setting-hardware = { default-features = false, package = 'mining-setting-
 mining-eligibility-hardware = { default-features = false, package = 'mining-eligibility-hardware', path = '../../../mining/eligibility/hardware' }
 mining-rates-hardware = { default-features = false, package = 'mining-rates-hardware', path = '../../../mining/rates/hardware' }
 mining-sampling-hardware = { default-features = false, package = 'mining-sampling-hardware', path = '../../../mining/sampling/hardware' }
+
+serde = { version = '1.0.101', optional = true, features = ['derive'] }
 
 [dev-dependencies]

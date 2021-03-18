@@ -21,7 +21,8 @@ std = [
 
     'roaming-networks/std',
     'roaming-accounting-policies/std',
-    'roaming-operators/std'
+    'roaming-operators/std',
+    'serde',
 ]
 
 [dependencies]
@@ -41,5 +42,7 @@ sp-std = { version = '3.0.0', default-features = false }
 roaming-networks = { default-features = false, package = 'roaming-networks', path = '../roaming-networks' }
 roaming-accounting-policies = { default-features = false, package = 'roaming-accounting-policies', path = '../roaming-accounting-policies' }
 roaming-operators = { default-features = false, package = 'roaming-operators', path = '../roaming-operators' }
+
+serde = { version = '1.0.101', optional = true, features = ['derive'] }
 
 [dev-dependencies]

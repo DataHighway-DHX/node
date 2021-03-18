@@ -21,6 +21,7 @@ std = [
 
     'roaming-operators/std',
     'mining-setting-hardware/std',
+    'serde',
 ]
 
 [dependencies]
@@ -38,5 +39,7 @@ sp-std = { version = '3.0.0', default-features = false }
 
 roaming-operators = { default-features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
 mining-setting-hardware = { default-features = false, package = 'mining-setting-hardware', path = '../../../mining/setting/hardware' }
+
+serde = { version = '1.0.101', optional = true, features = ['derive'] }
 
 [dev-dependencies]
