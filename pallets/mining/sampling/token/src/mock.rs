@@ -85,7 +85,7 @@ impl roaming_operators::Config for Test {
     type Randomness = Randomness;
     type RoamingOperatorIndex = u64;
 }
-impl mining_config_token::Config for Test {
+impl mining_setting_token::Config for Test {
     type Event = ();
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;

@@ -778,7 +778,7 @@ impl roaming_packet_bundles::Config for Runtime {
     type RoamingPacketBundleReceivedPacketsOkCount = u64;
 }
 
-impl mining_config_token::Config for Runtime {
+impl mining_setting_token::Config for Runtime {
     type Event = Event;
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
@@ -928,7 +928,7 @@ construct_runtime!(
         RoamingBillingPolicies: roaming_billing_policies::{Module, Call, Storage, Event<T>},
         RoamingChargingPolicies: roaming_charging_policies::{Module, Call, Storage, Event<T>},
         RoamingPacketBundles: roaming_packet_bundles::{Module, Call, Storage, Event<T>},
-        MiningSettingToken: mining_config_token::{Module, Call, Storage, Event<T>},
+        MiningSettingToken: mining_setting_token::{Module, Call, Storage, Event<T>},
         MiningSettingHardware: mining_setting_hardware::{Module, Call, Storage, Event<T>},
         MiningRatesToken: mining_rates_token::{Module, Call, Storage, Event<T>},
         MiningRatesHardware: mining_rates_hardware::{Module, Call, Storage, Event<T>},

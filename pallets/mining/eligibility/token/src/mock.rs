@@ -99,7 +99,7 @@ impl mining_sampling_token::Config for Test {
     type MiningSamplingTokenIndex = u64;
     type MiningSamplingTokenSampleLockedAmount = u64;
 }
-impl mining_config_token::Config for Test {
+impl mining_setting_token::Config for Test {
     type Event = ();
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;

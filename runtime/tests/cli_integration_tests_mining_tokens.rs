@@ -1,6 +1,6 @@
 // extern crate env as env;
 extern crate mining_claims_token as mining_claims_token;
-extern crate mining_config_token as mining_config_token;
+extern crate mining_setting_token as mining_setting_token;
 extern crate mining_eligibility_token as mining_eligibility_token;
 extern crate mining_execution_token as mining_execution_token;
 extern crate mining_rates_token as mining_rates_token;
@@ -42,7 +42,7 @@ mod tests {
         Module as MiningClaimsTokenModule,
         Config as MiningClaimsTokenTrait,
     };
-    use mining_config_token::{
+    use mining_setting_token::{
         MiningSettingTokenSetting,
         MiningSettingTokenRequirementsSetting,
         Module as MiningSettingTokenModule,
@@ -256,14 +256,14 @@ mod tests {
 
             // Call Functions
             assert_ok!(MiningSettingTokenTestModule::create(Origin::signed(0)));
-            assert_ok!(MiningSettingTokenTestModule::set_mining_config_token_token_cooldown_config(
+            assert_ok!(MiningSettingTokenTestModule::set_mining_setting_token_token_cooldown_config(
                 Origin::signed(0),
                 0,                     // mining_token_id
                 Some(b"DHX".to_vec()), // token_type
                 Some(10),              // token_lock_min_amount
                 Some(7),               // token_lock_min_blocks
             ));
-            assert_ok!(MiningSettingTokenTestModule::set_mining_config_token_token_setting(
+            assert_ok!(MiningSettingTokenTestModule::set_mining_setting_token_token_setting(
                 Origin::signed(0),
                 0,                     // mining_token_id
                 Some(b"MXC".to_vec()), // token_type
@@ -273,11 +273,11 @@ mod tests {
             ));
 
             // Verify Storage
-            assert_eq!(MiningSettingTokenTestModule::mining_config_token_count(), 1);
-            assert!(MiningSettingTokenTestModule::mining_config_token(0).is_some());
-            assert_eq!(MiningSettingTokenTestModule::mining_config_token_owner(0), Some(0));
+            assert_eq!(MiningSettingTokenTestModule::mining_setting_token_count(), 1);
+            assert!(MiningSettingTokenTestModule::mining_setting_token(0).is_some());
+            assert_eq!(MiningSettingTokenTestModule::mining_setting_token_owner(0), Some(0));
             assert_eq!(
-                MiningSettingTokenTestModule::mining_config_token_token_cooldown_configs(0),
+                MiningSettingTokenTestModule::mining_setting_token_token_cooldown_configs(0),
                 Some(MiningSettingTokenRequirementsSetting {
                     token_type: b"DHX".to_vec(), // token_type
                     token_lock_min_amount: 10,   // token_lock_min_amount
@@ -285,7 +285,7 @@ mod tests {
                 })
             );
             assert_eq!(
-                MiningSettingTokenTestModule::mining_config_token_token_settings(0),
+                MiningSettingTokenTestModule::mining_setting_token_token_settings(0),
                 Some(MiningSettingTokenSetting {
                     token_type: b"MXC".to_vec(),       // token_type
                     token_lock_amount: 100,            // token_lock_amount
@@ -336,14 +336,14 @@ mod tests {
             // The account id of the an auditor who may be involved in auditing the eligibility
             // outcome may also be recorded.
             // Note that we can find out all the samples associated with a
-            // mining_config_token_id
+            // mining_setting_token_id
 
             // Call Functions
             assert_ok!(MiningEligibilityTokenTestModule::create(Origin::signed(0)));
             // assert_eq!(
             //   MiningEligibilityTokenTestModule::calculate_mining_eligibility_token_result(
             //       Origin::signed(0),
-            //       0, // mining_config_token_id
+            //       0, // mining_setting_token_id
             //       0, // mining_eligibility_token_id
             //   ),
             //   Some(
@@ -360,7 +360,7 @@ mod tests {
             // Override by DAO if necessary
             assert_ok!(MiningEligibilityTokenTestModule::set_mining_eligibility_token_eligibility_result(
                 Origin::signed(0),
-                0,       // mining_config_token_id
+                0,       // mining_setting_token_id
                 0,       // mining_eligibility_token_id
                 Some(1), // mining_token_calculated_eligibility
                 Some(1), /* mining_token_locked_percentage
@@ -402,14 +402,14 @@ mod tests {
             assert_ok!(MiningClaimsTokenTestModule::assign_claim_to_configuration(Origin::signed(0), 0, 0));
             assert_ok!(MiningClaimsTokenTestModule::claim(
                 Origin::signed(0),
-                0, // mining_config_token_id
+                0, // mining_setting_token_id
                 0, // mining_eligibility_token_id
                 0, // mining_claims_token_id
             ));
             // Override by DAO if necessary
             assert_ok!(MiningClaimsTokenTestModule::set_mining_claims_token_claims_result(
                 Origin::signed(0),
-                0,           // mining_config_token_id
+                0,           // mining_setting_token_id
                 0,           // mining_eligibility_token_id
                 0,           // mining_claims_token_id
                 Some(1),     // token_claim_amount
@@ -439,7 +439,7 @@ mod tests {
             // Execute is called to start the mining if all checks pass
             assert_ok!(MiningExecutionTokenTestModule::set_mining_execution_token_execution_result(
                 Origin::signed(0),
-                0,           // mining_config_token_id
+                0,           // mining_setting_token_id
                 0,           // mining_execution_token_id
                 Some(12345), // token_execution_started_block
                 Some(34567)  // token_execution_ended_block

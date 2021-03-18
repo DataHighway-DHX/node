@@ -31,7 +31,7 @@ use sp_std::prelude::*; // Imports Vec
 
 // FIXME - remove roaming_operators here, only use this approach since do not know how to use BalanceOf using only
 // mining runtime module
-use mining_config_token;
+use mining_setting_token;
 use mining_rates_token;
 use mining_sampling_token;
 
@@ -46,7 +46,7 @@ pub trait Config:
     frame_system::Config
     + roaming_operators::Config
     + mining_rates_token::Config
-    + mining_config_token::Config
+    + mining_setting_token::Config
     + mining_sampling_token::Config
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
@@ -80,7 +80,7 @@ decl_event!(
         <T as Config>::MiningEligibilityTokenCalculatedEligibility,
         <T as Config>::MiningEligibilityTokenLockedPercentage,
         // <T as Config>::MiningEligibilityTokenAuditorAccountID,
-        <T as mining_config_token::Config>::MiningSettingTokenIndex,
+        <T as mining_setting_token::Config>::MiningSettingTokenIndex,
         // <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
@@ -98,8 +98,8 @@ decl_event!(
           MiningEligibilityTokenCalculatedEligibility, MiningEligibilityTokenLockedPercentage
           // BlockNumber, MiningEligibilityTokenAuditorAccountID
         ),
-        /// A mining_eligibility_token is assigned to an mining_config_token.
-        /// (owner of mining_token, mining_eligibility_token_id, mining_config_token_id)
+        /// A mining_eligibility_token is assigned to an mining_setting_token.
+        /// (owner of mining_token, mining_eligibility_token_id, mining_setting_token_id)
         AssignedTokenEligibilityToConfiguration(AccountId, MiningEligibilityTokenIndex, MiningSettingTokenIndex),
     }
 );
@@ -125,10 +125,10 @@ decl_storage! {
                 // T::MiningEligibilityTokenAuditorAccountID,
             >>;
 
-        /// Get mining_config_token_id belonging to a mining_eligibility_token_id
+        /// Get mining_setting_token_id belonging to a mining_eligibility_token_id
         pub TokenEligibilityConfiguration get(fn token_resulturation): map hasher(opaque_blake2_256) T::MiningEligibilityTokenIndex => Option<T::MiningSettingTokenIndex>;
 
-        /// Get mining_eligibility_token_id's belonging to a mining_config_token_id
+        /// Get mining_eligibility_token_id's belonging to a mining_setting_token_id
         pub TokenSettingEligibilities get(fn token_setting_eligibilities): map hasher(opaque_blake2_256) T::MiningSettingTokenIndex => Option<Vec<T::MiningEligibilityTokenIndex>>
     }
 }
@@ -171,7 +171,7 @@ decl_module! {
         // /// Calculate mining_eligibility_token_result
         // pub fn calculate_mining_eligibility_token_result(
         //     origin,
-        //     mining_config_token_id: T::MiningSettingTokenIndex,
+        //     mining_setting_token_id: T::MiningSettingTokenIndex,
         //     mining_eligibility_token_id: T::MiningEligibilityTokenIndex,
         // ) {
         //     let sender = ensure_signed(origin)?;
@@ -192,7 +192,7 @@ decl_module! {
         //     let mut current_token_type;
         //     let mut current_token_lock_amount;
         //     // Get the config associated with the given configuration_token
-        //     if let Some(configuration_token_setting) = <mining_config_token::Module<T>>::mining_config_token_token_settings(mining_config_token_id) {
+        //     if let Some(configuration_token_setting) = <mining_setting_token::Module<T>>::mining_setting_token_token_settings(mining_setting_token_id) {
         //       if let token_type = configuration_token_setting.token_type {
         //         if token_type != "".to_string() {
         //           current_token_type = token_type.clone();
@@ -201,10 +201,10 @@ decl_module! {
         //             if token_lock_amount != 0 {
         //               current_token_lock_amount = token_lock_amount;
 
-        //               // Get list of all sampling_token_ids that correspond to the given mining_config_token_id
+        //               // Get list of all sampling_token_ids that correspond to the given mining_setting_token_id
         //               // of type MiningSamplingTokenIndex
         //               let sampling_token_ids = <mining_sampling_token::Module<T>>
-        //                 ::token_setting_samplings(mining_config_token_id);
+        //                 ::token_setting_samplings(mining_setting_token_id);
 
         //               let mut sample_count = 0;
         //               let mut current_sample_tokens_locked = 0;
@@ -216,7 +216,7 @@ decl_module! {
         //                 // Retrieve the current corresponding sampling_token_setting
         //                 // of type MiningSamplingTokenSetting
         //                 if let Some(current_sampling_token_setting) = <mining_sampling_token::Module<T>>::mining_samplings_token_samplings_configs(
-        //                   (mining_config_token_id, sampling_token_id)
+        //                   (mining_setting_token_id, sampling_token_id)
         //                 ) {
         //                   if let tokens_locked = current_sampling_token_setting.token_sample_locked_amount {
         //                     sample_count += 1;
@@ -258,9 +258,9 @@ decl_module! {
 
         //     // Check if a mining_eligibility_token_result already exists with the given mining_eligibility_token_id
         //     // to determine whether to insert new or mutate existing.
-        //     if Self::has_value_for_mining_eligibility_token_result_index(mining_config_token_id, mining_eligibility_token_id).is_ok() {
+        //     if Self::has_value_for_mining_eligibility_token_result_index(mining_setting_token_id, mining_eligibility_token_id).is_ok() {
         //         debug::info!("Mutating values");
-        //         <MiningEligibilityTokenResults<T>>::mutate((mining_config_token_id, mining_eligibility_token_id), |mining_eligibility_token_result| {
+        //         <MiningEligibilityTokenResults<T>>::mutate((mining_setting_token_id, mining_eligibility_token_id), |mining_eligibility_token_result| {
         //             if let Some(_mining_eligibility_token_result) = mining_eligibility_token_result {
         //                 // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
         //                 _mining_eligibility_token_result.token_calculated_eligibility = token_calculated_eligibility.clone();
@@ -270,7 +270,7 @@ decl_module! {
         //             }
         //         });
         //         debug::info!("Checking mutated values");
-        //         let fetched_mining_eligibility_token_result = <MiningEligibilityTokenResults<T>>::get((mining_config_token_id, mining_eligibility_token_id));
+        //         let fetched_mining_eligibility_token_result = <MiningEligibilityTokenResults<T>>::get((mining_setting_token_id, mining_eligibility_token_id));
         //         if let Some(_mining_eligibility_token_result) = fetched_mining_eligibility_token_result {
         //             debug::info!("Latest field token_calculated_eligibility {:#?}", _mining_eligibility_token_result.token_calculated_eligibility);
         //             debug::info!("Latest field token_locked_percentage {:#?}", _mining_eligibility_token_result.token_locked_percentage);
@@ -291,12 +291,12 @@ decl_module! {
         //         };
 
         //         <MiningEligibilityTokenResults<T>>::insert(
-        //             (mining_config_token_id, mining_eligibility_token_id),
+        //             (mining_setting_token_id, mining_eligibility_token_id),
         //             &mining_eligibility_token_result_instance
         //         );
 
         //         debug::info!("Checking inserted values");
-        //         let fetched_mining_eligibility_token_result = <MiningEligibilityTokenResults<T>>::get((mining_config_token_id, mining_eligibility_token_id));
+        //         let fetched_mining_eligibility_token_result = <MiningEligibilityTokenResults<T>>::get((mining_setting_token_id, mining_eligibility_token_id));
         //         if let Some(_mining_eligibility_token_result) = fetched_mining_eligibility_token_result {
         //             debug::info!("Inserted field token_calculated_eligibility {:#?}", _mining_eligibility_token_result.token_calculated_eligibility);
         //             debug::info!("Inserted field token_locked_percentage {:#?}", _mining_eligibility_token_result.token_locked_percentage);
@@ -307,7 +307,7 @@ decl_module! {
 
         //     Self::deposit_event(RawEvent::MiningEligibilityTokenResultSet(
         //       sender,
-        //       mining_config_token_id,
+        //       mining_setting_token_id,
         //       mining_eligibility_token_id,
         //       token_calculated_eligibility,
         //       token_locked_percentage,
@@ -320,7 +320,7 @@ decl_module! {
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_mining_eligibility_token_eligibility_result(
             origin,
-            mining_config_token_id: T::MiningSettingTokenIndex,
+            mining_setting_token_id: T::MiningSettingTokenIndex,
             mining_eligibility_token_id: T::MiningEligibilityTokenIndex,
             _token_calculated_eligibility: Option<T::MiningEligibilityTokenCalculatedEligibility>,
             _token_locked_percentage: Option<T::MiningEligibilityTokenLockedPercentage>,
@@ -356,9 +356,9 @@ decl_module! {
 
             // Check if a mining_eligibility_token_result already exists with the given mining_eligibility_token_id
             // to determine whether to insert new or mutate existing.
-            if Self::has_value_for_mining_eligibility_token_result_index(mining_config_token_id, mining_eligibility_token_id).is_ok() {
+            if Self::has_value_for_mining_eligibility_token_result_index(mining_setting_token_id, mining_eligibility_token_id).is_ok() {
                 debug::info!("Mutating values");
-                <MiningEligibilityTokenResults<T>>::mutate((mining_config_token_id, mining_eligibility_token_id), |mining_eligibility_token_result| {
+                <MiningEligibilityTokenResults<T>>::mutate((mining_setting_token_id, mining_eligibility_token_id), |mining_eligibility_token_result| {
                     if let Some(_mining_eligibility_token_result) = mining_eligibility_token_result {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
                         _mining_eligibility_token_result.token_calculated_eligibility = token_calculated_eligibility.clone();
@@ -369,7 +369,7 @@ decl_module! {
                 });
 
                 debug::info!("Checking mutated values");
-                let fetched_mining_eligibility_token_result = <MiningEligibilityTokenResults<T>>::get((mining_config_token_id, mining_eligibility_token_id));
+                let fetched_mining_eligibility_token_result = <MiningEligibilityTokenResults<T>>::get((mining_setting_token_id, mining_eligibility_token_id));
                 if let Some(_mining_eligibility_token_result) = fetched_mining_eligibility_token_result {
                     debug::info!("Latest field token_calculated_eligibility {:#?}", _mining_eligibility_token_result.token_calculated_eligibility);
                     debug::info!("Latest field token_locked_percentage {:#?}", _mining_eligibility_token_result.token_locked_percentage);
@@ -390,12 +390,12 @@ decl_module! {
                 };
 
                 <MiningEligibilityTokenResults<T>>::insert(
-                    (mining_config_token_id, mining_eligibility_token_id),
+                    (mining_setting_token_id, mining_eligibility_token_id),
                     &mining_eligibility_token_result_instance
                 );
 
                 debug::info!("Checking inserted values");
-                let fetched_mining_eligibility_token_result = <MiningEligibilityTokenResults<T>>::get((mining_config_token_id, mining_eligibility_token_id));
+                let fetched_mining_eligibility_token_result = <MiningEligibilityTokenResults<T>>::get((mining_setting_token_id, mining_eligibility_token_id));
                 if let Some(_mining_eligibility_token_result) = fetched_mining_eligibility_token_result {
                     debug::info!("Inserted field token_calculated_eligibility {:#?}", _mining_eligibility_token_result.token_calculated_eligibility);
                     debug::info!("Inserted field token_locked_percentage {:#?}", _mining_eligibility_token_result.token_locked_percentage);
@@ -406,7 +406,7 @@ decl_module! {
 
             Self::deposit_event(RawEvent::MiningEligibilityTokenResultSet(
                 sender,
-                mining_config_token_id,
+                mining_setting_token_id,
                 mining_eligibility_token_id,
                 token_calculated_eligibility,
                 token_locked_percentage,
@@ -419,22 +419,22 @@ decl_module! {
         pub fn assign_eligibility_to_configuration(
           origin,
           mining_eligibility_token_id: T::MiningEligibilityTokenIndex,
-          mining_config_token_id: T::MiningSettingTokenIndex
+          mining_setting_token_id: T::MiningSettingTokenIndex
         ) {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given configuration id already exists
-            let is_configuration_token = <mining_config_token::Module<T>>
-                ::exists_mining_config_token(mining_config_token_id).is_ok();
+            let is_configuration_token = <mining_setting_token::Module<T>>
+                ::exists_mining_setting_token(mining_setting_token_id).is_ok();
             ensure!(is_configuration_token, "configuration_token does not exist");
 
             // Ensure that caller of the function is the owner of the configuration id to assign the eligibility to
             ensure!(
-                <mining_config_token::Module<T>>::is_mining_config_token_owner(mining_config_token_id, sender.clone()).is_ok(),
+                <mining_setting_token::Module<T>>::is_mining_setting_token_owner(mining_setting_token_id, sender.clone()).is_ok(),
                 "Only the configuration_token owner can assign itself a eligibility"
             );
 
-            Self::associate_token_eligibility_with_configuration(mining_eligibility_token_id, mining_config_token_id)
+            Self::associate_token_eligibility_with_configuration(mining_eligibility_token_id, mining_setting_token_id)
                 .expect("Unable to associate eligibility with configuration");
 
             // Ensure that the given mining_eligibility_token_id already exists
@@ -446,9 +446,9 @@ decl_module! {
             // <TokenEligibilityConfiguration<T>>::remove(mining_eligibility_token_id);
 
             // Assign the network owner to the given operator (even if already belongs to them)
-            <TokenEligibilityConfiguration<T>>::insert(mining_eligibility_token_id, mining_config_token_id);
+            <TokenEligibilityConfiguration<T>>::insert(mining_eligibility_token_id, mining_setting_token_id);
 
-            Self::deposit_event(RawEvent::AssignedTokenEligibilityToConfiguration(sender, mining_eligibility_token_id, mining_config_token_id));
+            Self::deposit_event(RawEvent::AssignedTokenEligibilityToConfiguration(sender, mining_eligibility_token_id, mining_setting_token_id));
             }
     }
 }
@@ -477,10 +477,10 @@ impl<T: Config> Module<T> {
     }
 
     pub fn exists_mining_eligibility_token_result(
-        mining_config_token_id: T::MiningSettingTokenIndex,
+        mining_setting_token_id: T::MiningSettingTokenIndex,
         mining_eligibility_token_id: T::MiningEligibilityTokenIndex,
     ) -> Result<(), DispatchError> {
-        match Self::mining_eligibility_token_eligibility_results((mining_config_token_id, mining_eligibility_token_id))
+        match Self::mining_eligibility_token_eligibility_results((mining_setting_token_id, mining_eligibility_token_id))
         {
             Some(_value) => Ok(()),
             None => Err(DispatchError::Other("MiningEligibilityTokenResult does not exist")),
@@ -488,12 +488,12 @@ impl<T: Config> Module<T> {
     }
 
     pub fn has_value_for_mining_eligibility_token_result_index(
-        mining_config_token_id: T::MiningSettingTokenIndex,
+        mining_setting_token_id: T::MiningSettingTokenIndex,
         mining_eligibility_token_id: T::MiningEligibilityTokenIndex,
     ) -> Result<(), DispatchError> {
         debug::info!("Checking if mining_eligibility_token_result has a value that is defined");
         let fetched_mining_eligibility_token_result =
-            <MiningEligibilityTokenResults<T>>::get((mining_config_token_id, mining_eligibility_token_id));
+            <MiningEligibilityTokenResults<T>>::get((mining_setting_token_id, mining_eligibility_token_id));
         if let Some(_value) = fetched_mining_eligibility_token_result {
             debug::info!("Found value for mining_eligibility_token_result");
             return Ok(());
@@ -505,21 +505,21 @@ impl<T: Config> Module<T> {
     /// Only push the eligibility id onto the end of the vector if it does not already exist
     pub fn associate_token_eligibility_with_configuration(
         mining_eligibility_token_id: T::MiningEligibilityTokenIndex,
-        mining_config_token_id: T::MiningSettingTokenIndex,
+        mining_setting_token_id: T::MiningSettingTokenIndex,
     ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given eligibility id
-        if let Some(configuration_eligibilities) = Self::token_setting_eligibilities(mining_config_token_id) {
+        if let Some(configuration_eligibilities) = Self::token_setting_eligibilities(mining_setting_token_id) {
             debug::info!(
                 "Configuration id key {:?} exists with value {:?}",
-                mining_config_token_id,
+                mining_setting_token_id,
                 configuration_eligibilities
             );
             let not_configuration_contains_eligibility =
                 !configuration_eligibilities.contains(&mining_eligibility_token_id);
             ensure!(not_configuration_contains_eligibility, "Configuration already contains the given eligibility id");
             debug::info!("Configuration id key exists but its vector value does not contain the given eligibility id");
-            <TokenSettingEligibilities<T>>::mutate(mining_config_token_id, |v| {
+            <TokenSettingEligibilities<T>>::mutate(mining_setting_token_id, |v| {
                 if let Some(value) = v {
                     value.push(mining_eligibility_token_id);
                 }
@@ -527,17 +527,17 @@ impl<T: Config> Module<T> {
             debug::info!(
                 "Associated eligibility {:?} with configuration {:?}",
                 mining_eligibility_token_id,
-                mining_config_token_id
+                mining_setting_token_id
             );
             Ok(())
         } else {
             debug::info!(
                 "Configuration id key does not yet exist. Creating the configuration key {:?} and appending the \
                  eligibility id {:?} to its vector value",
-                mining_config_token_id,
+                mining_setting_token_id,
                 mining_eligibility_token_id
             );
-            <TokenSettingEligibilities<T>>::insert(mining_config_token_id, &vec![mining_eligibility_token_id]);
+            <TokenSettingEligibilities<T>>::insert(mining_setting_token_id, &vec![mining_eligibility_token_id]);
             Ok(())
         }
     }
