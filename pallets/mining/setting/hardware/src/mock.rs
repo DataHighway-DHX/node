@@ -87,19 +87,19 @@ impl roaming_operators::Config for Test {
 }
 impl Config for Test {
     type Event = ();
-    type MiningConfigHardwareDevEUI = u64;
-    // type MiningConfigHardwareType =
-    // MiningConfigHardwareTypes;
-    type MiningConfigHardwareID = u64;
-    type MiningConfigHardwareIndex = u64;
+    type MiningSettingHardwareDevEUI = u64;
+    // type MiningSettingHardwareType =
+    // MiningSettingHardwareTypes;
+    type MiningSettingHardwareID = u64;
+    type MiningSettingHardwareIndex = u64;
     // Mining Speed Boost Hardware Mining Config
-    type MiningConfigHardwareSecure = bool;
+    type MiningSettingHardwareSecure = bool;
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningConfigHardwareType = Vec<u8>;
+    type MiningSettingHardwareType = Vec<u8>;
 }
 type System = frame_system::Module<Test>;
 pub type Balances = pallet_balances::Module<Test>;
-pub type MiningConfigHardwareTestModule = Module<Test>;
+pub type MiningSettingHardwareTestModule = Module<Test>;
 type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
 // This function basically just builds a genesis storage key/value store according to

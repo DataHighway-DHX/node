@@ -80,7 +80,7 @@ decl_event!(
         <T as Config>::MiningEligibilityHardwareCalculatedEligibility,
         <T as Config>::MiningEligibilityHardwareUptimePercentage,
         // <T as Config>::MiningEligibilityHardwareAuditorAccountID,
-        <T as mining_config_hardware::Config>::MiningConfigHardwareIndex,
+        <T as mining_config_hardware::Config>::MiningSettingHardwareIndex,
         // <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
@@ -89,18 +89,18 @@ decl_event!(
         /// A mining_eligibility_hardware is transferred. (from, to, mining_eligibility_hardware_id)
         Transferred(AccountId, AccountId, MiningEligibilityHardwareIndex),
         // MiningEligibilityHardwareResultSet(
-        //   AccountId, MiningConfigHardwareIndex, MiningEligibilityHardwareIndex,
+        //   AccountId, MiningSettingHardwareIndex, MiningEligibilityHardwareIndex,
         //   MiningEligibilityHardwareCalculatedEligibility, MiningEligibilityHardwareUptimePercentage,
         //   BlockNumber, MiningEligibilityHardwareAuditorAccountID
         // ),
         MiningEligibilityHardwareResultSet(
-          AccountId, MiningConfigHardwareIndex, MiningEligibilityHardwareIndex,
+          AccountId, MiningSettingHardwareIndex, MiningEligibilityHardwareIndex,
           MiningEligibilityHardwareCalculatedEligibility, MiningEligibilityHardwareUptimePercentage
           // BlockNumber, MiningEligibilityHardwareAuditorAccountID
         ),
         /// A mining_eligibility_hardware is assigned to an mining_config_hardware.
         /// (owner of mining_hardware, mining_eligibility_hardware_id, mining_config_hardware_id)
-        AssignedHardwareEligibilityToConfiguration(AccountId, MiningEligibilityHardwareIndex, MiningConfigHardwareIndex),
+        AssignedHardwareEligibilityToConfiguration(AccountId, MiningEligibilityHardwareIndex, MiningSettingHardwareIndex),
     }
 );
 
@@ -117,7 +117,7 @@ decl_storage! {
         pub MiningEligibilityHardwareOwners get(fn mining_eligibility_hardware_owner): map hasher(opaque_blake2_256) T::MiningEligibilityHardwareIndex => Option<T::AccountId>;
 
         /// Stores mining_eligibility_hardware_result
-        pub MiningEligibilityHardwareResults get(fn mining_eligibility_hardware_eligibility_results): map hasher(opaque_blake2_256) (T::MiningConfigHardwareIndex, T::MiningEligibilityHardwareIndex) =>
+        pub MiningEligibilityHardwareResults get(fn mining_eligibility_hardware_eligibility_results): map hasher(opaque_blake2_256) (T::MiningSettingHardwareIndex, T::MiningEligibilityHardwareIndex) =>
             Option<MiningEligibilityHardwareResult<
                 T::MiningEligibilityHardwareCalculatedEligibility,
                 T::MiningEligibilityHardwareUptimePercentage,
@@ -126,10 +126,10 @@ decl_storage! {
             >>;
 
         /// Get mining_config_hardware_id belonging to a mining_eligibility_hardware_id
-        pub HardwareEligibilityConfiguration get(fn hardware_resulturation): map hasher(opaque_blake2_256) T::MiningEligibilityHardwareIndex => Option<T::MiningConfigHardwareIndex>;
+        pub HardwareEligibilityConfiguration get(fn hardware_resulturation): map hasher(opaque_blake2_256) T::MiningEligibilityHardwareIndex => Option<T::MiningSettingHardwareIndex>;
 
         /// Get mining_eligibility_hardware_id's belonging to a mining_config_hardware_id
-        pub HardwareConfigEligibilities get(fn hardware_config_eligibilities): map hasher(opaque_blake2_256) T::MiningConfigHardwareIndex => Option<Vec<T::MiningEligibilityHardwareIndex>>
+        pub HardwareSettingEligibilities get(fn hardware_config_eligibilities): map hasher(opaque_blake2_256) T::MiningSettingHardwareIndex => Option<Vec<T::MiningEligibilityHardwareIndex>>
     }
 }
 
@@ -171,7 +171,7 @@ decl_module! {
         // /// Calculate mining_eligibility_hardware_result
         // pub fn calculate_mining_eligibility_hardware_result(
         //     origin,
-        //     mining_config_hardware_id: T::MiningConfigHardwareIndex,
+        //     mining_config_hardware_id: T::MiningSettingHardwareIndex,
         //     mining_eligibility_hardware_id: T::MiningEligibilityHardwareIndex,
         // ) {
         //     let sender = ensure_signed(origin)?;
@@ -192,7 +192,7 @@ decl_module! {
         //     let mut current_token_type;
         //     let mut current_hardware_uptime_amount;
         //     // Get the config associated with the given configuration_hardware
-        //     if let Some(configuration_hardware_config) = <mining_config_hardware::Module<T>>::mining_config_hardware_token_configs(mining_config_hardware_id) {
+        //     if let Some(configuration_hardware_config) = <mining_config_hardware::Module<T>>::mining_config_hardware_token_settings(mining_config_hardware_id) {
         //       if let token_type = configuration_hardware_config.token_type {
         //         if token_type != "".to_string() {
         //           current_token_type = token_type.clone();
@@ -214,7 +214,7 @@ decl_module! {
         //               // Iteratve through all the associated samples
         //               for (index, sampling_hardware_id) in sampling_hardware_ids.iter().enumerate() {
         //                 // Retrieve the current corresponding sampling_hardware_config
-        //                 // of type MiningSamplingHardwareConfig
+        //                 // of type MiningSamplingHardwareSetting
         //                 if let Some(current_sampling_hardware_config) = <mining_sampling_hardware::Module<T>>::mining_samplings_hardware_samplings_configs(
         //                   (mining_config_hardware_id, sampling_hardware_id)
         //                 ) {
@@ -320,7 +320,7 @@ decl_module! {
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_mining_eligibility_hardware_eligibility_result(
             origin,
-            mining_config_hardware_id: T::MiningConfigHardwareIndex,
+            mining_config_hardware_id: T::MiningSettingHardwareIndex,
             mining_eligibility_hardware_id: T::MiningEligibilityHardwareIndex,
             _hardware_calculated_eligibility: Option<T::MiningEligibilityHardwareCalculatedEligibility>,
             _hardware_uptime_percentage: Option<T::MiningEligibilityHardwareUptimePercentage>,
@@ -419,7 +419,7 @@ decl_module! {
         pub fn assign_eligibility_to_configuration(
           origin,
           mining_eligibility_hardware_id: T::MiningEligibilityHardwareIndex,
-          mining_config_hardware_id: T::MiningConfigHardwareIndex
+          mining_config_hardware_id: T::MiningSettingHardwareIndex
         ) {
             let sender = ensure_signed(origin)?;
 
@@ -477,7 +477,7 @@ impl<T: Config> Module<T> {
     }
 
     pub fn exists_mining_eligibility_hardware_result(
-        mining_config_hardware_id: T::MiningConfigHardwareIndex,
+        mining_config_hardware_id: T::MiningSettingHardwareIndex,
         mining_eligibility_hardware_id: T::MiningEligibilityHardwareIndex,
     ) -> Result<(), DispatchError> {
         match Self::mining_eligibility_hardware_eligibility_results((
@@ -490,7 +490,7 @@ impl<T: Config> Module<T> {
     }
 
     pub fn has_value_for_mining_eligibility_hardware_result_index(
-        mining_config_hardware_id: T::MiningConfigHardwareIndex,
+        mining_config_hardware_id: T::MiningSettingHardwareIndex,
         mining_eligibility_hardware_id: T::MiningEligibilityHardwareIndex,
     ) -> Result<(), DispatchError> {
         debug::info!("Checking if mining_eligibility_hardware_result has a value that is defined");
@@ -507,7 +507,7 @@ impl<T: Config> Module<T> {
     /// Only push the eligibility id onto the end of the vector if it does not already exist
     pub fn associate_token_eligibility_with_configuration(
         mining_eligibility_hardware_id: T::MiningEligibilityHardwareIndex,
-        mining_config_hardware_id: T::MiningConfigHardwareIndex,
+        mining_config_hardware_id: T::MiningSettingHardwareIndex,
     ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given eligibility id
@@ -521,7 +521,7 @@ impl<T: Config> Module<T> {
                 !configuration_eligibilities.contains(&mining_eligibility_hardware_id);
             ensure!(not_configuration_contains_eligibility, "Configuration already contains the given eligibility id");
             debug::info!("Configuration id key exists but its vector value does not contain the given eligibility id");
-            <HardwareConfigEligibilities<T>>::mutate(mining_config_hardware_id, |v| {
+            <HardwareSettingEligibilities<T>>::mutate(mining_config_hardware_id, |v| {
                 if let Some(value) = v {
                     value.push(mining_eligibility_hardware_id);
                 }
@@ -539,7 +539,7 @@ impl<T: Config> Module<T> {
                 mining_config_hardware_id,
                 mining_eligibility_hardware_id
             );
-            <HardwareConfigEligibilities<T>>::insert(mining_config_hardware_id, &vec![mining_eligibility_hardware_id]);
+            <HardwareSettingEligibilities<T>>::insert(mining_config_hardware_id, &vec![mining_eligibility_hardware_id]);
             Ok(())
         }
     }

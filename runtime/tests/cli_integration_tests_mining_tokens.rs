@@ -43,10 +43,10 @@ mod tests {
         Config as MiningClaimsTokenTrait,
     };
     use mining_config_token::{
-        MiningConfigTokenConfig,
-        MiningConfigTokenRequirementsConfig,
-        Module as MiningConfigTokenModule,
-        Config as MiningConfigTokenTrait,
+        MiningSettingTokenSetting,
+        MiningSettingTokenRequirementsSetting,
+        Module as MiningSettingTokenModule,
+        Config as MiningSettingTokenTrait,
     };
     use mining_eligibility_token::{
         MiningEligibilityTokenResult,
@@ -59,12 +59,12 @@ mod tests {
         Config as MiningExecutionTokenTrait,
     };
     use mining_rates_token::{
-        MiningRatesTokenConfig,
+        MiningRatesTokenSetting,
         Module as MiningRatesTokenModule,
         Config as MiningRatesTokenTrait,
     };
     use mining_sampling_token::{
-        MiningSamplingTokenConfig,
+        MiningSamplingTokenSetting,
         Module as MiningSamplingTokenModule,
         Config as MiningSamplingTokenTrait,
     };
@@ -137,15 +137,15 @@ mod tests {
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
-    impl MiningConfigTokenTrait for Test {
+    impl MiningSettingTokenTrait for Test {
         type Event = ();
         // type Currency = Balances;
         // type Randomness = Randomness;
-        type MiningConfigTokenIndex = u64;
-        type MiningConfigTokenLockAmount = u64;
+        type MiningSettingTokenIndex = u64;
+        type MiningSettingTokenLockAmount = u64;
         // Mining Speed Boost Token Mining Config
         // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-        type MiningConfigTokenType = Vec<u8>;
+        type MiningSettingTokenType = Vec<u8>;
     }
     impl MiningRatesTokenTrait for Test {
         type Event = ();
@@ -182,7 +182,7 @@ mod tests {
 
     type System = frame_system::Module<Test>;
     pub type Balances = pallet_balances::Module<Test>;
-    pub type MiningConfigTokenTestModule = MiningConfigTokenModule<Test>;
+    pub type MiningSettingTokenTestModule = MiningSettingTokenModule<Test>;
     pub type MiningRatesTokenTestModule = MiningRatesTokenModule<Test>;
     pub type MiningSamplingTokenTestModule = MiningSamplingTokenModule<Test>;
     pub type MiningEligibilityTokenTestModule = MiningEligibilityTokenModule<Test>;
@@ -243,7 +243,7 @@ mod tests {
             assert_eq!(MiningRatesTokenTestModule::mining_rates_token_owner(0), Some(0));
             assert_eq!(
                 MiningRatesTokenTestModule::mining_rates_token_rates_configs(0),
-                Some(MiningRatesTokenConfig {
+                Some(MiningRatesTokenSetting {
                     token_token_mxc: 1,
                     token_token_iota: 1,
                     token_token_dot: 1,
@@ -255,15 +255,15 @@ mod tests {
             // Create Mining Speed Boost Configuration & Cooldown Configuration Token Mining
 
             // Call Functions
-            assert_ok!(MiningConfigTokenTestModule::create(Origin::signed(0)));
-            assert_ok!(MiningConfigTokenTestModule::set_mining_config_token_token_cooldown_config(
+            assert_ok!(MiningSettingTokenTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningSettingTokenTestModule::set_mining_config_token_token_cooldown_config(
                 Origin::signed(0),
                 0,                     // mining_token_id
                 Some(b"DHX".to_vec()), // token_type
                 Some(10),              // token_lock_min_amount
                 Some(7),               // token_lock_min_blocks
             ));
-            assert_ok!(MiningConfigTokenTestModule::set_mining_config_token_token_config(
+            assert_ok!(MiningSettingTokenTestModule::set_mining_config_token_token_setting(
                 Origin::signed(0),
                 0,                     // mining_token_id
                 Some(b"MXC".to_vec()), // token_type
@@ -273,20 +273,20 @@ mod tests {
             ));
 
             // Verify Storage
-            assert_eq!(MiningConfigTokenTestModule::mining_config_token_count(), 1);
-            assert!(MiningConfigTokenTestModule::mining_config_token(0).is_some());
-            assert_eq!(MiningConfigTokenTestModule::mining_config_token_owner(0), Some(0));
+            assert_eq!(MiningSettingTokenTestModule::mining_config_token_count(), 1);
+            assert!(MiningSettingTokenTestModule::mining_config_token(0).is_some());
+            assert_eq!(MiningSettingTokenTestModule::mining_config_token_owner(0), Some(0));
             assert_eq!(
-                MiningConfigTokenTestModule::mining_config_token_token_cooldown_configs(0),
-                Some(MiningConfigTokenRequirementsConfig {
+                MiningSettingTokenTestModule::mining_config_token_token_cooldown_configs(0),
+                Some(MiningSettingTokenRequirementsSetting {
                     token_type: b"DHX".to_vec(), // token_type
                     token_lock_min_amount: 10,   // token_lock_min_amount
                     token_lock_min_blocks: 7,    // token_lock_min_blocks
                 })
             );
             assert_eq!(
-                MiningConfigTokenTestModule::mining_config_token_token_configs(0),
-                Some(MiningConfigTokenConfig {
+                MiningSettingTokenTestModule::mining_config_token_token_settings(0),
+                Some(MiningSettingTokenSetting {
                     token_type: b"MXC".to_vec(),       // token_type
                     token_lock_amount: 100,            // token_lock_amount
                     token_lock_start_block: 12345,     // token_lock_start_block
@@ -313,7 +313,7 @@ mod tests {
             assert_eq!(MiningSamplingTokenTestModule::mining_samplings_token_owner(0), Some(0));
             assert_eq!(
                 MiningSamplingTokenTestModule::mining_samplings_token_samplings_configs((0, 0)),
-                Some(MiningSamplingTokenConfig {
+                Some(MiningSamplingTokenSetting {
                     token_sample_block: 23456,       // token_sample_block
                     token_sample_locked_amount: 100  // token_sample_locked_amount
                 })

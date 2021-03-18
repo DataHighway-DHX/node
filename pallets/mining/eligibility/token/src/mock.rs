@@ -104,11 +104,11 @@ impl mining_config_token::Config for Test {
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
-    type MiningConfigTokenIndex = u64;
-    type MiningConfigTokenLockAmount = u64;
+    type MiningSettingTokenIndex = u64;
+    type MiningSettingTokenLockAmount = u64;
     // Mining Speed Boost Token Mining Config
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningConfigTokenType = Vec<u8>;
+    type MiningSettingTokenType = Vec<u8>;
 }
 impl Config for Test {
     type Event = ();

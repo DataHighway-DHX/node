@@ -50,7 +50,7 @@ pub struct RoamingBillingPolicy(pub [u8; 16]);
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
 // Generic type parameters - Balance
-pub struct RoamingBillingPolicyConfig<U, V> {
+pub struct RoamingBillingPolicySetting<U, V> {
     pub policy_next_billing_at_block: U,
     pub policy_frequency_in_blocks: V,
 }
@@ -68,7 +68,7 @@ decl_event!(
         /// A roaming billing_policy is transferred. (from, to, roaming_billing_policy_id)
         Transferred(AccountId, AccountId, RoamingBillingPolicyIndex),
         /// A roaming billing_policy configuration
-        RoamingBillingPolicyConfigSet(AccountId, RoamingBillingPolicyIndex, BlockNumber, BlockNumber),
+        RoamingBillingPolicySettingSet(AccountId, RoamingBillingPolicyIndex, BlockNumber, BlockNumber),
         /// A roaming billing_policy is assigned to a operator. (owner of network, roaming_billing_policy_id, roaming_operator_id)
         AssignedBillingPolicyToOperator(AccountId, RoamingBillingPolicyIndex, RoamingOperatorIndex),
         /// A roaming billing_policy is assigned to a network. (owner of network, roaming_billing_policy_id, roaming_network_id)
@@ -89,7 +89,7 @@ decl_storage! {
         pub RoamingBillingPolicyOwners get(fn roaming_billing_policy_owner): map hasher(opaque_blake2_256) T::RoamingBillingPolicyIndex => Option<T::AccountId>;
 
         /// Get roaming billing_policy config
-        pub RoamingBillingPolicyConfigs get(fn roaming_billing_policy_configs): map hasher(opaque_blake2_256) T::RoamingBillingPolicyIndex => Option<RoamingBillingPolicyConfig<T::BlockNumber, T::BlockNumber>>;
+        pub RoamingBillingPolicySettings get(fn roaming_billing_policy_settings): map hasher(opaque_blake2_256) T::RoamingBillingPolicyIndex => Option<RoamingBillingPolicySetting<T::BlockNumber, T::BlockNumber>>;
 
         /// Get roaming billing_policy network
         pub RoamingBillingPolicyNetwork get(fn roaming_billing_policy_network): map hasher(opaque_blake2_256) T::RoamingBillingPolicyIndex => Option<T::RoamingNetworkIndex>;
@@ -170,46 +170,46 @@ decl_module! {
 
             // Check if a roaming billing policy config already exists with the given roaming billing policy id
             // to determine whether to insert new or mutate existing.
-            if Self::has_value_for_billing_policy_config_index(roaming_billing_policy_id).is_ok() {
+            if Self::has_value_for_billing_policy_setting_index(roaming_billing_policy_id).is_ok() {
                 debug::info!("Mutating values");
-                <RoamingBillingPolicyConfigs<T>>::mutate(roaming_billing_policy_id, |policy_config| {
-                    if let Some(_policy_config) = policy_config {
+                <RoamingBillingPolicySettings<T>>::mutate(roaming_billing_policy_id, |policy_setting| {
+                    if let Some(_policy_setting) = policy_setting {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-                        _policy_config.policy_next_billing_at_block = policy_next_billing_at_block.clone();
-                        _policy_config.policy_frequency_in_blocks = policy_frequency_in_blocks.clone();
+                        _policy_setting.policy_next_billing_at_block = policy_next_billing_at_block.clone();
+                        _policy_setting.policy_frequency_in_blocks = policy_frequency_in_blocks.clone();
                     }
                 });
                 debug::info!("Checking mutated values");
-                let fetched_policy_config = <RoamingBillingPolicyConfigs<T>>::get(roaming_billing_policy_id);
-                if let Some(_policy_config) = fetched_policy_config {
-                    debug::info!("Latest field policy_next_billing_at_block {:#?}", _policy_config.policy_next_billing_at_block);
-                    debug::info!("Latest field policy_frequency_in_blocks {:#?}", _policy_config.policy_frequency_in_blocks);
+                let fetched_policy_setting = <RoamingBillingPolicySettings<T>>::get(roaming_billing_policy_id);
+                if let Some(_policy_setting) = fetched_policy_setting {
+                    debug::info!("Latest field policy_next_billing_at_block {:#?}", _policy_setting.policy_next_billing_at_block);
+                    debug::info!("Latest field policy_frequency_in_blocks {:#?}", _policy_setting.policy_frequency_in_blocks);
                 }
             } else {
                 debug::info!("Inserting values");
 
                 // Create a new roaming billing_policy config instance with the input params
-                let roaming_billing_policy_config_instance = RoamingBillingPolicyConfig {
+                let roaming_billing_policy_setting_instance = RoamingBillingPolicySetting {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     policy_next_billing_at_block: policy_next_billing_at_block.clone(),
                     policy_frequency_in_blocks: policy_frequency_in_blocks.clone()
                 };
 
-                <RoamingBillingPolicyConfigs<T>>::insert(
+                <RoamingBillingPolicySettings<T>>::insert(
                     roaming_billing_policy_id,
-                    &roaming_billing_policy_config_instance
+                    &roaming_billing_policy_setting_instance
                 );
 
                 debug::info!("Checking inserted values");
-                let fetched_policy_config = <RoamingBillingPolicyConfigs<T>>::get(roaming_billing_policy_id);
-                if let Some(_policy_config) = fetched_policy_config {
-                    debug::info!("Inserted field policy_next_billing_at_block {:#?}", _policy_config.policy_next_billing_at_block);
-                    debug::info!("Inserted field policy_frequency_in_blocks {:#?}", _policy_config.policy_frequency_in_blocks);
+                let fetched_policy_setting = <RoamingBillingPolicySettings<T>>::get(roaming_billing_policy_id);
+                if let Some(_policy_setting) = fetched_policy_setting {
+                    debug::info!("Inserted field policy_next_billing_at_block {:#?}", _policy_setting.policy_next_billing_at_block);
+                    debug::info!("Inserted field policy_frequency_in_blocks {:#?}", _policy_setting.policy_frequency_in_blocks);
                 }
             }
 
-            Self::deposit_event(RawEvent::RoamingBillingPolicyConfigSet(
+            Self::deposit_event(RawEvent::RoamingBillingPolicySettingSet(
                 sender,
                 roaming_billing_policy_id,
                 policy_next_billing_at_block,
@@ -333,21 +333,21 @@ impl<T: Config> Module<T> {
         }
     }
 
-    pub fn exists_roaming_billing_policy_config(
+    pub fn exists_roaming_billing_policy_setting(
         roaming_billing_policy_id: T::RoamingBillingPolicyIndex,
     ) -> Result<(), DispatchError> {
-        match Self::roaming_billing_policy_configs(roaming_billing_policy_id) {
+        match Self::roaming_billing_policy_settings(roaming_billing_policy_id) {
             Some(_) => Ok(()),
-            None => Err(DispatchError::Other("RoamingBillingPolicyConfig does not exist")),
+            None => Err(DispatchError::Other("RoamingBillingPolicySetting does not exist")),
         }
     }
 
-    pub fn has_value_for_billing_policy_config_index(
+    pub fn has_value_for_billing_policy_setting_index(
         roaming_billing_policy_id: T::RoamingBillingPolicyIndex,
     ) -> Result<(), DispatchError> {
         debug::info!("Checking if billing policy config has a value that is defined");
-        let fetched_policy_config = <RoamingBillingPolicyConfigs<T>>::get(roaming_billing_policy_id);
-        if let Some(_) = fetched_policy_config {
+        let fetched_policy_setting = <RoamingBillingPolicySettings<T>>::get(roaming_billing_policy_id);
+        if let Some(_) = fetched_policy_setting {
             debug::info!("Found value for billing policy config");
             return Ok(());
         }

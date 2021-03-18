@@ -74,7 +74,7 @@ pub struct MiningRatesHardware(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
-pub struct MiningRatesHardwareConfig<U, V, W, X, Y, Z> {
+pub struct MiningRatesHardwareSetting<U, V, W, X, Y, Z> {
     pub hardware_hardware_secure: U,
     pub hardware_hardware_insecure: V,
     pub hardware_max_hardware: W,
@@ -99,7 +99,7 @@ decl_event!(
         Created(AccountId, MiningRatesHardwareIndex),
         /// A mining_rates_hardware is transferred. (from, to, mining_rates_hardware_id)
         Transferred(AccountId, AccountId, MiningRatesHardwareIndex),
-        MiningRatesHardwareConfigSet(
+        MiningRatesHardwareSettingSet(
             AccountId, MiningRatesHardwareIndex, MiningRatesHardwareSecure,
             MiningRatesHardwareInsecure, MiningRatesHardwareMaxHardware,
             MiningRatesHardwareCategory1MaxTokenBonusPerGateway,
@@ -122,8 +122,8 @@ decl_storage! {
         pub MiningRatesHardwareOwners get(fn mining_rates_hardware_owner): map hasher(opaque_blake2_256) T::MiningRatesHardwareIndex => Option<T::AccountId>;
 
         /// Stores mining_rates_hardware_rates_config
-        pub MiningRatesHardwareConfigs get(fn mining_rates_hardware_rates_configs): map hasher(opaque_blake2_256) T::MiningRatesHardwareIndex =>
-            Option<MiningRatesHardwareConfig<T::MiningRatesHardwareSecure,
+        pub MiningRatesHardwareSettings get(fn mining_rates_hardware_rates_configs): map hasher(opaque_blake2_256) T::MiningRatesHardwareIndex =>
+            Option<MiningRatesHardwareSetting<T::MiningRatesHardwareSecure,
             T::MiningRatesHardwareInsecure, T::MiningRatesHardwareMaxHardware,
             T::MiningRatesHardwareCategory1MaxTokenBonusPerGateway,
             T::MiningRatesHardwareCategory2MaxTokenBonusPerGateway,
@@ -216,7 +216,7 @@ decl_module! {
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_mining_rates_hardware_rates_config_index(mining_rates_hardware_id).is_ok() {
                 debug::info!("Mutating values");
-                <MiningRatesHardwareConfigs<T>>::mutate(mining_rates_hardware_id, |mining_rates_hardware_rates_config| {
+                <MiningRatesHardwareSettings<T>>::mutate(mining_rates_hardware_id, |mining_rates_hardware_rates_config| {
                     if let Some(_mining_rates_hardware_rates_config) = mining_rates_hardware_rates_config {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
                         _mining_rates_hardware_rates_config.hardware_hardware_secure = hardware_hardware_secure.clone();
@@ -228,7 +228,7 @@ decl_module! {
                     }
                 });
                 debug::info!("Checking mutated values");
-                let fetched_mining_rates_hardware_rates_config = <MiningRatesHardwareConfigs<T>>::get(mining_rates_hardware_id);
+                let fetched_mining_rates_hardware_rates_config = <MiningRatesHardwareSettings<T>>::get(mining_rates_hardware_id);
                 if let Some(_mining_rates_hardware_rates_config) = fetched_mining_rates_hardware_rates_config {
                     debug::info!("Latest field hardware_hardware_secure {:#?}", _mining_rates_hardware_rates_config.hardware_hardware_secure);
                     debug::info!("Latest field hardware_hardware_insecure {:#?}", _mining_rates_hardware_rates_config.hardware_hardware_insecure);
@@ -241,7 +241,7 @@ decl_module! {
                 debug::info!("Inserting values");
 
                 // Create a new mining mining_rates_hardware_rates_config instance with the input params
-                let mining_rates_hardware_rates_config_instance = MiningRatesHardwareConfig {
+                let mining_rates_hardware_rates_config_instance = MiningRatesHardwareSetting {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     hardware_hardware_secure: hardware_hardware_secure.clone(),
@@ -252,13 +252,13 @@ decl_module! {
                     hardware_category_3_max_token_bonus_per_gateway: hardware_category_3_max_token_bonus_per_gateway.clone(),
                 };
 
-                <MiningRatesHardwareConfigs<T>>::insert(
+                <MiningRatesHardwareSettings<T>>::insert(
                     mining_rates_hardware_id,
                     &mining_rates_hardware_rates_config_instance
                 );
 
                 debug::info!("Checking inserted values");
-                let fetched_mining_rates_hardware_rates_config = <MiningRatesHardwareConfigs<T>>::get(mining_rates_hardware_id);
+                let fetched_mining_rates_hardware_rates_config = <MiningRatesHardwareSettings<T>>::get(mining_rates_hardware_id);
                 if let Some(_mining_rates_hardware_rates_config) = fetched_mining_rates_hardware_rates_config {
                     debug::info!("Inserted field hardware_hardware_secure {:#?}", _mining_rates_hardware_rates_config.hardware_hardware_secure);
                     debug::info!("Inserted field hardware_hardware_insecure {:#?}", _mining_rates_hardware_rates_config.hardware_hardware_insecure);
@@ -269,7 +269,7 @@ decl_module! {
                 }
             }
 
-            Self::deposit_event(RawEvent::MiningRatesHardwareConfigSet(
+            Self::deposit_event(RawEvent::MiningRatesHardwareSettingSet(
                 sender,
                 mining_rates_hardware_id,
                 hardware_hardware_secure,
@@ -309,7 +309,7 @@ impl<T: Config> Module<T> {
     ) -> Result<(), DispatchError> {
         match Self::mining_rates_hardware_rates_configs(mining_rates_hardware_id) {
             Some(_value) => Ok(()),
-            None => Err(DispatchError::Other("MiningRatesHardwareConfig does not exist")),
+            None => Err(DispatchError::Other("MiningRatesHardwareSetting does not exist")),
         }
     }
 
@@ -317,7 +317,7 @@ impl<T: Config> Module<T> {
         mining_rates_hardware_id: T::MiningRatesHardwareIndex,
     ) -> Result<(), DispatchError> {
         debug::info!("Checking if mining_rates_hardware_rates_config has a value that is defined");
-        let fetched_mining_rates_hardware_rates_config = <MiningRatesHardwareConfigs<T>>::get(mining_rates_hardware_id);
+        let fetched_mining_rates_hardware_rates_config = <MiningRatesHardwareSettings<T>>::get(mining_rates_hardware_id);
         if let Some(_value) = fetched_mining_rates_hardware_rates_config {
             debug::info!("Found value for mining_rates_hardware_rates_config");
             return Ok(());

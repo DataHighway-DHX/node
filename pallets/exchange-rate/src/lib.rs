@@ -41,7 +41,7 @@ pub struct ExchangeRate(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
-pub struct ExchangeRateConfig<H, D, I, F, P> {
+pub struct ExchangeRateSetting<H, D, I, F, P> {
     pub hbtc: H,
     pub dot: D,
     pub iota: I,
@@ -86,8 +86,8 @@ decl_storage! {
         pub ExchangeRates get(fn exchange_rates): map hasher(opaque_blake2_256) T::ExchangeRateIndex => Option<ExchangeRate>;
         pub ExchangeRateOwners get(fn exchange_rate_owner): map hasher(opaque_blake2_256) T::ExchangeRateIndex => Option<T::AccountId>;
         pub ExchangeRateCount get(fn exchange_rate_count): T::ExchangeRateIndex;
-        pub ExchangeRateConfigs get(fn exchange_rate_configs): map hasher(opaque_blake2_256) T::ExchangeRateIndex =>
-            Option<ExchangeRateConfig<T::HBTCRate, T::DOTRate, T::IOTARate, T::FILRate, T::DecimalsAfterPoint>>;
+        pub ExchangeRateSettings get(fn exchange_rate_settings): map hasher(opaque_blake2_256) T::ExchangeRateIndex =>
+            Option<ExchangeRateSetting<T::HBTCRate, T::DOTRate, T::IOTARate, T::FILRate, T::DecimalsAfterPoint>>;
     }
 }
 
@@ -144,7 +144,7 @@ decl_module! {
             ensure!(is_exchange_rate, "ExchangeRates does not exist");
 
             // Ensure that the caller is owner of the exchange_rate they are trying to change
-            ensure!(Self::exchange_rate_owner(exchange_rate_id) == Some(sender.clone()), "Only owner can set exchange_rate_config");
+            ensure!(Self::exchange_rate_owner(exchange_rate_id) == Some(sender.clone()), "Only owner can set exchange_rate_setting");
 
             let out_hbtc_rate = match hbtc_rate.clone() {
                 Some(value) => value,
@@ -171,34 +171,34 @@ decl_module! {
                 None => 2u32.into() // Default
             };
 
-            // Check if a exchange_rate_config already exists with the given exchange_rate_id
+            // Check if a exchange_rate_setting already exists with the given exchange_rate_id
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_exchange_rates_index(exchange_rate_id).is_ok() {
                 debug::info!("Mutating values");
-                <ExchangeRateConfigs<T>>::mutate(exchange_rate_id, |exchange_rate_config| {
-                    if let Some(_exchange_rate_config) = exchange_rate_config {
+                <ExchangeRateSettings<T>>::mutate(exchange_rate_id, |exchange_rate_setting| {
+                    if let Some(_exchange_rate_setting) = exchange_rate_setting {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-                        _exchange_rate_config.hbtc = out_hbtc_rate.clone();
-                        _exchange_rate_config.dot = out_dot_rate.clone();
-                        _exchange_rate_config.iota = out_iota_rate.clone();
-                        _exchange_rate_config.fil = out_fil_rate.clone();
-                        _exchange_rate_config.decimals_after_point = out_decimals_after_point.clone();
+                        _exchange_rate_setting.hbtc = out_hbtc_rate.clone();
+                        _exchange_rate_setting.dot = out_dot_rate.clone();
+                        _exchange_rate_setting.iota = out_iota_rate.clone();
+                        _exchange_rate_setting.fil = out_fil_rate.clone();
+                        _exchange_rate_setting.decimals_after_point = out_decimals_after_point.clone();
                     }
                 });
                 debug::info!("Checking mutated values");
-                let fetched_exchange_rate_config = <ExchangeRateConfigs<T>>::get(exchange_rate_id);
-                if let Some(_exchange_rate_config) = fetched_exchange_rate_config {
-                    debug::info!("Latest field hbtc {:#?}", _exchange_rate_config.hbtc);
-                    debug::info!("Latest field dot {:#?}", _exchange_rate_config.dot);
-                    debug::info!("Latest field iota {:#?}", _exchange_rate_config.iota);
-                    debug::info!("Latest field fil {:#?}", _exchange_rate_config.fil);
-                    debug::info!("Latest field decimals_after_point {:#?}", _exchange_rate_config.decimals_after_point);
+                let fetched_exchange_rate_setting = <ExchangeRateSettings<T>>::get(exchange_rate_id);
+                if let Some(_exchange_rate_setting) = fetched_exchange_rate_setting {
+                    debug::info!("Latest field hbtc {:#?}", _exchange_rate_setting.hbtc);
+                    debug::info!("Latest field dot {:#?}", _exchange_rate_setting.dot);
+                    debug::info!("Latest field iota {:#?}", _exchange_rate_setting.iota);
+                    debug::info!("Latest field fil {:#?}", _exchange_rate_setting.fil);
+                    debug::info!("Latest field decimals_after_point {:#?}", _exchange_rate_setting.decimals_after_point);
                 }
             } else {
                 debug::info!("Inserting values");
 
-                // Create a new mining exchange_rate_config instance with the input params
-                let exchange_rate_config = ExchangeRateConfig {
+                // Create a new mining exchange_rate_setting instance with the input params
+                let exchange_rate_setting = ExchangeRateSetting {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     hbtc: out_hbtc_rate.clone(),
@@ -208,19 +208,19 @@ decl_module! {
                     decimals_after_point: out_decimals_after_point.clone(),
                 };
 
-                <ExchangeRateConfigs<T>>::insert(
+                <ExchangeRateSettings<T>>::insert(
                     exchange_rate_id,
-                    &exchange_rate_config
+                    &exchange_rate_setting
                 );
 
                 debug::info!("Checking inserted values");
-                let fetched_exchange_rate_config = <ExchangeRateConfigs<T>>::get(exchange_rate_id);
-                if let Some(_exchange_rate_config) = fetched_exchange_rate_config {
-                    debug::info!("Latest field hbtc {:#?}", _exchange_rate_config.hbtc);
-                    debug::info!("Latest field dot {:#?}", _exchange_rate_config.dot);
-                    debug::info!("Latest field iota {:#?}", _exchange_rate_config.iota);
-                    debug::info!("Latest field fil {:#?}", _exchange_rate_config.fil);
-                    debug::info!("Latest field decimals_after_point {:#?}", _exchange_rate_config.decimals_after_point);
+                let fetched_exchange_rate_setting = <ExchangeRateSettings<T>>::get(exchange_rate_id);
+                if let Some(_exchange_rate_setting) = fetched_exchange_rate_setting {
+                    debug::info!("Latest field hbtc {:#?}", _exchange_rate_setting.hbtc);
+                    debug::info!("Latest field dot {:#?}", _exchange_rate_setting.dot);
+                    debug::info!("Latest field iota {:#?}", _exchange_rate_setting.iota);
+                    debug::info!("Latest field fil {:#?}", _exchange_rate_setting.fil);
+                    debug::info!("Latest field decimals_after_point {:#?}", _exchange_rate_setting.decimals_after_point);
                 }
             }
 
@@ -257,14 +257,14 @@ impl<T: Config> Module<T> {
     }
 
     pub fn has_value_for_exchange_rates_index(exchange_rate_id: T::ExchangeRateIndex) -> Result<(), DispatchError> {
-        debug::info!("Checking if exchange_rate_config has a value that is defined");
-        let fetched_exchange_rate_config = <ExchangeRateConfigs<T>>::get(exchange_rate_id);
-        if let Some(_value) = fetched_exchange_rate_config {
-            debug::info!("Found value for exchange_rate_config");
+        debug::info!("Checking if exchange_rate_setting has a value that is defined");
+        let fetched_exchange_rate_setting = <ExchangeRateSettings<T>>::get(exchange_rate_id);
+        if let Some(_value) = fetched_exchange_rate_setting {
+            debug::info!("Found value for exchange_rate_setting");
             return Ok(());
         }
-        debug::info!("No value for exchange_rate_config");
-        Err(DispatchError::Other("No value for exchange_rate_config"))
+        debug::info!("No value for exchange_rate_setting");
+        Err(DispatchError::Other("No value for exchange_rate_setting"))
     }
 
     fn random_value(sender: &T::AccountId) -> [u8; 16] {

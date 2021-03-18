@@ -62,7 +62,7 @@ pub struct MiningSamplingToken(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
-pub struct MiningSamplingTokenConfig<U, V> {
+pub struct MiningSamplingTokenSetting<U, V> {
     pub token_sample_block: U,
     pub token_sample_locked_amount: V,
 }
@@ -72,7 +72,7 @@ decl_event!(
         <T as frame_system::Config>::AccountId,
         <T as Config>::MiningSamplingTokenIndex,
         <T as Config>::MiningSamplingTokenSampleLockedAmount,
-        <T as mining_config_token::Config>::MiningConfigTokenIndex,
+        <T as mining_config_token::Config>::MiningSettingTokenIndex,
         <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
@@ -80,13 +80,13 @@ decl_event!(
         Created(AccountId, MiningSamplingTokenIndex),
         /// A mining_samplings_token is transferred. (from, to, mining_samplings_token_id)
         Transferred(AccountId, AccountId, MiningSamplingTokenIndex),
-        MiningSamplingTokenConfigSet(
-            AccountId, MiningConfigTokenIndex, MiningSamplingTokenIndex,
+        MiningSamplingTokenSettingSet(
+            AccountId, MiningSettingTokenIndex, MiningSamplingTokenIndex,
             BlockNumber, MiningSamplingTokenSampleLockedAmount
         ),
         /// A mining_sampling_token is assigned to an mining_token.
         /// (owner of mining_token, mining_samplings_token_id, mining_config_token_id)
-        AssignedTokenSamplingToConfiguration(AccountId, MiningSamplingTokenIndex, MiningConfigTokenIndex),
+        AssignedTokenSamplingToConfiguration(AccountId, MiningSamplingTokenIndex, MiningSettingTokenIndex),
     }
 );
 
@@ -103,17 +103,17 @@ decl_storage! {
         pub MiningSamplingTokenOwners get(fn mining_samplings_token_owner): map hasher(opaque_blake2_256) T::MiningSamplingTokenIndex => Option<T::AccountId>;
 
         /// Stores mining_samplings_token_samplings_config
-        pub MiningSamplingTokenConfigs get(fn mining_samplings_token_samplings_configs): map hasher(opaque_blake2_256) (T::MiningConfigTokenIndex, T::MiningSamplingTokenIndex) =>
-            Option<MiningSamplingTokenConfig<
+        pub MiningSamplingTokenSettings get(fn mining_samplings_token_samplings_configs): map hasher(opaque_blake2_256) (T::MiningSettingTokenIndex, T::MiningSamplingTokenIndex) =>
+            Option<MiningSamplingTokenSetting<
                 T::BlockNumber,
                 T::MiningSamplingTokenSampleLockedAmount
             >>;
 
         /// Get mining_config_token_id belonging to a mining_samplings_token_id
-        pub TokenSamplingConfiguration get(fn token_sampling_configuration): map hasher(opaque_blake2_256) T::MiningSamplingTokenIndex => Option<T::MiningConfigTokenIndex>;
+        pub TokenSamplingConfiguration get(fn token_sampling_configuration): map hasher(opaque_blake2_256) T::MiningSamplingTokenIndex => Option<T::MiningSettingTokenIndex>;
 
         /// Get mining_samplings_token_id's belonging to a mining_config_token_id
-        pub TokenConfigSamplings get(fn token_config_samplings): map hasher(opaque_blake2_256) T::MiningConfigTokenIndex => Option<Vec<T::MiningSamplingTokenIndex>>
+        pub TokenSettingSamplings get(fn token_setting_samplings): map hasher(opaque_blake2_256) T::MiningSettingTokenIndex => Option<Vec<T::MiningSamplingTokenIndex>>
     }
 }
 
@@ -155,7 +155,7 @@ decl_module! {
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_mining_samplings_token_samplings_config(
             origin,
-            mining_config_token_id: T::MiningConfigTokenIndex,
+            mining_config_token_id: T::MiningSettingTokenIndex,
             mining_samplings_token_id: T::MiningSamplingTokenIndex,
             _token_sample_block: Option<T::BlockNumber>,
             _token_sample_locked_amount: Option<T::MiningSamplingTokenSampleLockedAmount>,
@@ -183,7 +183,7 @@ decl_module! {
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_mining_samplings_token_samplings_config_index(mining_config_token_id, mining_samplings_token_id).is_ok() {
                 debug::info!("Mutating values");
-                <MiningSamplingTokenConfigs<T>>::mutate((mining_config_token_id, mining_samplings_token_id), |mining_samplings_token_samplings_config| {
+                <MiningSamplingTokenSettings<T>>::mutate((mining_config_token_id, mining_samplings_token_id), |mining_samplings_token_samplings_config| {
                     if let Some(_mining_samplings_token_samplings_config) = mining_samplings_token_samplings_config {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
                         _mining_samplings_token_samplings_config.token_sample_block = token_sample_block.clone();
@@ -191,7 +191,7 @@ decl_module! {
                     }
                 });
                 debug::info!("Checking mutated values");
-                let fetched_mining_samplings_token_samplings_config = <MiningSamplingTokenConfigs<T>>::get((mining_config_token_id, mining_samplings_token_id));
+                let fetched_mining_samplings_token_samplings_config = <MiningSamplingTokenSettings<T>>::get((mining_config_token_id, mining_samplings_token_id));
                 if let Some(_mining_samplings_token_samplings_config) = fetched_mining_samplings_token_samplings_config {
                     debug::info!("Latest field token_sample_block {:#?}", _mining_samplings_token_samplings_config.token_sample_block);
                     debug::info!("Latest field token_sample_locked_amount {:#?}", _mining_samplings_token_samplings_config.token_sample_locked_amount);
@@ -200,27 +200,27 @@ decl_module! {
                 debug::info!("Inserting values");
 
                 // Create a new mining mining_samplings_token_samplings_config instance with the input params
-                let mining_samplings_token_samplings_config_instance = MiningSamplingTokenConfig {
+                let mining_samplings_token_samplings_config_instance = MiningSamplingTokenSetting {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     token_sample_block: token_sample_block.clone(),
                     token_sample_locked_amount: token_sample_locked_amount.clone(),
                 };
 
-                <MiningSamplingTokenConfigs<T>>::insert(
+                <MiningSamplingTokenSettings<T>>::insert(
                     (mining_config_token_id, mining_samplings_token_id),
                     &mining_samplings_token_samplings_config_instance
                 );
 
                 debug::info!("Checking inserted values");
-                let fetched_mining_samplings_token_samplings_config = <MiningSamplingTokenConfigs<T>>::get((mining_config_token_id, mining_samplings_token_id));
+                let fetched_mining_samplings_token_samplings_config = <MiningSamplingTokenSettings<T>>::get((mining_config_token_id, mining_samplings_token_id));
                 if let Some(_mining_samplings_token_samplings_config) = fetched_mining_samplings_token_samplings_config {
                     debug::info!("Inserted field token_sample_block {:#?}", _mining_samplings_token_samplings_config.token_sample_block);
                     debug::info!("Inserted field token_sample_locked_amount {:#?}", _mining_samplings_token_samplings_config.token_sample_locked_amount);
                 }
             }
 
-            Self::deposit_event(RawEvent::MiningSamplingTokenConfigSet(
+            Self::deposit_event(RawEvent::MiningSamplingTokenSettingSet(
                 sender,
                 mining_config_token_id,
                 mining_samplings_token_id,
@@ -233,7 +233,7 @@ decl_module! {
         pub fn assign_sampling_to_configuration(
           origin,
           mining_samplings_token_id: T::MiningSamplingTokenIndex,
-          mining_config_token_id: T::MiningConfigTokenIndex
+          mining_config_token_id: T::MiningSettingTokenIndex
         ) {
             let sender = ensure_signed(origin)?;
 
@@ -291,7 +291,7 @@ impl<T: Config> Module<T> {
     }
 
     pub fn exists_mining_samplings_token_samplings_config(
-        mining_config_token_id: T::MiningConfigTokenIndex,
+        mining_config_token_id: T::MiningSettingTokenIndex,
         mining_samplings_token_id: T::MiningSamplingTokenIndex,
     ) -> Result<(), DispatchError> {
         match Self::mining_samplings_token_samplings_configs((
@@ -299,19 +299,19 @@ impl<T: Config> Module<T> {
             mining_samplings_token_id,
         )) {
             Some(_value) => Ok(()),
-            None => Err(DispatchError::Other("MiningSamplingTokenConfig does not exist")),
+            None => Err(DispatchError::Other("MiningSamplingTokenSetting does not exist")),
         }
     }
 
     pub fn has_value_for_mining_samplings_token_samplings_config_index(
-        mining_config_token_id: T::MiningConfigTokenIndex,
+        mining_config_token_id: T::MiningSettingTokenIndex,
         mining_samplings_token_id: T::MiningSamplingTokenIndex,
     ) -> Result<(), DispatchError> {
         debug::info!(
             "Checking if mining_samplings_token_samplings_config has a value that is defined"
         );
         let fetched_mining_samplings_token_samplings_config =
-            <MiningSamplingTokenConfigs<T>>::get((
+            <MiningSamplingTokenSettings<T>>::get((
                 mining_config_token_id,
                 mining_samplings_token_id,
             ));
@@ -326,12 +326,12 @@ impl<T: Config> Module<T> {
     /// Only push the sampling id onto the end of the vector if it does not already exist
     pub fn associate_token_sampling_with_configuration(
         mining_samplings_token_id: T::MiningSamplingTokenIndex,
-        mining_config_token_id: T::MiningConfigTokenIndex,
+        mining_config_token_id: T::MiningSettingTokenIndex,
     ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given sampling id
         if let Some(configuration_samplings) =
-            Self::token_config_samplings(mining_config_token_id)
+            Self::token_setting_samplings(mining_config_token_id)
         {
             debug::info!(
                 "Configuration id key {:?} exists with value {:?}",
@@ -342,7 +342,7 @@ impl<T: Config> Module<T> {
                 !configuration_samplings.contains(&mining_samplings_token_id);
             ensure!(not_configuration_contains_sampling, "Configuration already contains the given sampling id");
             debug::info!("Configuration id key exists but its vector value does not contain the given sampling id");
-            <TokenConfigSamplings<T>>::mutate(mining_config_token_id, |v| {
+            <TokenSettingSamplings<T>>::mutate(mining_config_token_id, |v| {
                 if let Some(value) = v {
                     value.push(mining_samplings_token_id);
                 }
@@ -360,7 +360,7 @@ impl<T: Config> Module<T> {
                 mining_config_token_id,
                 mining_samplings_token_id
             );
-            <TokenConfigSamplings<T>>::insert(
+            <TokenSettingSamplings<T>>::insert(
                 mining_config_token_id,
                 &vec![mining_samplings_token_id],
             );

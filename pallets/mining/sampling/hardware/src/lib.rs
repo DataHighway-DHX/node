@@ -55,7 +55,7 @@ pub struct MiningSamplingHardware(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
-pub struct MiningSamplingHardwareConfig<U, V> {
+pub struct MiningSamplingHardwareSetting<U, V> {
     pub hardware_sample_block: U,
     pub hardware_sample_hardware_online: V,
 }
@@ -65,7 +65,7 @@ decl_event!(
         <T as frame_system::Config>::AccountId,
         <T as Config>::MiningSamplingHardwareIndex,
         <T as Config>::MiningSamplingHardwareSampleHardwareOnline,
-        <T as mining_config_hardware::Config>::MiningConfigHardwareIndex,
+        <T as mining_config_hardware::Config>::MiningSettingHardwareIndex,
         <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
@@ -73,13 +73,13 @@ decl_event!(
         Created(AccountId, MiningSamplingHardwareIndex),
         /// A mining_samplings_hardware is transferred. (from, to, mining_samplings_hardware_id)
         Transferred(AccountId, AccountId, MiningSamplingHardwareIndex),
-        MiningSamplingHardwareConfigSet(
-            AccountId, MiningConfigHardwareIndex, MiningSamplingHardwareIndex,
+        MiningSamplingHardwareSettingSet(
+            AccountId, MiningSettingHardwareIndex, MiningSamplingHardwareIndex,
             BlockNumber, MiningSamplingHardwareSampleHardwareOnline
         ),
         /// A mining_sampling_hardware is assigned to an mining_hardware.
         /// (owner of mining_hardware, mining_samplings_hardware_id, mining_config_hardware_id)
-        AssignedHardwareSamplingToConfiguration(AccountId, MiningSamplingHardwareIndex, MiningConfigHardwareIndex),
+        AssignedHardwareSamplingToConfiguration(AccountId, MiningSamplingHardwareIndex, MiningSettingHardwareIndex),
     }
 );
 
@@ -96,17 +96,17 @@ decl_storage! {
         pub MiningSamplingHardwareOwners get(fn mining_samplings_hardware_owner): map hasher(opaque_blake2_256) T::MiningSamplingHardwareIndex => Option<T::AccountId>;
 
         /// Stores mining_samplings_hardware_samplings_config
-        pub MiningSamplingHardwareConfigs get(fn mining_samplings_hardware_samplings_configs): map hasher(opaque_blake2_256) (T::MiningConfigHardwareIndex, T::MiningSamplingHardwareIndex) =>
-            Option<MiningSamplingHardwareConfig<
+        pub MiningSamplingHardwareSettings get(fn mining_samplings_hardware_samplings_configs): map hasher(opaque_blake2_256) (T::MiningSettingHardwareIndex, T::MiningSamplingHardwareIndex) =>
+            Option<MiningSamplingHardwareSetting<
                 T::BlockNumber,
                 T::MiningSamplingHardwareSampleHardwareOnline
             >>;
 
         /// Get mining_config_hardware_id belonging to a mining_samplings_hardware_id
-        pub HardwareSamplingConfiguration get(fn hardware_sampling_configuration): map hasher(opaque_blake2_256) T::MiningSamplingHardwareIndex => Option<T::MiningConfigHardwareIndex>;
+        pub HardwareSamplingConfiguration get(fn hardware_sampling_configuration): map hasher(opaque_blake2_256) T::MiningSamplingHardwareIndex => Option<T::MiningSettingHardwareIndex>;
 
         /// Get mining_samplings_hardware_id's belonging to a mining_config_hardware_id
-        pub HardwareConfigSamplings get(fn hardware_config_samplings): map hasher(opaque_blake2_256) T::MiningConfigHardwareIndex => Option<Vec<T::MiningSamplingHardwareIndex>>
+        pub HardwareSettingSamplings get(fn hardware_config_samplings): map hasher(opaque_blake2_256) T::MiningSettingHardwareIndex => Option<Vec<T::MiningSamplingHardwareIndex>>
     }
 }
 
@@ -148,7 +148,7 @@ decl_module! {
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_mining_samplings_hardware_samplings_config(
             origin,
-            mining_config_hardware_id: T::MiningConfigHardwareIndex,
+            mining_config_hardware_id: T::MiningSettingHardwareIndex,
             mining_samplings_hardware_id: T::MiningSamplingHardwareIndex,
             _hardware_sample_block: Option<T::BlockNumber>,
             _hardware_sample_hardware_online: Option<T::MiningSamplingHardwareSampleHardwareOnline>,
@@ -176,7 +176,7 @@ decl_module! {
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_mining_samplings_hardware_samplings_config_index(mining_config_hardware_id, mining_samplings_hardware_id).is_ok() {
                 debug::info!("Mutating values");
-                <MiningSamplingHardwareConfigs<T>>::mutate((mining_config_hardware_id, mining_samplings_hardware_id), |mining_samplings_hardware_samplings_config| {
+                <MiningSamplingHardwareSettings<T>>::mutate((mining_config_hardware_id, mining_samplings_hardware_id), |mining_samplings_hardware_samplings_config| {
                     if let Some(_mining_samplings_hardware_samplings_config) = mining_samplings_hardware_samplings_config {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
                         _mining_samplings_hardware_samplings_config.hardware_sample_block = hardware_sample_block.clone();
@@ -184,7 +184,7 @@ decl_module! {
                     }
                 });
                 debug::info!("Checking mutated values");
-                let fetched_mining_samplings_hardware_samplings_config = <MiningSamplingHardwareConfigs<T>>::get((mining_config_hardware_id, mining_samplings_hardware_id));
+                let fetched_mining_samplings_hardware_samplings_config = <MiningSamplingHardwareSettings<T>>::get((mining_config_hardware_id, mining_samplings_hardware_id));
                 if let Some(_mining_samplings_hardware_samplings_config) = fetched_mining_samplings_hardware_samplings_config {
                     debug::info!("Latest field hardware_sample_block {:#?}", _mining_samplings_hardware_samplings_config.hardware_sample_block);
                     debug::info!("Latest field hardware_sample_hardware_online {:#?}", _mining_samplings_hardware_samplings_config.hardware_sample_hardware_online);
@@ -193,27 +193,27 @@ decl_module! {
                 debug::info!("Inserting values");
 
                 // Create a new mining mining_samplings_hardware_samplings_config instance with the input params
-                let mining_samplings_hardware_samplings_config_instance = MiningSamplingHardwareConfig {
+                let mining_samplings_hardware_samplings_config_instance = MiningSamplingHardwareSetting {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     hardware_sample_block: hardware_sample_block.clone(),
                     hardware_sample_hardware_online: hardware_sample_hardware_online.clone(),
                 };
 
-                <MiningSamplingHardwareConfigs<T>>::insert(
+                <MiningSamplingHardwareSettings<T>>::insert(
                     (mining_config_hardware_id, mining_samplings_hardware_id),
                     &mining_samplings_hardware_samplings_config_instance
                 );
 
                 debug::info!("Checking inserted values");
-                let fetched_mining_samplings_hardware_samplings_config = <MiningSamplingHardwareConfigs<T>>::get((mining_config_hardware_id, mining_samplings_hardware_id));
+                let fetched_mining_samplings_hardware_samplings_config = <MiningSamplingHardwareSettings<T>>::get((mining_config_hardware_id, mining_samplings_hardware_id));
                 if let Some(_mining_samplings_hardware_samplings_config) = fetched_mining_samplings_hardware_samplings_config {
                     debug::info!("Inserted field hardware_sample_block {:#?}", _mining_samplings_hardware_samplings_config.hardware_sample_block);
                     debug::info!("Inserted field hardware_sample_hardware_online {:#?}", _mining_samplings_hardware_samplings_config.hardware_sample_hardware_online);
                 }
             }
 
-            Self::deposit_event(RawEvent::MiningSamplingHardwareConfigSet(
+            Self::deposit_event(RawEvent::MiningSamplingHardwareSettingSet(
                 sender,
                 mining_config_hardware_id,
                 mining_samplings_hardware_id,
@@ -226,7 +226,7 @@ decl_module! {
         pub fn assign_sampling_to_configuration(
           origin,
           mining_samplings_hardware_id: T::MiningSamplingHardwareIndex,
-          mining_config_hardware_id: T::MiningConfigHardwareIndex
+          mining_config_hardware_id: T::MiningSettingHardwareIndex
         ) {
             let sender = ensure_signed(origin)?;
 
@@ -284,7 +284,7 @@ impl<T: Config> Module<T> {
     }
 
     pub fn exists_mining_samplings_hardware_samplings_config(
-        mining_config_hardware_id: T::MiningConfigHardwareIndex,
+        mining_config_hardware_id: T::MiningSettingHardwareIndex,
         mining_samplings_hardware_id: T::MiningSamplingHardwareIndex,
     ) -> Result<(), DispatchError> {
         match Self::mining_samplings_hardware_samplings_configs((
@@ -292,17 +292,17 @@ impl<T: Config> Module<T> {
             mining_samplings_hardware_id,
         )) {
             Some(_value) => Ok(()),
-            None => Err(DispatchError::Other("MiningSamplingHardwareConfig does not exist")),
+            None => Err(DispatchError::Other("MiningSamplingHardwareSetting does not exist")),
         }
     }
 
     pub fn has_value_for_mining_samplings_hardware_samplings_config_index(
-        mining_config_hardware_id: T::MiningConfigHardwareIndex,
+        mining_config_hardware_id: T::MiningSettingHardwareIndex,
         mining_samplings_hardware_id: T::MiningSamplingHardwareIndex,
     ) -> Result<(), DispatchError> {
         debug::info!("Checking if mining_samplings_hardware_samplings_config has a value that is defined");
         let fetched_mining_samplings_hardware_samplings_config =
-            <MiningSamplingHardwareConfigs<T>>::get((mining_config_hardware_id, mining_samplings_hardware_id));
+            <MiningSamplingHardwareSettings<T>>::get((mining_config_hardware_id, mining_samplings_hardware_id));
         if let Some(_value) = fetched_mining_samplings_hardware_samplings_config {
             debug::info!("Found value for mining_samplings_hardware_samplings_config");
             return Ok(());
@@ -314,7 +314,7 @@ impl<T: Config> Module<T> {
     /// Only push the sampling id onto the end of the vector if it does not already exist
     pub fn associate_hardware_sampling_with_configuration(
         mining_samplings_hardware_id: T::MiningSamplingHardwareIndex,
-        mining_config_hardware_id: T::MiningConfigHardwareIndex,
+        mining_config_hardware_id: T::MiningSettingHardwareIndex,
     ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given sampling id
@@ -327,7 +327,7 @@ impl<T: Config> Module<T> {
             let not_configuration_contains_sampling = !configuration_samplings.contains(&mining_samplings_hardware_id);
             ensure!(not_configuration_contains_sampling, "Configuration already contains the given sampling id");
             debug::info!("Configuration id key exists but its vector value does not contain the given sampling id");
-            <HardwareConfigSamplings<T>>::mutate(mining_config_hardware_id, |v| {
+            <HardwareSettingSamplings<T>>::mutate(mining_config_hardware_id, |v| {
                 if let Some(value) = v {
                     value.push(mining_samplings_hardware_id);
                 }
@@ -345,7 +345,7 @@ impl<T: Config> Module<T> {
                 mining_config_hardware_id,
                 mining_samplings_hardware_id
             );
-            <HardwareConfigSamplings<T>>::insert(mining_config_hardware_id, &vec![mining_samplings_hardware_id]);
+            <HardwareSettingSamplings<T>>::insert(mining_config_hardware_id, &vec![mining_samplings_hardware_id]);
             Ok(())
         }
     }

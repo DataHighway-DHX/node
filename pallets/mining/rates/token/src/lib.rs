@@ -58,7 +58,7 @@ pub struct MiningRatesToken(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
-pub struct MiningRatesTokenConfig<U, V, W, X, Y> {
+pub struct MiningRatesTokenSetting<U, V, W, X, Y> {
     pub token_token_mxc: U,
     pub token_token_iota: V,
     pub token_token_dot: W,
@@ -81,7 +81,7 @@ decl_event!(
         Created(AccountId, MiningRatesTokenIndex),
         /// A mining_rates_token is transferred. (from, to, mining_rates_token_id)
         Transferred(AccountId, AccountId, MiningRatesTokenIndex),
-        MiningRatesTokenConfigSet(
+        MiningRatesTokenSettingSet(
             AccountId, MiningRatesTokenIndex, MiningRatesTokenTokenMXC,
             MiningRatesTokenTokenIOTA, MiningRatesTokenTokenDOT,
             MiningRatesTokenMaxToken, MiningRatesTokenMaxLoyalty
@@ -102,8 +102,8 @@ decl_storage! {
         pub MiningRatesTokenOwners get(fn mining_rates_token_owner): map hasher(opaque_blake2_256) T::MiningRatesTokenIndex => Option<T::AccountId>;
 
         /// Stores mining_rates_token_rates_config
-        pub MiningRatesTokenConfigs get(fn mining_rates_token_rates_configs): map hasher(opaque_blake2_256) T::MiningRatesTokenIndex =>
-            Option<MiningRatesTokenConfig<T::MiningRatesTokenTokenMXC, T::MiningRatesTokenTokenIOTA,
+        pub MiningRatesTokenSettings get(fn mining_rates_token_rates_configs): map hasher(opaque_blake2_256) T::MiningRatesTokenIndex =>
+            Option<MiningRatesTokenSetting<T::MiningRatesTokenTokenMXC, T::MiningRatesTokenTokenIOTA,
             T::MiningRatesTokenTokenDOT, T::MiningRatesTokenMaxToken, T::MiningRatesTokenMaxLoyalty>>;
     }
 }
@@ -196,7 +196,7 @@ decl_module! {
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_mining_rates_token_rates_config_index(mining_rates_token_id).is_ok() {
                 debug::info!("Mutating values");
-                <MiningRatesTokenConfigs<T>>::mutate(mining_rates_token_id, |mining_rates_token_rates_config| {
+                <MiningRatesTokenSettings<T>>::mutate(mining_rates_token_id, |mining_rates_token_rates_config| {
                     if let Some(_mining_rates_token_rates_config) = mining_rates_token_rates_config {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
                         _mining_rates_token_rates_config.token_token_mxc = token_token_mxc.clone();
@@ -207,7 +207,7 @@ decl_module! {
                     }
                 });
                 debug::info!("Checking mutated values");
-                let fetched_mining_rates_token_rates_config = <MiningRatesTokenConfigs<T>>::get(mining_rates_token_id);
+                let fetched_mining_rates_token_rates_config = <MiningRatesTokenSettings<T>>::get(mining_rates_token_id);
                 if let Some(_mining_rates_token_rates_config) = fetched_mining_rates_token_rates_config {
                     debug::info!("Latest field token_token_mxc {:#?}", _mining_rates_token_rates_config.token_token_mxc);
                     debug::info!("Latest field token_token_iota {:#?}", _mining_rates_token_rates_config.token_token_iota);
@@ -219,7 +219,7 @@ decl_module! {
                 debug::info!("Inserting values");
 
                 // Create a new mining mining_rates_token_rates_config instance with the input params
-                let mining_rates_token_rates_config_instance = MiningRatesTokenConfig {
+                let mining_rates_token_rates_config_instance = MiningRatesTokenSetting {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     token_token_mxc: token_token_mxc.clone(),
@@ -229,13 +229,13 @@ decl_module! {
                     token_max_loyalty: token_max_loyalty.clone(),
                 };
 
-                <MiningRatesTokenConfigs<T>>::insert(
+                <MiningRatesTokenSettings<T>>::insert(
                     mining_rates_token_id,
                     &mining_rates_token_rates_config_instance
                 );
 
                 debug::info!("Checking inserted values");
-                let fetched_mining_rates_token_rates_config = <MiningRatesTokenConfigs<T>>::get(mining_rates_token_id);
+                let fetched_mining_rates_token_rates_config = <MiningRatesTokenSettings<T>>::get(mining_rates_token_id);
                 if let Some(_mining_rates_token_rates_config) = fetched_mining_rates_token_rates_config {
                     debug::info!("Inserted field token_token_mxc {:#?}", _mining_rates_token_rates_config.token_token_mxc);
                     debug::info!("Inserted field token_token_iota {:#?}", _mining_rates_token_rates_config.token_token_iota);
@@ -245,7 +245,7 @@ decl_module! {
                 }
             }
 
-            Self::deposit_event(RawEvent::MiningRatesTokenConfigSet(
+            Self::deposit_event(RawEvent::MiningRatesTokenSettingSet(
                 sender,
                 mining_rates_token_id,
                 token_token_mxc,
@@ -284,7 +284,7 @@ impl<T: Config> Module<T> {
     ) -> Result<(), DispatchError> {
         match Self::mining_rates_token_rates_configs(mining_rates_token_id) {
             Some(_value) => Ok(()),
-            None => Err(DispatchError::Other("MiningRatesTokenConfig does not exist")),
+            None => Err(DispatchError::Other("MiningRatesTokenSetting does not exist")),
         }
     }
 
@@ -292,7 +292,7 @@ impl<T: Config> Module<T> {
         mining_rates_token_id: T::MiningRatesTokenIndex,
     ) -> Result<(), DispatchError> {
         debug::info!("Checking if mining_rates_token_rates_config has a value that is defined");
-        let fetched_mining_rates_token_rates_config = <MiningRatesTokenConfigs<T>>::get(mining_rates_token_id);
+        let fetched_mining_rates_token_rates_config = <MiningRatesTokenSettings<T>>::get(mining_rates_token_id);
         if let Some(_value) = fetched_mining_rates_token_rates_config {
             debug::info!("Found value for mining_rates_token_rates_config");
             return Ok(());

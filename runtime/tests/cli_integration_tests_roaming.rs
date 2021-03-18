@@ -41,28 +41,28 @@ mod tests {
     // Import Config for each runtime module being tested
     use roaming_accounting_policies::{
         Module as RoamingAccountingPolicyModule,
-        RoamingAccountingPolicyConfig,
-        Config as RoamingAccountingPolicyConfig,
+        RoamingAccountingPolicySetting,
+        Config as RoamingAccountingPolicySetting,
     };
     use roaming_agreement_policies::{
         Module as RoamingAgreementPolicyModule,
-        RoamingAgreementPolicyConfig,
-        Config as RoamingAgreementPolicyConfig,
+        RoamingAgreementPolicySetting,
+        Config as RoamingAgreementPolicySetting,
     };
     use roaming_billing_policies::{
         Module as RoamingBillingPolicyModule,
-        RoamingBillingPolicyConfig,
-        Config as RoamingBillingPolicyConfig,
+        RoamingBillingPolicySetting,
+        Config as RoamingBillingPolicySetting,
     };
     use roaming_charging_policies::{
         Module as RoamingChargingPolicyModule,
-        RoamingChargingPolicyConfig,
-        Config as RoamingChargingPolicyConfig,
+        RoamingChargingPolicySetting,
+        Config as RoamingChargingPolicySetting,
     };
     use roaming_device_profiles::{
         Module as RoamingDeviceProfileModule,
-        RoamingDeviceProfileConfig,
-        Config as RoamingDeviceProfileConfig,
+        RoamingDeviceProfileSetting,
+        Config as RoamingDeviceProfileSetting,
     };
     use roaming_devices::{
         Module as RoamingDeviceModule,
@@ -70,7 +70,7 @@ mod tests {
     };
     use roaming_network_profiles::{
         Module as RoamingNetworkProfileModule,
-        Config as RoamingNetworkProfileConfig,
+        Config as RoamingNetworkProfileSetting,
     };
     use roaming_network_servers::{
         Module as RoamingNetworkServerModule,
@@ -90,11 +90,11 @@ mod tests {
     };
     use roaming_routing_profiles::{
         Module as RoamingRoutingProfileModule,
-        Config as RoamingRoutingProfileConfig,
+        Config as RoamingRoutingProfileSetting,
     };
     use roaming_service_profiles::{
         Module as RoamingServiceProfileModule,
-        Config as RoamingServiceProfileConfig,
+        Config as RoamingServiceProfileSetting,
     };
 
     // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Config>::Origin {
@@ -178,19 +178,19 @@ mod tests {
         type Event = ();
         type RoamingNetworkServerIndex = u64;
     }
-    impl RoamingAgreementPolicyConfig for Test {
+    impl RoamingAgreementPolicySetting for Test {
         type Event = ();
         type RoamingAgreementPolicyActivationType = Vec<u8>;
         type RoamingAgreementPolicyIndex = u64;
     }
-    impl RoamingAccountingPolicyConfig for Test {
+    impl RoamingAccountingPolicySetting for Test {
         type Event = ();
         type RoamingAccountingPolicyDownlinkFeeFactor = u32;
         type RoamingAccountingPolicyIndex = u64;
         type RoamingAccountingPolicyType = Vec<u8>;
         type RoamingAccountingPolicyUplinkFeeFactor = u32;
     }
-    impl RoamingRoutingProfileConfig for Test {
+    impl RoamingRoutingProfileSetting for Test {
         type Event = ();
         type RoamingRoutingProfileAppServer = Vec<u8>;
         type RoamingRoutingProfileIndex = u64;
@@ -199,25 +199,25 @@ mod tests {
         type Event = ();
         type RoamingDeviceIndex = u64;
     }
-    impl RoamingServiceProfileConfig for Test {
+    impl RoamingServiceProfileSetting for Test {
         type Event = ();
         type RoamingServiceProfileDownlinkRate = u32;
         type RoamingServiceProfileIndex = u64;
         type RoamingServiceProfileUplinkRate = u32;
     }
-    impl RoamingBillingPolicyConfig for Test {
+    impl RoamingBillingPolicySetting for Test {
         type Event = ();
         type RoamingBillingPolicyIndex = u64;
     }
-    impl RoamingChargingPolicyConfig for Test {
+    impl RoamingChargingPolicySetting for Test {
         type Event = ();
         type RoamingChargingPolicyIndex = u64;
     }
-    impl RoamingNetworkProfileConfig for Test {
+    impl RoamingNetworkProfileSetting for Test {
         type Event = ();
         type RoamingNetworkProfileIndex = u64;
     }
-    impl RoamingDeviceProfileConfig for Test {
+    impl RoamingDeviceProfileSetting for Test {
         type Event = ();
         type RoamingDeviceProfileDevAddr = Vec<u8>;
         type RoamingDeviceProfileDevEUI = Vec<u8>;
@@ -363,8 +363,8 @@ mod tests {
             // Verify Storage
             assert_eq!(RoamingAccountingPolicyTestModule::roaming_accounting_policies_count(), 1);
             assert_eq!(
-                RoamingAccountingPolicyTestModule::roaming_accounting_policy_configs(0),
-                Some(RoamingAccountingPolicyConfig {
+                RoamingAccountingPolicyTestModule::roaming_accounting_policy_settings(0),
+                Some(RoamingAccountingPolicySetting {
                     policy_type: b"subscription".to_vec(), // policy_type
                     subscription_fee: 200,                 // subscription_fee
                     uplink_fee_factor: 15,                 // uplink_fee_factor
@@ -394,8 +394,8 @@ mod tests {
             // Verify Storage
             assert_eq!(RoamingAgreementPolicyTestModule::roaming_agreement_policies_count(), 1);
             assert_eq!(
-                RoamingAgreementPolicyTestModule::roaming_agreement_policy_configs(0),
-                Some(RoamingAgreementPolicyConfig {
+                RoamingAgreementPolicyTestModule::roaming_agreement_policy_settings(0),
+                Some(RoamingAgreementPolicySetting {
                     policy_activation_type: b"passive".to_vec(),
                     policy_expiry_block: 2019,
                 })
@@ -481,8 +481,8 @@ mod tests {
             // Verify Storage
             assert_eq!(RoamingBillingPolicyTestModule::roaming_billing_policies_count(), 1);
             assert_eq!(
-                RoamingBillingPolicyTestModule::roaming_billing_policy_configs(0),
-                Some(RoamingBillingPolicyConfig {
+                RoamingBillingPolicyTestModule::roaming_billing_policy_settings(0),
+                Some(RoamingBillingPolicySetting {
                     policy_next_billing_at_block: 102020,
                     policy_frequency_in_blocks: 30,
                 })
@@ -521,8 +521,8 @@ mod tests {
             // Verify Storage
             assert_eq!(RoamingChargingPolicyTestModule::roaming_charging_policies_count(), 1);
             assert_eq!(
-                RoamingChargingPolicyTestModule::roaming_charging_policy_configs(0),
-                Some(RoamingChargingPolicyConfig {
+                RoamingChargingPolicyTestModule::roaming_charging_policy_settings(0),
+                Some(RoamingChargingPolicySetting {
                     policy_next_charging_at_block: 102020,
                     policy_delay_after_billing_in_blocks: 7,
                 })
@@ -614,8 +614,8 @@ mod tests {
             // Verify Storage
             assert_eq!(RoamingDeviceProfileTestModule::roaming_device_profiles_count(), 1);
             assert_eq!(
-                RoamingDeviceProfileTestModule::roaming_device_profile_configs(0),
-                Some(RoamingDeviceProfileConfig {
+                RoamingDeviceProfileTestModule::roaming_device_profile_settings(0),
+                Some(RoamingDeviceProfileSetting {
                     device_profile_devaddr: b"1234".to_vec(),
                     device_profile_deveui: b"5678".to_vec(),
                     device_profile_joineui: b"6789".to_vec(),

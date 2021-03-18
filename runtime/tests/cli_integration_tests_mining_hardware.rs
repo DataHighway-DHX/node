@@ -36,27 +36,27 @@ mod tests {
     use mining_claims_hardware::{
         MiningClaimsHardwareClaimResult,
         Module as MiningClaimsHardwareModule,
-        Config as MiningClaimsHardwareConfig,
+        Config as MiningClaimsHardwareSetting,
     };
     use mining_config_hardware::{
-        MiningConfigHardwareConfig,
-        Module as MiningConfigHardwareModule,
-        Config as MiningConfigHardwareConfig,
+        MiningSettingHardwareSetting,
+        Module as MiningSettingHardwareModule,
+        Config as MiningSettingHardwareSetting,
     };
     use mining_eligibility_hardware::{
         MiningEligibilityHardwareResult,
         Module as MiningEligibilityHardwareModule,
-        Config as MiningEligibilityHardwareConfig,
+        Config as MiningEligibilityHardwareSetting,
     };
     use mining_rates_hardware::{
-        MiningRatesHardwareConfig,
+        MiningRatesHardwareSetting,
         Module as MiningRatesHardwareModule,
-        Config as MiningRatesHardwareConfig,
+        Config as MiningRatesHardwareSetting,
     };
     use mining_sampling_hardware::{
-        MiningSamplingHardwareConfig,
+        MiningSamplingHardwareSetting,
         Module as MiningSamplingHardwareModule,
-        Config as MiningSamplingHardwareConfig,
+        Config as MiningSamplingHardwareSetting,
     };
     use roaming_operators;
 
@@ -130,21 +130,21 @@ mod tests {
         type Randomness = Randomness;
         type RoamingOperatorIndex = u64;
     }
-    impl MiningConfigHardwareConfig for Test {
+    impl MiningSettingHardwareSetting for Test {
         type Event = ();
-        type MiningConfigHardwareDevEUI = u64;
-        // type MiningConfigHardwareType =
-        // MiningConfigHardwareTypes;
-        type MiningConfigHardwareID = u64;
+        type MiningSettingHardwareDevEUI = u64;
+        // type MiningSettingHardwareType =
+        // MiningSettingHardwareTypes;
+        type MiningSettingHardwareID = u64;
         // type Currency = Balances;
         // type Randomness = Randomness;
-        type MiningConfigHardwareIndex = u64;
+        type MiningSettingHardwareIndex = u64;
         // Mining Speed Boost Hardware Mining Config
-        type MiningConfigHardwareSecure = bool;
+        type MiningSettingHardwareSecure = bool;
         // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-        type MiningConfigHardwareType = Vec<u8>;
+        type MiningSettingHardwareType = Vec<u8>;
     }
-    impl MiningRatesHardwareConfig for Test {
+    impl MiningRatesHardwareSetting for Test {
         type Event = ();
         type MiningRatesHardwareCategory1MaxTokenBonusPerGateway = u32;
         type MiningRatesHardwareCategory2MaxTokenBonusPerGateway = u32;
@@ -156,19 +156,19 @@ mod tests {
         // Mining Speed Boost Rate
         type MiningRatesHardwareSecure = u32;
     }
-    impl MiningSamplingHardwareConfig for Test {
+    impl MiningSamplingHardwareSetting for Test {
         type Event = ();
         type MiningSamplingHardwareIndex = u64;
         type MiningSamplingHardwareSampleHardwareOnline = u64;
     }
-    impl MiningEligibilityHardwareConfig for Test {
+    impl MiningEligibilityHardwareSetting for Test {
         type Event = ();
         type MiningEligibilityHardwareCalculatedEligibility = u64;
         type MiningEligibilityHardwareIndex = u64;
         type MiningEligibilityHardwareUptimePercentage = u32;
         // type MiningEligibilityHardwareAuditorAccountID = u64;
     }
-    impl MiningClaimsHardwareConfig for Test {
+    impl MiningClaimsHardwareSetting for Test {
         type Event = ();
         type MiningClaimsHardwareClaimAmount = u64;
         type MiningClaimsHardwareIndex = u64;
@@ -176,7 +176,7 @@ mod tests {
 
     type System = frame_system::Module<Test>;
     pub type Balances = pallet_balances::Module<Test>;
-    pub type MiningConfigHardwareTestModule = MiningConfigHardwareModule<Test>;
+    pub type MiningSettingHardwareTestModule = MiningSettingHardwareModule<Test>;
     pub type MiningRatesHardwareTestModule = MiningRatesHardwareModule<Test>;
     pub type MiningSamplingHardwareTestModule = MiningSamplingHardwareModule<Test>;
     pub type MiningEligibilityHardwareTestModule = MiningEligibilityHardwareModule<Test>;
@@ -237,7 +237,7 @@ mod tests {
             assert_eq!(MiningRatesHardwareTestModule::mining_rates_hardware_owner(0), Some(0));
             assert_eq!(
                 MiningRatesHardwareTestModule::mining_rates_hardware_rates_configs(0),
-                Some(MiningRatesHardwareConfig {
+                Some(MiningRatesHardwareSetting {
                     hardware_hardware_secure: 1,
                     hardware_hardware_insecure: 1,
                     hardware_max_hardware: 1,
@@ -250,8 +250,8 @@ mod tests {
             // Create Mining Speed Boost Configuration Hardware Mining
 
             // Call Functions
-            assert_ok!(MiningConfigHardwareTestModule::create(Origin::signed(0)));
-            assert_ok!(MiningConfigHardwareTestModule::set_mining_config_hardware_hardware_config(
+            assert_ok!(MiningSettingHardwareTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningSettingHardwareTestModule::set_mining_config_hardware_hardware_config(
                 Origin::signed(0),
                 0,                         // mining_hardware_id
                 Some(true),                // hardware_secure
@@ -263,12 +263,12 @@ mod tests {
             ));
 
             // Verify Storage
-            assert_eq!(MiningConfigHardwareTestModule::mining_config_hardware_count(), 1);
-            assert!(MiningConfigHardwareTestModule::mining_config_hardware(0).is_some());
-            assert_eq!(MiningConfigHardwareTestModule::mining_config_hardware_owner(0), Some(0));
+            assert_eq!(MiningSettingHardwareTestModule::mining_config_hardware_count(), 1);
+            assert!(MiningSettingHardwareTestModule::mining_config_hardware(0).is_some());
+            assert_eq!(MiningSettingHardwareTestModule::mining_config_hardware_owner(0), Some(0));
             assert_eq!(
-                MiningConfigHardwareTestModule::mining_config_hardware_hardware_configs(0),
-                Some(MiningConfigHardwareConfig {
+                MiningSettingHardwareTestModule::mining_config_hardware_hardware_configs(0),
+                Some(MiningSettingHardwareSetting {
                     hardware_secure: true,
                     hardware_type: b"gateway".to_vec(),
                     hardware_id: 1,
@@ -297,7 +297,7 @@ mod tests {
             assert_eq!(MiningSamplingHardwareTestModule::mining_samplings_hardware_owner(0), Some(0));
             assert_eq!(
                 MiningSamplingHardwareTestModule::mining_samplings_hardware_samplings_configs((0, 0)),
-                Some(MiningSamplingHardwareConfig {
+                Some(MiningSamplingHardwareSetting {
                     hardware_sample_block: 23456,       // hardware_sample_block
                     hardware_sample_hardware_online: 1  // hardware_sample_hardware_online
                 })

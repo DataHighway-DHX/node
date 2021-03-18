@@ -41,7 +41,7 @@ sp-runtime = { version = '3.0.0', default-features = false }
 sp-std = { version = '3.0.0', default-features = false }
 
 roaming-operators = { default-features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
-mining-config-token = { default-features = false, package = 'mining-config-token', path = '../../../mining/config/token' }
+mining-config-token = { default-features = false, package = 'mining-config-token', path = '../../../mining/setting/token' }
 mining-eligibility-token = { default-features = false, package = 'mining-eligibility-token', path = '../../../mining/eligibility/token' }
 mining-rates-token = { default-features = false, package = 'mining-rates-token', path = '../../../mining/rates/token' }
 mining-sampling-token = { default-features = false, package = 'mining-sampling-token', path = '../../../mining/sampling/token' }

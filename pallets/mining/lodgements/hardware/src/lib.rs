@@ -80,7 +80,7 @@ decl_event!(
         <T as frame_system::Config>::AccountId,
         <T as Config>::MiningClaimsHardwareIndex,
         <T as Config>::MiningClaimsHardwareClaimAmount,
-        <T as mining_config_hardware::Config>::MiningConfigHardwareIndex,
+        <T as mining_config_hardware::Config>::MiningSettingHardwareIndex,
         <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
@@ -89,12 +89,12 @@ decl_event!(
         /// A mining_claims_hardware is transferred. (from, to, mining_claims_hardware_id)
         Transferred(AccountId, AccountId, MiningClaimsHardwareIndex),
         MiningClaimsHardwareClaimResultSet(
-            AccountId, MiningConfigHardwareIndex, MiningClaimsHardwareIndex,
+            AccountId, MiningSettingHardwareIndex, MiningClaimsHardwareIndex,
             MiningClaimsHardwareClaimAmount, BlockNumber
         ),
         /// A mining_claims_hardware is assigned to an mining_hardware.
         /// (owner of mining_hardware, mining_claims_hardware_id, mining_config_hardware_id)
-        AssignedHardwareClaimToConfiguration(AccountId, MiningClaimsHardwareIndex, MiningConfigHardwareIndex),
+        AssignedHardwareClaimToConfiguration(AccountId, MiningClaimsHardwareIndex, MiningSettingHardwareIndex),
     }
 );
 
@@ -111,17 +111,17 @@ decl_storage! {
         pub MiningClaimsHardwareOwners get(fn mining_claims_hardware_owner): map hasher(opaque_blake2_256) T::MiningClaimsHardwareIndex => Option<T::AccountId>;
 
         /// Stores mining_claims_hardware_claims_result
-        pub MiningClaimsHardwareClaimResults get(fn mining_claims_hardware_claims_results): map hasher(opaque_blake2_256) (T::MiningConfigHardwareIndex, T::MiningClaimsHardwareIndex) =>
+        pub MiningClaimsHardwareClaimResults get(fn mining_claims_hardware_claims_results): map hasher(opaque_blake2_256) (T::MiningSettingHardwareIndex, T::MiningClaimsHardwareIndex) =>
             Option<MiningClaimsHardwareClaimResult<
                 T::MiningClaimsHardwareClaimAmount,
                 T::BlockNumber
             >>;
 
         /// Get mining_config_hardware_id belonging to a mining_claims_hardware_id
-        pub HardwareClaimConfiguration get(fn hardware_claim_configuration): map hasher(opaque_blake2_256) T::MiningClaimsHardwareIndex => Option<T::MiningConfigHardwareIndex>;
+        pub HardwareClaimConfiguration get(fn hardware_claim_configuration): map hasher(opaque_blake2_256) T::MiningClaimsHardwareIndex => Option<T::MiningSettingHardwareIndex>;
 
         /// Get mining_claims_hardware_id's belonging to a mining_config_hardware_id
-        pub HardwareConfigClaims get(fn hardware_config_claims): map hasher(opaque_blake2_256) T::MiningConfigHardwareIndex => Option<Vec<T::MiningClaimsHardwareIndex>>
+        pub HardwareSettingClaims get(fn hardware_config_claims): map hasher(opaque_blake2_256) T::MiningSettingHardwareIndex => Option<Vec<T::MiningClaimsHardwareIndex>>
     }
 }
 
@@ -162,7 +162,7 @@ decl_module! {
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn claim(
             origin,
-            mining_config_hardware_id: T::MiningConfigHardwareIndex,
+            mining_config_hardware_id: T::MiningSettingHardwareIndex,
             mining_eligibility_hardware_id: T::MiningEligibilityHardwareIndex,
             mining_claims_hardware_id: T::MiningClaimsHardwareIndex,
         ) {
@@ -176,7 +176,7 @@ decl_module! {
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_mining_claims_hardware_claims_result(
             origin,
-            mining_config_hardware_id: T::MiningConfigHardwareIndex,
+            mining_config_hardware_id: T::MiningSettingHardwareIndex,
             mining_eligibility_hardware_id: T::MiningEligibilityHardwareIndex,
             mining_claims_hardware_id: T::MiningClaimsHardwareIndex,
             _hardware_claim_amount: Option<T::MiningClaimsHardwareClaimAmount>,
@@ -256,7 +256,7 @@ decl_module! {
         pub fn assign_claim_to_configuration(
           origin,
           mining_claims_hardware_id: T::MiningClaimsHardwareIndex,
-          mining_config_hardware_id: T::MiningConfigHardwareIndex
+          mining_config_hardware_id: T::MiningSettingHardwareIndex
         ) {
             let sender = ensure_signed(origin)?;
 
@@ -316,7 +316,7 @@ impl<T: Config> Module<T> {
     }
 
     pub fn exists_mining_claims_hardware_claims_result(
-        mining_config_hardware_id: T::MiningConfigHardwareIndex,
+        mining_config_hardware_id: T::MiningSettingHardwareIndex,
         mining_claims_hardware_id: T::MiningClaimsHardwareIndex,
     ) -> Result<(), DispatchError> {
         match Self::mining_claims_hardware_claims_results((
@@ -329,7 +329,7 @@ impl<T: Config> Module<T> {
     }
 
     pub fn has_value_for_mining_claims_hardware_claims_result_index(
-        mining_config_hardware_id: T::MiningConfigHardwareIndex,
+        mining_config_hardware_id: T::MiningSettingHardwareIndex,
         mining_claims_hardware_id: T::MiningClaimsHardwareIndex,
     ) -> Result<(), DispatchError> {
         debug::info!(
@@ -351,7 +351,7 @@ impl<T: Config> Module<T> {
     /// Only push the claim id onto the end of the vector if it does not already exist
     pub fn associate_hardware_claim_with_configuration(
         mining_claims_hardware_id: T::MiningClaimsHardwareIndex,
-        mining_config_hardware_id: T::MiningConfigHardwareIndex,
+        mining_config_hardware_id: T::MiningSettingHardwareIndex,
     ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given claim id
@@ -367,7 +367,7 @@ impl<T: Config> Module<T> {
                 !configuration_claims.contains(&mining_claims_hardware_id);
             ensure!(not_configuration_contains_claim, "Configuration already contains the given claim id");
             debug::info!("Configuration id key exists but its vector value does not contain the given claim id");
-            <HardwareConfigClaims<T>>::mutate(
+            <HardwareSettingClaims<T>>::mutate(
                 mining_config_hardware_id,
                 |v| {
                     if let Some(value) = v {
@@ -388,7 +388,7 @@ impl<T: Config> Module<T> {
                 mining_config_hardware_id,
                 mining_claims_hardware_id
             );
-            <HardwareConfigClaims<T>>::insert(
+            <HardwareSettingClaims<T>>::insert(
                 mining_config_hardware_id,
                 &vec![mining_claims_hardware_id],
             );

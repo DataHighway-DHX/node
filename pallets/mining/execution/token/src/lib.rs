@@ -83,7 +83,7 @@ decl_event!(
         <T as frame_system::Config>::AccountId,
         <T as Config>::MiningExecutionTokenIndex,
         // <T as Config>::MiningExecutionTokenExecutorAccountID,
-        <T as mining_config_token::Config>::MiningConfigTokenIndex,
+        <T as mining_config_token::Config>::MiningSettingTokenIndex,
         <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
@@ -92,12 +92,12 @@ decl_event!(
         /// A mining_execution_token is transferred. (from, to, mining_execution_token_id)
         Transferred(AccountId, AccountId, MiningExecutionTokenIndex),
         MiningExecutionTokenExecutionResultSet(
-            AccountId, MiningConfigTokenIndex, MiningExecutionTokenIndex,
+            AccountId, MiningSettingTokenIndex, MiningExecutionTokenIndex,
             AccountId, BlockNumber, BlockNumber
         ),
         /// A mining_execution_token is assigned to an mining_token.
         /// (owner of mining_token, mining_execution_token_id, mining_config_token_id)
-        AssignedTokenExecutionToConfiguration(AccountId, MiningExecutionTokenIndex, MiningConfigTokenIndex),
+        AssignedTokenExecutionToConfiguration(AccountId, MiningExecutionTokenIndex, MiningSettingTokenIndex),
     }
 );
 
@@ -114,7 +114,7 @@ decl_storage! {
         pub MiningExecutionTokenOwners get(fn mining_execution_token_owner): map hasher(opaque_blake2_256) T::MiningExecutionTokenIndex => Option<T::AccountId>;
 
         /// Stores mining_execution_token_execution_result
-        pub MiningExecutionTokenExecutionResults get(fn mining_execution_token_execution_results): map hasher(opaque_blake2_256) (T::MiningConfigTokenIndex, T::MiningExecutionTokenIndex) =>
+        pub MiningExecutionTokenExecutionResults get(fn mining_execution_token_execution_results): map hasher(opaque_blake2_256) (T::MiningSettingTokenIndex, T::MiningExecutionTokenIndex) =>
             Option<MiningExecutionTokenExecutionResult<
                 T::AccountId,
                 T::BlockNumber,
@@ -122,10 +122,10 @@ decl_storage! {
             >>;
 
         /// Get mining_config_token_id belonging to a mining_execution_token_id
-        pub TokenExecutionConfiguration get(fn token_execution_configuration): map hasher(opaque_blake2_256) T::MiningExecutionTokenIndex => Option<T::MiningConfigTokenIndex>;
+        pub TokenExecutionConfiguration get(fn token_execution_configuration): map hasher(opaque_blake2_256) T::MiningExecutionTokenIndex => Option<T::MiningSettingTokenIndex>;
 
         /// Get mining_execution_token_id's belonging to a mining_config_token_id
-        pub TokenConfigExecution get(fn token_config_execution): map hasher(opaque_blake2_256) T::MiningConfigTokenIndex => Option<Vec<T::MiningExecutionTokenIndex>>
+        pub TokenSettingExecution get(fn token_setting_execution): map hasher(opaque_blake2_256) T::MiningSettingTokenIndex => Option<Vec<T::MiningExecutionTokenIndex>>
     }
 }
 
@@ -167,7 +167,7 @@ decl_module! {
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_mining_execution_token_execution_result(
             origin,
-            mining_config_token_id: T::MiningConfigTokenIndex,
+            mining_config_token_id: T::MiningSettingTokenIndex,
             mining_execution_token_id: T::MiningExecutionTokenIndex,
             _token_execution_started_block: Option<T::BlockNumber>,
             _token_execution_ended_block: Option<T::BlockNumber>,
@@ -288,7 +288,7 @@ decl_module! {
         pub fn assign_execution_to_configuration(
           origin,
           mining_execution_token_id: T::MiningExecutionTokenIndex,
-          mining_config_token_id: T::MiningConfigTokenIndex
+          mining_config_token_id: T::MiningSettingTokenIndex
         ) {
             let sender = ensure_signed(origin)?;
 
@@ -346,7 +346,7 @@ impl<T: Config> Module<T> {
     }
 
     pub fn exists_mining_execution_token_execution_result(
-        mining_config_token_id: T::MiningConfigTokenIndex,
+        mining_config_token_id: T::MiningSettingTokenIndex,
         mining_execution_token_id: T::MiningExecutionTokenIndex,
     ) -> Result<(), DispatchError> {
         match Self::mining_execution_token_execution_results((mining_config_token_id, mining_execution_token_id)) {
@@ -358,36 +358,36 @@ impl<T: Config> Module<T> {
     // Check that the token execution has a token_execution_started_block > current_block
     pub fn token_execution_started_block_greater_than_current_block(
         mining_execution_token_id: T::MiningExecutionTokenIndex,
-        mining_config_token_id: T::MiningConfigTokenIndex,
+        mining_config_token_id: T::MiningSettingTokenIndex,
     ) -> Result<(), DispatchError> {
         // Check that the extrinsic call is made after the start date defined in the provided configuration
 
         let current_block = <frame_system::Module<T>>::block_number();
         // Get the config associated with the given configuration_token
-        if let Some(configuration_token_config) =
-            <mining_config_token::Module<T>>::mining_config_token_token_configs(mining_config_token_id)
+        if let Some(configuration_token_setting) =
+            <mining_config_token::Module<T>>::mining_config_token_token_settings(mining_config_token_id)
         {
-            if let _token_lock_start_block = configuration_token_config.token_lock_start_block {
+            if let _token_lock_start_block = configuration_token_setting.token_lock_start_block {
                 ensure!(
                     current_block > _token_lock_start_block,
                     "Execution may not be made until after the start block of the lock period in the configuration"
                 );
                 Ok(())
             } else {
-                return Err(DispatchError::Other("Cannot find token_config start_date associated with the execution"));
+                return Err(DispatchError::Other("Cannot find token_setting start_date associated with the execution"));
             }
         } else {
-            return Err(DispatchError::Other("Cannot find token_config associated with the execution"));
+            return Err(DispatchError::Other("Cannot find token_setting associated with the execution"));
         }
     }
 
     // Check that the associated token configuration has a token_lock_interval_blocks > token_lock_min_blocks
     pub fn token_lock_interval_blocks_greater_than_token_lock_min_blocks(
         mining_execution_token_id: T::MiningExecutionTokenIndex,
-        mining_config_token_id: T::MiningConfigTokenIndex,
+        mining_config_token_id: T::MiningSettingTokenIndex,
     ) -> Result<(), DispatchError> {
         if let Some(configuration_token) =
-            <mining_config_token::Module<T>>::mining_config_token_token_configs((mining_config_token_id))
+            <mining_config_token::Module<T>>::mining_config_token_token_settings((mining_config_token_id))
         {
             if let Some(cooldown_configuration_token) =
                 <mining_config_token::Module<T>>::mining_config_token_token_cooldown_configs((mining_config_token_id))
@@ -402,29 +402,29 @@ impl<T: Config> Module<T> {
                         Ok(())
                     } else {
                         return Err(DispatchError::Other(
-                            "Cannot find token_config with token_lock_min_blocks associated with the execution",
+                            "Cannot find token_setting with token_lock_min_blocks associated with the execution",
                         ));
                     }
                 } else {
                     return Err(DispatchError::Other(
-                        "Cannot find token_config with token_lock_interval_blocks associated with the execution",
+                        "Cannot find token_setting with token_lock_interval_blocks associated with the execution",
                     ));
                 }
             } else {
                 return Err(DispatchError::Other("Cannot find token_cooldown_config associated with the execution"));
             }
         } else {
-            return Err(DispatchError::Other("Cannot find token_config associated with the execution"));
+            return Err(DispatchError::Other("Cannot find token_setting associated with the execution"));
         }
     }
 
     // Check that the associated token configuration has a token_lock_amount > token_lock_min_amount
     pub fn token_lock_amount_greater_than_token_lock_min_amount(
         mining_execution_token_id: T::MiningExecutionTokenIndex,
-        mining_config_token_id: T::MiningConfigTokenIndex,
+        mining_config_token_id: T::MiningSettingTokenIndex,
     ) -> Result<(), DispatchError> {
         if let Some(configuration_token) =
-            <mining_config_token::Module<T>>::mining_config_token_token_configs((mining_config_token_id))
+            <mining_config_token::Module<T>>::mining_config_token_token_settings((mining_config_token_id))
         {
             if let Some(cooldown_configuration_token) =
                 <mining_config_token::Module<T>>::mining_config_token_token_cooldown_configs((mining_config_token_id))
@@ -439,25 +439,25 @@ impl<T: Config> Module<T> {
                         Ok(())
                     } else {
                         return Err(DispatchError::Other(
-                            "Cannot find token_config with token_lock_min_blocks associated with the execution",
+                            "Cannot find token_setting with token_lock_min_blocks associated with the execution",
                         ));
                     }
                 } else {
                     return Err(DispatchError::Other(
-                        "Cannot find token_config with token_lock_interval_blocks associated with the execution",
+                        "Cannot find token_setting with token_lock_interval_blocks associated with the execution",
                     ));
                 }
             } else {
                 return Err(DispatchError::Other("Cannot find token_cooldown_config associated with the execution"));
             }
         } else {
-            return Err(DispatchError::Other("Cannot find token_config associated with the execution"));
+            return Err(DispatchError::Other("Cannot find token_setting associated with the execution"));
         }
     }
 
     pub fn execution(
         sender: T::AccountId,
-        mining_config_token_id: T::MiningConfigTokenIndex,
+        mining_config_token_id: T::MiningSettingTokenIndex,
         mining_execution_token_id: T::MiningExecutionTokenIndex,
         _token_execution_executor_account_id: T::AccountId,
         _token_execution_started_block: T::BlockNumber,
@@ -474,7 +474,7 @@ impl<T: Config> Module<T> {
     }
 
     pub fn has_value_for_mining_execution_token_execution_result_index(
-        mining_config_token_id: T::MiningConfigTokenIndex,
+        mining_config_token_id: T::MiningSettingTokenIndex,
         mining_execution_token_id: T::MiningExecutionTokenIndex,
     ) -> Result<(), DispatchError> {
         debug::info!("Checking if mining_execution_token_execution_result has a value that is defined");
@@ -491,11 +491,11 @@ impl<T: Config> Module<T> {
     /// Only push the execution id onto the end of the vector if it does not already exist
     pub fn associate_token_execution_with_configuration(
         mining_execution_token_id: T::MiningExecutionTokenIndex,
-        mining_config_token_id: T::MiningConfigTokenIndex,
+        mining_config_token_id: T::MiningSettingTokenIndex,
     ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given execution id
-        if let Some(configuration_execution) = Self::token_config_execution(mining_config_token_id) {
+        if let Some(configuration_execution) = Self::token_setting_execution(mining_config_token_id) {
             debug::info!(
                 "Configuration id key {:?} exists with value {:?}",
                 mining_config_token_id,
@@ -504,7 +504,7 @@ impl<T: Config> Module<T> {
             let not_configuration_contains_execution = !configuration_execution.contains(&mining_execution_token_id);
             ensure!(not_configuration_contains_execution, "Configuration already contains the given execution id");
             debug::info!("Configuration id key exists but its vector value does not contain the given execution id");
-            <TokenConfigExecution<T>>::mutate(mining_config_token_id, |v| {
+            <TokenSettingExecution<T>>::mutate(mining_config_token_id, |v| {
                 if let Some(value) = v {
                     value.push(mining_execution_token_id);
                 }
@@ -522,7 +522,7 @@ impl<T: Config> Module<T> {
                 mining_config_token_id,
                 mining_execution_token_id
             );
-            <TokenConfigExecution<T>>::insert(mining_config_token_id, &vec![mining_execution_token_id]);
+            <TokenSettingExecution<T>>::insert(mining_config_token_id, &vec![mining_execution_token_id]);
             Ok(())
         }
     }

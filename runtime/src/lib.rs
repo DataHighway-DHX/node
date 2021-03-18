@@ -783,27 +783,27 @@ impl mining_config_token::Config for Runtime {
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
-    type MiningConfigTokenIndex = u64;
-    type MiningConfigTokenLockAmount = u64;
+    type MiningSettingTokenIndex = u64;
+    type MiningSettingTokenLockAmount = u64;
     // Mining Speed Boost Token Mining Config
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningConfigTokenType = Vec<u8>;
+    type MiningSettingTokenType = Vec<u8>;
 }
 
 impl mining_config_hardware::Config for Runtime {
     type Event = Event;
-    type MiningConfigHardwareDevEUI = u64;
-    // type MiningConfigHardwareType =
-    // MiningConfigHardwareTypes;
-    type MiningConfigHardwareID = u64;
+    type MiningSettingHardwareDevEUI = u64;
+    // type MiningSettingHardwareType =
+    // MiningSettingHardwareTypes;
+    type MiningSettingHardwareID = u64;
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
-    type MiningConfigHardwareIndex = u64;
+    type MiningSettingHardwareIndex = u64;
     // Mining Speed Boost Hardware Mining Config
-    type MiningConfigHardwareSecure = bool;
+    type MiningSettingHardwareSecure = bool;
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningConfigHardwareType = Vec<u8>;
+    type MiningSettingHardwareType = Vec<u8>;
 }
 
 impl mining_rates_token::Config for Runtime {
@@ -928,8 +928,8 @@ construct_runtime!(
         RoamingBillingPolicies: roaming_billing_policies::{Module, Call, Storage, Event<T>},
         RoamingChargingPolicies: roaming_charging_policies::{Module, Call, Storage, Event<T>},
         RoamingPacketBundles: roaming_packet_bundles::{Module, Call, Storage, Event<T>},
-        MiningConfigToken: mining_config_token::{Module, Call, Storage, Event<T>},
-        MiningConfigHardware: mining_config_hardware::{Module, Call, Storage, Event<T>},
+        MiningSettingToken: mining_config_token::{Module, Call, Storage, Event<T>},
+        MiningSettingHardware: mining_config_hardware::{Module, Call, Storage, Event<T>},
         MiningRatesToken: mining_rates_token::{Module, Call, Storage, Event<T>},
         MiningRatesHardware: mining_rates_hardware::{Module, Call, Storage, Event<T>},
         MiningSamplingToken: mining_sampling_token::{Module, Call, Storage, Event<T>},

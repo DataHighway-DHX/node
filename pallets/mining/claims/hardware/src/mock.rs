@@ -87,18 +87,18 @@ impl roaming_operators::Config for Test {
 }
 impl mining_config_hardware::Config for Test {
     type Event = ();
-    type MiningConfigHardwareDevEUI = u64;
-    // type MiningConfigHardwareType =
-    // MiningConfigHardwareTypes;
-    type MiningConfigHardwareID = u64;
+    type MiningSettingHardwareDevEUI = u64;
+    // type MiningSettingHardwareType =
+    // MiningSettingHardwareTypes;
+    type MiningSettingHardwareID = u64;
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
-    type MiningConfigHardwareIndex = u64;
+    type MiningSettingHardwareIndex = u64;
     // Mining Speed Boost Hardware Mining Config
-    type MiningConfigHardwareSecure = bool;
+    type MiningSettingHardwareSecure = bool;
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningConfigHardwareType = Vec<u8>;
+    type MiningSettingHardwareType = Vec<u8>;
 }
 impl mining_eligibility_hardware::Config for Test {
     type Event = ();

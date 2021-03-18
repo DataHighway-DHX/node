@@ -75,7 +75,7 @@ decl_event!(
         <T as frame_system::Config>::AccountId,
         <T as Config>::MiningClaimsTokenIndex,
         <T as Config>::MiningClaimsTokenClaimAmount,
-        <T as mining_config_token::Config>::MiningConfigTokenIndex,
+        <T as mining_config_token::Config>::MiningSettingTokenIndex,
         <T as frame_system::Config>::BlockNumber,
         // Balance = BalanceOf<T>,
     {
@@ -84,12 +84,12 @@ decl_event!(
         /// A mining_claims_token is transferred. (from, to, mining_claims_token_id)
         Transferred(AccountId, AccountId, MiningClaimsTokenIndex),
         MiningClaimsTokenClaimResultSet(
-            AccountId, MiningConfigTokenIndex, MiningClaimsTokenIndex,
+            AccountId, MiningSettingTokenIndex, MiningClaimsTokenIndex,
             MiningClaimsTokenClaimAmount, BlockNumber
         ),
         /// A mining_claims_token is assigned to an mining_token.
         /// (owner of mining_token, mining_claims_token_id, mining_config_token_id)
-        AssignedTokenClaimToConfiguration(AccountId, MiningClaimsTokenIndex, MiningConfigTokenIndex),
+        AssignedTokenClaimToConfiguration(AccountId, MiningClaimsTokenIndex, MiningSettingTokenIndex),
     }
 );
 
@@ -106,17 +106,17 @@ decl_storage! {
         pub MiningClaimsTokenOwners get(fn mining_claims_token_owner): map hasher(opaque_blake2_256) T::MiningClaimsTokenIndex => Option<T::AccountId>;
 
         /// Stores mining_claims_token_claims_result
-        pub MiningClaimsTokenClaimResults get(fn mining_claims_token_claims_results): map hasher(opaque_blake2_256) (T::MiningConfigTokenIndex, T::MiningClaimsTokenIndex) =>
+        pub MiningClaimsTokenClaimResults get(fn mining_claims_token_claims_results): map hasher(opaque_blake2_256) (T::MiningSettingTokenIndex, T::MiningClaimsTokenIndex) =>
             Option<MiningClaimsTokenClaimResult<
                 T::MiningClaimsTokenClaimAmount,
                 T::BlockNumber
             >>;
 
         /// Get mining_config_token_id belonging to a mining_claims_token_id
-        pub TokenClaimConfiguration get(fn token_claim_configuration): map hasher(opaque_blake2_256) T::MiningClaimsTokenIndex => Option<T::MiningConfigTokenIndex>;
+        pub TokenClaimConfiguration get(fn token_claim_configuration): map hasher(opaque_blake2_256) T::MiningClaimsTokenIndex => Option<T::MiningSettingTokenIndex>;
 
         /// Get mining_claims_token_id's belonging to a mining_config_token_id
-        pub TokenConfigClaims get(fn token_config_claims): map hasher(opaque_blake2_256) T::MiningConfigTokenIndex => Option<Vec<T::MiningClaimsTokenIndex>>
+        pub TokenSettingClaims get(fn token_setting_claims): map hasher(opaque_blake2_256) T::MiningSettingTokenIndex => Option<Vec<T::MiningClaimsTokenIndex>>
     }
 }
 
@@ -157,7 +157,7 @@ decl_module! {
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn claim(
             origin,
-            mining_config_token_id: T::MiningConfigTokenIndex,
+            mining_config_token_id: T::MiningSettingTokenIndex,
             mining_eligibility_token_id: T::MiningEligibilityTokenIndex,
             mining_claims_token_id: T::MiningClaimsTokenIndex,
         ) {
@@ -184,20 +184,20 @@ decl_module! {
             // FIXME
             // let current_block = <frame_system::Module<T>>::block_number();
             // // Get the config associated with the given configuration_token
-            // if let Some(configuration_token_config) = <mining_config_token::Module<T>>::mining_config_token_token_configs(mining_config_token_id) {
-            //   if let _token_lock_interval_blocks = configuration_token_config.token_lock_interval_blocks {
+            // if let Some(configuration_token_setting) = <mining_config_token::Module<T>>::mining_config_token_token_settings(mining_config_token_id) {
+            //   if let _token_lock_interval_blocks = configuration_token_setting.token_lock_interval_blocks {
             //     ensure!(current_block > _token_lock_interval_blocks, "Claim may not be made until after the end of the lock interval");
             // } else {
-            //     return Err(DispatchError::Other("Cannot find token_config end block associated with the claim"));
+            //     return Err(DispatchError::Other("Cannot find token_setting end block associated with the claim"));
             //   }
             // } else {
-            //   return Err(DispatchError::Other("Cannot find token_config associated with the claim"));
+            //   return Err(DispatchError::Other("Cannot find token_setting associated with the claim"));
             // }
 
             // Check that the provided eligibility amount has not already been claimed
             // i.e. there should only be a single claim instance for each configuration and eligibility in the MVP
-            if let Some(token_config_claims) = Self::token_config_claims(mining_config_token_id) {
-              ensure!(token_config_claims.len() == 1, "Cannot have zero or more than one claim associated with configuration/eligibility");
+            if let Some(token_setting_claims) = Self::token_setting_claims(mining_config_token_id) {
+              ensure!(token_setting_claims.len() == 1, "Cannot have zero or more than one claim associated with configuration/eligibility");
             } else {
               return Err(DispatchError::Other("Cannot find configuration_claims associated with the claim"));
             }
@@ -275,7 +275,7 @@ decl_module! {
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_mining_claims_token_claims_result(
             origin,
-            mining_config_token_id: T::MiningConfigTokenIndex,
+            mining_config_token_id: T::MiningSettingTokenIndex,
             mining_eligibility_token_id: T::MiningEligibilityTokenIndex,
             mining_claims_token_id: T::MiningClaimsTokenIndex,
             _token_claim_amount: Option<T::MiningClaimsTokenClaimAmount>,
@@ -354,7 +354,7 @@ decl_module! {
         pub fn assign_claim_to_configuration(
           origin,
           mining_claims_token_id: T::MiningClaimsTokenIndex,
-          mining_config_token_id: T::MiningConfigTokenIndex
+          mining_config_token_id: T::MiningSettingTokenIndex
         ) {
             let sender = ensure_signed(origin)?;
 
@@ -410,7 +410,7 @@ impl<T: Config> Module<T> {
     }
 
     pub fn exists_mining_claims_token_claims_result(
-        mining_config_token_id: T::MiningConfigTokenIndex,
+        mining_config_token_id: T::MiningSettingTokenIndex,
         mining_claims_token_id: T::MiningClaimsTokenIndex,
     ) -> Result<(), DispatchError> {
         match Self::mining_claims_token_claims_results((mining_config_token_id, mining_claims_token_id)) {
@@ -420,7 +420,7 @@ impl<T: Config> Module<T> {
     }
 
     pub fn has_value_for_mining_claims_token_claims_result_index(
-        mining_config_token_id: T::MiningConfigTokenIndex,
+        mining_config_token_id: T::MiningSettingTokenIndex,
         mining_claims_token_id: T::MiningClaimsTokenIndex,
     ) -> Result<(), DispatchError> {
         debug::info!("Checking if mining_claims_token_claims_result has a value that is defined");
@@ -437,11 +437,11 @@ impl<T: Config> Module<T> {
     /// Only push the claim id onto the end of the vector if it does not already exist
     pub fn associate_token_claim_with_configuration(
         mining_claims_token_id: T::MiningClaimsTokenIndex,
-        mining_config_token_id: T::MiningConfigTokenIndex,
+        mining_config_token_id: T::MiningSettingTokenIndex,
     ) -> Result<(), DispatchError> {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given claim id
-        if let Some(configuration_claims) = Self::token_config_claims(mining_config_token_id) {
+        if let Some(configuration_claims) = Self::token_setting_claims(mining_config_token_id) {
             debug::info!(
                 "Configuration id key {:?} exists with value {:?}",
                 mining_config_token_id,
@@ -450,7 +450,7 @@ impl<T: Config> Module<T> {
             let not_configuration_contains_claim = !configuration_claims.contains(&mining_claims_token_id);
             ensure!(not_configuration_contains_claim, "Configuration already contains the given claim id");
             debug::info!("Configuration id key exists but its vector value does not contain the given claim id");
-            <TokenConfigClaims<T>>::mutate(mining_config_token_id, |v| {
+            <TokenSettingClaims<T>>::mutate(mining_config_token_id, |v| {
                 if let Some(value) = v {
                     value.push(mining_claims_token_id);
                 }
@@ -468,7 +468,7 @@ impl<T: Config> Module<T> {
                 mining_config_token_id,
                 mining_claims_token_id
             );
-            <TokenConfigClaims<T>>::insert(mining_config_token_id, &vec![mining_claims_token_id]);
+            <TokenSettingClaims<T>>::insert(mining_config_token_id, &vec![mining_claims_token_id]);
             Ok(())
         }
     }
