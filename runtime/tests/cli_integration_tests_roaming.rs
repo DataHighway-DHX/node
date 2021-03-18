@@ -137,7 +137,7 @@ mod tests {
         type OnKilledAccount = ();
         type OnNewAccount = ();
         type Origin = Origin;
-        type PalletInfo = ();
+        type PalletInfo = PalletInfo;
         type SystemWeightInfo = ();
         type Version = ();
     }
