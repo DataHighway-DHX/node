@@ -14,6 +14,9 @@ mod tests {
         assert_ok,
         impl_outer_origin,
         parameter_types,
+        traits::{
+            PalletInfo,
+        },
         weights::{
             IdentityFee,
             Weight,
@@ -75,6 +78,17 @@ mod tests {
 
     impl_outer_origin! {
         pub enum Origin for Test {}
+    }
+
+    pub struct PanicPalletInfo;
+    impl PalletInfo for PanicPalletInfo {
+        fn index<P: 'static>() -> Option<usize> {
+            unimplemented!("PanicPalletInfo mustn't be triggered by tests");
+        }
+
+        fn name<P: 'static>() -> Option<&'static str> {
+            unimplemented!("PanicPalletInfo mustn't be triggered by tests");
+        }
     }
 
     #[derive(Clone, Eq, PartialEq)]

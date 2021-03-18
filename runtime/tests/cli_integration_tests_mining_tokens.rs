@@ -15,6 +15,9 @@ mod tests {
         assert_ok,
         impl_outer_origin,
         parameter_types,
+        traits::{
+            PalletInfo,
+        },
         weights::{
             IdentityFee,
             Weight,
@@ -84,6 +87,17 @@ mod tests {
         pub enum Origin for Test {}
     }
 
+    pub struct PanicPalletInfo;
+    impl PalletInfo for PanicPalletInfo {
+        fn index<P: 'static>() -> Option<usize> {
+            unimplemented!("PanicPalletInfo mustn't be triggered by tests");
+        }
+
+        fn name<P: 'static>() -> Option<&'static str> {
+            unimplemented!("PanicPalletInfo mustn't be triggered by tests");
+        }
+    }
+
     #[derive(Clone, Eq, PartialEq)]
     pub struct Test;
     parameter_types! {
@@ -112,7 +126,7 @@ mod tests {
         type OnKilledAccount = ();
         type OnNewAccount = ();
         type Origin = Origin;
-        type PalletInfo = PalletInfo;
+        type PalletInfo = PanicPalletInfo;
         type SS58Prefix = SS58Prefix;
         type SystemWeightInfo = ();
         type Version = ();
