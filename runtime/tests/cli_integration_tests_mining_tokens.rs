@@ -20,6 +20,12 @@ mod tests {
             Weight,
         },
     };
+    use frame_system::{
+        limits::{
+            BlockLength,
+            BlockWeights,
+        },
+    };
 
     use sp_core::H256;
     use sp_runtime::{
@@ -82,9 +88,8 @@ mod tests {
     pub struct Test;
     parameter_types! {
         pub const BlockHashCount: u64 = 250;
-        pub const MaximumBlockWeight: Weight = 1024;
-        pub const MaximumBlockLength: u32 = 2 * 1024;
-        pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
+        pub const RuntimeBlockLength: BlockLength = ();
+        pub const RuntimeBlockWeights: BlockWeights = ();
         pub const SS58Prefix: u8 = 33;
     }
     impl frame_system::Config for Test {
@@ -94,7 +99,7 @@ mod tests {
         type BlockHashCount = BlockHashCount;
         type BlockLength = RuntimeBlockLength;
         type BlockNumber = u64;
-        type BlockWeights = RuntimeBlockLength;
+        type BlockWeights = RuntimeBlockWeights;
         type Call = ();
         type DbWeight = ();
         // type WeightMultiplierUpdate = ();
