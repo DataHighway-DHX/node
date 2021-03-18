@@ -102,7 +102,7 @@ impl mining_sampling_hardware::Config for Test {
     type MiningSamplingHardwareIndex = u64;
     type MiningSamplingHardwareSampleHardwareOnline = u64;
 }
-impl mining_config_hardware::Config for Test {
+impl mining_setting_hardware::Config for Test {
     type Event = ();
     type MiningSettingHardwareDevEUI = u64;
     // type MiningSettingHardwareType =

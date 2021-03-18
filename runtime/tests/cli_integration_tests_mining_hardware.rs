@@ -1,6 +1,6 @@
 // extern crate env as env;
 extern crate mining_claims_hardware as mining_claims_hardware;
-extern crate mining_config_hardware as mining_config_hardware;
+extern crate mining_setting_hardware as mining_setting_hardware;
 extern crate mining_eligibility_hardware as mining_eligibility_hardware;
 extern crate mining_rates_hardware as mining_rates_hardware;
 extern crate mining_sampling_hardware as mining_sampling_hardware;
@@ -38,7 +38,7 @@ mod tests {
         Module as MiningClaimsHardwareModule,
         Config as MiningClaimsHardwareSetting,
     };
-    use mining_config_hardware::{
+    use mining_setting_hardware::{
         MiningSettingHardwareSetting,
         Module as MiningSettingHardwareModule,
         Config as MiningSettingHardwareSetting,
@@ -251,7 +251,7 @@ mod tests {
 
             // Call Functions
             assert_ok!(MiningSettingHardwareTestModule::create(Origin::signed(0)));
-            assert_ok!(MiningSettingHardwareTestModule::set_mining_config_hardware_hardware_config(
+            assert_ok!(MiningSettingHardwareTestModule::set_mining_setting_hardware_hardware_config(
                 Origin::signed(0),
                 0,                         // mining_hardware_id
                 Some(true),                // hardware_secure
@@ -263,11 +263,11 @@ mod tests {
             ));
 
             // Verify Storage
-            assert_eq!(MiningSettingHardwareTestModule::mining_config_hardware_count(), 1);
-            assert!(MiningSettingHardwareTestModule::mining_config_hardware(0).is_some());
-            assert_eq!(MiningSettingHardwareTestModule::mining_config_hardware_owner(0), Some(0));
+            assert_eq!(MiningSettingHardwareTestModule::mining_setting_hardware_count(), 1);
+            assert!(MiningSettingHardwareTestModule::mining_setting_hardware(0).is_some());
+            assert_eq!(MiningSettingHardwareTestModule::mining_setting_hardware_owner(0), Some(0));
             assert_eq!(
-                MiningSettingHardwareTestModule::mining_config_hardware_hardware_configs(0),
+                MiningSettingHardwareTestModule::mining_setting_hardware_hardware_configs(0),
                 Some(MiningSettingHardwareSetting {
                     hardware_secure: true,
                     hardware_type: b"gateway".to_vec(),
@@ -310,7 +310,7 @@ mod tests {
             // assert_eq!(
             //     MiningEligibilityTestModule::calculate_mining_eligibility_hardware_result(
             //         Origin::signed(0),
-            //         0, // mining_config_hardware_id
+            //         0, // mining_setting_hardware_id
             //         0, // mining_eligibility_hardware_id
             //     ),
             //     Some(
@@ -327,7 +327,7 @@ mod tests {
             // Override by DAO if necessary
             assert_ok!(MiningEligibilityHardwareTestModule::set_mining_eligibility_hardware_eligibility_result(
                 Origin::signed(0),
-                0,       // mining_config_hardware_id
+                0,       // mining_setting_hardware_id
                 0,       // mining_eligibility_hardware_id
                 Some(1), // mining_hardware_calculated_eligibility
                 Some(1), /* mining_hardware_uptime_percentage
@@ -372,7 +372,7 @@ mod tests {
             // assert_ok!(
             //     MiningClaimsHardwareTestModule::claim(
             //         Origin::signed(0),
-            //         0, // mining_config_hardware_id
+            //         0, // mining_setting_hardware_id
             //         0, // mining_eligibility_hardware_id
             //         0, // mining_claims_hardware_id
             //     )
@@ -380,7 +380,7 @@ mod tests {
             // Override by DAO if necessary
             assert_ok!(MiningClaimsHardwareTestModule::set_mining_claims_hardware_claims_result(
                 Origin::signed(0),
-                0,           // mining_config_hardware_id
+                0,           // mining_setting_hardware_id
                 0,           // mining_eligibility_hardware_id
                 0,           // mining_claims_hardware_id
                 Some(1),     // hardware_claim_amount

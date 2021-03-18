@@ -790,7 +790,7 @@ impl mining_config_token::Config for Runtime {
     type MiningSettingTokenType = Vec<u8>;
 }
 
-impl mining_config_hardware::Config for Runtime {
+impl mining_setting_hardware::Config for Runtime {
     type Event = Event;
     type MiningSettingHardwareDevEUI = u64;
     // type MiningSettingHardwareType =
@@ -929,7 +929,7 @@ construct_runtime!(
         RoamingChargingPolicies: roaming_charging_policies::{Module, Call, Storage, Event<T>},
         RoamingPacketBundles: roaming_packet_bundles::{Module, Call, Storage, Event<T>},
         MiningSettingToken: mining_config_token::{Module, Call, Storage, Event<T>},
-        MiningSettingHardware: mining_config_hardware::{Module, Call, Storage, Event<T>},
+        MiningSettingHardware: mining_setting_hardware::{Module, Call, Storage, Event<T>},
         MiningRatesToken: mining_rates_token::{Module, Call, Storage, Event<T>},
         MiningRatesHardware: mining_rates_hardware::{Module, Call, Storage, Event<T>},
         MiningSamplingToken: mining_sampling_token::{Module, Call, Storage, Event<T>},

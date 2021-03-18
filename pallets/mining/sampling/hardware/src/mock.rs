@@ -85,7 +85,7 @@ impl roaming_operators::Config for Test {
     type Randomness = Randomness;
     type RoamingOperatorIndex = u64;
 }
-impl mining_config_hardware::Config for Test {
+impl mining_setting_hardware::Config for Test {
     type Event = ();
     type MiningSettingHardwareDevEUI = u64;
     // type MiningSettingHardwareType =
