@@ -24,12 +24,6 @@ mod tests {
             Weight,
         },
     };
-    use frame_system::{
-        limits::{
-            BlockLength,
-            BlockWeights,
-        },
-    };
 
     use sp_core::H256;
     use sp_runtime::{
@@ -37,11 +31,8 @@ mod tests {
         traits::{
             BlakeTwo256,
             IdentityLookup,
-            Zero,
+
         },
-        DispatchResult,
-        Perbill,
-        Permill,
     };
     pub use pallet_transaction_payment::{
         CurrencyAdapter,
