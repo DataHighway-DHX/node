@@ -34,6 +34,7 @@ use sp_runtime::{
     curve::PiecewiseLinear,
     generic,
     impl_opaque_keys,
+    traits,
     traits::{
         AccountIdLookup,
         BlakeTwo256,
