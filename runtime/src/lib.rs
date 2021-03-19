@@ -442,25 +442,25 @@ impl pallet_membership::Config<pallet_membership::Instance1> for Runtime {
     type SwapOrigin = EnsureRootOrHalfCouncil;
 }
 
-// pub struct GeneralCouncilProvider;
-// impl Contains<AccountId> for GeneralCouncilProvider {
-//     fn contains(who: &AccountId) -> bool {
-//         Council::is_member(who)
-//     }
+pub struct GeneralCouncilProvider;
+impl Contains<AccountId> for GeneralCouncilProvider {
+    fn contains(who: &AccountId) -> bool {
+        Council::is_member(who)
+    }
 
-//     fn sorted_members() -> Vec<AccountId> {
-//         Council::members()
-//     }
-// }
-// impl ContainsLengthBound for GeneralCouncilProvider {
-//     fn min_len() -> usize {
-//         0
-//     }
+    fn sorted_members() -> Vec<AccountId> {
+        Council::members()
+    }
+}
+impl ContainsLengthBound for GeneralCouncilProvider {
+    fn min_len() -> usize {
+        0
+    }
 
-//     fn max_len() -> usize {
-//         100000
-//     }
-// }
+    fn max_len() -> usize {
+        100000
+    }
+}
 
 parameter_types! {
     pub const ProposalBond: Permill = Permill::from_percent(5);
@@ -499,35 +499,35 @@ impl pallet_treasury::Config for Runtime {
         EnsureRoot<AccountId>,
         pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>,
     >;
-    type SpendFunds = ();
+    type SpendFunds = Bounties;
     type SpendPeriod = SpendPeriod;
     // Just gets burned.
     type WeightInfo = pallet_treasury::weights::SubstrateWeight<Runtime>;
 }
 
-// impl pallet_bounties::Config for Runtime {
-//     type BountyCuratorDeposit = BountyCuratorDeposit;
-//     type BountyDepositBase = BountyDepositBase;
-//     type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
-//     type BountyUpdatePeriod = BountyUpdatePeriod;
-//     type BountyValueMinimum = BountyValueMinimum;
-//     type DataDepositPerByte = DataDepositPerByte;
-//     type Event = Event;
-//     type MaximumReasonLength = MaximumReasonLength;
-//     type WeightInfo = pallet_bounties::weights::SubstrateWeight<Runtime>;
-// }
+impl pallet_bounties::Config for Runtime {
+    type BountyCuratorDeposit = BountyCuratorDeposit;
+    type BountyDepositBase = BountyDepositBase;
+    type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
+    type BountyUpdatePeriod = BountyUpdatePeriod;
+    type BountyValueMinimum = BountyValueMinimum;
+    type DataDepositPerByte = DataDepositPerByte;
+    type Event = Event;
+    type MaximumReasonLength = MaximumReasonLength;
+    type WeightInfo = pallet_bounties::weights::SubstrateWeight<Runtime>;
+}
 
-// impl pallet_tips::Config for Runtime {
-//     type DataDepositPerByte = DataDepositPerByte;
-//     type Event = Event;
-//     type MaximumReasonLength = MaximumReasonLength;
-//     type TipCountdown = TipCountdown;
-//     type TipFindersFee = TipFindersFee;
-//     type TipReportDepositBase = TipReportDepositBase;
-//     // TODO - change value to `Elections`. See Substrate 3 migration guide
-//     type Tippers = GeneralCouncilProvider;
-//     type WeightInfo = pallet_tips::weights::SubstrateWeight<Runtime>;
-// }
+impl pallet_tips::Config for Runtime {
+    type DataDepositPerByte = DataDepositPerByte;
+    type Event = Event;
+    type MaximumReasonLength = MaximumReasonLength;
+    type TipCountdown = TipCountdown;
+    type TipFindersFee = TipFindersFee;
+    type TipReportDepositBase = TipReportDepositBase;
+    // TODO - change value to `Elections`. See Substrate 3 migration guide
+    type Tippers = GeneralCouncilProvider;
+    type WeightInfo = pallet_tips::weights::SubstrateWeight<Runtime>;
+}
 
 parameter_types! {
     pub const DisabledValidatorsThreshold: Perbill = Perbill::from_percent(17);
@@ -908,8 +908,8 @@ construct_runtime!(
         Council: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
         TechnicalMembership: pallet_membership::<Instance1>::{Module, Call, Storage, Event<T>, Config<T>},
         TechnicalCommittee: pallet_collective::<Instance2>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
-        // Bounties: pallet_bounties::{Module, Call, Storage, Config, Event<T>},
-        // Tips: pallet_tips::{Module, Call, Storage, Config, Event<T>},
+        Bounties: pallet_bounties::{Module, Call, Storage, Config, Event<T>},
+        Tips: pallet_tips::{Module, Call, Storage, Config, Event<T>},
         Treasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
         Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
         Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>, ValidateUnsigned},

@@ -429,7 +429,7 @@ fn dev_genesis(
             )
             .collect(),
         }),
-        // pallet_bounties: Some(Default::default()),
+        pallet_bounties: Some(Default::default()),
         pallet_session: Some(SessionConfig {
             keys: initial_authorities
                 .iter()
@@ -474,7 +474,7 @@ fn dev_genesis(
         }),
         pallet_collective_Instance2: Some(Default::default()),
         pallet_treasury: Some(Default::default()),
-        // pallet_tips: Some(Default::default()),
+        pallet_tips: Some(Default::default()),
     }
 }
 
@@ -501,7 +501,7 @@ fn testnet_genesis(
                 .map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE))
                 .collect(),
         }),
-        // pallet_bounties: Some(Default::default()),
+        pallet_bounties: Some(Default::default()),
         pallet_session: Some(SessionConfig {
             keys: initial_authorities
                 .iter()
@@ -537,7 +537,7 @@ fn testnet_genesis(
             phantom: Default::default(),
         }),
         pallet_collective_Instance2: Some(Default::default()),
-        // pallet_tips: Some(Default::default()),
+        pallet_tips: Some(Default::default()),
         pallet_treasury: Some(Default::default()),
     }
 }
