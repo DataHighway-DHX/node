@@ -619,8 +619,8 @@ mod tests {
 
             // The implementation uses ensure_root, so only the Sudo root origin may add and remove members
             // (not account 0 or 1) of Member Supernodes
-            assert_ok!(MembershipSupernodesTestModule::add_member(Origin::root(), 1));
-            assert_err!(MembershipSupernodesTestModule::add_member(Origin::signed(0), 1), DispatchError::BadOrigin);
+            assert_ok!(MembershipSupernodesTestModule::add_member(Origin::root(), 1, 1));
+            assert_err!(MembershipSupernodesTestModule::add_member(Origin::signed(0), 1, 1), DispatchError::BadOrigin);
 
             let rewardee_data = MiningEligibilityProxyClaimRewardeeData {
                 proxy_claim_rewardee_account_id: 3,
@@ -695,8 +695,8 @@ mod tests {
             assert_eq!(Balances::reserved_balance(Treasury::account_id()), 0);
             assert_eq!(Balances::total_balance(&Treasury::account_id()), (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000));
 
-            assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::root(), 1));
-            assert_err!(MembershipSupernodesTestModule::remove_member(Origin::signed(0), 1), DispatchError::BadOrigin);
+            assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::root(), 1, 1));
+            assert_err!(MembershipSupernodesTestModule::remove_member(Origin::signed(0), 1, 1), DispatchError::BadOrigin);
 
             // This tries to generate mining_eligibility_proxy_id 0
             // assert_err!(

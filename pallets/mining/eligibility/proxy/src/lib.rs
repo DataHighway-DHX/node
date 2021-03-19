@@ -119,18 +119,42 @@ decl_storage! {
             Option<MiningEligibilityProxyRewardRequest<
                 T::AccountId,
                 BalanceOf<T>,
-                Vec<RewardeeData<T>>,
+                Vec<RewardeeData<T>>, // TODO - change to store MiningEligibilityProxyRewardeeIndex that is created to store then instead
                 T::BlockNumber,
                 <T as pallet_timestamp::Trait>::Moment,
             >>;
 
-        // pub MiningEligibilityProxyRewardeeData get(fn mining_eligibility_proxy_eligibility_reward_requests): map hasher(opaque_blake2_256) T::MiningEligibilityProxyIndex =>
-        // Option<MiningEligibilityProxyRewardRequest<
-        //     T::AccountId,
-        //     BalanceOf<T>,
-        //     Vec<RewardeeData<T>>,
-        //     T::BlockNumber,
-        // >>;
+        // IGNORE
+        // pub MiningEligibilityProxyRewardees get(fn mining_eligibility_proxy_eligibility_rewardees): map hasher(opaque_blake2_256) T::MiningEligibilityProxyRewardeeIndex =>
+        //     Option<MiningEligibilityProxyRewardee<
+        //         u64,                        // reward_hash
+        //         T::AccountId,               // requestor_account_id
+        //         BalanceOf<T>,               // reward_amount
+        //         T::Moment,                  // timestamp
+        //         T::BlockNumber,             // block_start
+        //         T::BlockNumber,             // block_interval
+        //     >>;
+
+        /// Stores reward_requests for given rewardee
+        ///
+        /// requestor_acct_id > (reward_hash, total_amt, rewardee_count, user_type, date)
+        /// where user_type is either supernode_center 1 or supernode 2 or individual 3
+        pub MiningEligibilityProxyRewardRequestors get(fn reward_requestors):
+            map hasher(opaque_blake2_256) T::AccountId =>
+                Vec<(T::MiningEligibilityProxyIndex, BalanceOf<T>, u32, u32, T::Moment)>;
+
+        /// Stores is_reward_sent for given rewardee
+        ///
+        /// rewardee_acct_id > (reward_hash, bool, total_amt, rewardee_count, user_type, date)
+        pub MiningEligibilityProxyIsRewardSent get(fn is_reward_sent):
+            map hasher(opaque_blake2_256) T::AccountId =>
+                (T::MiningEligibilityProxyIndex, bool, BalanceOf<T>, u32, u32, T::Moment);
+
+        /// Stores accumulation of daily_rewards_sent on a given date
+        /// Note: Must store date/time value as the same for all rewards sent on same day
+        pub MiningEligibilityProxyDailyRewardsSent get(fn daily_rewards_sent):
+            map hasher(opaque_blake2_256) T::Moment =>
+                Vec<(T::MiningEligibilityProxyIndex, BalanceOf<T>)>;
     }
 }
 
@@ -153,6 +177,11 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             ensure!(Self::is_origin_whitelisted_member_supernodes(sender.clone()).is_ok(), "Only whitelisted Supernode account members may request proxy rewards");
+
+            let member_kind = T::MembershipSource::account_kind(sender.clone());
+            debug::info!("Account kind: {:?}", member_kind.clone());
+
+            // TODO - continue from here....
 
             let mining_eligibility_proxy_id;
             match Self::create(sender.clone()) {

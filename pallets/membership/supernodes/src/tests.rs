@@ -91,22 +91,23 @@ impl ExternalityBuilder {
 #[test]
 fn add_member_works() {
     ExternalityBuilder::build().execute_with(|| {
-        assert_ok!(VecSet::add_member(Origin::signed(1), 2));
+        assert_ok!(VecSet::add_member(Origin::root(), 2, 1));
 
-        let expected_event = TestEvent::vec_set(RawEvent::MemberAdded(2));
+        let expected_event = TestEvent::vec_set(RawEvent::MemberAdded(2, 1));
 
         assert_eq!(System::events()[0].event, expected_event,);
 
         assert_eq!(VecSet::members(), vec![2]);
+        assert_eq!(VecSet::member_kinds(2), 1);
     })
 }
 
 #[test]
 fn cant_add_duplicate_members() {
     ExternalityBuilder::build().execute_with(|| {
-        assert_ok!(VecSet::add_member(Origin::signed(1), 2));
+        assert_ok!(VecSet::add_member(Origin::root(), 2, 1));
 
-        assert_noop!(VecSet::add_member(Origin::signed(1), 2), Error::<TestRuntime>::AlreadyMember);
+        assert_noop!(VecSet::add_member(Origin::root(), 2, 1), Error::<TestRuntime>::AlreadyMember);
     })
 }
 
@@ -115,22 +116,22 @@ fn cant_exceed_max_members() {
     ExternalityBuilder::build().execute_with(|| {
         // Add 16 members, reaching the max
         for i in 0..16 {
-            assert_ok!(VecSet::add_member(Origin::signed(i), i));
+            assert_ok!(VecSet::add_member(Origin::root(), i, 2));
         }
 
         // Try to add the 17th member exceeding the max
-        assert_noop!(VecSet::add_member(Origin::signed(16), 16), Error::<TestRuntime>::MembershipLimitReached);
+        assert_noop!(VecSet::add_member(Origin::root(), 16, 2), Error::<TestRuntime>::MembershipLimitReached);
     })
 }
 
 #[test]
 fn remove_member_works() {
     ExternalityBuilder::build().execute_with(|| {
-        assert_ok!(VecSet::add_member(Origin::signed(1), 2));
-        assert_ok!(VecSet::remove_member(Origin::signed(1), 2));
+        assert_ok!(VecSet::add_member(Origin::root(), 2, 2));
+        assert_ok!(VecSet::remove_member(Origin::root(), 2, 2));
 
         // check correct event emission
-        let expected_event = TestEvent::vec_set(RawEvent::MemberRemoved(2));
+        let expected_event = TestEvent::vec_set(RawEvent::MemberRemoved(2, 2));
         assert!(System::events().iter().any(|a| a.event == expected_event));
 
         // check storage changes
@@ -142,6 +143,6 @@ fn remove_member_works() {
 fn remove_member_handles_errors() {
     ExternalityBuilder::build().execute_with(|| {
         // 2 is NOT previously added as a member
-        assert_noop!(VecSet::remove_member(Origin::signed(2), 2), Error::<TestRuntime>::NotMember);
+        assert_noop!(VecSet::remove_member(Origin::root(), 2, 2), Error::<TestRuntime>::NotMember);
     })
 }

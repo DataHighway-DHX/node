@@ -8,4 +8,6 @@ pub trait AccountSet {
     type AccountId;
 
     fn accounts() -> BTreeSet<Self::AccountId>;
+
+    fn account_kind(account_id: Self::AccountId) -> u32;
 }
