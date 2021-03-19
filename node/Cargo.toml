@@ -16,6 +16,7 @@ substrate-build-script-utils = '3.0.0'
 vergen = '3.0.4'
 
 [dependencies]
+futures = { version = '0.3.9', features = ['compat'] }
 jsonrpc-core = '15.0.0'
 structopt = '0.3.8'
 hex-literal = '0.3.1'
@@ -46,6 +47,7 @@ sc-service = {  version = '0.9.0', default-features = false, features = ['wasmti
 sc-sync-state-rpc = '0.9.0'
 sc-transaction-pool = '3.0.0'
 sp-api = '3.0.0'
+sp-authority-discovery = '3.0.0'
 sp-block-builder = '3.0.0'
 sp-blockchain = '3.0.0'
 sp-consensus = '0.9.0'

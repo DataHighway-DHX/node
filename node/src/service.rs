@@ -38,6 +38,7 @@ use sc_telemetry::{
     TelemetrySpan,
 };
 use sp_inherents::InherentDataProviders;
+use futures::prelude::*;
 use sp_runtime::traits::Block as BlockT;
 use std::{
     sync::Arc,
