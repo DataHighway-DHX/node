@@ -438,6 +438,49 @@ impl pallet_grandpa::Config for Runtime {
 }
 
 parameter_types! {
+	pub const BasicDeposit: Balance = 10 * DOLLARS;       // 258 bytes on-chain
+	pub const FieldDeposit: Balance = 250 * CENTS;        // 66 bytes on-chain
+	pub const SubAccountDeposit: Balance = 2 * DOLLARS;   // 53 bytes on-chain
+	pub const MaxSubAccounts: u32 = 100;
+	pub const MaxAdditionalFields: u32 = 100;
+	pub const MaxRegistrars: u32 = 20;
+}
+
+impl pallet_identity::Config for Runtime {
+	type Event = Event;
+	type Currency = Balances;
+	type BasicDeposit = BasicDeposit;
+	type FieldDeposit = FieldDeposit;
+	type SubAccountDeposit = SubAccountDeposit;
+	type MaxSubAccounts = MaxSubAccounts;
+	type MaxAdditionalFields = MaxAdditionalFields;
+	type MaxRegistrars = MaxRegistrars;
+	type Slashed = Treasury;
+	type ForceOrigin = EnsureRootOrHalfCouncil;
+	type RegistrarOrigin = EnsureRootOrHalfCouncil;
+	type WeightInfo = pallet_identity::weights::SubstrateWeight<Runtime>;
+}
+
+parameter_types! {
+	pub const LotteryModuleId: ModuleId = ModuleId(*b"py/lotto");
+	pub const MaxCalls: usize = 10;
+	pub const MaxGenerateRandom: u32 = 10;
+}
+
+impl pallet_lottery::Config for Runtime {
+	type ModuleId = LotteryModuleId;
+	type Call = Call;
+	type Event = Event;
+	type Currency = Balances;
+	type Randomness = RandomnessCollectiveFlip;
+	type ManagerOrigin = EnsureRoot<AccountId>;
+	type MaxCalls = MaxCalls;
+	type ValidateCall = Lottery;
+	type MaxGenerateRandom = MaxGenerateRandom;
+	type WeightInfo = pallet_lottery::weights::SubstrateWeight<Runtime>;
+}
+
+parameter_types! {
     pub const MinimumPeriod: Moment = SLOT_DURATION / 2;
 }
 
@@ -1016,6 +1059,7 @@ construct_runtime!(
     {
         System: frame_system::{Module, Call, Config, Storage, Event<T>},
         RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
+        Identity: pallet_identity::{Module, Call, Storage, Event<T>},
         Offences: pallet_offences::{Module, Call, Storage, Event},
         Historical: pallet_session_historical::{Module},
         Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
@@ -1039,6 +1083,7 @@ construct_runtime!(
         Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
         Democracy: pallet_democracy::{Module, Call, Storage, Config, Event<T>},
         Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>, ValidateUnsigned},
+        Lottery: pallet_lottery::{Module, Call, Storage, Event<T>},
         RoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
         RoamingNetworks: roaming_networks::{Module, Call, Storage, Event<T>},
         RoamingOrganizations: roaming_organizations::{Module, Call, Storage, Event<T>},
