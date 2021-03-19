@@ -9,20 +9,23 @@ targets = ['x86_64-unknown-linux-gnu']
 
 
 [dependencies]
+static_assertions = '1.1.0'
 codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
 frame-executive = { version = '3.0.0', default-features = false }
 frame-support = { version = '3.0.0', default-features = false }
 frame-system-rpc-runtime-api = { version = '3.0.0', default-features = false }
+pallet-authorship = { version = '3.0.0', default-features = false }
+pallet-authority-discovery = { version = '3.0.0', default-features = false }
 pallet-balances = { version = '3.0.0', default-features = false }
 pallet-babe = { version = '3.0.0', default-features = false }
 pallet-bounties = { version = '3.0.0', default-features = false }
 pallet-collective = { version = '3.0.0', default-features = false }
-# sp-election-providers = { version = '3.0.0', default-features = false }
-# pallet-election-provider-multi-phase = { version = '3.0.0', default-features = false }
+pallet-elections-phragmen = { version = '3.0.0', default-features = false }
 pallet-grandpa = { version = '3.0.0', default-features = false }
+pallet-im-online = { version = '3.0.0', default-features = false }
 pallet-indices = { version = '3.0.0', default-features = false }
 pallet-membership = { version = '3.0.0', default-features = false }
-# pallet-offences = { version = '3.0.0', default-features = false }
+pallet-offences = { version = '3.0.0', default-features = false }
 pallet-randomness-collective-flip = { version = '3.0.0', default-features = false }
 pallet-session = { version = '3.0.0', default-features = false }
 pallet-staking = { version = '3.0.0', default-features = false }
@@ -34,6 +37,7 @@ pallet-transaction-payment = { version = '3.0.0', default-features = false }
 pallet-transaction-payment-rpc-runtime-api = { version = '3.0.0', default-features = false }
 pallet-treasury = { version = '3.0.0', default-features = false }
 serde = { version = '1.0.101', optional = true, features = ['derive'] }
+sp-authority-discovery = { version = '3.0.0', default-features = false }
 sp-api = { version = '3.0.0', default-features = false }
 sp-block-builder = { version = '3.0.0', default-features = false }
 sp-consensus-babe = { version = '0.9.0', default-features = false }
@@ -87,16 +91,18 @@ std = [
     'frame-executive/std',
     'frame-support/std',
     'module-primitives/std',
+    'pallet-authorship/std',
+    'pallet-authority-discovery/std',
     'pallet-balances/std',
     'pallet-babe/std',
     'pallet-bounties/std',
     'pallet-grandpa/std',
     'pallet-indices/std',
+    'pallet-im-online/std',
     'pallet-collective/std',
-    # 'sp-election-providers/std',
-    # 'pallet-election-provider-multi-phase/std',
+    'pallet-elections-phragmen/std',
     'pallet-membership/std',
-    # 'pallet-offences/std',
+    'pallet-offences/std',
     'pallet-tips/std',
     'pallet-treasury/std',
     'pallet-randomness-collective-flip/std',
@@ -107,6 +113,7 @@ std = [
     'pallet-transaction-payment-rpc-runtime-api/std',
     'serde',
     'sp-api/std',
+    'sp-authority-discovery/std',
     'sp-block-builder/std',
     'sp-consensus-babe/std',
     'sp-core/std',
