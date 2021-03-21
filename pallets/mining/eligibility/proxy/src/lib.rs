@@ -98,6 +98,14 @@ decl_event!(
             BlockNumber,
             Moment,
         ),
+        MiningEligibilityProxyRewardRequestorSet(
+            AccountId,
+            MiningEligibilityProxyIndex,
+            BalanceOf,
+            u64,
+            u32,
+            Moment,
+        ),
         IsAMember(AccountId),
     }
 );
@@ -124,7 +132,7 @@ decl_storage! {
                 <T as pallet_timestamp::Trait>::Moment,
             >>;
 
-        // IGNORE
+        // IGNORE - seems unnessary since can get from MiningEligibilityProxyRewardRequests
         // pub MiningEligibilityProxyRewardees get(fn mining_eligibility_proxy_eligibility_rewardees): map hasher(opaque_blake2_256) T::MiningEligibilityProxyRewardeeIndex =>
         //     Option<MiningEligibilityProxyRewardee<
         //         u64,                        // reward_hash
@@ -137,18 +145,18 @@ decl_storage! {
 
         /// Stores reward_requests for given rewardee
         ///
-        /// requestor_acct_id > (reward_hash, total_amt, rewardee_count, user_type, date)
-        /// where user_type is either supernode_center 1 or supernode 2 or individual 3
+        /// requestor_acct_id > (reward_hash, total_amt, rewardee_count, member_kind, date)
+        /// where member_kind is either supernode_center 1 or supernode 2 or individual 3
         pub MiningEligibilityProxyRewardRequestors get(fn reward_requestors):
             map hasher(opaque_blake2_256) T::AccountId =>
-                Vec<(T::MiningEligibilityProxyIndex, BalanceOf<T>, u32, u32, T::Moment)>;
+                Option<Vec<(T::MiningEligibilityProxyIndex, BalanceOf<T>, u64, u32, T::Moment)>>;
 
         /// Stores is_reward_sent for given rewardee
         ///
-        /// rewardee_acct_id > (reward_hash, bool, total_amt, rewardee_count, user_type, date)
+        /// rewardee_acct_id > (reward_hash, bool, total_amt, rewardee_count, member_kind, date)
         pub MiningEligibilityProxyIsRewardSent get(fn is_reward_sent):
             map hasher(opaque_blake2_256) T::AccountId =>
-                (T::MiningEligibilityProxyIndex, bool, BalanceOf<T>, u32, u32, T::Moment);
+                (T::MiningEligibilityProxyIndex, bool, BalanceOf<T>, u64, u32, T::Moment);
 
         /// Stores accumulation of daily_rewards_sent on a given date
         /// Note: Must store date/time value as the same for all rewards sent on same day
@@ -181,9 +189,7 @@ decl_module! {
             let member_kind = T::MembershipSource::account_kind(sender.clone());
             debug::info!("Account kind: {:?}", member_kind.clone());
 
-            // TODO - continue from here....
-
-            let mining_eligibility_proxy_id;
+            let mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex;
             match Self::create(sender.clone()) {
                 Ok(proxy_id) => {
                     mining_eligibility_proxy_id = proxy_id.into();
@@ -219,16 +225,34 @@ decl_module! {
                     <T as Trait>::Currency::transfer(
                         &treasury_account_id,
                         &sender,
-                        reward_to_pay,
+                        reward_to_pay.clone(),
                         ExistenceRequirement::KeepAlive
                     );
+
+                    let _rewardees_data_len: usize = rewardees_data.len();
+
+                    // rewardees_data_len.clone().try_into().unwrap(),
+
+                    // Try to convert usize into u64
+                    let rewardees_data_len_to_try = TryInto::<u64>::try_into(_rewardees_data_len).ok();
+                    if let Some(rewardees_data_len) = rewardees_data_len_to_try {
+                        Self::insert_mining_eligibility_proxy_reward_requestor(
+                            &sender.clone(),
+                            mining_eligibility_proxy_id.clone(),
+                            reward_to_pay.clone(),
+                            rewardees_data_len.clone(),
+                            member_kind.clone(),
+                            // Note: we get the current timestamp inside the function itself
+                        );
+                    }
+                    debug::info!("Setting the proxy eligibility reward requestor");
                 }
 
                 debug::info!("Setting the proxy eligibility results");
 
                 Self::set_mining_eligibility_proxy_eligibility_result(
                     sender.clone(),
-                    mining_eligibility_proxy_id,
+                    mining_eligibility_proxy_id.clone(),
                     _proxy_claim_total_reward_amount,
                     rewardees_data,
                 );
@@ -370,6 +394,20 @@ impl<T: Trait> Module<T> {
         Err(DispatchError::Other("No value for mining_eligibility_proxy_reward_request"))
     }
 
+    pub fn has_value_for_mining_eligibility_proxy_reward_requestor_account_id(
+        requestor: &T::AccountId,
+    ) -> Result<(), DispatchError> {
+        debug::info!("Checking if mining_eligibility_proxy_reward_requestor has a value for the given account id that is defined");
+        let fetched_mining_eligibility_proxy_reward_requestor =
+            <MiningEligibilityProxyRewardRequestors<T>>::get(requestor);
+        if let Some(_value) = fetched_mining_eligibility_proxy_reward_requestor {
+            debug::info!("Found value for mining_eligibility_proxy_reward_requestor");
+            return Ok(());
+        }
+        debug::info!("No value for mining_eligibility_proxy_reward_requestor");
+        Err(DispatchError::Other("No value for mining_eligibility_proxy_reward_requestor"))
+    }
+
     fn random_value(sender: &T::AccountId) -> [u8; 16] {
         let payload = (
             T::Randomness::random(&[0]),
@@ -397,6 +435,63 @@ impl<T: Trait> Module<T> {
         <MiningEligibilityProxys<T>>::insert(mining_eligibility_proxy_id, mining_eligibility_proxy);
         <MiningEligibilityProxyCount<T>>::put(mining_eligibility_proxy_id + One::one());
         <MiningEligibilityProxyOwners<T>>::insert(mining_eligibility_proxy_id, owner.clone());
+    }
+
+    fn insert_mining_eligibility_proxy_reward_requestor(
+        requestor: &T::AccountId,
+        mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
+        reward_to_pay: BalanceOf<T>,
+        rewardees_count: u64,
+        member_kind: u32,
+    ) {
+        let proxy_claim_timestamp_requested = <pallet_timestamp::Module<T>>::get();
+
+        // Tuple
+        let new_reward_request = (
+            mining_eligibility_proxy_id.clone(),
+            reward_to_pay.clone(),
+            rewardees_count.clone(),
+            member_kind.clone(),
+            proxy_claim_timestamp_requested.clone(),
+        );
+
+        // Check if a mining_eligibility_proxy_reward_requestor already exists with the given requestor account id
+        // to determine whether to insert new or mutate existing.
+        if Self::has_value_for_mining_eligibility_proxy_reward_requestor_account_id(&requestor.clone()).is_ok() {
+            debug::info!("Mutating values");
+
+            let reward_requests_for_requestor = Self::reward_requestors(&requestor);
+
+            <MiningEligibilityProxyRewardRequestors<T>>::mutate(
+                requestor.clone(),
+                |mining_eligibility_proxy_reward_requestor| {
+                    if let Some(_mining_eligibility_proxy_reward_requestor) = mining_eligibility_proxy_reward_requestor {
+                        _mining_eligibility_proxy_reward_requestor.push(new_reward_request.clone());
+                    }
+                },
+            );
+        } else {
+            debug::info!("Inserting values");
+
+            let mut vec = Vec::new();
+            vec.push(new_reward_request);
+
+            <MiningEligibilityProxyRewardRequestors<T>>::insert(
+                requestor.clone(),
+                &vec,
+            );
+        }
+
+        debug::info!("Inserted proxy_reward_requestor");
+
+        Self::deposit_event(RawEvent::MiningEligibilityProxyRewardRequestorSet(
+            requestor.clone(),
+            mining_eligibility_proxy_id.clone(),
+            reward_to_pay.clone(),
+            rewardees_count.clone(),
+            member_kind.clone(),
+            proxy_claim_timestamp_requested.clone(),
+        ));
     }
 
     /// Set mining_eligibility_proxy_reward_request

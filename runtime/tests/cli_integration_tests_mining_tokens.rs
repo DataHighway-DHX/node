@@ -725,6 +725,21 @@ mod tests {
                 })
             );
 
+            // Check that data about the proxy claim reward requestor data has been stored.
+            assert_eq!(
+                // Check latest request added to vector for requestor AccountId 0
+                MiningEligibilityProxyTestModule::reward_requestors(1u64).unwrap().pop(),
+                Some(
+                        (
+                        0u64,       // mining_eligibility_proxy_id
+                        1000u64,    // total_amt
+                        1u64,       // rewardee_count
+                        1u32,       // member_kind
+                        1u64,       // current timestamp when requested
+                    )
+                )
+            );
+
             // TODO - add scenario using endpoint where an individual Supernode requests rewards.
         });
     }
