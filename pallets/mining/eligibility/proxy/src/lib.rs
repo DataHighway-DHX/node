@@ -220,20 +220,11 @@ decl_module! {
                 if let Some(reward_to_pay) = reward_to_pay_as_balance_to_try {
                     // ensure!(max_payout > reward_to_pay, "Reward cannot exceed treasury balance");
 
-                    debug::info!("Treasury paying reward");
-
-                    <T as Trait>::Currency::transfer(
-                        &treasury_account_id,
-                        &sender,
-                        reward_to_pay.clone(),
-                        ExistenceRequirement::KeepAlive
-                    );
+                    // Store Requestor of the reward
 
                     let _rewardees_data_len: usize = rewardees_data.len();
-
-                    // rewardees_data_len.clone().try_into().unwrap(),
-
                     // Try to convert usize into u64
+                    // note: rewardees_data_len.clone().try_into().unwrap(),
                     let rewardees_data_len_to_try = TryInto::<u64>::try_into(_rewardees_data_len).ok();
                     if let Some(rewardees_data_len) = rewardees_data_len_to_try {
                         Self::insert_mining_eligibility_proxy_reward_requestor(
@@ -246,6 +237,15 @@ decl_module! {
                         );
                     }
                     debug::info!("Setting the proxy eligibility reward requestor");
+
+                    debug::info!("Treasury paying reward");
+
+                    <T as Trait>::Currency::transfer(
+                        &treasury_account_id,
+                        &sender,
+                        reward_to_pay.clone(),
+                        ExistenceRequirement::KeepAlive
+                    );
                 }
 
                 debug::info!("Setting the proxy eligibility results");
