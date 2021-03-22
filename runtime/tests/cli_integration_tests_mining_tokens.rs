@@ -769,6 +769,11 @@ mod tests {
             // Check latest transfer added to vector for requestor AccountId 0
             assert_eq!(
                 MiningEligibilityProxyTestModule::rewards_daily(1u64).unwrap().pop(),
+                // TODO - instead of using `RewardDailyData` from the implementation, consider
+                // creating a mock of it instead and decorate it with `Debug` and so forth
+                // like in the implementation. It doesn't cause any errors at the moment
+                // because `RewardDailyData` only uses generics in the implementation,
+                // but if it was defined with specific types then it would generate errors
                 Some(RewardDailyData {
                     mining_eligibility_proxy_id: 1u64,
                     total_amt: 2000u64,
