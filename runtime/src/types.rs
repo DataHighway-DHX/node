@@ -34,3 +34,6 @@ pub type Hash = sp_core::H256;
 pub type DigestItem = generic::DigestItem<Hash>;
 
 pub type Moment = u64;
+
+/// Balance of an account.
+pub type Balance = u128;

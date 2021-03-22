@@ -22,7 +22,12 @@ To skip running the CI unnecessarily for simple changes such as updating the doc
 
 ### Linting
 
-Please apply Rust Format on your changes prior to creating a PR. See [Linting](#chapter-c345d7).
+Check with Rust Format. Note: If you need a specific version of it replace `+nightly` with say `+nightly-2020-10-06`
+```
+cargo +nightly fmt --all -- --check
+```
+
+If you wish to apply Rust Format on your changes prior to creating a PR. See [Linting](#chapter-c345d7).
 
 ```bash
 cargo +nightly fmt --all
@@ -92,16 +97,16 @@ cargo test -p roaming-sessions &&
 cargo test -p roaming-billing-policies &&
 cargo test -p roaming-charging-policies &&
 cargo test -p roaming-packet-bundles &&
-cargo test -p mining-speed-boosts-configuration-token-mining &&
-cargo test -p mining-speed-boosts-configuration-hardware-mining &&
-cargo test -p mining-speed-boosts-rates-token-mining &&
-cargo test -p mining-speed-boosts-rates-hardware-mining &&
-cargo test -p mining-speed-boosts-sampling-token-mining &&
-cargo test -p mining-speed-boosts-sampling-hardware-mining &&
-cargo test -p mining-speed-boosts-eligibility-token-mining &&
-cargo test -p mining-speed-boosts-eligibility-hardware-mining &&
-cargo test -p mining-speed-boosts-lodgements-token-mining &&
-cargo test -p mining-speed-boosts-lodgements-hardware-mining
+cargo test -p mining-config-token &&
+cargo test -p mining-config-hardware &&
+cargo test -p mining-rates-token &&
+cargo test -p mining-rates-hardware &&
+cargo test -p mining-sampling-token &&
+cargo test -p mining-sampling-hardware &&
+cargo test -p mining-eligibility-token &&
+cargo test -p mining-eligibility-hardware &&
+cargo test -p mining-claims-token &&
+cargo test -p mining-claims-hardware
 ```
 
 ### Run Integration Tests Only
@@ -120,7 +125,7 @@ cargo test -p datahighway-runtime --test cli_integration_tests_mining_tokens
 ## Continuous Integration <a id="chapter-7a8301"></a>
 
 Github Actions are used for Continuous Integration.
-View the latest [CI Build Status](https://github.com/DataHighway-DHX/node/actions?query=workflow%3ACI+branch%3Adevelop) of the 'develop' branch, from which all Pull Requests are made into the 'master' branch.
+View the latest [CI Build Status](https://github.com/DataHighway-DHX/node/actions?query=branch%3Adevelop) of the 'develop' branch, from which all Pull Requests are made into the 'master' branch.
 
 Note: We do not watch Pull Requests from the 'master' branch, as they would come from Forked repos.
 
@@ -142,9 +147,9 @@ cargo clippy --release -- -D warnings
 The following is a temporary fix. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
 
 ```
-rustup component add clippy --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
-rustup component add clippy-preview --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
-cargo +nightly-2020-02-17 clippy-preview -Zunstable-options
+rustup component add clippy --toolchain nightly-2020-10-06-x86_64-unknown-linux-gnu
+rustup component add clippy-preview --toolchain nightly-2020-10-06-x86_64-unknown-linux-gnu
+cargo +nightly-2020-10-06 clippy-preview -Zunstable-options
 ```
 
 #### Clippy and Continuous Integration (CI)
@@ -170,7 +175,7 @@ The styles are defined in the rustfmt.toml configuration file, which was generat
 #### Install RustFmt
 
 ```bash
-rustup component add rustfmt --toolchain nightly-2020-02-17-x86_64-unknown-linux-gnu
+rustup component add rustfmt --toolchain nightly-2020-10-06-x86_64-unknown-linux-gnu
 ```
 
 #### Check Formating Changes that RustFmt before applying them
@@ -215,7 +220,7 @@ substrate-module-new <module-name> <author>
 	so we must manually change this to the latest Rust Nightly version only
 	when it is known to work.
 		```bash
-		rustup toolchain install nightly-2020-02-17
+		rustup toolchain install nightly-2020-10-06
 		rustup update stable
 		rustup target add wasm32-unknown-unknown --toolchain nightly
 		```
@@ -225,7 +230,7 @@ substrate-module-new <module-name> <author>
 	and because developers may forget to update to the latest version of Rust
 	Nightly locally. So the solution is to install a specific version of
 	Rust Nightly in .github/workflows/rust.yml (i.e.
-	`rustup toolchain install nightly-2020-02-17`), since for example
+	`rustup toolchain install nightly-2020-10-06`), since for example
 	the latest Rust Nightly version nightly-2020-02-20 may cause our CI tests
 	to fail (i.e. https://github.com/DataHighway-DHX/node/issues/32)
 
@@ -267,6 +272,10 @@ substrate-module-new <module-name> <author>
 * Question: How do I run two nodes on the same host machine?
 	* Answer:
 		* Refer to "Testnet (Alpha) "testnet_latest" PoS testnet (with multiple nodes)" in [EXAMPLES](./EXAMPLES.md).
+
+* Question: Why I try to connect to my Substrate node usig Polkadot.js, by going to https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944, why do I get error `WebSocket connection to 'ws://127.0.0.1:9944/' failed: Unknown reason, API-WS: disconnected from ws://127.0.0.1:9944: 1006:: Abnormal Closure`
+	* Answer:
+		* Try using a different web browser. Brave may not work, however Chrome might. Try running Polkadot.js app locally instead. See https://stackoverflow.com/questions/45572440/how-to-access-an-insecure-websocket-from-a-secure-website
 
 ## Technical Support <a id="chapter-c00ab7"></a>
 

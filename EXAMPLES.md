@@ -46,7 +46,7 @@ rm -rf /tmp/polkadot-chains/alice /tmp/polkadot-chains/bob /tmp/polkadot-chains/
   --base-path /tmp/polkadot-chains/alice \
   --name "Data Highway Development Chain" \
   --dev \
-  --telemetry-url wss://telemetry.polkadot.io/submit/
+  --telemetry-url "wss://telemetry.polkadot.io/submit/ 0"
 ```
 
 ## Example "local" PoS testnet (with multiple nodes) <a id="chapter-f21efd"></a>
@@ -87,22 +87,22 @@ cargo build --release
 * Generate the chain specification JSON file from src/chain_spec.rs
 
 ```bash
-rm ./src/chain-spec-templates/chain_spec_local.json
-touch ./src/chain-spec-templates/chain_spec_local.json
-mkdir -p ./src/chain-spec-templates
+rm ./node/src/chain-spec-templates/chain_spec_local.json
+touch ./node/src/chain-spec-templates/chain_spec_local.json
+mkdir -p ./node/src/chain-spec-templates
 ./target/release/datahighway build-spec \
-  --chain=local > ./src/chain-spec-templates/chain_spec_local.json
+  --chain=local > ./node/src/chain-spec-templates/chain_spec_local.json
 ```
 
 * Build "raw" chain definition for the new chain from it
 
 ```bash
-rm ./src/chain-definition-custom/chain_def_local.json
-touch ./src/chain-definition-custom/chain_def_local.json
-mkdir -p ./src/chain-definition-custom
+rm ./node/src/chain-definition-custom/chain_def_local.json
+touch ./node/src/chain-definition-custom/chain_def_local.json
+mkdir -p ./node/src/chain-definition-custom
 ./target/release/datahighway build-spec \
-  --chain ./src/chain-spec-templates/chain_spec_local.json \
-  --raw > ./src/chain-definition-custom/chain_def_local.json
+  --chain ./node/src/chain-spec-templates/chain_spec_local.json \
+  --raw > ./node/src/chain-definition-custom/chain_def_local.json
 ```
 
 > Remember to purge the chain state if you change anything (database and keys)
@@ -129,15 +129,16 @@ Run Alice's bootnode using the raw chain definition file that was generated
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/alice \
   --keystore-path "/tmp/polkadot-chains/alice/keys" \
-  --chain ./src/chain-definition-custom/chain_def_local.json \
+  --chain ./node/src/chain-definition-custom/chain_def_local.json \
   --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee \
   --alice \
   --port 30333 \
   --ws-port 9944 \
   --rpc-port 9933 \
-  --telemetry-url wss://telemetry.polkadot.io/submit/ \
+  --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
   --execution=native \
-  -lruntime=debug
+  -lruntime=debug \
+  --rpc-methods=Unsafe
 ```
 
 When the node has started, copy the libp2p local node identity of the node, and paste in the `bootNodes` of chain_def_local.json if necessary.
@@ -159,14 +160,15 @@ Run Bob's Substrate-based node on a different TCP port of 30334, and with his ch
   --base-path /tmp/polkadot-chains/bob \
   --keystore-path "/tmp/polkadot-chains/bob/keys" \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
-  --chain ./src/chain-definition-custom/chain_def_local.json \
+  --chain ./node/src/chain-definition-custom/chain_def_local.json \
   --bob \
   --port 30334 \
   --ws-port 9945 \
   --rpc-port 9934 \
-  --telemetry-url wss://telemetry.polkadot.io/submit/ \
+  --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
   --execution=native \
-  -lruntime=debug
+  -lruntime=debug \
+  --rpc-methods=Unsafe
 ```
 
 > Important: Since in GRANDPA you have authority set of size 4, it means you need 3 nodes running in order to **finalize** the blocks that are authored. (Credit: @bkchr Bastian Köcher)
@@ -183,14 +185,15 @@ Run Charlie's Substrate-based node on a different TCP port of 30335, and with hi
   --base-path /tmp/polkadot-chains/charlie \
   --keystore-path "/tmp/polkadot-chains/charlie/keys" \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
-  --chain ./src/chain-definition-custom/chain_def_local.json \
+  --chain ./node/src/chain-definition-custom/chain_def_local.json \
   --charlie \
   --port 30335 \
   --ws-port 9946 \
   --rpc-port 9935 \
-  --telemetry-url wss://telemetry.polkadot.io/submit/ \
+  --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
   --execution=native \
-  -lruntime=debug
+  -lruntime=debug \
+  --rpc-methods=Unsafe
 ```
 
 * Check that the chain is finalizing blocks (i.e. finalized is non-zero `main-tokio- INFO substrate  Idle (2 peers), best: #3 (0xaede…b8d9), finalized #1 (0x4c69…f605), ⬇ 3.3kiB/s ⬆ 3.7kiB/s`)
@@ -397,7 +400,7 @@ Once you've established a connection between the UI and the DataHighway testnet,
   * Click "Stake" from the sidebar menu. Refer to the [Polkadot wiki's collator, validator, and nominator guides](https://wiki.polkadot.network/docs/en/maintain-guides-how-to-validate-kusama)
 * Chain state interaction (i.e. roaming, mining, etc):
   * Click "Chain state" from the sidebar menu, then click tab "Storage"
-  * Click "selected state query" selection box, and then as an example, choose "dataHighwayMiningSpeedBoostLodgement", and see if it works yet (WIP).
+  * Click "selected state query" selection box, and then as an example, choose "dataHighwayMiningClaim", and see if it works yet (WIP).
 * Extrinsics interaction (i.e. roaming, mining, etc):
   * Click "Extrinsics" from the sidebar menu.
 

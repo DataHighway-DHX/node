@@ -1,26 +1,23 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-
 use codec::{
     Decode,
     Encode,
 };
-use frame_support::traits::{
-    Currency,
-    ExistenceRequirement,
-    Randomness,
-};
-/// A runtime module for managing non-fungible tokens
 use frame_support::{
     decl_event,
     decl_module,
     decl_storage,
+    dispatch,
     ensure,
+    traits::{
+        Currency,
+        ExistenceRequirement,
+        Get,
+        Randomness,
+    },
     Parameter,
 };
-use frame_system::{
-    self as system,
-    ensure_signed,
-};
+use frame_system::ensure_signed;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -73,16 +70,16 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingOperators {
         /// Stores all the roaming operators, key is the roaming operator id / index
-        pub RoamingOperators get(fn roaming_operator): map hasher(blake2_256) T::RoamingOperatorIndex => Option<RoamingOperator>;
+        pub RoamingOperators get(fn roaming_operator): map hasher(opaque_blake2_256) T::RoamingOperatorIndex => Option<RoamingOperator>;
 
         /// Stores the total number of roaming operators. i.e. the next roaming operator index
         pub RoamingOperatorsCount get(fn roaming_operators_count): T::RoamingOperatorIndex;
 
         /// Get roaming operator owner
-        pub RoamingOperatorOwners get(fn roaming_operator_owner): map hasher(blake2_256) T::RoamingOperatorIndex => Option<T::AccountId>;
+        pub RoamingOperatorOwners get(fn roaming_operator_owner): map hasher(opaque_blake2_256) T::RoamingOperatorIndex => Option<T::AccountId>;
 
         /// Get roaming operator price. None means not for sale.
-        pub RoamingOperatorPrices get(fn roaming_operator_price): map hasher(blake2_256) T::RoamingOperatorIndex => Option<BalanceOf<T>>
+        pub RoamingOperatorPrices get(fn roaming_operator_price): map hasher(opaque_blake2_256) T::RoamingOperatorIndex => Option<BalanceOf<T>>
     }
 }
 
@@ -93,7 +90,8 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new roaming operator
-        pub fn create(origin) {
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
+        pub fn create(origin) -> dispatch::DispatchResult {
             let sender = ensure_signed(origin)?;
             let roaming_operator_id = Self::next_roaming_operator_id()?;
 
@@ -105,9 +103,11 @@ decl_module! {
             Self::insert_roaming_operator(&sender, roaming_operator_id, roaming_operator);
 
             Self::deposit_event(RawEvent::Created(sender, roaming_operator_id));
+            Ok(())
         }
 
         /// Transfer a roaming operator to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, roaming_operator_id: T::RoamingOperatorIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -120,6 +120,7 @@ decl_module! {
 
         /// Set a price for a roaming operator for sale
         /// None to delist the roaming operator
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_price(origin, roaming_operator_id: T::RoamingOperatorIndex, price: Option<BalanceOf<T>>) {
             let sender = ensure_signed(origin)?;
 
@@ -135,6 +136,7 @@ decl_module! {
         }
 
         /// Buy a roaming operator with max price willing to pay
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn buy(origin, roaming_operator_id: T::RoamingOperatorIndex, price: BalanceOf<T>) {
             let sender = ensure_signed(origin)?;
 

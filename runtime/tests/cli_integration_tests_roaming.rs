@@ -15,23 +15,23 @@ extern crate roaming_service_profiles as service_profiles;
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     use frame_support::{
-        assert_noop,
         assert_ok,
         impl_outer_origin,
         parameter_types,
-        weights::Weight,
+        weights::{
+            IdentityFee,
+            Weight,
+        },
     };
-    use frame_system::{self as system,};
+
     use sp_core::H256;
     use sp_runtime::{
         testing::Header,
         traits::{
             BlakeTwo256,
             IdentityLookup,
-            OnFinalize,
             Zero,
         },
         DispatchResult,
@@ -41,42 +41,35 @@ mod tests {
     // Import Trait for each runtime module being tested
     use roaming_accounting_policies::{
         Module as RoamingAccountingPolicyModule,
-        RoamingAccountingPolicy,
         RoamingAccountingPolicyConfig,
         Trait as RoamingAccountingPolicyTrait,
     };
     use roaming_agreement_policies::{
         Module as RoamingAgreementPolicyModule,
-        RoamingAgreementPolicy,
         RoamingAgreementPolicyConfig,
         Trait as RoamingAgreementPolicyTrait,
     };
     use roaming_billing_policies::{
         Module as RoamingBillingPolicyModule,
-        RoamingBillingPolicy,
         RoamingBillingPolicyConfig,
         Trait as RoamingBillingPolicyTrait,
     };
     use roaming_charging_policies::{
         Module as RoamingChargingPolicyModule,
-        RoamingChargingPolicy,
         RoamingChargingPolicyConfig,
         Trait as RoamingChargingPolicyTrait,
     };
     use roaming_device_profiles::{
         Module as RoamingDeviceProfileModule,
-        RoamingDeviceProfile,
         RoamingDeviceProfileConfig,
         Trait as RoamingDeviceProfileTrait,
     };
     use roaming_devices::{
         Module as RoamingDeviceModule,
-        RoamingDevice,
         Trait as RoamingDeviceTrait,
     };
     use roaming_network_profiles::{
         Module as RoamingNetworkProfileModule,
-        RoamingNetworkProfile,
         Trait as RoamingNetworkProfileTrait,
     };
     use roaming_network_servers::{
@@ -97,12 +90,10 @@ mod tests {
     };
     use roaming_routing_profiles::{
         Module as RoamingRoutingProfileModule,
-        RoamingRoutingProfile,
         Trait as RoamingRoutingProfileTrait,
     };
     use roaming_service_profiles::{
         Module as RoamingServiceProfileModule,
-        RoamingServiceProfile,
         Trait as RoamingServiceProfileTrait,
     };
 
@@ -126,11 +117,15 @@ mod tests {
         type AccountData = pallet_balances::AccountData<u64>;
         type AccountId = u64;
         type AvailableBlockRatio = AvailableBlockRatio;
+        type BaseCallFilter = ();
+        type BlockExecutionWeight = ();
         type BlockHashCount = BlockHashCount;
         type BlockNumber = u64;
         type Call = ();
+        type DbWeight = ();
         // type WeightMultiplierUpdate = ();
         type Event = ();
+        type ExtrinsicBaseWeight = ();
         type Hash = H256;
         type Hashing = BlakeTwo256;
         type Header = Header;
@@ -138,10 +133,12 @@ mod tests {
         type Lookup = IdentityLookup<Self::AccountId>;
         type MaximumBlockLength = MaximumBlockLength;
         type MaximumBlockWeight = MaximumBlockWeight;
-        type ModuleToIndex = ();
+        type MaximumExtrinsicWeight = MaximumBlockWeight;
         type OnKilledAccount = ();
         type OnNewAccount = ();
         type Origin = Origin;
+        type PalletInfo = ();
+        type SystemWeightInfo = ();
         type Version = ();
     }
     parameter_types! {
@@ -153,14 +150,15 @@ mod tests {
         type DustRemoval = ();
         type Event = ();
         type ExistentialDeposit = ExistentialDeposit;
+        type MaxLocks = ();
+        type WeightInfo = ();
     }
     impl pallet_transaction_payment::Trait for Test {
         type Currency = Balances;
         type FeeMultiplierUpdate = ();
         type OnTransactionPayment = ();
-        type TransactionBaseFee = ();
         type TransactionByteFee = ();
-        type WeightToFee = ();
+        type WeightToFee = IdentityFee<u64>;
     }
     impl RoamingOperatorTrait for Test {
         type Currency = Balances;
@@ -183,7 +181,6 @@ mod tests {
     impl RoamingAgreementPolicyTrait for Test {
         type Event = ();
         type RoamingAgreementPolicyActivationType = Vec<u8>;
-        type RoamingAgreementPolicyExpiry = u64;
         type RoamingAgreementPolicyIndex = u64;
     }
     impl RoamingAccountingPolicyTrait for Test {
@@ -210,15 +207,11 @@ mod tests {
     }
     impl RoamingBillingPolicyTrait for Test {
         type Event = ();
-        type RoamingBillingPolicyFrequencyInDays = u64;
         type RoamingBillingPolicyIndex = u64;
-        type RoamingBillingPolicyNextBillingAt = u64;
     }
     impl RoamingChargingPolicyTrait for Test {
         type Event = ();
-        type RoamingChargingPolicyDelayAfterBillingInDays = u64;
         type RoamingChargingPolicyIndex = u64;
-        type RoamingChargingPolicyNextChargingAt = u64;
     }
     impl RoamingNetworkProfileTrait for Test {
         type Event = ();
@@ -259,7 +252,9 @@ mod tests {
         }
         .assimilate_storage(&mut t)
         .unwrap();
-        sp_io::TestExternalities::new(t)
+        let mut ext = sp_io::TestExternalities::new(t);
+        ext.execute_with(|| System::set_block_number(1));
+        ext
     }
 
     // Create Users on Data Highway
@@ -402,7 +397,7 @@ mod tests {
                 RoamingAgreementPolicyTestModule::roaming_agreement_policy_configs(0),
                 Some(RoamingAgreementPolicyConfig {
                     policy_activation_type: b"passive".to_vec(),
-                    policy_expiry: 2019,
+                    policy_expiry_block: 2019,
                 })
             );
 
@@ -488,8 +483,8 @@ mod tests {
             assert_eq!(
                 RoamingBillingPolicyTestModule::roaming_billing_policy_configs(0),
                 Some(RoamingBillingPolicyConfig {
-                    policy_next_billing_at: 102020,
-                    policy_frequency_in_days: 30,
+                    policy_next_billing_at_block: 102020,
+                    policy_frequency_in_blocks: 30,
                 })
             );
 
@@ -528,8 +523,8 @@ mod tests {
             assert_eq!(
                 RoamingChargingPolicyTestModule::roaming_charging_policy_configs(0),
                 Some(RoamingChargingPolicyConfig {
-                    policy_next_charging_at: 102020,
-                    policy_delay_after_billing_in_days: 7,
+                    policy_next_charging_at_block: 102020,
+                    policy_delay_after_billing_in_blocks: 7,
                 })
             );
 

@@ -4,24 +4,21 @@ use codec::{
     Decode,
     Encode,
 };
-use frame_support::traits::{
-    Currency,
-    ExistenceRequirement,
-    Randomness,
-};
-/// A runtime module for managing non-fungible tokens
 use frame_support::{
     debug,
     decl_event,
     decl_module,
     decl_storage,
     ensure,
+    traits::{
+        Currency,
+        ExistenceRequirement,
+        Get,
+        Randomness,
+    },
     Parameter,
 };
-use frame_system::{
-    self as system,
-    ensure_signed,
-};
+use frame_system::ensure_signed;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -55,8 +52,6 @@ pub trait Trait:
     type RoamingPacketBundleReceivedAtHome: Parameter + Member + Default;
     type RoamingPacketBundleReceivedPacketsCount: Parameter + Member + Default;
     type RoamingPacketBundleReceivedPacketsOkCount: Parameter + Member + Default;
-    type RoamingPacketBundleReceivedStartedAt: Parameter + Member + Default;
-    type RoamingPacketBundleReceivedEndedAt: Parameter + Member + Default;
     type RoamingPacketBundleExternalDataStorageHash: Parameter + Member + Default;
 }
 
@@ -74,8 +69,8 @@ pub struct RoamingPacketBundleReceiver<U, V, W, X, Y, Z> {
     packet_bundle_received_at_home: U,
     packet_bundle_received_packets_count: V,
     packet_bundle_received_packets_ok_count: W,
-    packet_bundle_received_started_at: X,
-    packet_bundle_received_ended_at: Y,
+    packet_bundle_received_started_at_block: X,
+    packet_bundle_received_ended_at_block: Y,
     packet_bundle_external_data_storage_hash: Z,
 }
 
@@ -86,14 +81,13 @@ decl_event!(
         <T as Trait>::RoamingPacketBundleReceivedAtHome,
         <T as Trait>::RoamingPacketBundleReceivedPacketsCount,
         <T as Trait>::RoamingPacketBundleReceivedPacketsOkCount,
-        <T as Trait>::RoamingPacketBundleReceivedStartedAt,
-        <T as Trait>::RoamingPacketBundleReceivedEndedAt,
         <T as Trait>::RoamingPacketBundleExternalDataStorageHash,
         // <T as roaming_devices::Trait>::RoamingDeviceIndex,
         <T as roaming_sessions::Trait>::RoamingSessionIndex,
         <T as roaming_network_servers::Trait>::RoamingNetworkServerIndex,
         // <T as roaming_operators::Trait>::RoamingOperatorIndex,
         Balance = BalanceOf<T>,
+        <T as frame_system::Trait>::BlockNumber,
     {
         /// A roaming packet_bundle is created. (owner, roaming_packet_bundle_id)
         Created(AccountId, RoamingPacketBundleIndex),
@@ -107,8 +101,8 @@ decl_event!(
         // RoamingPacketBundleReceiverSet(AccountId, RoamingPacketBundleIndex, RoamingPacketBundleNextBillingAt, RoamingPacketBundleFrequencyInDays),
         /// A roaming packet_bundle receiver was set
         RoamingPacketBundleReceiverSet(AccountId, RoamingPacketBundleIndex, RoamingNetworkServerIndex, RoamingPacketBundleReceivedAtHome,
-            RoamingPacketBundleReceivedPacketsCount, RoamingPacketBundleReceivedPacketsOkCount, RoamingPacketBundleReceivedStartedAt,
-            RoamingPacketBundleReceivedEndedAt, RoamingPacketBundleExternalDataStorageHash),
+            RoamingPacketBundleReceivedPacketsCount, RoamingPacketBundleReceivedPacketsOkCount, BlockNumber,
+            BlockNumber, RoamingPacketBundleExternalDataStorageHash),
         // /// A roaming packet_bundle is assigned to a operator. (owner of session, roaming_packet_bundle_id, roaming_operator_id)
         // AssignedPacketBundleToOperator(AccountId, RoamingPacketBundleIndex, RoamingOperatorIndex),
         /// A roaming packet_bundle is assigned to a session. (owner of session, roaming_packet_bundle_id, roaming_session_id)
@@ -120,53 +114,53 @@ decl_event!(
 decl_storage! {
     trait Store for Module<T: Trait> as RoamingPacketBundles {
         /// Stores all the roaming packet_bundle, key is the roaming packet_bundle id / index
-        pub RoamingPacketBundles get(fn roaming_packet_bundle): map hasher(blake2_256) T::RoamingPacketBundleIndex => Option<RoamingPacketBundle>;
+        pub RoamingPacketBundles get(fn roaming_packet_bundle): map hasher(opaque_blake2_256) T::RoamingPacketBundleIndex => Option<RoamingPacketBundle>;
 
         /// Stores the total number of roaming packet_bundles. i.e. the next roaming packet_bundle index
         pub RoamingPacketBundlesCount get(fn roaming_packet_bundles_count): T::RoamingPacketBundleIndex;
 
         /// Get roaming packet_bundle owner
-        pub RoamingPacketBundleOwners get(fn roaming_packet_bundle_owner): map hasher(blake2_256) T::RoamingPacketBundleIndex => Option<T::AccountId>;
+        pub RoamingPacketBundleOwners get(fn roaming_packet_bundle_owner): map hasher(opaque_blake2_256) T::RoamingPacketBundleIndex => Option<T::AccountId>;
 
         /// Get roaming packet_bundle price. None means not for sale.
-        pub RoamingPacketBundlePrices get(fn roaming_packet_bundle_price): map hasher(blake2_256) T::RoamingPacketBundleIndex => Option<BalanceOf<T>>;
+        pub RoamingPacketBundlePrices get(fn roaming_packet_bundle_price): map hasher(opaque_blake2_256) T::RoamingPacketBundleIndex => Option<BalanceOf<T>>;
 
         // /// Get roaming packet_bundle receiver
-        // pub RoamingPacketBundleReceivers get(fn roaming_packet_bundle_receivers): map hasher(blake2_256) T::RoamingPacketBundleIndex => Option<RoamingPacketBundleReceiver<T::RoamingPacketBundleNextBillingAt, T::RoamingPacketBundleFrequencyInDays>>;
+        // pub RoamingPacketBundleReceivers get(fn roaming_packet_bundle_receivers): map hasher(opaque_blake2_256) T::RoamingPacketBundleIndex => Option<RoamingPacketBundleReceiver<T::RoamingPacketBundleNextBillingAt, T::RoamingPacketBundleFrequencyInDays>>;
 
         /// Get roaming packet_bundle receiver
-        pub RoamingPacketBundleReceivers get(fn roaming_packet_bundle_receivers): map hasher(blake2_256) (T::RoamingPacketBundleIndex, T::RoamingNetworkServerIndex) =>
+        pub RoamingPacketBundleReceivers get(fn roaming_packet_bundle_receivers): map hasher(opaque_blake2_256) (T::RoamingPacketBundleIndex, T::RoamingNetworkServerIndex) =>
             Option<RoamingPacketBundleReceiver<
                 T::RoamingPacketBundleReceivedAtHome,
                 T::RoamingPacketBundleReceivedPacketsCount,
                 T::RoamingPacketBundleReceivedPacketsOkCount,
-                T::RoamingPacketBundleReceivedStartedAt,
-                T::RoamingPacketBundleReceivedEndedAt,
+                T::BlockNumber,
+                T::BlockNumber,
                 T::RoamingPacketBundleExternalDataStorageHash
             >>;
 
         /// NetworkServer to PacketBundles mapping
-        pub RoamingNetworkServerPacketBundles get(fn roaming_network_server_packet_bundles): map hasher(blake2_256) T::RoamingNetworkServerIndex => Option<Vec<T::RoamingPacketBundleIndex>>;
+        pub RoamingNetworkServerPacketBundles get(fn roaming_network_server_packet_bundles): map hasher(opaque_blake2_256) T::RoamingNetworkServerIndex => Option<Vec<T::RoamingPacketBundleIndex>>;
 
         // Device Session mapping
-        pub RoamingPacketBundleDeviceSession get(fn roaming_packet_bundle_device_sessions): map hasher(blake2_256) T::RoamingPacketBundleIndex => Option<(T::RoamingDeviceIndex, T::RoamingSessionIndex)>;
+        pub RoamingPacketBundleDeviceSession get(fn roaming_packet_bundle_device_sessions): map hasher(opaque_blake2_256) T::RoamingPacketBundleIndex => Option<(T::RoamingDeviceIndex, T::RoamingSessionIndex)>;
 
-        pub RoamingDeviceSessionPacketBundles get(fn roaming_device_session_packet_bundles): map hasher(blake2_256) (T::RoamingDeviceIndex, T::RoamingSessionIndex) => Option<Vec<T::RoamingPacketBundleIndex>>;
+        pub RoamingDeviceSessionPacketBundles get(fn roaming_device_session_packet_bundles): map hasher(opaque_blake2_256) (T::RoamingDeviceIndex, T::RoamingSessionIndex) => Option<Vec<T::RoamingPacketBundleIndex>>;
 
         // IPFS
-        pub RoamingExternalDataStorageHashPacketBundle get(fn roaming_external_data_storage_hash_packet_bundle):  map hasher(blake2_256) T::RoamingPacketBundleExternalDataStorageHash => Option<Vec<T::RoamingPacketBundleIndex>>;
+        pub RoamingExternalDataStorageHashPacketBundle get(fn roaming_external_data_storage_hash_packet_bundle):  map hasher(opaque_blake2_256) T::RoamingPacketBundleExternalDataStorageHash => Option<Vec<T::RoamingPacketBundleIndex>>;
 
         /// Get roaming packet_bundle session
-        pub RoamingPacketBundleSession get(fn roaming_packet_bundle_session): map hasher(blake2_256) T::RoamingPacketBundleIndex => Option<T::RoamingSessionIndex>;
+        pub RoamingPacketBundleSession get(fn roaming_packet_bundle_session): map hasher(opaque_blake2_256) T::RoamingPacketBundleIndex => Option<T::RoamingSessionIndex>;
 
         /// Get roaming session's packet bundles
-        pub RoamingSessionPacketBundles get(fn roaming_session_packet_bundles): map hasher(blake2_256) T::RoamingSessionIndex => Option<Vec<T::RoamingPacketBundleIndex>>
+        pub RoamingSessionPacketBundles get(fn roaming_session_packet_bundles): map hasher(opaque_blake2_256) T::RoamingSessionIndex => Option<Vec<T::RoamingPacketBundleIndex>>
 
         // /// Get roaming packet_bundle operator
-        // pub RoamingPacketBundleOperator get(fn roaming_packet_bundle_operator): map hasher(blake2_256) T::RoamingPacketBundleIndex => Option<T::RoamingOperatorIndex>;
+        // pub RoamingPacketBundleOperator get(fn roaming_packet_bundle_operator): map hasher(opaque_blake2_256) T::RoamingPacketBundleIndex => Option<T::RoamingOperatorIndex>;
 
         // /// Get roaming operator's packet bundles
-        // pub RoamingOperatorPacketBundles get(fn roaming_operator_packet_bundles): map hasher(blake2_256) T::RoamingOperatorIndex => Option<Vec<T::RoamingPacketBundleIndex>>
+        // pub RoamingOperatorPacketBundles get(fn roaming_operator_packet_bundles): map hasher(opaque_blake2_256) T::RoamingOperatorIndex => Option<Vec<T::RoamingPacketBundleIndex>>
     }
 }
 
@@ -177,6 +171,7 @@ decl_module! {
         fn deposit_event() = default;
 
         /// Create a new roaming packet_bundle
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn create(origin) {
             let sender = ensure_signed(origin)?;
             let roaming_packet_bundle_id = Self::next_roaming_packet_bundle_id()?;
@@ -192,6 +187,7 @@ decl_module! {
         }
 
         /// Transfer a roaming packet_bundle to new owner
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn transfer(origin, to: T::AccountId, roaming_packet_bundle_id: T::RoamingPacketBundleIndex) {
             let sender = ensure_signed(origin)?;
 
@@ -204,6 +200,7 @@ decl_module! {
 
         /// Set a price for a roaming packet_bundle for sale
         /// None to delist the roaming packet_bundle
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_price(origin, roaming_packet_bundle_id: T::RoamingPacketBundleIndex, price: Option<BalanceOf<T>>) {
             let sender = ensure_signed(origin)?;
 
@@ -219,6 +216,7 @@ decl_module! {
         }
 
         /// Set roaming packet_bundle receiver
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn set_receiver(
             origin,
             roaming_packet_bundle_id: T::RoamingPacketBundleIndex,
@@ -226,8 +224,8 @@ decl_module! {
             _packet_bundle_received_at_home: Option<T::RoamingPacketBundleReceivedAtHome>,
             _packet_bundle_received_packets_count: Option<T::RoamingPacketBundleReceivedPacketsCount>,
             _packet_bundle_received_packets_ok_count: Option<T::RoamingPacketBundleReceivedPacketsOkCount>,
-            _packet_bundle_received_started_at: Option<T::RoamingPacketBundleReceivedStartedAt>,
-            _packet_bundle_received_ended_at: Option<T::RoamingPacketBundleReceivedEndedAt>,
+            _packet_bundle_received_started_at_block: Option<T::BlockNumber>,
+            _packet_bundle_received_ended_at_block: Option<T::BlockNumber>,
             _packet_bundle_external_data_storage_hash: Option<T::RoamingPacketBundleExternalDataStorageHash>,
         ) {
             let sender = ensure_signed(origin)?;
@@ -262,11 +260,11 @@ decl_module! {
                 Some(value) => value,
                 None => Default::default()
             };
-            let packet_bundle_received_started_at = match _packet_bundle_received_started_at {
+            let packet_bundle_received_started_at_block = match _packet_bundle_received_started_at_block {
                 Some(value) => value,
                 None => Default::default()
             };
-            let packet_bundle_received_ended_at = match _packet_bundle_received_ended_at {
+            let packet_bundle_received_ended_at_block = match _packet_bundle_received_ended_at_block {
                 Some(value) => value,
                 None => Default::default()
             };
@@ -285,8 +283,8 @@ decl_module! {
                         _packet_bundle_receiver.packet_bundle_received_at_home = packet_bundle_received_at_home.clone();
                         _packet_bundle_receiver.packet_bundle_received_packets_count = packet_bundle_received_packets_count.clone();
                         _packet_bundle_receiver.packet_bundle_received_packets_ok_count = packet_bundle_received_packets_ok_count.clone();
-                        _packet_bundle_receiver.packet_bundle_received_started_at = packet_bundle_received_started_at.clone();
-                        _packet_bundle_receiver.packet_bundle_received_ended_at = packet_bundle_received_ended_at.clone();
+                        _packet_bundle_receiver.packet_bundle_received_started_at_block = packet_bundle_received_started_at_block.clone();
+                        _packet_bundle_receiver.packet_bundle_received_ended_at_block = packet_bundle_received_ended_at_block.clone();
                         _packet_bundle_receiver.packet_bundle_external_data_storage_hash = packet_bundle_external_data_storage_hash.clone();
                     }
                 });
@@ -296,8 +294,8 @@ decl_module! {
                     debug::info!("Latest field packet_bundle_received_at_home {:#?}", _packet_bundle_receiver.packet_bundle_received_at_home);
                     debug::info!("Latest field packet_bundle_received_packets_count {:#?}", _packet_bundle_receiver.packet_bundle_received_packets_count);
                     debug::info!("Latest field packet_bundle_received_packets_ok_count {:#?}", _packet_bundle_receiver.packet_bundle_received_packets_ok_count);
-                    debug::info!("Latest field packet_bundle_received_started_at {:#?}", _packet_bundle_receiver.packet_bundle_received_started_at);
-                    debug::info!("Latest field packet_bundle_received_ended_at {:#?}", _packet_bundle_receiver.packet_bundle_received_ended_at);
+                    debug::info!("Latest field packet_bundle_received_started_at_block {:#?}", _packet_bundle_receiver.packet_bundle_received_started_at_block);
+                    debug::info!("Latest field packet_bundle_received_ended_at_block {:#?}", _packet_bundle_receiver.packet_bundle_received_ended_at_block);
                     debug::info!("Latest field packet_bundle_external_data_storage_hash {:#?}", _packet_bundle_receiver.packet_bundle_external_data_storage_hash);
                 }
             } else {
@@ -310,8 +308,8 @@ decl_module! {
                     packet_bundle_received_at_home: packet_bundle_received_at_home.clone(),
                     packet_bundle_received_packets_count: packet_bundle_received_packets_count.clone(),
                     packet_bundle_received_packets_ok_count: packet_bundle_received_packets_ok_count.clone(),
-                    packet_bundle_received_started_at: packet_bundle_received_started_at.clone(),
-                    packet_bundle_received_ended_at: packet_bundle_received_ended_at.clone(),
+                    packet_bundle_received_started_at_block: packet_bundle_received_started_at_block.clone(),
+                    packet_bundle_received_ended_at_block: packet_bundle_received_ended_at_block.clone(),
                     packet_bundle_external_data_storage_hash: packet_bundle_external_data_storage_hash.clone()
                 };
 
@@ -326,8 +324,8 @@ decl_module! {
                     debug::info!("Inserted field packet_bundle_received_at_home {:#?}", _packet_bundle_receiver.packet_bundle_received_at_home);
                     debug::info!("Inserted field packet_bundle_received_packets_count {:#?}", _packet_bundle_receiver.packet_bundle_received_packets_count);
                     debug::info!("Inserted field packet_bundle_received_packets_ok_count {:#?}", _packet_bundle_receiver.packet_bundle_received_packets_ok_count);
-                    debug::info!("Inserted field packet_bundle_received_started_at {:#?}", _packet_bundle_receiver.packet_bundle_received_started_at);
-                    debug::info!("Inserted field packet_bundle_received_ended_at {:#?}", _packet_bundle_receiver.packet_bundle_received_ended_at);
+                    debug::info!("Inserted field packet_bundle_received_started_at_block {:#?}", _packet_bundle_receiver.packet_bundle_received_started_at_block);
+                    debug::info!("Inserted field packet_bundle_received_ended_at_block {:#?}", _packet_bundle_receiver.packet_bundle_received_ended_at_block);
                     debug::info!("Inserted field packet_bundle_external_data_storage_hash {:#?}", _packet_bundle_receiver.packet_bundle_external_data_storage_hash);
                 }
             }
@@ -339,13 +337,14 @@ decl_module! {
                 packet_bundle_received_at_home,
                 packet_bundle_received_packets_count,
                 packet_bundle_received_packets_ok_count,
-                packet_bundle_received_started_at,
-                packet_bundle_received_ended_at,
+                packet_bundle_received_started_at_block,
+                packet_bundle_received_ended_at_block,
                 packet_bundle_external_data_storage_hash
             ));
         }
 
         /// Buy a roaming packet_bundle with max price willing to pay
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn buy(origin, roaming_packet_bundle_id: T::RoamingPacketBundleIndex, price: BalanceOf<T>) {
             let sender = ensure_signed(origin)?;
 
@@ -368,6 +367,7 @@ decl_module! {
             Self::deposit_event(RawEvent::Sold(owner, sender, roaming_packet_bundle_id, roaming_packet_bundle_price));
         }
 
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn assign_packet_bundle_to_session(
             origin,
             roaming_packet_bundle_id: T::RoamingPacketBundleIndex,
@@ -502,7 +502,7 @@ impl<T: Trait> Module<T> {
         debug::info!("Ensuring that the caller has provided a network server id that actually exists");
         match <roaming_network_servers::Module<T>>::exists_roaming_network_server(roaming_network_server_id) {
             Ok(_) => Ok(()),
-            Err(e) => Err(DispatchError::Other("RoamingNetworkServer does not exist")),
+            Err(_e) => Err(DispatchError::Other("RoamingNetworkServer does not exist")),
         }
     }
 
@@ -516,7 +516,7 @@ impl<T: Trait> Module<T> {
         );
         match <roaming_network_servers::Module<T>>::is_roaming_network_server_owner(roaming_network_server_id, sender) {
             Ok(_) => Ok(()),
-            Err(e) => {
+            Err(_e) => {
                 Err(DispatchError::Other(
                     "Only owner of the given network server id associated with the given packet bundle id can set it \
                      as an associated roaming packet bundle receiver",

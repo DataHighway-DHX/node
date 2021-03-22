@@ -1,4 +1,7 @@
 //! A set of constant values used in runtime.
+//!
+//! Babe has slots within each epoch.
+//! Grandpa has sessions that are measured in blocks within each era.
 
 /// Time.
 pub mod time {
@@ -7,8 +10,7 @@ pub mod time {
         Moment,
     };
 
-    pub const MILLISECS_PER_BLOCK: Moment = 6000;
-
+    pub const MILLISECS_PER_BLOCK: Moment = 4320;
     pub const SLOT_DURATION: Moment = MILLISECS_PER_BLOCK;
 
     // These time units are defined in number of blocks.
@@ -19,7 +21,7 @@ pub mod time {
     // 1 in 4 blocks (on average, not counting collisions) will be primary BABE blocks.
     pub const PRIMARY_PROBABILITY: (u64, u64) = (1, 4);
 
-    pub const EPOCH_DURATION_IN_BLOCKS: BlockNumber = 10 * MINUTES;
+    pub const EPOCH_DURATION_IN_BLOCKS: BlockNumber = 1 * HOURS;
     pub const EPOCH_DURATION_IN_SLOTS: u64 = {
         const SLOT_FILL_RATE: f64 = MILLISECS_PER_BLOCK as f64 / SLOT_DURATION as f64;
 

@@ -1,0 +1,65 @@
+[package]
+authors = ['MXC Foundation GmbH <https://t.me/mxcfoundation>', 'Luke Schoen <luke@mxc.org>', 'Ilya Beregovskiy <ilya@mxc.org>']
+build = 'build.rs'
+edition = '2018'
+name = 'datahighway'
+version = '1.0.0'
+
+[[bin]]
+name = 'datahighway'
+
+[package.metadata.docs.rs]
+targets = ['x86_64-unknown-linux-gnu']
+
+[build-dependencies]
+substrate-build-script-utils = '2.0.0'
+vergen = '3.0.4'
+
+[dependencies]
+jsonrpc-core = '15.0.0'
+structopt = '0.3.8'
+hex-literal = '0.3.1'
+
+# local dependencies
+datahighway-runtime = { path = '../runtime', version = '1.0.0' }
+
+# Substrate dependencies
+frame-benchmarking = '2.0.0'
+frame-benchmarking-cli = '2.0.0'
+pallet-transaction-payment-rpc = '2.0.0'
+sc-basic-authorship = '0.8.0'
+sc-cli = { features = ['wasmtime'], version = '0.8.0' }
+sc-client-api = '2.0.0'
+sc-consensus-epochs = { version = '0.8.0' }
+sc-chain-spec = { version = '2.0.0' }
+sc-keystore = { version = '2.0.0' }
+sc-consensus = '0.8.0'
+sc-consensus-aura = '0.8.0'
+sc-executor = { features = ['wasmtime'], version = '0.8.0' }
+sc-rpc = '2.0.0'
+sc-rpc-api = '0.8.0'
+sc-service = { features = ['wasmtime'], version = '0.8.0' }
+sc-transaction-pool = '2.0.0'
+sp-api = '2.0.0'
+sp-block-builder = '2.0.0'
+sp-blockchain = '2.0.0'
+sp-consensus = '0.8.0'
+sp-consensus-aura = '0.8.0'
+sp-core = '2.0.0'
+sc-finality-grandpa = '0.8.0'
+sp-finality-grandpa = '2.0.0'
+sp-inherents = '2.0.0'
+sp-runtime = '2.0.0'
+sp-transaction-pool = '2.0.0'
+sp-consensus-babe = { version = '0.8.0' }
+sc-consensus-babe = { version = '0.8.0' }
+sc-consensus-babe-rpc = { version = '0.8.0' }
+sc-telemetry = { version = '2.0.0' }
+substrate-frame-rpc-system = '2.0.0'
+
+serde_json = '1.0.47'
+serde = { version = '1.0.102', features = ['derive'] }
+
+
+[features]
+default = []
