@@ -73,16 +73,15 @@ pub struct MiningEligibilityProxyClaimRewardeeData<U, V, W, X> {
                                              * covers */
 }
 
-// Tuple struct
 #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "std", derive())]
-pub struct RewardRequestorData<T: Trait> (
-    pub <T as Trait>::MiningEligibilityProxyIndex,    // mining_eligibility_proxy_id
-    pub BalanceOf<T>,                                 // total_amt
-    pub u64,                                          // rewardee_count
-    pub u32,                                          // member_kind
-    pub <T as pallet_timestamp::Trait>::Moment,       // current timestamp when requested
-);
+pub struct RewardRequestorData<T: Trait> {
+    pub mining_eligibility_proxy_id: <T as Trait>::MiningEligibilityProxyIndex,
+    pub total_amt: BalanceOf<T>,
+    pub rewardee_count: u64,
+    pub member_kind: u32,
+    pub timestamp_requested: <T as pallet_timestamp::Trait>::Moment,
+}
 
 type RewardeeData<T> = MiningEligibilityProxyClaimRewardeeData<
     <T as frame_system::Trait>::AccountId,
@@ -238,13 +237,13 @@ decl_module! {
                     if let Some(rewardees_data_len) = rewardees_data_len_to_try {
                         let timestamp_requested = <pallet_timestamp::Module<T>>::get();
 
-                        let reward_requestor_data: RewardRequestorData<T> = RewardRequestorData(
-                            mining_eligibility_proxy_id.clone(),
-                            reward_to_pay.clone(),
-                            rewardees_data_len.clone(),
-                            member_kind.clone(),
-                            timestamp_requested.clone(),
-                        );
+                        let reward_requestor_data: RewardRequestorData<T> = RewardRequestorData {
+                            mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
+                            total_amt: reward_to_pay.clone(),
+                            rewardee_count: rewardees_data_len.clone(),
+                            member_kind: member_kind.clone(),
+                            timestamp_requested: timestamp_requested.clone(),
+                        };
 
                         Self::insert_mining_eligibility_proxy_reward_requestor(
                             &sender.clone(),

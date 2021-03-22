@@ -52,6 +52,10 @@ mod tests {
         Permill,
     };
     use std::cell::RefCell;
+    use std::fmt;
+    use std::fmt::{
+        Debug
+    };
     // Import Trait for each runtime module being tested
     use datahighway_runtime::{
         AccountId,
@@ -326,6 +330,22 @@ mod tests {
     pub type MembershipSupernodesTestModule = MembershipSupernodesModule<Test>;
     type Randomness = pallet_randomness_collective_flip::Module<Test>;
     type MembershipSupernodes = membership_supernodes::Module<Test>;
+    // // Define traits in the current crate to implement it for arbitrary types
+    // type RewardRequestorDataTest = RewardRequestorData<Test>;
+
+    // impl Debug for RewardRequestorData {
+    //     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    //         // Note: use `f.debug_tuple` for Tuple Structs
+    //         // See https://substrate.dev/rustdocs/v3.0.0/frame_support/dispatch/fmt/trait.Debug.html
+    //         f.debug_struct("RewardRequestorData")
+    //          .field(&self.mining_eligibility_proxy_id)
+    //          .field(&self.total_amt)
+    //          .field(&self.rewardee_count)
+    //          .field(&self.member_kind)
+    //          .field(&self.timestamp_requested)
+    //          .finish()
+    //     }
+    // }
 
     // fn last_event() -> MiningEligibilityProxyEvent {
     //     System::events().pop().expect("Event expected").event
@@ -730,13 +750,13 @@ mod tests {
             // Check latest request added to vector for requestor AccountId 0
             assert_eq!(
                 MiningEligibilityProxyTestModule::reward_requestors(1u64).unwrap().pop(),
-                Some(RewardRequestorData(
-                    0u64,       // mining_eligibility_proxy_id
-                    1000u64,    // total_amt
-                    1u64,       // rewardee_count
-                    1u32,       // member_kind
-                    1u64,       // current timestamp when requested
-                ))
+                Some(RewardRequestorData {
+                    mining_eligibility_proxy_id: 0u64,
+                    total_amt: 1000u64,
+                    rewardee_count: 1u64,
+                    member_kind: 1u32,
+                    timestamp_requested: 1u64,
+                })
             );
 
             // TODO - add scenario using endpoint where an individual Supernode requests rewards.
