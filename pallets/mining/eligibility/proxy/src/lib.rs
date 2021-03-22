@@ -94,6 +94,16 @@ pub struct RewardTransferData<U, V, W, X, Y, Z> {
     pub timestamp_sent: Z,
 }
 
+#[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
+#[cfg_attr(feature = "std", derive())]
+pub struct RewardDailyData<U, V, W, X> {
+    pub mining_eligibility_proxy_id: U,
+    pub total_amt: V,
+    // Assume that the requestor is also the recipient
+    pub proxy_claim_requestor_account_id: W,
+    pub member_kind: X,
+}
+
 type RewardeeData<T> = MiningEligibilityProxyClaimRewardeeData<
     <T as frame_system::Trait>::AccountId,
     BalanceOf<T>,
@@ -118,6 +128,13 @@ type TransferData<T> = RewardTransferData<
     <T as pallet_timestamp::Trait>::Moment,
 >;
 
+type DailyData<T> = RewardDailyData<
+    <T as Trait>::MiningEligibilityProxyIndex,
+    BalanceOf<T>,
+    <T as frame_system::Trait>::AccountId,
+    u32,
+>;
+
 decl_event!(
     pub enum Event<T> where
         AccountId = <T as frame_system::Trait>::AccountId,
@@ -128,6 +145,7 @@ decl_event!(
         <T as pallet_timestamp::Trait>::Moment,
         RequestorData = RequestorData<T>,
         TransferData = TransferData<T>,
+        DailyData = DailyData<T>,
     {
         Created(AccountId, MiningEligibilityProxyIndex),
         MiningEligibilityProxyRewardRequestSet(
@@ -145,6 +163,10 @@ decl_event!(
         MiningEligibilityProxyRewardTransferSet(
             AccountId,
             TransferData,
+        ),
+        MiningEligibilityProxyRewardDailySet(
+            Moment,
+            DailyData,
         ),
         IsAMember(AccountId),
     }
@@ -215,9 +237,14 @@ decl_storage! {
 
         /// Stores accumulation of daily_rewards_sent on a given date
         /// Note: Must store date/time value as the same for all rewards sent on same day
-        pub MiningEligibilityProxyDailyRewardsSent get(fn daily_rewards_sent):
+        pub MiningEligibilityProxyRewardDaily get(fn rewards_daily):
             map hasher(opaque_blake2_256) T::Moment =>
-                Vec<(T::MiningEligibilityProxyIndex, BalanceOf<T>)>;
+                Option<Vec<RewardDailyData<
+                    <T as Trait>::MiningEligibilityProxyIndex,
+                    BalanceOf<T>,
+                    <T as frame_system::Trait>::AccountId,
+                    u32,
+                >>>;
     }
 }
 
@@ -226,6 +253,42 @@ decl_module! {
     /// The module declaration.
     pub struct Module<T: Trait> for enum Call where origin: <T as frame_system::Trait>::Origin {
         fn deposit_event() = default;
+
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
+        pub fn rewards_of_day(
+            origin,
+            _proxy_claim_reward_day: Option<T::Moment>,
+        ) -> Result<BalanceOf<T>, DispatchError> {
+            let sender = ensure_signed(origin)?;
+
+            if let Some(reward_day) = _proxy_claim_reward_day {
+                debug::info!("Retrieving total rewards of day {:#?}", reward_day);
+
+                let _rewards_for_reward_day = Self::rewards_daily(&reward_day);
+
+                if let Some(rewards_for_reward_day) = _rewards_for_reward_day {
+                    let mut total_daily_rewards: BalanceOf<T> = 0.into();
+                    let rewards_for_reward_day_count = rewards_for_reward_day.len();
+                    let reward_data_current_index = 0;
+
+                    for (index, reward_data) in rewards_for_reward_day.iter().enumerate() {
+                        reward_data_current_index += 1;
+                        debug::info!("reward_data_current_index {:#?}", reward_data_current_index);
+
+                        if let _total_amt = reward_data.total_amt {
+                            total_daily_rewards += _total_amt;
+                        } else {
+                            continue;
+                        }
+                    }
+                    Ok(total_daily_rewards)
+                } else {
+                    return Err(DispatchError::Other("Invalid rewards_for_reward_day data"));
+                }
+            } else {
+                return Err(DispatchError::Other("Invalid reward_day provided"));
+            }
+        }
 
         /// Transfer tokens claimed by the Supernode Centre on behalf of a Supernode from the
         /// on-chain DHX DAO unlocked reserves of the Treasury account to the Supernode Centre's address,
@@ -242,7 +305,12 @@ decl_module! {
             ensure!(Self::is_origin_whitelisted_member_supernodes(sender.clone()).is_ok(), "Only whitelisted Supernode account members may request proxy rewards");
 
             let member_kind = T::MembershipSource::account_kind(sender.clone());
-            debug::info!("Account kind: {:?}", member_kind.clone());
+            debug::info!("Requestor account kind: {:?}", member_kind.clone());
+
+            // TODO - determine whether we'll allow the recipient to be provided by the sender
+            // and how to restrict who the recipients are by membership or similar
+            let recipient_member_kind = T::MembershipSource::account_kind(sender.clone());
+            debug::info!("Recipient account kind: {:?}", recipient_member_kind.clone());
 
             let mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex;
             match Self::create(sender.clone()) {
@@ -309,7 +377,7 @@ decl_module! {
                             ExistenceRequirement::KeepAlive
                         );
 
-                        debug::info!("Treasury payed reward");
+                        debug::info!("Success paying the reward");
 
                         let timestamp_sent = <pallet_timestamp::Module<T>>::get();
 
@@ -327,6 +395,20 @@ decl_module! {
                         Self::insert_mining_eligibility_proxy_reward_transfer(
                             &sender.clone(),
                             reward_transfer_data
+                        );
+
+                        let reward_daily_data: DailyData<T> = RewardDailyData {
+                            mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
+                            total_amt: reward_to_pay.clone(),
+                            proxy_claim_requestor_account_id: sender.clone(),
+                            member_kind: member_kind.clone(),
+                        };
+
+                        debug::info!("Setting the proxy eligibility reward daily");
+
+                        Self::insert_mining_eligibility_proxy_reward_daily(
+                            &timestamp_sent.clone(),
+                            reward_daily_data
                         );
                     }
                 }
@@ -505,6 +587,20 @@ impl<T: Trait> Module<T> {
         Err(DispatchError::Other("No value for mining_eligibility_proxy_reward_transfer"))
     }
 
+    pub fn has_value_for_mining_eligibility_proxy_reward_daily(
+        timestamp_sent: &T::Moment,
+    ) -> Result<(), DispatchError> {
+        debug::info!("Checking if mining_eligibility_proxy_reward_daily has a value for the given timestamp_sent that is defined");
+        let fetched_mining_eligibility_proxy_reward_daily =
+            <MiningEligibilityProxyRewardDaily<T>>::get(timestamp_sent);
+        if let Some(_value) = fetched_mining_eligibility_proxy_reward_daily {
+            debug::info!("Found value for mining_eligibility_proxy_reward_daily");
+            return Ok(());
+        }
+        debug::info!("No value for mining_eligibility_proxy_reward_daily");
+        Err(DispatchError::Other("No value for mining_eligibility_proxy_reward_daily"))
+    }
+
     fn random_value(sender: &T::AccountId) -> [u8; 16] {
         let payload = (
             T::Randomness::random(&[0]),
@@ -609,6 +705,46 @@ impl<T: Trait> Module<T> {
         Self::deposit_event(RawEvent::MiningEligibilityProxyRewardTransferSet(
             transfer.clone(),
             reward_transfer_data.clone(),
+        ));
+    }
+
+
+    fn insert_mining_eligibility_proxy_reward_daily(
+        timestamp_sent: &T::Moment,
+        reward_daily_data: DailyData<T>,
+    ) {
+        // Check if a mining_eligibility_proxy_reward_daily already exists with the given timestamp_sent
+        // to determine whether to insert new or mutate existing.
+        if Self::has_value_for_mining_eligibility_proxy_reward_daily(&timestamp_sent.clone()).is_ok() {
+            debug::info!("Mutating values");
+
+            let reward_requests_for_timestamp_sent = Self::rewards_daily(&timestamp_sent);
+
+            <MiningEligibilityProxyRewardDaily<T>>::mutate(
+                timestamp_sent.clone(),
+                |mining_eligibility_proxy_reward_daily| {
+                    if let Some(_mining_eligibility_proxy_reward_daily) = mining_eligibility_proxy_reward_daily {
+                        _mining_eligibility_proxy_reward_daily.push(reward_daily_data.clone());
+                    }
+                },
+            );
+        } else {
+            debug::info!("Inserting values");
+
+            let mut vec = Vec::new();
+            vec.push(reward_daily_data.clone());
+
+            <MiningEligibilityProxyRewardDaily<T>>::insert(
+                timestamp_sent.clone(),
+                &vec,
+            );
+        }
+
+        debug::info!("Inserted proxy_reward_daily");
+
+        Self::deposit_event(RawEvent::MiningEligibilityProxyRewardDailySet(
+            timestamp_sent.clone(),
+            reward_daily_data.clone(),
         ));
     }
 

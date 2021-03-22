@@ -83,6 +83,7 @@ mod tests {
         MiningEligibilityProxyRewardRequest,
         RewardRequestorData,
         RewardTransferData,
+        RewardDailyData,
         Module as MiningEligibilityProxyModule,
         Trait as MiningEligibilityProxyTrait,
     };
@@ -754,7 +755,33 @@ mod tests {
                 })
             );
 
-            // TODO - add scenario using endpoint where an individual Supernode requests rewards.
+            // Add AccountId 2 to member list
+            assert_ok!(MembershipSupernodesTestModule::add_member(Origin::root(), 2, 1));
+
+            // Repeat with an additional claim
+            assert_ok!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
+                Origin::signed(2),
+                2000, // _proxy_claim_total_reward_amount
+                Some(proxy_claim_rewardees_data.clone()),
+            ));
+
+            // Check that data about the proxy claim reward daily data has been stored.
+            // Check latest transfer added to vector for requestor AccountId 0
+            assert_eq!(
+                MiningEligibilityProxyTestModule::rewards_daily(1u64).unwrap().pop(),
+                Some(RewardDailyData {
+                    mining_eligibility_proxy_id: 1u64,
+                    total_amt: 2000u64,
+                    proxy_claim_requestor_account_id: 2u64,
+                    member_kind: 1u32,
+                })
+            );
+
+            // Check the total sum of rewards sent for a given day
+            assert_eq!(
+                MiningEligibilityProxyTestModule::rewards_of_day(1u64).unwrap(),
+                Some(3000u64)
+            );
         });
     }
 }
