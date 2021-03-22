@@ -73,6 +73,17 @@ pub struct MiningEligibilityProxyClaimRewardeeData<U, V, W, X> {
                                              * covers */
 }
 
+// Tuple struct
+#[derive(Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "std", derive())]
+pub struct RewardRequestorData (
+    u64,                                       // mining_eligibility_proxy_id
+    u64,                                 // total_amt
+    u64,                                       // rewardee_count
+    u32,                                       // member_kind
+    u64,                                    // current timestamp when requested
+);
+
 type RewardeeData<T> = MiningEligibilityProxyClaimRewardeeData<
     <T as frame_system::Trait>::AccountId,
     BalanceOf<T>,
@@ -100,11 +111,7 @@ decl_event!(
         ),
         MiningEligibilityProxyRewardRequestorSet(
             AccountId,
-            MiningEligibilityProxyIndex,
-            BalanceOf,
-            u64,
-            u32,
-            Moment,
+            RewardRequestorData,
         ),
         IsAMember(AccountId),
     }
@@ -226,14 +233,21 @@ decl_module! {
                     // Try to convert usize into u64
                     // note: rewardees_data_len.clone().try_into().unwrap(),
                     let rewardees_data_len_to_try = TryInto::<u64>::try_into(_rewardees_data_len).ok();
+
                     if let Some(rewardees_data_len) = rewardees_data_len_to_try {
-                        Self::insert_mining_eligibility_proxy_reward_requestor(
-                            &sender.clone(),
+                        let timestamp_requested = <pallet_timestamp::Module<T>>::get();
+
+                        let reward_requestor_data: RewardRequestorData = (
                             mining_eligibility_proxy_id.clone(),
                             reward_to_pay.clone(),
                             rewardees_data_len.clone(),
                             member_kind.clone(),
-                            // Note: we get the current timestamp inside the function itself
+                            timestamp_requested.clone(),
+                        );
+
+                        Self::insert_mining_eligibility_proxy_reward_requestor(
+                            &sender.clone(),
+                            &reward_requestor_data
                         );
                     }
                     debug::info!("Setting the proxy eligibility reward requestor");
@@ -439,22 +453,13 @@ impl<T: Trait> Module<T> {
 
     fn insert_mining_eligibility_proxy_reward_requestor(
         requestor: &T::AccountId,
-        mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
-        reward_to_pay: BalanceOf<T>,
-        rewardees_count: u64,
-        member_kind: u32,
+        reward_requestor_data: RewardRequestorData,
+        // mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
+        // reward_to_pay: BalanceOf<T>,
+        // rewardees_count: u64,
+        // member_kind: u32,
+        // timestamp_requested: T::Moment,
     ) {
-        let proxy_claim_timestamp_requested = <pallet_timestamp::Module<T>>::get();
-
-        // Tuple
-        let new_reward_request = (
-            mining_eligibility_proxy_id.clone(),
-            reward_to_pay.clone(),
-            rewardees_count.clone(),
-            member_kind.clone(),
-            proxy_claim_timestamp_requested.clone(),
-        );
-
         // Check if a mining_eligibility_proxy_reward_requestor already exists with the given requestor account id
         // to determine whether to insert new or mutate existing.
         if Self::has_value_for_mining_eligibility_proxy_reward_requestor_account_id(&requestor.clone()).is_ok() {
@@ -466,7 +471,7 @@ impl<T: Trait> Module<T> {
                 requestor.clone(),
                 |mining_eligibility_proxy_reward_requestor| {
                     if let Some(_mining_eligibility_proxy_reward_requestor) = mining_eligibility_proxy_reward_requestor {
-                        _mining_eligibility_proxy_reward_requestor.push(new_reward_request.clone());
+                        _mining_eligibility_proxy_reward_requestor.push(reward_requestor_data.clone());
                     }
                 },
             );
@@ -474,7 +479,7 @@ impl<T: Trait> Module<T> {
             debug::info!("Inserting values");
 
             let mut vec = Vec::new();
-            vec.push(new_reward_request);
+            vec.push(reward_requestor_data.clone());
 
             <MiningEligibilityProxyRewardRequestors<T>>::insert(
                 requestor.clone(),
@@ -486,11 +491,7 @@ impl<T: Trait> Module<T> {
 
         Self::deposit_event(RawEvent::MiningEligibilityProxyRewardRequestorSet(
             requestor.clone(),
-            mining_eligibility_proxy_id.clone(),
-            reward_to_pay.clone(),
-            rewardees_count.clone(),
-            member_kind.clone(),
-            proxy_claim_timestamp_requested.clone(),
+            reward_requestor_data.clone(),
         ));
     }
 
