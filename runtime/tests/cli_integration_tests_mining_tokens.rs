@@ -52,10 +52,6 @@ mod tests {
         Permill,
     };
     use std::cell::RefCell;
-    use std::fmt;
-    use std::fmt::{
-        Debug
-    };
     // Import Trait for each runtime module being tested
     use datahighway_runtime::{
         AccountId,
@@ -330,22 +326,6 @@ mod tests {
     pub type MembershipSupernodesTestModule = MembershipSupernodesModule<Test>;
     type Randomness = pallet_randomness_collective_flip::Module<Test>;
     type MembershipSupernodes = membership_supernodes::Module<Test>;
-    // // Define traits in the current crate to implement it for arbitrary types
-    // type RewardRequestorDataTest = RewardRequestorData<Test>;
-
-    // impl Debug for RewardRequestorData {
-    //     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    //         // Note: use `f.debug_tuple` for Tuple Structs
-    //         // See https://substrate.dev/rustdocs/v3.0.0/frame_support/dispatch/fmt/trait.Debug.html
-    //         f.debug_struct("RewardRequestorData")
-    //          .field(&self.mining_eligibility_proxy_id)
-    //          .field(&self.total_amt)
-    //          .field(&self.rewardee_count)
-    //          .field(&self.member_kind)
-    //          .field(&self.timestamp_requested)
-    //          .finish()
-    //     }
-    // }
 
     // fn last_event() -> MiningEligibilityProxyEvent {
     //     System::events().pop().expect("Event expected").event

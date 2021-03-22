@@ -75,12 +75,12 @@ pub struct MiningEligibilityProxyClaimRewardeeData<U, V, W, X> {
 
 #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "std", derive())]
-pub struct RewardRequestorData<T: Trait> {
-    pub mining_eligibility_proxy_id: <T as Trait>::MiningEligibilityProxyIndex,
-    pub total_amt: BalanceOf<T>,
-    pub rewardee_count: u64,
-    pub member_kind: u32,
-    pub timestamp_requested: <T as pallet_timestamp::Trait>::Moment,
+pub struct RewardRequestorData<U, V, W, X, Y> {
+    pub mining_eligibility_proxy_id: U,
+    pub total_amt: V,
+    pub rewardee_count: W,
+    pub member_kind: X,
+    pub timestamp_requested: Y,
 }
 
 type RewardeeData<T> = MiningEligibilityProxyClaimRewardeeData<
@@ -88,6 +88,14 @@ type RewardeeData<T> = MiningEligibilityProxyClaimRewardeeData<
     BalanceOf<T>,
     <T as frame_system::Trait>::BlockNumber,
     <T as frame_system::Trait>::BlockNumber,
+>;
+
+type RequestorData<T> = RewardRequestorData<
+    <T as Trait>::MiningEligibilityProxyIndex,
+    BalanceOf<T>,
+    u64,
+    u32,
+    <T as pallet_timestamp::Trait>::Moment
 >;
 
 decl_event!(
@@ -98,7 +106,7 @@ decl_event!(
         <T as frame_system::Trait>::BlockNumber,
         RewardeeData = RewardeeData<T>,
         <T as pallet_timestamp::Trait>::Moment,
-        RewardRequestorData = RewardRequestorData<T>
+        RequestorData = RequestorData<T>,
     {
         Created(AccountId, MiningEligibilityProxyIndex),
         MiningEligibilityProxyRewardRequestSet(
@@ -111,7 +119,7 @@ decl_event!(
         ),
         MiningEligibilityProxyRewardRequestorSet(
             AccountId,
-            RewardRequestorData,
+            RequestorData,
         ),
         IsAMember(AccountId),
     }
@@ -156,7 +164,13 @@ decl_storage! {
         /// where member_kind is either supernode_center 1 or supernode 2 or individual 3
         pub MiningEligibilityProxyRewardRequestors get(fn reward_requestors):
             map hasher(opaque_blake2_256) T::AccountId =>
-                Option<Vec<RewardRequestorData<T>>>;
+                Option<Vec<RewardRequestorData<
+                    <T as Trait>::MiningEligibilityProxyIndex,
+                    BalanceOf<T>,
+                    u64,
+                    u32,
+                    <T as pallet_timestamp::Trait>::Moment,
+                >>>;
 
         /// Stores is_reward_sent for given rewardee
         ///
@@ -237,7 +251,7 @@ decl_module! {
                     if let Some(rewardees_data_len) = rewardees_data_len_to_try {
                         let timestamp_requested = <pallet_timestamp::Module<T>>::get();
 
-                        let reward_requestor_data: RewardRequestorData<T> = RewardRequestorData {
+                        let reward_requestor_data: RequestorData<T> = RewardRequestorData {
                             mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
                             total_amt: reward_to_pay.clone(),
                             rewardee_count: rewardees_data_len.clone(),
@@ -453,7 +467,7 @@ impl<T: Trait> Module<T> {
 
     fn insert_mining_eligibility_proxy_reward_requestor(
         requestor: &T::AccountId,
-        reward_requestor_data: RewardRequestorData<T>,
+        reward_requestor_data: RequestorData<T>,
         // mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
         // reward_to_pay: BalanceOf<T>,
         // rewardees_count: u64,
