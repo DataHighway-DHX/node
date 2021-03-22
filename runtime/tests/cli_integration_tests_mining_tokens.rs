@@ -82,6 +82,7 @@ mod tests {
         MiningEligibilityProxyClaimRewardeeData,
         MiningEligibilityProxyRewardRequest,
         RewardRequestorData,
+        RewardTransferData,
         Module as MiningEligibilityProxyModule,
         Trait as MiningEligibilityProxyTrait,
     };
@@ -736,6 +737,20 @@ mod tests {
                     rewardee_count: 1u64,
                     member_kind: 1u32,
                     timestamp_requested: 1u64,
+                })
+            );
+
+            // Check that data about the proxy claim reward transfer data has been stored.
+            // Check latest transfer added to vector for transfer AccountId 0
+            assert_eq!(
+                MiningEligibilityProxyTestModule::reward_transfers(1u64).unwrap().pop(),
+                Some(RewardTransferData {
+                    mining_eligibility_proxy_id: 0u64,
+                    is_sent: true,
+                    total_amt: 1000u64,
+                    rewardee_count: 1u64,
+                    member_kind: 1u32,
+                    timestamp_sent: 1u64,
                 })
             );
 
