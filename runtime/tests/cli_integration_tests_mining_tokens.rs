@@ -779,7 +779,7 @@ mod tests {
 
             // Check the total sum of rewards sent for a given day
             assert_eq!(
-                MiningEligibilityProxyTestModule::rewards_of_day(1u64).unwrap(),
+                MiningEligibilityProxyTestModule::calc_rewards_of_day(Origin::signed(0), Some(1u64)).unwrap(),
                 Some(3000u64)
             );
         });

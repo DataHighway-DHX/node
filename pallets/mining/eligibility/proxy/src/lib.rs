@@ -255,10 +255,10 @@ decl_module! {
         fn deposit_event() = default;
 
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
-        pub fn rewards_of_day(
+        pub fn calc_rewards_of_day(
             origin,
             _proxy_claim_reward_day: Option<T::Moment>,
-        ) -> Result<BalanceOf<T>, DispatchError> {
+        ) -> Result<u64, DispatchError> {
             let sender = ensure_signed(origin)?;
 
             if let Some(reward_day) = _proxy_claim_reward_day {
@@ -269,7 +269,7 @@ decl_module! {
                 if let Some(rewards_for_reward_day) = _rewards_for_reward_day {
                     let mut total_daily_rewards: BalanceOf<T> = 0.into();
                     let rewards_for_reward_day_count = rewards_for_reward_day.len();
-                    let reward_data_current_index = 0;
+                    let mut reward_data_current_index = 0;
 
                     for (index, reward_data) in rewards_for_reward_day.iter().enumerate() {
                         reward_data_current_index += 1;
@@ -281,7 +281,12 @@ decl_module! {
                             continue;
                         }
                     }
-                    Ok(total_daily_rewards)
+                    let _total_daily_rewards_to_try = TryInto::<u64>::try_into(total_daily_rewards).ok();
+                    if let Some(total_daily_rewards_to_try) = _total_daily_rewards_to_try {
+                        Ok(total_daily_rewards_to_try)
+                    } else {
+                        return Err(DispatchError::Other("Unable to convert Balance to u64 to calculate daily rewards"));
+                    }
                 } else {
                     return Err(DispatchError::Other("Invalid rewards_for_reward_day data"));
                 }
