@@ -695,6 +695,7 @@ impl mining_eligibility_proxy::Trait for Runtime {
     // Check membership
     type MembershipSource = MembershipSupernodes;
     type MiningEligibilityProxyIndex = u64;
+    type RewardsOfDay = u64;
 }
 
 impl mining_claims_token::Trait for Runtime {
