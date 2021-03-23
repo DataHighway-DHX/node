@@ -44,6 +44,7 @@ pub trait Trait:
     // Loosely coupled
     type MembershipSource: AccountSet<AccountId = Self::AccountId>;
     type MiningEligibilityProxyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
+    type RewardsOfDay: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
 type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
@@ -146,6 +147,7 @@ decl_event!(
         RequestorData = RequestorData<T>,
         TransferData = TransferData<T>,
         DailyData = DailyData<T>,
+        <T as Trait>::RewardsOfDay,
     {
         Created(AccountId, MiningEligibilityProxyIndex),
         MiningEligibilityProxyRewardRequestSet(
@@ -168,6 +170,7 @@ decl_event!(
             Moment,
             DailyData,
         ),
+        RewardsOfDayCalculated(RewardsOfDay),
         IsAMember(AccountId),
     }
 );
@@ -258,7 +261,7 @@ decl_module! {
         pub fn calc_rewards_of_day(
             origin,
             _proxy_claim_reward_day: Option<T::Moment>,
-        ) -> Result<u64, DispatchError> {
+        ) -> Result<(), DispatchError> {
             let sender = ensure_signed(origin)?;
 
             if let Some(reward_day) = _proxy_claim_reward_day {
@@ -281,12 +284,15 @@ decl_module! {
                             continue;
                         }
                     }
-                    let _total_daily_rewards_to_try = TryInto::<u64>::try_into(total_daily_rewards).ok();
+
+                    let _total_daily_rewards_to_try = TryInto::<u32>::try_into(total_daily_rewards).ok();
                     if let Some(total_daily_rewards_to_try) = _total_daily_rewards_to_try {
-                        Ok(total_daily_rewards_to_try)
+                        Self::deposit_event(RawEvent::RewardsOfDayCalculated(total_daily_rewards_to_try.into()));
+                        return Ok(())
                     } else {
                         return Err(DispatchError::Other("Unable to convert Balance to u64 to calculate daily rewards"));
                     }
+
                 } else {
                     return Err(DispatchError::Other("Invalid rewards_for_reward_day data"));
                 }
