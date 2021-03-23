@@ -257,6 +257,8 @@ decl_module! {
     pub struct Module<T: Trait> for enum Call where origin: <T as frame_system::Trait>::Origin {
         fn deposit_event() = default;
 
+        /// Emits an event with the calculated rewards for a given day.
+        /// A separate custom RPC endpoint is a preferred alternative to return this data to the user
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn calc_rewards_of_day(
             origin,

@@ -300,6 +300,7 @@ mod tests {
         type Event = ();
         type MembershipSource = MembershipSupernodes;
         type MiningEligibilityProxyIndex = u64;
+        type RewardsOfDay = u64;
     }
     impl MiningClaimsTokenTrait for Test {
         type Event = ();
@@ -782,11 +783,14 @@ mod tests {
                 })
             );
 
+            // TODO - add the below functionality to a custom RPC since we cannot return a value
+            // from an extrinsic function
+            //
             // Check the total sum of rewards sent for a given day
-            assert_eq!(
-                MiningEligibilityProxyTestModule::calc_rewards_of_day(Origin::signed(0), Some(1u64)).unwrap(),
-                Some(3000u64)
-            );
+            // assert_eq!(
+            //     MiningEligibilityProxyTestModule::calc_rewards_of_day(Origin::signed(0), Some(1u64)).unwrap(),
+            //     Some(3000u64)
+            // );
         });
     }
 }
