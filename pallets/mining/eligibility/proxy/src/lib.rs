@@ -39,6 +39,9 @@ use sp_std::{
     convert::TryInto,
     prelude::*,
 };
+use module_primitives::{
+	constants::time::MILLISECS_PER_BLOCK,
+};
 
 /// The module's configuration trait.
 pub trait Trait:
@@ -454,8 +457,6 @@ decl_module! {
                         // correspond to the start of the day
                         let milliseconds_since_epoch_at_day_start = days_since_unix_epoch_round_down * milliseconds_per_day;
 
-                        // FIXME - remove this line
-                        let MILLISECS_PER_BLOCK = 4000u64;
                         // convert the current block number to the block number at the start of the current day.
                         assert!(milliseconds_since_epoch_at_day_start % MILLISECS_PER_BLOCK == 0);
                         let block_at_day_start: u64 = milliseconds_since_epoch_at_day_start / MILLISECS_PER_BLOCK;

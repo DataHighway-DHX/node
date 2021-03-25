@@ -10,6 +10,7 @@ std = [
     'codec/std',
     'frame-support/std',
     'frame-system/std',
+    'module-primitives/std',
     'safe-mix/std',
     'pallet-balances/std',
     'pallet-randomness-collective-flip/std',
@@ -32,6 +33,7 @@ codec = { version = '1.3.0', package = 'parity-scale-codec', default-features = 
 safe-mix = { version = '1.0.0', default-features = false }
 frame-support = { version = '2.0.0', default_features = false }
 frame-system = { version = '2.0.0', default_features = false }
+module-primitives = { version = '2.0.0', default-features = false, path = '../../../primitives' }
 pallet-balances = { version = '2.0.0', default_features = false }
 pallet-randomness-collective-flip = { version = '2.0.0', default_features = false }
 pallet-timestamp = { version = '2.0.0', default_features = false }
