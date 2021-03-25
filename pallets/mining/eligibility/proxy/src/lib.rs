@@ -1,5 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use substrate_fixed::types::{
+	U32F32
+};
 use account_set::AccountSet;
 use codec::{
     Decode,
@@ -7,6 +10,7 @@ use codec::{
 };
 use frame_support::{
     debug,
+    decl_error,
     decl_event,
     decl_module,
     decl_storage,
@@ -25,6 +29,7 @@ use sp_runtime::{
     traits::{
         AtLeast32Bit,
         Bounded,
+        CheckedAdd,
         Member,
         One,
     },
@@ -175,7 +180,7 @@ decl_event!(
         RewardsOfDayCalculated(RewardsOfDay),
         IsAMember(AccountId),
         /// Substrate-fixed total rewards for a given day has been updated.
-		TotalRewardsPerDayUpdated(BalanceOf, u64, BlockNumber, AccountId),
+		TotalRewardsPerDayUpdated(BalanceOf, Moment, BlockNumber, AccountId),
     }
 );
 
@@ -252,7 +257,7 @@ decl_storage! {
 
 		/// Substrate-fixed, value starts at 0 (additive identity)
 		pub TotalRewardsPerDay get(fn total_rewards_daily):
-            map hasher(opaque_blake2_256) u64 => Option<BalanceOf<T>>;
+            map hasher(opaque_blake2_256) T::Moment => Option<BalanceOf<T>>;
 
         /// Stores accumulation of daily_rewards_sent on a given date
         /// Note: Must store date/time value as the same for all rewards sent on same day
@@ -269,14 +274,14 @@ decl_storage! {
 		/// Returns daily reward distribution block number corresponding to a given date/time
 		/// This is to simplify querying storage.
 		pub BlockRewardedForDay get(fn block_rewarded_for_day):
-			map hasher(opaque_blake2_256) u64 =>
+			map hasher(opaque_blake2_256) T::Moment =>
 				Option<<T as frame_system::Trait>::BlockNumber>;
 
 		/// Returns date/time corresponding to a given daily reward distribution block number
 		/// This is to simplify querying storage.
 		pub DayRewardedForBlock get(fn day_rewarded_for_block):
 			map hasher(opaque_blake2_256) <T as frame_system::Trait>::BlockNumber =>
-				Option<u64>;
+				Option<T::Moment>;
     }
 }
 
@@ -344,6 +349,10 @@ decl_module! {
         ) -> Result<(), DispatchError> {
             let sender = ensure_signed(origin)?;
 
+			// get the current block & current date/time
+			let current_block = <frame_system::Module<T>>::block_number();
+			let timestamp_requested = <pallet_timestamp::Module<T>>::get();
+
             ensure!(Self::is_origin_whitelisted_member_supernodes(sender.clone()).is_ok(), "Only whitelisted Supernode account members may request proxy rewards");
 
             let member_kind = T::MembershipSource::account_kind(sender.clone());
@@ -393,8 +402,6 @@ decl_module! {
                     let rewardees_data_len_to_try = TryInto::<u64>::try_into(_rewardees_data_len).ok();
 
                     if let Some(rewardees_data_len) = rewardees_data_len_to_try {
-                        let timestamp_requested = <pallet_timestamp::Module<T>>::get();
-
                         let reward_requestor_data: RequestorData<T> = RewardRequestorData {
                             mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
                             total_amt: reward_to_pay.clone(),
@@ -423,6 +430,175 @@ decl_module! {
 
                         let timestamp_sent = <pallet_timestamp::Module<T>>::get();
 
+                        // convert the current date/time to the start of the current day date/time.
+                        // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
+                        let milliseconds_per_day = 86400000u64;
+
+                        let timestamp_sent_as_u64;
+                        if let Some(_timestamp_sent_as_u64) = TryInto::<u64>::try_into(timestamp_sent).ok() {
+                            timestamp_sent_as_u64 = _timestamp_sent_as_u64;
+                        } else {
+                            return Err(DispatchError::Other("Unable to convert Moment to u64 for timestamp_sent"));
+                        }
+
+                        let days_since_unix_epoch = U32F32::from_num(timestamp_sent_as_u64 / milliseconds_per_day);
+
+                        // FIXME - remove hard-coded demo data below when get a value
+                        // assert_eq!(days_since_unix_epoch.to_string(), "10.123");
+                        // round down to nearest integer days (by rounding up then subtracting one)
+                        let days_since_unix_epoch_ceil = days_since_unix_epoch.ceil().to_num::<u64>();
+                        // FIXME - remove hard-coded demo data below
+                        // assert_eq!(days_since_unix_epoch_ceil, 10);
+                        let days_since_unix_epoch_round_down = days_since_unix_epoch_ceil - 1u64;
+                        // convert that value in days back to a timestamp value in milliseconds to
+                        // correspond to the start of the day
+                        let milliseconds_since_epoch_at_day_start = days_since_unix_epoch_round_down * milliseconds_per_day;
+
+                        // FIXME - remove this line
+                        let MILLISECS_PER_BLOCK = 4000u64;
+                        // convert the current block number to the block number at the start of the current day.
+                        assert!(milliseconds_since_epoch_at_day_start % MILLISECS_PER_BLOCK == 0);
+                        let block_at_day_start: u64 = milliseconds_since_epoch_at_day_start / MILLISECS_PER_BLOCK;
+                        let block_at_day_start_as_blocknumber;
+                        if let Some(_block_at_day_start_as_blocknumber) =
+                            TryInto::<<T as frame_system::Trait>::BlockNumber>::try_into(
+                                block_at_day_start
+                            ).ok() {
+
+                            block_at_day_start_as_blocknumber = _block_at_day_start_as_blocknumber;
+                        } else {
+                            return Err(DispatchError::Other("Unable to convert u64 to BlockNumber"));
+                        }
+
+                        // check if the start of the current day date/time entry exists as a key for `rewards_daily`
+                        //
+                        // if so, retrieve the latest `rewards_daily` data stored for the start of that day date/time
+                        // i.e. (account_id, balance_rewarded, block_number), and add the new reward value to it.
+                        //
+                        // else just insert that as a new entry
+
+                        let reward_amount_item: DailyData<T> = RewardDailyData {
+                            mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
+                            total_amt: _proxy_claim_total_reward_amount.clone(),
+                            proxy_claim_requestor_account_id: sender.clone(),
+                            member_kind: recipient_member_kind.clone(),
+                            rewarded_block: block_at_day_start_as_blocknumber.clone(),
+                        };
+                        let mut reward_amount_vec;
+
+                        let milliseconds_since_epoch_at_day_start_as_moment;
+                        if let Some(_milliseconds_since_epoch_at_day_start) =
+                            TryInto::<<T as pallet_timestamp::Trait>::Moment>::try_into(
+                                milliseconds_since_epoch_at_day_start
+                            ).ok() {
+
+                            milliseconds_since_epoch_at_day_start_as_moment = _milliseconds_since_epoch_at_day_start;
+                        } else {
+                            return Err(DispatchError::Other("Unable to convert u64 to Moment"));
+                        }
+
+                        match Self::rewards_daily(milliseconds_since_epoch_at_day_start_as_moment.clone()) {
+                            None => {
+                                debug::info!("Creating new reward in storage vector");
+
+                                reward_amount_vec = Vec::new();
+                                reward_amount_vec.push(reward_amount_item.clone());
+
+                                <RewardsPerDay<T>>::insert(
+                                    milliseconds_since_epoch_at_day_start_as_moment.clone(),
+                                    reward_amount_vec,
+                                );
+                            },
+                            Some(_) => {
+                                debug::info!("Appending new rewards_per_day to existing storage vector");
+
+                                <RewardsPerDay<T>>::mutate(
+                                    milliseconds_since_epoch_at_day_start_as_moment.clone(),
+                                    |reward_vec| {
+                                        if let Some(_reward_vec) = reward_vec {
+                                            _reward_vec.push(reward_amount_item.clone());
+                                        }
+                                    },
+                                );
+                            },
+                        }
+
+                        // check if the start of the current day date/time entry exists as a key for `block_rewarded_for_day`,
+                        // otherwise add it, with the block number corresponding to the start of the current day as the value
+                        match Self::block_rewarded_for_day(milliseconds_since_epoch_at_day_start_as_moment.clone()) {
+                            None => {
+                                debug::info!("Creating new mapping from timestamp at start of day to block number at start of day");
+
+                                <BlockRewardedForDay<T>>::insert(
+                                    milliseconds_since_epoch_at_day_start_as_moment.clone(),
+                                    block_at_day_start_as_blocknumber.clone(),
+                                );
+                            },
+                            Some(_) => {
+                                debug::info!("BlockRewardedForDay entry mapping already exists. No further action required");
+                            }
+                        }
+
+                        // repeat for `day_rewarded_for_block`
+                        match Self::day_rewarded_for_block(block_at_day_start_as_blocknumber.clone()) {
+                            None => {
+                                debug::info!("Creating new mapping from block number at start of day to timestamp at start of day");
+
+                                <DayRewardedForBlock<T>>::insert(
+                                    block_at_day_start_as_blocknumber.clone(),
+                                    milliseconds_since_epoch_at_day_start_as_moment.clone(),
+                                );
+                            },
+                            Some(old) => {
+                                debug::info!("DayRewardedForBlock entry mapping already exists. No further action required");
+                            }
+                        }
+
+                        // Update in storage the total rewards distributed so far for the current day
+                        // so users may query state and have the latest calculated total returned.
+                        match Self::total_rewards_daily(milliseconds_since_epoch_at_day_start_as_moment.clone()) {
+                            None => {
+                                debug::info!("Creating new total rewards entry for a given day");
+
+                                <TotalRewardsPerDay<T>>::insert(
+                                    milliseconds_since_epoch_at_day_start_as_moment.clone(),
+                                    _proxy_claim_total_reward_amount.clone(),
+                                );
+
+                                // Emit event
+                                Self::deposit_event(RawEvent::TotalRewardsPerDayUpdated(
+                                    _proxy_claim_total_reward_amount.clone(),
+                                    milliseconds_since_epoch_at_day_start_as_moment.clone(),
+                                    block_at_day_start_as_blocknumber.clone(),
+                                    sender.clone(),
+                                ));
+                            },
+                            Some(old_total_rewards_for_day) => {
+                                debug::info!("TotalRewardsPerDay entry mapping already exists for given day. Updating...");
+
+                                // Add, handling overflow
+                                let new_total_rewards_for_day =
+                                    old_total_rewards_for_day.checked_add(&_proxy_claim_total_reward_amount.clone()).ok_or(Error::<T>::Overflow)?;
+                                // Write the new value to storage
+                                <TotalRewardsPerDay<T>>::mutate(
+                                    milliseconds_since_epoch_at_day_start_as_moment.clone(),
+                                    |ms_since_epoch_at_day_start| {
+                                        if let Some(_ms_since_epoch_at_day_start) = ms_since_epoch_at_day_start {
+                                            *_ms_since_epoch_at_day_start = new_total_rewards_for_day.clone();
+                                        }
+                                    },
+                                );
+
+                                // Emit event
+                                Self::deposit_event(RawEvent::TotalRewardsPerDayUpdated(
+                                    new_total_rewards_for_day.clone(),
+                                    milliseconds_since_epoch_at_day_start_as_moment.clone(),
+                                    block_at_day_start_as_blocknumber.clone(),
+                                    sender.clone(),
+                                ));
+                            }
+                        }
+
                         let reward_transfer_data: TransferData<T> = RewardTransferData {
                             mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
                             is_sent: true,
@@ -438,8 +614,6 @@ decl_module! {
                             &sender.clone(),
                             reward_transfer_data
                         );
-
-                        let current_block = <frame_system::Module<T>>::block_number();
 
                         let reward_daily_data: DailyData<T> = RewardDailyData {
                             mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
