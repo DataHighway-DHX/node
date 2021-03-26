@@ -5,8 +5,6 @@
 // Make the WASM binary available.
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
-mod constants;
-mod types;
 
 use pallet_grandpa::{
     fg_primitives,
@@ -111,17 +109,19 @@ pub mod opaque {
     }
 }
 
-pub use constants::time::{
-    DAYS,
-    EPOCH_DURATION_IN_BLOCKS,
-    EPOCH_DURATION_IN_SLOTS,
-    HOURS,
-    MILLISECS_PER_BLOCK,
-    MINUTES,
-    PRIMARY_PROBABILITY,
-    SLOT_DURATION,
+pub use module_primitives::{
+	constants::time::{
+        DAYS,
+        EPOCH_DURATION_IN_BLOCKS,
+        EPOCH_DURATION_IN_SLOTS,
+        HOURS,
+        MILLISECS_PER_BLOCK,
+        MINUTES,
+        PRIMARY_PROBABILITY,
+        SLOT_DURATION,
+    },
+	types::*,
 };
-pub use types::*;
 
 pub const VERSION: RuntimeVersion = RuntimeVersion {
     spec_name: create_runtime_str!("datahighway"),
