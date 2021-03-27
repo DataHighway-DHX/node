@@ -735,32 +735,40 @@ mod tests {
                 })
             );
 
-            // Check that data about the proxy claim reward requestor data has been stored.
-            // Check latest request added to vector for requestor AccountId 0
-            assert_eq!(
-                MiningEligibilityProxyTestModule::reward_requestors(1u64).unwrap().pop(),
-                Some(RewardRequestorData {
-                    mining_eligibility_proxy_id: 0u64,
-                    total_amt: 1000u64,
-                    rewardee_count: 1u64,
-                    member_kind: 1u32,
-                    timestamp_requested: 1616724600000u64,
-                })
-            );
+            if let Some(reward_requestor_data) = MiningEligibilityProxyTestModule::reward_requestors(1) {
+                // Check that data about the proxy claim reward requestor data has been stored.
+                // Check latest request added to vector for requestor AccountId 0
+                assert_eq!(
+                    reward_requestor_data.clone().pop(),
+                    Some(RewardRequestorData {
+                        mining_eligibility_proxy_id: 0u64,
+                        total_amt: 1000u64,
+                        rewardee_count: 1u64,
+                        member_kind: 1u32,
+                        timestamp_requested: 1616724600000u64,
+                    })
+                );
+            } else {
+                assert_eq!(false, true);
+            }
 
-            // Check that data about the proxy claim reward transfer data has been stored.
-            // Check latest transfer added to vector for transfer AccountId 0
-            assert_eq!(
-                MiningEligibilityProxyTestModule::reward_transfers(1u64).unwrap().pop(),
-                Some(RewardTransferData {
-                    mining_eligibility_proxy_id: 0u64,
-                    is_sent: true,
-                    total_amt: 1000u64,
-                    rewardee_count: 1u64,
-                    member_kind: 1u32,
-                    timestamp_sent: 1616724600000u64,
-                })
-            );
+            if let Some(reward_transfer_data) = MiningEligibilityProxyTestModule::reward_transfers(1u64) {
+                // Check that data about the proxy claim reward transfer data has been stored.
+                // Check latest transfer added to vector for transfer AccountId 0
+                assert_eq!(
+                    reward_transfer_data.clone().pop(),
+                    Some(RewardTransferData {
+                        mining_eligibility_proxy_id: 0u64,
+                        is_sent: true,
+                        total_amt: 1000u64,
+                        rewardee_count: 1u64,
+                        member_kind: 1u32,
+                        timestamp_sent: 1616724600000u64,
+                    })
+                );
+            } else {
+                assert_eq!(false, true);
+            }
 
             // Add AccountId 2 to member list
             assert_ok!(MembershipSupernodesTestModule::add_member(Origin::root(), 2, 1));
@@ -772,23 +780,28 @@ mod tests {
                 Some(proxy_claim_rewardees_data.clone()),
             ));
 
-            // Check that data about the proxy claim reward daily data has been stored.
-            // Check latest transfer added to vector for requestor AccountId 0
-            assert_eq!(
-                MiningEligibilityProxyTestModule::rewards_daily(1616811000000u64).unwrap().pop(),
-                // TODO - instead of using `RewardDailyData` from the implementation, consider
-                // creating a mock of it instead and decorate it with `Debug` and so forth
-                // like in the implementation. It doesn't cause any errors at the moment
-                // because `RewardDailyData` only uses generics in the implementation,
-                // but if it was defined with specific types then it would generate errors
-                Some(RewardDailyData {
-                    mining_eligibility_proxy_id: 1u64,
-                    total_amt: 2000u64,
-                    proxy_claim_requestor_account_id: 2u64,
-                    member_kind: 1u32,
-                    rewarded_block: 2,
-                })
-            );
+            if let Some(rewards_daily_data) = MiningEligibilityProxyTestModule::rewards_daily(1616811000000u64) {
+                // Check that data about the proxy claim reward daily data has been stored.
+                // Check latest transfer added to vector for requestor AccountId 0
+                assert_eq!(
+                    rewards_daily_data.clone().pop(),
+                    // TODO - instead of using `RewardDailyData` from the implementation, consider
+                    // creating a mock of it instead and decorate it with `Debug` and so forth
+                    // like in the implementation. It doesn't cause any errors at the moment
+                    // because `RewardDailyData` only uses generics in the implementation,
+                    // but if it was defined with specific types then it would generate errors
+                    Some(RewardDailyData {
+                        mining_eligibility_proxy_id: 1u64,
+                        total_amt: 2000u64,
+                        proxy_claim_requestor_account_id: 2u64,
+                        member_kind: 1u32,
+                        rewarded_block: 2,
+                    })
+                );
+            } else {
+                assert_eq!(false, true);
+            }
+
 
             let unused_timstamp = 1234567891234u64;
             assert_eq!(

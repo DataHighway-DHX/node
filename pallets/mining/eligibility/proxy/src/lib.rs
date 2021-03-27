@@ -520,7 +520,7 @@ decl_module! {
                             member_kind: recipient_member_kind.clone(),
                             rewarded_block: block_at_day_start_as_blocknumber.clone(),
                         };
-                        let mut reward_amount_vec;
+                        // let mut reward_amount_vec;
 
                         let milliseconds_since_genesis_at_day_start_as_moment;
                         if let Some(_milliseconds_since_genesis_at_day_start) =
@@ -533,37 +533,34 @@ decl_module! {
                             return Err(DispatchError::Other("Unable to convert u64 to Moment"));
                         }
 
-                        match Self::rewards_daily(milliseconds_since_genesis_at_day_start_as_moment.clone()) {
-                            None => {
-                                debug::info!("Creating new rewards_per_day in storage vector");
+                        // match Self::rewards_daily(milliseconds_since_genesis_at_day_start_as_moment.clone()) {
+                        //     None => {
+                                debug::info!("Appended new rewards_per_day storage item");
 
-                                reward_amount_vec = Vec::new();
-                                reward_amount_vec.push(reward_amount_item.clone());
-
-                                <RewardsPerDay<T>>::insert(
+                                <RewardsPerDay<T>>::append(
                                     milliseconds_since_genesis_at_day_start_as_moment.clone(),
-                                    reward_amount_vec.clone(),
+                                    reward_amount_item.clone(),
                                 );
 
-                                debug::info!("Created new rewards_per_day at Moment: {:?}", milliseconds_since_genesis_at_day_start_as_moment.clone());
-                                debug::info!("Created new rewards_per_day in storage vector: {:?}", reward_amount_vec.clone());
-                            },
-                            Some(_) => {
-                                debug::info!("Appending new rewards_per_day to existing storage vector");
+                                debug::info!("Appended new rewards_per_day at Moment: {:?}", milliseconds_since_genesis_at_day_start_as_moment.clone());
+                                debug::info!("Appended new rewards_per_day in storage item: {:?}", reward_amount_item.clone());
+                        //     },
+                        //     Some(_) => {
+                        //         debug::info!("Appending new rewards_per_day item to existing storage vector");
 
-                                <RewardsPerDay<T>>::mutate(
-                                    milliseconds_since_genesis_at_day_start_as_moment.clone(),
-                                    |reward_vec| {
-                                        if let Some(_reward_vec) = reward_vec {
-                                            _reward_vec.push(reward_amount_item.clone());
+                        //         <RewardsPerDay<T>>::mutate(
+                        //             milliseconds_since_genesis_at_day_start_as_moment.clone(),
+                        //             |reward_vec| {
+                        //                 if let Some(_reward_vec) = reward_vec {
+                        //                     _reward_vec.push(reward_amount_item.clone());
 
-                                            debug::info!("Appended new rewards_per_day at Moment: {:?}", milliseconds_since_genesis_at_day_start_as_moment.clone());
-                                            debug::info!("Appended new rewards_per_day item in storage vector: {:?}", reward_amount_item.clone());
-                                        }
-                                    },
-                                );
-                            },
-                        }
+                        //                     debug::info!("Appended new rewards_per_day at Moment: {:?}", milliseconds_since_genesis_at_day_start_as_moment.clone());
+                        //                     debug::info!("Appended new rewards_per_day item in storage vector: {:?}", reward_amount_item.clone());
+                        //                 }
+                        //             },
+                        //         );
+                        //     },
+                        // }
 
                         // add start of the current day date/time as a key for `block_rewarded_for_day`,
                         // with the block number corresponding to the start of the current day as the value
@@ -951,27 +948,32 @@ impl<T: Trait> Module<T> {
         // Check if a mining_eligibility_proxy_reward_requestor already exists with the given requestor account id
         // to determine whether to insert new or mutate existing.
         if Self::has_value_for_mining_eligibility_proxy_reward_requestor_account_id(&requestor.clone()).is_ok() {
-            debug::info!("Mutating values");
+        //     debug::info!("Mutating values");
 
-            let reward_requests_for_requestor = Self::reward_requestors(&requestor);
+        //     let reward_requests_for_requestor = Self::reward_requestors(&requestor);
 
-            <MiningEligibilityProxyRewardRequestors<T>>::mutate(
+        //     <MiningEligibilityProxyRewardRequestors<T>>::mutate(
+        //         requestor.clone(),
+        //         |mining_eligibility_proxy_reward_requestor| {
+        //             if let Some(_mining_eligibility_proxy_reward_requestor) = mining_eligibility_proxy_reward_requestor {
+        //                 _mining_eligibility_proxy_reward_requestor.push(reward_requestor_data.clone());
+        //             }
+        //         },
+        //     );
+        // } else {
+        //     debug::info!("Inserting values");
+
+        //     let mut vec = Vec::new();
+        //     vec.push(reward_requestor_data.clone());
+
+            // <MiningEligibilityProxyRewardRequestors<T>>::insert(
+            //     requestor.clone(),
+            //     &vec,
+            // );
+
+            <MiningEligibilityProxyRewardRequestors<T>>::append(
                 requestor.clone(),
-                |mining_eligibility_proxy_reward_requestor| {
-                    if let Some(_mining_eligibility_proxy_reward_requestor) = mining_eligibility_proxy_reward_requestor {
-                        _mining_eligibility_proxy_reward_requestor.push(reward_requestor_data.clone());
-                    }
-                },
-            );
-        } else {
-            debug::info!("Inserting values");
-
-            let mut vec = Vec::new();
-            vec.push(reward_requestor_data.clone());
-
-            <MiningEligibilityProxyRewardRequestors<T>>::insert(
-                requestor.clone(),
-                &vec,
+                &reward_requestor_data.clone(),
             );
         }
 
@@ -990,27 +992,31 @@ impl<T: Trait> Module<T> {
         // Check if a mining_eligibility_proxy_reward_transfer already exists with the given transfer account id
         // to determine whether to insert new or mutate existing.
         if Self::has_value_for_mining_eligibility_proxy_reward_transfer_account_id(&transfer.clone()).is_ok() {
-            debug::info!("Mutating values");
+        //     debug::info!("Mutating values");
 
-            let reward_requests_for_transfer = Self::reward_transfers(&transfer);
+        //     let reward_requests_for_transfer = Self::reward_transfers(&transfer);
 
-            <MiningEligibilityProxyRewardTransfers<T>>::mutate(
+        //     <MiningEligibilityProxyRewardTransfers<T>>::mutate(
+        //         transfer.clone(),
+        //         |mining_eligibility_proxy_reward_transfer| {
+        //             if let Some(_mining_eligibility_proxy_reward_transfer) = mining_eligibility_proxy_reward_transfer {
+        //                 _mining_eligibility_proxy_reward_transfer.push(reward_transfer_data.clone());
+        //             }
+        //         },
+        //     );
+        // } else {
+        //     debug::info!("Inserting values");
+
+            // let mut vec = Vec::new();
+            // vec.push(reward_transfer_data.clone());
+
+            // <MiningEligibilityProxyRewardTransfers<T>>::insert(
+            //     transfer.clone(),
+            //     &vec,
+            // );
+            <MiningEligibilityProxyRewardTransfers<T>>::append(
                 transfer.clone(),
-                |mining_eligibility_proxy_reward_transfer| {
-                    if let Some(_mining_eligibility_proxy_reward_transfer) = mining_eligibility_proxy_reward_transfer {
-                        _mining_eligibility_proxy_reward_transfer.push(reward_transfer_data.clone());
-                    }
-                },
-            );
-        } else {
-            debug::info!("Inserting values");
-
-            let mut vec = Vec::new();
-            vec.push(reward_transfer_data.clone());
-
-            <MiningEligibilityProxyRewardTransfers<T>>::insert(
-                transfer.clone(),
-                &vec,
+                &reward_transfer_data.clone(),
             );
         }
 
@@ -1030,27 +1036,32 @@ impl<T: Trait> Module<T> {
         // Check if a mining_eligibility_proxy_reward_daily already exists with the given timestamp_sent
         // to determine whether to insert new or mutate existing.
         if Self::has_value_for_mining_eligibility_proxy_reward_daily(&timestamp_sent.clone()).is_ok() {
-            debug::info!("Mutating values");
+        //     debug::info!("Mutating values");
 
-            let reward_requests_for_timestamp_sent = Self::rewards_daily(&timestamp_sent);
+        //     let reward_requests_for_timestamp_sent = Self::rewards_daily(&timestamp_sent);
 
-            <RewardsPerDay<T>>::mutate(
+        //     <RewardsPerDay<T>>::mutate(
+        //         timestamp_sent.clone(),
+        //         |mining_eligibility_proxy_reward_daily| {
+        //             if let Some(_mining_eligibility_proxy_reward_daily) = mining_eligibility_proxy_reward_daily {
+        //                 _mining_eligibility_proxy_reward_daily.push(reward_daily_data.clone());
+        //             }
+        //         },
+        //     );
+        // } else {
+        //     debug::info!("Inserting values");
+
+        //     let mut vec = Vec::new();
+        //     vec.push(reward_daily_data.clone());
+
+            // <RewardsPerDay<T>>::insert(
+            //     timestamp_sent.clone(),
+            //     &vec,
+            // );
+
+            <RewardsPerDay<T>>::append(
                 timestamp_sent.clone(),
-                |mining_eligibility_proxy_reward_daily| {
-                    if let Some(_mining_eligibility_proxy_reward_daily) = mining_eligibility_proxy_reward_daily {
-                        _mining_eligibility_proxy_reward_daily.push(reward_daily_data.clone());
-                    }
-                },
-            );
-        } else {
-            debug::info!("Inserting values");
-
-            let mut vec = Vec::new();
-            vec.push(reward_daily_data.clone());
-
-            <RewardsPerDay<T>>::insert(
-                timestamp_sent.clone(),
-                &vec,
+                &reward_daily_data.clone(),
             );
         }
 
