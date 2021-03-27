@@ -448,9 +448,6 @@ decl_module! {
                             return Err(DispatchError::Other("Unable to convert Moment to u64 for timestamp_sent"));
                         }
 
-                        // let days_since_unix_epoch = U32F32::from_num(timestamp_sent_as_u64 / milliseconds_per_day);
-                        // let days_since_unix_epoch_as_u64 = days_since_unix_epoch.to_num::<u64>();
-
                         let _current_block_as_u64_try = TryInto::<u64>::try_into(current_block).ok();
                         let current_block_as_u64;
                         if let Some(_current_block_as_u64) = _current_block_as_u64_try {
@@ -458,6 +455,22 @@ decl_module! {
                         } else {
                             return Err(DispatchError::Other("Unable to convert current_block BlockNumber to u64"));
                         }
+
+                        let timestamp_sent_at_day_start_as_u64 = timestamp_sent_as_u64.clone() -(current_block_as_u64.clone() * MILLISECS_PER_BLOCK.clone());
+
+                        let timestamp_sent_at_day_start_as_moment;
+                        if let Some(_timestamp_sent_at_day_start_as_moment) =
+                            TryInto::<<T as pallet_timestamp::Trait>::Moment>::try_into(
+                                timestamp_sent_at_day_start_as_u64
+                            ).ok() {
+
+                            timestamp_sent_at_day_start_as_moment = _timestamp_sent_at_day_start_as_moment;
+                        } else {
+                            return Err(DispatchError::Other("Unable to convert u64 to Moment"));
+                        }
+                        debug::info!("Timestamp sent start day as Moment: {:?}",      timestamp_sent_at_day_start_as_moment.clone());
+                        // let days_since_unix_epoch = U32F32::from_num(timestamp_sent_as_u64 / milliseconds_per_day);
+                        // let days_since_unix_epoch_as_u64 = days_since_unix_epoch.to_num::<u64>();
 
                         let milliseconds_since_genesis_as_u64 = U32F32::from_num(current_block_as_u64 * MILLISECS_PER_BLOCK);
                         let milliseconds_since_epoch_as_u64 = timestamp_sent_as_u64;
@@ -484,6 +497,7 @@ decl_module! {
                         if milliseconds_since_genesis_at_day_start >= MILLISECS_PER_BLOCK {
                             block_at_day_start = milliseconds_since_genesis_at_day_start / MILLISECS_PER_BLOCK
                         }
+
                         let block_at_day_start_as_blocknumber;
                         if let Some(_block_at_day_start_as_blocknumber) =
                             TryInto::<<T as frame_system::Trait>::BlockNumber>::try_into(
@@ -538,12 +552,18 @@ decl_module! {
                                 debug::info!("Appended new rewards_per_day storage item");
 
                                 <RewardsPerDay<T>>::append(
-                                    milliseconds_since_genesis_at_day_start_as_moment.clone(),
+                                    timestamp_sent_at_day_start_as_moment.clone(),
                                     reward_amount_item.clone(),
                                 );
 
-                                debug::info!("Appended new rewards_per_day at Moment: {:?}", milliseconds_since_genesis_at_day_start_as_moment.clone());
+                                debug::info!("Appended new rewards_per_day at Moment: {:?}", timestamp_sent_at_day_start_as_moment.clone());
                                 debug::info!("Appended new rewards_per_day in storage item: {:?}", reward_amount_item.clone());
+
+                                let rewards_per_day_retrieved = <RewardsPerDay<T>>::get(
+                                    timestamp_sent_at_day_start_as_moment.clone(),
+                                );
+                                debug::info!("Retrieved new rewards_per_day storage item: {:?}", rewards_per_day_retrieved.clone());
+
                         //     },
                         //     Some(_) => {
                         //         debug::info!("Appending new rewards_per_day item to existing storage vector");
@@ -564,29 +584,29 @@ decl_module! {
 
                         // add start of the current day date/time as a key for `block_rewarded_for_day`,
                         // with the block number corresponding to the start of the current day as the value
-                        match Self::block_rewarded_for_day(milliseconds_since_genesis_at_day_start_as_moment.clone()) {
+                        match Self::block_rewarded_for_day(timestamp_sent_at_day_start_as_moment.clone()) {
                             None => {
                                 debug::info!("Creating new mapping from timestamp at start of day to block number at start of day");
 
                                 <BlockRewardedForDay<T>>::insert(
-                                    milliseconds_since_genesis_at_day_start_as_moment.clone(),
+                                    timestamp_sent_at_day_start_as_moment.clone(),
                                     block_at_day_start_as_blocknumber.clone(),
                                 );
 
-                                debug::info!("Created new block_rewarded_for_day at Moment: {:?}",  milliseconds_since_genesis_at_day_start_as_moment.clone());
+                                debug::info!("Created new block_rewarded_for_day at Moment: {:?}",  timestamp_sent_at_day_start_as_moment.clone());
                                 debug::info!("Creating new block_rewarded_for_day at Moment with BlockNumber: {:?}", block_at_day_start_as_blocknumber.clone());
                             },
                             Some(_) => {
                                 debug::info!("BlockRewardedForDay entry mapping already exists. Updating...");
 
                                 <BlockRewardedForDay<T>>::mutate(
-                                    milliseconds_since_genesis_at_day_start_as_moment.clone(),
+                                    timestamp_sent_at_day_start_as_moment.clone(),
                                     |reward_block| {
                                         if let Some(_reward_block) = reward_block {
                                             *_reward_block = block_at_day_start_as_blocknumber.clone();
                                         }
 
-                                        debug::info!("Updated block_rewarded_for_day at Moment: {:?}",  milliseconds_since_genesis_at_day_start_as_moment.clone());
+                                        debug::info!("Updated block_rewarded_for_day at Moment: {:?}",  timestamp_sent_at_day_start_as_moment.clone());
                                         debug::info!("Updated block_rewarded_for_day at Moment with BlockNumber: {:?}", block_at_day_start_as_blocknumber.clone());
                                     },
                                 );
@@ -600,11 +620,11 @@ decl_module! {
 
                                 <DayRewardedForBlock<T>>::insert(
                                     block_at_day_start_as_blocknumber.clone(),
-                                    milliseconds_since_genesis_at_day_start_as_moment.clone(),
+                                    timestamp_sent_at_day_start_as_moment.clone(),
                                 );
 
                                 debug::info!("Created new day_rewarded_for_block at BlockNumber: {:?}",  block_at_day_start_as_blocknumber.clone());
-                                debug::info!("Creating new day_rewarded_for_block at BlockNumber with Moment: {:?}", milliseconds_since_genesis_at_day_start_as_moment.clone());
+                                debug::info!("Creating new day_rewarded_for_block at BlockNumber with Moment: {:?}", timestamp_sent_at_day_start_as_moment.clone());
                             },
                             Some(_) => {
                                 debug::info!("DayRewardedForBlock entry mapping already exists. Updating...");
@@ -613,11 +633,11 @@ decl_module! {
                                     block_at_day_start_as_blocknumber.clone(),
                                     |reward_moment| {
                                         if let Some(_reward_moment) = reward_moment {
-                                            *_reward_moment = milliseconds_since_genesis_at_day_start_as_moment.clone();
+                                            *_reward_moment = timestamp_sent_at_day_start_as_moment.clone();
                                         }
 
                                         debug::info!("Updated day_rewarded_for_block at BlockNumber: {:?}",  block_at_day_start_as_blocknumber.clone());
-                                        debug::info!("Updated day_rewarded_for_block at BlockNumber with Moment: {:?}", milliseconds_since_genesis_at_day_start_as_moment.clone());
+                                        debug::info!("Updated day_rewarded_for_block at BlockNumber with Moment: {:?}", timestamp_sent_at_day_start_as_moment.clone());
                                     },
                                 );
                             }
@@ -625,22 +645,22 @@ decl_module! {
 
                         // Update in storage the total rewards distributed so far for the current day
                         // so users may query state and have the latest calculated total returned.
-                        match Self::total_rewards_daily(milliseconds_since_genesis_at_day_start_as_moment.clone()) {
+                        match Self::total_rewards_daily(timestamp_sent_at_day_start_as_moment.clone()) {
                             None => {
                                 debug::info!("Creating new total rewards entry for a given day");
 
                                 <TotalRewardsPerDay<T>>::insert(
-                                    milliseconds_since_genesis_at_day_start_as_moment.clone(),
+                                    timestamp_sent_at_day_start_as_moment.clone(),
                                     _proxy_claim_total_reward_amount.clone(),
                                 );
 
-                                debug::info!("Created new total_rewards_daily at Moment: {:?}",  milliseconds_since_genesis_at_day_start_as_moment.clone());
+                                debug::info!("Created new total_rewards_daily at Moment: {:?}",  timestamp_sent_at_day_start_as_moment.clone());
                                 debug::info!("Creating new total_rewards_daily at Moment with Amount: {:?}", _proxy_claim_total_reward_amount.clone());
 
                                 // Emit event
                                 Self::deposit_event(RawEvent::TotalRewardsPerDayUpdated(
                                     _proxy_claim_total_reward_amount.clone(),
-                                    milliseconds_since_genesis_at_day_start_as_moment.clone(),
+                                    timestamp_sent_at_day_start_as_moment.clone(),
                                     block_at_day_start_as_blocknumber.clone(),
                                     sender.clone(),
                                 ));
@@ -653,13 +673,13 @@ decl_module! {
                                     old_total_rewards_for_day.checked_add(&_proxy_claim_total_reward_amount.clone()).ok_or(Error::<T>::Overflow)?;
                                 // Write the new value to storage
                                 <TotalRewardsPerDay<T>>::mutate(
-                                    milliseconds_since_genesis_at_day_start_as_moment.clone(),
-                                    |ms_since_genesis_at_day_start| {
-                                        if let Some(_ms_since_genesis_at_day_start) = ms_since_genesis_at_day_start {
-                                            *_ms_since_genesis_at_day_start = new_total_rewards_for_day.clone();
+                                    timestamp_sent_at_day_start_as_moment.clone(),
+                                    |reward_moment| {
+                                        if let Some(_reward_moment) = reward_moment {
+                                            *_reward_moment = new_total_rewards_for_day.clone();
                                         }
 
-                                        debug::info!("Updated total_rewards_daily at Moment: {:?}",  milliseconds_since_genesis_at_day_start_as_moment.clone());
+                                        debug::info!("Updated total_rewards_daily at Moment: {:?}",  timestamp_sent_at_day_start_as_moment.clone());
                                         debug::info!("Updated total_rewards_daily at Moment. Existing Amount: {:?}", old_total_rewards_for_day.clone());
                                         debug::info!("Updated total_rewards_daily at Moment. Reward Amount: {:?}", _proxy_claim_total_reward_amount.clone());
                                         debug::info!("Updated total_rewards_daily at Moment. New Amount: {:?}", new_total_rewards_for_day.clone());
@@ -671,7 +691,7 @@ decl_module! {
                                 // Emit event
                                 Self::deposit_event(RawEvent::TotalRewardsPerDayUpdated(
                                     new_total_rewards_for_day.clone(),
-                                    milliseconds_since_genesis_at_day_start_as_moment.clone(),
+                                    timestamp_sent_at_day_start_as_moment.clone(),
                                     block_at_day_start_as_blocknumber.clone(),
                                     sender.clone(),
                                 ));
