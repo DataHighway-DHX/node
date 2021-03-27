@@ -519,7 +519,6 @@ decl_module! {
                         debug::info!("Days since genesis round up as u64: {:?}", days_since_genesis_ceil.clone());
                         debug::info!("Days since genesis round down by 1 day as u64: {:?}", days_since_genesis_round_down.clone());
 
-
                         // check if the start of the current day date/time entry exists as a key for `rewards_daily`
                         //
                         // if so, retrieve the latest `rewards_daily` data stored for the start of that day date/time
@@ -534,7 +533,6 @@ decl_module! {
                             member_kind: recipient_member_kind.clone(),
                             rewarded_block: block_at_day_start_as_blocknumber.clone(),
                         };
-                        // let mut reward_amount_vec;
 
                         let milliseconds_since_genesis_at_day_start_as_moment;
                         if let Some(_milliseconds_since_genesis_at_day_start) =
@@ -547,40 +545,20 @@ decl_module! {
                             return Err(DispatchError::Other("Unable to convert u64 to Moment"));
                         }
 
-                        // match Self::rewards_daily(milliseconds_since_genesis_at_day_start_as_moment.clone()) {
-                        //     None => {
-                                debug::info!("Appended new rewards_per_day storage item");
+                        debug::info!("Appended new rewards_per_day storage item");
 
-                                <RewardsPerDay<T>>::append(
-                                    timestamp_sent_at_day_start_as_moment.clone(),
-                                    reward_amount_item.clone(),
-                                );
+                        <RewardsPerDay<T>>::append(
+                            timestamp_sent_at_day_start_as_moment.clone(),
+                            reward_amount_item.clone(),
+                        );
 
-                                debug::info!("Appended new rewards_per_day at Moment: {:?}", timestamp_sent_at_day_start_as_moment.clone());
-                                debug::info!("Appended new rewards_per_day in storage item: {:?}", reward_amount_item.clone());
+                        debug::info!("Appended new rewards_per_day at Moment: {:?}", timestamp_sent_at_day_start_as_moment.clone());
+                        debug::info!("Appended new rewards_per_day in storage item: {:?}", reward_amount_item.clone());
 
-                                let rewards_per_day_retrieved = <RewardsPerDay<T>>::get(
-                                    timestamp_sent_at_day_start_as_moment.clone(),
-                                );
-                                debug::info!("Retrieved new rewards_per_day storage item: {:?}", rewards_per_day_retrieved.clone());
-
-                        //     },
-                        //     Some(_) => {
-                        //         debug::info!("Appending new rewards_per_day item to existing storage vector");
-
-                        //         <RewardsPerDay<T>>::mutate(
-                        //             milliseconds_since_genesis_at_day_start_as_moment.clone(),
-                        //             |reward_vec| {
-                        //                 if let Some(_reward_vec) = reward_vec {
-                        //                     _reward_vec.push(reward_amount_item.clone());
-
-                        //                     debug::info!("Appended new rewards_per_day at Moment: {:?}", milliseconds_since_genesis_at_day_start_as_moment.clone());
-                        //                     debug::info!("Appended new rewards_per_day item in storage vector: {:?}", reward_amount_item.clone());
-                        //                 }
-                        //             },
-                        //         );
-                        //     },
-                        // }
+                        let rewards_per_day_retrieved = <RewardsPerDay<T>>::get(
+                            timestamp_sent_at_day_start_as_moment.clone(),
+                        );
+                        debug::info!("Retrieved new rewards_per_day storage item: {:?}", rewards_per_day_retrieved.clone());
 
                         // add start of the current day date/time as a key for `block_rewarded_for_day`,
                         // with the block number corresponding to the start of the current day as the value
@@ -685,8 +663,6 @@ decl_module! {
                                         debug::info!("Updated total_rewards_daily at Moment. New Amount: {:?}", new_total_rewards_for_day.clone());
                                     },
                                 );
-
-
 
                                 // Emit event
                                 Self::deposit_event(RawEvent::TotalRewardsPerDayUpdated(
@@ -904,34 +880,6 @@ impl<T: Trait> Module<T> {
         Err(DispatchError::Other("No value for mining_eligibility_proxy_reward_requestor"))
     }
 
-    pub fn has_value_for_mining_eligibility_proxy_reward_transfer_account_id(
-        transfer: &T::AccountId,
-    ) -> Result<(), DispatchError> {
-        debug::info!("Checking if mining_eligibility_proxy_reward_transfer has a value for the given account id that is defined");
-        let fetched_mining_eligibility_proxy_reward_transfer =
-            <MiningEligibilityProxyRewardTransfers<T>>::get(transfer);
-        if let Some(_value) = fetched_mining_eligibility_proxy_reward_transfer {
-            debug::info!("Found value for mining_eligibility_proxy_reward_transfer");
-            return Ok(());
-        }
-        debug::info!("No value for mining_eligibility_proxy_reward_transfer");
-        Err(DispatchError::Other("No value for mining_eligibility_proxy_reward_transfer"))
-    }
-
-    pub fn has_value_for_mining_eligibility_proxy_reward_daily(
-        timestamp_sent: &T::Moment,
-    ) -> Result<(), DispatchError> {
-        debug::info!("Checking if mining_eligibility_proxy_reward_daily has a value for the given timestamp_sent that is defined");
-        let fetched_mining_eligibility_proxy_reward_daily =
-            <RewardsPerDay<T>>::get(timestamp_sent);
-        if let Some(_value) = fetched_mining_eligibility_proxy_reward_daily {
-            debug::info!("Found value for mining_eligibility_proxy_reward_daily");
-            return Ok(());
-        }
-        debug::info!("No value for mining_eligibility_proxy_reward_daily");
-        Err(DispatchError::Other("No value for mining_eligibility_proxy_reward_daily"))
-    }
-
     fn random_value(sender: &T::AccountId) -> [u8; 16] {
         let payload = (
             T::Randomness::random(&[0]),
@@ -965,39 +913,12 @@ impl<T: Trait> Module<T> {
         requestor: &T::AccountId,
         reward_requestor_data: RequestorData<T>,
     ) {
-        // Check if a mining_eligibility_proxy_reward_requestor already exists with the given requestor account id
-        // to determine whether to insert new or mutate existing.
-        if Self::has_value_for_mining_eligibility_proxy_reward_requestor_account_id(&requestor.clone()).is_ok() {
-        //     debug::info!("Mutating values");
+        debug::info!("Appending reward requestor data");
 
-        //     let reward_requests_for_requestor = Self::reward_requestors(&requestor);
-
-        //     <MiningEligibilityProxyRewardRequestors<T>>::mutate(
-        //         requestor.clone(),
-        //         |mining_eligibility_proxy_reward_requestor| {
-        //             if let Some(_mining_eligibility_proxy_reward_requestor) = mining_eligibility_proxy_reward_requestor {
-        //                 _mining_eligibility_proxy_reward_requestor.push(reward_requestor_data.clone());
-        //             }
-        //         },
-        //     );
-        // } else {
-        //     debug::info!("Inserting values");
-
-        //     let mut vec = Vec::new();
-        //     vec.push(reward_requestor_data.clone());
-
-            // <MiningEligibilityProxyRewardRequestors<T>>::insert(
-            //     requestor.clone(),
-            //     &vec,
-            // );
-
-            <MiningEligibilityProxyRewardRequestors<T>>::append(
-                requestor.clone(),
-                &reward_requestor_data.clone(),
-            );
-        }
-
-        debug::info!("Inserted proxy_reward_requestor");
+        <MiningEligibilityProxyRewardRequestors<T>>::append(
+            requestor.clone(),
+            &reward_requestor_data.clone(),
+        );
 
         Self::deposit_event(RawEvent::MiningEligibilityProxyRewardRequestorSet(
             requestor.clone(),
@@ -1009,38 +930,12 @@ impl<T: Trait> Module<T> {
         transfer: &T::AccountId,
         reward_transfer_data: TransferData<T>,
     ) {
-        // Check if a mining_eligibility_proxy_reward_transfer already exists with the given transfer account id
-        // to determine whether to insert new or mutate existing.
-        if Self::has_value_for_mining_eligibility_proxy_reward_transfer_account_id(&transfer.clone()).is_ok() {
-        //     debug::info!("Mutating values");
+        debug::info!("Appending reward transfer data");
 
-        //     let reward_requests_for_transfer = Self::reward_transfers(&transfer);
-
-        //     <MiningEligibilityProxyRewardTransfers<T>>::mutate(
-        //         transfer.clone(),
-        //         |mining_eligibility_proxy_reward_transfer| {
-        //             if let Some(_mining_eligibility_proxy_reward_transfer) = mining_eligibility_proxy_reward_transfer {
-        //                 _mining_eligibility_proxy_reward_transfer.push(reward_transfer_data.clone());
-        //             }
-        //         },
-        //     );
-        // } else {
-        //     debug::info!("Inserting values");
-
-            // let mut vec = Vec::new();
-            // vec.push(reward_transfer_data.clone());
-
-            // <MiningEligibilityProxyRewardTransfers<T>>::insert(
-            //     transfer.clone(),
-            //     &vec,
-            // );
-            <MiningEligibilityProxyRewardTransfers<T>>::append(
-                transfer.clone(),
-                &reward_transfer_data.clone(),
-            );
-        }
-
-        debug::info!("Inserted proxy_reward_transfer");
+        <MiningEligibilityProxyRewardTransfers<T>>::append(
+            transfer.clone(),
+            &reward_transfer_data.clone(),
+        );
 
         Self::deposit_event(RawEvent::MiningEligibilityProxyRewardTransferSet(
             transfer.clone(),
@@ -1053,39 +948,12 @@ impl<T: Trait> Module<T> {
         timestamp_sent: &T::Moment,
         reward_daily_data: DailyData<T>,
     ) {
-        // Check if a mining_eligibility_proxy_reward_daily already exists with the given timestamp_sent
-        // to determine whether to insert new or mutate existing.
-        if Self::has_value_for_mining_eligibility_proxy_reward_daily(&timestamp_sent.clone()).is_ok() {
-        //     debug::info!("Mutating values");
+        debug::info!("Appending reward daily data");
 
-        //     let reward_requests_for_timestamp_sent = Self::rewards_daily(&timestamp_sent);
-
-        //     <RewardsPerDay<T>>::mutate(
-        //         timestamp_sent.clone(),
-        //         |mining_eligibility_proxy_reward_daily| {
-        //             if let Some(_mining_eligibility_proxy_reward_daily) = mining_eligibility_proxy_reward_daily {
-        //                 _mining_eligibility_proxy_reward_daily.push(reward_daily_data.clone());
-        //             }
-        //         },
-        //     );
-        // } else {
-        //     debug::info!("Inserting values");
-
-        //     let mut vec = Vec::new();
-        //     vec.push(reward_daily_data.clone());
-
-            // <RewardsPerDay<T>>::insert(
-            //     timestamp_sent.clone(),
-            //     &vec,
-            // );
-
-            <RewardsPerDay<T>>::append(
-                timestamp_sent.clone(),
-                &reward_daily_data.clone(),
-            );
-        }
-
-        debug::info!("Inserted proxy_reward_daily");
+        <RewardsPerDay<T>>::append(
+            timestamp_sent.clone(),
+            &reward_daily_data.clone(),
+        );
 
         Self::deposit_event(RawEvent::RewardsPerDaySet(
             timestamp_sent.clone(),
