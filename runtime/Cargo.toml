@@ -26,7 +26,6 @@ pallet-grandpa = { version = '3.0.0', default-features = false }
 pallet-identity = { version = '3.0.0', default-features = false }
 pallet-im-online = { version = '3.0.0', default-features = false }
 pallet-indices = { version = '3.0.0', default-features = false }
-pallet-lottery = { version = '3.0.0', default-features = false }
 pallet-membership = { version = '3.0.0', default-features = false }
 pallet-offences = { version = '3.0.0', default-features = false }
 pallet-randomness-collective-flip = { version = '3.0.0', default-features = false }
@@ -107,7 +106,6 @@ std = [
     'pallet-im-online/std',
     'pallet-collective/std',
     'pallet-elections-phragmen/std',
-    'pallet-lottery/std',
     'pallet-membership/std',
     'pallet-offences/std',
     'pallet-tips/std',

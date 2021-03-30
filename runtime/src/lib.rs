@@ -462,25 +462,6 @@ impl pallet_identity::Config for Runtime {
 }
 
 parameter_types! {
-	pub const LotteryModuleId: ModuleId = ModuleId(*b"py/lotto");
-	pub const MaxCalls: usize = 10;
-	pub const MaxGenerateRandom: u32 = 10;
-}
-
-impl pallet_lottery::Config for Runtime {
-	type ModuleId = LotteryModuleId;
-	type Call = Call;
-	type Event = Event;
-	type Currency = Balances;
-	type Randomness = RandomnessCollectiveFlip;
-	type ManagerOrigin = EnsureRoot<AccountId>;
-	type MaxCalls = MaxCalls;
-	type ValidateCall = Lottery;
-	type MaxGenerateRandom = MaxGenerateRandom;
-	type WeightInfo = pallet_lottery::weights::SubstrateWeight<Runtime>;
-}
-
-parameter_types! {
     pub const MinimumPeriod: Moment = SLOT_DURATION / 2;
 }
 
@@ -1083,7 +1064,6 @@ construct_runtime!(
         Scheduler: pallet_scheduler::{Module, Call, Storage, Event<T>},
         Bounties: pallet_bounties::{Module, Call, Storage, Event<T>},
         Tips: pallet_tips::{Module, Call, Storage, Event<T>},
-        Lottery: pallet_lottery::{Module, Call, Storage, Event<T>},
         RoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
         RoamingNetworks: roaming_networks::{Module, Call, Storage, Event<T>},
         RoamingOrganizations: roaming_organizations::{Module, Call, Storage, Event<T>},
