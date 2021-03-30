@@ -531,8 +531,8 @@ fn dev_genesis(
             keys: vec![],
         }),
         pallet_authority_discovery: Some(AuthorityDiscoveryConfig {
-			keys: vec![],
-		}),
+            keys: vec![],
+        }),
         pallet_collective_Instance1: Some(Default::default()),
         pallet_membership_Instance1: Some(TechnicalMembershipConfig {
             members: vec![root_key.clone()],
@@ -607,8 +607,8 @@ fn testnet_genesis(
             keys: vec![],
         }),
         pallet_authority_discovery: Some(AuthorityDiscoveryConfig {
-			keys: vec![],
-		}),
+            keys: vec![],
+        }),
         pallet_collective_Instance1: Some(Default::default()),
         pallet_membership_Instance1: Some(TechnicalMembershipConfig {
             members: vec![root_key.clone()],
