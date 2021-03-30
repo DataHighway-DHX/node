@@ -38,6 +38,7 @@ use sc_telemetry::{
     TelemetrySpan,
 };
 use sp_inherents::InherentDataProviders;
+use futures::prelude::*;
 use sp_runtime::traits::Block as BlockT;
 use std::{
     sync::Arc,
@@ -301,6 +302,27 @@ pub fn new_full_base(
 
         let babe = sc_consensus_babe::start_babe(babe_config)?;
         task_manager.spawn_essential_handle().spawn_blocking("babe-proposer", babe);
+    }
+
+    // Spawn authority discovery module.
+    if role.is_authority() {
+        let authority_discovery_role = sc_authority_discovery::Role::PublishAndDiscover(
+            keystore_container.keystore(),
+        );
+        let dht_event_stream = network.event_stream("authority-discovery")
+            .filter_map(|e| async move { match e {
+                Event::Dht(e) => Some(e),
+                _ => None,
+            }});
+        let (authority_discovery_worker, _service) = sc_authority_discovery::new_worker_and_service(
+            client.clone(),
+            network.clone(),
+            Box::pin(dht_event_stream),
+            authority_discovery_role,
+            prometheus_registry.clone(),
+        );
+
+        task_manager.spawn_handle().spawn("authority-discovery-worker", authority_discovery_worker.run());
     }
 
     // if the node isn't actively participating in consensus then it doesn't
