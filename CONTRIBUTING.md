@@ -295,6 +295,9 @@ pub trait Config: frame_system::Config {
     type MiningClaimsTokenClaimAmount: Parameter + ... + From<i32>;
 ```
 
+* Question: Why am I getting an unknown error like `Chain does not have enough staking candidates to operate. Era Some(0)`.
+    * Answer: You may have the wrong 'order' of pallets in `construct_runtime` (i.e. System first). They need to also match that used in the Substrate codebase
+
 ## Technical Support <a id="chapter-c00ab7"></a>
 
 * [Discord Chat](https://discord.gg/UuZN2tE)
