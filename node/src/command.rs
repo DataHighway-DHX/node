@@ -15,20 +15,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use datahighway_testnet_runtime as dh_testnet;
+use dh_testnet::{
+    opaque::{
+        Block,
+    },
+};
 use crate::{
-    chain_spec::load_spec as chain_load_spec,
-    // // Substrate 3
-    // chain_spec,
+    // chain_spec::load_spec as chain_load_spec,
+    // Substrate 3
+    chain_spec,
     cli::{
         Cli,
         Subcommand,
     },
     service,
-};
-use datahighway_runtime::{
-    opaque::{
-        Block,
-    },
 };
 
 use sc_cli::{
@@ -65,11 +66,22 @@ impl SubstrateCli for Cli {
     }
 
     fn load_spec(&self, id: &str) -> Result<Box<dyn sc_service::ChainSpec>, String> {
-        chain_load_spec(id)
+        // chain_load_spec(id)
+        Ok(match id {
+			"dev" => Box::new(chain_spec::development_config()?),
+            "" | "local" => Box::new(chain_spec::local_testnet_config()?),
+            "testnet_latest" => Box::new(chain_spec::datahighway_testnet_latest_config()?),
+            // "testnet_file" => Box::new(chain_spec::datahighway_testnet_file_config()?),
+            "harbour" => Box::new(chain_spec::datahighway_testnet_harbour_config()?),
+            "mainnet" => Box::new(chain_spec::datahighway_mainnet_config()?),
+			path => Box::new(chain_spec::DHTestnetChainSpec::from_json_file(
+				std::path::PathBuf::from(path),
+			)?),
+		})
     }
 
     fn native_runtime_version(_: &Box<dyn ChainSpec>) -> &'static RuntimeVersion {
-        &datahighway_runtime::VERSION
+        &dh_testnet::VERSION
     }
 }
 

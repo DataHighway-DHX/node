@@ -298,6 +298,9 @@ pub trait Config: frame_system::Config {
 * Question: Why am I getting an unknown error like `Chain does not have enough staking candidates to operate. Era Some(0)`.
     * Answer: You may have the wrong 'order' of pallets in `construct_runtime` (i.e. System first). They need to also match that used in the Substrate codebase
 
+* Question: Why are there multiple runtimes (i.e. testnet_runtime, and mainnet_runtime)?
+    * Answer: Because we have a different SS58 Address Prefix for each of those chains and it is no longer configurable in the chain_spec in Substrate 3 like it was in Substrate 2. Testnet is 42 (Substrate default), and Mainnet is 33.
+
 ## Technical Support <a id="chapter-c00ab7"></a>
 
 * [Discord Chat](https://discord.gg/UuZN2tE)

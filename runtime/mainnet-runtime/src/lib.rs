@@ -158,15 +158,26 @@ impl_opaque_keys! {
 pub mod impls;
 pub use impls::Author;
 
-/// Constant values used within the runtime.
-pub mod constants;
-pub use constants::{
-    currency::*,
-    time::*,
+pub use module_primitives::{
+    constants::currency::{
+        CENTS,
+        deposit,
+        DOLLARS,
+        MILLICENTS,
+    },
+	constants::time::{
+        DAYS,
+        EPOCH_DURATION_IN_BLOCKS,
+        EPOCH_DURATION_IN_SLOTS,
+        HOURS,
+        MILLISECS_PER_BLOCK,
+        MINUTES,
+        PRIMARY_PROBABILITY,
+        SLOT_DURATION,
+    },
+	types::*,
 };
 use sp_runtime::generic::Era;
-pub mod types;
-pub use types::*;
 
 // Make the WASM binary available.
 #[cfg(feature = "std")]
@@ -182,8 +193,8 @@ pub fn wasm_binary_unwrap() -> &'static [u8] {
 }
 
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-    spec_name: create_runtime_str!("datahighway"),
-    impl_name: create_runtime_str!("datahighway"),
+    spec_name: create_runtime_str!("datahighway-mainnet"),
+    impl_name: create_runtime_str!("datahighway-mainnet"),
     authoring_version: 2,
     spec_version: 2,
     impl_version: 2,

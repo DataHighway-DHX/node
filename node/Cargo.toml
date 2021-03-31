@@ -3,7 +3,7 @@ authors = ['MXC Foundation gGmbH <https://t.me/mxcfoundation>', 'Luke Schoen <lu
 build = 'build.rs'
 edition = '2018'
 name = 'datahighway'
-version = '1.0.0'
+version = '3.0.0'
 
 [[bin]]
 name = 'datahighway'
@@ -22,11 +22,14 @@ structopt = '0.3.8'
 hex-literal = '0.3.1'
 
 # local node-specific dependencies
-datahighway-runtime = { version = '1.0.0', path = '../runtime' }
+datahighway-testnet-runtime = { version = '1.0.0', path = '../runtime/testnet-runtime' }
+datahighway-mainnet-runtime = { version = '0.1.0', path = '../runtime/mainnet-runtime' }
+
 
 # Substrate dependencies
 frame-benchmarking = '3.1.0'
 frame-benchmarking-cli = '3.0.0'
+module-primitives = { version = '3.0.0', default-features = false, path = '../pallets/primitives' }
 pallet-authority-discovery = '3.0.0'
 pallet-democracy = '3.0.0'
 pallet-im-online = '3.0.0'

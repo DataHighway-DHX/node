@@ -63,7 +63,7 @@ jobs:
       # Runs integration tests in the runtime/tests folder
       - name: Run Integration Tests across all runtime modules
         run: |
-          cargo +nightly-2021-03-10 test -p datahighway-runtime
+          cargo +nightly-2021-03-10 test -p datahighway-runtime-testnet
 
       # Runs unit tests in each runtime module of the pallet folder
       - name: Run Unit Tests in each runtime module

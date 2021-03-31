@@ -3,7 +3,7 @@ use std::{
     sync::Arc,
 };
 
-use datahighway_runtime::{
+use datahighway_testnet_runtime::{
     opaque::{
         Block,
     },

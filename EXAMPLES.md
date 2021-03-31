@@ -3,6 +3,7 @@
 * [Example "dev" development PoS testnet with single nodes](#chapter-ca9336)
 * [Example "local" PoS testnet with multiple nodes](#chapter-f21efd)
 * [Live (Alpha) "testnet_latest" PoS testnet (with multiple nodes)](#chapter-f0264f)
+* [Live (Alpha) "harbour" PoS testnet (with multiple nodes)](#chapter-f023e2)
 * [Interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
 
 ## Example "dev" development PoS testnet (with single node) <a id="chapter-f21efd"></a>
@@ -15,7 +16,8 @@ The development testnet only requires a single node to produce and finalize bloc
 
 * Fork and clone the repository
 
-* Install or update Rust and dependencies. Build the WebAssembly binary from all code
+* Install or update Rust and dependencies. Build the WebAssembly binary from all code.
+* Note that since we have two separate runtimes for testnet and mainnet, they will both be built at the same time.
 
 ```bash
 curl https://getsubstrate.io -sSf | bash -s -- --fast && \
@@ -69,7 +71,6 @@ Run a multiple node PoS testnet on your local machine with built-in keys (Alice,
 ```bash
 curl https://getsubstrate.io -sSf | bash -s -- --fast && \
 ./scripts/init.sh
-cargo build --release
 ```
 
 #### Build runtime code
@@ -82,7 +83,7 @@ cargo build --release
 
 * Create latest chain specification code changes of <CHAIN_ID> "local"
 
-> Other chains are specified in src/chain_spec.rs (i.e. dev, local, testnet, or testnet_latest).
+> Other chains are specified in src/chain_spec.rs (i.e. dev, local, or testnet_latest).
 
 * Generate the chain specification JSON file from src/chain_spec.rs
 
@@ -258,6 +259,46 @@ curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"a
 
 * Distribute the custom chain definition (i.e. chain_def_local.json) to allow others to synchronise and validate if they are an authority
 
+#### Optional: Run without generating chain definition
+
+```
+SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug \
+./target/release/datahighway \
+  --unsafe-ws-external \
+  --unsafe-rpc-external \
+  --rpc-cors=all \
+  --base-path /tmp/polkadot-chains/alice \
+  --chain local \
+  --alice \
+  --port 30333 \
+  --ws-port 9944 \
+  --rpc-port 9933 \
+  --node-key 0000000000000000000000000000000000000000000000000000000000000001 \
+  --telemetry-url 'wss://telemetry.polkadot.io/submit/ 0' \
+  --validator \
+  --execution=native \
+  -lruntime=debug \
+  --rpc-methods=Unsafe
+
+SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug \
+./target/release/datahighway \
+  --unsafe-ws-external \
+  --unsafe-rpc-external \
+  --rpc-cors=all \
+  --base-path /tmp/polkadot-chains/bob \
+  --chain local \
+  --bob \
+  --port 30334 \
+  --ws-port 9945 \
+  --rpc-port 9934 \
+  --telemetry-url 'wss://telemetry.polkadot.io/submit/ 0' \
+  --validator \
+  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp \
+  --execution=native \
+  -lruntime=debug \
+  --rpc-methods=Unsafe
+```
+
 ### Run on Local Machine (WITH Docker) (Alice, Bob, Charlie)
 
 #### Fetch repository and dependencies
@@ -374,6 +415,10 @@ Note:
 * Only DataHighway admins should use the docker-compose-admin.yml file to start the initial bootnodes, whereas other community nodes that connect to the DataHighway should use docker-compose-custom.yml instead.
 * Refer to the FAQ or contact Technical Support provided in [CONTRIBUTING.md](./CONTRIBUTING.md) if you encounter any issues.
 * If all services defined in docker-compose-custom.yml will be running in Docker containers on the same host machine, then each service must expose different ports (on the left side of the colon), however the ports that are used within each Docker container may be the same.
+
+## Testnet (Alpha) "harbour" PoS testnet (with multiple nodes) <a id="chapter-f023e2"></a>
+
+* Refer to the documentation to setup a validator node and to obtain bootnode to connect to https://dev.datahighway.com/docs/en/tutorials/tutorials-nodes-validator-setup
 
 ## Interact with blockchain using Polkadot.js Apps UI <a id="chapter-6d9058"></a>
 

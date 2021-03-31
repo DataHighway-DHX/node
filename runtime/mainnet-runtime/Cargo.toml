@@ -1,8 +1,8 @@
 [package]
 authors = ['MXC Foundation gGmbH <https://t.me/mxcfoundation>', 'Luke Schoen <luke@mxc.org>', 'Ilya Beregovskiy <ilya@mxc.org>']
 edition = '2018'
-name = 'datahighway-runtime'
-version = '1.0.0'
+name = 'datahighway-mainnet-runtime'
+version = '0.1.0'
 
 [package.metadata.docs.rs]
 targets = ['x86_64-unknown-linux-gnu']
@@ -56,35 +56,35 @@ sp-transaction-pool = { version = '3.0.0', default-features = false }
 sp-version = { version = '3.0.0', default-features = false }
 frame-system = { version = '3.0.0', default-features = false }
 
-# env = { version = '1.0.0', default-features = false, package = 'env', path = '../pallets/env'}
-roaming-operators = { default-features = false, package = 'roaming-operators', path = '../pallets/roaming/roaming-operators' }
-roaming-networks = { default-features = false, package = 'roaming-networks', path = '../pallets/roaming/roaming-networks' }
-roaming-organizations = { default-features = false, package = 'roaming-organizations', path = '../pallets/roaming/roaming-organizations' }
-roaming-network-servers = { default-features = false, package = 'roaming-network-servers', path = '../pallets/roaming/roaming-network-servers' }
-roaming-devices = { default-features = false, package = 'roaming-devices', path = '../pallets/roaming/roaming-devices' }
-roaming-routing-profiles = { default-features = false, package = 'roaming-routing-profiles', path = '../pallets/roaming/roaming-routing-profiles' }
-roaming-service-profiles = { default-features = false, package = 'roaming-service-profiles', path = '../pallets/roaming/roaming-service-profiles' }
-roaming-accounting-policies = { default-features = false, package = 'roaming-accounting-policies', path = '../pallets/roaming/roaming-accounting-policies' }
-roaming-agreement-policies = { default-features = false, package = 'roaming-agreement-policies', path = '../pallets/roaming/roaming-agreement-policies' }
-roaming-network-profiles = { default-features = false, package = 'roaming-network-profiles', path = '../pallets/roaming/roaming-network-profiles' }
-roaming-device-profiles = { default-features = false, package = 'roaming-device-profiles', path = '../pallets/roaming/roaming-device-profiles' }
-roaming-sessions = { default-features = false, package = 'roaming-sessions', path = '../pallets/roaming/roaming-sessions' }
-roaming-billing-policies = { default-features = false, package = 'roaming-billing-policies', path = '../pallets/roaming/roaming-billing-policies' }
-roaming-charging-policies = { default-features = false, package = 'roaming-charging-policies', path = '../pallets/roaming/roaming-charging-policies' }
-roaming-packet-bundles = { default-features = false, package = 'roaming-packet-bundles', path = '../pallets/roaming/roaming-packet-bundles' }
-mining-setting-token = { default-features = false, package = 'mining-setting-token', path = '../pallets/mining/setting/token' }
-mining-setting-hardware = { default-features = false, package = 'mining-setting-hardware', path = '../pallets/mining/setting/hardware' }
-mining-rates-token = { default-features = false, package = 'mining-rates-token', path = '../pallets/mining/rates/token' }
-mining-rates-hardware = { default-features = false, package = 'mining-rates-hardware', path = '../pallets/mining/rates/hardware' }
-mining-sampling-token = { default-features = false, package = 'mining-sampling-token', path = '../pallets/mining/sampling/token' }
-mining-sampling-hardware = { default-features = false, package = 'mining-sampling-hardware', path = '../pallets/mining/sampling/hardware' }
-mining-eligibility-token = { default-features = false, package = 'mining-eligibility-token', path = '../pallets/mining/eligibility/token' }
-mining-eligibility-hardware = { default-features = false, package = 'mining-eligibility-hardware', path = '../pallets/mining/eligibility/hardware' }
-mining-claims-token = { default-features = false, package = 'mining-claims-token', path = '../pallets/mining/claims/token' }
-mining-claims-hardware = { default-features = false, package = 'mining-claims-hardware', path = '../pallets/mining/claims/hardware' }
-mining-execution-token = { default-features = false, package = 'mining-execution-token', path = '../pallets/mining/execution/token' }
-exchange-rate = { default-features = false, package = 'exchange-rate', path = '../pallets/exchange-rate' }
-module-primitives = { default-features = false, path = '../pallets/primitives' }
+# env = { version = '1.0.0', default-features = false, package = 'env', path = '../../pallets/env'}
+roaming-operators = { default-features = false, package = 'roaming-operators', path = '../../pallets/roaming/roaming-operators' }
+roaming-networks = { default-features = false, package = 'roaming-networks', path = '../../pallets/roaming/roaming-networks' }
+roaming-organizations = { default-features = false, package = 'roaming-organizations', path = '../../pallets/roaming/roaming-organizations' }
+roaming-network-servers = { default-features = false, package = 'roaming-network-servers', path = '../../pallets/roaming/roaming-network-servers' }
+roaming-devices = { default-features = false, package = 'roaming-devices', path = '../../pallets/roaming/roaming-devices' }
+roaming-routing-profiles = { default-features = false, package = 'roaming-routing-profiles', path = '../../pallets/roaming/roaming-routing-profiles' }
+roaming-service-profiles = { default-features = false, package = 'roaming-service-profiles', path = '../../pallets/roaming/roaming-service-profiles' }
+roaming-accounting-policies = { default-features = false, package = 'roaming-accounting-policies', path = '../../pallets/roaming/roaming-accounting-policies' }
+roaming-agreement-policies = { default-features = false, package = 'roaming-agreement-policies', path = '../../pallets/roaming/roaming-agreement-policies' }
+roaming-network-profiles = { default-features = false, package = 'roaming-network-profiles', path = '../../pallets/roaming/roaming-network-profiles' }
+roaming-device-profiles = { default-features = false, package = 'roaming-device-profiles', path = '../../pallets/roaming/roaming-device-profiles' }
+roaming-sessions = { default-features = false, package = 'roaming-sessions', path = '../../pallets/roaming/roaming-sessions' }
+roaming-billing-policies = { default-features = false, package = 'roaming-billing-policies', path = '../../pallets/roaming/roaming-billing-policies' }
+roaming-charging-policies = { default-features = false, package = 'roaming-charging-policies', path = '../../pallets/roaming/roaming-charging-policies' }
+roaming-packet-bundles = { default-features = false, package = 'roaming-packet-bundles', path = '../../pallets/roaming/roaming-packet-bundles' }
+mining-setting-token = { default-features = false, package = 'mining-setting-token', path = '../../pallets/mining/setting/token' }
+mining-setting-hardware = { default-features = false, package = 'mining-setting-hardware', path = '../../pallets/mining/setting/hardware' }
+mining-rates-token = { default-features = false, package = 'mining-rates-token', path = '../../pallets/mining/rates/token' }
+mining-rates-hardware = { default-features = false, package = 'mining-rates-hardware', path = '../../pallets/mining/rates/hardware' }
+mining-sampling-token = { default-features = false, package = 'mining-sampling-token', path = '../../pallets/mining/sampling/token' }
+mining-sampling-hardware = { default-features = false, package = 'mining-sampling-hardware', path = '../../pallets/mining/sampling/hardware' }
+mining-eligibility-token = { default-features = false, package = 'mining-eligibility-token', path = '../../pallets/mining/eligibility/token' }
+mining-eligibility-hardware = { default-features = false, package = 'mining-eligibility-hardware', path = '../../pallets/mining/eligibility/hardware' }
+mining-claims-token = { default-features = false, package = 'mining-claims-token', path = '../../pallets/mining/claims/token' }
+mining-claims-hardware = { default-features = false, package = 'mining-claims-hardware', path = '../../pallets/mining/claims/hardware' }
+mining-execution-token = { default-features = false, package = 'mining-execution-token', path = '../../pallets/mining/execution/token' }
+exchange-rate = { default-features = false, package = 'exchange-rate', path = '../../pallets/exchange-rate' }
+module-primitives = { default-features = false, path = '../../pallets/primitives' }
 
 [features]
 default = ['std']
