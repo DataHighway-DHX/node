@@ -629,10 +629,9 @@ mod tests {
             let rewardee_data = MiningEligibilityProxyClaimRewardeeData {
                 proxy_claim_rewardee_account_id: 3,
                 proxy_claim_reward_amount: 1000,
-                proxy_claim_start_block: 0,
-                proxy_claim_interval_blocks: 10,
+                proxy_claim_start_date: "2000-1-1".to_string().as_bytes().to_vec(),
             };
-            let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, u64, u64>> =
+            let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, Vec<u8>>> =
                 Vec::new();
             proxy_claim_rewardees_data.push(rewardee_data);
 
@@ -730,7 +729,6 @@ mod tests {
                     proxy_claim_requestor_account_id: 1u64,
                     proxy_claim_total_reward_amount: 1000u64,
                     proxy_claim_rewardees_data: proxy_claim_rewardees_data.clone(),
-                    proxy_claim_block_redeemed: 1u64, // current block
                     proxy_claim_timestamp_redeemed: 1616724600000u64, // current timestamp
                 })
             );
@@ -776,11 +774,11 @@ mod tests {
             // Repeat with an additional claim
             assert_ok!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
                 Origin::signed(2),
-                2000, // _proxy_claim_total_reward_amount
+                3000, // _proxy_claim_total_reward_amount
                 Some(proxy_claim_rewardees_data.clone()),
             ));
 
-            if let Some(rewards_daily_data) = MiningEligibilityProxyTestModule::rewards_daily(1616811000000u64) {
+            if let Some(rewards_daily_data) = MiningEligibilityProxyTestModule::rewards_daily("2021-03-27".as_bytes().to_vec()) {
                 // Check that data about the proxy claim reward daily data has been stored.
                 // Check latest transfer added to vector for requestor AccountId 0
                 assert_eq!(
@@ -792,10 +790,10 @@ mod tests {
                     // but if it was defined with specific types then it would generate errors
                     Some(RewardDailyData {
                         mining_eligibility_proxy_id: 1u64,
-                        total_amt: 2000u64,
+                        total_amt: 3000u64,
                         proxy_claim_requestor_account_id: 2u64,
                         member_kind: 1u32,
-                        rewarded_block: 2,
+                        rewarded_date: "2021-03-27".as_bytes().to_vec(),
                     })
                 );
             } else {
@@ -803,46 +801,46 @@ mod tests {
             }
 
 
-            let unused_timstamp = 1234567891234u64;
-            assert_eq!(
-                MiningEligibilityProxyTestModule::block_rewarded_for_day(unused_timstamp),
-                None,
-            );
+            // let unused_timstamp =  "2001-03-27".as_bytes().to_vec();
+            // assert_eq!(
+            //     MiningEligibilityProxyTestModule::block_rewarded_for_day(unused_timstamp),
+            //     None,
+            // );
 
-            let timstamp_26mar2021 = 1616811000000u64;
-            assert_eq!(
-                MiningEligibilityProxyTestModule::block_rewarded_for_day(timstamp_26mar2021),
-                None,
-            );
+            // let timstamp_26mar2021 = "2021-03-26".as_bytes().to_vec();
+            // assert_eq!(
+            //     MiningEligibilityProxyTestModule::block_rewarded_for_day(timstamp_26mar2021),
+            //     None,
+            // );
 
-            let timstamp_27mar2021 = 1616724600000u64;
-            assert_eq!(
-                MiningEligibilityProxyTestModule::block_rewarded_for_day(timstamp_27mar2021),
-                None,
-            );
+            // let timstamp_27mar2021 = "2021-03-27".as_bytes().to_vec();
+            // assert_eq!(
+            //     MiningEligibilityProxyTestModule::block_rewarded_for_day(timstamp_27mar2021),
+            //     None,
+            // );
 
-            // TODO - fix all the below
+            // // TODO - fix all the below
 
-            // it should only return a timestamp for the block number that corresponds to the
-            // start of the day for which the reward request was submitted.
-            // i.e. if it was made at 1400hr on 1st Apr, it'd return the block corresponding
-            // to 0000hr on 1st Apr
-            let valid_day_start = 1616713200000u64;
-            assert_eq!(
-                MiningEligibilityProxyTestModule::block_rewarded_for_day(valid_day_start),
-                Some(2),
-            );
+            // // it should only return a timestamp for the block number that corresponds to the
+            // // start of the day for which the reward request was submitted.
+            // // i.e. if it was made at 1400hr on 1st Apr, it'd return the block corresponding
+            // // to 0000hr on 1st Apr
+            // let valid_day_start = 1616713200000u64;
+            // assert_eq!(
+            //     MiningEligibilityProxyTestModule::block_rewarded_for_day(valid_day_start),
+            //     Some(2),
+            // );
 
-            assert_eq!(
-                MiningEligibilityProxyTestModule::day_rewarded_for_block(2),
-                Some(1616713200000u64),
-            );
+            // assert_eq!(
+            //     MiningEligibilityProxyTestModule::day_rewarded_for_block(2),
+            //     Some(1616713200000u64),
+            // );
 
             // If we reward them on 26th March 2021 @ 02:00 (1616724600000u64),
             // the reward gets inserted for start of that day at 26th Mar 2021 @ 0:00 (1616713200000u64)
             // according to https://currentmillis.com/, so that's the key we need to lookup results with
             assert_eq!(
-                MiningEligibilityProxyTestModule::total_rewards_daily(1616713200000u64),
+                MiningEligibilityProxyTestModule::total_rewards_daily("2021-03-26".as_bytes().to_vec()),
                 Some(1000),
             );
 
@@ -850,17 +848,16 @@ mod tests {
             // the reward gets inserted for start of that day at 26th Mar 2021 @ 0:00 (1616799600000u64)
             // according to https://currentmillis.com/, so that's the key we need to lookup results with
             assert_eq!(
-                MiningEligibilityProxyTestModule::total_rewards_daily(1616799600000u64),
-                Some(1000u64),
+                MiningEligibilityProxyTestModule::total_rewards_daily("2021-03-27".as_bytes().to_vec()),
+                Some(3000u64),
             );
 
             // TODO - add an extra test later on in the day on 26th Mar 2021 to check it gets added
             // to the total rewards for 26th Mar 2021
 
-            // this should return None, since the timestamp needs to be the start of the day when the
-            // return was requested, not the actual time when it was requested.
+            // this should return None, since the timestamp must be a date
             assert_eq!(
-                MiningEligibilityProxyTestModule::total_rewards_daily(1616811000000u64),
+                MiningEligibilityProxyTestModule::total_rewards_daily("2021-03-26-not-a-date".as_bytes().to_vec()),
                 None,
             );
 
