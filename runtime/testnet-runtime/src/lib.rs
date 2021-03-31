@@ -1041,6 +1041,10 @@ impl exchange_rate::Config for Runtime {
     type IOTARate = u64;
 }
 
+impl membership_supernodes::Config for Runtime {
+    type Event = Event;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
     pub enum Runtime where
@@ -1075,6 +1079,7 @@ construct_runtime!(
         Scheduler: pallet_scheduler::{Module, Call, Storage, Event<T>},
         Bounties: pallet_bounties::{Module, Call, Storage, Event<T>},
         Tips: pallet_tips::{Module, Call, Storage, Event<T>},
+        MembershipSupernodes: membership_supernodes::{Module, Call, Storage, Event<T>},
         RoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
         RoamingNetworks: roaming_networks::{Module, Call, Storage, Event<T>},
         RoamingOrganizations: roaming_organizations::{Module, Call, Storage, Event<T>},

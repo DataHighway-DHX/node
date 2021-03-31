@@ -1,4 +1,5 @@
 // extern crate env as env;
+extern crate membership_supernodes as membership_supernodes;
 extern crate mining_claims_token as mining_claims_token;
 extern crate mining_setting_token as mining_setting_token;
 extern crate mining_eligibility_token as mining_eligibility_token;
@@ -12,6 +13,7 @@ mod tests {
     use super::*;
 
     use frame_support::{
+        assert_err,
         assert_ok,
         parameter_types,
         weights::{
@@ -28,9 +30,17 @@ mod tests {
             IdentityLookup,
 
         },
+        DispatchError,
+        DispatchResult,
+        Perbill,
+        Permill,
     };
     pub use pallet_transaction_payment::{
         CurrencyAdapter,
+    };
+    use membership_supernodes::{
+        Module as MembershipSupernodesModule,
+        Trait as MembershipSupernodesTrait,
     };
     // Import Trait for each runtime module being tested
     use mining_claims_token::{
@@ -71,7 +81,7 @@ mod tests {
     // }
     type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
     type Block = frame_system::mocking::MockBlock<Test>;
-    
+
     frame_support::construct_runtime!(
         pub enum Test where
             Block = Block,
@@ -83,7 +93,7 @@ mod tests {
             RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
             TransactionPayment: pallet_transaction_payment::{Module, Storage},
         }
-    ); 
+    );
 
     parameter_types! {
         pub const BlockHashCount: u64 = 250;
@@ -181,6 +191,9 @@ mod tests {
         type Event = ();
         type MiningExecutionTokenIndex = u64;
     }
+    impl MembershipSupernodesTrait for Test {
+        type Event = ();
+    }
 
     pub type MiningSettingTokenTestModule = MiningSettingTokenModule<Test>;
     pub type MiningRatesTokenTestModule = MiningRatesTokenModule<Test>;
@@ -188,7 +201,9 @@ mod tests {
     pub type MiningEligibilityTokenTestModule = MiningEligibilityTokenModule<Test>;
     pub type MiningClaimsTokenTestModule = MiningClaimsTokenModule<Test>;
     pub type MiningExecutionTokenTestModule = MiningExecutionTokenModule<Test>;
+    pub type MembershipSupernodesTestModule = MembershipSupernodesModule<Test>;
     type Randomness = pallet_randomness_collective_flip::Module<Test>;
+    type MembershipSupernodes = membership_supernodes::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
@@ -459,6 +474,16 @@ mod tests {
             );
             // TODO - check that the locked amount has actually been locked and check that a sampling, eligibility, and
             // claim were all run automatically afterwards assert!(false);
+
+            // Only the Sudo root account may add and remove any account's membership of Member Supernodes, but in
+            // practice only the Supernode Centre's account would be added with membership of Member Supernodes.
+
+            // The implementation uses ensure_root, so only the root origin may add and remove members (i.e. not account 1)
+            assert_ok!(MembershipSupernodesTestModule::add_member(Origin::root(), 0));
+            assert_err!(MembershipSupernodesTestModule::add_member(Origin::signed(0), 0), DispatchError::BadOrigin);
+
+            assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::root(), 0));
+            assert_err!(MembershipSupernodesTestModule::remove_member(Origin::signed(0), 0), DispatchError::BadOrigin);
         });
     }
 }

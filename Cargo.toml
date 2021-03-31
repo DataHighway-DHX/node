@@ -19,6 +19,7 @@ members = [
     'pallets/roaming/roaming-billing-policies',
     'pallets/roaming/roaming-charging-policies',
     'pallets/roaming/roaming-packet-bundles',
+    'pallets/membership/supernodes',
     'pallets/mining/setting/token',
     'pallets/mining/setting/hardware',
     'pallets/mining/rates/token',

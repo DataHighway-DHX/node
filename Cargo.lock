@@ -11,6 +11,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "account-set"
+version = "2.0.0"
+dependencies = [
+ "sp-std",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1224,6 +1231,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "frame-system-rpc-runtime-api",
+ "membership-supernodes",
  "mining-claims-hardware",
  "mining-claims-token",
  "mining-eligibility-hardware",
@@ -1305,6 +1313,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "frame-system-rpc-runtime-api",
+ "membership-supernodes",
  "mining-claims-hardware",
  "mining-claims-token",
  "mining-eligibility-hardware",
@@ -3474,6 +3483,20 @@ name = "maybe-uninit"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "60302e4db3a61da70c0cb7991976248362f30319e88850c487b9b95bbf059e00"
+
+[[package]]
+name = "membership-supernodes"
+version = "2.0.0"
+dependencies = [
+ "account-set",
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
 
 [[package]]
 name = "memchr"
