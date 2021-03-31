@@ -1217,7 +1217,7 @@ dependencies = [
 
 [[package]]
 name = "datahighway-mainnet-runtime"
-version = "0.1.0"
+version = "3.0.0"
 dependencies = [
  "exchange-rate",
  "frame-executive",
@@ -1298,7 +1298,7 @@ dependencies = [
 
 [[package]]
 name = "datahighway-testnet-runtime"
-version = "1.0.0"
+version = "3.0.0"
 dependencies = [
  "exchange-rate",
  "frame-executive",

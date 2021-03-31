@@ -204,7 +204,57 @@ Run Charlie's Substrate-based node on a different TCP port of 30335, and with hi
 Note: The chain_spec.rs file that you used to generate the chain definition with may already have the
 bootnode details specified to connect to.
 
+#### Terminal 4
+
+Run Dave's node using different ports.
+
+```bash
+./target/release/datahighway --validator \
+  --unsafe-ws-external \
+  --unsafe-rpc-external \
+  --rpc-cors=all \
+  --base-path /tmp/polkadot-chains/dave \
+  --keystore-path "/tmp/polkadot-chains/dave/keys" \
+  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
+  --chain ./node/src/chain-definition-custom/chain_def_local.json \
+  --dave \
+  --port 30336 \
+  --ws-port 9947 \
+  --rpc-port 9936 \
+  --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
+  --execution=native \
+  -lruntime=debug \
+  --rpc-methods=Unsafe
+```
+
+#### Terminal 5
+
+Run Eve's node using different ports.
+
+```bash
+./target/release/datahighway --validator \
+  --unsafe-ws-external \
+  --unsafe-rpc-external \
+  --rpc-cors=all \
+  --base-path /tmp/polkadot-chains/eve \
+  --keystore-path "/tmp/polkadot-chains/eve/keys" \
+  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
+  --chain ./node/src/chain-definition-custom/chain_def_local.json \
+  --eve \
+  --port 30337 \
+  --ws-port 9948 \
+  --rpc-port 9937 \
+  --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
+  --execution=native \
+  -lruntime=debug \
+  --rpc-methods=Unsafe
+```
+
 * Check that the chain is finalizing blocks (i.e. finalized is non-zero `main-tokio- INFO substrate  Idle (2 peers), best: #3 (0xaede…b8d9), finalized #1 (0x4c69…f605), ⬇ 3.3kiB/s ⬆ 3.7kiB/s`)
+
+* Note that in this [commit](https://github.com/DataHighway-DHX/node/pull/140/commits/63f81c4e00e360c6df8549b6c870a17f9719f58b) we added ImOnline and AuthorityDiscovery, as well as added Dave, Eve, and Ferdie
+as authorities in the chain_spec.rs.
+So you **must** run all these validators before blocks will **finalize**: Alice, Bob, Charlie, Dave, Eve
 
 * Generate session keys for Alice
 ```bash
@@ -243,6 +293,8 @@ Secret Key URI `//Alice//grandpa` is account:
   Account ID:       0x6e2de2e5087b56ed2370359574f479d7e5da1973e17ca1b55882c4773f154d2f
   SS58 Address:     5EZAkmxARDqRz5z5ojuTjacTs2rTd7WRL1A9ZeLvwgq2STA2
 ```
+
+Note: AuthorityDiscovery (audi) is sr25519, but it is not a session key. The others are mentioned here https://wiki.polkadot.network/docs/en/learn-keys#session-keys
 
 #### Terminal 4 (Optional)
 

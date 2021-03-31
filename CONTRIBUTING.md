@@ -301,6 +301,9 @@ pub trait Config: frame_system::Config {
 * Question: Why are there multiple runtimes (i.e. testnet_runtime, and mainnet_runtime)?
     * Answer: Because we have a different SS58 Address Prefix for each of those chains and it is no longer configurable in the chain_spec in Substrate 3 like it was in Substrate 2. Testnet is 42 (Substrate default), and Mainnet is 33.
 
+* Question: Why won't the blocks finalize?
+    * Answer: When we updated from Substrate 2 to Substrate 3, we added ImOnline and AuthorityDiscover. So now it is necessary to be running at least 4x nodes (i.e. Alice, Bob, Charlie, Dave, Eve) before it will start **finalizing* blocks.
+
 ## Technical Support <a id="chapter-c00ab7"></a>
 
 * [Discord Chat](https://discord.gg/UuZN2tE)

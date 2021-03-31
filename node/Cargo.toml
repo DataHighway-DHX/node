@@ -22,8 +22,8 @@ structopt = '0.3.8'
 hex-literal = '0.3.1'
 
 # local node-specific dependencies
-datahighway-testnet-runtime = { version = '1.0.0', path = '../runtime/testnet-runtime' }
-datahighway-mainnet-runtime = { version = '0.1.0', path = '../runtime/mainnet-runtime' }
+datahighway-testnet-runtime = { version = '3.0.0', path = '../runtime/testnet-runtime' }
+datahighway-mainnet-runtime = { version = '3.0.0', path = '../runtime/mainnet-runtime' }
 
 
 # Substrate dependencies
