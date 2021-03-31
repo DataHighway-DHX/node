@@ -15,10 +15,10 @@ sp-std = { version = '3.0.0', default-features = false }
 [features]
 default = ['std']
 std = [
-	'bitmask/std',
-	'codec/std',
-	'serde',
+    'bitmask/std',
+    'codec/std',
+    'serde',
     'sp-core/std',
-	'sp-runtime/std',
-	'sp-std/std',
+    'sp-runtime/std',
+    'sp-std/std',
 ]
