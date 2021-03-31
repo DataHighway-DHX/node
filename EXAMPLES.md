@@ -2,8 +2,7 @@
 
 * [Example "dev" development PoS testnet with single nodes](#chapter-ca9336)
 * [Example "local" PoS testnet with multiple nodes](#chapter-f21efd)
-* [Live (Alpha) "testnet_latest" PoS testnet (with multiple nodes)](#chapter-f0264f)
-* [Live (Alpha) "harbour" PoS testnet (with multiple nodes)](#chapter-f023e2)
+* [Live "harbour" PoS testnet (with multiple nodes)](#chapter-f023e2)
 * [Interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
 
 ## Example "dev" development PoS testnet (with single node) <a id="chapter-f21efd"></a>
@@ -28,17 +27,12 @@ cargo build --release
 * Purge the chain (remove relevant existing blockchain testnet database blocks and keys)
 
 ```bash
-./target/release/datahighway purge-chain --dev --base-path /tmp/polkadot-chains/alice
-./target/release/datahighway purge-chain --dev --base-path /tmp/polkadot-chains/bob
-./target/release/datahighway purge-chain --dev --base-path /tmp/polkadot-chains/charlie
-./target/release/datahighway purge-chain --dev --base-path /tmp/polkadot-chains/node-1
-./target/release/datahighway purge-chain --dev --base-path /tmp/polkadot-chains/node-2
-./target/release/datahighway purge-chain --dev --base-path /tmp/polkadot-chains/node-3
+rm -rf /tmp/polkadot-chains
 ```
 
-Or just:
-```
-rm -rf /tmp/polkadot-chains/alice /tmp/polkadot-chains/bob /tmp/polkadot-chains/charlie /tmp/polkadot-chains/node-1 /tmp/polkadot-chains/node-2 /tmp/polkadot-chains/node-3
+Alternatively run the following, and repeat replacing `alice`, ... `eve`, and `node-1`, ... `node-5`:
+```bash
+./target/release/datahighway purge-chain --dev --base-path /tmp/polkadot-chains/alice
 ```
 
 * Connect to development testnet (`--chain development` is abbreviated `--dev`)
@@ -60,8 +54,9 @@ Run a multiple node PoS testnet on your local machine with built-in keys (Alice,
 * Use default accounts Alice, Bob, and Charlie as the three initial authorities of the genesis configuration that have been endowed with testnet units that will run validator nodes
 * **Important**: Since we are using GRANDPA where you have authority set of size 4, it means you need 3 nodes running in order to **finalize** the blocks that are authored. (Credit: @bkchr Bastian Köcher)
 
-### Run on Local Machine (without Docker)
+### Run on Local Machine (without Docker) (Alice, Bob, Charlie, Dave, Eve)
 
+This approach is similar to that described in the official Substrate docs [here](https://substrate.dev/docs/en/tutorials/start-a-private-network/alicebob).
 #### Fetch repository and dependencies
 
 * Fork and clone the repository
@@ -79,49 +74,15 @@ curl https://getsubstrate.io -sSf | bash -s -- --fast && \
 cargo build --release
 ```
 
-#### Create custom blockchain configuration
-
-* Create latest chain specification code changes of <CHAIN_ID> "local"
-
-> Other chains are specified in src/chain_spec.rs (i.e. dev, local, or testnet_latest).
-
-* Generate the chain specification JSON file from src/chain_spec.rs
-
-```bash
-rm ./node/src/chain-spec-templates/chain_spec_local.json
-touch ./node/src/chain-spec-templates/chain_spec_local.json
-mkdir -p ./node/src/chain-spec-templates
-./target/release/datahighway build-spec \
-  --chain=local > ./node/src/chain-spec-templates/chain_spec_local.json
-```
-
-* Build "raw" chain definition for the new chain from it
-
-```bash
-rm ./node/src/chain-definition-custom/chain_def_local.json
-touch ./node/src/chain-definition-custom/chain_def_local.json
-mkdir -p ./node/src/chain-definition-custom
-./target/release/datahighway build-spec \
-  --chain ./node/src/chain-spec-templates/chain_spec_local.json \
-  --raw > ./node/src/chain-definition-custom/chain_def_local.json
-```
-
 > Remember to purge the chain state if you change anything (database and keys)
 
 ```bash
-./target/release/datahighway purge-chain --chain "local" --base-path /tmp/polkadot-chains/alice
-./target/release/datahighway purge-chain --chain "local" --base-path /tmp/polkadot-chains/bob
-./target/release/datahighway purge-chain --chain "local" --base-path /tmp/polkadot-chains/charlie
+rm -rf /tmp/polkadot-chains/
 ```
 
-Or just:
-```
-rm -rf /tmp/polkadot-chains
-```
-Or:
-```
-rm -rf /tmp/polkadot-chains/alice /tmp/polkadot-chains/bob /tmp/polkadot-chains/charlie /tmp/polkadot-chains/node-1 /tmp/polkadot-chains/node-2 /tmp/polkadot-chains/node-3
-```
+In each terminal we will connect using the "local" chain specification
+
+> Other testnet chains are specified in src/chain_spec.rs (i.e. dev, local, or harbour).
 
 #### Terminal 1
 
@@ -316,9 +277,69 @@ curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"a
 
 * View on [Polkadot Telemetry](https://telemetry.polkadot.io/#list/DataHighway%20Local%20PoA%20Testnet%20v0.1.0)
 
-* Distribute the custom chain definition (i.e. chain_def_local.json) to allow others to synchronise and validate if they are an authority
+#### Create custom blockchain configuration
 
-### Run on Local Machine (WITH Docker) (Alice, Bob, Charlie)
+* Create and distribute a custom chain definition (i.e. chain_def_local.json) to allow others to synchronise and validate as an authority. This is also described in the official Substrate documentation:
+  * https://substrate.dev/docs/en/tutorials/start-a-private-network/customspec
+  * https://substrate.dev/docs/en/knowledgebase/integrate/chain-spec
+
+* Create latest chain specification based on code changes of one of your chains (i.e. <CHAIN_ID> "local")
+
+* Generate the chain specification JSON file from src/chain_spec.rs
+
+```bash
+rm ./node/src/chain-spec-templates/chain_spec_local.json
+touch ./node/src/chain-spec-templates/chain_spec_local.json
+mkdir -p ./node/src/chain-spec-templates
+./target/release/datahighway build-spec \
+  --chain=local > ./node/src/chain-spec-templates/chain_spec_local.json
+```
+
+* Build "raw" chain definition for the new chain from it
+
+```bash
+rm ./node/src/chain-definition-custom/chain_def_local.json
+touch ./node/src/chain-definition-custom/chain_def_local.json
+mkdir -p ./node/src/chain-definition-custom
+./target/release/datahighway build-spec \
+  --chain ./node/src/chain-spec-templates/chain_spec_local.json \
+  --raw > ./node/src/chain-definition-custom/chain_def_local.json
+```
+
+* Repeat the same steps that were done before in Terminals 1 to 5, including first purging your chain, and replacing `--chain ./node/src/chain-definition-custom/chain_def_local.json \` with `--chain local \` in each command.
+
+#### Run (with Docker containers)
+
+1. Fork and clone the repository
+2. Install and run Docker
+3. Replace [docker-compose-custom.yml](./docker-compose-custom.yml) file with your custom node (e.g. rename node from `node-1` to something else or add additional nodes). By default it will run four necessary validator nodes (i.e. node-1, node-2, node-3, and node-4).
+4. Update the relevant ./scripts/docker-entrypoint-<NODE_NAME>.sh (i.e. [docker-entrypoint-node-1.sh](./scripts/docker-entrypoint-node-1.sh) and [docker-entrypoint-node-2.sh](./scripts/docker-entrypoint-node-2.sh) with your node specific information (e.g. change the value provided to `--name` and rename `node-1` or `node-2` to your custom node name) and run `chmod 755 ./scripts/docker-entrypoint-<NODE_NAME>.sh` if you create an new scripts so they are executable, where `<NODE_NAME>` would be your chosen custom node name.
+5. If you modify the code, rebuild the chain configuration file and purge the chain (see section "Create custom blockchain configuration")
+6. Remove old containers and images:
+```
+docker rm node_1 node_2 node_3 node_4 node_5 node_alice_1 node_bob_1 node_charlie_1 node_dave_1 node_eve_1
+docker rmi dhxdocker/datahighway
+```
+6. Run the Docker container in the background as a daemon and view the logs on-demand (the image will be built on first run based on the Dockerfile). It will install dependencies and build chain runtime code. See the notes below for an alternative approach.
+  ```bash
+  docker-compose --file docker-compose-custom.yml --verbose up --detach
+  docker-compose logs --follow
+  ```
+Alternatively just run `docker-compose --file docker-compose-custom.yml --verbose up`.
+If you change the code, then be rebuild the code, rebuild the chain configuration file and purge the chain, then destroy and rebuild containers from the image by running `docker-compose --file docker-compose-custom.yml --verbose down && docker-compose --file docker-compose-custom.yml --verbose up`
+To just restart existing containers of the node, run `docker-compose --file docker-compose-custom.yml --verbose restart`.
+  * Screenshot:
+  ![](./assets/images/logs.png)
+
+7. Follow the steps to [interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
+
+Note:
+* Only the bootnode needs to update the ["local" chain spec](./src/chain_spec.rs), to generate and share the raw chain definition with other nodes.
+* Other nodes that connect should use docker-compose-custom.yml instead.
+* Refer to the FAQ or contact Technical Support provided in [CONTRIBUTING.md](./CONTRIBUTING.md) if you encounter any issues.
+* If all services defined in docker-compose-custom.yml will be running in Docker containers on the same host machine, then each service must expose different ports (on the left side of the colon), however the ports that are used within each Docker container may be the same.
+
+### Run on Local Machine (WITH Docker) (Alice, Bob, Charlie, Dave, Eve)
 
 #### Fetch repository and dependencies
 
@@ -342,12 +363,14 @@ docker-compose --env-file=./.env --file docker-compose-dev.yml --verbose build -
 
 Note: If you get error `error: failed to parse manifest at /dhx/runtime/Cargo.toml Caused by: no targets specified in the manifest either src/lib.rs, src/main.rs, a [lib] section, or [[bin]] section must be present` then it's because the necessary folders haven't been copied using Docker's `COPY` (i.e. `COPY ./abc/* /root/abc` doesn't work, it shouldn't have the `*`)
 
-### Run Docker Containers for each Node (Alice, Bob, and Charlie)
+### Run Docker Containers for each Node (Alice, Bob, Charlie, Dave, Eve)
 
 ```
 docker-compose -f docker-compose-dev.yml up --detach alice && \
 docker-compose -f docker-compose-dev.yml up --detach bob && \
-docker-compose -f docker-compose-dev.yml up --detach charlie
+docker-compose -f docker-compose-dev.yml up --detach charlie && \
+docker-compose -f docker-compose-dev.yml up --detach dave && \
+docker-compose -f docker-compose-dev.yml up --detach eve
 ```
 
 ### View Logs of each Node
@@ -362,7 +385,7 @@ Follow the steps to [interact with blockchain using Polkadot.js Apps UI](#chapte
 
 View the balances endowed in the Genesis block by going to https://polkadot.js.org/apps/#/js and pasting the following, click the Play icon, and view the output on the right
 ```
-const DHX_DAO = '5FmxcuFwGK7kPmQCB3zhk3HtxxJUyb3WjxosF8jvnkrVRLUG';
+const DHX_DAO = '5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr';
 
 const { data: balance } = await api.query.system.account(DHX_DAO);
 const totalIssuance = await api.query.balances.totalIssuance();
@@ -375,16 +398,20 @@ console.log(`DataHighway has a total supply of ${totalIssuance} DHX`);
 ```
 docker-compose -f docker-compose-dev.yml stop alice && \
 docker-compose -f docker-compose-dev.yml stop bob && \
-docker-compose -f docker-compose-dev.yml stop charlie
+docker-compose -f docker-compose-dev.yml stop charlie && \
+docker-compose -f docker-compose-dev.yml stop dave && \
+docker-compose -f docker-compose-dev.yml stop eve
 ```
 
 ```
 docker-compose -f docker-compose-dev.yml start alice && \
 docker-compose -f docker-compose-dev.yml start bob && \
-docker-compose -f docker-compose-dev.yml start charlie
+docker-compose -f docker-compose-dev.yml start charlie && \
+docker-compose -f docker-compose-dev.yml start dave && \
+docker-compose -f docker-compose-dev.yml start eve
 ```
 
-Note: Where `<SERVICE>` is `alice`, `bob`, or `charlie`, as defined in docker-compose-dev.yml file
+Note: Where `<SERVICE>` is `alice`, `bob`, `charlie`, `dave`, or `eve` as defined in docker-compose-dev.yml file
 
 ### Other
 
@@ -394,48 +421,7 @@ Note: Where `<SERVICE>` is `alice`, `bob`, or `charlie`, as defined in docker-co
 docker-compose -f docker-compose-dev.yml exec alice bash
 ```
 
-## Testnet (Alpha) "testnet_latest" PoS testnet (with multiple nodes) <a id="chapter-f0264f"></a>
-
-### Intro
-
-Join the multiple node PoS testnet (alpha), where you will be using the latest custom chain definition for the testnet (i.e. chain_def_testnet_latest.json).
-
-### Run (with Docker containers)
-
-1. Fork and clone the repository
-2. Install and run Docker
-3. Replace [docker-compose-custom.yml](./docker-compose-custom.yml) file with your custom node (e.g. rename node from `node-1` to something else or add additional nodes). By default it will run two validator nodes (i.e. node-1 and node-2).
-4. Update the relevant ./scripts/docker-entrypoint-<NODE_NAME>.sh (i.e. [docker-entrypoint-node-1.sh](./scripts/docker-entrypoint-node-1.sh) and [docker-entrypoint-node-2.sh](./scripts/docker-entrypoint-node-2.sh) with your node specific information (e.g. change the value provided to `--name` and rename `node-1` or `node-2` to your custom node name) and run `chmod 755 ./scripts/docker-entrypoint-<NODE_NAME>.sh` if you create an new scripts so they are executable, where `<NODE_NAME>` would be your chosen custom node name.
-5. If you modify the code, rebuild the chain configuration file and purge the chain (see section "Create custom blockchain configuration")
-6. Remove old containers and images:
-```
-docker rm node_1 node_2 node_3 node_bob_1 node_alice_1 node_charlie_1
-docker rmi dhxdocker/datahighway
-```
-6. Run the Docker container in the background as a daemon and view the logs on-demand (the image will be built on first run based on the Dockerfile). It will install dependencies and build chain runtime code. See the notes below for an alternative approach.
-  ```bash
-  docker-compose --file docker-compose-custom.yml --verbose up --detach
-  docker-compose logs --follow
-  ```
-Alternatively just run `docker-compose --file docker-compose-custom.yml --verbose up`.
-If you change the code, then be rebuild the code, rebuild the chain configuration file and purge the chain, then destroy and rebuild containers from the image by running `docker-compose --file docker-compose-custom.yml --verbose down && docker-compose --file docker-compose-custom.yml --verbose up`
-To just restart existing containers of the node, run `docker-compose --file docker-compose-custom.yml --verbose restart`.
-  * Screenshot:
-  ![](./assets/images/logs.png)
-Note: If you get error building after modifying docker-compose: `FileNotFoundError: [Errno 2] No such file or directory`, then try running `rm -rf target/rls/debug/`
-Note: If you get error building like: `Cannot start service alice: OCI runtime create failed`, then try running `./scripts/docker-clean.sh` (beware this deletes all Docker containers, images, and cache for all your projects, not just Datahighway), and then `rm -rf ./target/rls/debug` a few times until it no longer says `Directory not empty`
-Note: If you get error building like: `Compiling parity-multiaddr v0.7.2 error[E0308]: mismatched types --> /root/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-multiaddr-0.7.2/src/onion_addr.rs:23:9` then you need to use an older version of Rust Nightly, and to set Nightly as the default.
-Note: If you get error running docker-compose: `Creating node_alice_1 ... error compose.parallel.feed_queue: Pending: set() ERROR: for node_alice_1  Cannot start service alice: OCI runtime create failed: container_linux.go:349: starting container process caused "exec: \"./docker-entrypoint-alice.sh\": stat ./docker-entrypoint-alice.sh: no such file or directory": unknown`, then it's likely the last time you tried to build the Docker container it failed, so you need to delete the container and possibly the image and cache too and try again.
-Note: If you get error: `FileNotFoundError: [Errno 2] No such file or directory: '/Users/ls/code/src/DataHighway-com/node/target/rls/debug/deps/save-analysis/libsc_executor_common-f236f3ddcd6862b3.json'` then run `rm -rf ./target/rls/debug` a few times until it no longer says `Directory not empty`
-7. Follow the steps to [interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
-
-Note:
-* Only DataHighway admins that need to additionally update the ["testnet_latest" chain spec](./src/chain_spec.rs), to generate and share the raw chain definition with other nodes.
-* Only DataHighway admins should use the docker-compose-admin.yml file to start the initial bootnodes, whereas other community nodes that connect to the DataHighway should use docker-compose-custom.yml instead.
-* Refer to the FAQ or contact Technical Support provided in [CONTRIBUTING.md](./CONTRIBUTING.md) if you encounter any issues.
-* If all services defined in docker-compose-custom.yml will be running in Docker containers on the same host machine, then each service must expose different ports (on the left side of the colon), however the ports that are used within each Docker container may be the same.
-
-## Testnet (Alpha) "harbour" PoS testnet (with multiple nodes) <a id="chapter-f023e2"></a>
+## Testnet "harbour" PoS testnet (with multiple nodes) <a id="chapter-f023e2"></a>
 
 * Refer to the documentation to setup a validator node and to obtain bootnode to connect to https://dev.datahighway.com/docs/en/tutorials/tutorials-nodes-validator-setup
 
@@ -452,7 +438,7 @@ Once you've established a connection between the UI and the DataHighway testnet,
 
 * Create accounts and transfer funds:
   * Click "Accounts" from the sidebar menu, then click tab "My accounts", and click button "Add Account"
-  * Import Bob's built-in stash account (with 1,000 DHX balance) from the [test keyring](https://github.com/polkadot-js/apps/issues/1117#issuecomment-491020187) by entering:
+  * Import Bob's built-in stash account (with 8,750 DHX balance) from the [test keyring](https://github.com/polkadot-js/apps/issues/1117#issuecomment-491020187) by entering:
     * name: "Bob"
     * mnemonic seed: "bottom drive obey lake curtain smoke basket hold race lonely fit walk"
     * password: "bob"

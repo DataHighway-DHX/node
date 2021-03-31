@@ -81,7 +81,8 @@ RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/datahighway ... \
 ### Run All Tests
 
 ```bash
-cargo test -p datahighway-runtime &&
+cargo test -p datahighway-testnet-runtime &&
+cargo test -p datahighway-mainnet-runtime &&
 cargo test -p roaming-operators &&
 cargo test -p roaming-networks &&
 cargo test -p roaming-organizations &&
@@ -112,14 +113,15 @@ cargo test -p mining-claims-hardware
 ### Run Integration Tests Only
 
 ```
-cargo test -p datahighway-runtime
+cargo test -p datahighway-testnet-runtime &&
+cargo test -p datahighway-mainnet-runtime
 ```
 
 #### Run Specific Integration Tests
 
 Example
 ```
-cargo test -p datahighway-runtime --test cli_integration_tests_mining_tokens
+cargo test -p datahighway-testnet-runtime --test cli_integration_tests_mining_tokens
 ```
 
 ## Continuous Integration <a id="chapter-7a8301"></a>
@@ -271,7 +273,7 @@ substrate-module-new <module-name> <author>
 
 * Question: How do I run two nodes on the same host machine?
 	* Answer:
-		* Refer to "Testnet (Alpha) "testnet_latest" PoS testnet (with multiple nodes)" in [EXAMPLES](./EXAMPLES.md).
+		* Refer to "Example "local" PoS testnet (with multiple nodes)" in [EXAMPLES](./EXAMPLES.md).
 
 * Question: Why I try to connect to my Substrate node usig Polkadot.js, by going to https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944, why do I get error `WebSocket connection to 'ws://127.0.0.1:9944/' failed: Unknown reason, API-WS: disconnected from ws://127.0.0.1:9944: 1006:: Abnormal Closure`
 	* Answer:
@@ -303,6 +305,21 @@ pub trait Config: frame_system::Config {
 
 * Question: Why won't the blocks finalize?
     * Answer: When we updated from Substrate 2 to Substrate 3, we added ImOnline and AuthorityDiscover. So now it is necessary to be running at least 4x nodes (i.e. Alice, Bob, Charlie, Dave, Eve) before it will start **finalizing* blocks.
+
+* Question: When using Docker you get error building after modifying docker-compose: `FileNotFoundError: [Errno 2] No such file or directory`?
+    * Answer: Try running `rm -rf target/rls/debug/`
+
+* Question: When using Docker you get error building like: `Cannot start service alice: OCI runtime create failed`
+    * Answer: Try running `./scripts/docker-clean.sh` (beware this deletes all Docker containers, images, and cache for all your projects, not just Datahighway), and then `rm -rf ./target/rls/debug` a few times until it no longer says `Directory not empty`
+
+* Question: When using Docker you get error building like: `Compiling parity-multiaddr v0.7.2 error[E0308]: mismatched types --> /root/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-multiaddr-0.7.2/src/onion_addr.rs:23:9`
+    * Answer: Try use an older version of Rust Nightly, and to set Nightly as the default
+
+* Question: When using Docker you get error running docker-compose: `Creating node_alice_1 ... error compose.parallel.feed_queue: Pending: set() ERROR: for node_alice_1  Cannot start service alice: OCI runtime create failed: container_linux.go:349: starting container process caused "exec: \"./docker-entrypoint-alice.sh\": stat ./docker-entrypoint-alice.sh: no such file or directory": unknown`
+    * Answer: It's likely the last time you tried to build the Docker container it failed, so you need to delete the container and possibly the image and cache too and try again.
+
+* Question: When using Docker you get error: `FileNotFoundError: [Errno 2] No such file or directory: '/Users/ls/code/src/DataHighway-com/node/target/rls/debug/deps/save-analysis/libsc_executor_common-f236f3ddcd6862b3.json'`
+    * Answer: Try run `rm -rf ./target/rls/debug` a few times until it no longer says `Directory not empty`
 
 ## Technical Support <a id="chapter-c00ab7"></a>
 

@@ -233,75 +233,11 @@ pub fn local_testnet_config() -> Result<DHTestnetChainSpec, String> {
             ],
 			true,
 		),
-		// Bootnodes
+        // Bootnodes
+        // "/dns/127.0.0.1/tcp/30333/p2p/12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo"
+        // .parse()
+        // .unwrap(),
         vec![],
-        // Telemetry Endpoints
-        Some(
-            TelemetryEndpoints::new(vec![(POLKADOT_STAGING_TELEMETRY_URL.to_string(), 0)])
-                .expect("Polkadot telemetry url is valid; qed"),
-        ),
-        // Protocol ID
-        Some("dhx-test"),
-        // Properties
-        Some(properties),
-        // Extensions
-        Default::default(),
-	))
-}
-
-pub fn datahighway_testnet_latest_config() -> Result<DHTestnetChainSpec, String> {
-	let wasm_binary = dh_testnet::WASM_BINARY.ok_or_else(|| "Wasm not available".to_string())?;
-
-    let mut properties = Map::new();
-    properties.insert("tokenSymbol".into(), "DHX".into());
-    properties.insert("tokenDecimals".into(), 18.into());
-
-	Ok(DHTestnetChainSpec::from_genesis(
-		// Name
-		"DataHighway Testnet",
-		// ID
-		"testnet_latest",
-		ChainType::Live,
-		move || testnet_genesis(
-			wasm_binary,
-			// Initial NPoS authorities
-            vec![
-                get_authority_keys_from_seed("Alice"),
-                get_authority_keys_from_seed("Bob"),
-                get_authority_keys_from_seed("Charlie"),
-                get_authority_keys_from_seed("Dave"),
-                get_authority_keys_from_seed("Eve"),
-                get_authority_keys_from_seed("Ferdie"),
-            ],
-			// Sudo account
-			get_account_id_from_seed::<sr25519::Public>("Alice"),
-			// Pre-funded accounts
-            vec![
-                // Endow this account with the DHX DAO Unlocked Reserves Balance
-                // 5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr
-                hex!["6c029e6fc41ec44d420030071f04995bac19e59a0f0a1a610f9f0f6d689e2262"].into(),
-                // Endow these accounts with a balance so they may bond as authorities
-                get_account_id_from_seed::<sr25519::Public>("Alice"),
-                get_account_id_from_seed::<sr25519::Public>("Bob"),
-                get_account_id_from_seed::<sr25519::Public>("Charlie"),
-                get_account_id_from_seed::<sr25519::Public>("Dave"),
-                get_account_id_from_seed::<sr25519::Public>("Eve"),
-                get_account_id_from_seed::<sr25519::Public>("Ferdie"),
-                get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
-                get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
-                get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
-                get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
-                get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
-                get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
-            ],
-			true,
-		),
-		// Bootnodes
-        vec![
-            "/dns/127.0.0.1/tcp/30333/p2p/12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo"
-                .parse()
-                .unwrap(),
-        ],
         // Telemetry Endpoints
         Some(
             TelemetryEndpoints::new(vec![(POLKADOT_STAGING_TELEMETRY_URL.to_string(), 0)])

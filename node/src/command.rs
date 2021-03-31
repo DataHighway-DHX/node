@@ -22,8 +22,6 @@ use dh_testnet::{
     },
 };
 use crate::{
-    // chain_spec::load_spec as chain_load_spec,
-    // Substrate 3
     chain_spec,
     cli::{
         Cli,
@@ -66,11 +64,9 @@ impl SubstrateCli for Cli {
     }
 
     fn load_spec(&self, id: &str) -> Result<Box<dyn sc_service::ChainSpec>, String> {
-        // chain_load_spec(id)
         Ok(match id {
 			"dev" => Box::new(chain_spec::development_config()?),
             "" | "local" => Box::new(chain_spec::local_testnet_config()?),
-            "testnet_latest" => Box::new(chain_spec::datahighway_testnet_latest_config()?),
             // "testnet_file" => Box::new(chain_spec::datahighway_testnet_file_config()?),
             "harbour" => Box::new(chain_spec::datahighway_testnet_harbour_config()?),
             "mainnet" => Box::new(chain_spec::datahighway_mainnet_config()?),
