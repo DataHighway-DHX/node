@@ -116,6 +116,10 @@ mkdir -p ./node/src/chain-definition-custom
 
 Or just:
 ```
+rm -rf /tmp/polkadot-chains
+```
+Or:
+```
 rm -rf /tmp/polkadot-chains/alice /tmp/polkadot-chains/bob /tmp/polkadot-chains/charlie /tmp/polkadot-chains/node-1 /tmp/polkadot-chains/node-2 /tmp/polkadot-chains/node-3
 ```
 
@@ -147,7 +151,7 @@ When the node has started, copy the libp2p local node identity of the node, and 
 * Notes:
   * Alice's Substrate-based node on default TCP port 30333
   * Her chain database stored locally at `/tmp/polkadot-chains/alice`
-  * Bootnode ID of her node is `Local node identity is: QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey -e inspect //Alice`, alternatively you could provide the private key that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`. If you explicitly specify a `--node-key` (i.e. `--node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee`) when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chain_spec_local.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/datahighway
+  * Bootnode ID of her node is `Local node identity is: QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey inspect //Alice`, alternatively you could provide the private key that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`. If you explicitly specify a `--node-key` (i.e. `--node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee`) when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chain_spec_local.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/datahighway
 
 #### Terminal 2
 
@@ -196,6 +200,9 @@ Run Charlie's Substrate-based node on a different TCP port of 30335, and with hi
   -lruntime=debug \
   --rpc-methods=Unsafe
 ```
+
+Note: The chain_spec.rs file that you used to generate the chain definition with may already have the
+bootnode details specified to connect to.
 
 * Check that the chain is finalizing blocks (i.e. finalized is non-zero `main-tokio- INFO substrate  Idle (2 peers), best: #3 (0xaede…b8d9), finalized #1 (0x4c69…f605), ⬇ 3.3kiB/s ⬆ 3.7kiB/s`)
 
@@ -258,46 +265,6 @@ curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"a
 * View on [Polkadot Telemetry](https://telemetry.polkadot.io/#list/DataHighway%20Local%20PoA%20Testnet%20v0.1.0)
 
 * Distribute the custom chain definition (i.e. chain_def_local.json) to allow others to synchronise and validate if they are an authority
-
-#### Optional: Run without generating chain definition
-
-```
-SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug \
-./target/release/datahighway \
-  --unsafe-ws-external \
-  --unsafe-rpc-external \
-  --rpc-cors=all \
-  --base-path /tmp/polkadot-chains/alice \
-  --chain local \
-  --alice \
-  --port 30333 \
-  --ws-port 9944 \
-  --rpc-port 9933 \
-  --node-key 0000000000000000000000000000000000000000000000000000000000000001 \
-  --telemetry-url 'wss://telemetry.polkadot.io/submit/ 0' \
-  --validator \
-  --execution=native \
-  -lruntime=debug \
-  --rpc-methods=Unsafe
-
-SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug \
-./target/release/datahighway \
-  --unsafe-ws-external \
-  --unsafe-rpc-external \
-  --rpc-cors=all \
-  --base-path /tmp/polkadot-chains/bob \
-  --chain local \
-  --bob \
-  --port 30334 \
-  --ws-port 9945 \
-  --rpc-port 9934 \
-  --telemetry-url 'wss://telemetry.polkadot.io/submit/ 0' \
-  --validator \
-  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp \
-  --execution=native \
-  -lruntime=debug \
-  --rpc-methods=Unsafe
-```
 
 ### Run on Local Machine (WITH Docker) (Alice, Bob, Charlie)
 

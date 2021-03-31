@@ -297,7 +297,11 @@ pub fn datahighway_testnet_latest_config() -> Result<DHTestnetChainSpec, String>
 			true,
 		),
 		// Bootnodes
-        vec![],
+        vec![
+            "/dns/127.0.0.1/tcp/30333/p2p/12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo"
+                .parse()
+                .unwrap(),
+        ],
         // Telemetry Endpoints
         Some(
             TelemetryEndpoints::new(vec![(POLKADOT_STAGING_TELEMETRY_URL.to_string(), 0)])
@@ -465,7 +469,11 @@ pub fn datahighway_testnet_harbour_config() -> Result<DHTestnetChainSpec, String
             ],
 			true,
 		),
-        vec![],
+        vec![
+            "/dns/18.185.37.254/tcp/30333/p2p/12D3KooWFmR35FFHiXcQv8hsFWDq6ofttqBPeMkd4Jt6qRgq3HnT"
+                .parse()
+                .unwrap(),
+        ],
         // Telemetry Endpoints
         Some(
             TelemetryEndpoints::new(vec![(POLKADOT_STAGING_TELEMETRY_URL.to_string(), 0)])
@@ -479,7 +487,6 @@ pub fn datahighway_testnet_harbour_config() -> Result<DHTestnetChainSpec, String
         Default::default(),
 	))
 }
-
 
 pub fn datahighway_mainnet_config() -> Result<DHMainnetChainSpec, String> {
 	let wasm_binary = dh_mainnet::WASM_BINARY.ok_or_else(|| "Wasm binary not available".to_string())?;
@@ -778,7 +785,6 @@ fn testnet_genesis(
 	}
 }
 
-
 /// Configure initial storage state for FRAME modules.
 fn mainnet_genesis(
     wasm_binary: &[u8],
@@ -804,10 +810,10 @@ fn mainnet_genesis(
                     if x == UncheckedFrom::unchecked_from(
                         hex!("6c029e6fc41ec44d420030071f04995bac19e59a0f0a1a610f9f0f6d689e2262").into(),
                     ) {
-                        println!("endowed_account treasury {:?}", x.clone());
+                        // println!("endowed_account treasury {:?}", x.clone());
                         return (x, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
                     } else {
-                        println!("endowed_account {:?}", x.clone());
+                        // println!("endowed_account {:?}", x.clone());
                         return (x, INITIAL_BALANCE);
                     }
                 })
