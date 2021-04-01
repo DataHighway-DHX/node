@@ -1,9 +1,34 @@
 # Table of contents
 
+* [Install and update Rust, Substrate, and Subkey](#chapter-ca1234)
 * [Example "dev" development PoS testnet with single nodes](#chapter-ca9336)
 * [Example "local" PoS testnet with multiple nodes](#chapter-f21efd)
 * [Live "harbour" PoS testnet (with multiple nodes)](#chapter-f023e2)
 * [Interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
+
+## Install and update: Rust, Substrate, Wasm, and Subkey <a id="chapter-ca1234"></a>
+
+* Install and update dependencies (i.e. cmake, gcc, ssl, llvm, etc)
+    * Refer to the [Dockerfile](./Dockerfile) for details on linux.
+    * Refer to https://getsubstrate.io/ for installation steps on various operating systems.
+
+* Install and update Rust, Substrate, Wasm, and Subkey:
+
+```bash
+curl https://getsubstrate.io -sSf | bash -s -- --fast && \
+cargo install --force subkey --git https://github.com/paritytech/substrate --version 2.0.0 --locked && \
+./scripts/init.sh && \
+. ~/.cargo/env && \
+wget -O - https://sh.rustup.rs | sh -s -- -y && \
+PATH=$PATH:~/.cargo/bin && \
+rustup update stable nightly && \
+rustup toolchain install nightly-2021-03-10 && \
+rustup target add wasm32-unknown-unknown --toolchain nightly-2021-03-10 && \
+rustup default nightly-2021-03-10 && \
+rustup override set nightly-2021-03-10 && \
+cargo version && \
+rustc --version
+```
 
 ## Example "dev" development PoS testnet (with single node) <a id="chapter-f21efd"></a>
 
@@ -15,12 +40,12 @@ The development testnet only requires a single node to produce and finalize bloc
 
 * Fork and clone the repository
 
-* Install or update Rust and dependencies. Build the WebAssembly binary from all code.
+* Install/update dependencies as described [here](#chapter-ca1234)
+
+* Build the WebAssembly binary from all code.
 * Note that since we have two separate runtimes for testnet and mainnet, they will both be built at the same time.
 
 ```bash
-curl https://getsubstrate.io -sSf | bash -s -- --fast && \
-./scripts/init.sh && \
 cargo build --release
 ```
 
@@ -61,17 +86,12 @@ This approach is similar to that described in the official Substrate docs [here]
 
 * Fork and clone the repository
 
-* Download and install Substrate and Subkey
-* Install or update Rust and dependencies.
-* Build the WebAssembly binary from all code
-
-```bash
-curl https://getsubstrate.io -sSf | bash -s -- --fast && \
-cargo install --force subkey --git https://github.com/paritytech/substrate --version 2.0.0 --locked && \
-./scripts/init.sh
-```
+* Install/update dependencies as described [here](#chapter-ca1234)
 
 #### Build runtime code
+
+* Build the WebAssembly binary from all code.
+* Note that since we have two separate runtimes for testnet and mainnet, they will both be built at the same time.
 
 ```bash
 cargo build --release
