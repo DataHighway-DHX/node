@@ -416,7 +416,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<DHTestnetChainSpec, String
 			true,
 		),
         vec![
-            "/dns/18.185.37.254/tcp/30333/p2p/12D3KooWFmR35FFHiXcQv8hsFWDq6ofttqBPeMkd4Jt6qRgq3HnT"
+            "/ip4/18.185.37.254/tcp/30333/p2p/12D3KooWFmR35FFHiXcQv8hsFWDq6ofttqBPeMkd4Jt6qRgq3HnT"
                 .parse()
                 .unwrap(),
         ],
