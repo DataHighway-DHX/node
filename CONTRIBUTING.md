@@ -321,6 +321,20 @@ pub trait Config: frame_system::Config {
 * Question: When using Docker you get error: `FileNotFoundError: [Errno 2] No such file or directory: '/Users/ls/code/src/DataHighway-com/node/target/rls/debug/deps/save-analysis/libsc_executor_common-f236f3ddcd6862b3.json'`
     * Answer: Try run `rm -rf ./target/rls/debug` a few times until it no longer says `Directory not empty`
 
+* Quesion: If I am using an Apple ARM (M1) processor instead of an Apple Intel processor, it gives warnings like `warning: toolchain 'nightly-2021-03-10-x86_64-unknown-linux-gnu' may not be able to run on this system.` and you are unable to install it with `x86_64-unknown-linux-gnu`, what may I need to do?
+    * Answer: Try using `aarch64-apple-darwin` instead, e.g.
+```
+softwareupdate --install-rosetta
+xcode-select --install
+mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/ls2/.profile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+brew update
+
+rustup toolchain install nightly-2021-03-10-aarch64-apple-darwin
+rustup component add rustfmt --toolchain nightly-2021-03-10-aarch64-apple-darwin
+cargo +nightly-2021-03-10-aarch64-apple-darwin fmt --all -- --check
+```
 ## Technical Support <a id="chapter-c00ab7"></a>
 
 * [Discord Chat](https://discord.gg/UuZN2tE)
