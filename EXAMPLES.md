@@ -61,10 +61,13 @@ This approach is similar to that described in the official Substrate docs [here]
 
 * Fork and clone the repository
 
-* Install or update Rust and dependencies. Build the WebAssembly binary from all code
+* Download and install Substrate and Subkey
+* Install or update Rust and dependencies.
+* Build the WebAssembly binary from all code
 
 ```bash
 curl https://getsubstrate.io -sSf | bash -s -- --fast && \
+cargo install --force subkey --git https://github.com/paritytech/substrate --version 2.0.0 --locked && \
 ./scripts/init.sh
 ```
 
@@ -112,7 +115,7 @@ When the node has started, copy the libp2p local node identity of the node, and 
 * Notes:
   * Alice's Substrate-based node on default TCP port 30333
   * Her chain database stored locally at `/tmp/polkadot-chains/alice`
-  * Bootnode ID of her node is `Local node identity is: QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey inspect //Alice`, alternatively you could provide the private key that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`. If you explicitly specify a `--node-key` (i.e. `--node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee`) when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chain_spec_local.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/datahighway
+  * Bootnode ID of her node is `Local node identity is: QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey inspect --scheme ed25519 "//Alice"`, alternatively you could provide the private key that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`. If you explicitly specify a `--node-key` (i.e. `--node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee`) when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chain_spec_local.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/datahighway
 
 #### Terminal 2
 
@@ -219,35 +222,35 @@ So you **must** run all these validators before blocks will **finalize**: Alice,
 
 * Generate session keys for Alice
 ```bash
-$ subkey --ed25519 inspect "//Alice"
+$ subkey inspect --scheme ed25519 "//Alice"
 Secret Key URI `//Alice` is account:
   Secret seed:      0xabf8e5bdbe30c65656c0a3cbd181ff8a56294a69dfedd27982aace4a76909115
   Public key (hex): 0x88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee
   Account ID:       0x88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee
   SS58 Address:     5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu
 
-$ subkey --sr25519 inspect "//Alice"//aura
+$ subkey inspect --scheme sr25519 "//Alice"//aura
 Secret Key URI `//Alice//aura` is account:
   Secret seed:      0x153d8db5f7ef35f18a456c049d6f6e2c723d6c18d1f9f6c9fbee880c2a171c73
   Public key (hex): 0x408f99b525d90cce76288245cb975771282c2cefa89d693b9da2cdbed6cd9152
   Account ID:       0x408f99b525d90cce76288245cb975771282c2cefa89d693b9da2cdbed6cd9152
   SS58 Address:     5DXMabRsSpaMwfNivWjWEnzYtiHsKwQnP4aAKB85429ZQU6v
 
-$ subkey --sr25519 inspect "//Alice"//babe
+$ subkey inspect --scheme sr25519 "//Alice"//babe
 Secret Key URI `//Alice//babe` is account:
   Secret seed:      0x7bc0e13f128f3f3274e407de23057efe043c2e12d8ed72dc5c627975755c9620
   Public key (hex): 0x46ffa3a808850b2ad55732e958e781146ed1e6436ffb83290e0cb810aacf5070
   Account ID:       0x46ffa3a808850b2ad55732e958e781146ed1e6436ffb83290e0cb810aacf5070
   SS58 Address:     5Dfo9eF9C7Lu5Vbc8LbaMXi1Us2yi5VGTTA7radKoxb7M9HT
 
-$ subkey --sr25519 inspect "//Alice"//imonline
+$ subkey inspect --scheme sr25519 "//Alice"//imonline
 Secret Key URI `//Alice//imonline` is account:
   Secret seed:      0xf54dc00d41d0ea7929ac00a08ed1e111eb8c35d669b011c649cea23997f5d8d9
   Public key (hex): 0xee725cf87fa2d6f264f26d7d8b84b1054d2182cdcce51fdea95ec868be9d1e17
   Account ID:       0xee725cf87fa2d6f264f26d7d8b84b1054d2182cdcce51fdea95ec868be9d1e17
   SS58 Address:     5HTME6o2DqEuoNCxE5263j2dNzFGxspeP8wswenPA3WerfmA
 
-$ subkey --ed25519 inspect "//Alice"//grandpa
+$ subkey inspect --scheme ed25519 "//Alice"//grandpa
 Secret Key URI `//Alice//grandpa` is account:
   Secret seed:      0x03bee0237d4847732404fde7539e356da44bce9cd69f26f869883419371a78ab
   Public key (hex): 0x6e2de2e5087b56ed2370359574f479d7e5da1973e17ca1b55882c4773f154d2f
