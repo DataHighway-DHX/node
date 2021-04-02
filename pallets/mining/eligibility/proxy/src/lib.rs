@@ -79,10 +79,11 @@ pub struct MiningEligibilityProxyRewardRequest<U, V, W, Y> {
 
 #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "std", derive())]
-pub struct MiningEligibilityProxyClaimRewardeeData<U, V, W> {
+pub struct MiningEligibilityProxyClaimRewardeeData<U, V, W, X> {
     pub proxy_claim_rewardee_account_id: U, // Rewardee miner associated with supernode (proxy) account id
     pub proxy_claim_reward_amount: V,       // Reward in DHX tokens for specific rewardee miner
     pub proxy_claim_start_date: W,         // Start date associated with mining claim
+    pub proxy_claim_interval_days: X,      // Rewardee interval days
 }
 
 #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
@@ -121,6 +122,7 @@ type RewardeeData<T> = MiningEligibilityProxyClaimRewardeeData<
     <T as frame_system::Trait>::AccountId,
     BalanceOf<T>,
     Date,
+    u32,
 >;
 
 type RequestorData<T> = RewardRequestorData<
@@ -367,7 +369,7 @@ decl_module! {
 
             if let Some(rewardees_data) = _proxy_claim_rewardees_data {
                 // TODO
-                // Self::is_valid_reward_data(rewardees_data.clone());
+                Self::is_valid_reward_data(rewardees_data.clone());
 
                 debug::info!("Transferring claim to proxy Supernode");
                 // Distribute the reward to the account that has locked the funds
@@ -632,54 +634,48 @@ impl<T: Trait> Module<T> {
 
     pub fn is_valid_reward_data(_proxy_claim_rewardees_data: Vec<RewardeeData<T>>) -> Result<(), DispatchError> {
         ensure!(_proxy_claim_rewardees_data.len() > 0, "Rewardees data is invalid as no elements");
-        // let current_timestamp = <pallet_timestamp::Module<T>>::get();
+        let current_timestamp = <pallet_timestamp::Module<T>>::get();
         // convert the current date/time to the start of the current day date/time.
         // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
 
-        // let current_timestamp_as_u64;
-        // if let Some(_current_timestamp_as_u64) = TryInto::<u64>::try_into(current_timestamp).ok() {
-        //     current_timestamp_as_u64 = _current_timestamp_as_u64;
-        // } else {
-        //     return Err(DispatchError::Other("Unable to convert Moment to u64 for current_timestamp"));
-        // }
+        let current_timestamp_as_u64;
+        if let Some(_current_timestamp_as_u64) = TryInto::<u64>::try_into(current_timestamp).ok() {
+            current_timestamp_as_u64 = _current_timestamp_as_u64;
+        } else {
+            return Err(DispatchError::Other("Unable to convert Moment to u64 for current_timestamp"));
+        }
 
-        // let current_date = NaiveDateTime::from_timestamp(i64::try_from(current_timestamp_as_u64.clone() / 1000u64).unwrap(), 0).date();
+        let current_date = NaiveDateTime::from_timestamp(i64::try_from(current_timestamp_as_u64.clone() / 1000u64).unwrap(), 0).date();
         
-        // let mut rewardees_data_count = 0;
-        // let mut is_valid = 1;
-        // // FIXME - use cooldown in config runtime or move to abstract constant instead of hard-code here
-        // let MIN_COOLDOWN_PERIOD_DAYS: u32 = 7; 
+        let mut rewardees_data_count = 0;
+        let mut is_valid = 1;
+        // FIXME - use cooldown in config runtime or move to abstract constant instead of hard-code here
+        let MIN_COOLDOWN_PERIOD_DAYS: u32 = 7; 
 
-        // // Iterate through all rewardees data
-        // for (index, rewardees_data) in _proxy_claim_rewardees_data.iter().enumerate() {
-        //     rewardees_data_count += 1;
-        //     debug::info!("rewardees_data_count {:#?}", rewardees_data_count);
+        // Iterate through all rewardees data
+        for (index, rewardees_data) in _proxy_claim_rewardees_data.iter().enumerate() {
+            rewardees_data_count += 1;
+            debug::info!("rewardees_data_count {:#?}", rewardees_data_count);
 
-        //     if let _proxy_claim_start_date = rewardees_data.proxy_claim_start_date {
-        //         let proxy_claim_start_date = NaiveDate::parse_from_str(str::from_utf8(_proxy_claim_start_date).unwrap(), "%Y-%m-%d");
-        //         if proxy_claim_start_date < current_date {
-        //             debug::info!("invalid _proxy_claim_start_block: {:#?}", _proxy_claim_start_block);
-        //             is_valid == 0;
-        //             break;
-        //         } else if proxy_claim_start_date
-        //         if let _proxy_claim_interval_blocks = rewardees_data.proxy_claim_interval_blocks {
-        //             if _proxy_claim_start_block < current_block {
-        //                 debug::info!("invalid _proxy_claim_start_block: {:#?}", _proxy_claim_start_block);
-        //                 is_valid == 0;
-        //                 break;
-        //             } else if _proxy_claim_start_block + _proxy_claim_interval_blocks < MIN_COOLDOWN_PERIOD.into() {
-        //                 debug::info!("unable to claim reward for lock duration less than cooldown period");
-        //                 is_valid == 0;
-        //                 break;
-        //             } else {
-        //                 continue;
-        //             }
-        //         }
-        //     }
-        // }
-        // if is_valid == 0 {
-        //     return Err(DispatchError::Other("Invalid rewardees data"));
-        // }
+            if let _proxy_claim_start_date = &rewardees_data.proxy_claim_start_date {
+                let proxy_claim_start_date = NaiveDate::parse_from_str(sp_std::str::from_utf8(&_proxy_claim_start_date).unwrap(), "%Y-%m-%d").ok().unwrap();
+                let proxy_claim_interval_days = rewardees_data.proxy_claim_interval_days;
+                if proxy_claim_start_date < current_date {
+                    debug::info!("invalid _proxy_claim_start_date: {:#?}", proxy_claim_start_date.to_string());
+                    is_valid == 0;
+                    break;
+                } else if proxy_claim_interval_days < MIN_COOLDOWN_PERIOD_DAYS {
+                    debug::info!("unable to claim reward for lock duration less than cooldown period");
+                    is_valid == 0;
+                    break;
+                } else {
+                    continue;
+                }
+            }
+        }
+        if is_valid == 0 {
+            return Err(DispatchError::Other("Invalid rewardees data"));
+        }
         Ok(())
     }
 

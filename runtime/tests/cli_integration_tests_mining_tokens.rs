@@ -630,8 +630,9 @@ mod tests {
                 proxy_claim_rewardee_account_id: 3,
                 proxy_claim_reward_amount: 1000,
                 proxy_claim_start_date: "2000-1-1".to_string().as_bytes().to_vec(),
+                proxy_claim_interval_days: 7,
             };
-            let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, Vec<u8>>> =
+            let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, Vec<u8>, u32>> =
                 Vec::new();
             proxy_claim_rewardees_data.push(rewardee_data);
 
