@@ -2,8 +2,8 @@
 extern crate membership_supernodes as membership_supernodes;
 extern crate mining_claims_token as mining_claims_token;
 extern crate mining_config_token as mining_config_token;
-extern crate mining_eligibility_token as mining_eligibility_token;
 extern crate mining_eligibility_proxy as mining_eligibility_proxy;
+extern crate mining_eligibility_token as mining_eligibility_token;
 extern crate mining_execution_token as mining_execution_token;
 extern crate mining_rates_token as mining_rates_token;
 extern crate mining_sampling_token as mining_sampling_token;
@@ -21,10 +21,9 @@ mod tests {
         impl_outer_origin,
         parameter_types,
         traits::{
-            // `Currency` required so `deposit_creating` and `total_balance` available
-            Currency,
             Contains,
             ContainsLengthBound,
+            Currency,
             EnsureOrigin,
         },
         weights::{
@@ -55,12 +54,12 @@ mod tests {
     // Import Trait for each runtime module being tested
     use datahighway_runtime::{
         AccountId,
+        Babe,
         Balance,
         BlockNumber,
+        Moment,
         DAYS,
         SLOT_DURATION,
-        Moment,
-        Babe,
     };
     use membership_supernodes::{
         Module as MembershipSupernodesModule,
@@ -81,10 +80,10 @@ mod tests {
         Event as MiningEligibilityProxyEvent,
         MiningEligibilityProxyClaimRewardeeData,
         MiningEligibilityProxyRewardRequest,
+        Module as MiningEligibilityProxyModule,
+        RewardDailyData,
         RewardRequestorData,
         RewardTransferData,
-        RewardDailyData,
-        Module as MiningEligibilityProxyModule,
         Trait as MiningEligibilityProxyTrait,
     };
     use mining_eligibility_token::{
@@ -558,7 +557,7 @@ mod tests {
                 0,           // mining_eligibility_token_id
                 0,           // mining_claims_token_id
                 Some(1),     // token_claim_amount
-                Some(34567),  // token_claim_block_redeemed
+                Some(34567), // token_claim_block_redeemed
             ));
 
             // Verify Storage
@@ -654,17 +653,26 @@ mod tests {
             assert_eq!(Balances::total_balance(&0), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
 
             // let _ = Balances::deposit_creating(&0, 30000);
-            // Balances::make_free_balance_be(&Treasury::account_id(), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
+            // Balances::make_free_balance_be(&Treasury::account_id(),
+            // INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
 
             // Sudo transfers the temporary treasury DHX DAO reserves to the treasury after the genesis block
             // This is necessary because instantiable transfers to treasury in the genesis config are
             // only available in Substrate 3, but we are using Substrate 2 still.
             // origin, source, destination, balance
-            assert_ok!(Balances::force_transfer(RawOrigin::Root.into(), 0, Treasury::account_id(), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE));
+            assert_ok!(Balances::force_transfer(
+                RawOrigin::Root.into(),
+                0,
+                Treasury::account_id(),
+                INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE
+            ));
 
             // Check the balance of the treasury has received the funds from the temporary account
             // to be use to pay the proxy_claim_reward_amount to proxy_claim_rewardee_account_id
-            assert_eq!(Balances::free_balance(&Treasury::account_id()), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
+            assert_eq!(
+                Balances::free_balance(&Treasury::account_id()),
+                INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE
+            );
             // ::pot() is a private function in Substrate 2 but in Substrate 3 it is public
             // so currently we cannot use this until we upgrade to Substrate 3
             // assert_eq!(Treasury::pot(), 50000);
@@ -701,12 +709,21 @@ mod tests {
             assert_eq!(Balances::reserved_balance(1), 0);
             assert_eq!(Balances::total_balance(&1), 1010);
             // Check balance of treasury after paying the proxy_claim_reward_amount.
-            assert_eq!(Balances::free_balance(Treasury::account_id()), (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000));
+            assert_eq!(
+                Balances::free_balance(Treasury::account_id()),
+                (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000)
+            );
             assert_eq!(Balances::reserved_balance(Treasury::account_id()), 0);
-            assert_eq!(Balances::total_balance(&Treasury::account_id()), (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000));
+            assert_eq!(
+                Balances::total_balance(&Treasury::account_id()),
+                (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000)
+            );
 
             assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::root(), 1, 1));
-            assert_err!(MembershipSupernodesTestModule::remove_member(Origin::signed(0), 1, 1), DispatchError::BadOrigin);
+            assert_err!(
+                MembershipSupernodesTestModule::remove_member(Origin::signed(0), 1, 1),
+                DispatchError::BadOrigin
+            );
 
             // This tries to generate mining_eligibility_proxy_id 0
             // assert_err!(
@@ -779,7 +796,9 @@ mod tests {
                 Some(proxy_claim_rewardees_data.clone()),
             ));
 
-            if let Some(rewards_daily_data) = MiningEligibilityProxyTestModule::rewards_daily("2021-03-27".as_bytes().to_vec()) {
+            if let Some(rewards_daily_data) =
+                MiningEligibilityProxyTestModule::rewards_daily("2021-03-27".as_bytes().to_vec())
+            {
                 // Check that data about the proxy claim reward daily data has been stored.
                 // Check latest transfer added to vector for requestor AccountId 0
                 assert_eq!(
@@ -800,7 +819,6 @@ mod tests {
             } else {
                 assert_eq!(false, true);
             }
-
 
             // let unused_timstamp =  "2001-03-27".as_bytes().to_vec();
             // assert_eq!(

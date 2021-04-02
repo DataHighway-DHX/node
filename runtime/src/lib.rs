@@ -110,7 +110,7 @@ pub mod opaque {
 }
 
 pub use module_primitives::{
-	constants::time::{
+    constants::time::{
         DAYS,
         EPOCH_DURATION_IN_BLOCKS,
         EPOCH_DURATION_IN_SLOTS,
@@ -120,7 +120,7 @@ pub use module_primitives::{
         PRIMARY_PROBABILITY,
         SLOT_DURATION,
     },
-	types::*,
+    types::*,
 };
 
 pub const VERSION: RuntimeVersion = RuntimeVersion {
