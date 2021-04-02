@@ -1004,6 +1004,7 @@ dependencies = [
 name = "datahighway-runtime"
 version = "1.0.0"
 dependencies = [
+ "chrono",
  "exchange-rate",
  "frame-executive",
  "frame-support",
