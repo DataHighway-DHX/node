@@ -797,8 +797,12 @@ mod tests {
                 Some(proxy_claim_rewardees_data.clone()),
             ));
 
+            let invalid_date_redeemed_millis_2021_01_15 = NaiveDate::from_ymd(2021, 01, 15).and_hms(0, 0, 0).timestamp() * 1000;
+            let date_redeemed_millis_2021_03_26 = NaiveDate::from_ymd(2021, 03, 26).and_hms(0, 0, 0).timestamp() * 1000;
+            let date_redeemed_millis_2021_03_27 = NaiveDate::from_ymd(2021, 03, 27).and_hms(0, 0, 0).timestamp() * 1000;
+
             if let Some(rewards_daily_data) = MiningEligibilityProxyTestModule::rewards_daily(
-                NaiveDate::from_ymd(2021, 03, 27).and_hms(0, 0, 0).timestamp(),
+                date_redeemed_millis_2021_03_27.clone(),
             ) {
                 // Check that data about the proxy claim reward daily data has been stored.
                 // Check latest transfer added to vector for requestor AccountId 0
@@ -814,7 +818,7 @@ mod tests {
                         total_amt: 3000u64,
                         proxy_claim_requestor_account_id: 2u64,
                         member_kind: 1u32,
-                        rewarded_date: NaiveDate::from_ymd(2021, 03, 27).and_hms(0, 0, 0).timestamp(),
+                        rewarded_date: date_redeemed_millis_2021_03_27.clone(),
                     })
                 );
             } else {
@@ -861,7 +865,7 @@ mod tests {
             // according to https://currentmillis.com/, so that's the key we need to lookup results with
             assert_eq!(
                 MiningEligibilityProxyTestModule::total_rewards_daily(
-                    NaiveDate::from_ymd(2021, 03, 26).and_hms(0, 0, 0).timestamp(),
+                    date_redeemed_millis_2021_03_26.clone(),
                 ),
                 Some(1000),
             );
@@ -871,7 +875,7 @@ mod tests {
             // according to https://currentmillis.com/, so that's the key we need to lookup results with
             assert_eq!(
                 MiningEligibilityProxyTestModule::total_rewards_daily(
-                    NaiveDate::from_ymd(2021, 03, 27).and_hms(0, 0, 0).timestamp(),
+                    date_redeemed_millis_2021_03_27.clone(),
                 ),
                 Some(3000u64),
             );
@@ -882,7 +886,7 @@ mod tests {
             // this should return None, since the timestamp was not used
             assert_eq!(
                 MiningEligibilityProxyTestModule::total_rewards_daily(
-                    NaiveDate::from_ymd(2021, 01, 15).and_hms(0, 0, 0).timestamp(),
+                    invalid_date_redeemed_millis_2021_01_15.clone(),
                 ),
                 None,
             );
