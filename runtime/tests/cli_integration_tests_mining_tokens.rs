@@ -630,9 +630,9 @@ mod tests {
                 proxy_claim_rewardee_account_id: 3,
                 proxy_claim_reward_amount: 1000,
                 proxy_claim_start_date: NaiveDate::from_ymd(2000, 1, 1).and_hms(0, 0, 0).timestamp(),
-                proxy_claim_interval_days: 7,
+                proxy_claim_end_date: NaiveDate::from_ymd(2000, 1, 6).and_hms(0, 0, 0).timestamp(),
             };
-            let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, i64, u32>> =
+            let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, i64, i64>> =
                 Vec::new();
             proxy_claim_rewardees_data.push(rewardee_data);
 
@@ -762,7 +762,7 @@ mod tests {
                         total_amt: 1000u64,
                         rewardee_count: 1u64,
                         member_kind: 1u32,
-                        timestamp_requested: 1616724600000u64,
+                        requested_date: 1616724600000u64,
                     })
                 );
             } else {
@@ -780,7 +780,7 @@ mod tests {
                         total_amt: 1000u64,
                         rewardee_count: 1u64,
                         member_kind: 1u32,
-                        timestamp_sent: 1616724600000u64,
+                        requested_date: 1616724600000u64,
                     })
                 );
             } else {
@@ -861,7 +861,7 @@ mod tests {
             // according to https://currentmillis.com/, so that's the key we need to lookup results with
             assert_eq!(
                 MiningEligibilityProxyTestModule::total_rewards_daily(
-                    NaiveDate::from_ymd(2021, 03, 26).and_hms(0, 0, 0).timestamp()
+                    NaiveDate::from_ymd(2021, 03, 26).and_hms(0, 0, 0).timestamp(),
                 ),
                 Some(1000),
             );
@@ -871,7 +871,7 @@ mod tests {
             // according to https://currentmillis.com/, so that's the key we need to lookup results with
             assert_eq!(
                 MiningEligibilityProxyTestModule::total_rewards_daily(
-                    NaiveDate::from_ymd(2021, 03, 27).and_hms(0, 0, 0).timestamp()
+                    NaiveDate::from_ymd(2021, 03, 27).and_hms(0, 0, 0).timestamp(),
                 ),
                 Some(3000u64),
             );
@@ -882,7 +882,7 @@ mod tests {
             // this should return None, since the timestamp was not used
             assert_eq!(
                 MiningEligibilityProxyTestModule::total_rewards_daily(
-                    NaiveDate::from_ymd(2021, 01, 26).and_hms(0, 0, 0).timestamp()
+                    NaiveDate::from_ymd(2021, 01, 15).and_hms(0, 0, 0).timestamp(),
                 ),
                 None,
             );
