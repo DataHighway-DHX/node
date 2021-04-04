@@ -52,5 +52,35 @@ services:
     entrypoint:
       - ./docker-entrypoint-charlie.sh
 
+  dave:
+    image: dhxdocker/datahighway:latest
+    env_file:
+      - .env
+    ports:
+      - 30336:30333
+      - 9947:9944
+      - 9936:9933
+    volumes:
+      - basePath:/tmp
+      - ./scripts:/dhx/scripts
+    restart: always
+    entrypoint:
+      - ./docker-entrypoint-dave.sh
+
+  eve:
+    image: dhxdocker/datahighway:latest
+    env_file:
+      - .env
+    ports:
+      - 30337:30333
+      - 9948:9944
+      - 9937:9933
+    volumes:
+      - basePath:/tmp
+      - ./scripts:/dhx/scripts
+    restart: always
+    entrypoint:
+      - ./docker-entrypoint-eve.sh
+
 volumes:
   basePath:

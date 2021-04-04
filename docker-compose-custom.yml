@@ -40,3 +40,29 @@ services:
     restart: always
     entrypoint:
       - ./docker-entrypoint-node-3.sh
+  node-4:
+    image: dhxdocker/datahighway:latest
+    env_file:
+      - .env
+    ports:
+      - 30339:30333
+      - 9950:9944
+      - 9939:9933
+    volumes:
+      - ./scripts:/dhx/scripts
+    restart: always
+    entrypoint:
+      - ./docker-entrypoint-node-4.sh
+  node-5:
+    image: dhxdocker/datahighway:latest
+    env_file:
+      - .env
+    ports:
+      - 30340:30333
+      - 9951:9944
+      - 9940:9933
+    volumes:
+      - ./scripts:/dhx/scripts
+    restart: always
+    entrypoint:
+      - ./docker-entrypoint-node-5.sh

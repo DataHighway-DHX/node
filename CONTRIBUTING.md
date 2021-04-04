@@ -22,7 +22,7 @@ To skip running the CI unnecessarily for simple changes such as updating the doc
 
 ### Linting
 
-Check with Rust Format. Note: If you need a specific version of it replace `+nightly` with say `+nightly-2020-10-06`
+Check with Rust Format. Note: If you need a specific version of it replace `+nightly` with say `+nightly-2021-03-10`
 ```
 cargo +nightly fmt --all -- --check
 ```
@@ -81,7 +81,8 @@ RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/datahighway ... \
 ### Run All Tests
 
 ```bash
-cargo test -p datahighway-runtime &&
+cargo test -p datahighway-testnet-runtime &&
+cargo test -p datahighway-mainnet-runtime &&
 cargo test -p roaming-operators &&
 cargo test -p roaming-networks &&
 cargo test -p roaming-organizations &&
@@ -97,8 +98,8 @@ cargo test -p roaming-sessions &&
 cargo test -p roaming-billing-policies &&
 cargo test -p roaming-charging-policies &&
 cargo test -p roaming-packet-bundles &&
-cargo test -p mining-config-token &&
-cargo test -p mining-config-hardware &&
+cargo test -p mining-setting-token &&
+cargo test -p mining-setting-hardware &&
 cargo test -p mining-rates-token &&
 cargo test -p mining-rates-hardware &&
 cargo test -p mining-sampling-token &&
@@ -112,14 +113,15 @@ cargo test -p mining-claims-hardware
 ### Run Integration Tests Only
 
 ```
-cargo test -p datahighway-runtime
+cargo test -p datahighway-testnet-runtime &&
+cargo test -p datahighway-mainnet-runtime
 ```
 
 #### Run Specific Integration Tests
 
 Example
 ```
-cargo test -p datahighway-runtime --test cli_integration_tests_mining_tokens
+cargo test -p datahighway-testnet-runtime --test cli_integration_tests_mining_tokens
 ```
 
 ## Continuous Integration <a id="chapter-7a8301"></a>
@@ -147,9 +149,9 @@ cargo clippy --release -- -D warnings
 The following is a temporary fix. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
 
 ```
-rustup component add clippy --toolchain nightly-2020-10-06-x86_64-unknown-linux-gnu
-rustup component add clippy-preview --toolchain nightly-2020-10-06-x86_64-unknown-linux-gnu
-cargo +nightly-2020-10-06 clippy-preview -Zunstable-options
+rustup component add clippy --toolchain nightly-2021-03-10-x86_64-unknown-linux-gnu
+rustup component add clippy-preview --toolchain nightly-2021-03-10-x86_64-unknown-linux-gnu
+cargo +nightly-2021-03-10 clippy-preview -Zunstable-options
 ```
 
 #### Clippy and Continuous Integration (CI)
@@ -175,7 +177,7 @@ The styles are defined in the rustfmt.toml configuration file, which was generat
 #### Install RustFmt
 
 ```bash
-rustup component add rustfmt --toolchain nightly-2020-10-06-x86_64-unknown-linux-gnu
+rustup component add rustfmt --toolchain nightly-2021-03-10-x86_64-unknown-linux-gnu
 ```
 
 #### Check Formating Changes that RustFmt before applying them
@@ -220,7 +222,7 @@ substrate-module-new <module-name> <author>
 	so we must manually change this to the latest Rust Nightly version only
 	when it is known to work.
 		```bash
-		rustup toolchain install nightly-2020-10-06
+		rustup toolchain install nightly-2021-03-10
 		rustup update stable
 		rustup target add wasm32-unknown-unknown --toolchain nightly
 		```
@@ -230,7 +232,7 @@ substrate-module-new <module-name> <author>
 	and because developers may forget to update to the latest version of Rust
 	Nightly locally. So the solution is to install a specific version of
 	Rust Nightly in .github/workflows/rust.yml (i.e.
-	`rustup toolchain install nightly-2020-10-06`), since for example
+	`rustup toolchain install nightly-2021-03-10`), since for example
 	the latest Rust Nightly version nightly-2020-02-20 may cause our CI tests
 	to fail (i.e. https://github.com/DataHighway-DHX/node/issues/32)
 
@@ -271,12 +273,68 @@ substrate-module-new <module-name> <author>
 
 * Question: How do I run two nodes on the same host machine?
 	* Answer:
-		* Refer to "Testnet (Alpha) "testnet_latest" PoS testnet (with multiple nodes)" in [EXAMPLES](./EXAMPLES.md).
+		* Refer to "Example "local" PoS testnet (with multiple nodes)" in [EXAMPLES](./EXAMPLES.md).
 
 * Question: Why I try to connect to my Substrate node usig Polkadot.js, by going to https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944, why do I get error `WebSocket connection to 'ws://127.0.0.1:9944/' failed: Unknown reason, API-WS: disconnected from ws://127.0.0.1:9944: 1006:: Abnormal Closure`
 	* Answer:
 		* Try using a different web browser. Brave may not work, however Chrome might. Try running Polkadot.js app locally instead. See https://stackoverflow.com/questions/45572440/how-to-access-an-insecure-websocket-from-a-secure-website
 
+* Question: If I update to the latest version of Substrate 'master' branch instead of just stable. How resolve an error like:
+```
+error[E0034]: multiple applicable items in scope
+   --> /Users/me/.cargo/registry/src/github.com-1ecc6299db9ec823/bitvec-0.20.1/src/order.rs:476:7
+    |
+476 |             R::BITS,
+    |                ^^^^ multiple `BITS` found
+```
+    * Answer: Try downgrading one of the dependencies that are mentioned with say `cargo update -p funty --precise 1.1.0`. Do a search of Substrate Technical on Element to see where other's have asked the same question.
+
+* Question: How resolve error like `None => 1.into() // Default ^^^^ the trait `From<i32>` is not implemented for <T as Config>::MiningClaimsTokenClaimAmount`
+    * Answer: It is not necessary to add `From<i32>` to your trait to get it to work, simply replace `None => 1.into()` with `None => 1u32.into()` since types are `i32` by default
+```
+pub trait Config: frame_system::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
+    type MiningClaimsTokenClaimAmount: Parameter + ... + From<i32>;
+```
+
+* Question: Why am I getting an unknown error like `Chain does not have enough staking candidates to operate. Era Some(0)`.
+    * Answer: You may have the wrong 'order' of pallets in `construct_runtime` (i.e. System first). They need to also match that used in the Substrate codebase
+
+* Question: Why are there multiple runtimes (i.e. testnet_runtime, and mainnet_runtime)?
+    * Answer: Because we have a different SS58 Address Prefix for each of those chains and it is no longer configurable in the chain_spec in Substrate 3 like it was in Substrate 2. Testnet is 42 (Substrate default), and Mainnet is 33.
+
+* Question: Why won't the blocks finalize?
+    * Answer: When we updated from Substrate 2 to Substrate 3, we added ImOnline and AuthorityDiscover. So now it is necessary to be running at least 4x nodes (i.e. Alice, Bob, Charlie, Dave, Eve) before it will start **finalizing* blocks.
+
+* Question: When using Docker you get error building after modifying docker-compose: `FileNotFoundError: [Errno 2] No such file or directory`?
+    * Answer: Try running `rm -rf target/rls/debug/`
+
+* Question: When using Docker you get error building like: `Cannot start service alice: OCI runtime create failed`
+    * Answer: Try running `./scripts/docker-clean.sh` (beware this deletes all Docker containers, images, and cache for all your projects, not just Datahighway), and then `rm -rf ./target/rls/debug` a few times until it no longer says `Directory not empty`
+
+* Question: When using Docker you get error building like: `Compiling parity-multiaddr v0.7.2 error[E0308]: mismatched types --> /root/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-multiaddr-0.7.2/src/onion_addr.rs:23:9`
+    * Answer: Try use an older version of Rust Nightly, and to set Nightly as the default
+
+* Question: When using Docker you get error running docker-compose: `Creating node_alice_1 ... error compose.parallel.feed_queue: Pending: set() ERROR: for node_alice_1  Cannot start service alice: OCI runtime create failed: container_linux.go:349: starting container process caused "exec: \"./docker-entrypoint-alice.sh\": stat ./docker-entrypoint-alice.sh: no such file or directory": unknown`
+    * Answer: It's likely the last time you tried to build the Docker container it failed, so you need to delete the container and possibly the image and cache too and try again.
+
+* Question: When using Docker you get error: `FileNotFoundError: [Errno 2] No such file or directory: '/Users/ls/code/src/DataHighway-com/node/target/rls/debug/deps/save-analysis/libsc_executor_common-f236f3ddcd6862b3.json'`
+    * Answer: Try run `rm -rf ./target/rls/debug` a few times until it no longer says `Directory not empty`
+
+* Quesion: If I am using an Apple ARM (M1) processor instead of an Apple Intel processor, it gives warnings like `warning: toolchain 'nightly-2021-03-10-x86_64-unknown-linux-gnu' may not be able to run on this system.` and you are unable to install it with `x86_64-unknown-linux-gnu`, what may I need to do?
+    * Answer: Try using `aarch64-apple-darwin` instead, e.g.
+```
+softwareupdate --install-rosetta
+xcode-select --install
+mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/ls2/.profile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+brew update
+
+rustup toolchain install nightly-2021-03-10-aarch64-apple-darwin
+rustup component add rustfmt --toolchain nightly-2021-03-10-aarch64-apple-darwin
+cargo +nightly-2021-03-10-aarch64-apple-darwin fmt --all -- --check
+```
 ## Technical Support <a id="chapter-c00ab7"></a>
 
 * [Discord Chat](https://discord.gg/UuZN2tE)

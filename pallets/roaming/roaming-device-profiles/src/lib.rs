@@ -36,8 +36,8 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait + roaming_devices::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config + roaming_operators::Config + roaming_devices::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingDeviceProfileIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingDeviceProfileDevAddr: Parameter + Member + Default;
     type RoamingDeviceProfileDevEUI: Parameter + Member + Default;
@@ -52,7 +52,7 @@ pub struct RoamingDeviceProfile(pub [u8; 16]);
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
 // Generic type parameters - Balance
-pub struct RoamingDeviceProfileConfig<U, V, W, X> {
+pub struct RoamingDeviceProfileSetting<U, V, W, X> {
     pub device_profile_devaddr: U,
     pub device_profile_deveui: V,
     pub device_profile_joineui: W,
@@ -61,20 +61,20 @@ pub struct RoamingDeviceProfileConfig<U, V, W, X> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::RoamingDeviceProfileIndex,
-        <T as Trait>::RoamingDeviceProfileDevAddr,
-        <T as Trait>::RoamingDeviceProfileDevEUI,
-        <T as Trait>::RoamingDeviceProfileJoinEUI,
-        <T as Trait>::RoamingDeviceProfileVendorID,
-        <T as roaming_devices::Trait>::RoamingDeviceIndex,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::RoamingDeviceProfileIndex,
+        <T as Config>::RoamingDeviceProfileDevAddr,
+        <T as Config>::RoamingDeviceProfileDevEUI,
+        <T as Config>::RoamingDeviceProfileJoinEUI,
+        <T as Config>::RoamingDeviceProfileVendorID,
+        <T as roaming_devices::Config>::RoamingDeviceIndex,
     {
         /// A roaming device_profile is created. (owner, roaming_device_profile_id)
         Created(AccountId, RoamingDeviceProfileIndex),
         /// A roaming device_profile is transferred. (from, to, roaming_device_profile_id)
         Transferred(AccountId, AccountId, RoamingDeviceProfileIndex),
         /// A roaming device_profile configuration
-        RoamingDeviceProfileConfigSet(AccountId, RoamingDeviceProfileIndex, RoamingDeviceProfileDevAddr, RoamingDeviceProfileDevEUI, RoamingDeviceProfileJoinEUI, RoamingDeviceProfileVendorID),
+        RoamingDeviceProfileSettingSet(AccountId, RoamingDeviceProfileIndex, RoamingDeviceProfileDevAddr, RoamingDeviceProfileDevEUI, RoamingDeviceProfileJoinEUI, RoamingDeviceProfileVendorID),
         /// A roaming device_profile is assigned to a device. (owner of device, roaming_device_profile_id, roaming_device_id)
         AssignedDeviceProfileToDevice(AccountId, RoamingDeviceProfileIndex, RoamingDeviceIndex),
     }
@@ -82,7 +82,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingDeviceProfiles {
+    trait Store for Module<T: Config> as RoamingDeviceProfiles {
         /// Stores all the roaming device_profiles, key is the roaming device_profile id / index
         pub RoamingDeviceProfiles get(fn roaming_device_profile): map hasher(opaque_blake2_256) T::RoamingDeviceProfileIndex => Option<RoamingDeviceProfile>;
 
@@ -93,7 +93,7 @@ decl_storage! {
         pub RoamingDeviceProfileOwners get(fn roaming_device_profile_owner): map hasher(opaque_blake2_256) T::RoamingDeviceProfileIndex => Option<T::AccountId>;
 
         /// Get roaming device_profile config
-        pub RoamingDeviceProfileConfigs get(fn roaming_device_profile_configs): map hasher(opaque_blake2_256) T::RoamingDeviceProfileIndex => Option<RoamingDeviceProfileConfig<T::RoamingDeviceProfileDevAddr, T::RoamingDeviceProfileDevEUI, T::RoamingDeviceProfileJoinEUI, T::RoamingDeviceProfileVendorID>>;
+        pub RoamingDeviceProfileSettings get(fn roaming_device_profile_settings): map hasher(opaque_blake2_256) T::RoamingDeviceProfileIndex => Option<RoamingDeviceProfileSetting<T::RoamingDeviceProfileDevAddr, T::RoamingDeviceProfileDevEUI, T::RoamingDeviceProfileJoinEUI, T::RoamingDeviceProfileVendorID>>;
 
         /// Get roaming device_profile device
         pub RoamingDeviceProfileDevice get(fn roaming_device_profile_device): map hasher(opaque_blake2_256) T::RoamingDeviceProfileIndex => Option<T::RoamingDeviceIndex>;
@@ -106,7 +106,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new roaming device_profile
@@ -178,30 +178,30 @@ decl_module! {
 
             // Check if a roaming device profile config already exists with the given roaming device profile id
             // to determine whether to insert new or mutate existing.
-            if Self::has_value_for_device_profile_config_index(roaming_device_profile_id).is_ok() {
+            if Self::has_value_for_device_profile_setting_index(roaming_device_profile_id).is_ok() {
                 debug::info!("Mutating values");
-                <RoamingDeviceProfileConfigs<T>>::mutate(roaming_device_profile_id, |profile_config| {
-                    if let Some(_profile_config) = profile_config {
+                <RoamingDeviceProfileSettings<T>>::mutate(roaming_device_profile_id, |profile_setting| {
+                    if let Some(_profile_setting) = profile_setting {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-                        _profile_config.device_profile_devaddr = device_profile_devaddr.clone();
-                        _profile_config.device_profile_deveui = device_profile_deveui.clone();
-                        _profile_config.device_profile_joineui = device_profile_joineui.clone();
-                        _profile_config.device_profile_vendorid = device_profile_vendorid.clone();
+                        _profile_setting.device_profile_devaddr = device_profile_devaddr.clone();
+                        _profile_setting.device_profile_deveui = device_profile_deveui.clone();
+                        _profile_setting.device_profile_joineui = device_profile_joineui.clone();
+                        _profile_setting.device_profile_vendorid = device_profile_vendorid.clone();
                     }
                 });
                 debug::info!("Checking mutated values");
-                let fetched_profile_config = <RoamingDeviceProfileConfigs<T>>::get(roaming_device_profile_id);
-                if let Some(_profile_config) = fetched_profile_config {
-                    debug::info!("Latest field device_profile_devaddr {:#?}", _profile_config.device_profile_devaddr);
-                    debug::info!("Latest field device_profile_deveui {:#?}", _profile_config.device_profile_deveui);
-                    debug::info!("Latest field device_profile_joineui {:#?}", _profile_config.device_profile_joineui);
-                    debug::info!("Latest field device_profile_vendorid {:#?}", _profile_config.device_profile_vendorid);
+                let fetched_profile_setting = <RoamingDeviceProfileSettings<T>>::get(roaming_device_profile_id);
+                if let Some(_profile_setting) = fetched_profile_setting {
+                    debug::info!("Latest field device_profile_devaddr {:#?}", _profile_setting.device_profile_devaddr);
+                    debug::info!("Latest field device_profile_deveui {:#?}", _profile_setting.device_profile_deveui);
+                    debug::info!("Latest field device_profile_joineui {:#?}", _profile_setting.device_profile_joineui);
+                    debug::info!("Latest field device_profile_vendorid {:#?}", _profile_setting.device_profile_vendorid);
                 }
             } else {
                 debug::info!("Inserting values");
 
                 // Create a new roaming device_profile config instance with the input params
-                let roaming_device_profile_config_instance = RoamingDeviceProfileConfig {
+                let roaming_device_profile_setting_instance = RoamingDeviceProfileSetting {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     device_profile_devaddr: device_profile_devaddr.clone(),
@@ -210,22 +210,22 @@ decl_module! {
                     device_profile_vendorid: device_profile_vendorid.clone()
                 };
 
-                <RoamingDeviceProfileConfigs<T>>::insert(
+                <RoamingDeviceProfileSettings<T>>::insert(
                     roaming_device_profile_id,
-                    &roaming_device_profile_config_instance
+                    &roaming_device_profile_setting_instance
                 );
 
                 debug::info!("Checking inserted values");
-                let fetched_profile_config = <RoamingDeviceProfileConfigs<T>>::get(roaming_device_profile_id);
-                if let Some(_profile_config) = fetched_profile_config {
-                    debug::info!("Inserted field device_profile_devaddr {:#?}", _profile_config.device_profile_devaddr);
-                    debug::info!("Inserted field device_profile_deveui {:#?}", _profile_config.device_profile_deveui);
-                    debug::info!("Inserted field device_profile_joineui {:#?}", _profile_config.device_profile_joineui);
-                    debug::info!("Inserted field device_profile_vendorid {:#?}", _profile_config.device_profile_vendorid);
+                let fetched_profile_setting = <RoamingDeviceProfileSettings<T>>::get(roaming_device_profile_id);
+                if let Some(_profile_setting) = fetched_profile_setting {
+                    debug::info!("Inserted field device_profile_devaddr {:#?}", _profile_setting.device_profile_devaddr);
+                    debug::info!("Inserted field device_profile_deveui {:#?}", _profile_setting.device_profile_deveui);
+                    debug::info!("Inserted field device_profile_joineui {:#?}", _profile_setting.device_profile_joineui);
+                    debug::info!("Inserted field device_profile_vendorid {:#?}", _profile_setting.device_profile_vendorid);
                 }
             }
 
-            Self::deposit_event(RawEvent::RoamingDeviceProfileConfigSet(
+            Self::deposit_event(RawEvent::RoamingDeviceProfileSettingSet(
                 sender,
                 roaming_device_profile_id,
                 device_profile_devaddr,
@@ -273,7 +273,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn exists_roaming_device_profile(
         roaming_device_profile_id: T::RoamingDeviceProfileIndex,
     ) -> Result<RoamingDeviceProfile, DispatchError> {
@@ -308,21 +308,21 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    pub fn exists_roaming_device_profile_config(
+    pub fn exists_roaming_device_profile_setting(
         roaming_device_profile_id: T::RoamingDeviceProfileIndex,
     ) -> Result<(), DispatchError> {
-        match Self::roaming_device_profile_configs(roaming_device_profile_id) {
+        match Self::roaming_device_profile_settings(roaming_device_profile_id) {
             Some(_value) => Ok(()),
-            None => Err(DispatchError::Other("RoamingDeviceProfileConfig does not exist")),
+            None => Err(DispatchError::Other("RoamingDeviceProfileSetting does not exist")),
         }
     }
 
-    pub fn has_value_for_device_profile_config_index(
+    pub fn has_value_for_device_profile_setting_index(
         roaming_device_profile_id: T::RoamingDeviceProfileIndex,
     ) -> Result<(), DispatchError> {
         debug::info!("Checking if device profile config has a value that is defined");
-        let fetched_profile_config = <RoamingDeviceProfileConfigs<T>>::get(roaming_device_profile_id);
-        if let Some(_value) = fetched_profile_config {
+        let fetched_profile_setting = <RoamingDeviceProfileSettings<T>>::get(roaming_device_profile_id);
+        if let Some(_value) = fetched_profile_setting {
             debug::info!("Found value for device profile config");
             return Ok(());
         }

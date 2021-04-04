@@ -1,7 +1,7 @@
 {
   "Keys": "SessionKeys2",
-  "Address": "AccountId",
-  "LookupSource": "AccountId",
+  "Address": "MultiAddress",
+  "LookupSource": "MultiAddress",
   "RoamingOperator": "[u8; 16]",
   "RoamingOperatorIndex": "u64",
   "RoamingNetwork": "[u8; 16]",
@@ -24,7 +24,7 @@
   "RoamingAccountingPolicyType": "Text",
   "RoamingAccountingPolicyUplinkFeeFactor": "u32",
   "RoamingAccountingPolicyDownlinkFeeFactor": "u32",
-  "RoamingAccountingPolicyConfig": {
+  "RoamingAccountingPolicySetting": {
     "policy_type": "Text",
     "subscription_fee": "Balance",
     "uplink_fee_factor": "u32",
@@ -33,7 +33,7 @@
   "RoamingAgreementPolicy": "[u8; 16]",
   "RoamingAgreementPolicyIndex": "u64",
   "RoamingAgreementPolicyActivationType": "Text",
-  "RoamingAgreementPolicyConfig": {
+  "RoamingAgreementPolicySetting": {
     "policy_activation_type": "Text",
     "policy_expiry_block": "Moment"
   },
@@ -45,7 +45,7 @@
 	"RoamingDeviceProfileDevEUI": "Text",
 	"RoamingDeviceProfileJoinEUI": "Text",
 	"RoamingDeviceProfileVendorID": "Text",
-  "RoamingDeviceProfileConfig": {
+  "RoamingDeviceProfileSetting": {
     "device_profile_devaddr": "Text",
     "device_profile_deveui": "Text",
     "device_profile_joineui": "Text",
@@ -63,13 +63,13 @@
   },
   "RoamingBillingPolicy": "[u8; 16]",
   "RoamingBillingPolicyIndex": "u64",
-  "RoamingBillingPolicyConfig": {
+  "RoamingBillingPolicySetting": {
     "policy_next_billing_at_block": "Moment",
     "policy_frequency_in_blocks": "Moment"
   },
   "RoamingChargingPolicy": "[u8; 16]",
   "RoamingChargingPolicyIndex": "u64",
-  "RoamingChargingPolicyConfig": {
+  "RoamingChargingPolicySetting": {
     "policy_next_charging_at_block": "Moment",
     "policy_delay_after_billing_in_blocks": "u64"
   },
@@ -94,7 +94,7 @@
   "MiningRatesTokenTokenIOTA": "u32",
   "MiningRatesTokenMaxToken": "u32",
   "MiningRatesTokenMaxLoyalty": "u32",
-  "MiningRatesTokenConfig": {
+  "MiningRatesTokenSetting": {
     "token_token_mxc": "u32",
     "token_token_iota": "u32",
     "token_token_dot": "u32",
@@ -109,7 +109,7 @@
   "MiningRatesHardwareCategory1MaxTokenBonusPerGateway": "u32",
   "MiningRatesHardwareCategory2MaxTokenBonusPerGateway": "u32",
   "MiningRatesHardwareCategory3MaxTokenBonusPerGateway": "u32",
-  "MiningRatesHardwareConfig": {
+  "MiningRatesHardwareSetting": {
     "hardware_hardware_secure": "u32",
     "hardware_hardware_insecure": "u32",
     "hardware_max_hardware": "u32",
@@ -117,28 +117,28 @@
     "hardware_category_2_max_token_bonus_per_gateway": "u32",
     "hardware_category_3_max_token_bonus_per_gateway": "u32"
   },
-  "MiningConfigToken": "[u8; 16]",
-  "MiningConfigTokenIndex": "u64",
-  "MiningConfigTokenType": "Text",
-  "MiningConfigTokenLockAmount": "u64",
-  "MiningConfigTokenConfig": {
+  "MiningSettingToken": "[u8; 16]",
+  "MiningSettingTokenIndex": "u64",
+  "MiningSettingTokenType": "Text",
+  "MiningSettingTokenLockAmount": "u64",
+  "MiningSettingTokenSetting": {
     "token_type": "Text",
     "token_lock_amount": "u64",
     "token_lock_start_block": "Moment",
     "token_lock_interval_blocks": "Moment"
   },
-  "MiningConfigTokenRequirementsConfig": {
+  "MiningSettingTokenRequirementsSetting": {
     "token_type": "Text",
     "token_lock_min_amount": "u64",
     "token_lock_min_blocks": "u32"
   },
-  "MiningConfigHardware": "[u8; 16]",
-  "MiningConfigHardwareIndex": "u64",
-  "MiningConfigHardwareSecure": "bool",
-  "MiningConfigHardwareType": "Text",
-  "MiningConfigHardwareID": "u64",
-  "MiningConfigHardwareDevEUI": "u64",
-  "MiningConfigHardwareConfig": {
+  "MiningSettingHardware": "[u8; 16]",
+  "MiningSettingHardwareIndex": "u64",
+  "MiningSettingHardwareSecure": "bool",
+  "MiningSettingHardwareType": "Text",
+  "MiningSettingHardwareID": "u64",
+  "MiningSettingHardwareDevEUI": "u64",
+  "MiningSettingHardwareSetting": {
     "hardware_secure": "bool",
     "hardware_type": "Text",
     "hardware_id": "u64",
@@ -149,14 +149,14 @@
   "MiningSamplingToken": "[u8; 16]",
   "MiningSamplingTokenIndex": "u64",
   "MiningSamplingTokenSampleLockedAmount": "u64",
-  "MiningSamplingTokenConfig": {
+  "MiningSamplingTokenSetting": {
     "token_sample_block": "Moment",
     "token_sample_locked_amount": "u64"
   },
   "MiningSamplingHardware": "[u8; 16]",
   "MiningSamplingHardwareIndex": "u64",
   "MiningSamplingHardwareSampleHardwareOnline": "u64",
-  "MiningSamplingHardwareConfig": {
+  "MiningSamplingHardwareSetting": {
     "hardware_sample_block": "Moment",
     "hardware_sample_hardware_online": "bool"
   },
@@ -205,7 +205,7 @@
     "token_execution_ended_block": "Moment"
   },
   "ExchangeRateIndex": "u64",
-  "ExchangeRateConfig": {
+  "ExchangeRateSetting": {
     "hbtc": "u64",
     "dot": "u64",
     "iota": "u64",

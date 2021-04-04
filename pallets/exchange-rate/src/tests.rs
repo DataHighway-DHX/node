@@ -14,7 +14,7 @@ fn basic_setup_works() {
         assert!(ExchangeRateTestModule::exchange_rates(0).is_none());
         assert_eq!(ExchangeRateTestModule::exchange_rate_owner(0), None);
         assert_eq!(ExchangeRateTestModule::exchange_rate_count(), 0);
-        assert!(ExchangeRateTestModule::exchange_rate_configs(0).is_none());
+        assert!(ExchangeRateTestModule::exchange_rate_settings(0).is_none());
     });
 }
 
@@ -91,12 +91,12 @@ fn set_config_defaults_works() {
         assert!(ExchangeRateTestModule::exchange_rates(0).is_some());
         assert_eq!(ExchangeRateTestModule::exchange_rate_owner(0), Some(1));
 
-        assert!(ExchangeRateTestModule::exchange_rate_configs(0).is_some());
-        assert_eq!(ExchangeRateTestModule::exchange_rate_configs(0).unwrap().hbtc, 200000);
-        assert_eq!(ExchangeRateTestModule::exchange_rate_configs(0).unwrap().dot, 100);
-        assert_eq!(ExchangeRateTestModule::exchange_rate_configs(0).unwrap().iota, 5);
-        assert_eq!(ExchangeRateTestModule::exchange_rate_configs(0).unwrap().fil, 200);
-        assert_eq!(ExchangeRateTestModule::exchange_rate_configs(0).unwrap().decimals_after_point, 2);
+        assert!(ExchangeRateTestModule::exchange_rate_settings(0).is_some());
+        assert_eq!(ExchangeRateTestModule::exchange_rate_settings(0).unwrap().hbtc, 200000);
+        assert_eq!(ExchangeRateTestModule::exchange_rate_settings(0).unwrap().dot, 100);
+        assert_eq!(ExchangeRateTestModule::exchange_rate_settings(0).unwrap().iota, 5);
+        assert_eq!(ExchangeRateTestModule::exchange_rate_settings(0).unwrap().fil, 200);
+        assert_eq!(ExchangeRateTestModule::exchange_rate_settings(0).unwrap().decimals_after_point, 2);
     });
 }
 
@@ -120,12 +120,12 @@ fn set_config_works() {
         assert!(ExchangeRateTestModule::exchange_rates(0).is_some());
         assert_eq!(ExchangeRateTestModule::exchange_rate_owner(0), Some(1));
 
-        assert!(ExchangeRateTestModule::exchange_rate_configs(0).is_some());
-        assert_eq!(ExchangeRateTestModule::exchange_rate_configs(0).unwrap().hbtc, 777);
-        assert_eq!(ExchangeRateTestModule::exchange_rate_configs(0).unwrap().dot, 778);
-        assert_eq!(ExchangeRateTestModule::exchange_rate_configs(0).unwrap().iota, 5);
-        assert_eq!(ExchangeRateTestModule::exchange_rate_configs(0).unwrap().fil, 779);
-        assert_eq!(ExchangeRateTestModule::exchange_rate_configs(0).unwrap().decimals_after_point, 3);
+        assert!(ExchangeRateTestModule::exchange_rate_settings(0).is_some());
+        assert_eq!(ExchangeRateTestModule::exchange_rate_settings(0).unwrap().hbtc, 777);
+        assert_eq!(ExchangeRateTestModule::exchange_rate_settings(0).unwrap().dot, 778);
+        assert_eq!(ExchangeRateTestModule::exchange_rate_settings(0).unwrap().iota, 5);
+        assert_eq!(ExchangeRateTestModule::exchange_rate_settings(0).unwrap().fil, 779);
+        assert_eq!(ExchangeRateTestModule::exchange_rate_settings(0).unwrap().decimals_after_point, 3);
     });
 }
 
@@ -141,7 +141,7 @@ fn set_config_basic_errors() {
         );
         assert_noop!(
             ExchangeRateTestModule::set_config(Origin::signed(2), 0, None, None, None, None, None),
-            "Only owner can set exchange_rate_config"
+            "Only owner can set exchange_rate_setting"
         );
         // Verify Storage
         assert_eq!(ExchangeRateTestModule::exchange_rate_count(), 1);

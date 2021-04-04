@@ -2,11 +2,10 @@
 
 use crate::{
     Module,
-    Trait,
+    Config,
 };
 
 use frame_support::{
-    impl_outer_origin,
     parameter_types,
     weights::{
         IdentityFee,
@@ -24,50 +23,53 @@ use sp_runtime::{
     Perbill,
 };
 
-impl_outer_origin! {
-    pub enum Origin for Test {}
-}
+type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
+type Block = frame_system::mocking::MockBlock<Test>;
 
-#[derive(Clone, Eq, PartialEq)]
-pub struct Test;
+frame_support::construct_runtime!(
+    pub enum Test where
+        Block = Block,
+        NodeBlock = Block,
+        UncheckedExtrinsic = UncheckedExtrinsic,
+    {
+        System: frame_system::{Module, Call, Config, Storage, Event<T>},
+        Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
+        TransactionPayment: pallet_transaction_payment::{Module, Storage},
+        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
+    }
+);
+
 parameter_types! {
     pub const BlockHashCount: u64 = 250;
-    pub const MaximumBlockWeight: Weight = 1024;
-    pub const MaximumBlockLength: u32 = 2 * 1024;
-    pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
 }
-impl frame_system::Trait for Test {
+impl frame_system::Config for Test {
     type AccountData = pallet_balances::AccountData<u64>;
     type AccountId = u64;
-    type AvailableBlockRatio = AvailableBlockRatio;
     type BaseCallFilter = ();
-    type BlockExecutionWeight = ();
     type BlockHashCount = BlockHashCount;
     type BlockNumber = u64;
-    type Call = ();
+    type BlockLength = ();
+    type BlockWeights = ();
+    type Call = Call;
     type DbWeight = ();
-    // type WeightMultiplierUpdate = ();
     type Event = ();
-    type ExtrinsicBaseWeight = ();
     type Hash = H256;
     type Hashing = BlakeTwo256;
     type Header = Header;
     type Index = u64;
     type Lookup = IdentityLookup<Self::AccountId>;
-    type MaximumBlockLength = MaximumBlockLength;
-    type MaximumBlockWeight = MaximumBlockWeight;
-    type MaximumExtrinsicWeight = MaximumBlockWeight;
     type OnKilledAccount = ();
     type OnNewAccount = ();
     type Origin = Origin;
-    type PalletInfo = ();
+    type PalletInfo = PalletInfo;
+    type SS58Prefix = ();
     type SystemWeightInfo = ();
     type Version = ();
 }
 parameter_types! {
     pub const ExistentialDeposit: u64 = 1;
 }
-impl pallet_balances::Trait for Test {
+impl pallet_balances::Config for Test {
     type AccountStore = System;
     type Balance = u64;
     type DustRemoval = ();
@@ -76,39 +78,41 @@ impl pallet_balances::Trait for Test {
     type MaxLocks = ();
     type WeightInfo = ();
 }
-impl pallet_transaction_payment::Trait for Test {
-    type Currency = Balances;
+parameter_types! {
+    pub const TransactionByteFee: u64 = 1;
+}
+impl pallet_transaction_payment::Config for Test {
     type FeeMultiplierUpdate = ();
-    type OnTransactionPayment = ();
-    type TransactionByteFee = ();
+    type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
+    type TransactionByteFee = TransactionByteFee;
     type WeightToFee = IdentityFee<u64>;
 }
 // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
-impl roaming_operators::Trait for Test {
+impl roaming_operators::Config for Test {
     type Currency = Balances;
     type Event = ();
-    type Randomness = Randomness;
+    type Randomness = RandomnessCollectiveFlip;
     type RoamingOperatorIndex = u64;
 }
-impl mining_config_token::Trait for Test {
+impl mining_setting_token::Config for Test {
     type Event = ();
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
-    type MiningConfigTokenIndex = u64;
-    type MiningConfigTokenLockAmount = u64;
+    type MiningSettingTokenIndex = u64;
+    type MiningSettingTokenLockAmount = u64;
     // Mining Speed Boost Token Mining Config
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningConfigTokenType = Vec<u8>;
+    type MiningSettingTokenType = Vec<u8>;
 }
-impl mining_eligibility_token::Trait for Test {
+impl mining_eligibility_token::Config for Test {
     type Event = ();
     type MiningEligibilityTokenCalculatedEligibility = u64;
     type MiningEligibilityTokenIndex = u64;
     type MiningEligibilityTokenLockedPercentage = u32;
     // type MiningEligibilityTokenAuditorAccountID = u64;
 }
-impl mining_rates_token::Trait for Test {
+impl mining_rates_token::Config for Test {
     type Event = ();
     type MiningRatesTokenIndex = u64;
     type MiningRatesTokenMaxLoyalty = u32;
@@ -119,20 +123,18 @@ impl mining_rates_token::Trait for Test {
     // Mining Speed Boost Rate
     type MiningRatesTokenTokenMXC = u32;
 }
-impl mining_sampling_token::Trait for Test {
+impl mining_sampling_token::Config for Test {
     type Event = ();
     type MiningSamplingTokenIndex = u64;
     type MiningSamplingTokenSampleLockedAmount = u64;
 }
-impl Trait for Test {
+impl Config for Test {
     type Event = ();
     type MiningClaimsTokenClaimAmount = u64;
     type MiningClaimsTokenIndex = u64;
 }
-type System = frame_system::Module<Test>;
-pub type Balances = pallet_balances::Module<Test>;
+
 pub type MiningClaimsTokenTestModule = Module<Test>;
-type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
 // This function basically just builds a genesis storage key/value store according to
 // our desired mockup.

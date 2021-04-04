@@ -39,8 +39,8 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config + roaming_operators::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type MiningRatesTokenIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningRatesTokenTokenMXC: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type MiningRatesTokenTokenIOTA: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
@@ -49,8 +49,8 @@ pub trait Trait: frame_system::Trait + roaming_operators::Trait {
     type MiningRatesTokenMaxLoyalty: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
-// type BalanceOf<T> = <<T as roaming_operators::Trait>::Currency as Currency<<T as
-// frame_system::Trait>::AccountId>>::Balance;
+// type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
+// frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -58,7 +58,7 @@ pub struct MiningRatesToken(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
-pub struct MiningRatesTokenConfig<U, V, W, X, Y> {
+pub struct MiningRatesTokenSetting<U, V, W, X, Y> {
     pub token_token_mxc: U,
     pub token_token_iota: V,
     pub token_token_dot: W,
@@ -68,20 +68,20 @@ pub struct MiningRatesTokenConfig<U, V, W, X, Y> {
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::MiningRatesTokenIndex,
-        <T as Trait>::MiningRatesTokenTokenMXC,
-        <T as Trait>::MiningRatesTokenTokenIOTA,
-        <T as Trait>::MiningRatesTokenTokenDOT,
-        <T as Trait>::MiningRatesTokenMaxToken,
-        <T as Trait>::MiningRatesTokenMaxLoyalty,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::MiningRatesTokenIndex,
+        <T as Config>::MiningRatesTokenTokenMXC,
+        <T as Config>::MiningRatesTokenTokenIOTA,
+        <T as Config>::MiningRatesTokenTokenDOT,
+        <T as Config>::MiningRatesTokenMaxToken,
+        <T as Config>::MiningRatesTokenMaxLoyalty,
         // Balance = BalanceOf<T>,
     {
         /// A mining_rates_token is created. (owner, mining_rates_token_id)
         Created(AccountId, MiningRatesTokenIndex),
         /// A mining_rates_token is transferred. (from, to, mining_rates_token_id)
         Transferred(AccountId, AccountId, MiningRatesTokenIndex),
-        MiningRatesTokenConfigSet(
+        MiningRatesTokenSettingSet(
             AccountId, MiningRatesTokenIndex, MiningRatesTokenTokenMXC,
             MiningRatesTokenTokenIOTA, MiningRatesTokenTokenDOT,
             MiningRatesTokenMaxToken, MiningRatesTokenMaxLoyalty
@@ -91,7 +91,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as MiningRatesToken {
+    trait Store for Module<T: Config> as MiningRatesToken {
         /// Stores all the mining_rates_tokens, key is the mining_rates_token id / index
         pub MiningRatesTokens get(fn mining_rates_token): map hasher(opaque_blake2_256) T::MiningRatesTokenIndex => Option<MiningRatesToken>;
 
@@ -102,8 +102,8 @@ decl_storage! {
         pub MiningRatesTokenOwners get(fn mining_rates_token_owner): map hasher(opaque_blake2_256) T::MiningRatesTokenIndex => Option<T::AccountId>;
 
         /// Stores mining_rates_token_rates_config
-        pub MiningRatesTokenConfigs get(fn mining_rates_token_rates_configs): map hasher(opaque_blake2_256) T::MiningRatesTokenIndex =>
-            Option<MiningRatesTokenConfig<T::MiningRatesTokenTokenMXC, T::MiningRatesTokenTokenIOTA,
+        pub MiningRatesTokenSettings get(fn mining_rates_token_rates_configs): map hasher(opaque_blake2_256) T::MiningRatesTokenIndex =>
+            Option<MiningRatesTokenSetting<T::MiningRatesTokenTokenMXC, T::MiningRatesTokenTokenIOTA,
             T::MiningRatesTokenTokenDOT, T::MiningRatesTokenMaxToken, T::MiningRatesTokenMaxLoyalty>>;
     }
 }
@@ -111,7 +111,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new mining mining_rates_token
@@ -165,27 +165,27 @@ decl_module! {
             // TODO - adjust default rates
             let token_token_mxc = match _token_token_mxc.clone() {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_token_iota = match _token_token_iota {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_token_dot = match _token_token_dot {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_max_token = match _token_max_token {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
             let token_max_loyalty = match _token_max_loyalty {
                 Some(value) => value,
-                None => 1.into() // Default
+                None => 1u32.into() // Default
             };
 
             // FIXME - how to use float and overcome error:
-            //  the trait `std::str::FromStr` is not implemented for `<T as Trait>::MiningRatesTokenMaxToken
+            //  the trait `std::str::FromStr` is not implemented for `<T as Config>::MiningRatesTokenMaxToken
             // if token_token_mxc > "1.2".parse().unwrap() || token_token_iota > "1.2".parse().unwrap() || token_token_dot > "1.2".parse().unwrap() || token_max_token > "1.6".parse().unwrap() || token_max_loyalty > "1.2".parse().unwrap() {
             //   debug::info!("Token rate cannot be this large");
 
@@ -196,7 +196,7 @@ decl_module! {
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_mining_rates_token_rates_config_index(mining_rates_token_id).is_ok() {
                 debug::info!("Mutating values");
-                <MiningRatesTokenConfigs<T>>::mutate(mining_rates_token_id, |mining_rates_token_rates_config| {
+                <MiningRatesTokenSettings<T>>::mutate(mining_rates_token_id, |mining_rates_token_rates_config| {
                     if let Some(_mining_rates_token_rates_config) = mining_rates_token_rates_config {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
                         _mining_rates_token_rates_config.token_token_mxc = token_token_mxc.clone();
@@ -207,7 +207,7 @@ decl_module! {
                     }
                 });
                 debug::info!("Checking mutated values");
-                let fetched_mining_rates_token_rates_config = <MiningRatesTokenConfigs<T>>::get(mining_rates_token_id);
+                let fetched_mining_rates_token_rates_config = <MiningRatesTokenSettings<T>>::get(mining_rates_token_id);
                 if let Some(_mining_rates_token_rates_config) = fetched_mining_rates_token_rates_config {
                     debug::info!("Latest field token_token_mxc {:#?}", _mining_rates_token_rates_config.token_token_mxc);
                     debug::info!("Latest field token_token_iota {:#?}", _mining_rates_token_rates_config.token_token_iota);
@@ -219,7 +219,7 @@ decl_module! {
                 debug::info!("Inserting values");
 
                 // Create a new mining mining_rates_token_rates_config instance with the input params
-                let mining_rates_token_rates_config_instance = MiningRatesTokenConfig {
+                let mining_rates_token_rates_config_instance = MiningRatesTokenSetting {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     token_token_mxc: token_token_mxc.clone(),
@@ -229,13 +229,13 @@ decl_module! {
                     token_max_loyalty: token_max_loyalty.clone(),
                 };
 
-                <MiningRatesTokenConfigs<T>>::insert(
+                <MiningRatesTokenSettings<T>>::insert(
                     mining_rates_token_id,
                     &mining_rates_token_rates_config_instance
                 );
 
                 debug::info!("Checking inserted values");
-                let fetched_mining_rates_token_rates_config = <MiningRatesTokenConfigs<T>>::get(mining_rates_token_id);
+                let fetched_mining_rates_token_rates_config = <MiningRatesTokenSettings<T>>::get(mining_rates_token_id);
                 if let Some(_mining_rates_token_rates_config) = fetched_mining_rates_token_rates_config {
                     debug::info!("Inserted field token_token_mxc {:#?}", _mining_rates_token_rates_config.token_token_mxc);
                     debug::info!("Inserted field token_token_iota {:#?}", _mining_rates_token_rates_config.token_token_iota);
@@ -245,7 +245,7 @@ decl_module! {
                 }
             }
 
-            Self::deposit_event(RawEvent::MiningRatesTokenConfigSet(
+            Self::deposit_event(RawEvent::MiningRatesTokenSettingSet(
                 sender,
                 mining_rates_token_id,
                 token_token_mxc,
@@ -258,7 +258,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_mining_rates_token_owner(
         mining_rates_token_id: T::MiningRatesTokenIndex,
         sender: T::AccountId,
@@ -284,7 +284,7 @@ impl<T: Trait> Module<T> {
     ) -> Result<(), DispatchError> {
         match Self::mining_rates_token_rates_configs(mining_rates_token_id) {
             Some(_value) => Ok(()),
-            None => Err(DispatchError::Other("MiningRatesTokenConfig does not exist")),
+            None => Err(DispatchError::Other("MiningRatesTokenSetting does not exist")),
         }
     }
 
@@ -292,7 +292,7 @@ impl<T: Trait> Module<T> {
         mining_rates_token_id: T::MiningRatesTokenIndex,
     ) -> Result<(), DispatchError> {
         debug::info!("Checking if mining_rates_token_rates_config has a value that is defined");
-        let fetched_mining_rates_token_rates_config = <MiningRatesTokenConfigs<T>>::get(mining_rates_token_id);
+        let fetched_mining_rates_token_rates_config = <MiningRatesTokenSettings<T>>::get(mining_rates_token_id);
         if let Some(_value) = fetched_mining_rates_token_rates_config {
             debug::info!("Found value for mining_rates_token_rates_config");
             return Ok(());

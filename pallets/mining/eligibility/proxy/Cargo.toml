@@ -1,0 +1,46 @@
+[package]
+name = "mining-eligibility-proxy"
+version = "0.1.0"
+authors = ["Luke Schoen"]
+edition = "2018"
+
+[features]
+default = ['std']
+std = [
+    'codec/std',
+    'frame-support/std',
+    'frame-system/std',
+    'safe-mix/std',
+    'pallet-balances/std',
+    'pallet-randomness-collective-flip/std',
+    'pallet-transaction-payment/std',
+    'pallet-treasury/std',
+    'sp-core/std',
+    'sp-io/std',
+    'sp-runtime/std',
+    'sp-std/std',
+
+    'roaming-operators/std',
+    'account-set/std',
+    'membership-supernodes/std',
+]
+
+[dependencies]
+codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
+safe-mix = { version = '1.0.0', default-features = false }
+frame-support = { version = '3.0.0', default-features = false }
+frame-system = { version = '3.0.0', default-features = false }
+pallet-balances = { version = '3.0.0', default-features = false }
+pallet-randomness-collective-flip = { version = '3.0.0', default-features = false }
+pallet-transaction-payment = { version = '3.0.0', default-features = false }
+pallet-treasury = { version = '3.0.0', default-features = false }
+sp-core = { version = '3.0.0', default-features = false }
+sp-io = { version = '3.0.0', default-features = false }
+sp-runtime = { version = '3.0.0', default-features = false }
+sp-std = { version = '3.0.0', default-features = false }
+
+roaming-operators = { default-features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
+account-set = { path = '../../../../traits/account-set', default-features = false }
+membership-supernodes = { path = '../../../membership/supernodes', default-features = false }
+
+[dev-dependencies]

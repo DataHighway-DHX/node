@@ -38,8 +38,8 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + roaming_operators::Trait + roaming_networks::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config + roaming_operators::Config + roaming_networks::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingChargingPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
@@ -50,25 +50,25 @@ pub struct RoamingChargingPolicy(pub [u8; 16]);
 #[cfg_attr(feature = "std", derive(Debug))]
 #[derive(Encode, Decode, Default, Clone, PartialEq)]
 // Generic type parameters - Balance
-pub struct RoamingChargingPolicyConfig<U, V> {
+pub struct RoamingChargingPolicySetting<U, V> {
     pub policy_next_charging_at_block: U,
     pub policy_delay_after_billing_in_blocks: V,
 }
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::RoamingChargingPolicyIndex,
-        <T as roaming_networks::Trait>::RoamingNetworkIndex,
-        <T as roaming_operators::Trait>::RoamingOperatorIndex,
-        <T as frame_system::Trait>::BlockNumber,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::RoamingChargingPolicyIndex,
+        <T as roaming_networks::Config>::RoamingNetworkIndex,
+        <T as roaming_operators::Config>::RoamingOperatorIndex,
+        <T as frame_system::Config>::BlockNumber,
     {
         /// A roaming charging_policy is created. (owner, roaming_charging_policy_id)
         Created(AccountId, RoamingChargingPolicyIndex),
         /// A roaming charging_policy is transferred. (from, to, roaming_charging_policy_id)
         Transferred(AccountId, AccountId, RoamingChargingPolicyIndex),
         /// A roaming charging_policy configuration
-        RoamingChargingPolicyConfigSet(AccountId, RoamingChargingPolicyIndex, BlockNumber, BlockNumber),
+        RoamingChargingPolicySettingSet(AccountId, RoamingChargingPolicyIndex, BlockNumber, BlockNumber),
         /// A roaming charging_policy is assigned to a operator. (owner of network, roaming_charging_policy_id, roaming_operator_id)
         AssignedChargingPolicyToOperator(AccountId, RoamingChargingPolicyIndex, RoamingOperatorIndex),
         /// A roaming charging_policy is assigned to a network. (owner of network, roaming_charging_policy_id, roaming_network_id)
@@ -78,7 +78,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingChargingPolicies {
+    trait Store for Module<T: Config> as RoamingChargingPolicies {
         /// Stores all the roaming charging_policy, key is the roaming charging_policy id / index
         pub RoamingChargingPolicies get(fn roaming_charging_policy): map hasher(opaque_blake2_256) T::RoamingChargingPolicyIndex => Option<RoamingChargingPolicy>;
 
@@ -89,7 +89,7 @@ decl_storage! {
         pub RoamingChargingPolicyOwners get(fn roaming_charging_policy_owner): map hasher(opaque_blake2_256) T::RoamingChargingPolicyIndex => Option<T::AccountId>;
 
         /// Get roaming charging_policy config
-        pub RoamingChargingPolicyConfigs get(fn roaming_charging_policy_configs): map hasher(opaque_blake2_256) T::RoamingChargingPolicyIndex => Option<RoamingChargingPolicyConfig<T::BlockNumber, T::BlockNumber>>;
+        pub RoamingChargingPolicySettings get(fn roaming_charging_policy_settings): map hasher(opaque_blake2_256) T::RoamingChargingPolicyIndex => Option<RoamingChargingPolicySetting<T::BlockNumber, T::BlockNumber>>;
 
         /// Get roaming charging_policy network
         pub RoamingChargingPolicyNetwork get(fn roaming_charging_policy_network): map hasher(opaque_blake2_256) T::RoamingChargingPolicyIndex => Option<T::RoamingNetworkIndex>;
@@ -108,7 +108,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new roaming charging_policy
@@ -170,46 +170,46 @@ decl_module! {
 
             // Check if a roaming charging policy config already exists with the given roaming charging policy id
             // to determine whether to insert new or mutate existing.
-            if Self::has_value_for_charging_policy_config_index(roaming_charging_policy_id).is_ok() {
+            if Self::has_value_for_charging_policy_setting_index(roaming_charging_policy_id).is_ok() {
                 debug::info!("Mutating values");
-                <RoamingChargingPolicyConfigs<T>>::mutate(roaming_charging_policy_id, |policy_config| {
-                    if let Some(_policy_config) = policy_config {
+                <RoamingChargingPolicySettings<T>>::mutate(roaming_charging_policy_id, |policy_setting| {
+                    if let Some(_policy_setting) = policy_setting {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-                        _policy_config.policy_next_charging_at_block = policy_next_charging_at_block.clone();
-                        _policy_config.policy_delay_after_billing_in_blocks = policy_delay_after_billing_in_blocks.clone();
+                        _policy_setting.policy_next_charging_at_block = policy_next_charging_at_block.clone();
+                        _policy_setting.policy_delay_after_billing_in_blocks = policy_delay_after_billing_in_blocks.clone();
                     }
                 });
                 debug::info!("Checking mutated values");
-                let fetched_policy_config = <RoamingChargingPolicyConfigs<T>>::get(roaming_charging_policy_id);
-                if let Some(_policy_config) = fetched_policy_config {
-                    debug::info!("Latest field policy_next_charging_at_block {:#?}", _policy_config.policy_next_charging_at_block);
-                    debug::info!("Latest field policy_delay_after_billing_in_blocks {:#?}", _policy_config.policy_delay_after_billing_in_blocks);
+                let fetched_policy_setting = <RoamingChargingPolicySettings<T>>::get(roaming_charging_policy_id);
+                if let Some(_policy_setting) = fetched_policy_setting {
+                    debug::info!("Latest field policy_next_charging_at_block {:#?}", _policy_setting.policy_next_charging_at_block);
+                    debug::info!("Latest field policy_delay_after_billing_in_blocks {:#?}", _policy_setting.policy_delay_after_billing_in_blocks);
                 }
             } else {
                 debug::info!("Inserting values");
 
                 // Create a new roaming charging_policy config instance with the input params
-                let roaming_charging_policy_config_instance = RoamingChargingPolicyConfig {
+                let roaming_charging_policy_setting_instance = RoamingChargingPolicySetting {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     policy_next_charging_at_block: policy_next_charging_at_block.clone(),
                     policy_delay_after_billing_in_blocks: policy_delay_after_billing_in_blocks.clone()
                 };
 
-                <RoamingChargingPolicyConfigs<T>>::insert(
+                <RoamingChargingPolicySettings<T>>::insert(
                     roaming_charging_policy_id,
-                    &roaming_charging_policy_config_instance
+                    &roaming_charging_policy_setting_instance
                 );
 
                 debug::info!("Checking inserted values");
-                let fetched_policy_config = <RoamingChargingPolicyConfigs<T>>::get(roaming_charging_policy_id);
-                if let Some(_policy_config) = fetched_policy_config {
-                    debug::info!("Inserted field policy_next_charging_at_block {:#?}", _policy_config.policy_next_charging_at_block);
-                    debug::info!("Inserted field policy_delay_after_billing_in_blocks {:#?}", _policy_config.policy_delay_after_billing_in_blocks);
+                let fetched_policy_setting = <RoamingChargingPolicySettings<T>>::get(roaming_charging_policy_id);
+                if let Some(_policy_setting) = fetched_policy_setting {
+                    debug::info!("Inserted field policy_next_charging_at_block {:#?}", _policy_setting.policy_next_charging_at_block);
+                    debug::info!("Inserted field policy_delay_after_billing_in_blocks {:#?}", _policy_setting.policy_delay_after_billing_in_blocks);
                 }
             }
 
-            Self::deposit_event(RawEvent::RoamingChargingPolicyConfigSet(
+            Self::deposit_event(RawEvent::RoamingChargingPolicySettingSet(
                 sender,
                 roaming_charging_policy_id,
                 policy_next_charging_at_block,
@@ -291,7 +291,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_roaming_charging_policy_owner(
         roaming_charging_policy_id: T::RoamingChargingPolicyIndex,
         sender: T::AccountId,
@@ -341,21 +341,21 @@ impl<T: Trait> Module<T> {
         }
     }
 
-    pub fn exists_roaming_charging_policy_config(
+    pub fn exists_roaming_charging_policy_setting(
         roaming_charging_policy_id: T::RoamingChargingPolicyIndex,
     ) -> Result<(), DispatchError> {
-        match Self::roaming_charging_policy_configs(roaming_charging_policy_id) {
+        match Self::roaming_charging_policy_settings(roaming_charging_policy_id) {
             Some(_) => Ok(()),
-            None => Err(DispatchError::Other("RoamingChargingPolicyConfig does not exist")),
+            None => Err(DispatchError::Other("RoamingChargingPolicySetting does not exist")),
         }
     }
 
-    pub fn has_value_for_charging_policy_config_index(
+    pub fn has_value_for_charging_policy_setting_index(
         roaming_charging_policy_id: T::RoamingChargingPolicyIndex,
     ) -> Result<(), DispatchError> {
         debug::info!("Checking if charging policy config has a value that is defined");
-        let fetched_policy_config = <RoamingChargingPolicyConfigs<T>>::get(roaming_charging_policy_id);
-        if let Some(_) = fetched_policy_config {
+        let fetched_policy_setting = <RoamingChargingPolicySettings<T>>::get(roaming_charging_policy_id);
+        if let Some(_) = fetched_policy_setting {
             debug::info!("Found value for charging policy config");
             return Ok(());
         }
