@@ -91,7 +91,7 @@ pub struct MiningEligibilityProxyClaimRewardeeData<U, V, W, X> {
     pub proxy_claim_rewardee_account_id: U, // Rewardee miner associated with supernode (proxy) account id
     pub proxy_claim_reward_amount: V,       // Reward in DHX tokens for specific rewardee miner
     pub proxy_claim_start_date: W,          // Start date associated with mining claim
-    pub proxy_claim_end_date: X,            // Blocks after start date covered by claim requesting mining rewards
+    pub proxy_claim_end_date: X,            // End date covered by claim requesting mining rewards
 }
 
 #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
@@ -127,7 +127,7 @@ pub struct RewardDailyData<U, V, W, X, Y> {
 }
 
 type RewardeeData<T> =
-    MiningEligibilityProxyClaimRewardeeData<<T as frame_system::Trait>::AccountId, BalanceOf<T>, Date, Date>;
+    MiningEligibilityProxyClaimRewardeeData<<T as frame_system::Trait>::AccountId, BalanceOf<T>, u64, u64>;
 
 type RequestorData<T> = RewardRequestorData<
     <T as Trait>::MiningEligibilityProxyIndex,
@@ -151,7 +151,7 @@ type DailyData<T> = RewardDailyData<
     BalanceOf<T>,
     <T as frame_system::Trait>::AccountId,
     u32,
-    Date,
+    u64,
 >;
 
 decl_event!(
@@ -171,7 +171,7 @@ decl_event!(
             MiningEligibilityProxyIndex,
             BalanceOf,
             Vec<RewardeeData>,
-            Date,
+            u64,
         ),
         MiningEligibilityProxyRewardRequestorSet(
             AccountId,
@@ -182,13 +182,13 @@ decl_event!(
             TransferData,
         ),
         RewardsPerDaySet(
-            Date,
+            u64,
             DailyData,
         ),
         RewardsOfDayCalculated(RewardsOfDay),
         IsAMember(AccountId),
         /// Substrate-fixed total rewards for a given day has been updated.
-        TotalRewardsPerDayUpdated(BalanceOf, Date, AccountId),
+        TotalRewardsPerDayUpdated(BalanceOf, u64, AccountId),
     }
 );
 
@@ -264,18 +264,18 @@ decl_storage! {
 
         /// Substrate-fixed, value starts at 0 (additive identity)
         pub TotalRewardsPerDay get(fn total_rewards_daily):
-            map hasher(opaque_blake2_256) Date => Option<BalanceOf<T>>;
+            map hasher(opaque_blake2_256) Moment => Option<BalanceOf<T>>;
 
         /// Stores accumulation of daily_rewards_sent on a given date
         /// Note: Must store date/time value as the same for all rewards sent on same day
         pub RewardsPerDay get(fn rewards_daily):
-            map hasher(opaque_blake2_256) Date =>
+            map hasher(opaque_blake2_256) Moment =>
                 Option<Vec<RewardDailyData<
                     <T as Trait>::MiningEligibilityProxyIndex,
                     BalanceOf<T>,
                     <T as frame_system::Trait>::AccountId,
                     u32,
-                    Date,
+                    u64,
                 >>>;
     }
 }
@@ -438,6 +438,7 @@ decl_module! {
                             return Err(DispatchError::Other("Unable to convert Moment to u64 for requested_date"));
                         }
                         let sent_date = NaiveDateTime::from_timestamp(i64::try_from(requested_date_as_u64.clone() / 1000u64).unwrap(), 0).date();
+                        let sent_date_as_u64 = requested_date_as_u64.clone();
 
                         debug::info!("Timestamp sent Date: {:?}", sent_date);
                         // check if the start of the current day date/time entry exists as a key for `rewards_daily`
@@ -452,13 +453,13 @@ decl_module! {
                             total_amt: _proxy_claim_total_reward_amount.clone(),
                             proxy_claim_requestor_account_id: sender.clone(),
                             member_kind: recipient_member_kind.clone(),
-                            rewarded_date: sent_date.and_hms(0, 0, 0).timestamp(),
+                            rewarded_date: sent_date_as_u64,
                         };
 
                         debug::info!("Appended new rewards_per_day storage item");
 
                         <RewardsPerDay<T>>::append(
-                            sent_date.and_hms(0, 0, 0).timestamp(),
+                            sent_date_as_u64,
                             reward_amount_item.clone(),
                         );
 
@@ -466,28 +467,28 @@ decl_module! {
                         debug::info!("Appended new rewards_per_day in storage item: {:?}", reward_amount_item.clone());
 
                         let rewards_per_day_retrieved = <RewardsPerDay<T>>::get(
-                            sent_date.and_hms(0, 0, 0).timestamp(),
+                            sent_date_as_u64,
                         );
                         debug::info!("Retrieved new rewards_per_day storage item: {:?}", rewards_per_day_retrieved.clone());
 
                         // Update in storage the total rewards distributed so far for the current day
                         // so users may query state and have the latest calculated total returned.
-                        match Self::total_rewards_daily(sent_date.and_hms(0, 0, 0).timestamp()) {
+                        match Self::total_rewards_daily(sent_date_as_u64) {
                             None => {
                                 debug::info!("Creating new total rewards entry for a given day");
 
                                 <TotalRewardsPerDay<T>>::insert(
-                                    sent_date.and_hms(0, 0, 0).timestamp(),
+                                    sent_date_as_u64,
                                     _proxy_claim_total_reward_amount.clone(),
                                 );
 
-                                debug::info!("Created new total_rewards_daily at Date: {:?}",  sent_date.and_hms(0, 0, 0).timestamp());
+                                debug::info!("Created new total_rewards_daily at Date: {:?}",  sent_date_as_u64);
                                 debug::info!("Creating new total_rewards_daily at Date with Amount: {:?}", _proxy_claim_total_reward_amount.clone());
 
                                 // Emit event
                                 Self::deposit_event(RawEvent::TotalRewardsPerDayUpdated(
                                     _proxy_claim_total_reward_amount.clone(),
-                                    sent_date.and_hms(0, 0, 0).timestamp(),
+                                    sent_date_as_u64,
                                     sender.clone(),
                                 ));
                             },
@@ -499,7 +500,7 @@ decl_module! {
                                     old_total_rewards_for_day.checked_add(&_proxy_claim_total_reward_amount.clone()).ok_or(Error::<T>::Overflow)?;
                                 // Write the new value to storage
                                 <TotalRewardsPerDay<T>>::mutate(
-                                    sent_date.and_hms(0, 0, 0).timestamp(),
+                                    sent_date_as_u64,
                                     |reward_moment| {
                                         if let Some(_reward_moment) = reward_moment {
                                             *_reward_moment = new_total_rewards_for_day.clone();
@@ -515,7 +516,7 @@ decl_module! {
                                 // Emit event
                                 Self::deposit_event(RawEvent::TotalRewardsPerDayUpdated(
                                     new_total_rewards_for_day.clone(),
-                                    sent_date.and_hms(0, 0, 0).timestamp(),
+                                    sent_date_as_u64,
                                     sender.clone(),
                                 ));
                             }
@@ -545,7 +546,7 @@ decl_module! {
                             total_amt: reward_to_pay.clone(),
                             proxy_claim_requestor_account_id: sender.clone(),
                             member_kind: member_kind.clone(),
-                            rewarded_date: sent_date.and_hms(0, 0, 0).timestamp(),
+                            rewarded_date: sent_date_as_u64,
                         };
 
                         debug::info!("Setting the proxy eligibility reward daily");
@@ -553,7 +554,7 @@ decl_module! {
                         // FIXME - get the time right at the start of the day that `reward_daily_data`
                         // corresponds to and only store that.
                         Self::insert_mining_eligibility_proxy_reward_daily(
-                            &sent_date.and_hms(0, 0, 0).timestamp(),
+                            &sent_date_as_u64,
                             reward_daily_data.clone(),
                         );
 
@@ -660,8 +661,16 @@ impl<T: Trait> Module<T> {
 
             if let _proxy_claim_start_date = &rewardees_data.proxy_claim_start_date {
                 if let _proxy_claim_end_date = &rewardees_data.proxy_claim_end_date {
-                    let proxy_claim_start_date = NaiveDateTime::from_timestamp(*_proxy_claim_start_date, 0).date();
-                    let proxy_claim_end_date = NaiveDateTime::from_timestamp(*_proxy_claim_end_date, 0).date();
+                    let proxy_claim_start_date = NaiveDateTime::from_timestamp(
+                        i64::try_from(_proxy_claim_start_date.clone() / 1000u64).unwrap(),
+                        0
+                    ).date();
+
+                    let proxy_claim_end_date = NaiveDateTime::from_timestamp(
+                        i64::try_from(_proxy_claim_end_date.clone() / 1000u64).unwrap(),
+                        0
+                    ).date();
+
                     let claim_duration = proxy_claim_end_date.signed_duration_since(proxy_claim_start_date);
 
                     if proxy_claim_end_date < current_date {
@@ -800,12 +809,12 @@ impl<T: Trait> Module<T> {
         ));
     }
 
-    fn insert_mining_eligibility_proxy_reward_daily(date: &Date, reward_daily_data: DailyData<T>) {
+    fn insert_mining_eligibility_proxy_reward_daily(sent_date: &u64, reward_daily_data: DailyData<T>) {
         debug::info!("Appending reward daily data");
 
-        <RewardsPerDay<T>>::append(date.clone(), &reward_daily_data.clone());
+        <RewardsPerDay<T>>::append(sent_date.clone(), &reward_daily_data.clone());
 
-        Self::deposit_event(RawEvent::RewardsPerDaySet(date.clone(), reward_daily_data.clone()));
+        Self::deposit_event(RawEvent::RewardsPerDaySet(sent_date.clone(), reward_daily_data.clone()));
     }
 
     /// Set mining_eligibility_proxy_reward_request
@@ -937,7 +946,7 @@ impl<T: Trait> Module<T> {
             mining_eligibility_proxy_id,
             proxy_claim_total_reward_amount,
             proxy_claim_rewardees_data,
-            proxy_claim_date_redeemed.and_hms(0, 0, 0).timestamp(),
+            proxy_claim_timestamp_redeemed_as_u64,
         ));
     }
 }
