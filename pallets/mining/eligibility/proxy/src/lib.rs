@@ -4,6 +4,7 @@ use account_set::AccountSet;
 use chrono::{
     NaiveDate,
     NaiveDateTime,
+    Duration,
 };
 use codec::{
     Decode,
@@ -76,12 +77,12 @@ pub struct MiningEligibilityProxy(pub [u8; 16]);
 
 #[derive(Encode, Decode, Debug, Default, Clone, PartialEq)]
 #[cfg_attr(feature = "std", derive())]
-pub struct MiningEligibilityProxyRewardRequest<U, V, W, Y> {
+pub struct MiningEligibilityProxyRewardRequest<U, V, W, X> {
     pub proxy_claim_requestor_account_id: U, /* Supernode (proxy) account id requesting DHX rewards as proxy to
                                               * distribute to its miners */
     pub proxy_claim_total_reward_amount: V,
     pub proxy_claim_rewardees_data: W,
-    pub proxy_claim_timestamp_redeemed: Y,
+    pub proxy_claim_timestamp_redeemed: X,
 }
 
 #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
@@ -90,7 +91,7 @@ pub struct MiningEligibilityProxyClaimRewardeeData<U, V, W, X> {
     pub proxy_claim_rewardee_account_id: U, // Rewardee miner associated with supernode (proxy) account id
     pub proxy_claim_reward_amount: V,       // Reward in DHX tokens for specific rewardee miner
     pub proxy_claim_start_date: W,          // Start date associated with mining claim
-    pub proxy_claim_interval_days: X,       // Rewardee interval days
+    pub proxy_claim_end_date: X,            // Blocks after start date covered by claim requesting mining rewards
 }
 
 #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
@@ -100,7 +101,7 @@ pub struct RewardRequestorData<U, V, W, X, Y> {
     pub total_amt: V,
     pub rewardee_count: W,
     pub member_kind: X,
-    pub timestamp_requested: Y,
+    pub requested_date: Y,
 }
 
 #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
@@ -111,7 +112,7 @@ pub struct RewardTransferData<U, V, W, X, Y, Z> {
     pub total_amt: W,
     pub rewardee_count: X,
     pub member_kind: Y,
-    pub timestamp_sent: Z,
+    pub requested_date: Z,
 }
 
 #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
@@ -126,7 +127,7 @@ pub struct RewardDailyData<U, V, W, X, Y> {
 }
 
 type RewardeeData<T> =
-    MiningEligibilityProxyClaimRewardeeData<<T as frame_system::Trait>::AccountId, BalanceOf<T>, Date, u32>;
+    MiningEligibilityProxyClaimRewardeeData<<T as frame_system::Trait>::AccountId, BalanceOf<T>, Date, Date>;
 
 type RequestorData<T> = RewardRequestorData<
     <T as Trait>::MiningEligibilityProxyIndex,
@@ -345,7 +346,7 @@ decl_module! {
 
             // get the current block & current date/time
             let current_block = <frame_system::Module<T>>::block_number();
-            let timestamp_requested = <pallet_timestamp::Module<T>>::get();
+            let requested_date = <pallet_timestamp::Module<T>>::get();
 
             ensure!(Self::is_origin_whitelisted_member_supernodes(sender.clone()).is_ok(), "Only whitelisted Supernode account members may request proxy rewards");
 
@@ -401,7 +402,7 @@ decl_module! {
                             total_amt: reward_to_pay.clone(),
                             rewardee_count: rewardees_data_len.clone(),
                             member_kind: member_kind.clone(),
-                            timestamp_requested: timestamp_requested.clone(),
+                            requested_date: requested_date.clone(),
                         };
 
                         debug::info!("Setting the proxy eligibility reward requestor");
@@ -425,21 +426,18 @@ decl_module! {
 
                         debug::info!("Success paying the reward amount: {:?}", reward_to_pay.clone());
 
-                        let timestamp_sent = <pallet_timestamp::Module<T>>::get();
+                        let requested_date = <pallet_timestamp::Module<T>>::get();
 
                         // convert the current date/time to the start of the current day date/time.
                         // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
 
-                        let timestamp_sent_as_u64;
-                        if let Some(_timestamp_sent_as_u64) = TryInto::<u64>::try_into(timestamp_sent).ok() {
-                            timestamp_sent_as_u64 = _timestamp_sent_as_u64;
+                        let requested_date_as_u64;
+                        if let Some(_requested_date_as_u64) = TryInto::<u64>::try_into(requested_date).ok() {
+                            requested_date_as_u64 = _requested_date_as_u64;
                         } else {
-                            return Err(DispatchError::Other("Unable to convert Moment to u64 for timestamp_sent"));
+                            return Err(DispatchError::Other("Unable to convert Moment to u64 for requested_date"));
                         }
-                        let sent_date = NaiveDateTime::from_timestamp(i64::try_from(timestamp_sent_as_u64.clone() / 1000u64).unwrap(), 0).date();
-
-                        // let days_since_unix_epoch = U32F32::from_num(timestamp_sent_as_u64 / milliseconds_per_day);
-                        // let days_since_unix_epoch_as_u64 = days_since_unix_epoch.to_num::<u64>();
+                        let sent_date = NaiveDateTime::from_timestamp(i64::try_from(requested_date_as_u64.clone() / 1000u64).unwrap(), 0).date();
 
                         debug::info!("Timestamp sent Date: {:?}", sent_date);
                         // check if the start of the current day date/time entry exists as a key for `rewards_daily`
@@ -529,7 +527,7 @@ decl_module! {
                             total_amt: reward_to_pay.clone(),
                             rewardee_count: rewardees_data_len.clone(),
                             member_kind: member_kind.clone(),
-                            timestamp_sent: timestamp_sent.clone(),
+                            requested_date: requested_date.clone(),
                         };
 
                         debug::info!("Setting the proxy eligibility reward transfer");
@@ -559,7 +557,7 @@ decl_module! {
                             reward_daily_data.clone(),
                         );
 
-                        debug::info!("Inserted proxy_reward_daily for Moment: {:?}", timestamp_sent.clone());
+                        debug::info!("Inserted proxy_reward_daily for Moment: {:?}", requested_date.clone());
                         debug::info!("Inserted proxy_reward_daily for Moment with Data: {:?}", reward_daily_data.clone());
 
                     }
@@ -653,7 +651,7 @@ impl<T: Trait> Module<T> {
         let mut rewardees_data_count = 0;
         let mut is_valid = 1;
         // FIXME - use cooldown in config runtime or move to abstract constant instead of hard-code here
-        let MIN_COOLDOWN_PERIOD_DAYS: u32 = 7;
+        let MIN_COOLDOWN_PERIOD_DAYS: Duration = Duration::days(7);
 
         // Iterate through all rewardees data
         for (index, rewardees_data) in _proxy_claim_rewardees_data.iter().enumerate() {
@@ -661,18 +659,22 @@ impl<T: Trait> Module<T> {
             debug::info!("rewardees_data_count {:#?}", rewardees_data_count);
 
             if let _proxy_claim_start_date = &rewardees_data.proxy_claim_start_date {
-                let proxy_claim_start_date = NaiveDateTime::from_timestamp(*_proxy_claim_start_date, 0).date();
-                let proxy_claim_interval_days = rewardees_data.proxy_claim_interval_days;
-                if proxy_claim_start_date < current_date {
-                    debug::info!("invalid _proxy_claim_start_date: {:#?}", proxy_claim_start_date);
-                    is_valid == 0;
-                    break;
-                } else if proxy_claim_interval_days < MIN_COOLDOWN_PERIOD_DAYS {
-                    debug::info!("unable to claim reward for lock duration less than cooldown period");
-                    is_valid == 0;
-                    break;
-                } else {
-                    continue;
+                if let _proxy_claim_end_date = &rewardees_data.proxy_claim_end_date {
+                    let proxy_claim_start_date = NaiveDateTime::from_timestamp(*_proxy_claim_start_date, 0).date();
+                    let proxy_claim_end_date = NaiveDateTime::from_timestamp(*_proxy_claim_end_date, 0).date();
+                    let claim_duration = proxy_claim_end_date.signed_duration_since(proxy_claim_start_date);
+
+                    if proxy_claim_end_date < current_date {
+                        debug::info!("invalid proxy_claim_end_date must be prior to current_date: {:#?}", proxy_claim_end_date);
+                        is_valid == 0;
+                        break;
+                    } else if claim_duration > MIN_COOLDOWN_PERIOD_DAYS {
+                        debug::info!("unable to claim reward for lock duration less than cooldown period");
+                        is_valid == 0;
+                        break;
+                    } else {
+                        continue;
+                    }
                 }
             }
         }
