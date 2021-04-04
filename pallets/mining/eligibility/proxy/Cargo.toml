@@ -21,7 +21,6 @@ std = [
     'sp-io/std',
     'sp-runtime/std',
     'sp-std/std',
-    'substrate-fixed/std',
 
     'roaming-operators/std',
     'account-set/std',
@@ -43,7 +42,6 @@ sp-core = { version = '2.0.0', default_features = false }
 sp-io = { version = '2.0.0', default_features = false }
 sp-runtime = { version = '2.0.0', default_features = false }
 sp-std = { version = '2.0.0', default_features = false }
-substrate-fixed = { git = "https://github.com/encointer/substrate-fixed", version = "0.5.6" }
 chrono = { version = '0.4.19', default_features = false }
 
 roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }

@@ -50,7 +50,6 @@ use sp_std::{
     },
     prelude::*,
 };
-use substrate_fixed::types::U32F32;
 
 /// The module's configuration trait.
 pub trait Trait:
