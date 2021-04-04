@@ -629,10 +629,10 @@ mod tests {
             let rewardee_data = MiningEligibilityProxyClaimRewardeeData {
                 proxy_claim_rewardee_account_id: 3,
                 proxy_claim_reward_amount: 1000,
-                proxy_claim_start_date: 946681200000u64, // 1.1.2000
-                proxy_claim_end_date: 947113200000u64, // 6.1.2000
+                proxy_claim_start_date: NaiveDate::from_ymd(2000, 1, 1).and_hms(0, 0, 0).timestamp(),
+                proxy_claim_end_date: NaiveDate::from_ymd(2000, 1, 6).and_hms(0, 0, 0).timestamp(),
             };
-            let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, u64, u64>> =
+            let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, i64, i64>> =
                 Vec::new();
             proxy_claim_rewardees_data.push(rewardee_data);
 
@@ -798,9 +798,7 @@ mod tests {
             ));
 
             if let Some(rewards_daily_data) = MiningEligibilityProxyTestModule::rewards_daily(
-                // NaiveDate::from_ymd(2021, 03, 27).and_hms(0, 0, 0).timestamp(),
-                1616811000000u64, // 27.3.2021 @ 2am
-
+                NaiveDate::from_ymd(2021, 03, 27).and_hms(0, 0, 0).timestamp(),
             ) {
                 // Check that data about the proxy claim reward daily data has been stored.
                 // Check latest transfer added to vector for requestor AccountId 0
@@ -816,8 +814,7 @@ mod tests {
                         total_amt: 3000u64,
                         proxy_claim_requestor_account_id: 2u64,
                         member_kind: 1u32,
-                        // rewarded_date: NaiveDate::from_ymd(2021, 03, 27).and_hms(0, 0, 0).timestamp(),
-                        rewarded_date: 1616811000000u64, // 27.3.2021 @ 2am
+                        rewarded_date: NaiveDate::from_ymd(2021, 03, 27).and_hms(0, 0, 0).timestamp(),
                     })
                 );
             } else {
@@ -864,8 +861,7 @@ mod tests {
             // according to https://currentmillis.com/, so that's the key we need to lookup results with
             assert_eq!(
                 MiningEligibilityProxyTestModule::total_rewards_daily(
-                    // NaiveDate::from_ymd(2021, 03, 26).and_hms(0, 0, 0).timestamp(),
-                    1616724600000u64, // 26.3.2021 @ 2am
+                    NaiveDate::from_ymd(2021, 03, 26).and_hms(0, 0, 0).timestamp(),
                 ),
                 Some(1000),
             );
@@ -875,8 +871,7 @@ mod tests {
             // according to https://currentmillis.com/, so that's the key we need to lookup results with
             assert_eq!(
                 MiningEligibilityProxyTestModule::total_rewards_daily(
-                    // NaiveDate::from_ymd(2021, 03, 27).and_hms(0, 0, 0).timestamp(),
-                    1616811000000u64, // 27.3.2021 @ 2am
+                    NaiveDate::from_ymd(2021, 03, 27).and_hms(0, 0, 0).timestamp(),
                 ),
                 Some(3000u64),
             );
@@ -887,8 +882,7 @@ mod tests {
             // this should return None, since the timestamp was not used
             assert_eq!(
                 MiningEligibilityProxyTestModule::total_rewards_daily(
-                    // NaiveDate::from_ymd(2021, 01, 15).and_hms(0, 0, 0).timestamp(),
-                    947890800000u64, // 15.1.2021 @ 2am
+                    NaiveDate::from_ymd(2021, 01, 15).and_hms(0, 0, 0).timestamp(),
                 ),
                 None,
             );

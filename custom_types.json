@@ -1,4 +1,5 @@
 {
+  "Date": "i64",
   "Keys": "SessionKeys2",
   "Address": "AccountId",
   "LookupSource": "AccountId",
@@ -192,8 +193,8 @@
   "RewardeeData": {
     "proxy_claim_rewardee_account_id": "AccountId",
     "proxy_claim_reward_amount": "u32",
-    "proxy_claim_start_block": "u64",
-    "proxy_claim_interval_blocks": "u64"
+    "proxy_claim_start_date": "Date",
+    "proxy_claim_end_date": "Date"
   },
   "MiningClaimsToken": "[u8; 16]",
   "MiningClaimsTokenIndex": "u64",
