@@ -1,9 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use substrate_fixed::types::{
-	U32F32
-};
 use account_set::AccountSet;
+use chrono::{
+    NaiveDate,
+    NaiveDateTime,
+};
 use codec::{
     Decode,
     Encode,
@@ -24,29 +25,39 @@ use frame_support::{
     Parameter,
 };
 use frame_system::ensure_signed;
+use module_primitives::{
+    constants::time::MILLISECS_PER_BLOCK,
+    types::*,
+};
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
+    print,
     traits::{
         AtLeast32Bit,
         Bounded,
         CheckedAdd,
         Member,
         One,
+        Printable,
     },
     DispatchError,
 };
 use sp_std::{
-    convert::TryInto,
+    convert::{
+        TryFrom,
+        TryInto,
+    },
     prelude::*,
 };
-use module_primitives::{
-    constants::time::MILLISECS_PER_BLOCK,
-	types::*,
-};
+use substrate_fixed::types::U32F32;
 
 /// The module's configuration trait.
 pub trait Trait:
-    frame_system::Trait + roaming_operators::Trait + pallet_treasury::Trait + pallet_balances::Trait + pallet_timestamp::Trait
+    frame_system::Trait
+    + roaming_operators::Trait
+    + pallet_treasury::Trait
+    + pallet_balances::Trait
+    + pallet_timestamp::Trait
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type Currency: Currency<Self::AccountId>;
@@ -57,6 +68,7 @@ pub trait Trait:
 }
 
 type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+type Date = i64;
 
 #[derive(Encode, Decode, Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive())]
@@ -64,12 +76,11 @@ pub struct MiningEligibilityProxy(pub [u8; 16]);
 
 #[derive(Encode, Decode, Debug, Default, Clone, PartialEq)]
 #[cfg_attr(feature = "std", derive())]
-pub struct MiningEligibilityProxyRewardRequest<U, V, W, X, Y> {
+pub struct MiningEligibilityProxyRewardRequest<U, V, W, Y> {
     pub proxy_claim_requestor_account_id: U, /* Supernode (proxy) account id requesting DHX rewards as proxy to
                                               * distribute to its miners */
     pub proxy_claim_total_reward_amount: V,
     pub proxy_claim_rewardees_data: W,
-    pub proxy_claim_block_redeemed: X,
     pub proxy_claim_timestamp_redeemed: Y,
 }
 
@@ -78,9 +89,8 @@ pub struct MiningEligibilityProxyRewardRequest<U, V, W, X, Y> {
 pub struct MiningEligibilityProxyClaimRewardeeData<U, V, W, X> {
     pub proxy_claim_rewardee_account_id: U, // Rewardee miner associated with supernode (proxy) account id
     pub proxy_claim_reward_amount: V,       // Reward in DHX tokens for specific rewardee miner
-    pub proxy_claim_start_block: W,         // Start block associated with mining claim
-    pub proxy_claim_interval_blocks: X,     /* Blocks after the start block that the mining claim requesting rewards
-                                             * covers */
+    pub proxy_claim_start_date: W,          // Start date associated with mining claim
+    pub proxy_claim_interval_days: X,       // Rewardee interval days
 }
 
 #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
@@ -112,22 +122,18 @@ pub struct RewardDailyData<U, V, W, X, Y> {
     // Assume that the requestor is also the recipient
     pub proxy_claim_requestor_account_id: W,
     pub member_kind: X,
-    pub rewarded_block: Y,
+    pub rewarded_date: Y,
 }
 
-type RewardeeData<T> = MiningEligibilityProxyClaimRewardeeData<
-    <T as frame_system::Trait>::AccountId,
-    BalanceOf<T>,
-    <T as frame_system::Trait>::BlockNumber,
-    <T as frame_system::Trait>::BlockNumber,
->;
+type RewardeeData<T> =
+    MiningEligibilityProxyClaimRewardeeData<<T as frame_system::Trait>::AccountId, BalanceOf<T>, Date, u32>;
 
 type RequestorData<T> = RewardRequestorData<
     <T as Trait>::MiningEligibilityProxyIndex,
     BalanceOf<T>,
     u64,
     u32,
-    <T as pallet_timestamp::Trait>::Moment
+    <T as pallet_timestamp::Trait>::Moment,
 >;
 
 type TransferData<T> = RewardTransferData<
@@ -144,7 +150,7 @@ type DailyData<T> = RewardDailyData<
     BalanceOf<T>,
     <T as frame_system::Trait>::AccountId,
     u32,
-    <T as frame_system::Trait>::BlockNumber,
+    Date,
 >;
 
 decl_event!(
@@ -152,9 +158,7 @@ decl_event!(
         AccountId = <T as frame_system::Trait>::AccountId,
         <T as Trait>::MiningEligibilityProxyIndex,
         BalanceOf = BalanceOf<T>,
-        <T as frame_system::Trait>::BlockNumber,
         RewardeeData = RewardeeData<T>,
-        <T as pallet_timestamp::Trait>::Moment,
         RequestorData = RequestorData<T>,
         TransferData = TransferData<T>,
         DailyData = DailyData<T>,
@@ -166,8 +170,7 @@ decl_event!(
             MiningEligibilityProxyIndex,
             BalanceOf,
             Vec<RewardeeData>,
-            BlockNumber,
-            Moment,
+            Date,
         ),
         MiningEligibilityProxyRewardRequestorSet(
             AccountId,
@@ -178,22 +181,22 @@ decl_event!(
             TransferData,
         ),
         RewardsPerDaySet(
-            Moment,
+            Date,
             DailyData,
         ),
         RewardsOfDayCalculated(RewardsOfDay),
         IsAMember(AccountId),
         /// Substrate-fixed total rewards for a given day has been updated.
-		TotalRewardsPerDayUpdated(BalanceOf, Moment, BlockNumber, AccountId),
+        TotalRewardsPerDayUpdated(BalanceOf, Date, AccountId),
     }
 );
 
 decl_error! {
-	pub enum Error for Module<T: Trait> {
-		NoneValue,
-		/// Some math operation overflowed
-		Overflow,
-	}
+    pub enum Error for Module<T: Trait> {
+        NoneValue,
+        /// Some math operation overflowed
+        Overflow,
+    }
 }
 
 // This module's storage items.
@@ -214,7 +217,6 @@ decl_storage! {
                 T::AccountId,
                 BalanceOf<T>,
                 Vec<RewardeeData<T>>, // TODO - change to store MiningEligibilityProxyRewardeeIndex that is created to store then instead
-                T::BlockNumber,
                 <T as pallet_timestamp::Trait>::Moment,
             >>;
 
@@ -259,33 +261,21 @@ decl_storage! {
                     <T as pallet_timestamp::Trait>::Moment,
                 >>>;
 
-		/// Substrate-fixed, value starts at 0 (additive identity)
-		pub TotalRewardsPerDay get(fn total_rewards_daily):
-            map hasher(opaque_blake2_256) T::Moment => Option<BalanceOf<T>>;
+        /// Substrate-fixed, value starts at 0 (additive identity)
+        pub TotalRewardsPerDay get(fn total_rewards_daily):
+            map hasher(opaque_blake2_256) Date => Option<BalanceOf<T>>;
 
         /// Stores accumulation of daily_rewards_sent on a given date
         /// Note: Must store date/time value as the same for all rewards sent on same day
         pub RewardsPerDay get(fn rewards_daily):
-            map hasher(opaque_blake2_256) T::Moment =>
+            map hasher(opaque_blake2_256) Date =>
                 Option<Vec<RewardDailyData<
                     <T as Trait>::MiningEligibilityProxyIndex,
                     BalanceOf<T>,
                     <T as frame_system::Trait>::AccountId,
                     u32,
-                    <T as frame_system::Trait>::BlockNumber,
+                    Date,
                 >>>;
-
-		/// Returns daily reward distribution block number corresponding to a given date/time
-		/// This is to simplify querying storage.
-		pub BlockRewardedForDay get(fn block_rewarded_for_day):
-			map hasher(opaque_blake2_256) T::Moment =>
-				Option<<T as frame_system::Trait>::BlockNumber>;
-
-		/// Returns date/time corresponding to a given daily reward distribution block number
-		/// This is to simplify querying storage.
-		pub DayRewardedForBlock get(fn day_rewarded_for_block):
-			map hasher(opaque_blake2_256) <T as frame_system::Trait>::BlockNumber =>
-				Option<T::Moment>;
     }
 }
 
@@ -353,9 +343,9 @@ decl_module! {
         ) -> Result<(), DispatchError> {
             let sender = ensure_signed(origin)?;
 
-			// get the current block & current date/time
-			let current_block = <frame_system::Module<T>>::block_number();
-			let timestamp_requested = <pallet_timestamp::Module<T>>::get();
+            // get the current block & current date/time
+            let current_block = <frame_system::Module<T>>::block_number();
+            let timestamp_requested = <pallet_timestamp::Module<T>>::get();
 
             ensure!(Self::is_origin_whitelisted_member_supernodes(sender.clone()).is_ok(), "Only whitelisted Supernode account members may request proxy rewards");
 
@@ -382,7 +372,7 @@ decl_module! {
 
             if let Some(rewardees_data) = _proxy_claim_rewardees_data {
                 // TODO
-                // Self::is_valid_reward_data(rewardees_data.clone());
+                Self::is_valid_reward_data(rewardees_data.clone());
 
                 debug::info!("Transferring claim to proxy Supernode");
                 // Distribute the reward to the account that has locked the funds
@@ -439,7 +429,6 @@ decl_module! {
 
                         // convert the current date/time to the start of the current day date/time.
                         // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
-                        let milliseconds_per_day = 86400000u64;
 
                         let timestamp_sent_as_u64;
                         if let Some(_timestamp_sent_as_u64) = TryInto::<u64>::try_into(timestamp_sent).ok() {
@@ -447,78 +436,12 @@ decl_module! {
                         } else {
                             return Err(DispatchError::Other("Unable to convert Moment to u64 for timestamp_sent"));
                         }
+                        let sent_date = NaiveDateTime::from_timestamp(i64::try_from(timestamp_sent_as_u64.clone() / 1000u64).unwrap(), 0).date();
 
-                        let _current_block_as_u64_try = TryInto::<u64>::try_into(current_block).ok();
-                        let current_block_as_u64;
-                        if let Some(_current_block_as_u64) = _current_block_as_u64_try {
-                            current_block_as_u64 = _current_block_as_u64;
-                        } else {
-                            return Err(DispatchError::Other("Unable to convert current_block BlockNumber to u64"));
-                        }
-
-                        let timestamp_sent_at_day_start_as_u64 = timestamp_sent_as_u64.clone() -(current_block_as_u64.clone() * MILLISECS_PER_BLOCK.clone());
-
-                        let timestamp_sent_at_day_start_as_moment;
-                        if let Some(_timestamp_sent_at_day_start_as_moment) =
-                            TryInto::<<T as pallet_timestamp::Trait>::Moment>::try_into(
-                                timestamp_sent_at_day_start_as_u64
-                            ).ok() {
-
-                            timestamp_sent_at_day_start_as_moment = _timestamp_sent_at_day_start_as_moment;
-                        } else {
-                            return Err(DispatchError::Other("Unable to convert u64 to Moment"));
-                        }
-                        debug::info!("Timestamp sent start day as Moment: {:?}",      timestamp_sent_at_day_start_as_moment.clone());
                         // let days_since_unix_epoch = U32F32::from_num(timestamp_sent_as_u64 / milliseconds_per_day);
                         // let days_since_unix_epoch_as_u64 = days_since_unix_epoch.to_num::<u64>();
 
-                        let milliseconds_since_genesis_as_u64 = U32F32::from_num(current_block_as_u64 * MILLISECS_PER_BLOCK);
-                        let milliseconds_since_epoch_as_u64 = timestamp_sent_as_u64;
-                        let mut days_since_genesis = U32F32::from_num(0);
-                        if (milliseconds_since_genesis_as_u64 >= milliseconds_per_day) {
-                            days_since_genesis = U32F32::from_num(milliseconds_since_genesis_as_u64 / milliseconds_per_day);
-                        }
-                        let days_since_genesis_as_u64 = days_since_genesis.to_num::<u64>();
-                        debug::info!("Days since genesis u64: {:?}", days_since_genesis_as_u64.clone());
-                        let days_since_genesis_ceil = days_since_genesis.ceil().to_num::<u64>();
-                        debug::info!("Days since genesis u64 ceil: {:?}", days_since_genesis_ceil.clone());
-                        // Initialise to start of day 1 since genesis since otherwise overflow when subtract
-                        let mut days_since_genesis_round_down = 0u64;
-                        if days_since_genesis_ceil >= 1 {
-                            days_since_genesis_round_down = days_since_genesis_ceil - 1u64;
-                        }
-                        // convert that value in days back to a timestamp value in milliseconds to
-                        // correspond to the start of the day
-                        let milliseconds_since_genesis_at_day_start = days_since_genesis_round_down * milliseconds_per_day;
-
-                        // convert the current block number to the block number at the start of the current day.
-                        assert!(milliseconds_since_genesis_at_day_start % MILLISECS_PER_BLOCK == 0);
-                        let mut block_at_day_start = 0u64;
-                        if milliseconds_since_genesis_at_day_start >= MILLISECS_PER_BLOCK {
-                            block_at_day_start = milliseconds_since_genesis_at_day_start / MILLISECS_PER_BLOCK
-                        }
-
-                        let block_at_day_start_as_blocknumber;
-                        if let Some(_block_at_day_start_as_blocknumber) =
-                            TryInto::<<T as frame_system::Trait>::BlockNumber>::try_into(
-                                block_at_day_start
-                            ).ok() {
-
-                            block_at_day_start_as_blocknumber = _block_at_day_start_as_blocknumber;
-                        } else {
-                            return Err(DispatchError::Other("Unable to convert u64 to BlockNumber"));
-                        }
-
-                        debug::info!("Block at day start as u64: {:?}", block_at_day_start.clone());
-                        debug::info!("Block at day start as BlockNumber: {:?}", block_at_day_start_as_blocknumber.clone());
-
-                        debug::info!("Timestamp sent Moment: {:?}", timestamp_sent.clone());
-                        debug::info!("Timestamp sent u64: {:?}", timestamp_sent_as_u64.clone());
-                        debug::info!("Days since genesis U32F32: {:?}", days_since_genesis.clone());
-                        debug::info!("Days since genesis u64: {:?}", days_since_genesis_as_u64.clone());
-                        debug::info!("Days since genesis round up as u64: {:?}", days_since_genesis_ceil.clone());
-                        debug::info!("Days since genesis round down by 1 day as u64: {:?}", days_since_genesis_round_down.clone());
-
+                        debug::info!("Timestamp sent Date: {:?}", sent_date);
                         // check if the start of the current day date/time entry exists as a key for `rewards_daily`
                         //
                         // if so, retrieve the latest `rewards_daily` data stored for the start of that day date/time
@@ -531,115 +454,42 @@ decl_module! {
                             total_amt: _proxy_claim_total_reward_amount.clone(),
                             proxy_claim_requestor_account_id: sender.clone(),
                             member_kind: recipient_member_kind.clone(),
-                            rewarded_block: block_at_day_start_as_blocknumber.clone(),
+                            rewarded_date: sent_date.and_hms(0, 0, 0).timestamp(),
                         };
-
-                        let milliseconds_since_genesis_at_day_start_as_moment;
-                        if let Some(_milliseconds_since_genesis_at_day_start) =
-                            TryInto::<<T as pallet_timestamp::Trait>::Moment>::try_into(
-                                milliseconds_since_genesis_at_day_start
-                            ).ok() {
-
-                            milliseconds_since_genesis_at_day_start_as_moment = _milliseconds_since_genesis_at_day_start;
-                        } else {
-                            return Err(DispatchError::Other("Unable to convert u64 to Moment"));
-                        }
 
                         debug::info!("Appended new rewards_per_day storage item");
 
                         <RewardsPerDay<T>>::append(
-                            timestamp_sent_at_day_start_as_moment.clone(),
+                            sent_date.and_hms(0, 0, 0).timestamp(),
                             reward_amount_item.clone(),
                         );
 
-                        debug::info!("Appended new rewards_per_day at Moment: {:?}", timestamp_sent_at_day_start_as_moment.clone());
+                        debug::info!("Appended new rewards_per_day at Date: {:?}", sent_date);
                         debug::info!("Appended new rewards_per_day in storage item: {:?}", reward_amount_item.clone());
 
                         let rewards_per_day_retrieved = <RewardsPerDay<T>>::get(
-                            timestamp_sent_at_day_start_as_moment.clone(),
+                            sent_date.and_hms(0, 0, 0).timestamp(),
                         );
                         debug::info!("Retrieved new rewards_per_day storage item: {:?}", rewards_per_day_retrieved.clone());
 
-                        // add start of the current day date/time as a key for `block_rewarded_for_day`,
-                        // with the block number corresponding to the start of the current day as the value
-                        match Self::block_rewarded_for_day(timestamp_sent_at_day_start_as_moment.clone()) {
-                            None => {
-                                debug::info!("Creating new mapping from timestamp at start of day to block number at start of day");
-
-                                <BlockRewardedForDay<T>>::insert(
-                                    timestamp_sent_at_day_start_as_moment.clone(),
-                                    block_at_day_start_as_blocknumber.clone(),
-                                );
-
-                                debug::info!("Created new block_rewarded_for_day at Moment: {:?}",  timestamp_sent_at_day_start_as_moment.clone());
-                                debug::info!("Creating new block_rewarded_for_day at Moment with BlockNumber: {:?}", block_at_day_start_as_blocknumber.clone());
-                            },
-                            Some(_) => {
-                                debug::info!("BlockRewardedForDay entry mapping already exists. Updating...");
-
-                                <BlockRewardedForDay<T>>::mutate(
-                                    timestamp_sent_at_day_start_as_moment.clone(),
-                                    |reward_block| {
-                                        if let Some(_reward_block) = reward_block {
-                                            *_reward_block = block_at_day_start_as_blocknumber.clone();
-                                        }
-
-                                        debug::info!("Updated block_rewarded_for_day at Moment: {:?}",  timestamp_sent_at_day_start_as_moment.clone());
-                                        debug::info!("Updated block_rewarded_for_day at Moment with BlockNumber: {:?}", block_at_day_start_as_blocknumber.clone());
-                                    },
-                                );
-                            }
-                        }
-
-                        // repeat for `day_rewarded_for_block`
-                        match Self::day_rewarded_for_block(block_at_day_start_as_blocknumber.clone()) {
-                            None => {
-                                debug::info!("Creating new mapping from block number at start of day to timestamp at start of day");
-
-                                <DayRewardedForBlock<T>>::insert(
-                                    block_at_day_start_as_blocknumber.clone(),
-                                    timestamp_sent_at_day_start_as_moment.clone(),
-                                );
-
-                                debug::info!("Created new day_rewarded_for_block at BlockNumber: {:?}",  block_at_day_start_as_blocknumber.clone());
-                                debug::info!("Creating new day_rewarded_for_block at BlockNumber with Moment: {:?}", timestamp_sent_at_day_start_as_moment.clone());
-                            },
-                            Some(_) => {
-                                debug::info!("DayRewardedForBlock entry mapping already exists. Updating...");
-
-                                <DayRewardedForBlock<T>>::mutate(
-                                    block_at_day_start_as_blocknumber.clone(),
-                                    |reward_moment| {
-                                        if let Some(_reward_moment) = reward_moment {
-                                            *_reward_moment = timestamp_sent_at_day_start_as_moment.clone();
-                                        }
-
-                                        debug::info!("Updated day_rewarded_for_block at BlockNumber: {:?}",  block_at_day_start_as_blocknumber.clone());
-                                        debug::info!("Updated day_rewarded_for_block at BlockNumber with Moment: {:?}", timestamp_sent_at_day_start_as_moment.clone());
-                                    },
-                                );
-                            }
-                        }
-
                         // Update in storage the total rewards distributed so far for the current day
                         // so users may query state and have the latest calculated total returned.
-                        match Self::total_rewards_daily(timestamp_sent_at_day_start_as_moment.clone()) {
+                        match Self::total_rewards_daily(sent_date.and_hms(0, 0, 0).timestamp()) {
                             None => {
                                 debug::info!("Creating new total rewards entry for a given day");
 
                                 <TotalRewardsPerDay<T>>::insert(
-                                    timestamp_sent_at_day_start_as_moment.clone(),
+                                    sent_date.and_hms(0, 0, 0).timestamp(),
                                     _proxy_claim_total_reward_amount.clone(),
                                 );
 
-                                debug::info!("Created new total_rewards_daily at Moment: {:?}",  timestamp_sent_at_day_start_as_moment.clone());
-                                debug::info!("Creating new total_rewards_daily at Moment with Amount: {:?}", _proxy_claim_total_reward_amount.clone());
+                                debug::info!("Created new total_rewards_daily at Date: {:?}",  sent_date.and_hms(0, 0, 0).timestamp());
+                                debug::info!("Creating new total_rewards_daily at Date with Amount: {:?}", _proxy_claim_total_reward_amount.clone());
 
                                 // Emit event
                                 Self::deposit_event(RawEvent::TotalRewardsPerDayUpdated(
                                     _proxy_claim_total_reward_amount.clone(),
-                                    timestamp_sent_at_day_start_as_moment.clone(),
-                                    block_at_day_start_as_blocknumber.clone(),
+                                    sent_date.and_hms(0, 0, 0).timestamp(),
                                     sender.clone(),
                                 ));
                             },
@@ -651,24 +501,23 @@ decl_module! {
                                     old_total_rewards_for_day.checked_add(&_proxy_claim_total_reward_amount.clone()).ok_or(Error::<T>::Overflow)?;
                                 // Write the new value to storage
                                 <TotalRewardsPerDay<T>>::mutate(
-                                    timestamp_sent_at_day_start_as_moment.clone(),
+                                    sent_date.and_hms(0, 0, 0).timestamp(),
                                     |reward_moment| {
                                         if let Some(_reward_moment) = reward_moment {
                                             *_reward_moment = new_total_rewards_for_day.clone();
                                         }
 
-                                        debug::info!("Updated total_rewards_daily at Moment: {:?}",  timestamp_sent_at_day_start_as_moment.clone());
-                                        debug::info!("Updated total_rewards_daily at Moment. Existing Amount: {:?}", old_total_rewards_for_day.clone());
-                                        debug::info!("Updated total_rewards_daily at Moment. Reward Amount: {:?}", _proxy_claim_total_reward_amount.clone());
-                                        debug::info!("Updated total_rewards_daily at Moment. New Amount: {:?}", new_total_rewards_for_day.clone());
+                                        debug::info!("Updated total_rewards_daily at Date: {:?}",  sent_date);
+                                        debug::info!("Updated total_rewards_daily at Date. Existing Amount: {:?}", old_total_rewards_for_day.clone());
+                                        debug::info!("Updated total_rewards_daily at Date. Reward Amount: {:?}", _proxy_claim_total_reward_amount.clone());
+                                        debug::info!("Updated total_rewards_daily at Date. New Amount: {:?}", new_total_rewards_for_day.clone());
                                     },
                                 );
 
                                 // Emit event
                                 Self::deposit_event(RawEvent::TotalRewardsPerDayUpdated(
                                     new_total_rewards_for_day.clone(),
-                                    timestamp_sent_at_day_start_as_moment.clone(),
-                                    block_at_day_start_as_blocknumber.clone(),
+                                    sent_date.and_hms(0, 0, 0).timestamp(),
                                     sender.clone(),
                                 ));
                             }
@@ -698,7 +547,7 @@ decl_module! {
                             total_amt: reward_to_pay.clone(),
                             proxy_claim_requestor_account_id: sender.clone(),
                             member_kind: member_kind.clone(),
-                            rewarded_block: current_block.clone(),
+                            rewarded_date: sent_date.and_hms(0, 0, 0).timestamp(),
                         };
 
                         debug::info!("Setting the proxy eligibility reward daily");
@@ -706,7 +555,7 @@ decl_module! {
                         // FIXME - get the time right at the start of the day that `reward_daily_data`
                         // corresponds to and only store that.
                         Self::insert_mining_eligibility_proxy_reward_daily(
-                            &timestamp_sent.clone(),
+                            &sent_date.and_hms(0, 0, 0).timestamp(),
                             reward_daily_data.clone(),
                         );
 
@@ -787,31 +636,43 @@ impl<T: Trait> Module<T> {
 
     pub fn is_valid_reward_data(_proxy_claim_rewardees_data: Vec<RewardeeData<T>>) -> Result<(), DispatchError> {
         ensure!(_proxy_claim_rewardees_data.len() > 0, "Rewardees data is invalid as no elements");
-        let current_block = <frame_system::Module<T>>::block_number();
+        let current_timestamp = <pallet_timestamp::Module<T>>::get();
+        // convert the current date/time to the start of the current day date/time.
+        // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
+
+        let current_timestamp_as_u64;
+        if let Some(_current_timestamp_as_u64) = TryInto::<u64>::try_into(current_timestamp).ok() {
+            current_timestamp_as_u64 = _current_timestamp_as_u64;
+        } else {
+            return Err(DispatchError::Other("Unable to convert Moment to u64 for current_timestamp"));
+        }
+
+        let current_date =
+            NaiveDateTime::from_timestamp(i64::try_from(current_timestamp_as_u64.clone() / 1000u64).unwrap(), 0).date();
+
         let mut rewardees_data_count = 0;
         let mut is_valid = 1;
-        let calc_min_cooldown_period = 20000 * 7;
         // FIXME - use cooldown in config runtime or move to abstract constant instead of hard-code here
-        let MIN_COOLDOWN_PERIOD: T::BlockNumber = calc_min_cooldown_period.into(); // 7 days @ 20k blocks produced per day
+        let MIN_COOLDOWN_PERIOD_DAYS: u32 = 7;
 
         // Iterate through all rewardees data
         for (index, rewardees_data) in _proxy_claim_rewardees_data.iter().enumerate() {
             rewardees_data_count += 1;
             debug::info!("rewardees_data_count {:#?}", rewardees_data_count);
 
-            if let _proxy_claim_start_block = rewardees_data.proxy_claim_start_block {
-                if let _proxy_claim_interval_blocks = rewardees_data.proxy_claim_interval_blocks {
-                    if _proxy_claim_start_block < current_block {
-                        debug::info!("invalid _proxy_claim_start_block: {:#?}", _proxy_claim_start_block);
-                        is_valid == 0;
-                        break;
-                    } else if _proxy_claim_start_block + _proxy_claim_interval_blocks < MIN_COOLDOWN_PERIOD.into() {
-                        debug::info!("unable to claim reward for lock duration less than cooldown period");
-                        is_valid == 0;
-                        break;
-                    } else {
-                        continue;
-                    }
+            if let _proxy_claim_start_date = &rewardees_data.proxy_claim_start_date {
+                let proxy_claim_start_date = NaiveDateTime::from_timestamp(*_proxy_claim_start_date, 0).date();
+                let proxy_claim_interval_days = rewardees_data.proxy_claim_interval_days;
+                if proxy_claim_start_date < current_date {
+                    debug::info!("invalid _proxy_claim_start_date: {:#?}", proxy_claim_start_date);
+                    is_valid == 0;
+                    break;
+                } else if proxy_claim_interval_days < MIN_COOLDOWN_PERIOD_DAYS {
+                    debug::info!("unable to claim reward for lock duration less than cooldown period");
+                    is_valid == 0;
+                    break;
+                } else {
+                    continue;
                 }
             }
         }
@@ -869,7 +730,10 @@ impl<T: Trait> Module<T> {
     pub fn has_value_for_mining_eligibility_proxy_reward_requestor_account_id(
         requestor: &T::AccountId,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if mining_eligibility_proxy_reward_requestor has a value for the given account id that is defined");
+        debug::info!(
+            "Checking if mining_eligibility_proxy_reward_requestor has a value for the given account id that is \
+             defined"
+        );
         let fetched_mining_eligibility_proxy_reward_requestor =
             <MiningEligibilityProxyRewardRequestors<T>>::get(requestor);
         if let Some(_value) = fetched_mining_eligibility_proxy_reward_requestor {
@@ -915,10 +779,7 @@ impl<T: Trait> Module<T> {
     ) {
         debug::info!("Appending reward requestor data");
 
-        <MiningEligibilityProxyRewardRequestors<T>>::append(
-            requestor.clone(),
-            &reward_requestor_data.clone(),
-        );
+        <MiningEligibilityProxyRewardRequestors<T>>::append(requestor.clone(), &reward_requestor_data.clone());
 
         Self::deposit_event(RawEvent::MiningEligibilityProxyRewardRequestorSet(
             requestor.clone(),
@@ -926,16 +787,10 @@ impl<T: Trait> Module<T> {
         ));
     }
 
-    fn insert_mining_eligibility_proxy_reward_transfer(
-        transfer: &T::AccountId,
-        reward_transfer_data: TransferData<T>,
-    ) {
+    fn insert_mining_eligibility_proxy_reward_transfer(transfer: &T::AccountId, reward_transfer_data: TransferData<T>) {
         debug::info!("Appending reward transfer data");
 
-        <MiningEligibilityProxyRewardTransfers<T>>::append(
-            transfer.clone(),
-            &reward_transfer_data.clone(),
-        );
+        <MiningEligibilityProxyRewardTransfers<T>>::append(transfer.clone(), &reward_transfer_data.clone());
 
         Self::deposit_event(RawEvent::MiningEligibilityProxyRewardTransferSet(
             transfer.clone(),
@@ -943,22 +798,12 @@ impl<T: Trait> Module<T> {
         ));
     }
 
-
-    fn insert_mining_eligibility_proxy_reward_daily(
-        timestamp_sent: &T::Moment,
-        reward_daily_data: DailyData<T>,
-    ) {
+    fn insert_mining_eligibility_proxy_reward_daily(date: &Date, reward_daily_data: DailyData<T>) {
         debug::info!("Appending reward daily data");
 
-        <RewardsPerDay<T>>::append(
-            timestamp_sent.clone(),
-            &reward_daily_data.clone(),
-        );
+        <RewardsPerDay<T>>::append(date.clone(), &reward_daily_data.clone());
 
-        Self::deposit_event(RawEvent::RewardsPerDaySet(
-            timestamp_sent.clone(),
-            reward_daily_data.clone(),
-        ));
+        Self::deposit_event(RawEvent::RewardsPerDaySet(date.clone(), reward_daily_data.clone()));
     }
 
     /// Set mining_eligibility_proxy_reward_request
@@ -1003,8 +848,6 @@ impl<T: Trait> Module<T> {
                             proxy_claim_total_reward_amount.clone();
                         _mining_eligibility_proxy_reward_request.proxy_claim_rewardees_data =
                             proxy_claim_rewardees_data.clone();
-                        _mining_eligibility_proxy_reward_request.proxy_claim_block_redeemed =
-                            proxy_claim_block_redeemed.clone();
                         _mining_eligibility_proxy_reward_request.proxy_claim_timestamp_redeemed =
                             proxy_claim_timestamp_redeemed.clone();
                     }
@@ -1025,12 +868,8 @@ impl<T: Trait> Module<T> {
                 );
                 // debug::info!(
                 //     "Latest field proxy_claim_rewardees_data {:#?}",
-                //     serde_json::to_string_pretty(&_mining_eligibility_proxy_reward_request.proxy_claim_rewardees_data)
-                // );
-                debug::info!(
-                    "Latest field proxy_claim_block_redeemed {:#?}",
-                    _mining_eligibility_proxy_reward_request.proxy_claim_block_redeemed
-                );
+                //     serde_json::to_string_pretty(&_mining_eligibility_proxy_reward_request.
+                // proxy_claim_rewardees_data) );
                 debug::info!(
                     "Latest field proxy_claim_timestamp_redeemed {:#?}",
                     _mining_eligibility_proxy_reward_request.proxy_claim_timestamp_redeemed
@@ -1046,7 +885,7 @@ impl<T: Trait> Module<T> {
                 proxy_claim_requestor_account_id: proxy_claim_requestor_account_id.clone(),
                 proxy_claim_total_reward_amount: proxy_claim_total_reward_amount.clone(),
                 proxy_claim_rewardees_data: proxy_claim_rewardees_data.clone(),
-                proxy_claim_block_redeemed: proxy_claim_block_redeemed.clone(),
+                // proxy_claim_block_redeemed: proxy_claim_block_redeemed.clone(),
                 proxy_claim_timestamp_redeemed: proxy_claim_timestamp_redeemed.clone(),
             };
 
@@ -1070,12 +909,12 @@ impl<T: Trait> Module<T> {
                 // TODO
                 // debug::info!(
                 //     "Inserted field proxy_claim_rewardees_data {:#?}",
-                //     serde_json::to_string_pretty(&_mining_eligibility_proxy_reward_request.proxy_claim_rewardees_data)
+                //     serde_json::to_string_pretty(&_mining_eligibility_proxy_reward_request.
+                // proxy_claim_rewardees_data) );
+                // debug::info!(
+                //     "Inserted field proxy_claim_block_redeemed {:#?}",
+                //     _mining_eligibility_proxy_reward_request.proxy_claim_block_redeemed
                 // );
-                debug::info!(
-                    "Inserted field proxy_claim_block_redeemed {:#?}",
-                    _mining_eligibility_proxy_reward_request.proxy_claim_block_redeemed
-                );
                 debug::info!(
                     "Inserted field proxy_claim_timestamp_redeemed {:#?}",
                     _mining_eligibility_proxy_reward_request.proxy_claim_timestamp_redeemed
@@ -1083,13 +922,20 @@ impl<T: Trait> Module<T> {
             }
         }
 
+        let proxy_claim_timestamp_redeemed_as_u64 =
+            TryInto::<u64>::try_into(proxy_claim_timestamp_redeemed).ok().unwrap();
+        let proxy_claim_date_redeemed = NaiveDateTime::from_timestamp(
+            i64::try_from(proxy_claim_timestamp_redeemed_as_u64.clone() / 1000u64).unwrap(),
+            0,
+        )
+        .date();
+
         Self::deposit_event(RawEvent::MiningEligibilityProxyRewardRequestSet(
             proxy_claim_requestor_account_id,
             mining_eligibility_proxy_id,
             proxy_claim_total_reward_amount,
             proxy_claim_rewardees_data,
-            proxy_claim_block_redeemed,
-            proxy_claim_timestamp_redeemed,
+            proxy_claim_date_redeemed.and_hms(0, 0, 0).timestamp(),
         ));
     }
 }

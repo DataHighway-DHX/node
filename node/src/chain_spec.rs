@@ -399,7 +399,7 @@ fn dev_genesis(
                         return (x, INITIAL_BALANCE);
                     }
                 })
-            .collect(),
+                .collect(),
         }),
         pallet_session: Some(SessionConfig {
             keys: initial_authorities

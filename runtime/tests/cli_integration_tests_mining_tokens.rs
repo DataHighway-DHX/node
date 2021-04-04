@@ -2,8 +2,8 @@
 extern crate membership_supernodes as membership_supernodes;
 extern crate mining_claims_token as mining_claims_token;
 extern crate mining_config_token as mining_config_token;
-extern crate mining_eligibility_token as mining_eligibility_token;
 extern crate mining_eligibility_proxy as mining_eligibility_proxy;
+extern crate mining_eligibility_token as mining_eligibility_token;
 extern crate mining_execution_token as mining_execution_token;
 extern crate mining_rates_token as mining_rates_token;
 extern crate mining_sampling_token as mining_sampling_token;
@@ -21,10 +21,9 @@ mod tests {
         impl_outer_origin,
         parameter_types,
         traits::{
-            // `Currency` required so `deposit_creating` and `total_balance` available
-            Currency,
             Contains,
             ContainsLengthBound,
+            Currency,
             EnsureOrigin,
         },
         weights::{
@@ -53,14 +52,15 @@ mod tests {
     };
     use std::cell::RefCell;
     // Import Trait for each runtime module being tested
+    use chrono::NaiveDate;
     use datahighway_runtime::{
         AccountId,
+        Babe,
         Balance,
         BlockNumber,
+        Moment,
         DAYS,
         SLOT_DURATION,
-        Moment,
-        Babe,
     };
     use membership_supernodes::{
         Module as MembershipSupernodesModule,
@@ -81,10 +81,10 @@ mod tests {
         Event as MiningEligibilityProxyEvent,
         MiningEligibilityProxyClaimRewardeeData,
         MiningEligibilityProxyRewardRequest,
+        Module as MiningEligibilityProxyModule,
+        RewardDailyData,
         RewardRequestorData,
         RewardTransferData,
-        RewardDailyData,
-        Module as MiningEligibilityProxyModule,
         Trait as MiningEligibilityProxyTrait,
     };
     use mining_eligibility_token::{
@@ -558,7 +558,7 @@ mod tests {
                 0,           // mining_eligibility_token_id
                 0,           // mining_claims_token_id
                 Some(1),     // token_claim_amount
-                Some(34567),  // token_claim_block_redeemed
+                Some(34567), // token_claim_block_redeemed
             ));
 
             // Verify Storage
@@ -629,10 +629,10 @@ mod tests {
             let rewardee_data = MiningEligibilityProxyClaimRewardeeData {
                 proxy_claim_rewardee_account_id: 3,
                 proxy_claim_reward_amount: 1000,
-                proxy_claim_start_block: 0,
-                proxy_claim_interval_blocks: 10,
+                proxy_claim_start_date: NaiveDate::from_ymd(2000, 1, 1).and_hms(0, 0, 0).timestamp(),
+                proxy_claim_interval_days: 7,
             };
-            let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, u64, u64>> =
+            let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, i64, u32>> =
                 Vec::new();
             proxy_claim_rewardees_data.push(rewardee_data);
 
@@ -654,17 +654,26 @@ mod tests {
             assert_eq!(Balances::total_balance(&0), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
 
             // let _ = Balances::deposit_creating(&0, 30000);
-            // Balances::make_free_balance_be(&Treasury::account_id(), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
+            // Balances::make_free_balance_be(&Treasury::account_id(),
+            // INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
 
             // Sudo transfers the temporary treasury DHX DAO reserves to the treasury after the genesis block
             // This is necessary because instantiable transfers to treasury in the genesis config are
             // only available in Substrate 3, but we are using Substrate 2 still.
             // origin, source, destination, balance
-            assert_ok!(Balances::force_transfer(RawOrigin::Root.into(), 0, Treasury::account_id(), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE));
+            assert_ok!(Balances::force_transfer(
+                RawOrigin::Root.into(),
+                0,
+                Treasury::account_id(),
+                INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE
+            ));
 
             // Check the balance of the treasury has received the funds from the temporary account
             // to be use to pay the proxy_claim_reward_amount to proxy_claim_rewardee_account_id
-            assert_eq!(Balances::free_balance(&Treasury::account_id()), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
+            assert_eq!(
+                Balances::free_balance(&Treasury::account_id()),
+                INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE
+            );
             // ::pot() is a private function in Substrate 2 but in Substrate 3 it is public
             // so currently we cannot use this until we upgrade to Substrate 3
             // assert_eq!(Treasury::pot(), 50000);
@@ -701,12 +710,21 @@ mod tests {
             assert_eq!(Balances::reserved_balance(1), 0);
             assert_eq!(Balances::total_balance(&1), 1010);
             // Check balance of treasury after paying the proxy_claim_reward_amount.
-            assert_eq!(Balances::free_balance(Treasury::account_id()), (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000));
+            assert_eq!(
+                Balances::free_balance(Treasury::account_id()),
+                (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000)
+            );
             assert_eq!(Balances::reserved_balance(Treasury::account_id()), 0);
-            assert_eq!(Balances::total_balance(&Treasury::account_id()), (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000));
+            assert_eq!(
+                Balances::total_balance(&Treasury::account_id()),
+                (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000)
+            );
 
             assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::root(), 1, 1));
-            assert_err!(MembershipSupernodesTestModule::remove_member(Origin::signed(0), 1, 1), DispatchError::BadOrigin);
+            assert_err!(
+                MembershipSupernodesTestModule::remove_member(Origin::signed(0), 1, 1),
+                DispatchError::BadOrigin
+            );
 
             // This tries to generate mining_eligibility_proxy_id 0
             // assert_err!(
@@ -730,7 +748,6 @@ mod tests {
                     proxy_claim_requestor_account_id: 1u64,
                     proxy_claim_total_reward_amount: 1000u64,
                     proxy_claim_rewardees_data: proxy_claim_rewardees_data.clone(),
-                    proxy_claim_block_redeemed: 1u64, // current block
                     proxy_claim_timestamp_redeemed: 1616724600000u64, // current timestamp
                 })
             );
@@ -776,11 +793,13 @@ mod tests {
             // Repeat with an additional claim
             assert_ok!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
                 Origin::signed(2),
-                2000, // _proxy_claim_total_reward_amount
+                3000, // _proxy_claim_total_reward_amount
                 Some(proxy_claim_rewardees_data.clone()),
             ));
 
-            if let Some(rewards_daily_data) = MiningEligibilityProxyTestModule::rewards_daily(1616811000000u64) {
+            if let Some(rewards_daily_data) = MiningEligibilityProxyTestModule::rewards_daily(
+                NaiveDate::from_ymd(2021, 03, 27).and_hms(0, 0, 0).timestamp(),
+            ) {
                 // Check that data about the proxy claim reward daily data has been stored.
                 // Check latest transfer added to vector for requestor AccountId 0
                 assert_eq!(
@@ -792,57 +811,58 @@ mod tests {
                     // but if it was defined with specific types then it would generate errors
                     Some(RewardDailyData {
                         mining_eligibility_proxy_id: 1u64,
-                        total_amt: 2000u64,
+                        total_amt: 3000u64,
                         proxy_claim_requestor_account_id: 2u64,
                         member_kind: 1u32,
-                        rewarded_block: 2,
+                        rewarded_date: NaiveDate::from_ymd(2021, 03, 27).and_hms(0, 0, 0).timestamp(),
                     })
                 );
             } else {
                 assert_eq!(false, true);
             }
 
+            // let unused_timstamp =  "2001-03-27".as_bytes().to_vec();
+            // assert_eq!(
+            //     MiningEligibilityProxyTestModule::block_rewarded_for_day(unused_timstamp),
+            //     None,
+            // );
 
-            let unused_timstamp = 1234567891234u64;
-            assert_eq!(
-                MiningEligibilityProxyTestModule::block_rewarded_for_day(unused_timstamp),
-                None,
-            );
+            // let timstamp_26mar2021 = "2021-03-26".as_bytes().to_vec();
+            // assert_eq!(
+            //     MiningEligibilityProxyTestModule::block_rewarded_for_day(timstamp_26mar2021),
+            //     None,
+            // );
 
-            let timstamp_26mar2021 = 1616811000000u64;
-            assert_eq!(
-                MiningEligibilityProxyTestModule::block_rewarded_for_day(timstamp_26mar2021),
-                None,
-            );
+            // let timstamp_27mar2021 = "2021-03-27".as_bytes().to_vec();
+            // assert_eq!(
+            //     MiningEligibilityProxyTestModule::block_rewarded_for_day(timstamp_27mar2021),
+            //     None,
+            // );
 
-            let timstamp_27mar2021 = 1616724600000u64;
-            assert_eq!(
-                MiningEligibilityProxyTestModule::block_rewarded_for_day(timstamp_27mar2021),
-                None,
-            );
+            // // TODO - fix all the below
 
-            // TODO - fix all the below
+            // // it should only return a timestamp for the block number that corresponds to the
+            // // start of the day for which the reward request was submitted.
+            // // i.e. if it was made at 1400hr on 1st Apr, it'd return the block corresponding
+            // // to 0000hr on 1st Apr
+            // let valid_day_start = 1616713200000u64;
+            // assert_eq!(
+            //     MiningEligibilityProxyTestModule::block_rewarded_for_day(valid_day_start),
+            //     Some(2),
+            // );
 
-            // it should only return a timestamp for the block number that corresponds to the
-            // start of the day for which the reward request was submitted.
-            // i.e. if it was made at 1400hr on 1st Apr, it'd return the block corresponding
-            // to 0000hr on 1st Apr
-            let valid_day_start = 1616713200000u64;
-            assert_eq!(
-                MiningEligibilityProxyTestModule::block_rewarded_for_day(valid_day_start),
-                Some(2),
-            );
-
-            assert_eq!(
-                MiningEligibilityProxyTestModule::day_rewarded_for_block(2),
-                Some(1616713200000u64),
-            );
+            // assert_eq!(
+            //     MiningEligibilityProxyTestModule::day_rewarded_for_block(2),
+            //     Some(1616713200000u64),
+            // );
 
             // If we reward them on 26th March 2021 @ 02:00 (1616724600000u64),
             // the reward gets inserted for start of that day at 26th Mar 2021 @ 0:00 (1616713200000u64)
             // according to https://currentmillis.com/, so that's the key we need to lookup results with
             assert_eq!(
-                MiningEligibilityProxyTestModule::total_rewards_daily(1616713200000u64),
+                MiningEligibilityProxyTestModule::total_rewards_daily(
+                    NaiveDate::from_ymd(2021, 03, 26).and_hms(0, 0, 0).timestamp()
+                ),
                 Some(1000),
             );
 
@@ -850,17 +870,20 @@ mod tests {
             // the reward gets inserted for start of that day at 26th Mar 2021 @ 0:00 (1616799600000u64)
             // according to https://currentmillis.com/, so that's the key we need to lookup results with
             assert_eq!(
-                MiningEligibilityProxyTestModule::total_rewards_daily(1616799600000u64),
-                Some(1000u64),
+                MiningEligibilityProxyTestModule::total_rewards_daily(
+                    NaiveDate::from_ymd(2021, 03, 27).and_hms(0, 0, 0).timestamp()
+                ),
+                Some(3000u64),
             );
 
             // TODO - add an extra test later on in the day on 26th Mar 2021 to check it gets added
             // to the total rewards for 26th Mar 2021
 
-            // this should return None, since the timestamp needs to be the start of the day when the
-            // return was requested, not the actual time when it was requested.
+            // this should return None, since the timestamp was not used
             assert_eq!(
-                MiningEligibilityProxyTestModule::total_rewards_daily(1616811000000u64),
+                MiningEligibilityProxyTestModule::total_rewards_daily(
+                    NaiveDate::from_ymd(2021, 01, 26).and_hms(0, 0, 0).timestamp()
+                ),
                 None,
             );
 
