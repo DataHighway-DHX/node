@@ -679,11 +679,11 @@ impl<T: Config> Module<T> {
 
                     if proxy_claim_end_date < current_date {
                         debug::info!("invalid proxy_claim_end_date must be prior to current_date: {:#?}", proxy_claim_end_date);
-                        is_valid == 0;
+                        is_valid = 0;
                         break;
-                    } else if claim_duration > MIN_COOLDOWN_PERIOD_DAYS {
+                    } else if claim_duration <= MIN_COOLDOWN_PERIOD_DAYS {
                         debug::info!("unable to claim reward for lock duration less than cooldown period");
-                        is_valid == 0;
+                        is_valid = 0;
                         break;
                     } else {
                         continue;
