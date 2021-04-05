@@ -9,9 +9,9 @@
   --keystore-path "/tmp/polkadot-chains/node-3/keys" \
   --chain ../node/src/chain-definition-custom/chain_def_${CHAIN_VERSION}.json \
   --name "${NODE_ENV} Validator Node 3" \
-  --port 30333 \
-  --ws-port 9944 \
-  --rpc-port 9933 \
+  --port 30335 \
+  --ws-port 9946 \
+  --rpc-port 9934 \
   --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
   --execution=native \
   -lruntime=debug \

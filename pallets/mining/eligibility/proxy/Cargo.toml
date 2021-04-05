@@ -21,6 +21,7 @@ std = [
     'sp-io/std',
     'sp-runtime/std',
     'sp-std/std',
+    'chrono/std',
 
     'roaming-operators/std',
     'account-set/std',
@@ -28,23 +29,23 @@ std = [
 ]
 
 [dependencies]
-codec = { version = '1.3.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
-module-primitives = { version = '2.0.0', default-features = false, path = '../../../primitives' }
+codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
+frame-support = { version = '3.0.0', default-features = false }
+frame-system = { version = '3.0.0', default-features = false }
+module-primitives = { version = '3.0.0', default-features = false, path = '../../../primitives' }
 safe-mix = { version = '1.0.0', default-features = false }
-frame-support = { version = '2.0.0', default_features = false }
-frame-system = { version = '2.0.0', default_features = false }
-pallet-balances = { version = '2.0.0', default_features = false }
-pallet-randomness-collective-flip = { version = '2.0.0', default_features = false }
-pallet-timestamp = { version = '2.0.0', default_features = false }
-pallet-transaction-payment = { version = '2.0.0', default_features = false }
-pallet-treasury = { version = '2.0.0', default-features = false }
-sp-core = { version = '2.0.0', default_features = false }
-sp-io = { version = '2.0.0', default_features = false }
-sp-runtime = { version = '2.0.0', default_features = false }
-sp-std = { version = '2.0.0', default_features = false }
+pallet-balances = { version = '3.0.0', default-features = false }
+pallet-randomness-collective-flip = { version = '3.0.0', default-features = false }
+pallet-timestamp = { version = '3.0.0', default_features = false }
+pallet-transaction-payment = { version = '3.0.0', default-features = false }
+pallet-treasury = { version = '3.0.0', default-features = false }
+sp-core = { version = '3.0.0', default-features = false }
+sp-io = { version = '3.0.0', default-features = false }
+sp-runtime = { version = '3.0.0', default-features = false }
+sp-std = { version = '3.0.0', default-features = false }
 chrono = { version = '0.4.19', default_features = false }
 
-roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
+roaming-operators = { default-features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
 account-set = { path = '../../../../traits/account-set', default-features = false }
 membership-supernodes = { path = '../../../membership/supernodes', default-features = false }
 

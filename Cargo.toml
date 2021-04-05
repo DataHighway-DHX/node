@@ -20,8 +20,8 @@ members = [
     'pallets/roaming/roaming-charging-policies',
     'pallets/roaming/roaming-packet-bundles',
     'pallets/membership/supernodes',
-    'pallets/mining/config/token',
-    'pallets/mining/config/hardware',
+    'pallets/mining/setting/token',
+    'pallets/mining/setting/hardware',
     'pallets/mining/rates/token',
     'pallets/mining/rates/hardware',
     'pallets/mining/sampling/token',
@@ -30,5 +30,6 @@ members = [
     'pallets/mining/eligibility/hardware',
     'pallets/mining/claims/token',
     'pallets/mining/claims/hardware',
-    'runtime',
+    'runtime/testnet-runtime',
+    'runtime/mainnet-runtime',
 ]

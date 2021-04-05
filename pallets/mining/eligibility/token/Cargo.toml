@@ -21,26 +21,29 @@ std = [
 
     'roaming-operators/std',
     'mining-rates-token/std',
-    'mining-config-token/std',
+    'mining-setting-token/std',
     'mining-sampling-token/std',
+    'serde',
 ]
 
 [dependencies]
-codec = { version = '1.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
+codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
 safe-mix = { version = '1.0.0', default-features = false }
-frame-support = { version = '2.0.0', default_features = false }
-frame-system = { version = '2.0.0', default_features = false }
-pallet-balances = { version = '2.0.0', default_features = false }
-pallet-randomness-collective-flip = { version = '2.0.0', default_features = false }
-pallet-transaction-payment = { version = '2.0.0', default_features = false }
-sp-core = { version = '2.0.0', default_features = false }
-sp-io = { version = '2.0.0', default_features = false }
-sp-runtime = { version = '2.0.0', default_features = false }
-sp-std = { version = '2.0.0', default_features = false }
+frame-support = { version = '3.0.0', default-features = false }
+frame-system = { version = '3.0.0', default-features = false }
+pallet-balances = { version = '3.0.0', default-features = false }
+pallet-randomness-collective-flip = { version = '3.0.0', default-features = false }
+pallet-transaction-payment = { version = '3.0.0', default-features = false }
+sp-core = { version = '3.0.0', default-features = false }
+sp-io = { version = '3.0.0', default-features = false }
+sp-runtime = { version = '3.0.0', default-features = false }
+sp-std = { version = '3.0.0', default-features = false }
 
-roaming-operators = { default_features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
-mining-config-token = { default_features = false, package = 'mining-config-token', path = '../../../mining/config/token' }
-mining-rates-token = { default_features = false, package = 'mining-rates-token', path = '../../../mining/rates/token' }
-mining-sampling-token = { default_features = false, package = 'mining-sampling-token', path = '../../../mining/sampling/token' }
+roaming-operators = { default-features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
+mining-setting-token = { default-features = false, package = 'mining-setting-token', path = '../../../mining/setting/token' }
+mining-rates-token = { default-features = false, package = 'mining-rates-token', path = '../../../mining/rates/token' }
+mining-sampling-token = { default-features = false, package = 'mining-sampling-token', path = '../../../mining/sampling/token' }
+
+serde = { version = '1.0.101', optional = true, features = ['derive'] }
 
 [dev-dependencies]

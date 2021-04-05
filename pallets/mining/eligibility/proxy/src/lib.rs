@@ -52,14 +52,14 @@ use sp_std::{
 };
 
 /// The module's configuration trait.
-pub trait Trait:
-    frame_system::Trait
-    + roaming_operators::Trait
-    + pallet_treasury::Trait
-    + pallet_balances::Trait
-    + pallet_timestamp::Trait
+pub trait Config:
+    frame_system::Config
+    + roaming_operators::Config
+    + pallet_treasury::Config
+    + pallet_balances::Config
+    + pallet_timestamp::Config
 {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type Currency: Currency<Self::AccountId>;
     // Loosely coupled
     type MembershipSource: AccountSet<AccountId = Self::AccountId>;
@@ -67,7 +67,7 @@ pub trait Trait:
     type RewardsOfDay: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
-type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+type BalanceOf<T> = <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 type Date = i64;
 
 #[derive(Encode, Decode, Debug, Clone, PartialEq, Eq)]
@@ -126,43 +126,43 @@ pub struct RewardDailyData<U, V, W, X, Y> {
 }
 
 type RewardeeData<T> =
-    MiningEligibilityProxyClaimRewardeeData<<T as frame_system::Trait>::AccountId, BalanceOf<T>, Date, Date>;
+    MiningEligibilityProxyClaimRewardeeData<<T as frame_system::Config>::AccountId, BalanceOf<T>, Date, Date>;
 
 type RequestorData<T> = RewardRequestorData<
-    <T as Trait>::MiningEligibilityProxyIndex,
+    <T as Config>::MiningEligibilityProxyIndex,
     BalanceOf<T>,
     u64,
     u32,
-    <T as pallet_timestamp::Trait>::Moment,
+    <T as pallet_timestamp::Config>::Moment,
 >;
 
 type TransferData<T> = RewardTransferData<
-    <T as Trait>::MiningEligibilityProxyIndex,
+    <T as Config>::MiningEligibilityProxyIndex,
     bool,
     BalanceOf<T>,
     u64,
     u32,
-    <T as pallet_timestamp::Trait>::Moment,
+    <T as pallet_timestamp::Config>::Moment,
 >;
 
 type DailyData<T> = RewardDailyData<
-    <T as Trait>::MiningEligibilityProxyIndex,
+    <T as Config>::MiningEligibilityProxyIndex,
     BalanceOf<T>,
-    <T as frame_system::Trait>::AccountId,
+    <T as frame_system::Config>::AccountId,
     u32,
     Date,
 >;
 
 decl_event!(
     pub enum Event<T> where
-        AccountId = <T as frame_system::Trait>::AccountId,
-        <T as Trait>::MiningEligibilityProxyIndex,
+        AccountId = <T as frame_system::Config>::AccountId,
+        <T as Config>::MiningEligibilityProxyIndex,
         BalanceOf = BalanceOf<T>,
         RewardeeData = RewardeeData<T>,
         RequestorData = RequestorData<T>,
         TransferData = TransferData<T>,
         DailyData = DailyData<T>,
-        <T as Trait>::RewardsOfDay,
+        <T as Config>::RewardsOfDay,
     {
         Created(AccountId, MiningEligibilityProxyIndex),
         MiningEligibilityProxyRewardRequestSet(
@@ -192,7 +192,7 @@ decl_event!(
 );
 
 decl_error! {
-    pub enum Error for Module<T: Trait> {
+    pub enum Error for Module<T: Config> {
         NoneValue,
         /// Some math operation overflowed
         Overflow,
@@ -201,7 +201,7 @@ decl_error! {
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as MiningEligibilityProxy {
+    trait Store for Module<T: Config> as MiningEligibilityProxy {
         /// Stores all the mining_eligibility_proxys, key is the mining_eligibility_proxy id / index
         pub MiningEligibilityProxys get(fn mining_eligibility_proxy): map hasher(opaque_blake2_256) T::MiningEligibilityProxyIndex => Option<MiningEligibilityProxy>;
 
@@ -217,7 +217,7 @@ decl_storage! {
                 T::AccountId,
                 BalanceOf<T>,
                 Vec<RewardeeData<T>>, // TODO - change to store MiningEligibilityProxyRewardeeIndex that is created to store then instead
-                <T as pallet_timestamp::Trait>::Moment,
+                <T as pallet_timestamp::Config>::Moment,
             >>;
 
         // IGNORE - seems unnessary since can get from MiningEligibilityProxyRewardRequests
@@ -238,11 +238,11 @@ decl_storage! {
         pub MiningEligibilityProxyRewardRequestors get(fn reward_requestors):
             map hasher(opaque_blake2_256) T::AccountId =>
                 Option<Vec<RewardRequestorData<
-                    <T as Trait>::MiningEligibilityProxyIndex,
+                    <T as Config>::MiningEligibilityProxyIndex,
                     BalanceOf<T>,
                     u64,
                     u32,
-                    <T as pallet_timestamp::Trait>::Moment,
+                    <T as pallet_timestamp::Config>::Moment,
                 >>>;
 
         /// Stores reward_transfers for given rewardee
@@ -253,12 +253,12 @@ decl_storage! {
         pub MiningEligibilityProxyRewardTransfers get(fn reward_transfers):
             map hasher(opaque_blake2_256) T::AccountId =>
                 Option<Vec<RewardTransferData<
-                    <T as Trait>::MiningEligibilityProxyIndex,
+                    <T as Config>::MiningEligibilityProxyIndex,
                     bool,
                     BalanceOf<T>,
                     u64,
                     u32,
-                    <T as pallet_timestamp::Trait>::Moment,
+                    <T as pallet_timestamp::Config>::Moment,
                 >>>;
 
         /// Substrate-fixed, value starts at 0 (additive identity)
@@ -270,9 +270,9 @@ decl_storage! {
         pub RewardsPerDay get(fn rewards_daily):
             map hasher(opaque_blake2_256) Date =>
                 Option<Vec<RewardDailyData<
-                    <T as Trait>::MiningEligibilityProxyIndex,
+                    <T as Config>::MiningEligibilityProxyIndex,
                     BalanceOf<T>,
-                    <T as frame_system::Trait>::AccountId,
+                    <T as frame_system::Config>::AccountId,
                     u32,
                     Date,
                 >>>;
@@ -282,7 +282,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: <T as frame_system::Trait>::Origin {
+    pub struct Module<T: Config> for enum Call where origin: <T as frame_system::Config>::Origin {
         fn deposit_event() = default;
 
         // /// Emits an event with the calculated rewards for a given day.
@@ -358,6 +358,7 @@ decl_module! {
             debug::info!("Recipient account kind: {:?}", recipient_member_kind.clone());
 
             let mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex;
+
             match Self::create(sender.clone()) {
                 Ok(proxy_id) => {
                     mining_eligibility_proxy_id = proxy_id.into();
@@ -416,7 +417,7 @@ decl_module! {
 
                         debug::info!("Treasury paying reward");
 
-                        <T as Trait>::Currency::transfer(
+                        <T as Config>::Currency::transfer(
                             &treasury_account_id,
                             &sender,
                             reward_to_pay.clone(),
@@ -566,22 +567,21 @@ decl_module! {
 
                         debug::info!("Inserted proxy_reward_daily for Moment: {:?}", requested_date.clone());
                         debug::info!("Inserted proxy_reward_daily for Moment with Data: {:?}", reward_daily_data.clone());
-
                     }
                 }
 
-                debug::info!("Setting the proxy eligibility results");
+                debug::info!("Setting the proxy eligibility reward_request");
 
-                Self::set_mining_eligibility_proxy_eligibility_result(
+                Self::set_mining_eligibility_proxy_eligibility_reward_request(
                     sender.clone(),
                     mining_eligibility_proxy_id.clone(),
                     _proxy_claim_total_reward_amount.clone(),
                     rewardees_data.clone(),
                 );
 
-                debug::info!("Inserted proxy_eligibility_result for Proxy ID: {:?}", mining_eligibility_proxy_id.clone());
-                debug::info!("Inserted proxy_eligibility_result for Proxy ID with reward amount: {:?}", _proxy_claim_total_reward_amount.clone());
-                debug::info!("Inserted proxy_eligibility_result for Proxy ID with rewardees_data: {:?}", rewardees_data.clone());
+                debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID: {:?}", mining_eligibility_proxy_id.clone());
+                debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID with reward amount: {:?}", _proxy_claim_total_reward_amount.clone());
+                debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID with rewardees_data: {:?}", rewardees_data.clone());
 
                 return Ok(());
             } else {
@@ -592,7 +592,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     /// Create a new mining mining_eligibility_proxy
     // #[weight = 10_000 + T::DbWeight::get().writes(1)]
     pub fn create(sender: T::AccountId) -> Result<T::MiningEligibilityProxyIndex, DispatchError> {
@@ -633,7 +633,7 @@ impl<T: Trait> Module<T> {
         // 20000 * 4 * 365 = 29200000 block, then reduces to 4800 DHX per day, and so on per halving cycle.
         // assume worse case scenario of only one supernode requesting
         // rewards on behalf of users that collectively earnt the max DHX produced on that day.
-        if proxy_claim_total_reward_amount > 5000.into() && current_block < 29200000.into() {
+        if proxy_claim_total_reward_amount > 5000u32.into() && current_block < 29200000u32.into() {
             return Err(DispatchError::Other("Unreasonable proxy reward claim"));
         }
         Ok(())
@@ -641,6 +641,7 @@ impl<T: Trait> Module<T> {
 
     pub fn is_valid_reward_data(_proxy_claim_rewardees_data: Vec<RewardeeData<T>>) -> Result<(), DispatchError> {
         ensure!(_proxy_claim_rewardees_data.len() > 0, "Rewardees data is invalid as no elements");
+
         let current_timestamp = <pallet_timestamp::Module<T>>::get();
         // convert the current date/time to the start of the current day date/time.
         // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
@@ -658,7 +659,7 @@ impl<T: Trait> Module<T> {
         let mut rewardees_data_count = 0;
         let mut is_valid = 1;
         // FIXME - use cooldown in config runtime or move to abstract constant instead of hard-code here
-        let MIN_COOLDOWN_PERIOD_DAYS: Duration = Duration::days(7);
+        let MIN_COOLDOWN_PERIOD_DAYS: Duration = Duration::days(7); // 7 days @ 20k blocks produced per day
 
         // Iterate through all rewardees data
         for (index, rewardees_data) in _proxy_claim_rewardees_data.iter().enumerate() {
@@ -817,7 +818,7 @@ impl<T: Trait> Module<T> {
     }
 
     /// Set mining_eligibility_proxy_reward_request
-    fn set_mining_eligibility_proxy_eligibility_result(
+    fn set_mining_eligibility_proxy_eligibility_reward_request(
         _proxy_claim_requestor_account_id: T::AccountId,
         mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex,
         _proxy_claim_total_reward_amount: BalanceOf<T>,
@@ -895,7 +896,6 @@ impl<T: Trait> Module<T> {
                 proxy_claim_requestor_account_id: proxy_claim_requestor_account_id.clone(),
                 proxy_claim_total_reward_amount: proxy_claim_total_reward_amount.clone(),
                 proxy_claim_rewardees_data: proxy_claim_rewardees_data.clone(),
-                // proxy_claim_block_redeemed: proxy_claim_block_redeemed.clone(),
                 proxy_claim_timestamp_redeemed: proxy_claim_timestamp_redeemed.clone(),
             };
 
@@ -921,10 +921,6 @@ impl<T: Trait> Module<T> {
                 //     "Inserted field proxy_claim_rewardees_data {:#?}",
                 //     serde_json::to_string_pretty(&_mining_eligibility_proxy_reward_request.
                 // proxy_claim_rewardees_data) );
-                // debug::info!(
-                //     "Inserted field proxy_claim_block_redeemed {:#?}",
-                //     _mining_eligibility_proxy_reward_request.proxy_claim_block_redeemed
-                // );
                 debug::info!(
                     "Inserted field proxy_claim_timestamp_redeemed {:#?}",
                     _mining_eligibility_proxy_reward_request.proxy_claim_timestamp_redeemed

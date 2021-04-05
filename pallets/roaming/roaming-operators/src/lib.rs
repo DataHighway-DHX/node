@@ -36,14 +36,14 @@ mod mock;
 mod tests;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingOperatorIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type Currency: Currency<Self::AccountId>;
     type Randomness: Randomness<Self::Hash>;
 }
 
-type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+type BalanceOf<T> = <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -51,8 +51,8 @@ pub struct RoamingOperator(pub [u8; 16]);
 
 decl_event!(
     pub enum Event<T> where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::RoamingOperatorIndex,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::RoamingOperatorIndex,
         Balance = BalanceOf<T>,
     {
         /// A roaming operator is created. (owner, roaming_operator_id)
@@ -68,7 +68,7 @@ decl_event!(
 
 // This module's storage items.
 decl_storage! {
-    trait Store for Module<T: Trait> as RoamingOperators {
+    trait Store for Module<T: Config> as RoamingOperators {
         /// Stores all the roaming operators, key is the roaming operator id / index
         pub RoamingOperators get(fn roaming_operator): map hasher(opaque_blake2_256) T::RoamingOperatorIndex => Option<RoamingOperator>;
 
@@ -86,7 +86,7 @@ decl_storage! {
 // The module's dispatchable functions.
 decl_module! {
     /// The module declaration.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         /// Create a new roaming operator
@@ -161,7 +161,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_roaming_operator_owner(
         roaming_operator_id: T::RoamingOperatorIndex,
         sender: T::AccountId,

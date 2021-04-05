@@ -1,8 +1,8 @@
 // extern crate env as env;
 extern crate membership_supernodes as membership_supernodes;
 extern crate mining_claims_token as mining_claims_token;
-extern crate mining_config_token as mining_config_token;
 extern crate mining_eligibility_proxy as mining_eligibility_proxy;
+extern crate mining_setting_token as mining_setting_token;
 extern crate mining_eligibility_token as mining_eligibility_token;
 extern crate mining_execution_token as mining_execution_token;
 extern crate mining_rates_token as mining_rates_token;
@@ -18,7 +18,6 @@ mod tests {
     use frame_support::{
         assert_err,
         assert_ok,
-        impl_outer_origin,
         parameter_types,
         traits::{
             Contains,
@@ -41,7 +40,7 @@ mod tests {
         traits::{
             BlakeTwo256,
             IdentityLookup,
-            Zero,
+
         },
         DispatchError,
         DispatchResult,
@@ -62,20 +61,23 @@ mod tests {
         DAYS,
         SLOT_DURATION,
     };
+    pub use pallet_transaction_payment::{
+        CurrencyAdapter,
+    };
     use membership_supernodes::{
         Module as MembershipSupernodesModule,
-        Trait as MembershipSupernodesTrait,
+        Config as MembershipSupernodesConfig,
     };
     use mining_claims_token::{
         MiningClaimsTokenClaimResult,
         Module as MiningClaimsTokenModule,
-        Trait as MiningClaimsTokenTrait,
+        Config as MiningClaimsTokenConfig,
     };
-    use mining_config_token::{
-        MiningConfigTokenConfig,
-        MiningConfigTokenRequirementsConfig,
-        Module as MiningConfigTokenModule,
-        Trait as MiningConfigTokenTrait,
+    use mining_setting_token::{
+        MiningSettingTokenSetting,
+        MiningSettingTokenRequirementsSetting,
+        Module as MiningSettingTokenModule,
+        Config as MiningSettingTokenConfig,
     };
     use mining_eligibility_proxy::{
         Event as MiningEligibilityProxyEvent,
@@ -85,78 +87,82 @@ mod tests {
         RewardDailyData,
         RewardRequestorData,
         RewardTransferData,
-        Trait as MiningEligibilityProxyTrait,
+        Config as MiningEligibilityProxyConfig,
     };
     use mining_eligibility_token::{
         MiningEligibilityTokenResult,
         Module as MiningEligibilityTokenModule,
-        Trait as MiningEligibilityTokenTrait,
+        Config as MiningEligibilityTokenConfig,
     };
     use mining_execution_token::{
         MiningExecutionTokenExecutionResult,
         Module as MiningExecutionTokenModule,
-        Trait as MiningExecutionTokenTrait,
+        Config as MiningExecutionTokenConfig,
     };
     use mining_rates_token::{
-        MiningRatesTokenConfig,
+        MiningRatesTokenSetting,
         Module as MiningRatesTokenModule,
-        Trait as MiningRatesTokenTrait,
+        Config as MiningRatesTokenConfig,
     };
     use mining_sampling_token::{
-        MiningSamplingTokenConfig,
+        MiningSamplingTokenSetting,
         Module as MiningSamplingTokenModule,
-        Trait as MiningSamplingTokenTrait,
+        Config as MiningSamplingTokenConfig,
     };
     use roaming_operators;
 
-    // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Trait>::Origin {
-    // 	<Runtime as frame_system::Trait>::Origin::signed((*who).clone())
+    // pub fn origin_of(who: &AccountId) -> <Runtime as frame_system::Config>::Origin {
+    // 	<Runtime as frame_system::Config>::Origin::signed((*who).clone())
     // }
+    type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
+    type Block = frame_system::mocking::MockBlock<Test>;
 
-    impl_outer_origin! {
-        pub enum Origin for Test {}
-    }
+    frame_support::construct_runtime!(
+        pub enum Test where
+            Block = Block,
+            NodeBlock = Block,
+            UncheckedExtrinsic = UncheckedExtrinsic,
+        {
+            System: frame_system::{Module, Call, Config, Storage, Event<T>},
+            Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
+            RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
+            TransactionPayment: pallet_transaction_payment::{Module, Storage},
+        }
+    );
 
-    #[derive(Clone, Eq, PartialEq)]
-    pub struct Test;
     parameter_types! {
         pub const BlockHashCount: u64 = 250;
-        pub const MaximumBlockWeight: Weight = 1024;
-        pub const MaximumBlockLength: u32 = 2 * 1024;
-        pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
+        pub const SS58Prefix: u8 = 33;
     }
-    impl frame_system::Trait for Test {
+    impl frame_system::Config for Test {
         type AccountData = pallet_balances::AccountData<u64>;
         type AccountId = u64;
-        type AvailableBlockRatio = AvailableBlockRatio;
         type BaseCallFilter = ();
-        type BlockExecutionWeight = ();
         type BlockHashCount = BlockHashCount;
+        type BlockLength = ();
         type BlockNumber = u64;
-        type Call = ();
+        type BlockWeights = ();
+        type Call = Call;
         type DbWeight = ();
         // type WeightMultiplierUpdate = ();
         type Event = ();
-        type ExtrinsicBaseWeight = ();
         type Hash = H256;
         type Hashing = BlakeTwo256;
         type Header = Header;
         type Index = u64;
         type Lookup = IdentityLookup<Self::AccountId>;
-        type MaximumBlockLength = MaximumBlockLength;
-        type MaximumBlockWeight = MaximumBlockWeight;
-        type MaximumExtrinsicWeight = MaximumBlockWeight;
         type OnKilledAccount = ();
         type OnNewAccount = ();
         type Origin = Origin;
-        type PalletInfo = ();
+        type PalletInfo = PalletInfo;
+        type SS58Prefix = SS58Prefix;
         type SystemWeightInfo = ();
         type Version = ();
     }
     parameter_types! {
         pub const MinimumPeriod: u64 = SLOT_DURATION / 2;
     }
-    impl pallet_timestamp::Trait for Test {
+    impl pallet_timestamp::Config for Test {
         type MinimumPeriod = MinimumPeriod;
         /// A timestamp: milliseconds since the unix epoch.
         type Moment = Moment;
@@ -166,7 +172,7 @@ mod tests {
     parameter_types! {
         pub const ExistentialDeposit: u64 = 1;
     }
-    impl pallet_balances::Trait for Test {
+    impl pallet_balances::Config for Test {
         type AccountStore = System;
         type Balance = u64;
         type DustRemoval = ();
@@ -175,10 +181,9 @@ mod tests {
         type MaxLocks = ();
         type WeightInfo = ();
     }
-    impl pallet_transaction_payment::Trait for Test {
-        type Currency = Balances;
+    impl pallet_transaction_payment::Config for Test {
         type FeeMultiplierUpdate = ();
-        type OnTransactionPayment = ();
+        type OnChargeTransaction = CurrencyAdapter<Balances, ()>;
         type TransactionByteFee = ();
         type WeightToFee = IdentityFee<u64>;
     }
@@ -229,7 +234,7 @@ mod tests {
         pub const TreasuryModuleId: ModuleId = ModuleId(*b"py/trsry");
     }
 
-    impl pallet_treasury::Trait for Test {
+    impl pallet_treasury::Config for Test {
         type ApproveOrigin = EnsureRoot<u64>;
         type BountyCuratorDeposit = BountyCuratorDeposit;
         type BountyDepositBase = BountyDepositBase;
@@ -256,23 +261,23 @@ mod tests {
     }
 
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
-    impl roaming_operators::Trait for Test {
+    impl roaming_operators::Config for Test {
         type Currency = Balances;
         type Event = ();
-        type Randomness = Randomness;
+        type Randomness = RandomnessCollectiveFlip;
         type RoamingOperatorIndex = u64;
     }
-    impl MiningConfigTokenTrait for Test {
+    impl MiningSettingTokenConfig for Test {
         type Event = ();
         // type Currency = Balances;
         // type Randomness = Randomness;
-        type MiningConfigTokenIndex = u64;
-        type MiningConfigTokenLockAmount = u64;
+        type MiningSettingTokenIndex = u64;
+        type MiningSettingTokenLockAmount = u64;
         // Mining Speed Boost Token Mining Config
         // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-        type MiningConfigTokenType = Vec<u8>;
+        type MiningSettingTokenType = Vec<u8>;
     }
-    impl MiningRatesTokenTrait for Test {
+    impl MiningRatesTokenConfig for Test {
         type Event = ();
         type MiningRatesTokenIndex = u64;
         type MiningRatesTokenMaxLoyalty = u32;
@@ -283,35 +288,35 @@ mod tests {
         // Mining Speed Boost Rate
         type MiningRatesTokenTokenMXC = u32;
     }
-    impl MiningSamplingTokenTrait for Test {
+    impl MiningSamplingTokenConfig for Test {
         type Event = ();
         type MiningSamplingTokenIndex = u64;
         type MiningSamplingTokenSampleLockedAmount = u64;
     }
-    impl MiningEligibilityTokenTrait for Test {
+    impl MiningEligibilityTokenConfig for Test {
         type Event = ();
         type MiningEligibilityTokenCalculatedEligibility = u64;
         type MiningEligibilityTokenIndex = u64;
         type MiningEligibilityTokenLockedPercentage = u32;
         // type MiningEligibilityTokenAuditorAccountID = u64;
     }
-    impl MiningEligibilityProxyTrait for Test {
+    impl MiningEligibilityProxyConfig for Test {
         type Currency = Balances;
         type Event = ();
         type MembershipSource = MembershipSupernodes;
         type MiningEligibilityProxyIndex = u64;
         type RewardsOfDay = u64;
     }
-    impl MiningClaimsTokenTrait for Test {
+    impl MiningClaimsTokenConfig for Test {
         type Event = ();
         type MiningClaimsTokenClaimAmount = u64;
         type MiningClaimsTokenIndex = u64;
     }
-    impl MiningExecutionTokenTrait for Test {
+    impl MiningExecutionTokenConfig for Test {
         type Event = ();
         type MiningExecutionTokenIndex = u64;
     }
-    impl MembershipSupernodesTrait for Test {
+    impl MembershipSupernodesConfig for Test {
         type Event = ();
     }
 
@@ -319,7 +324,7 @@ mod tests {
     pub type Balances = pallet_balances::Module<Test>;
     pub type Timestamp = pallet_timestamp::Module<Test>;
     pub type Treasury = pallet_treasury::Module<Test>;
-    pub type MiningConfigTokenTestModule = MiningConfigTokenModule<Test>;
+    pub type MiningSettingTokenTestModule = MiningSettingTokenModule<Test>;
     pub type MiningRatesTokenTestModule = MiningRatesTokenModule<Test>;
     pub type MiningSamplingTokenTestModule = MiningSamplingTokenModule<Test>;
     pub type MiningEligibilityTokenTestModule = MiningEligibilityTokenModule<Test>;
@@ -388,7 +393,7 @@ mod tests {
             assert_eq!(MiningRatesTokenTestModule::mining_rates_token_owner(0), Some(0));
             assert_eq!(
                 MiningRatesTokenTestModule::mining_rates_token_rates_configs(0),
-                Some(MiningRatesTokenConfig {
+                Some(MiningRatesTokenSetting {
                     token_token_mxc: 1,
                     token_token_iota: 1,
                     token_token_dot: 1,
@@ -400,15 +405,15 @@ mod tests {
             // Create Mining Speed Boost Configuration & Cooldown Configuration Token Mining
 
             // Call Functions
-            assert_ok!(MiningConfigTokenTestModule::create(Origin::signed(0)));
-            assert_ok!(MiningConfigTokenTestModule::set_mining_config_token_token_cooldown_config(
+            assert_ok!(MiningSettingTokenTestModule::create(Origin::signed(0)));
+            assert_ok!(MiningSettingTokenTestModule::set_mining_setting_token_token_cooldown_config(
                 Origin::signed(0),
                 0,                     // mining_token_id
                 Some(b"DHX".to_vec()), // token_type
                 Some(10),              // token_lock_min_amount
                 Some(7),               // token_lock_min_blocks
             ));
-            assert_ok!(MiningConfigTokenTestModule::set_mining_config_token_token_config(
+            assert_ok!(MiningSettingTokenTestModule::set_mining_setting_token_token_setting(
                 Origin::signed(0),
                 0,                     // mining_token_id
                 Some(b"MXC".to_vec()), // token_type
@@ -418,20 +423,20 @@ mod tests {
             ));
 
             // Verify Storage
-            assert_eq!(MiningConfigTokenTestModule::mining_config_token_count(), 1);
-            assert!(MiningConfigTokenTestModule::mining_config_token(0).is_some());
-            assert_eq!(MiningConfigTokenTestModule::mining_config_token_owner(0), Some(0));
+            assert_eq!(MiningSettingTokenTestModule::mining_setting_token_count(), 1);
+            assert!(MiningSettingTokenTestModule::mining_setting_token(0).is_some());
+            assert_eq!(MiningSettingTokenTestModule::mining_setting_token_owner(0), Some(0));
             assert_eq!(
-                MiningConfigTokenTestModule::mining_config_token_token_cooldown_configs(0),
-                Some(MiningConfigTokenRequirementsConfig {
+                MiningSettingTokenTestModule::mining_setting_token_token_cooldown_configs(0),
+                Some(MiningSettingTokenRequirementsSetting {
                     token_type: b"DHX".to_vec(), // token_type
                     token_lock_min_amount: 10,   // token_lock_min_amount
                     token_lock_min_blocks: 7,    // token_lock_min_blocks
                 })
             );
             assert_eq!(
-                MiningConfigTokenTestModule::mining_config_token_token_configs(0),
-                Some(MiningConfigTokenConfig {
+                MiningSettingTokenTestModule::mining_setting_token_token_settings(0),
+                Some(MiningSettingTokenSetting {
                     token_type: b"MXC".to_vec(),       // token_type
                     token_lock_amount: 100,            // token_lock_amount
                     token_lock_start_block: 12345,     // token_lock_start_block
@@ -458,7 +463,7 @@ mod tests {
             assert_eq!(MiningSamplingTokenTestModule::mining_samplings_token_owner(0), Some(0));
             assert_eq!(
                 MiningSamplingTokenTestModule::mining_samplings_token_samplings_configs((0, 0)),
-                Some(MiningSamplingTokenConfig {
+                Some(MiningSamplingTokenSetting {
                     token_sample_block: 23456,       // token_sample_block
                     token_sample_locked_amount: 100  // token_sample_locked_amount
                 })
@@ -481,14 +486,14 @@ mod tests {
             // The account id of the an auditor who may be involved in auditing the eligibility
             // outcome may also be recorded.
             // Note that we can find out all the samples associated with a
-            // mining_config_token_id
+            // mining_setting_token_id
 
             // Call Functions
             assert_ok!(MiningEligibilityTokenTestModule::create(Origin::signed(0)));
             // assert_eq!(
             //   MiningEligibilityTokenTestModule::calculate_mining_eligibility_token_result(
             //       Origin::signed(0),
-            //       0, // mining_config_token_id
+            //       0, // mining_setting_token_id
             //       0, // mining_eligibility_token_id
             //   ),
             //   Some(
@@ -505,7 +510,7 @@ mod tests {
             // Override by DAO if necessary
             assert_ok!(MiningEligibilityTokenTestModule::set_mining_eligibility_token_eligibility_result(
                 Origin::signed(0),
-                0,       // mining_config_token_id
+                0,       // mining_setting_token_id
                 0,       // mining_eligibility_token_id
                 Some(1), // mining_token_calculated_eligibility
                 Some(1), /* mining_token_locked_percentage
@@ -547,14 +552,14 @@ mod tests {
             assert_ok!(MiningClaimsTokenTestModule::assign_claim_to_configuration(Origin::signed(0), 0, 0));
             assert_ok!(MiningClaimsTokenTestModule::claim(
                 Origin::signed(0),
-                0, // mining_config_token_id
+                0, // mining_setting_token_id
                 0, // mining_eligibility_token_id
                 0, // mining_claims_token_id
             ));
             // Override by DAO if necessary
             assert_ok!(MiningClaimsTokenTestModule::set_mining_claims_token_claims_result(
                 Origin::signed(0),
-                0,           // mining_config_token_id
+                0,           // mining_setting_token_id
                 0,           // mining_eligibility_token_id
                 0,           // mining_claims_token_id
                 Some(1),     // token_claim_amount
@@ -584,7 +589,7 @@ mod tests {
             // Execute is called to start the mining if all checks pass
             assert_ok!(MiningExecutionTokenTestModule::set_mining_execution_token_execution_result(
                 Origin::signed(0),
-                0,           // mining_config_token_id
+                0,           // mining_setting_token_id
                 0,           // mining_execution_token_id
                 Some(12345), // token_execution_started_block
                 Some(34567)  // token_execution_ended_block

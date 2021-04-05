@@ -27,34 +27,28 @@ impl_outer_origin! {
 pub struct TestRuntime;
 parameter_types! {
     pub const BlockHashCount: u64 = 250;
-    pub const MaximumBlockWeight: u32 = 1024;
-    pub const MaximumBlockLength: u32 = 2 * 1024;
-    pub const AvailableBlockRatio: Perbill = Perbill::one();
 }
-impl system::Trait for TestRuntime {
-    type AccountData = ();
+impl system::Config for TestRuntime {
+    type AccountData = pallet_balances::AccountData<u64>;
     type AccountId = u64;
-    type AvailableBlockRatio = AvailableBlockRatio;
     type BaseCallFilter = ();
-    type BlockExecutionWeight = ();
     type BlockHashCount = BlockHashCount;
     type BlockNumber = u64;
-    type Call = ();
+    type BlockLength = ();
+    type BlockWeights = ();
+    type Call = Call;
     type DbWeight = ();
-    type Event = TestEvent;
-    type ExtrinsicBaseWeight = ();
+    type Event = ();
     type Hash = H256;
     type Hashing = BlakeTwo256;
     type Header = Header;
     type Index = u64;
     type Lookup = IdentityLookup<Self::AccountId>;
-    type MaximumBlockLength = MaximumBlockLength;
-    type MaximumBlockWeight = MaximumBlockWeight;
-    type MaximumExtrinsicWeight = MaximumBlockWeight;
     type OnKilledAccount = ();
     type OnNewAccount = ();
     type Origin = Origin;
-    type PalletInfo = ();
+    type PalletInfo = PalletInfo;
+    type SS58Prefix = ();
     type SystemWeightInfo = ();
     type Version = ();
 }
@@ -70,7 +64,7 @@ impl_outer_event! {
     }
 }
 
-impl Trait for TestRuntime {
+impl Config for TestRuntime {
     type Event = TestEvent;
 }
 

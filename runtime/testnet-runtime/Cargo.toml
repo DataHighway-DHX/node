@@ -1,0 +1,167 @@
+[package]
+authors = ['MXC Foundation gGmbH <https://t.me/mxcfoundation>', 'Luke Schoen <luke@mxc.org>', 'Ilya Beregovskiy <ilya@mxc.org>']
+edition = '2018'
+name = 'datahighway-testnet-runtime'
+version = '3.0.0'
+
+[package.metadata.docs.rs]
+targets = ['x86_64-unknown-linux-gnu']
+
+
+[dependencies]
+static_assertions = '1.1.0'
+codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
+frame-executive = { version = '3.0.0', default-features = false }
+frame-support = { version = '3.0.0', default-features = false }
+frame-system-rpc-runtime-api = { version = '3.0.0', default-features = false }
+pallet-authorship = { version = '3.0.0', default-features = false }
+pallet-authority-discovery = { version = '3.0.0', default-features = false }
+pallet-balances = { version = '3.0.0', default-features = false }
+pallet-babe = { version = '3.0.0', default-features = false }
+pallet-bounties = { version = '3.0.0', default-features = false }
+pallet-collective = { version = '3.0.0', default-features = false }
+pallet-democracy = { version = '3.0.0', default-features = false }
+pallet-elections-phragmen = { version = '3.0.0', default-features = false }
+pallet-grandpa = { version = '3.0.0', default-features = false }
+pallet-identity = { version = '3.0.0', default-features = false }
+pallet-im-online = { version = '3.0.0', default-features = false }
+pallet-indices = { version = '3.0.0', default-features = false }
+pallet-membership = { version = '3.0.0', default-features = false }
+pallet-offences = { version = '3.0.0', default-features = false }
+pallet-randomness-collective-flip = { version = '3.0.0', default-features = false }
+pallet-scheduler = { version = '3.0.0', default-features = false }
+pallet-session = { version = '3.0.0', default-features = false }
+pallet-staking = { version = '3.0.0', default-features = false }
+pallet-staking-reward-curve = { version = '3.0.0', default-features = false }
+pallet-sudo = { version = '3.0.0', default-features = false }
+pallet-timestamp = { version = '3.0.0', default-features = false }
+pallet-tips = { version = '3.0.0', default-features = false }
+pallet-transaction-payment = { version = '3.0.0', default-features = false }
+pallet-transaction-payment-rpc-runtime-api = { version = '3.0.0', default-features = false }
+pallet-treasury = { version = '3.0.0', default-features = false }
+serde = { version = '1.0.101', optional = true, features = ['derive'] }
+sp-authority-discovery = { version = '3.0.0', default-features = false }
+sp-api = { version = '3.0.0', default-features = false }
+sp-block-builder = { version = '3.0.0', default-features = false }
+sp-consensus-babe = { version = '0.9.0', default-features = false }
+sp-core = { version = '3.0.0', default-features = false }
+sp-inherents = { version = '3.0.0', default-features = false }
+sp-io = { version = '3.0.0', default-features = false }
+sp-offchain = { version = '3.0.0', default-features = false }
+sp-runtime = { version = '3.0.0', default-features = false }
+sp-session = { version = '3.0.0', default-features = false }
+sp-staking = { version = '3.0.0', default-features = false }
+sp-std = { version = '3.0.0', default-features = false }
+sp-transaction-pool = { version = '3.0.0', default-features = false }
+sp-version = { version = '3.0.0', default-features = false }
+frame-system = { version = '3.0.0', default-features = false }
+
+# env = { version = '1.0.0', default-features = false, package = 'env', path = '../../pallets/env'}
+roaming-operators = { default-features = false, package = 'roaming-operators', path = '../../pallets/roaming/roaming-operators' }
+roaming-networks = { default-features = false, package = 'roaming-networks', path = '../../pallets/roaming/roaming-networks' }
+roaming-organizations = { default-features = false, package = 'roaming-organizations', path = '../../pallets/roaming/roaming-organizations' }
+roaming-network-servers = { default-features = false, package = 'roaming-network-servers', path = '../../pallets/roaming/roaming-network-servers' }
+roaming-devices = { default-features = false, package = 'roaming-devices', path = '../../pallets/roaming/roaming-devices' }
+roaming-routing-profiles = { default-features = false, package = 'roaming-routing-profiles', path = '../../pallets/roaming/roaming-routing-profiles' }
+roaming-service-profiles = { default-features = false, package = 'roaming-service-profiles', path = '../../pallets/roaming/roaming-service-profiles' }
+roaming-accounting-policies = { default-features = false, package = 'roaming-accounting-policies', path = '../../pallets/roaming/roaming-accounting-policies' }
+roaming-agreement-policies = { default-features = false, package = 'roaming-agreement-policies', path = '../../pallets/roaming/roaming-agreement-policies' }
+roaming-network-profiles = { default-features = false, package = 'roaming-network-profiles', path = '../../pallets/roaming/roaming-network-profiles' }
+roaming-device-profiles = { default-features = false, package = 'roaming-device-profiles', path = '../../pallets/roaming/roaming-device-profiles' }
+roaming-sessions = { default-features = false, package = 'roaming-sessions', path = '../../pallets/roaming/roaming-sessions' }
+roaming-billing-policies = { default-features = false, package = 'roaming-billing-policies', path = '../../pallets/roaming/roaming-billing-policies' }
+roaming-charging-policies = { default-features = false, package = 'roaming-charging-policies', path = '../../pallets/roaming/roaming-charging-policies' }
+roaming-packet-bundles = { default-features = false, package = 'roaming-packet-bundles', path = '../../pallets/roaming/roaming-packet-bundles' }
+membership-supernodes = { default_features = false, package = 'membership-supernodes', path = '../../pallets/membership/supernodes' }
+mining-setting-token = { default-features = false, package = 'mining-setting-token', path = '../../pallets/mining/setting/token' }
+mining-setting-hardware = { default-features = false, package = 'mining-setting-hardware', path = '../../pallets/mining/setting/hardware' }
+mining-rates-token = { default-features = false, package = 'mining-rates-token', path = '../../pallets/mining/rates/token' }
+mining-rates-hardware = { default-features = false, package = 'mining-rates-hardware', path = '../../pallets/mining/rates/hardware' }
+mining-sampling-token = { default-features = false, package = 'mining-sampling-token', path = '../../pallets/mining/sampling/token' }
+mining-sampling-hardware = { default-features = false, package = 'mining-sampling-hardware', path = '../../pallets/mining/sampling/hardware' }
+mining-eligibility-token = { default-features = false, package = 'mining-eligibility-token', path = '../../pallets/mining/eligibility/token' }
+mining-eligibility-hardware = { default-features = false, package = 'mining-eligibility-hardware', path = '../../pallets/mining/eligibility/hardware' }
+mining-claims-token = { default-features = false, package = 'mining-claims-token', path = '../../pallets/mining/claims/token' }
+mining-claims-hardware = { default-features = false, package = 'mining-claims-hardware', path = '../../pallets/mining/claims/hardware' }
+mining-execution-token = { default-features = false, package = 'mining-execution-token', path = '../../pallets/mining/execution/token' }
+exchange-rate = { default-features = false, package = 'exchange-rate', path = '../../pallets/exchange-rate' }
+module-primitives = { default-features = false, path = '../../pallets/primitives' }
+
+[features]
+default = ['std']
+std = [
+    'codec/std',
+    'frame-system-rpc-runtime-api/std',
+    'frame-executive/std',
+    'frame-support/std',
+    'module-primitives/std',
+    'pallet-authorship/std',
+    'pallet-authority-discovery/std',
+    'pallet-balances/std',
+    'pallet-babe/std',
+    'pallet-bounties/std',
+    'pallet-democracy/std',
+    'pallet-grandpa/std',
+    'pallet-identity/std',
+    'pallet-indices/std',
+    'pallet-im-online/std',
+    'pallet-collective/std',
+    'pallet-elections-phragmen/std',
+    'pallet-membership/std',
+    'pallet-offences/std',
+    'pallet-tips/std',
+    'pallet-treasury/std',
+    'pallet-randomness-collective-flip/std',
+    'pallet-scheduler/std',
+    'pallet-staking/std',
+    'pallet-sudo/std',
+    'pallet-timestamp/std',
+    'pallet-transaction-payment/std',
+    'pallet-transaction-payment-rpc-runtime-api/std',
+    'serde',
+    'sp-api/std',
+    'sp-authority-discovery/std',
+    'sp-block-builder/std',
+    'sp-consensus-babe/std',
+    'sp-core/std',
+    'sp-inherents/std',
+    'sp-io/std',
+    'sp-offchain/std',
+    'sp-runtime/std',
+    'sp-session/std',
+    'sp-std/std',
+    'sp-transaction-pool/std',
+    'sp-version/std',
+    'frame-system/std',
+    'roaming-operators/std',
+    'roaming-networks/std',
+    'roaming-organizations/std',
+    'roaming-network-servers/std',
+    'roaming-devices/std',
+    'roaming-routing-profiles/std',
+    'roaming-service-profiles/std',
+    'roaming-accounting-policies/std',
+    'roaming-agreement-policies/std',
+    'roaming-network-profiles/std',
+    'roaming-device-profiles/std',
+    'roaming-sessions/std',
+    'roaming-billing-policies/std',
+    'roaming-charging-policies/std',
+    'roaming-packet-bundles/std',
+    'membership-supernodes/std',
+    'mining-setting-token/std',
+    'mining-setting-hardware/std',
+    'mining-rates-token/std',
+    'mining-rates-hardware/std',
+    'mining-sampling-token/std',
+    'mining-sampling-hardware/std',
+    'mining-eligibility-token/std',
+    'mining-eligibility-hardware/std',
+    'mining-claims-token/std',
+    'mining-claims-hardware/std',
+    'mining-execution-token/std',
+    'exchange-rate/std',
+]
+
+[build-dependencies]
+substrate-wasm-builder = { version = '4.0.0', package = 'substrate-wasm-builder' }
