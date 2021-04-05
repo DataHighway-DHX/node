@@ -124,9 +124,13 @@ mod tests {
             UncheckedExtrinsic = UncheckedExtrinsic,
         {
             System: frame_system::{Module, Call, Config, Storage, Event<T>},
+            Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
             Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
             RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
             TransactionPayment: pallet_transaction_payment::{Module, Storage},
+            Treasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
+            Bounties: pallet_bounties::{Module, Call, Storage, Event<T>},
+            Tips: pallet_tips::{Module, Call, Storage, Event<T>},
         }
     );
 
