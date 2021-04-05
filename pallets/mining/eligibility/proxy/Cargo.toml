@@ -23,7 +23,6 @@ std = [
     'sp-runtime/std',
     'sp-std/std',
 
-    'roaming-operators/std',
     'account-set/std',
     'membership-supernodes/std',
 ]
@@ -45,7 +44,6 @@ sp-runtime = { version = '3.0.0', default-features = false }
 sp-std = { version = '3.0.0', default-features = false }
 chrono = { version = '0.4.19', default_features = false }
 
-roaming-operators = { default-features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
 account-set = { path = '../../../../traits/account-set', default-features = false }
 membership-supernodes = { path = '../../../membership/supernodes', default-features = false }
 

@@ -95,6 +95,7 @@ jobs:
           cargo +nightly-2021-03-10 test -p mining-sampling-hardware &&
           cargo +nightly-2021-03-10 test -p mining-eligibility-token &&
           cargo +nightly-2021-03-10 test -p mining-eligibility-hardware &&
+          cargo +nightly-2021-03-10 test -p mining-eligibility-proxy &&
           cargo +nightly-2021-03-10 test -p mining-claims-token &&
           cargo +nightly-2021-03-10 test -p mining-claims-hardware &&
           cargo +nightly-2021-03-10 test -p mining-execution-token &&

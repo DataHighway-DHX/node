@@ -1015,8 +1015,9 @@ impl mining_eligibility_hardware::Config for Runtime {
 }
 
 impl mining_eligibility_proxy::Config for Runtime {
-    type Currency = Balances;
     type Event = Event;
+    type Currency = Balances;
+    type Randomness = RandomnessCollectiveFlip;
     // Check membership
     type MembershipSource = MembershipSupernodes;
     type MiningEligibilityProxyIndex = u64;

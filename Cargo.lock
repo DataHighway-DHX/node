@@ -3676,7 +3676,6 @@ dependencies = [
  "pallet-transaction-payment",
  "pallet-treasury",
  "parity-scale-codec",
- "roaming-operators",
  "safe-mix",
  "sp-core",
  "sp-io",

@@ -279,8 +279,8 @@ mod tests {
 
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
     impl roaming_operators::Config for Test {
-        type Currency = Balances;
         type Event = ();
+        type Currency = Balances;
         type Randomness = RandomnessCollectiveFlip;
         type RoamingOperatorIndex = u64;
     }
@@ -318,8 +318,9 @@ mod tests {
         // type MiningEligibilityTokenAuditorAccountID = u64;
     }
     impl MiningEligibilityProxyConfig for Test {
-        type Currency = Balances;
         type Event = ();
+        type Currency = Balances;
+        type Randomness = RandomnessCollectiveFlip;
         type MembershipSource = MembershipSupernodes;
         type MiningEligibilityProxyIndex = u64;
         type RewardsOfDay = u64;

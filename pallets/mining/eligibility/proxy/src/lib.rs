@@ -54,13 +54,13 @@ use sp_std::{
 /// The module's configuration trait.
 pub trait Config:
     frame_system::Config
-    + roaming_operators::Config
     + pallet_treasury::Config
     + pallet_balances::Config
     + pallet_timestamp::Config
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type Currency: Currency<Self::AccountId>;
+    type Randomness: Randomness<Self::Hash>;
     // Loosely coupled
     type MembershipSource: AccountSet<AccountId = Self::AccountId>;
     type MiningEligibilityProxyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
