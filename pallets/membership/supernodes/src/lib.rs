@@ -21,8 +21,8 @@ use sp_std::{
     prelude::*,
 };
 
-#[cfg(test)]
-mod tests;
+// #[cfg(test)]
+// mod tests;
 
 /// A maximum number of members. When membership reaches this number, no new members may join.
 pub const MAX_MEMBERS: usize = 16;

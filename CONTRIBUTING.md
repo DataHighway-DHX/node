@@ -335,6 +335,9 @@ rustup toolchain install nightly-2021-03-10-aarch64-apple-darwin
 rustup component add rustfmt --toolchain nightly-2021-03-10-aarch64-apple-darwin
 cargo +nightly-2021-03-10-aarch64-apple-darwin fmt --all -- --check
 ```
+
+* Question: Why do I get an error `1002: Verification Error: Execution: Could not convert parameter 'tx' between node and runtime: Error decoding field Call:: MiningEligibilityProxy.0 RuntimeApi` when in polkadot.js.apps when I try to 'Add Item' with data to a Vec?
+    * Ans: Because there is a type mismatch, perhaps the first variable requires a `Balance` instead of `u32` in custom_types.json or similar.
 ## Technical Support <a id="chapter-c00ab7"></a>
 
 * [Discord Chat](https://discord.gg/UuZN2tE)

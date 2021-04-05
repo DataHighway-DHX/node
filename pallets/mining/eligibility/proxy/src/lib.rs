@@ -440,6 +440,7 @@ decl_module! {
                         debug::info!("requested_date_as_u64: {:?}", requested_date_as_u64.clone());
 
                         let requested_date_as_u64_secs = requested_date_as_u64.clone() / 1000u64;
+                        // https://docs.rs/chrono/0.4.6/chrono/naive/struct.NaiveDateTime.html#method.from_timestamp
                         let sent_date = NaiveDateTime::from_timestamp(i64::try_from(requested_date_as_u64_secs).unwrap(), 0).date();
                         debug::info!("requested_date_as_u64_secs: {:?}", requested_date_as_u64_secs.clone());
                         debug::info!("sent_date: {:?}", sent_date.clone());
@@ -653,8 +654,9 @@ impl<T: Config> Module<T> {
             return Err(DispatchError::Other("Unable to convert Moment to u64 for current_timestamp"));
         }
 
+        let current_timestamp_as_u64_secs = current_timestamp_as_u64.clone() / 1000u64;
         let current_date =
-            NaiveDateTime::from_timestamp(i64::try_from(current_timestamp_as_u64.clone() / 1000u64).unwrap(), 0).date();
+            NaiveDateTime::from_timestamp(i64::try_from(current_timestamp_as_u64_secs).unwrap(), 0).date();
 
         let mut rewardees_data_count = 0;
         let mut is_valid = 1;
@@ -668,8 +670,10 @@ impl<T: Config> Module<T> {
 
             if let _proxy_claim_start_date = &rewardees_data.proxy_claim_start_date {
                 if let _proxy_claim_end_date = &rewardees_data.proxy_claim_end_date {
-                    let proxy_claim_start_date = NaiveDateTime::from_timestamp(*_proxy_claim_start_date, 0).date();
-                    let proxy_claim_end_date = NaiveDateTime::from_timestamp(*_proxy_claim_end_date, 0).date();
+                    let proxy_claim_start_date_secs = _proxy_claim_start_date / 1000i64;
+                    let proxy_claim_end_date_secs = _proxy_claim_end_date / 1000i64;
+                    let proxy_claim_start_date = NaiveDateTime::from_timestamp(proxy_claim_start_date_secs, 0).date();
+                    let proxy_claim_end_date = NaiveDateTime::from_timestamp(proxy_claim_end_date_secs, 0).date();
 
                     let claim_duration = proxy_claim_end_date.signed_duration_since(proxy_claim_start_date);
 

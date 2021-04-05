@@ -1232,6 +1232,7 @@ dependencies = [
 name = "datahighway-mainnet-runtime"
 version = "3.0.0"
 dependencies = [
+ "chrono",
  "exchange-rate",
  "frame-executive",
  "frame-support",
@@ -1241,6 +1242,7 @@ dependencies = [
  "mining-claims-hardware",
  "mining-claims-token",
  "mining-eligibility-hardware",
+ "mining-eligibility-proxy",
  "mining-eligibility-token",
  "mining-execution-token",
  "mining-rates-hardware",
@@ -1314,6 +1316,7 @@ dependencies = [
 name = "datahighway-testnet-runtime"
 version = "3.0.0"
 dependencies = [
+ "chrono",
  "exchange-rate",
  "frame-executive",
  "frame-support",
@@ -1323,6 +1326,7 @@ dependencies = [
  "mining-claims-hardware",
  "mining-claims-token",
  "mining-eligibility-hardware",
+ "mining-eligibility-proxy",
  "mining-eligibility-token",
  "mining-execution-token",
  "mining-rates-hardware",
@@ -3498,6 +3502,7 @@ dependencies = [
  "account-set",
  "frame-support",
  "frame-system",
+ "pallet-balances",
  "parity-scale-codec",
  "sp-core",
  "sp-io",
@@ -3649,6 +3654,30 @@ dependencies = [
  "roaming-operators",
  "safe-mix",
  "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "mining-eligibility-proxy"
+version = "0.1.0"
+dependencies = [
+ "account-set",
+ "chrono",
+ "frame-support",
+ "frame-system",
+ "membership-supernodes",
+ "module-primitives",
+ "pallet-balances",
+ "pallet-randomness-collective-flip",
+ "pallet-timestamp",
+ "pallet-transaction-payment",
+ "pallet-treasury",
+ "parity-scale-codec",
+ "roaming-operators",
+ "safe-mix",
  "sp-core",
  "sp-io",
  "sp-runtime",

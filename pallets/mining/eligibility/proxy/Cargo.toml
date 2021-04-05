@@ -7,6 +7,7 @@ edition = "2018"
 [features]
 default = ['std']
 std = [
+    'chrono/std',
     'codec/std',
     'frame-support/std',
     'frame-system/std',
@@ -21,7 +22,6 @@ std = [
     'sp-io/std',
     'sp-runtime/std',
     'sp-std/std',
-    'chrono/std',
 
     'roaming-operators/std',
     'account-set/std',

@@ -66,6 +66,10 @@ jobs:
           cargo +nightly-2021-03-10 test -p datahighway-testnet-runtime &&
           cargo +nightly-2021-03-10 test -p datahighway-mainnet-runtime
 
+      # FIXME - unable to run the tests anymore.
+      # cargo test -p datahighway-runtime-testnet --all
+      # cargo test -p datahighway-runtime-testnet --test cli_integration_tests_mining_tokens
+
       # Runs unit tests in each runtime module of the pallet folder
       - name: Run Unit Tests in each runtime module
         run: |

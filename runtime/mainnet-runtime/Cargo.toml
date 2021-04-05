@@ -81,15 +81,18 @@ mining-sampling-token = { default-features = false, package = 'mining-sampling-t
 mining-sampling-hardware = { default-features = false, package = 'mining-sampling-hardware', path = '../../pallets/mining/sampling/hardware' }
 mining-eligibility-token = { default-features = false, package = 'mining-eligibility-token', path = '../../pallets/mining/eligibility/token' }
 mining-eligibility-hardware = { default-features = false, package = 'mining-eligibility-hardware', path = '../../pallets/mining/eligibility/hardware' }
+mining-eligibility-proxy = { default_features = false, package = 'mining-eligibility-proxy', path = '../../pallets/mining/eligibility/proxy' }
 mining-claims-token = { default-features = false, package = 'mining-claims-token', path = '../../pallets/mining/claims/token' }
 mining-claims-hardware = { default-features = false, package = 'mining-claims-hardware', path = '../../pallets/mining/claims/hardware' }
 mining-execution-token = { default-features = false, package = 'mining-execution-token', path = '../../pallets/mining/execution/token' }
 exchange-rate = { default-features = false, package = 'exchange-rate', path = '../../pallets/exchange-rate' }
 module-primitives = { default-features = false, path = '../../pallets/primitives' }
+chrono = { version = '0.4.19', default_features = false }
 
 [features]
 default = ['std']
 std = [
+    'chrono/std',
     'codec/std',
     'frame-system-rpc-runtime-api/std',
     'frame-executive/std',
@@ -157,6 +160,7 @@ std = [
     'mining-sampling-hardware/std',
     'mining-eligibility-token/std',
     'mining-eligibility-hardware/std',
+    'mining-eligibility-proxy/std',
     'mining-claims-token/std',
     'mining-claims-hardware/std',
     'mining-execution-token/std',
