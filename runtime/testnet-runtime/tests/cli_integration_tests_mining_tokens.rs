@@ -235,29 +235,42 @@ mod tests {
     }
 
     impl pallet_treasury::Config for Test {
-        type ApproveOrigin = EnsureRoot<u64>;
-        type BountyCuratorDeposit = BountyCuratorDeposit;
-        type BountyDepositBase = BountyDepositBase;
-        type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
-        type BountyUpdatePeriod = BountyUpdatePeriod;
-        type BountyValueMinimum = BountyValueMinimum;
-        type Burn = Burn;
-        type BurnDestination = ();
-        type Currency = Balances;
-        type DataDepositPerByte = DataDepositPerByte;
-        type Event = ();
-        type MaximumReasonLength = MaximumReasonLength;
         type ModuleId = TreasuryModuleId;
+        type Currency = Balances;
+        type ApproveOrigin = EnsureRoot<u64>;
+        type RejectOrigin = EnsureRoot<u64>;
+        type Event = ();
         type OnSlash = ();
         type ProposalBond = ProposalBond;
         type ProposalBondMinimum = ProposalBondMinimum;
-        type RejectOrigin = EnsureRoot<u64>;
         type SpendPeriod = SpendPeriod;
+        type Burn = Burn;
+        type BurnDestination = ();
+        type SpendFunds = Bounties;
+        type WeightInfo = pallet_treasury::weights::SubstrateWeight<Test>;
+    }
+
+    impl pallet_bounties::Config for Test {
+        type Event = ();
+        type BountyDepositBase = BountyDepositBase;
+        type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
+        type BountyUpdatePeriod = BountyUpdatePeriod;
+        type BountyCuratorDeposit = BountyCuratorDeposit;
+        type BountyValueMinimum = BountyValueMinimum;
+        type DataDepositPerByte = DataDepositPerByte;
+        type MaximumReasonLength = MaximumReasonLength;
+        type WeightInfo = pallet_bounties::weights::SubstrateWeight<Test>;
+    }
+
+    impl pallet_tips::Config for Test {
+        type Event = ();
+        type DataDepositPerByte = DataDepositPerByte;
+        type MaximumReasonLength = MaximumReasonLength;
+        type Tippers = TenToFourteen;
         type TipCountdown = TipCountdown;
         type TipFindersFee = TipFindersFee;
         type TipReportDepositBase = TipReportDepositBase;
-        type Tippers = TenToFourteen;
-        type WeightInfo = ();
+        type WeightInfo = pallet_tips::weights::SubstrateWeight<Test>;
     }
 
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
@@ -320,10 +333,10 @@ mod tests {
         type Event = ();
     }
 
-    type System = frame_system::Module<Test>;
-    pub type Balances = pallet_balances::Module<Test>;
-    pub type Timestamp = pallet_timestamp::Module<Test>;
-    pub type Treasury = pallet_treasury::Module<Test>;
+    // type System = frame_system::Module<Test>;
+    // pub type Balances = pallet_balances::Module<Test>;
+    // pub type Timestamp = pallet_timestamp::Module<Test>;
+    // pub type Treasury = pallet_treasury::Module<Test>;
     pub type MiningSettingTokenTestModule = MiningSettingTokenModule<Test>;
     pub type MiningRatesTokenTestModule = MiningRatesTokenModule<Test>;
     pub type MiningSamplingTokenTestModule = MiningSamplingTokenModule<Test>;
