@@ -63,12 +63,11 @@ jobs:
       # Runs integration tests in the runtime/tests folder
       - name: Run Integration Tests across all runtime modules
         run: |
-          cargo +nightly-2021-03-10 test -p datahighway-testnet-runtime &&
-          cargo +nightly-2021-03-10 test -p datahighway-mainnet-runtime
+          cargo +nightly-2021-03-10 test -p datahighway-testnet-runtime
 
-      # FIXME - unable to run the tests anymore.
-      # cargo test -p datahighway-runtime-testnet --all
-      # cargo test -p datahighway-runtime-testnet --test cli_integration_tests_mining_tokens
+      # Note: we do not have tests for mainnet-runtime since the code is the same
+      # as in testnet-runtime the moment
+      # cargo +nightly-2021-03-10 test -p datahighway-mainnet-runtime
 
       # Runs unit tests in each runtime module of the pallet folder
       - name: Run Unit Tests in each runtime module
