@@ -76,11 +76,10 @@ pub struct MiningEligibilityProxy(pub [u8; 16]);
 
 #[derive(Encode, Decode, Debug, Default, Clone, PartialEq)]
 #[cfg_attr(feature = "std", derive())]
-pub struct MiningEligibilityProxyRewardRequest<U, V, W, X> {
+pub struct MiningEligibilityProxyRewardRequest<U, V, X> {
     pub proxy_claim_requestor_account_id: U, /* Supernode (proxy) account id requesting DHX rewards as proxy to
                                               * distribute to its miners */
     pub proxy_claim_total_reward_amount: V,
-    pub proxy_claim_rewardees_data: W,
     pub proxy_claim_timestamp_redeemed: X,
 }
 
@@ -216,9 +215,12 @@ decl_storage! {
             Option<MiningEligibilityProxyRewardRequest<
                 T::AccountId,
                 BalanceOf<T>,
-                Vec<RewardeeData<T>>, // TODO - change to store MiningEligibilityProxyRewardeeIndex that is created to store then instead
                 <T as pallet_timestamp::Config>::Moment,
             >>;
+
+        /// Stores mining_eligibility_proxy_reward_request
+        pub MiningEligibilityProxyRewardees get(fn mining_eligibility_proxy_rewardees): map hasher(opaque_blake2_256) T::MiningEligibilityProxyIndex =>
+            Option<Vec<RewardeeData<T>>>;
 
         // IGNORE - seems unnessary since can get from MiningEligibilityProxyRewardRequests
         // pub MiningEligibilityProxyRewardees get(fn mining_eligibility_proxy_eligibility_rewardees): map hasher(opaque_blake2_256) T::MiningEligibilityProxyRewardeeIndex =>
@@ -839,8 +841,6 @@ impl<T: Config> Module<T> {
                             proxy_claim_requestor_account_id.clone();
                         _mining_eligibility_proxy_reward_request.proxy_claim_total_reward_amount =
                             proxy_claim_total_reward_amount.clone();
-                        _mining_eligibility_proxy_reward_request.proxy_claim_rewardees_data =
-                            proxy_claim_rewardees_data.clone();
                         _mining_eligibility_proxy_reward_request.proxy_claim_timestamp_redeemed =
                             proxy_claim_timestamp_redeemed.clone();
                     }
@@ -877,7 +877,6 @@ impl<T: Config> Module<T> {
                 // we will assign a default value if a parameter value is not provided.
                 proxy_claim_requestor_account_id: proxy_claim_requestor_account_id.clone(),
                 proxy_claim_total_reward_amount: proxy_claim_total_reward_amount.clone(),
-                proxy_claim_rewardees_data: proxy_claim_rewardees_data.clone(),
                 proxy_claim_timestamp_redeemed: proxy_claim_timestamp_redeemed.clone(),
             };
 
@@ -909,6 +908,12 @@ impl<T: Config> Module<T> {
                 );
             }
         }
+
+        debug::info!("Insert rewardee {:#?}", proxy_claim_rewardees_data.clone());
+        <MiningEligibilityProxyRewardees<T>>::insert(
+            mining_eligibility_proxy_id,
+            proxy_claim_rewardees_data.clone(),
+        );
 
         let proxy_claim_timestamp_redeemed_as_u64 =
             TryInto::<u64>::try_into(proxy_claim_timestamp_redeemed).ok().unwrap();
