@@ -810,7 +810,6 @@ mod tests {
                     reward_transfer_data.clone().pop(),
                     Some(RewardTransferData {
                         mining_eligibility_proxy_id: 0u64,
-                        is_sent: true,
                         total_amt: 1000u64,
                         rewardee_count: 1u64,
                         member_kind: 1u32,

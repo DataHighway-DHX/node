@@ -104,13 +104,12 @@ pub struct RewardRequestorData<U, V, W, X, Y> {
 
 #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "std", derive())]
-pub struct RewardTransferData<U, V, W, X, Y, Z> {
+pub struct RewardTransferData<U, V, W, X, Y> {
     pub mining_eligibility_proxy_id: U,
-    pub is_sent: V,
-    pub total_amt: W,
-    pub rewardee_count: X,
-    pub member_kind: Y,
-    pub requested_date: Z,
+    pub total_amt: V,
+    pub rewardee_count: W,
+    pub member_kind: X,
+    pub requested_date: Y,
 }
 
 #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
@@ -137,7 +136,6 @@ type RequestorData<T> = RewardRequestorData<
 
 type TransferData<T> = RewardTransferData<
     <T as Config>::MiningEligibilityProxyIndex,
-    bool,
     BalanceOf<T>,
     u64,
     u32,
@@ -187,6 +185,7 @@ decl_event!(
         IsAMember(AccountId),
         /// Substrate-fixed total rewards for a given day has been updated.
         TotalRewardsPerDayUpdated(BalanceOf, Date, AccountId),
+        CompletedReward(MiningEligibilityProxyIndex),
     }
 );
 
@@ -251,12 +250,11 @@ decl_storage! {
         /// IMPORTANT NOTE: REQUESTOR MAY DIFFER FROM REQUESTEE
         /// HENCE DIFFERENT STORAGE FROM `reward_requestors`
         ///
-        /// rewardee_acct_id > (reward_hash, bool, total_amt, rewardee_count, member_kind, date)
+        /// rewardee_acct_id > (reward_hash, total_amt, rewardee_count, member_kind, date)
         pub MiningEligibilityProxyRewardTransfers get(fn reward_transfers):
             map hasher(opaque_blake2_256) T::AccountId =>
                 Option<Vec<RewardTransferData<
                     <T as Config>::MiningEligibilityProxyIndex,
-                    bool,
                     BalanceOf<T>,
                     u64,
                     u32,
@@ -278,6 +276,9 @@ decl_storage! {
                     u32,
                     Date,
                 >>>;
+
+        pub MiningEligibilityProxyStatus get(fn proxy_status):
+            map hasher(opaque_blake2_256) T::MiningEligibilityProxyIndex => bool;
     }
 }
 
@@ -359,16 +360,9 @@ decl_module! {
             let recipient_member_kind = T::MembershipSource::account_kind(sender.clone());
             debug::info!("Recipient account kind: {:?}", recipient_member_kind.clone());
 
-            let mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex;
-
-            match Self::create(sender.clone()) {
-                Ok(proxy_id) => {
-                    mining_eligibility_proxy_id = proxy_id.into();
-                },
-                Err(_) => {
-                    return Err(DispatchError::Other("Proxy claim rewardees data missing"));
-                }
-            }
+            // Validate inputs (i.e. run `is_valid_reward_data` before we generate the `mining_eligibility_proxy_id` or insert any data in storage
+            // as we do not want it to panic if inputs are invalid and have have only partially added some data in storage,
+            // as we'd end up with numerous `mining_eligibility_proxy_id` with incomplete data.
 
             // TODO
             // ensure!(Self::is_supernode_claim_reasonable(_proxy_claim_total_reward_amount).is_ok(), "Supernode claim has been deemed unreasonable");
@@ -382,8 +376,7 @@ decl_module! {
                 }
             }
 
-            debug::info!("Transferring claim to proxy Supernode");
-            // Distribute the reward to the account that has locked the funds
+            // The rewards shall be distributed to the account that has locked the funds
             let treasury_account_id: T::AccountId = <pallet_treasury::Module<T>>::account_id();
             // Only available in Substrate 3 is pot()
             // let max_payout = pallet_treasury::Module::<T>::pot();
@@ -392,16 +385,41 @@ decl_module! {
             debug::info!("Requestor to receive reward: {:?}", sender.clone());
             debug::info!("Treasury balance max payout: {:?}", max_payout.clone());
 
-            // let reward_to_pay_as_balance_to_try = TryInto::<BalanceOf<T>>::try_into(_proxy_claim_total_reward_amount).ok();
-            // if let Some(reward_to_pay) = reward_to_pay_as_balance_to_try {
+            // Validate inputs so the total_reward_amount is less than the max_payout
 
             let reward_to_pay = _proxy_claim_total_reward_amount;
 
-            // FIXME - can't convert without losing value
-            // let reward_to_pay_as_u64 = TryInto::<u64>::try_into(reward_to_pay).ok();
-            // ensure!(reward_to_pay_as_u64 > Some(0u64), "Reward must be greater than zero");
+            let reward_to_pay_as_u128;
+            if let Some(_reward_to_pay_as_u128) = TryInto::<u128>::try_into(reward_to_pay).ok() {
+                reward_to_pay_as_u128 = _reward_to_pay_as_u128;
+            } else {
+                return Err(DispatchError::Other("Unable to convert Balance to u128 for reward_to_pay"));
+            }
+            debug::info!("reward_to_pay_as_u128: {:?}", reward_to_pay_as_u128.clone());
 
-            // ensure!(max_payout > reward_to_pay, "Reward cannot exceed treasury balance");
+            let max_payout_as_u128;
+            if let Some(_max_payout_as_u128) = TryInto::<u128>::try_into(max_payout).ok() {
+                max_payout_as_u128 = _max_payout_as_u128;
+            } else {
+                return Err(DispatchError::Other("Unable to convert Balance to u128 for max_payout"));
+            }
+            debug::info!("max_payout_as_u128: {:?}", max_payout_as_u128.clone());
+
+            ensure!(reward_to_pay_as_u128 > 0u128, "Reward must be greater than zero");
+            ensure!(max_payout_as_u128 > reward_to_pay_as_u128, "Reward cannot exceed treasury balance");
+
+            let mining_eligibility_proxy_id: T::MiningEligibilityProxyIndex;
+
+            match Self::create(sender.clone()) {
+                Ok(proxy_id) => {
+                    mining_eligibility_proxy_id = proxy_id.into();
+                },
+                Err(_) => {
+                    return Err(DispatchError::Other("Proxy claim rewardees data missing"));
+                }
+            }
+
+            debug::info!("Transferring claim to proxy Supernode");
 
             // Store Requestor of the reward
 
@@ -463,12 +481,6 @@ decl_module! {
                 debug::info!("sent_date_millis: {:?}", sent_date_millis.clone());
 
                 debug::info!("Timestamp sent Date: {:?}", sent_date);
-                // check if the start of the current day date/time entry exists as a key for `rewards_daily`
-                //
-                // if so, retrieve the latest `rewards_daily` data stored for the start of that day date/time
-                // i.e. (account_id, balance_rewarded, block_number), and add the new reward value to it.
-                //
-                // else just insert that as a new entry
 
                 let reward_amount_item: DailyData<T> = RewardDailyData {
                     mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
@@ -542,9 +554,11 @@ decl_module! {
                     }
                 }
 
+                // This is only really necessary in addition to `RewardRequestorData` if
+                // the sender of the data is different from the recipient of the rewards
+                // (if this extrinsic function accepted a recipient argument other than the sender)
                 let reward_transfer_data: TransferData<T> = RewardTransferData {
                     mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
-                    is_sent: true,
                     total_amt: reward_to_pay.clone(),
                     rewardee_count: rewardees_data_len.clone(),
                     member_kind: member_kind.clone(),
@@ -573,6 +587,17 @@ decl_module! {
                 debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID: {:?}", mining_eligibility_proxy_id.clone());
                 debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID with reward amount: {:?}", _proxy_claim_total_reward_amount.clone());
                 debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID with _proxy_claim_rewardees_data: {:?}", _proxy_claim_rewardees_data.clone());
+
+                <MiningEligibilityProxyStatus<T>>::insert(
+                    mining_eligibility_proxy_id.clone(),
+                    true,
+                );
+
+                Self::deposit_event(RawEvent::CompletedReward(
+                    mining_eligibility_proxy_id.clone(),
+                ));
+
+                debug::info!("Completed Transfer");
 
                 return Ok(());
             } else {
@@ -693,47 +718,34 @@ impl<T: Config> Module<T> {
             return Err(DispatchError::Other("Invalid rewardees data"));
         }
 
-        // FIXME - can't convert without losing value
-
         // Check that sum _proxy_claim_total_reward_amount equals sum of all the rewardee's proxy_claim_reward_amount
 
-        // debug::info!("Verifying that total reward amount requested equals sum of all rewardee data claim amounts");
+        debug::info!("Verifying that total reward amount requested equals sum of all rewardee data claim amounts");
 
-        // let mut sum_reward_amounts = 0u64;
-        // rewardees_data_count = 0; // Reset count
+        let mut sum_reward_amounts = 0u128;
+        rewardees_data_count = 0; // Reset count
 
-        // // Iterate through all rewardees data
-        // for (index, rewardees_data) in _proxy_claim_rewardees_data.iter().enumerate() {
-        //     rewardees_data_count += 1;
-        //     debug::info!("rewardees_data_count {:#?}", rewardees_data_count);
+        // Iterate through all rewardees data
+        for (index, rewardees_data) in _proxy_claim_rewardees_data.iter().enumerate() {
+            rewardees_data_count += 1;
+            debug::info!("rewardees_data_count {:#?}", rewardees_data_count);
 
-        //     if let _proxy_claim_reward_amount = rewardees_data.proxy_claim_reward_amount.clone() {
-        //         let _proxy_claim_reward_amount_as_u64 =
-        //             TryInto::<u64>::try_into(_proxy_claim_reward_amount).ok().unwrap();
-        //         sum_reward_amounts += _proxy_claim_reward_amount_as_u64;
-
-        //         // let _proxy_claim_reward_amount_as_u64 =
-        //         //     TryInto::<u64>::try_into(_proxy_claim_reward_amount).ok().unwrap_or_else(|| {
-
-        //         //     0u64
-        //         // });
-        //         // if _proxy_claim_reward_amount_as_u64 != 0u64 {
-        //         //     sum_reward_amounts += _proxy_claim_reward_amount_as_u64;
-        //         // } else {
-        //         //     break;
-        //         // }
-        //     } else {
-        //         debug::info!("unable to interpret proxy_claim_reward_amount");
-        //         is_valid = 0;
-        //         break;
-        //     }
-        // }
-        // let _proxy_claim_total_reward_amount_as_u64 =
-        //     TryInto::<u64>::try_into(_proxy_claim_total_reward_amount).ok().unwrap();
-        // if sum_reward_amounts != _proxy_claim_total_reward_amount_as_u64 {
-        //     is_valid = 0;
-        //     return Err(DispatchError::Other("Inconsistent data provided as total reward amount requested does not equal sum of all rewardee data claim amounts"));
-        // }
+            if let _proxy_claim_reward_amount = rewardees_data.proxy_claim_reward_amount.clone() {
+                let _proxy_claim_reward_amount_as_u128 =
+                    TryInto::<u128>::try_into(_proxy_claim_reward_amount).ok().unwrap();
+                sum_reward_amounts += _proxy_claim_reward_amount_as_u128;
+            } else {
+                debug::info!("unable to interpret proxy_claim_reward_amount");
+                is_valid = 0;
+                break;
+            }
+        }
+        let _proxy_claim_total_reward_amount_as_u128 =
+            TryInto::<u128>::try_into(_proxy_claim_total_reward_amount).ok().unwrap();
+        if sum_reward_amounts != _proxy_claim_total_reward_amount_as_u128 {
+            is_valid = 0;
+            return Err(DispatchError::Other("Inconsistent data provided as total reward amount requested does not equal sum of all rewardee data claim amounts"));
+        }
 
         Ok(())
     }
