@@ -40,6 +40,7 @@ use sp_runtime::{
         Member,
         One,
         Printable,
+        Zero,
     },
     DispatchError,
 };
@@ -372,8 +373,14 @@ decl_module! {
             // ensure!(Self::is_supernode_claim_reasonable(_proxy_claim_total_reward_amount).is_ok(), "Supernode claim has been deemed unreasonable");
 
             if let Some(rewardees_data) = _proxy_claim_rewardees_data {
-                // TODO
-                Self::is_valid_reward_data(rewardees_data.clone());
+                match Self::is_valid_reward_data(rewardees_data.clone()) {
+                    Ok(_) => {
+                        debug::info!("Valid reward data");
+                    },
+                    Err(dispatch_error) => {
+                        return Err(dispatch_error);
+                    }
+                }
 
                 debug::info!("Transferring claim to proxy Supernode");
                 // Distribute the reward to the account that has locked the funds
@@ -387,6 +394,7 @@ decl_module! {
 
                 let reward_to_pay_as_balance_to_try = TryInto::<BalanceOf<T>>::try_into(_proxy_claim_total_reward_amount).ok();
                 if let Some(reward_to_pay) = reward_to_pay_as_balance_to_try {
+                    ensure!(reward_to_pay > Zero::zero(), "Reward cannot be zero");
                     // ensure!(max_payout > reward_to_pay, "Reward cannot exceed treasury balance");
 
                     // Store Requestor of the reward
@@ -546,23 +554,29 @@ decl_module! {
 
                         debug::info!("Inserted proxy_reward_transfer for Sender: {:?}", sender.clone());
                         debug::info!("Inserted proxy_reward_transfer for Sender with Data: {:?}", reward_transfer_data.clone());
+
+                        debug::info!("Setting the proxy eligibility reward_request");
+
+                        Self::set_mining_eligibility_proxy_eligibility_reward_request(
+                            sender.clone(),
+                            mining_eligibility_proxy_id.clone(),
+                            _proxy_claim_total_reward_amount.clone(),
+                            rewardees_data.clone(),
+                        );
+
+                        debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID: {:?}", mining_eligibility_proxy_id.clone());
+                        debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID with reward amount: {:?}", _proxy_claim_total_reward_amount.clone());
+                        debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID with rewardees_data: {:?}", rewardees_data.clone());
+
+                        return Ok(());
+                    } else {
+                        debug::info!("Unable to convert rewardees_data");
+                        return Err(DispatchError::Other("Unable to convert rewardees_data"));
                     }
+                } else {
+                    debug::info!("Unable to convert reward_to_pay");
+                    return Err(DispatchError::Other("Unable to convert reward_to_pay"));
                 }
-
-                debug::info!("Setting the proxy eligibility reward_request");
-
-                Self::set_mining_eligibility_proxy_eligibility_reward_request(
-                    sender.clone(),
-                    mining_eligibility_proxy_id.clone(),
-                    _proxy_claim_total_reward_amount.clone(),
-                    rewardees_data.clone(),
-                );
-
-                debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID: {:?}", mining_eligibility_proxy_id.clone());
-                debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID with reward amount: {:?}", _proxy_claim_total_reward_amount.clone());
-                debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID with rewardees_data: {:?}", rewardees_data.clone());
-
-                return Ok(());
             } else {
                 debug::info!("Proxy claim rewardees data missing");
                 return Err(DispatchError::Other("Proxy claim rewardees data missing"));
@@ -655,7 +669,7 @@ impl<T: Config> Module<T> {
 
                     let claim_duration = proxy_claim_end_date.signed_duration_since(proxy_claim_start_date);
 
-                    if proxy_claim_end_date < current_date {
+                    if proxy_claim_end_date >= current_date {
                         debug::info!("invalid proxy_claim_end_date must be prior to current_date: {:#?}", proxy_claim_end_date);
                         is_valid = 0;
                         break;
