@@ -188,7 +188,6 @@
   "MiningEligibilityProxyRewardRequest": {
     "proxy_claim_requestor_account_id": "AccountId",
     "proxy_claim_total_reward_amount": "Balance",
-    "proxy_claim_rewardees_data": "Option<Vec<RewardeeData>>",
     "proxy_claim_timestamp_redeemed": "Moment"
   },
   "MiningEligibilityProxyClaimRewardeeData": {

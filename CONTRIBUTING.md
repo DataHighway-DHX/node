@@ -338,6 +338,10 @@ cargo +nightly-2021-03-10-aarch64-apple-darwin fmt --all -- --check
 
 * Question: Why do I get an error `1002: Verification Error: Execution: Could not convert parameter 'tx' between node and runtime: Error decoding field Call:: MiningEligibilityProxy.0 RuntimeApi` when in polkadot.js.apps when I try to 'Add Item' with data to a Vec?
     * Ans: Because there is a type mismatch, perhaps the first variable requires a `Balance` instead of `u32` in custom_types.json or similar.
+
+* Question: How to debug when running tests?
+    * Ans: Run tests with this `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug` in front, i.e. `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug cargo +nightly-2021-03-10 test -p datahighway-testnet-runtime`, and use `println!` where you want to log the output (i.e. `println!("claim duration {:#?}", claim_duration);`), as `debug::info` not work in tests
+
 ## Technical Support <a id="chapter-c00ab7"></a>
 
 * [Discord Chat](https://discord.gg/UuZN2tE)

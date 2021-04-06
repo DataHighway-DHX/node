@@ -652,8 +652,10 @@ mod tests {
             let rewardee_data = MiningEligibilityProxyClaimRewardeeData {
                 proxy_claim_rewardee_account_id: 3,
                 proxy_claim_reward_amount: 1000,
-                proxy_claim_start_date: NaiveDate::from_ymd(2000, 1, 1).and_hms(0, 0, 0).timestamp(),
-                proxy_claim_end_date: NaiveDate::from_ymd(2000, 1, 6).and_hms(0, 0, 0).timestamp(),
+                // Multiply by 1000 since NaiveDate generates seconds but we want milliseconds
+                // and if we incorrectly use seconds then the date will revert to 1970.
+                proxy_claim_start_date: NaiveDate::from_ymd(2000, 1, 1).and_hms(0, 0, 0).timestamp() * 1000,
+                proxy_claim_end_date: NaiveDate::from_ymd(2000, 1, 9).and_hms(0, 0, 0).timestamp() * 1000,
             };
             let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, i64, i64>> =
                 Vec::new();
@@ -822,11 +824,21 @@ mod tests {
             // Add AccountId 2 to member list
             assert_ok!(MembershipSupernodesTestModule::add_member(Origin::root(), 2, 1));
 
+            let rewardee_data_large = MiningEligibilityProxyClaimRewardeeData {
+                proxy_claim_rewardee_account_id: 3,
+                proxy_claim_reward_amount: 3000,
+                proxy_claim_start_date: NaiveDate::from_ymd(2000, 1, 1).and_hms(0, 0, 0).timestamp() * 1000,
+                proxy_claim_end_date: NaiveDate::from_ymd(2000, 1, 9).and_hms(0, 0, 0).timestamp() * 1000,
+            };
+            let mut proxy_claim_rewardees_data_large: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, i64, i64>> =
+                Vec::new();
+                proxy_claim_rewardees_data_large.push(rewardee_data_large);
+
             // Repeat with an additional claim
             assert_ok!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
                 Origin::signed(2),
                 3000, // _proxy_claim_total_reward_amount
-                Some(proxy_claim_rewardees_data.clone()),
+                Some(proxy_claim_rewardees_data_large.clone()),
             ));
 
             let invalid_date_redeemed_millis_2021_01_15 = NaiveDate::from_ymd(2021, 01, 15).and_hms(0, 0, 0).timestamp() * 1000;
