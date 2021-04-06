@@ -707,7 +707,7 @@ mod tests {
             assert_ok!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
                 Origin::signed(1),
                 1000, // _proxy_claim_total_reward_amount
-                Some(proxy_claim_rewardees_data.clone()),
+                proxy_claim_rewardees_data.clone(),
             ));
 
             // FIXME #20210312 - unable to get this to work or find help
@@ -838,7 +838,7 @@ mod tests {
             assert_ok!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
                 Origin::signed(2),
                 3000, // _proxy_claim_total_reward_amount
-                Some(proxy_claim_rewardees_data_large.clone()),
+                proxy_claim_rewardees_data_large.clone(),
             ));
 
             let invalid_date_redeemed_millis_2021_01_15 = NaiveDate::from_ymd(2021, 01, 15).and_hms(0, 0, 0).timestamp() * 1000;

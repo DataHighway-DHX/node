@@ -341,7 +341,7 @@ decl_module! {
         pub fn proxy_eligibility_claim(
             origin,
             _proxy_claim_total_reward_amount: BalanceOf<T>,
-            _proxy_claim_rewardees_data: Option<Vec<RewardeeData<T>>>,
+            _proxy_claim_rewardees_data: Vec<RewardeeData<T>>,
         ) -> Result<(), DispatchError> {
             let sender = ensure_signed(origin)?;
 
@@ -373,218 +373,211 @@ decl_module! {
             // TODO
             // ensure!(Self::is_supernode_claim_reasonable(_proxy_claim_total_reward_amount).is_ok(), "Supernode claim has been deemed unreasonable");
 
-            if let Some(rewardees_data) = _proxy_claim_rewardees_data {
-
-                match Self::is_valid_reward_data(_proxy_claim_total_reward_amount.clone(), rewardees_data.clone()) {
-                    Ok(_) => {
-                        debug::info!("Valid reward data");
-                    },
-                    Err(dispatch_error) => {
-                        return Err(dispatch_error);
-                    }
+            match Self::is_valid_reward_data(_proxy_claim_total_reward_amount.clone(), _proxy_claim_rewardees_data.clone()) {
+                Ok(_) => {
+                    debug::info!("Valid reward data");
+                },
+                Err(dispatch_error) => {
+                    return Err(dispatch_error);
                 }
+            }
 
-                debug::info!("Transferring claim to proxy Supernode");
-                // Distribute the reward to the account that has locked the funds
-                let treasury_account_id: T::AccountId = <pallet_treasury::Module<T>>::account_id();
-                // Only available in Substrate 3 is pot()
-                // let max_payout = pallet_treasury::Module::<T>::pot();
-                let max_payout = pallet_balances::Module::<T>::usable_balance(treasury_account_id.clone());
-                debug::info!("Treasury account id: {:?}", treasury_account_id.clone());
-                debug::info!("Requestor to receive reward: {:?}", sender.clone());
-                debug::info!("Treasury balance max payout: {:?}", max_payout.clone());
+            debug::info!("Transferring claim to proxy Supernode");
+            // Distribute the reward to the account that has locked the funds
+            let treasury_account_id: T::AccountId = <pallet_treasury::Module<T>>::account_id();
+            // Only available in Substrate 3 is pot()
+            // let max_payout = pallet_treasury::Module::<T>::pot();
+            let max_payout = pallet_balances::Module::<T>::usable_balance(treasury_account_id.clone());
+            debug::info!("Treasury account id: {:?}", treasury_account_id.clone());
+            debug::info!("Requestor to receive reward: {:?}", sender.clone());
+            debug::info!("Treasury balance max payout: {:?}", max_payout.clone());
 
-                let reward_to_pay_as_balance_to_try = TryInto::<BalanceOf<T>>::try_into(_proxy_claim_total_reward_amount).ok();
-                if let Some(reward_to_pay) = reward_to_pay_as_balance_to_try {
-                    // FIXME - can't convert without losing value
-                    // let reward_to_pay_as_u64 = TryInto::<u64>::try_into(reward_to_pay).ok();
-                    // ensure!(reward_to_pay_as_u64 > Some(0u64), "Reward must be greater than zero");
+            // let reward_to_pay_as_balance_to_try = TryInto::<BalanceOf<T>>::try_into(_proxy_claim_total_reward_amount).ok();
+            // if let Some(reward_to_pay) = reward_to_pay_as_balance_to_try {
 
-                    // ensure!(max_payout > reward_to_pay, "Reward cannot exceed treasury balance");
+            let reward_to_pay = _proxy_claim_total_reward_amount;
 
-                    // Store Requestor of the reward
+            // FIXME - can't convert without losing value
+            // let reward_to_pay_as_u64 = TryInto::<u64>::try_into(reward_to_pay).ok();
+            // ensure!(reward_to_pay_as_u64 > Some(0u64), "Reward must be greater than zero");
 
-                    let _rewardees_data_len: usize = rewardees_data.len();
-                    // Try to convert usize into u64
-                    // note: rewardees_data_len.clone().try_into().unwrap(),
-                    let rewardees_data_len_to_try = TryInto::<u64>::try_into(_rewardees_data_len).ok();
+            // ensure!(max_payout > reward_to_pay, "Reward cannot exceed treasury balance");
 
-                    if let Some(rewardees_data_len) = rewardees_data_len_to_try {
-                        let reward_requestor_data: RequestorData<T> = RewardRequestorData {
-                            mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
-                            total_amt: reward_to_pay.clone(),
-                            rewardee_count: rewardees_data_len.clone(),
-                            member_kind: member_kind.clone(),
-                            requested_date: requested_date.clone(),
-                        };
+            // Store Requestor of the reward
 
-                        debug::info!("Setting the proxy eligibility reward requestor");
+            let _rewardees_data_len: usize = _proxy_claim_rewardees_data.len();
+            // Try to convert usize into u64
+            // note: rewardees_data_len.clone().try_into().unwrap(),
+            let rewardees_data_len_to_try = TryInto::<u64>::try_into(_rewardees_data_len).ok();
 
-                        Self::insert_mining_eligibility_proxy_reward_requestor(
-                            &sender.clone(),
-                            reward_requestor_data.clone(),
-                        );
+            if let Some(rewardees_data_len) = rewardees_data_len_to_try {
+                let reward_requestor_data: RequestorData<T> = RewardRequestorData {
+                    mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
+                    total_amt: reward_to_pay.clone(),
+                    rewardee_count: rewardees_data_len.clone(),
+                    member_kind: member_kind.clone(),
+                    requested_date: requested_date.clone(),
+                };
 
-                        debug::info!("Inserted reward Requestor: {:?}", sender.clone());
-                        debug::info!("Inserted reward Requestor Data: {:?}", reward_requestor_data.clone());
+                debug::info!("Setting the proxy eligibility reward requestor");
 
-                        debug::info!("Treasury paying reward");
+                Self::insert_mining_eligibility_proxy_reward_requestor(
+                    &sender.clone(),
+                    reward_requestor_data.clone(),
+                );
 
-                        <T as Config>::Currency::transfer(
-                            &treasury_account_id,
-                            &sender,
-                            reward_to_pay.clone(),
-                            ExistenceRequirement::KeepAlive
-                        );
+                debug::info!("Inserted reward Requestor: {:?}", sender.clone());
+                debug::info!("Inserted reward Requestor Data: {:?}", reward_requestor_data.clone());
 
-                        debug::info!("Success paying the reward amount: {:?}", reward_to_pay.clone());
+                debug::info!("Treasury paying reward");
 
-                        let requested_date = <pallet_timestamp::Module<T>>::get();
+                <T as Config>::Currency::transfer(
+                    &treasury_account_id,
+                    &sender,
+                    reward_to_pay.clone(),
+                    ExistenceRequirement::KeepAlive
+                );
 
-                        // convert the current date/time to the start of the current day date/time.
-                        // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
+                debug::info!("Success paying the reward amount: {:?}", reward_to_pay.clone());
 
-                        let requested_date_as_u64;
-                        if let Some(_requested_date_as_u64) = TryInto::<u64>::try_into(requested_date).ok() {
-                            requested_date_as_u64 = _requested_date_as_u64;
-                        } else {
-                            return Err(DispatchError::Other("Unable to convert Moment to i64 for requested_date"));
-                        }
-                        debug::info!("requested_date_as_u64: {:?}", requested_date_as_u64.clone());
+                let requested_date = <pallet_timestamp::Module<T>>::get();
 
-                        let requested_date_as_u64_secs = requested_date_as_u64.clone() / 1000u64;
-                        // https://docs.rs/chrono/0.4.6/chrono/naive/struct.NaiveDateTime.html#method.from_timestamp
-                        let sent_date = NaiveDateTime::from_timestamp(i64::try_from(requested_date_as_u64_secs).unwrap(), 0).date();
-                        debug::info!("requested_date_as_u64_secs: {:?}", requested_date_as_u64_secs.clone());
-                        debug::info!("sent_date: {:?}", sent_date.clone());
+                // convert the current date/time to the start of the current day date/time.
+                // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
 
-                        let sent_date_millis = sent_date.and_hms(0, 0, 0).timestamp() * 1000;
-                        debug::info!("sent_date_millis: {:?}", sent_date_millis.clone());
-
-                        debug::info!("Timestamp sent Date: {:?}", sent_date);
-                        // check if the start of the current day date/time entry exists as a key for `rewards_daily`
-                        //
-                        // if so, retrieve the latest `rewards_daily` data stored for the start of that day date/time
-                        // i.e. (account_id, balance_rewarded, block_number), and add the new reward value to it.
-                        //
-                        // else just insert that as a new entry
-
-                        let reward_amount_item: DailyData<T> = RewardDailyData {
-                            mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
-                            total_amt: reward_to_pay.clone(),
-                            proxy_claim_requestor_account_id: sender.clone(),
-                            member_kind: recipient_member_kind.clone(),
-                            rewarded_date: sent_date_millis.clone(),
-                        };
-
-                        Self::insert_mining_eligibility_proxy_reward_daily(
-                            &sent_date_millis.clone(),
-                            reward_amount_item.clone(),
-                        );
-
-                        debug::info!("Appended new rewards_per_day at Date: {:?}", sent_date_millis.clone());
-                        debug::info!("Appended new rewards_per_day in storage item: {:?}", reward_amount_item.clone());
-
-                        let rewards_per_day_retrieved = <RewardsPerDay<T>>::get(
-                            sent_date_millis.clone(),
-                        );
-                        debug::info!("Retrieved new rewards_per_day storage item: {:?}", rewards_per_day_retrieved.clone());
-
-                        // Update in storage the total rewards distributed so far for the current day
-                        // so users may query state and have the latest calculated total returned.
-                        match Self::total_rewards_daily(sent_date_millis.clone()) {
-                            None => {
-                                debug::info!("Creating new total rewards entry for a given day");
-
-                                <TotalRewardsPerDay<T>>::insert(
-                                    sent_date_millis.clone(),
-                                    _proxy_claim_total_reward_amount.clone(),
-                                );
-
-                                debug::info!("Created new total_rewards_daily at Date millis: {:?}", sent_date_millis.clone());
-                                debug::info!("Creating new total_rewards_daily at Date with Amount: {:?}", _proxy_claim_total_reward_amount.clone());
-
-                                // Emit event
-                                Self::deposit_event(RawEvent::TotalRewardsPerDayUpdated(
-                                    _proxy_claim_total_reward_amount.clone(),
-                                    sent_date_millis.clone(),
-                                    sender.clone(),
-                                ));
-                            },
-                            Some(old_total_rewards_for_day) => {
-                                debug::info!("TotalRewardsPerDay entry mapping already exists for given day. Updating...");
-
-                                // Add, handling overflow
-                                let new_total_rewards_for_day =
-                                    old_total_rewards_for_day.checked_add(&_proxy_claim_total_reward_amount.clone()).ok_or(Error::<T>::Overflow)?;
-                                // Write the new value to storage
-                                <TotalRewardsPerDay<T>>::mutate(
-                                    sent_date_millis.clone(),
-                                    |reward_moment| {
-                                        if let Some(_reward_moment) = reward_moment {
-                                            *_reward_moment = new_total_rewards_for_day.clone();
-                                        }
-
-                                        debug::info!("Updated total_rewards_daily at Date: {:?}",  sent_date);
-                                        debug::info!("Updated total_rewards_daily at Date. Existing Amount: {:?}", old_total_rewards_for_day.clone());
-                                        debug::info!("Updated total_rewards_daily at Date. Reward Amount: {:?}", _proxy_claim_total_reward_amount.clone());
-                                        debug::info!("Updated total_rewards_daily at Date. New Amount: {:?}", new_total_rewards_for_day.clone());
-                                    },
-                                );
-
-                                // Emit event
-                                Self::deposit_event(RawEvent::TotalRewardsPerDayUpdated(
-                                    new_total_rewards_for_day.clone(),
-                                    sent_date_millis.clone(),
-                                    sender.clone(),
-                                ));
-                            }
-                        }
-
-                        let reward_transfer_data: TransferData<T> = RewardTransferData {
-                            mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
-                            is_sent: true,
-                            total_amt: reward_to_pay.clone(),
-                            rewardee_count: rewardees_data_len.clone(),
-                            member_kind: member_kind.clone(),
-                            requested_date: requested_date.clone(),
-                        };
-
-                        debug::info!("Setting the proxy eligibility reward transfer");
-
-                        Self::insert_mining_eligibility_proxy_reward_transfer(
-                            &sender.clone(),
-                            reward_transfer_data.clone(),
-                        );
-
-                        debug::info!("Inserted proxy_reward_transfer for Sender: {:?}", sender.clone());
-                        debug::info!("Inserted proxy_reward_transfer for Sender with Data: {:?}", reward_transfer_data.clone());
-
-                        debug::info!("Setting the proxy eligibility reward_request");
-
-                        Self::set_mining_eligibility_proxy_eligibility_reward_request(
-                            sender.clone(),
-                            mining_eligibility_proxy_id.clone(),
-                            _proxy_claim_total_reward_amount.clone(),
-                            rewardees_data.clone(),
-                        );
-
-                        debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID: {:?}", mining_eligibility_proxy_id.clone());
-                        debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID with reward amount: {:?}", _proxy_claim_total_reward_amount.clone());
-                        debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID with rewardees_data: {:?}", rewardees_data.clone());
-
-                        return Ok(());
-                    } else {
-                        debug::info!("Unable to convert rewardees_data");
-                        return Err(DispatchError::Other("Unable to convert rewardees_data"));
-                    }
+                let requested_date_as_u64;
+                if let Some(_requested_date_as_u64) = TryInto::<u64>::try_into(requested_date).ok() {
+                    requested_date_as_u64 = _requested_date_as_u64;
                 } else {
-                    debug::info!("Unable to convert reward_to_pay");
-                    return Err(DispatchError::Other("Unable to convert reward_to_pay"));
+                    return Err(DispatchError::Other("Unable to convert Moment to i64 for requested_date"));
                 }
+                debug::info!("requested_date_as_u64: {:?}", requested_date_as_u64.clone());
+
+                let requested_date_as_u64_secs = requested_date_as_u64.clone() / 1000u64;
+                // https://docs.rs/chrono/0.4.6/chrono/naive/struct.NaiveDateTime.html#method.from_timestamp
+                let sent_date = NaiveDateTime::from_timestamp(i64::try_from(requested_date_as_u64_secs).unwrap(), 0).date();
+                debug::info!("requested_date_as_u64_secs: {:?}", requested_date_as_u64_secs.clone());
+                debug::info!("sent_date: {:?}", sent_date.clone());
+
+                let sent_date_millis = sent_date.and_hms(0, 0, 0).timestamp() * 1000;
+                debug::info!("sent_date_millis: {:?}", sent_date_millis.clone());
+
+                debug::info!("Timestamp sent Date: {:?}", sent_date);
+                // check if the start of the current day date/time entry exists as a key for `rewards_daily`
+                //
+                // if so, retrieve the latest `rewards_daily` data stored for the start of that day date/time
+                // i.e. (account_id, balance_rewarded, block_number), and add the new reward value to it.
+                //
+                // else just insert that as a new entry
+
+                let reward_amount_item: DailyData<T> = RewardDailyData {
+                    mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
+                    total_amt: reward_to_pay.clone(),
+                    proxy_claim_requestor_account_id: sender.clone(),
+                    member_kind: recipient_member_kind.clone(),
+                    rewarded_date: sent_date_millis.clone(),
+                };
+
+                Self::insert_mining_eligibility_proxy_reward_daily(
+                    &sent_date_millis.clone(),
+                    reward_amount_item.clone(),
+                );
+
+                debug::info!("Appended new rewards_per_day at Date: {:?}", sent_date_millis.clone());
+                debug::info!("Appended new rewards_per_day in storage item: {:?}", reward_amount_item.clone());
+
+                let rewards_per_day_retrieved = <RewardsPerDay<T>>::get(
+                    sent_date_millis.clone(),
+                );
+                debug::info!("Retrieved new rewards_per_day storage item: {:?}", rewards_per_day_retrieved.clone());
+
+                // Update in storage the total rewards distributed so far for the current day
+                // so users may query state and have the latest calculated total returned.
+                match Self::total_rewards_daily(sent_date_millis.clone()) {
+                    None => {
+                        debug::info!("Creating new total rewards entry for a given day");
+
+                        <TotalRewardsPerDay<T>>::insert(
+                            sent_date_millis.clone(),
+                            _proxy_claim_total_reward_amount.clone(),
+                        );
+
+                        debug::info!("Created new total_rewards_daily at Date millis: {:?}", sent_date_millis.clone());
+                        debug::info!("Creating new total_rewards_daily at Date with Amount: {:?}", _proxy_claim_total_reward_amount.clone());
+
+                        // Emit event
+                        Self::deposit_event(RawEvent::TotalRewardsPerDayUpdated(
+                            _proxy_claim_total_reward_amount.clone(),
+                            sent_date_millis.clone(),
+                            sender.clone(),
+                        ));
+                    },
+                    Some(old_total_rewards_for_day) => {
+                        debug::info!("TotalRewardsPerDay entry mapping already exists for given day. Updating...");
+
+                        // Add, handling overflow
+                        let new_total_rewards_for_day =
+                            old_total_rewards_for_day.checked_add(&_proxy_claim_total_reward_amount.clone()).ok_or(Error::<T>::Overflow)?;
+                        // Write the new value to storage
+                        <TotalRewardsPerDay<T>>::mutate(
+                            sent_date_millis.clone(),
+                            |reward_moment| {
+                                if let Some(_reward_moment) = reward_moment {
+                                    *_reward_moment = new_total_rewards_for_day.clone();
+                                }
+
+                                debug::info!("Updated total_rewards_daily at Date: {:?}",  sent_date);
+                                debug::info!("Updated total_rewards_daily at Date. Existing Amount: {:?}", old_total_rewards_for_day.clone());
+                                debug::info!("Updated total_rewards_daily at Date. Reward Amount: {:?}", _proxy_claim_total_reward_amount.clone());
+                                debug::info!("Updated total_rewards_daily at Date. New Amount: {:?}", new_total_rewards_for_day.clone());
+                            },
+                        );
+
+                        // Emit event
+                        Self::deposit_event(RawEvent::TotalRewardsPerDayUpdated(
+                            new_total_rewards_for_day.clone(),
+                            sent_date_millis.clone(),
+                            sender.clone(),
+                        ));
+                    }
+                }
+
+                let reward_transfer_data: TransferData<T> = RewardTransferData {
+                    mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
+                    is_sent: true,
+                    total_amt: reward_to_pay.clone(),
+                    rewardee_count: rewardees_data_len.clone(),
+                    member_kind: member_kind.clone(),
+                    requested_date: requested_date.clone(),
+                };
+
+                debug::info!("Setting the proxy eligibility reward transfer");
+
+                Self::insert_mining_eligibility_proxy_reward_transfer(
+                    &sender.clone(),
+                    reward_transfer_data.clone(),
+                );
+
+                debug::info!("Inserted proxy_reward_transfer for Sender: {:?}", sender.clone());
+                debug::info!("Inserted proxy_reward_transfer for Sender with Data: {:?}", reward_transfer_data.clone());
+
+                debug::info!("Setting the proxy eligibility reward_request");
+
+                Self::set_mining_eligibility_proxy_eligibility_reward_request(
+                    sender.clone(),
+                    mining_eligibility_proxy_id.clone(),
+                    _proxy_claim_total_reward_amount.clone(),
+                    _proxy_claim_rewardees_data.clone(),
+                );
+
+                debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID: {:?}", mining_eligibility_proxy_id.clone());
+                debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID with reward amount: {:?}", _proxy_claim_total_reward_amount.clone());
+                debug::info!("Inserted proxy_eligibility_reward_request for Proxy ID with _proxy_claim_rewardees_data: {:?}", _proxy_claim_rewardees_data.clone());
+
+                return Ok(());
             } else {
-                debug::info!("Proxy claim rewardees data missing");
-                return Err(DispatchError::Other("Proxy claim rewardees data missing"));
+                debug::info!("Unable to convert _proxy_claim_rewardees_data");
+                return Err(DispatchError::Other("Unable to convert _proxy_claim_rewardees_data"));
             }
         }
     }
