@@ -191,11 +191,61 @@
     "proxy_claim_rewardees_data": "Option<Vec<RewardeeData>>",
     "proxy_claim_timestamp_redeemed": "Moment"
   },
+  "MiningEligibilityProxyClaimRewardeeData": {
+    "proxy_claim_rewardee_account_id": "AccountId",
+    "proxy_claim_reward_amount": "Balance",
+    "proxy_claim_start_date": "Date",
+    "proxy_claim_end_date": "Date"
+  },
   "RewardeeData": {
     "proxy_claim_rewardee_account_id": "AccountId",
     "proxy_claim_reward_amount": "Balance",
     "proxy_claim_start_date": "Date",
     "proxy_claim_end_date": "Date"
+  },
+  "RewardRequestorData": {
+    "mining_eligibility_proxy_id": "MiningEligibilityProxyIndex",
+    "total_amt": "Balance",
+    "rewardee_count": "u64",
+    "member_kind": "u32",
+    "requested_date": "Moment"
+  },
+  "RequestorData": {
+    "mining_eligibility_proxy_id": "MiningEligibilityProxyIndex",
+    "total_amt": "Balance",
+    "rewardee_count": "u64",
+    "member_kind": "u32",
+    "requested_date": "Moment"
+  },
+  "RewardTransferData": {
+    "mining_eligibility_proxy_id": "MiningEligibilityProxyIndex",
+    "is_sent": "bool",
+    "total_amt": "Balance",
+    "rewardee_count": "u64",
+    "member_kind": "u32",
+    "requested_date": "Moment"
+  },
+  "TransferData": {
+    "mining_eligibility_proxy_id": "MiningEligibilityProxyIndex",
+    "is_sent": "bool",
+    "total_amt": "Balance",
+    "rewardee_count": "u64",
+    "member_kind": "u32",
+    "requested_date": "Moment"
+  },
+  "RewardDailyData": {
+    "mining_eligibility_proxy_id": "MiningEligibilityProxyIndex",
+    "total_amt": "Balance",
+    "proxy_claim_requestor_account_id": "AccountId",
+    "member_kind": "u32",
+    "rewarded_date": "Date"
+  },
+  "DailyData": {
+    "mining_eligibility_proxy_id": "MiningEligibilityProxyIndex",
+    "total_amt": "Balance",
+    "proxy_claim_requestor_account_id": "AccountId",
+    "member_kind": "u32",
+    "rewarded_date": "Date"
   },
   "MiningClaimsToken": "[u8; 16]",
   "MiningClaimsTokenIndex": "u64",
