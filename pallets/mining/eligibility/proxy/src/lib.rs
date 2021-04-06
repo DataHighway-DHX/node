@@ -458,20 +458,18 @@ decl_module! {
 
                         let reward_amount_item: DailyData<T> = RewardDailyData {
                             mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
-                            total_amt: _proxy_claim_total_reward_amount.clone(),
+                            total_amt: reward_to_pay.clone(),
                             proxy_claim_requestor_account_id: sender.clone(),
                             member_kind: recipient_member_kind.clone(),
                             rewarded_date: sent_date_millis.clone(),
                         };
 
-                        debug::info!("Appended new rewards_per_day storage item");
-
-                        <RewardsPerDay<T>>::append(
-                            sent_date_millis.clone(),
+                        Self::insert_mining_eligibility_proxy_reward_daily(
+                            &sent_date_millis.clone(),
                             reward_amount_item.clone(),
                         );
 
-                        debug::info!("Appended new rewards_per_day at Date: {:?}", sent_date);
+                        debug::info!("Appended new rewards_per_day at Date: {:?}", sent_date_millis.clone());
                         debug::info!("Appended new rewards_per_day in storage item: {:?}", reward_amount_item.clone());
 
                         let rewards_per_day_retrieved = <RewardsPerDay<T>>::get(
@@ -548,26 +546,6 @@ decl_module! {
 
                         debug::info!("Inserted proxy_reward_transfer for Sender: {:?}", sender.clone());
                         debug::info!("Inserted proxy_reward_transfer for Sender with Data: {:?}", reward_transfer_data.clone());
-
-                        let reward_daily_data: DailyData<T> = RewardDailyData {
-                            mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
-                            total_amt: reward_to_pay.clone(),
-                            proxy_claim_requestor_account_id: sender.clone(),
-                            member_kind: member_kind.clone(),
-                            rewarded_date: sent_date_millis.clone(),
-                        };
-
-                        debug::info!("Setting the proxy eligibility reward daily");
-
-                        // FIXME - get the time right at the start of the day that `reward_daily_data`
-                        // corresponds to and only store that.
-                        Self::insert_mining_eligibility_proxy_reward_daily(
-                            &sent_date_millis.clone(),
-                            reward_daily_data.clone(),
-                        );
-
-                        debug::info!("Inserted proxy_reward_daily for Moment: {:?}", requested_date.clone());
-                        debug::info!("Inserted proxy_reward_daily for Moment with Data: {:?}", reward_daily_data.clone());
                     }
                 }
 
