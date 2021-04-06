@@ -76,11 +76,11 @@ pub struct MiningEligibilityProxy(pub [u8; 16]);
 
 #[derive(Encode, Decode, Debug, Default, Clone, PartialEq)]
 #[cfg_attr(feature = "std", derive())]
-pub struct MiningEligibilityProxyRewardRequest<U, V, X> {
+pub struct MiningEligibilityProxyRewardRequest<U, V, W> {
     pub proxy_claim_requestor_account_id: U, /* Supernode (proxy) account id requesting DHX rewards as proxy to
                                               * distribute to its miners */
     pub proxy_claim_total_reward_amount: V,
-    pub proxy_claim_timestamp_redeemed: X,
+    pub proxy_claim_timestamp_redeemed: W,
 }
 
 #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
@@ -218,7 +218,7 @@ decl_storage! {
                 <T as pallet_timestamp::Config>::Moment,
             >>;
 
-        /// Stores mining_eligibility_proxy_reward_request
+        /// Stores mining_eligibility_proxy_rewardees
         pub MiningEligibilityProxyRewardees get(fn mining_eligibility_proxy_rewardees): map hasher(opaque_blake2_256) T::MiningEligibilityProxyIndex =>
             Option<Vec<RewardeeData<T>>>;
 
@@ -859,10 +859,6 @@ impl<T: Config> Module<T> {
                     "Latest field proxy_claim_total_reward_amount {:#?}",
                     _mining_eligibility_proxy_reward_request.proxy_claim_total_reward_amount
                 );
-                // debug::info!(
-                //     "Latest field proxy_claim_rewardees_data {:#?}",
-                //     serde_json::to_string_pretty(&_mining_eligibility_proxy_reward_request.
-                // proxy_claim_rewardees_data) );
                 debug::info!(
                     "Latest field proxy_claim_timestamp_redeemed {:#?}",
                     _mining_eligibility_proxy_reward_request.proxy_claim_timestamp_redeemed
@@ -909,7 +905,7 @@ impl<T: Config> Module<T> {
             }
         }
 
-        debug::info!("Insert rewardee {:#?}", proxy_claim_rewardees_data.clone());
+        debug::info!("Insert rewardees {:#?}", proxy_claim_rewardees_data.clone());
         <MiningEligibilityProxyRewardees<T>>::insert(
             mining_eligibility_proxy_id,
             proxy_claim_rewardees_data.clone(),

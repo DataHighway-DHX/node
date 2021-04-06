@@ -770,10 +770,19 @@ mod tests {
                 Some(MiningEligibilityProxyRewardRequest {
                     proxy_claim_requestor_account_id: 1u64,
                     proxy_claim_total_reward_amount: 1000u64,
-                    proxy_claim_rewardees_data: proxy_claim_rewardees_data.clone(),
                     proxy_claim_timestamp_redeemed: 1616724600000u64, // current timestamp
                 })
             );
+
+
+            if let Some(rewardee_data) = MiningEligibilityProxyTestModule::mining_eligibility_proxy_rewardees(1) {
+                if let Some(_proxy_claim_rewardees_data) = proxy_claim_rewardees_data.clone().pop() {
+                    assert_eq!(
+                        rewardee_data.clone().pop(),
+                        Some(_proxy_claim_rewardees_data),
+                    );
+                }
+            }
 
             if let Some(reward_requestor_data) = MiningEligibilityProxyTestModule::reward_requestors(1) {
                 // Check that data about the proxy claim reward requestor data has been stored.
