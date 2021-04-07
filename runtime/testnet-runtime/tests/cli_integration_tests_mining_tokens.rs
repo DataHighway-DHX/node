@@ -893,33 +893,33 @@ mod tests {
 
             // New day, check that it fails if the user requests more than 5000 DHX on a single day
 
-            // 29th March 2021 @ ~2am is 1616968800000u64
-            // https://currentmillis.com/
-            Timestamp::set_timestamp(1616968800000u64);
+            // // 29th March 2021 @ ~2am is 1616968800000u64
+            // // https://currentmillis.com/
+            // Timestamp::set_timestamp(1616968800000u64);
 
-            assert_ok!(MiningEligibilityProxyTestModule::set_is_premine(
-                Origin::signed(0),
-                false,
-            ));
+            // assert_ok!(MiningEligibilityProxyTestModule::set_is_premine(
+            //     Origin::signed(0),
+            //     false,
+            // ));
 
-            let rewardee_data_high = MiningEligibilityProxyClaimRewardeeData {
-                proxy_claim_rewardee_account_id: 3,
-                proxy_claim_reward_amount: 5001000000000000000000,
-                proxy_claim_start_date: NaiveDate::from_ymd(2000, 1, 1).and_hms(0, 0, 0).timestamp() * 1000,
-                proxy_claim_end_date: NaiveDate::from_ymd(2000, 1, 9).and_hms(0, 0, 0).timestamp() * 1000,
-            };
-            let mut proxy_claim_rewardees_data_high: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, i64, i64>> =
-                Vec::new();
-                proxy_claim_rewardees_data_high.push(rewardee_data_high);
+            // let rewardee_data_high = MiningEligibilityProxyClaimRewardeeData {
+            //     proxy_claim_rewardee_account_id: 3,
+            //     proxy_claim_reward_amount: 5001000000000000000000,
+            //     proxy_claim_start_date: NaiveDate::from_ymd(2000, 1, 1).and_hms(0, 0, 0).timestamp() * 1000,
+            //     proxy_claim_end_date: NaiveDate::from_ymd(2000, 1, 9).and_hms(0, 0, 0).timestamp() * 1000,
+            // };
+            // let mut proxy_claim_rewardees_data_high: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, i64, i64>> =
+            //     Vec::new();
+            //     proxy_claim_rewardees_data_high.push(rewardee_data_high);
 
-            assert_err!(
-                MiningEligibilityProxyTestModule::proxy_eligibility_claim(
-                    Origin::signed(2),
-                    5001000000000000000000, // _proxy_claim_total_reward_amount
-                    proxy_claim_rewardees_data_high.clone(),
-                ),
-                "Supernode claim has been deemed unreasonable",
-            );
+            // assert_err!(
+            //     MiningEligibilityProxyTestModule::proxy_eligibility_claim(
+            //         Origin::signed(2),
+            //         5001000000000000000000, // _proxy_claim_total_reward_amount
+            //         proxy_claim_rewardees_data_high.clone(),
+            //     ),
+            //     "Supernode claim has been deemed unreasonable",
+            // );
 
         });
     }
