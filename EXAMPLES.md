@@ -451,24 +451,20 @@ docker-compose -f docker-compose-dev.yml exec alice bash
 * Refer to the documentation to setup a validator node and to obtain bootnode to connect to https://dev.datahighway.com/docs/en/tutorials/tutorials-nodes-validator-setup
 
 ```
-cargo build --verbose --release -p datahighway-testnet-runtime
-
  ./target/release/datahighway \
-  ...
-  --chain harbour \
-  ...
+    ...
+    --chain harbour \
+    ...
 ```
 
 ## Mainnet (standalone) "westlake" PoS (with multiple nodes) <a id="chapter-f023ff"></a>
 * Refer to the documentation to setup a validator node and to obtain bootnode to connect to https://dev.datahighway.com/docs/en/tutorials/tutorials-nodes-validator-setup
 
 ```
-cargo build --verbose --release -p datahighway-mainnet-runtime
-
- ./target/release/datahighway \
-  ...
-  --chain westlake \
-  ...
+./target/release/datahighway \
+    ...
+    --chain westlake \
+    ...
 ```
 
 ## Interact with blockchain using Polkadot.js Apps UI <a id="chapter-6d9058"></a>

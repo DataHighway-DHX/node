@@ -31,7 +31,10 @@ Refer to [EXAMPLES.md](./EXAMPLES.md) for different examples of how to configure
 ### Run multiple Nodes ("local" testnet)
 * [Example "local" PoS testnet (with multiple nodes)](./EXAMPLES.md#example-local-pos-testnet-with-multiple-nodes-)
 
-### Run a Validator node ("harbour" testnet)
+### Run a validator node ("harbour" testnet)
+* [Setup Validator Node](https://dev.datahighway.com/docs/en/tutorials/tutorials-nodes-validator-setup)
+
+### Run a validator node ("westlake" mainnet)
 * [Setup Validator Node](https://dev.datahighway.com/docs/en/tutorials/tutorials-nodes-validator-setup)
 
 ### Run a Validator node ("westlake" mainnet)
