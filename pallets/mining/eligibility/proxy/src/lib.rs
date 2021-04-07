@@ -298,6 +298,27 @@ decl_module! {
             let current_block = <frame_system::Module<T>>::block_number();
             let requested_date = <pallet_timestamp::Module<T>>::get();
 
+            // convert the current date/time to the start of the current day date/time.
+            // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
+
+            let requested_date_as_u64;
+            if let Some(_requested_date_as_u64) = TryInto::<u64>::try_into(requested_date).ok() {
+                requested_date_as_u64 = _requested_date_as_u64;
+            } else {
+                return Err(DispatchError::Other("Unable to convert Moment to i64 for requested_date"));
+            }
+            debug::info!("requested_date_as_u64: {:?}", requested_date_as_u64.clone());
+
+            let requested_date_as_u64_secs = requested_date_as_u64.clone() / 1000u64;
+            // https://docs.rs/chrono/0.4.6/chrono/naive/struct.NaiveDateTime.html#method.from_timestamp
+            let sent_date = NaiveDateTime::from_timestamp(i64::try_from(requested_date_as_u64_secs).unwrap(), 0).date();
+            debug::info!("requested_date_as_u64_secs: {:?}", requested_date_as_u64_secs.clone());
+            debug::info!("sent_date: {:?}", sent_date.clone());
+
+            let sent_date_millis = sent_date.and_hms(0, 0, 0).timestamp() * 1000;
+            debug::info!("sent_date_millis: {:?}", sent_date_millis.clone());
+            debug::info!("Timestamp sent Date: {:?}", sent_date);
+
             ensure!(Self::is_origin_whitelisted_member_supernodes(sender.clone()).is_ok(), "Only whitelisted Supernode account members may request proxy rewards");
 
             let member_kind = T::MembershipSource::account_kind(sender.clone());
@@ -312,8 +333,7 @@ decl_module! {
             // as we do not want it to panic if inputs are invalid and have have only partially added some data in storage,
             // as we'd end up with numerous `mining_eligibility_proxy_id` with incomplete data.
 
-            // TODO
-            // ensure!(Self::is_supernode_claim_reasonable(_proxy_claim_total_reward_amount).is_ok(), "Supernode claim has been deemed unreasonable");
+            ensure!(Self::is_supernode_claim_reasonable(_proxy_claim_total_reward_amount, sent_date_millis.clone()).is_ok(), "Supernode claim has been deemed unreasonable");
 
             match Self::is_valid_reward_data(_proxy_claim_total_reward_amount.clone(), _proxy_claim_rewardees_data.clone()) {
                 Ok(_) => {
@@ -405,30 +425,6 @@ decl_module! {
                 );
 
                 debug::info!("Success paying the reward amount: {:?}", reward_to_pay.clone());
-
-                let requested_date = <pallet_timestamp::Module<T>>::get();
-
-                // convert the current date/time to the start of the current day date/time.
-                // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
-
-                let requested_date_as_u64;
-                if let Some(_requested_date_as_u64) = TryInto::<u64>::try_into(requested_date).ok() {
-                    requested_date_as_u64 = _requested_date_as_u64;
-                } else {
-                    return Err(DispatchError::Other("Unable to convert Moment to i64 for requested_date"));
-                }
-                debug::info!("requested_date_as_u64: {:?}", requested_date_as_u64.clone());
-
-                let requested_date_as_u64_secs = requested_date_as_u64.clone() / 1000u64;
-                // https://docs.rs/chrono/0.4.6/chrono/naive/struct.NaiveDateTime.html#method.from_timestamp
-                let sent_date = NaiveDateTime::from_timestamp(i64::try_from(requested_date_as_u64_secs).unwrap(), 0).date();
-                debug::info!("requested_date_as_u64_secs: {:?}", requested_date_as_u64_secs.clone());
-                debug::info!("sent_date: {:?}", sent_date.clone());
-
-                let sent_date_millis = sent_date.and_hms(0, 0, 0).timestamp() * 1000;
-                debug::info!("sent_date_millis: {:?}", sent_date_millis.clone());
-
-                debug::info!("Timestamp sent Date: {:?}", sent_date);
 
                 let reward_amount_item: DailyData<T> = RewardDailyData {
                     mining_eligibility_proxy_id: mining_eligibility_proxy_id.clone(),
@@ -590,15 +586,51 @@ impl<T: Config> Module<T> {
         Ok(())
     }
 
-    pub fn is_supernode_claim_reasonable(proxy_claim_total_reward_amount: BalanceOf<T>) -> Result<(), DispatchError> {
+    pub fn is_supernode_claim_reasonable(
+        proxy_claim_total_reward_amount: BalanceOf<T>,
+        sent_date_millis: Date,
+    ) -> Result<(), DispatchError> {
         let current_block = <frame_system::Module<T>>::block_number();
         // block reward max is 5000 DHX per day until year 2023, so by 2024 we'd be up to
         // 20000 * 4 * 365 = 29200000 block, then reduces to 4800 DHX per day, and so on per halving cycle.
         // assume worse case scenario of only one supernode requesting
         // rewards on behalf of users that collectively earnt the max DHX produced on that day.
-        if proxy_claim_total_reward_amount > 5000u32.into() && current_block < 29200000u32.into() {
-            return Err(DispatchError::Other("Unreasonable proxy reward claim"));
+        let mut is_valid = 1;
+        let DAILY_WITHDRAWAL_LIMIT = 5000000000000000000000u128;
+
+        let proxy_claim_total_reward_amount_as_u128 =
+            TryInto::<u128>::try_into(proxy_claim_total_reward_amount).ok().unwrap();
+
+        if let Some(total_rewards_per_day_retrieved) = <TotalRewardsPerDay<T>>::get(sent_date_millis.clone()) {
+            let total_rewards_per_day_retrieved_as_u128 =
+                    TryInto::<u128>::try_into(total_rewards_per_day_retrieved).ok().unwrap();
+            debug::info!("Retrieved new total_rewards_per_day_retrieved_as_u128 storage item: {:?}", total_rewards_per_day_retrieved_as_u128.clone());
+
+            let sum = total_rewards_per_day_retrieved_as_u128 + proxy_claim_total_reward_amount_as_u128;
+            // println!("sum {:#?}", sum);
+            debug::info!("sum {:#?}", sum);
+            if sum > DAILY_WITHDRAWAL_LIMIT.clone().into() {
+                // println!("Sum exceeds daily withdrawal limit");
+                debug::info!("Sum exceeds daily withdrawal limit");
+                is_valid = 0;
+            }
+        } else if proxy_claim_total_reward_amount_as_u128 > DAILY_WITHDRAWAL_LIMIT.clone().into() {
+            // println!("Total reward amount exceeds daily withdrawal limit");
+            debug::info!("Total reward amount exceeds daily withdrawal limit");
+            is_valid = 0;
         }
+
+        // println!("proxy_claim_total_reward_amount {:#?}", proxy_claim_total_reward_amount);
+        // println!("proxy_claim_total_reward_amount_as_u128 {:#?}", proxy_claim_total_reward_amount_as_u128);
+        // println!("DAILY_WITHDRAWAL_LIMIT {:#?}", DAILY_WITHDRAWAL_LIMIT);
+        debug::info!("proxy_claim_total_reward_amount {:#?}", proxy_claim_total_reward_amount);
+        debug::info!("proxy_claim_total_reward_amount_as_u128 {:#?}", proxy_claim_total_reward_amount_as_u128);
+        debug::info!("DAILY_WITHDRAWAL_LIMIT {:#?}", DAILY_WITHDRAWAL_LIMIT);
+
+        if is_valid == 0 {
+            return Err(DispatchError::Other("Supernode claim has been deemed unreasonable"));
+        }
+
         Ok(())
     }
 
