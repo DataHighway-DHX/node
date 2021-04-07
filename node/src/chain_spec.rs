@@ -434,7 +434,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<DHTestnetChainSpec, String
 	))
 }
 
-pub fn datahighway_mainnet_config() -> Result<DHMainnetChainSpec, String> {
+pub fn datahighway_mainnet_westlake_config() -> Result<DHMainnetChainSpec, String> {
 	let wasm_binary = dh_mainnet::WASM_BINARY.ok_or_else(|| "Wasm binary not available".to_string())?;
 
     let mut properties = Map::new();
@@ -443,9 +443,9 @@ pub fn datahighway_mainnet_config() -> Result<DHMainnetChainSpec, String> {
 
 	Ok(DHMainnetChainSpec::from_genesis(
 		// Name
-		"DataHighway Harbour Mainnet",
+		"DataHighway Westlake Mainnet",
 		// ID
-		"mainnet",
+		"westlake",
         ChainType::Live,
         // TODO: regenerate alphanet according to babe-grandpa consensus
         // subkey inspect "$SECRET"
