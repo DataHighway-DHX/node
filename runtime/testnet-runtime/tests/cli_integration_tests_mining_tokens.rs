@@ -897,6 +897,11 @@ mod tests {
             // https://currentmillis.com/
             Timestamp::set_timestamp(1616968800000u64);
 
+            assert_ok!(MiningEligibilityProxyTestModule::set_is_premine(
+                Origin::signed(0),
+                false,
+            ));
+
             let rewardee_data_high = MiningEligibilityProxyClaimRewardeeData {
                 proxy_claim_rewardee_account_id: 3,
                 proxy_claim_reward_amount: 5001000000000000000000,

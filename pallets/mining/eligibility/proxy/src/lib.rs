@@ -25,7 +25,10 @@ use frame_support::{
     },
     Parameter,
 };
-use frame_system::ensure_signed;
+use frame_system::{
+    ensure_signed,
+    ensure_root,
+};
 use module_primitives::{
     constants::time::MILLISECS_PER_BLOCK,
     types::*,
@@ -186,6 +189,7 @@ decl_event!(
         /// Substrate-fixed total rewards for a given day has been updated.
         TotalRewardsPerDayUpdated(BalanceOf, Date, AccountId),
         CompletedReward(MiningEligibilityProxyIndex),
+        // IsPremining(bool, AccountId),
     }
 );
 
@@ -273,6 +277,8 @@ decl_storage! {
         /// then this value will NOT be `true`)
         pub MiningEligibilityProxyStatus get(fn proxy_status):
             map hasher(opaque_blake2_256) T::MiningEligibilityProxyIndex => bool;
+
+        pub IsPremine get(fn is_premine): bool;
     }
 }
 
@@ -281,6 +287,24 @@ decl_module! {
     /// The module declaration.
     pub struct Module<T: Config> for enum Call where origin: <T as frame_system::Config>::Origin {
         fn deposit_event() = default;
+
+        // Toggle premine status to enable or disable daily reward limits in `is_supernode_claim_reasonable`
+        #[weight = 10_000 + T::DbWeight::get().writes(1)]
+        pub fn set_is_premine(
+            origin,
+            _is_premine: bool,
+        ) -> Result<(), DispatchError> {
+            let sender = ensure_root(origin)?;
+
+            IsPremine::put(_is_premine.clone());
+
+            // Self::deposit_event(RawEvent::IsPremining(
+            //     _is_premine.clone(),
+            //     sender.clone(),
+            // ));
+
+            Ok(())
+        }
 
         /// Transfer tokens claimed by the Supernode Centre on behalf of a Supernode from the
         /// on-chain DHX DAO unlocked reserves of the Treasury account to the Supernode Centre's address,
@@ -333,7 +357,10 @@ decl_module! {
             // as we do not want it to panic if inputs are invalid and have have only partially added some data in storage,
             // as we'd end up with numerous `mining_eligibility_proxy_id` with incomplete data.
 
-            ensure!(Self::is_supernode_claim_reasonable(_proxy_claim_total_reward_amount, sent_date_millis.clone()).is_ok(), "Supernode claim has been deemed unreasonable");
+            let is_premine = IsPremine::get();
+            if is_premine != true {
+                ensure!(Self::is_supernode_claim_reasonable(_proxy_claim_total_reward_amount, sent_date_millis.clone()).is_ok(), "Supernode claim has been deemed unreasonable");
+            }
 
             match Self::is_valid_reward_data(_proxy_claim_total_reward_amount.clone(), _proxy_claim_rewardees_data.clone()) {
                 Ok(_) => {
