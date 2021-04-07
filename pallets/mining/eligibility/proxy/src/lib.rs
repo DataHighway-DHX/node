@@ -221,17 +221,6 @@ decl_storage! {
         pub MiningEligibilityProxyRewardees get(fn mining_eligibility_proxy_rewardees): map hasher(opaque_blake2_256) T::MiningEligibilityProxyIndex =>
             Option<Vec<RewardeeData<T>>>;
 
-        // IGNORE - seems unnessary since can get from MiningEligibilityProxyRewardRequests
-        // pub MiningEligibilityProxyRewardees get(fn mining_eligibility_proxy_eligibility_rewardees): map hasher(opaque_blake2_256) T::MiningEligibilityProxyRewardeeIndex =>
-        //     Option<MiningEligibilityProxyRewardee<
-        //         u64,                        // reward_hash
-        //         T::AccountId,               // requestor_account_id
-        //         BalanceOf<T>,               // reward_amount
-        //         T::Moment,                  // timestamp
-        //         T::BlockNumber,             // block_start
-        //         T::BlockNumber,             // block_interval
-        //     >>;
-
         /// Stores reward_requests for given rewardee
         ///
         /// requestor_acct_id > (reward_hash, total_amt, rewardee_count, member_kind, date)
@@ -277,6 +266,11 @@ decl_storage! {
                     Date,
                 >>>;
 
+        /// Stores a boolean value of `true` only at the end of calling extrinsic
+        /// `proxy_eligibility_claim` to signify that all the input validation has passed and
+        /// all information has been stored on-chain (i.e. if an error occurs midway through
+        /// `proxy_eligibility_claim` and for example some data is not stored in `TotalRewardsPerDay`
+        /// then this value will NOT be `true`)
         pub MiningEligibilityProxyStatus get(fn proxy_status):
             map hasher(opaque_blake2_256) T::MiningEligibilityProxyIndex => bool;
     }
@@ -287,52 +281,6 @@ decl_module! {
     /// The module declaration.
     pub struct Module<T: Config> for enum Call where origin: <T as frame_system::Config>::Origin {
         fn deposit_event() = default;
-
-        // /// Emits an event with the calculated rewards for a given day.
-        // /// A separate custom RPC endpoint is a preferred alternative to return this data to the user
-        // #[weight = 10_000 + T::DbWeight::get().writes(1)]
-        // pub fn calc_rewards_of_day(
-        //     origin,
-        //     _proxy_claim_reward_day: Option<T::Moment>,
-        // ) -> Result<(), DispatchError> {
-        //     let sender = ensure_signed(origin)?;
-
-        //     if let Some(reward_day) = _proxy_claim_reward_day {
-        //         debug::info!("Retrieving total rewards of day {:#?}", reward_day);
-
-        //         let _rewards_for_reward_day = Self::rewards_daily(&reward_day);
-
-        //         if let Some(rewards_for_reward_day) = _rewards_for_reward_day {
-        //             let mut total_daily_rewards: BalanceOf<T> = 0.into();
-        //             let rewards_for_reward_day_count = rewards_for_reward_day.len();
-        //             let mut reward_data_current_index = 0;
-
-        //             for (index, reward_data) in rewards_for_reward_day.iter().enumerate() {
-        //                 reward_data_current_index += 1;
-        //                 debug::info!("reward_data_current_index {:#?}", reward_data_current_index);
-
-        //                 if let _total_amt = reward_data.total_amt {
-        //                     total_daily_rewards += _total_amt;
-        //                 } else {
-        //                     continue;
-        //                 }
-        //             }
-
-        //             let _total_daily_rewards_to_try = TryInto::<u32>::try_into(total_daily_rewards).ok();
-        //             if let Some(total_daily_rewards_to_try) = _total_daily_rewards_to_try {
-        //                 Self::deposit_event(RawEvent::RewardsOfDayCalculated(total_daily_rewards_to_try.into()));
-        //                 return Ok(())
-        //             } else {
-        //                 return Err(DispatchError::Other("Unable to convert Balance to u64 to calculate daily rewards"));
-        //             }
-
-        //         } else {
-        //             return Err(DispatchError::Other("Invalid rewards_for_reward_day data"));
-        //         }
-        //     } else {
-        //         return Err(DispatchError::Other("Invalid reward_day provided"));
-        //     }
-        // }
 
         /// Transfer tokens claimed by the Supernode Centre on behalf of a Supernode from the
         /// on-chain DHX DAO unlocked reserves of the Treasury account to the Supernode Centre's address,
@@ -610,7 +558,6 @@ decl_module! {
 
 impl<T: Config> Module<T> {
     /// Create a new mining mining_eligibility_proxy
-    // #[weight = 10_000 + T::DbWeight::get().writes(1)]
     pub fn create(sender: T::AccountId) -> Result<T::MiningEligibilityProxyIndex, DispatchError> {
         let mining_eligibility_proxy_id = Self::next_mining_eligibility_proxy_id()?;
 
@@ -661,7 +608,6 @@ impl<T: Config> Module<T> {
         let current_timestamp = <pallet_timestamp::Module<T>>::get();
         // convert the current date/time to the start of the current day date/time.
         // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
-
         let current_timestamp_as_u64;
         if let Some(_current_timestamp_as_u64) = TryInto::<u64>::try_into(current_timestamp).ok() {
             current_timestamp_as_u64 = _current_timestamp_as_u64;
@@ -675,7 +621,6 @@ impl<T: Config> Module<T> {
 
         let mut rewardees_data_count = 0;
         let mut is_valid = 1;
-        // FIXME - use cooldown in config runtime or move to abstract constant instead of hard-code here
         let MIN_COOLDOWN_PERIOD_DAYS: Duration = Duration::days(7); // 7 days @ 20k blocks produced per day
 
         // Iterate through all rewardees data
@@ -689,7 +634,6 @@ impl<T: Config> Module<T> {
                     let proxy_claim_end_date_secs = _proxy_claim_end_date / 1000i64;
                     let proxy_claim_start_date = NaiveDateTime::from_timestamp(proxy_claim_start_date_secs, 0).date();
                     let proxy_claim_end_date = NaiveDateTime::from_timestamp(proxy_claim_end_date_secs, 0).date();
-
                     let claim_duration = proxy_claim_end_date.signed_duration_since(proxy_claim_start_date);
 
                     if proxy_claim_end_date >= current_date {
@@ -697,14 +641,6 @@ impl<T: Config> Module<T> {
                         is_valid = 0;
                         break;
                     } else if claim_duration <= MIN_COOLDOWN_PERIOD_DAYS {
-                        // debugging error in tests
-                        // println!("_proxy_claim_start_date {:#?}", _proxy_claim_start_date);
-                        // println!("_proxy_claim_end_date {:#?}", _proxy_claim_end_date);
-                        // println!("proxy_claim_start_date_secs {:#?}", proxy_claim_start_date_secs);
-                        // println!("proxy_claim_end_date_secs {:#?}", proxy_claim_end_date_secs);
-                        // println!("proxy_claim_start_date {:#?}", proxy_claim_start_date);
-                        // println!("proxy_claim_end_date {:#?}", proxy_claim_end_date);
-                        // println!("claim duration {:#?}", claim_duration);
                         debug::info!("unable to claim reward for lock duration less than cooldown period");
                         is_valid = 0;
                         break;
@@ -719,7 +655,6 @@ impl<T: Config> Module<T> {
         }
 
         // Check that sum _proxy_claim_total_reward_amount equals sum of all the rewardee's proxy_claim_reward_amount
-
         debug::info!("Verifying that total reward amount requested equals sum of all rewardee data claim amounts");
 
         let mut sum_reward_amounts = 0u128;
@@ -869,9 +804,7 @@ impl<T: Config> Module<T> {
     ) {
         // Ensure that the mining_eligibility_proxy_id whose config we want to change actually exists
         let is_mining_eligibility_proxy = Self::exists_mining_eligibility_proxy(mining_eligibility_proxy_id);
-        // FIXME - why does this cause error `expected `()`, found enum `std::result::Result``
-        // its because there is no return type in this function.
-        // ensure!(is_mining_eligibility_proxy.is_ok(), "MiningEligibilityProxy does not exist");
+
         if !is_mining_eligibility_proxy.is_ok() {
             debug::info!("Error no supernode exists with given id");
         }

@@ -338,10 +338,6 @@ mod tests {
         type Event = ();
     }
 
-    // type System = frame_system::Module<Test>;
-    // pub type Balances = pallet_balances::Module<Test>;
-    // pub type Timestamp = pallet_timestamp::Module<Test>;
-    // pub type Treasury = pallet_treasury::Module<Test>;
     pub type MiningSettingTokenTestModule = MiningSettingTokenModule<Test>;
     pub type MiningRatesTokenTestModule = MiningRatesTokenModule<Test>;
     pub type MiningSamplingTokenTestModule = MiningSamplingTokenModule<Test>;
@@ -701,7 +697,7 @@ mod tests {
             );
             // ::pot() is a private function in Substrate 2 but in Substrate 3 it is public
             // so currently we cannot use this until we upgrade to Substrate 3
-            // assert_eq!(Treasury::pot(), 50000);
+            assert_eq!(Treasury::pot(), 29999999);
 
             // This will generate mining_eligibility_proxy_id 0
             assert_ok!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
@@ -751,15 +747,15 @@ mod tests {
                 DispatchError::BadOrigin
             );
 
-            // This tries to generate mining_eligibility_proxy_id 0
-            // assert_err!(
-            //     MiningEligibilityProxyTestModule::proxy_eligibility_claim(
-            //         Origin::signed(0),
-            //         1000, // _proxy_claim_total_reward_amount
-            //         // Some(proxy_claim_rewardees_data.clone()),
-            //     ),
-            //     "Only whitelisted Supernode account members may request proxy rewards"
-            // );
+            // This tries to generate mining_eligibility_proxy_id 1
+            assert_err!(
+                MiningEligibilityProxyTestModule::proxy_eligibility_claim(
+                    Origin::signed(0),
+                    1000, // _proxy_claim_total_reward_amount
+                    proxy_claim_rewardees_data.clone(),
+                ),
+                "Only whitelisted Supernode account members may request proxy rewards"
+            );
 
             // Verify Storage
             assert_eq!(MiningEligibilityProxyTestModule::mining_eligibility_proxy_count(), 1);
@@ -775,7 +771,6 @@ mod tests {
                     proxy_claim_timestamp_redeemed: 1616724600000u64, // current timestamp
                 })
             );
-
 
             if let Some(rewardee_data) = MiningEligibilityProxyTestModule::mining_eligibility_proxy_rewardees(1) {
                 if let Some(_proxy_claim_rewardees_data) = proxy_claim_rewardees_data.clone().pop() {
@@ -851,11 +846,6 @@ mod tests {
                 // Check latest transfer added to vector for requestor AccountId 0
                 assert_eq!(
                     rewards_daily_data.clone().pop(),
-                    // TODO - instead of using `RewardDailyData` from the implementation, consider
-                    // creating a mock of it instead and decorate it with `Debug` and so forth
-                    // like in the implementation. It doesn't cause any errors at the moment
-                    // because `RewardDailyData` only uses generics in the implementation,
-                    // but if it was defined with specific types then it would generate errors
                     Some(RewardDailyData {
                         mining_eligibility_proxy_id: 1u64,
                         total_amt: 3000u64,
@@ -867,41 +857,6 @@ mod tests {
             } else {
                 assert_eq!(false, true);
             }
-
-            // let unused_timstamp =  "2001-03-27".as_bytes().to_vec();
-            // assert_eq!(
-            //     MiningEligibilityProxyTestModule::block_rewarded_for_day(unused_timstamp),
-            //     None,
-            // );
-
-            // let timstamp_26mar2021 = "2021-03-26".as_bytes().to_vec();
-            // assert_eq!(
-            //     MiningEligibilityProxyTestModule::block_rewarded_for_day(timstamp_26mar2021),
-            //     None,
-            // );
-
-            // let timstamp_27mar2021 = "2021-03-27".as_bytes().to_vec();
-            // assert_eq!(
-            //     MiningEligibilityProxyTestModule::block_rewarded_for_day(timstamp_27mar2021),
-            //     None,
-            // );
-
-            // // TODO - fix all the below
-
-            // // it should only return a timestamp for the block number that corresponds to the
-            // // start of the day for which the reward request was submitted.
-            // // i.e. if it was made at 1400hr on 1st Apr, it'd return the block corresponding
-            // // to 0000hr on 1st Apr
-            // let valid_day_start = 1616713200000u64;
-            // assert_eq!(
-            //     MiningEligibilityProxyTestModule::block_rewarded_for_day(valid_day_start),
-            //     Some(2),
-            // );
-
-            // assert_eq!(
-            //     MiningEligibilityProxyTestModule::day_rewarded_for_block(2),
-            //     Some(1616713200000u64),
-            // );
 
             // If we reward them on 26th March 2021 @ 02:00 (1616724600000u64),
             // the reward gets inserted for start of that day at 26th Mar 2021 @ 0:00 (1616713200000u64)
@@ -933,15 +888,6 @@ mod tests {
                 ),
                 None,
             );
-
-            // TODO - add the below functionality to a custom RPC since we cannot return a value
-            // from an extrinsic function
-            //
-            // Check the total sum of rewards sent for a given day
-            // assert_eq!(
-            //     MiningEligibilityProxyTestModule::calc_rewards_of_day(Origin::signed(0), Some(1u64)).unwrap(),
-            //     Some(3000u64)
-            // );
         });
     }
 }
