@@ -1,0 +1,11 @@
+{
+  "name": "polkadot-js-scripts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "MXC Foundation GmbH <https://t.me/mxcfoundation>",
+  "license": "Unlicense",
+  "dependencies": {
+    "@polkadot/api": "^4.4.1",
+    "@polkadot/keyring": "^6.0.5"
+  }
+}
