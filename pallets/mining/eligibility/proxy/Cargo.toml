@@ -7,12 +7,15 @@ edition = "2018"
 [features]
 default = ['std']
 std = [
+    'chrono/std',
     'codec/std',
     'frame-support/std',
     'frame-system/std',
+    'module-primitives/std',
     'safe-mix/std',
     'pallet-balances/std',
     'pallet-randomness-collective-flip/std',
+    'pallet-timestamp/std',
     'pallet-transaction-payment/std',
     'pallet-treasury/std',
     'sp-core/std',
@@ -20,26 +23,27 @@ std = [
     'sp-runtime/std',
     'sp-std/std',
 
-    'roaming-operators/std',
     'account-set/std',
     'membership-supernodes/std',
 ]
 
 [dependencies]
 codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
-safe-mix = { version = '1.0.0', default-features = false }
 frame-support = { version = '3.0.0', default-features = false }
 frame-system = { version = '3.0.0', default-features = false }
+module-primitives = { version = '3.0.0', default-features = false, path = '../../../primitives' }
+safe-mix = { version = '1.0.0', default-features = false }
 pallet-balances = { version = '3.0.0', default-features = false }
 pallet-randomness-collective-flip = { version = '3.0.0', default-features = false }
+pallet-timestamp = { version = '3.0.0', default_features = false }
 pallet-transaction-payment = { version = '3.0.0', default-features = false }
 pallet-treasury = { version = '3.0.0', default-features = false }
 sp-core = { version = '3.0.0', default-features = false }
 sp-io = { version = '3.0.0', default-features = false }
 sp-runtime = { version = '3.0.0', default-features = false }
 sp-std = { version = '3.0.0', default-features = false }
+chrono = { version = '0.4.19', default_features = false }
 
-roaming-operators = { default-features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
 account-set = { path = '../../../../traits/account-set', default-features = false }
 membership-supernodes = { path = '../../../membership/supernodes', default-features = false }
 

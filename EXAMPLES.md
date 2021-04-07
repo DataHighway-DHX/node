@@ -67,7 +67,8 @@ Alternatively run the following, and repeat replacing `alice`, ... `eve`, and `n
   --base-path /tmp/polkadot-chains/alice \
   --name "Data Highway Development Chain" \
   --dev \
-  --telemetry-url "wss://telemetry.polkadot.io/submit/ 0"
+  --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
+  -lruntime=debug
 ```
 
 ## Example "local" PoS testnet (with multiple nodes) <a id="chapter-f21efd"></a>

@@ -21,8 +21,8 @@ use sp_std::{
     prelude::*,
 };
 
-#[cfg(test)]
-mod tests;
+// #[cfg(test)]
+// mod tests;
 
 /// A maximum number of members. When membership reaches this number, no new members may join.
 pub const MAX_MEMBERS: usize = 16;
@@ -35,6 +35,9 @@ decl_storage! {
     trait Store for Module<T: Config> as VecSet {
         // The set of all members. Stored as a single vec
         Members get(fn members): Vec<T::AccountId>;
+
+        MemberKinds get(fn member_kinds):
+            map hasher(opaque_blake2_256) T::AccountId => u32;
     }
 }
 
@@ -44,9 +47,9 @@ decl_event!(
         AccountId = <T as system::Config>::AccountId,
     {
         /// Added a member
-        MemberAdded(AccountId),
+        MemberAdded(AccountId, u32),
         /// Removed a member
-        MemberRemoved(AccountId),
+        MemberRemoved(AccountId, u32),
     }
 );
 
@@ -72,6 +75,7 @@ decl_module! {
         pub fn add_member(
             origin,
             new_member: T::AccountId,
+            kind: u32,
         ) -> DispatchResult {
             let _sender = ensure_root(origin)?;
 
@@ -89,7 +93,8 @@ decl_module! {
                 Err(index) => {
                     members.insert(index, new_member.clone());
                     Members::<T>::put(members);
-                    Self::deposit_event(RawEvent::MemberAdded(new_member));
+                    <MemberKinds<T>>::insert(new_member.clone(), kind.clone());
+                    Self::deposit_event(RawEvent::MemberAdded(new_member, kind));
                     Ok(())
                 }
             }
@@ -100,6 +105,7 @@ decl_module! {
         pub fn remove_member(
             origin,
             old_member: T::AccountId,
+            kind: u32,
         ) -> DispatchResult {
             let _sender = ensure_root(origin)?;
 
@@ -111,7 +117,8 @@ decl_module! {
                 Ok(index) => {
                     members.remove(index);
                     Members::<T>::put(members);
-                    Self::deposit_event(RawEvent::MemberRemoved(old_member));
+                    <MemberKinds<T>>::remove(old_member.clone());
+                    Self::deposit_event(RawEvent::MemberRemoved(old_member, kind));
                     Ok(())
                 },
                 // If the search fails, the caller is not a member, so just return
@@ -128,5 +135,9 @@ impl<T: Config> AccountSet for Module<T> {
 
     fn accounts() -> BTreeSet<T::AccountId> {
         Self::members().into_iter().collect::<BTreeSet<_>>()
+    }
+
+    fn account_kind(account_id: T::AccountId) -> u32 {
+        Self::member_kinds(account_id)
     }
 }

@@ -21,6 +21,7 @@ codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = 
 # Substrate packages
 frame-support = { version = '3.0.0', default-features = false }
 frame-system = { version = '3.0.0', default-features = false }
+pallet-balances = { version = '3.0.0', default-features = false }
 sp-runtime = { version = '3.0.0', default-features = false }
 sp-std = { version = '3.0.0', default-features = false }
 
@@ -38,5 +39,6 @@ std = [
     'codec/std',
     'frame-support/std',
     'frame-system/std',
+    'pallet-balances/std',
     'sp-runtime/std',
 ]

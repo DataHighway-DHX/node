@@ -1,12 +1,15 @@
 // extern crate env as env;
 extern crate membership_supernodes as membership_supernodes;
 extern crate mining_claims_token as mining_claims_token;
+extern crate mining_eligibility_proxy as mining_eligibility_proxy;
 extern crate mining_setting_token as mining_setting_token;
 extern crate mining_eligibility_token as mining_eligibility_token;
 extern crate mining_execution_token as mining_execution_token;
 extern crate mining_rates_token as mining_rates_token;
 extern crate mining_sampling_token as mining_sampling_token;
 extern crate roaming_operators as roaming_operators;
+
+const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u64 = 30000000;
 
 #[cfg(test)]
 mod tests {
@@ -16,12 +19,21 @@ mod tests {
         assert_err,
         assert_ok,
         parameter_types,
+        traits::{
+            Contains,
+            ContainsLengthBound,
+            Currency,
+            EnsureOrigin,
+        },
         weights::{
             IdentityFee,
             Weight,
         },
     };
-
+    use frame_system::{
+        EnsureRoot,
+        RawOrigin,
+    };
     use sp_core::H256;
     use sp_runtime::{
         testing::Header,
@@ -32,17 +44,30 @@ mod tests {
         },
         DispatchError,
         DispatchResult,
+        ModuleId,
         Perbill,
+        Percent,
         Permill,
+    };
+    use std::cell::RefCell;
+    // Import Trait for each runtime module being tested
+    use chrono::NaiveDate;
+    use datahighway_testnet_runtime::{
+        AccountId,
+        Babe,
+        Balance,
+        BlockNumber,
+        Moment,
+        DAYS,
+        SLOT_DURATION,
     };
     pub use pallet_transaction_payment::{
         CurrencyAdapter,
     };
     use membership_supernodes::{
         Module as MembershipSupernodesModule,
-        Trait as MembershipSupernodesTrait,
+        Config as MembershipSupernodesConfig,
     };
-    // Import Trait for each runtime module being tested
     use mining_claims_token::{
         MiningClaimsTokenClaimResult,
         Module as MiningClaimsTokenModule,
@@ -53,6 +78,16 @@ mod tests {
         MiningSettingTokenRequirementsSetting,
         Module as MiningSettingTokenModule,
         Config as MiningSettingTokenConfig,
+    };
+    use mining_eligibility_proxy::{
+        Event as MiningEligibilityProxyEvent,
+        MiningEligibilityProxyClaimRewardeeData,
+        MiningEligibilityProxyRewardRequest,
+        Module as MiningEligibilityProxyModule,
+        RewardDailyData,
+        RewardRequestorData,
+        RewardTransferData,
+        Config as MiningEligibilityProxyConfig,
     };
     use mining_eligibility_token::{
         MiningEligibilityTokenResult,
@@ -89,9 +124,13 @@ mod tests {
             UncheckedExtrinsic = UncheckedExtrinsic,
         {
             System: frame_system::{Module, Call, Config, Storage, Event<T>},
+            Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
             Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
             RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
             TransactionPayment: pallet_transaction_payment::{Module, Storage},
+            Treasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
+            Bounties: pallet_bounties::{Module, Call, Storage, Event<T>},
+            Tips: pallet_tips::{Module, Call, Storage, Event<T>},
         }
     );
 
@@ -125,6 +164,16 @@ mod tests {
         type Version = ();
     }
     parameter_types! {
+        pub const MinimumPeriod: u64 = SLOT_DURATION / 2;
+    }
+    impl pallet_timestamp::Config for Test {
+        type MinimumPeriod = MinimumPeriod;
+        /// A timestamp: milliseconds since the unix epoch.
+        type Moment = Moment;
+        type OnTimestampSet = Babe;
+        type WeightInfo = ();
+    }
+    parameter_types! {
         pub const ExistentialDeposit: u64 = 1;
     }
     impl pallet_balances::Config for Test {
@@ -142,10 +191,96 @@ mod tests {
         type TransactionByteFee = ();
         type WeightToFee = IdentityFee<u64>;
     }
+
+    thread_local! {
+        static TEN_TO_FOURTEEN: RefCell<Vec<u64>> = RefCell::new(vec![10,11,12,13,14]);
+    }
+    pub struct TenToFourteen;
+    impl Contains<u64> for TenToFourteen {
+        fn sorted_members() -> Vec<u64> {
+            TEN_TO_FOURTEEN.with(|v| v.borrow().clone())
+        }
+
+        #[cfg(feature = "runtime-benchmarks")]
+        fn add(new: &u64) {
+            TEN_TO_FOURTEEN.with(|v| {
+                let mut members = v.borrow_mut();
+                members.push(*new);
+                members.sort();
+            })
+        }
+    }
+    impl ContainsLengthBound for TenToFourteen {
+        fn max_len() -> usize {
+            TEN_TO_FOURTEEN.with(|v| v.borrow().len())
+        }
+
+        fn min_len() -> usize {
+            0
+        }
+    }
+
+    parameter_types! {
+        pub const ProposalBond: Permill = Permill::from_percent(5);
+        pub const ProposalBondMinimum: u64 = 1_000_000_000_000_000_000;
+        pub const SpendPeriod: BlockNumber = 1 * DAYS;
+        pub const Burn: Permill = Permill::from_percent(0);
+        pub const TipCountdown: BlockNumber = 1;
+        pub const TipFindersFee: Percent = Percent::from_percent(20);
+        pub const TipReportDepositBase: u64 = 1_000_000_000_000_000_000;
+        pub const MaximumReasonLength: u32 = 16384;
+        pub const BountyValueMinimum: u64 = 1;
+        pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
+        pub const BountyDepositBase: u64 = 80;
+        pub const BountyDepositPayoutDelay: u32 = 3;
+        pub const BountyUpdatePeriod: u32 = 20;
+        pub const DataDepositPerByte: u64 = 1;
+        pub const TreasuryModuleId: ModuleId = ModuleId(*b"py/trsry");
+    }
+
+    impl pallet_treasury::Config for Test {
+        type ModuleId = TreasuryModuleId;
+        type Currency = Balances;
+        type ApproveOrigin = EnsureRoot<u64>;
+        type RejectOrigin = EnsureRoot<u64>;
+        type Event = ();
+        type OnSlash = ();
+        type ProposalBond = ProposalBond;
+        type ProposalBondMinimum = ProposalBondMinimum;
+        type SpendPeriod = SpendPeriod;
+        type Burn = Burn;
+        type BurnDestination = ();
+        type SpendFunds = Bounties;
+        type WeightInfo = pallet_treasury::weights::SubstrateWeight<Test>;
+    }
+
+    impl pallet_bounties::Config for Test {
+        type Event = ();
+        type BountyDepositBase = BountyDepositBase;
+        type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
+        type BountyUpdatePeriod = BountyUpdatePeriod;
+        type BountyCuratorDeposit = BountyCuratorDeposit;
+        type BountyValueMinimum = BountyValueMinimum;
+        type DataDepositPerByte = DataDepositPerByte;
+        type MaximumReasonLength = MaximumReasonLength;
+        type WeightInfo = pallet_bounties::weights::SubstrateWeight<Test>;
+    }
+
+    impl pallet_tips::Config for Test {
+        type Event = ();
+        type DataDepositPerByte = DataDepositPerByte;
+        type MaximumReasonLength = MaximumReasonLength;
+        type Tippers = TenToFourteen;
+        type TipCountdown = TipCountdown;
+        type TipFindersFee = TipFindersFee;
+        type TipReportDepositBase = TipReportDepositBase;
+        type WeightInfo = pallet_tips::weights::SubstrateWeight<Test>;
+    }
+
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
     impl roaming_operators::Config for Test {
-        type Currency = Balances;
         type Event = ();
+        type Currency = Balances;
         type Randomness = RandomnessCollectiveFlip;
         type RoamingOperatorIndex = u64;
     }
@@ -182,6 +317,14 @@ mod tests {
         type MiningEligibilityTokenLockedPercentage = u32;
         // type MiningEligibilityTokenAuditorAccountID = u64;
     }
+    impl MiningEligibilityProxyConfig for Test {
+        type Event = ();
+        type Currency = Balances;
+        type Randomness = RandomnessCollectiveFlip;
+        type MembershipSource = MembershipSupernodes;
+        type MiningEligibilityProxyIndex = u64;
+        type RewardsOfDay = u64;
+    }
     impl MiningClaimsTokenConfig for Test {
         type Event = ();
         type MiningClaimsTokenClaimAmount = u64;
@@ -191,7 +334,7 @@ mod tests {
         type Event = ();
         type MiningExecutionTokenIndex = u64;
     }
-    impl MembershipSupernodesTrait for Test {
+    impl MembershipSupernodesConfig for Test {
         type Event = ();
     }
 
@@ -199,18 +342,23 @@ mod tests {
     pub type MiningRatesTokenTestModule = MiningRatesTokenModule<Test>;
     pub type MiningSamplingTokenTestModule = MiningSamplingTokenModule<Test>;
     pub type MiningEligibilityTokenTestModule = MiningEligibilityTokenModule<Test>;
+    pub type MiningEligibilityProxyTestModule = MiningEligibilityProxyModule<Test>;
     pub type MiningClaimsTokenTestModule = MiningClaimsTokenModule<Test>;
     pub type MiningExecutionTokenTestModule = MiningExecutionTokenModule<Test>;
     pub type MembershipSupernodesTestModule = MembershipSupernodesModule<Test>;
     type Randomness = pallet_randomness_collective_flip::Module<Test>;
     type MembershipSupernodes = membership_supernodes::Module<Test>;
 
+    // fn last_event() -> MiningEligibilityProxyEvent {
+    //     System::events().pop().expect("Event expected").event
+    // }
+
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     pub fn new_test_ext() -> sp_io::TestExternalities {
         let mut t = frame_system::GenesisConfig::default().build_storage::<Test>().unwrap();
         pallet_balances::GenesisConfig::<Test> {
-            balances: vec![(1, 10), (2, 20), (3, 30)],
+            balances: vec![(0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE), (1, 10), (2, 20), (3, 30)],
         }
         .assimilate_storage(&mut t)
         .unwrap();
@@ -223,6 +371,7 @@ mod tests {
     #[test]
     fn setup_users() {
         new_test_ext().execute_with(|| {
+            assert_eq!(Balances::free_balance(0), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
             assert_eq!(Balances::free_balance(1), 10);
             assert_eq!(Balances::free_balance(2), 20);
             assert_eq!(Balances::free_balance(3), 30);
@@ -428,7 +577,7 @@ mod tests {
                 0,           // mining_eligibility_token_id
                 0,           // mining_claims_token_id
                 Some(1),     // token_claim_amount
-                Some(34567)  // token_claim_block_redeemed
+                Some(34567), // token_claim_block_redeemed
             ));
 
             // Verify Storage
@@ -475,15 +624,272 @@ mod tests {
             // TODO - check that the locked amount has actually been locked and check that a sampling, eligibility, and
             // claim were all run automatically afterwards assert!(false);
 
-            // Only the Sudo root account may add and remove any account's membership of Member Supernodes, but in
+            // Mining Eligibility Proxy Tests
+            //
+            // A member of the Supernode Centre requests as a proxy on behalf of one or more Supernodes and their users
+            // a claim for an amount of DHX tokens to be sent to them from the Treasury's DHX DAO unlocked reserves.
+            // A separate endpoint will be added for Supernodes make requests themselves.
+            // They provide data about the various user accounts belonging to that Supernode are to be
+            // rewarded for their mining participation from a start block until an interval of blocks later,
+            // and accounts that are to be rewarded must have completed their cooldown period after they started to
+            // mine, and must not be in a cooldown period after requesting to stop mining.
+            // Only the Root account may add and remove any account's membership of Member Supernodes, but in
             // practice only the Supernode Centre's account would be added with membership of Member Supernodes.
+            //
+            // Important note: Due to limitations with Substrate 2, the Treasury DHX DAO account
+            // needs to manually be transferred the DHX tokens by the Sudo root user first, since instantiation at
+            // genesis is only available in Substrate 3.
 
-            // The implementation uses ensure_root, so only the root origin may add and remove members (i.e. not account 1)
-            assert_ok!(MembershipSupernodesTestModule::add_member(Origin::root(), 0));
-            assert_err!(MembershipSupernodesTestModule::add_member(Origin::signed(0), 0), DispatchError::BadOrigin);
+            // The implementation uses ensure_root, so only the Sudo root origin may add and remove members
+            // (not account 0 or 1) of Member Supernodes
+            assert_ok!(MembershipSupernodesTestModule::add_member(Origin::root(), 1, 1));
+            assert_err!(MembershipSupernodesTestModule::add_member(Origin::signed(0), 1, 1), DispatchError::BadOrigin);
 
-            assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::root(), 0));
-            assert_err!(MembershipSupernodesTestModule::remove_member(Origin::signed(0), 0), DispatchError::BadOrigin);
+            let rewardee_data = MiningEligibilityProxyClaimRewardeeData {
+                proxy_claim_rewardee_account_id: 3,
+                proxy_claim_reward_amount: 1000,
+                // Multiply by 1000 since NaiveDate generates seconds but we want milliseconds
+                // and if we incorrectly use seconds then the date will revert to 1970.
+                proxy_claim_start_date: NaiveDate::from_ymd(2000, 1, 1).and_hms(0, 0, 0).timestamp() * 1000,
+                proxy_claim_end_date: NaiveDate::from_ymd(2000, 1, 9).and_hms(0, 0, 0).timestamp() * 1000,
+            };
+            let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, i64, i64>> =
+                Vec::new();
+            proxy_claim_rewardees_data.push(rewardee_data);
+
+            System::set_block_number(1);
+
+            // 26th March 2021 @ ~2am is 1616724600000
+            // where milliseconds/day         86400000
+            Timestamp::set_timestamp(1616724600000u64);
+
+            // Check balance of account Supernode Centre's proxy_claim_rewardee_account_id prior
+            // to treasury rewarding it.
+            assert_eq!(Balances::free_balance(1), 10);
+            assert_eq!(Balances::reserved_balance(1), 0);
+            assert_eq!(Balances::total_balance(&1), 10);
+            // Check balance of temporary treasury prior to paying the treasury.
+            assert_eq!(Balances::usable_balance(0), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
+            assert_eq!(Balances::free_balance(0), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
+            assert_eq!(Balances::reserved_balance(0), 0);
+            assert_eq!(Balances::total_balance(&0), INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
+
+            // let _ = Balances::deposit_creating(&0, 30000);
+            // Balances::make_free_balance_be(&Treasury::account_id(),
+            // INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
+
+            // Sudo transfers the temporary treasury DHX DAO reserves to the treasury after the genesis block
+            // This is necessary because instantiable transfers to treasury in the genesis config are
+            // only available in Substrate 3, but we are using Substrate 2 still.
+            // origin, source, destination, balance
+            assert_ok!(Balances::force_transfer(
+                RawOrigin::Root.into(),
+                0,
+                Treasury::account_id(),
+                INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE
+            ));
+
+            // Check the balance of the treasury has received the funds from the temporary account
+            // to be use to pay the proxy_claim_reward_amount to proxy_claim_rewardee_account_id
+            assert_eq!(
+                Balances::free_balance(&Treasury::account_id()),
+                INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE
+            );
+            // ::pot() is a private function in Substrate 2 but in Substrate 3 it is public
+            // so currently we cannot use this until we upgrade to Substrate 3
+            assert_eq!(Treasury::pot(), 29999999);
+
+            // This will generate mining_eligibility_proxy_id 0
+            assert_ok!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
+                Origin::signed(1),
+                1000, // _proxy_claim_total_reward_amount
+                proxy_claim_rewardees_data.clone(),
+            ));
+
+            // FIXME #20210312 - unable to get this to work or find help
+            // https://matrix.to/#/!HzySYSaIhtyWrwiwEV:matrix.org/$1615538012148183moxRT:matrix.org?via=matrix.parity.io&via=matrix.org&via=corepaper.org
+            // Check balance of account proxy_claim_rewardee_account_id after treasury rewards it.
+            // assert_eq!(
+            //     last_event(),
+            //     MiningEligibilityProxyEvent::MiningEligibilityProxyRewardRequestSet(
+            //         1u64, // proxy_claim_requestor_account_id
+            //         0u64, // mining_eligibility_proxy_id
+            //         1000u64, // proxy_claim_total_reward_amount
+            //         proxy_claim_rewardees_data.clone(), // proxy_claim_rewardees_data
+            //         1u64, // proxy_claim_block_redeemed
+            //         1u64, // proxy_claim_timestamp_redeemed
+            //     ),
+            // );
+
+            System::set_block_number(2);
+
+            // 27th March 2021 @ ~2am is 1616811000000u64
+            // https://currentmillis.com/
+            Timestamp::set_timestamp(1616811000000u64);
+
+            assert_eq!(Balances::free_balance(1), 1010);
+            assert_eq!(Balances::reserved_balance(1), 0);
+            assert_eq!(Balances::total_balance(&1), 1010);
+            // Check balance of treasury after paying the proxy_claim_reward_amount.
+            assert_eq!(
+                Balances::free_balance(Treasury::account_id()),
+                (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000)
+            );
+            assert_eq!(Balances::reserved_balance(Treasury::account_id()), 0);
+            assert_eq!(
+                Balances::total_balance(&Treasury::account_id()),
+                (INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE - 1000)
+            );
+
+            assert_ok!(MembershipSupernodesTestModule::remove_member(Origin::root(), 1, 1));
+            assert_err!(
+                MembershipSupernodesTestModule::remove_member(Origin::signed(0), 1, 1),
+                DispatchError::BadOrigin
+            );
+
+            // This tries to generate mining_eligibility_proxy_id 1
+            assert_err!(
+                MiningEligibilityProxyTestModule::proxy_eligibility_claim(
+                    Origin::signed(0),
+                    1000, // _proxy_claim_total_reward_amount
+                    proxy_claim_rewardees_data.clone(),
+                ),
+                "Only whitelisted Supernode account members may request proxy rewards"
+            );
+
+            // Verify Storage
+            assert_eq!(MiningEligibilityProxyTestModule::mining_eligibility_proxy_count(), 1);
+            assert!(MiningEligibilityProxyTestModule::mining_eligibility_proxy(0).is_some());
+            assert_eq!(MiningEligibilityProxyTestModule::mining_eligibility_proxy_owner(0), Some(1));
+
+            // Check that data about the proxy claim and rewardee data has been stored.
+            assert_eq!(
+                MiningEligibilityProxyTestModule::mining_eligibility_proxy_eligibility_reward_requests(0),
+                Some(MiningEligibilityProxyRewardRequest {
+                    proxy_claim_requestor_account_id: 1u64,
+                    proxy_claim_total_reward_amount: 1000u64,
+                    proxy_claim_timestamp_redeemed: 1616724600000u64, // current timestamp
+                })
+            );
+
+            if let Some(rewardee_data) = MiningEligibilityProxyTestModule::mining_eligibility_proxy_rewardees(1) {
+                if let Some(_proxy_claim_rewardees_data) = proxy_claim_rewardees_data.clone().pop() {
+                    assert_eq!(
+                        rewardee_data.clone().pop(),
+                        Some(_proxy_claim_rewardees_data),
+                    );
+                }
+            }
+
+            if let Some(reward_requestor_data) = MiningEligibilityProxyTestModule::reward_requestors(1) {
+                // Check that data about the proxy claim reward requestor data has been stored.
+                // Check latest request added to vector for requestor AccountId 0
+                assert_eq!(
+                    reward_requestor_data.clone().pop(),
+                    Some(RewardRequestorData {
+                        mining_eligibility_proxy_id: 0u64,
+                        total_amt: 1000u64,
+                        rewardee_count: 1u64,
+                        member_kind: 1u32,
+                        requested_date: 1616724600000u64,
+                    })
+                );
+            } else {
+                assert_eq!(false, true);
+            }
+
+            if let Some(reward_transfer_data) = MiningEligibilityProxyTestModule::reward_transfers(1u64) {
+                // Check that data about the proxy claim reward transfer data has been stored.
+                // Check latest transfer added to vector for transfer AccountId 0
+                assert_eq!(
+                    reward_transfer_data.clone().pop(),
+                    Some(RewardTransferData {
+                        mining_eligibility_proxy_id: 0u64,
+                        total_amt: 1000u64,
+                        rewardee_count: 1u64,
+                        member_kind: 1u32,
+                        requested_date: 1616724600000u64,
+                    })
+                );
+            } else {
+                assert_eq!(false, true);
+            }
+
+            // Add AccountId 2 to member list
+            assert_ok!(MembershipSupernodesTestModule::add_member(Origin::root(), 2, 1));
+
+            let rewardee_data_large = MiningEligibilityProxyClaimRewardeeData {
+                proxy_claim_rewardee_account_id: 3,
+                proxy_claim_reward_amount: 3000,
+                proxy_claim_start_date: NaiveDate::from_ymd(2000, 1, 1).and_hms(0, 0, 0).timestamp() * 1000,
+                proxy_claim_end_date: NaiveDate::from_ymd(2000, 1, 9).and_hms(0, 0, 0).timestamp() * 1000,
+            };
+            let mut proxy_claim_rewardees_data_large: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, i64, i64>> =
+                Vec::new();
+                proxy_claim_rewardees_data_large.push(rewardee_data_large);
+
+            // Repeat with an additional claim
+            assert_ok!(MiningEligibilityProxyTestModule::proxy_eligibility_claim(
+                Origin::signed(2),
+                3000, // _proxy_claim_total_reward_amount
+                proxy_claim_rewardees_data_large.clone(),
+            ));
+
+            let invalid_date_redeemed_millis_2021_01_15 = NaiveDate::from_ymd(2021, 01, 15).and_hms(0, 0, 0).timestamp() * 1000;
+            let date_redeemed_millis_2021_03_26 = NaiveDate::from_ymd(2021, 03, 26).and_hms(0, 0, 0).timestamp() * 1000;
+            let date_redeemed_millis_2021_03_27 = NaiveDate::from_ymd(2021, 03, 27).and_hms(0, 0, 0).timestamp() * 1000;
+
+            if let Some(rewards_daily_data) = MiningEligibilityProxyTestModule::rewards_daily(
+                date_redeemed_millis_2021_03_27.clone(),
+            ) {
+                // Check that data about the proxy claim reward daily data has been stored.
+                // Check latest transfer added to vector for requestor AccountId 0
+                assert_eq!(
+                    rewards_daily_data.clone().pop(),
+                    Some(RewardDailyData {
+                        mining_eligibility_proxy_id: 1u64,
+                        total_amt: 3000u64,
+                        proxy_claim_requestor_account_id: 2u64,
+                        member_kind: 1u32,
+                        rewarded_date: date_redeemed_millis_2021_03_27.clone(),
+                    })
+                );
+            } else {
+                assert_eq!(false, true);
+            }
+
+            // If we reward them on 26th March 2021 @ 02:00 (1616724600000u64),
+            // the reward gets inserted for start of that day at 26th Mar 2021 @ 0:00 (1616713200000u64)
+            // according to https://currentmillis.com/, so that's the key we need to lookup results with
+            assert_eq!(
+                MiningEligibilityProxyTestModule::total_rewards_daily(
+                    date_redeemed_millis_2021_03_26.clone(),
+                ),
+                Some(1000),
+            );
+
+            // If we reward them on 27th March 2021 @ 02:00 (1616811000000u64),
+            // the reward gets inserted for start of that day at 26th Mar 2021 @ 0:00 (1616799600000u64)
+            // according to https://currentmillis.com/, so that's the key we need to lookup results with
+            assert_eq!(
+                MiningEligibilityProxyTestModule::total_rewards_daily(
+                    date_redeemed_millis_2021_03_27.clone(),
+                ),
+                Some(3000u64),
+            );
+
+            // TODO - add an extra test later on in the day on 26th Mar 2021 to check it gets added
+            // to the total rewards for 26th Mar 2021
+
+            // this should return None, since the timestamp was not used
+            assert_eq!(
+                MiningEligibilityProxyTestModule::total_rewards_daily(
+                    invalid_date_redeemed_millis_2021_01_15.clone(),
+                ),
+                None,
+            );
+
+            System::set_block_number(500);
         });
     }
 }
