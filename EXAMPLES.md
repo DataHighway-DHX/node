@@ -451,8 +451,6 @@ docker-compose -f docker-compose-dev.yml exec alice bash
 * Refer to the documentation to setup a validator node and to obtain bootnode to connect to https://dev.datahighway.com/docs/en/tutorials/tutorials-nodes-validator-setup
 
 ```
-cargo build --release -p datahighway-testnet-runtime
-
  ./target/release/datahighway \
     ...
     --chain harbour \
@@ -463,8 +461,6 @@ cargo build --release -p datahighway-testnet-runtime
 * Refer to the documentation to setup a validator node and to obtain bootnode to connect to https://dev.datahighway.com/docs/en/tutorials/tutorials-nodes-validator-setup
 
 ```
-cargo build --release -p datahighway-mainnet-runtime
-
 ./target/release/datahighway \
     ...
     --chain westlake \
