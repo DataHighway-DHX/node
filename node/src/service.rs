@@ -3,7 +3,7 @@
 use crate::{
     rpc as datahighway_rpc,
 };
-use datahighway_mainnet_runtime::{
+use datahighway_testnet_runtime::{
     self,
     opaque::{
         Block,
@@ -48,8 +48,8 @@ use std::{
 // Our native executor instance.
 native_executor_instance!(
     pub Executor,
-    datahighway_mainnet_runtime::api::dispatch,
-    datahighway_mainnet_runtime::native_version,
+    datahighway_testnet_runtime::api::dispatch,
+    datahighway_testnet_runtime::native_version,
     frame_benchmarking::benchmarking::HostFunctions,
 );
 
