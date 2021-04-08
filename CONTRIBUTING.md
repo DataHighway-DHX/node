@@ -81,8 +81,7 @@ RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/datahighway ... \
 ### Run All Tests
 
 ```bash
-cargo test -p datahighway-testnet-runtime &&
-cargo test -p datahighway-mainnet-runtime &&
+cargo test -p datahighway-runtime &&
 cargo test -p roaming-operators &&
 cargo test -p roaming-networks &&
 cargo test -p roaming-organizations &&
@@ -113,15 +112,14 @@ cargo test -p mining-claims-hardware
 ### Run Integration Tests Only
 
 ```
-cargo test -p datahighway-testnet-runtime &&
-cargo test -p datahighway-mainnet-runtime
+cargo test -p datahighway-runtime
 ```
 
 #### Run Specific Integration Tests
 
 Example
 ```
-cargo test -p datahighway-testnet-runtime --test cli_integration_tests_mining_tokens
+cargo test -p datahighway-runtime --test cli_integration_tests_mining_tokens
 ```
 
 ## Continuous Integration <a id="chapter-7a8301"></a>
@@ -340,7 +338,7 @@ cargo +nightly-2021-03-10-aarch64-apple-darwin fmt --all -- --check
     * Ans: Because there is a type mismatch, perhaps the first variable requires a `Balance` instead of `u32` in custom_types.json or similar.
 
 * Question: How to debug when running tests?
-    * Ans: Run tests with this `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug` in front, i.e. `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug cargo +nightly-2021-03-10 test -p datahighway-testnet-runtime`, and use `println!` where you want to log the output (i.e. `println!("claim duration {:#?}", claim_duration);`), as `debug::info` not work in tests
+    * Ans: Run tests with this `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug` in front, i.e. `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug cargo +nightly-2021-03-10 test -p datahighway-runtime`, and use `println!` where you want to log the output (i.e. `println!("claim duration {:#?}", claim_duration);`), as `debug::info` not work in tests
 
 ## Technical Support <a id="chapter-c00ab7"></a>
 

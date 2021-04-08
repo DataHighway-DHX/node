@@ -44,7 +44,6 @@ The development testnet only requires a single node to produce and finalize bloc
 * Install/update dependencies as described [here](#chapter-ca1234)
 
 * Build the WebAssembly binary from all code.
-* Note that since we have two separate runtimes for testnet and mainnet, they will both be built at the same time.
 
 ```bash
 cargo build --release
@@ -93,7 +92,6 @@ This approach is similar to that described in the official Substrate docs [here]
 #### Build runtime code
 
 * Build the WebAssembly binary from all code.
-* Note that since we have two separate runtimes for testnet and mainnet, they will both be built at the same time.
 
 ```bash
 cargo build --release
