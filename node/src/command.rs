@@ -15,8 +15,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use datahighway_testnet_runtime as dh_testnet;
-use dh_testnet::{
+use datahighway_runtime;
+use datahighway_runtime::{
     opaque::{
         Block,
     },
@@ -70,14 +70,14 @@ impl SubstrateCli for Cli {
             // "testnet_file" => Box::new(chain_spec::datahighway_testnet_file_config()?),
             "harbour" => Box::new(chain_spec::datahighway_testnet_harbour_config()?),
             "westlake" => Box::new(chain_spec::datahighway_mainnet_westlake_config()?),
-			path => Box::new(chain_spec::DHTestnetChainSpec::from_json_file(
+			path => Box::new(chain_spec::ChainSpec::from_json_file(
 				std::path::PathBuf::from(path),
 			)?),
 		})
     }
 
     fn native_runtime_version(_: &Box<dyn ChainSpec>) -> &'static RuntimeVersion {
-        &dh_testnet::VERSION
+        &datahighway_runtime::VERSION
     }
 }
 

@@ -159,13 +159,13 @@ pub mod impls;
 pub use impls::Author;
 
 pub use module_primitives::{
-    constants::currency::{
+	constants::currency::{
         CENTS,
         deposit,
         DOLLARS,
         MILLICENTS,
     },
-	constants::time::{
+    constants::time::{
         DAYS,
         EPOCH_DURATION_IN_BLOCKS,
         EPOCH_DURATION_IN_SLOTS,
@@ -193,8 +193,8 @@ pub fn wasm_binary_unwrap() -> &'static [u8] {
 }
 
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-    spec_name: create_runtime_str!("datahighway-mainnet"),
-    impl_name: create_runtime_str!("datahighway-mainnet"),
+    spec_name: create_runtime_str!("datahighway"),
+    impl_name: create_runtime_str!("datahighway"),
     authoring_version: 2,
     spec_version: 2,
     impl_version: 2,
@@ -423,7 +423,7 @@ impl pallet_offences::Config for Runtime {
     type Event = Event;
     type IdentificationTuple = pallet_session::historical::IdentificationTuple<Self>;
     type OnOffenceHandler = Staking;
-type WeightSoftLimit = OffencesWeightSoftLimit;
+    type WeightSoftLimit = OffencesWeightSoftLimit;
 }
 
 impl pallet_authority_discovery::Config for Runtime {}

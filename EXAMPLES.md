@@ -44,7 +44,6 @@ The development testnet only requires a single node to produce and finalize bloc
 * Install/update dependencies as described [here](#chapter-ca1234)
 
 * Build the WebAssembly binary from all code.
-* Note that since we have two separate runtimes for testnet and mainnet, they will both be built at the same time.
 
 ```bash
 cargo build --release
@@ -93,7 +92,6 @@ This approach is similar to that described in the official Substrate docs [here]
 #### Build runtime code
 
 * Build the WebAssembly binary from all code.
-* Note that since we have two separate runtimes for testnet and mainnet, they will both be built at the same time.
 
 ```bash
 cargo build --release
@@ -410,7 +408,7 @@ Follow the steps to [interact with blockchain using Polkadot.js Apps UI](#chapte
 
 View the balances endowed in the Genesis block by going to https://polkadot.js.org/apps/#/js and pasting the following, click the Play icon, and view the output on the right
 ```
-const DHX_DAO = '5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr';
+const DHX_DAO = '4LTFqiD6H6g8a7ur9WH4RxhWx2givWfK7o5EDed3ai1nYTvk';
 
 const { data: balance } = await api.query.system.account(DHX_DAO);
 const totalIssuance = await api.query.balances.totalIssuance();
