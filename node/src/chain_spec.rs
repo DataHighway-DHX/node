@@ -578,17 +578,13 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                 hex!["76d0d3add586849d643444ff9fc55413222dea22d5fa297ba1b39386c79a6618"].into(),
                 // stash
                 hex!["a0dd28a829885c10b413095454a9f774b6cf3bc07f797c33afda2c2f87fb8f35"].into(),
-                hex!["3a1de065f4e475584f4943559fbd3b57563117150c98bda1a6c9ebba0ecc8368"]
-                    .unchecked_into(),
+                hex!["3a1de065f4e475584f4943559fbd3b57563117150c98bda1a6c9ebba0ecc8368"].into(),
                 // babe
-                hex!["a8e804e4a03e5afa89d3d4cacc041562fd5145b4b2866eb191265aa9262acc06"]
-                    .unchecked_into(),
+                hex!["a8e804e4a03e5afa89d3d4cacc041562fd5145b4b2866eb191265aa9262acc06"].into(),
                 // imon
-                hex!["78ae9f082530ca77f3e0b608df13bd7dc087049fd36d5c999ccc9a0fcb3b6517"]
-                    .unchecked_into(),
+                hex!["78ae9f082530ca77f3e0b608df13bd7dc087049fd36d5c999ccc9a0fcb3b6517"].into(),
                 // audi
-                hex!["029632937ad7171486a0c452f8bdb182a2b5a3311e003d7525fd360e059bb668"]
-                    .unchecked_into(),
+                hex!["029632937ad7171486a0c452f8bdb182a2b5a3311e003d7525fd360e059bb668"].into(),
 
                 // authority #1
                 // cont
@@ -596,17 +592,13 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                 // stash
                 hex!["5c680bbcad7e145f5ec27c27012cbabd32fe203208e96a3c080f8ef32164de51"].into(),
                 // gran
-                hex!["cab049448517b38e3fb22df1565d25365dd09e6f05af36d2ddd5f77b13a95921"]
-                    .unchecked_into(),
+                hex!["cab049448517b38e3fb22df1565d25365dd09e6f05af36d2ddd5f77b13a95921"].into(),
                 // babe
-                hex!["9ca738e4af3a18b2b84c32e5e74a323ccb24aacc7f9337da23c0edaa589fe828"]
-                    .unchecked_into(),
+                hex!["9ca738e4af3a18b2b84c32e5e74a323ccb24aacc7f9337da23c0edaa589fe828"].into(),
                 // imon
-                hex!["d2107868645df1c62ae2e794376ccd2708bfe88052d3298e5cf5ef76312bad6f"]
-                    .unchecked_into(),
+                hex!["d2107868645df1c62ae2e794376ccd2708bfe88052d3298e5cf5ef76312bad6f"].into(),
                 // audi
-                hex!["40ec24198297c21198c8cf3c2172e7096c3085de96bcef497561a8d81b67230d"]
-                    .unchecked_into(),
+                hex!["40ec24198297c21198c8cf3c2172e7096c3085de96bcef497561a8d81b67230d"].into(),
 
                 // authority #2
                 // cont
@@ -614,17 +606,13 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                 // stash
                 hex!["62a92866e30a34c72bcf829ec86f7b6883f335151cbe27a99978d5b1ce2b5c31"].into(),
                 // gran
-                hex!["e260ef20e7d3fb5a7c4384b625cf548914fe03959dded41a1dc78206b8e1fa31"]
-                    .unchecked_into(),
+                hex!["e260ef20e7d3fb5a7c4384b625cf548914fe03959dded41a1dc78206b8e1fa31"].into(),
                 // babe
-                hex!["e2f238e6f968fd44f834967cf39c0c7896380401467cb76745db62ffbf942e4e"]
-                    .unchecked_into(),
+                hex!["e2f238e6f968fd44f834967cf39c0c7896380401467cb76745db62ffbf942e4e"].into(),
                 // imon
-                hex!["2063cc1a936f466fd58954d6b28e1b8c84298f0b3b61e64bbed10c74519a2c66"]
-                    .unchecked_into(),
+                hex!["2063cc1a936f466fd58954d6b28e1b8c84298f0b3b61e64bbed10c74519a2c66"].into(),
                 // audi
-                hex!["706a1ba3800edaf2f84bc80f7ad88b4c9ac74cc78aa99825a50517997a8feb1e"]
-                    .unchecked_into(),
+                hex!["706a1ba3800edaf2f84bc80f7ad88b4c9ac74cc78aa99825a50517997a8feb1e"].into(),
 
                 // authority #3
                 // cont
@@ -632,17 +620,13 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                 // stash
                 hex!["0ac6bc8c098d6fcf819de3bf30b410e3fcd06d3b8b94f02d7ad0bdec808b686c"].into(),
                 // gran
-                hex!["464cfc0c22b9ab67a7e5d526d482dcbdf763e86994034bbf46ea2b007ae3583d"]
-                    .unchecked_into(),
+                hex!["464cfc0c22b9ab67a7e5d526d482dcbdf763e86994034bbf46ea2b007ae3583d"].into(),
                 // babe
-                hex!["2aa395a47ed11d9fc30295350e7eb56e59681b49a71d10d9ecc3078b42017b32"]
-                    .unchecked_into(),
+                hex!["2aa395a47ed11d9fc30295350e7eb56e59681b49a71d10d9ecc3078b42017b32"].into(),
                 // imon
-                hex!["76626a3b013571687f201106a3b789c907a5b6e34e918f1ace454f75b7464112"]
-                    .unchecked_into(),
+                hex!["76626a3b013571687f201106a3b789c907a5b6e34e918f1ace454f75b7464112"].into(),
                 // audi
-                hex!["40b8f682f2778bd2107a379c8c9f0c01851e819c1a665ef0719944a7ed28b53c"]
-                    .unchecked_into(),
+                hex!["40b8f682f2778bd2107a379c8c9f0c01851e819c1a665ef0719944a7ed28b53c"].into(),
 
                 // authority #4
                 // cont
@@ -650,17 +634,13 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                 // stash
                 hex!["e4f734b12b3cd7977e1edf756255930bc5390844c098ccf699bfcdbe18fff536"].into(),
                 // gran
-                hex!["f4bc2127d317dbae6556f4884ba7e9ae2257f0079b66bd975157b599dc198401"]
-                    .unchecked_into(),
+                hex!["f4bc2127d317dbae6556f4884ba7e9ae2257f0079b66bd975157b599dc198401"].into(),
                 // babe
-                hex!["229cecefd4737a64b87bbde740af607a0000bcd8770ee8470a33427b0944586d"]
-                    .unchecked_into(),
+                hex!["229cecefd4737a64b87bbde740af607a0000bcd8770ee8470a33427b0944586d"].into(),
                 // imon
-                hex!["f690950a9f553f42255cf3a71bd00e73ab55df31a0f16968829ad9291bf14971"]
-                    .unchecked_into(),
+                hex!["f690950a9f553f42255cf3a71bd00e73ab55df31a0f16968829ad9291bf14971"].into(),
                 // audi
-                hex!["3c1107461309ba8598b586b29887eebdafcd0b7c3208d251368b286d83ecad5f"]
-                    .unchecked_into(),
+                hex!["3c1107461309ba8598b586b29887eebdafcd0b7c3208d251368b286d83ecad5f"].into(),
             ],
 			true,
 		),
