@@ -1,5 +1,30 @@
 use sp_finality_grandpa::AuthorityId as GrandpaId;
 use hex_literal::hex;
+use datahighway_runtime::{
+    // opaque::{
+    //     Block,
+    //     SessionKeys,
+    // },
+    AuthorityDiscoveryConfig,
+    BabeConfig,
+    BalancesConfig,
+    Block,
+    DemocracyConfig,
+    TechnicalMembershipConfig,
+    ElectionsConfig,
+    GenesisConfig,
+    GrandpaConfig,
+    ImOnlineConfig,
+    IndicesConfig,
+    SessionConfig,
+    SessionKeys,
+    StakerStatus,
+    StakingConfig,
+    SudoConfig,
+    SystemConfig,
+    TreasuryConfig,
+    WASM_BINARY,
+};
 use module_primitives::{
     constants::currency::{
         DOLLARS,
@@ -10,8 +35,6 @@ use module_primitives::{
         Signature,
     },
 };
-use datahighway_testnet_runtime as dh_testnet;
-use datahighway_mainnet_runtime as dh_mainnet;
 use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
 use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 use sc_chain_spec::ChainSpecExtension;
@@ -42,14 +65,6 @@ pub use sp_runtime::{
     Permill,
 };
 
-// // TODO - move into primitives runtime module?
-// pub use node_primitives::{
-//     AccountId,
-//     Balance,
-//     Signature,
-// };
-
-
 // Note this is the URL for the telemetry server
 const POLKADOT_STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
 
@@ -59,26 +74,15 @@ const POLKADOT_STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit
 /// customizable from the chain spec.
 #[derive(Default, Clone, Serialize, Deserialize, ChainSpecExtension)]
 #[serde(rename_all = "camelCase")]
-pub struct DHTestnetExtensions {
+pub struct Extensions {
     /// Block numbers with known hashes.
-    pub fork_blocks: sc_client_api::ForkBlocks<dh_testnet::Block>,
+    pub fork_blocks: sc_client_api::ForkBlocks<Block>,
     /// Known bad block hashes.
-    pub bad_blocks: sc_client_api::BadBlocks<dh_testnet::Block>,
-}
-
-#[derive(Default, Clone, Serialize, Deserialize, ChainSpecExtension)]
-#[serde(rename_all = "camelCase")]
-pub struct DHMainnetExtensions {
-    /// Block numbers with known hashes.
-    pub fork_blocks: sc_client_api::ForkBlocks<dh_mainnet::Block>,
-    /// Known bad block hashes.
-    pub bad_blocks: sc_client_api::BadBlocks<dh_mainnet::Block>,
+    pub bad_blocks: sc_client_api::BadBlocks<Block>,
 }
 
 /// Specialized `ChainSpec`. This is a specialization of the general Substrate ChainSpec type.
-pub type DHTestnetChainSpec = sc_service::GenericChainSpec<dh_testnet::GenesisConfig, DHTestnetExtensions>;
-pub type DHMainnetChainSpec = sc_service::GenericChainSpec<dh_mainnet::GenesisConfig, DHMainnetExtensions>;
-
+pub type ChainSpec = sc_service::GenericChainSpec<GenesisConfig, Extensions>;
 
 /// Helper function to generate a crypto pair from seed
 pub fn get_from_seed<TPublic: Public>(seed: &str) -> <TPublic::Pair as Pair>::Public {
@@ -109,14 +113,14 @@ pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, Grandp
     )
 }
 
-pub fn development_config() -> Result<DHTestnetChainSpec, String> {
-	let wasm_binary = dh_testnet::WASM_BINARY.ok_or_else(|| "Wasm not available".to_string())?;
+pub fn development_config() -> Result<ChainSpec, String> {
+	let wasm_binary = WASM_BINARY.ok_or_else(|| "Wasm not available".to_string())?;
 
     let mut properties = Map::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
     properties.insert("tokenDecimals".into(), 18.into());
 
-	Ok(DHTestnetChainSpec::from_genesis(
+	Ok(ChainSpec::from_genesis(
 		// Name
 		"Development",
 		// ID
@@ -184,14 +188,14 @@ pub fn development_config() -> Result<DHTestnetChainSpec, String> {
 	))
 }
 
-pub fn local_testnet_config() -> Result<DHTestnetChainSpec, String> {
-	let wasm_binary = dh_testnet::WASM_BINARY.ok_or_else(|| "Wasm not available".to_string())?;
+pub fn local_testnet_config() -> Result<ChainSpec, String> {
+	let wasm_binary = WASM_BINARY.ok_or_else(|| "Wasm not available".to_string())?;
 
     let mut properties = Map::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
     properties.insert("tokenDecimals".into(), 18.into());
 
-	Ok(DHTestnetChainSpec::from_genesis(
+	Ok(ChainSpec::from_genesis(
 		// Name
 		"Local Testnet",
 		// ID
@@ -262,14 +266,14 @@ pub fn local_testnet_config() -> Result<DHTestnetChainSpec, String> {
 	))
 }
 
-pub fn datahighway_testnet_harbour_config() -> Result<DHTestnetChainSpec, String> {
-	let wasm_binary = dh_testnet::WASM_BINARY.ok_or_else(|| "Wasm binary not available".to_string())?;
+pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
+	let wasm_binary = WASM_BINARY.ok_or_else(|| "Wasm binary not available".to_string())?;
 
     let mut properties = Map::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
     properties.insert("tokenDecimals".into(), 18.into());
 
-	Ok(DHTestnetChainSpec::from_genesis(
+	Ok(ChainSpec::from_genesis(
 		// Name
 		"DataHighway Harbour Testnet",
 		// ID
@@ -434,14 +438,14 @@ pub fn datahighway_testnet_harbour_config() -> Result<DHTestnetChainSpec, String
 	))
 }
 
-pub fn datahighway_mainnet_westlake_config() -> Result<DHMainnetChainSpec, String> {
-	let wasm_binary = dh_mainnet::WASM_BINARY.ok_or_else(|| "Wasm binary not available".to_string())?;
+pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
+	let wasm_binary = WASM_BINARY.ok_or_else(|| "Wasm binary not available".to_string())?;
 
     let mut properties = Map::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
     properties.insert("tokenDecimals".into(), 18.into());
 
-	Ok(DHMainnetChainSpec::from_genesis(
+	Ok(ChainSpec::from_genesis(
 		// Name
 		"DataHighway Westlake Mainnet",
 		// ID
@@ -602,27 +606,13 @@ pub fn datahighway_mainnet_westlake_config() -> Result<DHMainnetChainSpec, Strin
 	))
 }
 
-fn dh_testnet_session_keys(
+fn session_keys(
     grandpa: GrandpaId,
     babe: BabeId,
     im_online: ImOnlineId,
     authority_discovery: AuthorityDiscoveryId,
-) -> dh_testnet::SessionKeys {
-    dh_testnet::SessionKeys {
-        grandpa,
-        babe,
-        im_online,
-        authority_discovery,
-    }
-}
-
-fn dh_mainnet_session_keys(
-    grandpa: GrandpaId,
-    babe: BabeId,
-    im_online: ImOnlineId,
-    authority_discovery: AuthorityDiscoveryId,
-) -> dh_mainnet::SessionKeys {
-    dh_mainnet::SessionKeys {
+) -> SessionKeys {
+    SessionKeys {
         grandpa,
         babe,
         im_online,
@@ -646,16 +636,15 @@ fn testnet_genesis(
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     _enable_println: bool, // No println
-) -> dh_testnet::GenesisConfig {
+) -> GenesisConfig {
     let num_endowed_accounts = endowed_accounts.len();
 
-	dh_testnet::GenesisConfig {
-        frame_system: Some(dh_testnet::SystemConfig {
-            // code: wasm_binary_unwrap().to_vec(),
+	GenesisConfig {
+        frame_system: Some(SystemConfig {
             code: wasm_binary.to_vec(),
             changes_trie_config: Default::default(),
         }),
-        pallet_balances: Some(dh_testnet::BalancesConfig {
+        pallet_balances: Some(BalancesConfig {
             balances: endowed_accounts
                 .iter()
                 .cloned()
@@ -676,28 +665,28 @@ fn testnet_genesis(
                 })
             .collect(),
         }),
-        pallet_indices: Some(dh_testnet::IndicesConfig {
+        pallet_indices: Some(IndicesConfig {
             indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
         }),
-        pallet_session: Some(dh_testnet::SessionConfig {
+        pallet_session: Some(SessionConfig {
             keys: initial_authorities
                 .iter()
-                .map(|x| (x.0.clone(), x.0.clone(), dh_testnet_session_keys(x.2.clone(), x.3.clone(), x.4.clone(), x.5.clone())))
+                .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone(), x.4.clone(), x.5.clone())))
                 .collect::<Vec<_>>(),
         }),
-        pallet_staking: Some(dh_testnet::StakingConfig {
+        pallet_staking: Some(StakingConfig {
             validator_count: initial_authorities.len() as u32 * 2,
             minimum_validator_count: initial_authorities.len() as u32,
             stakers: initial_authorities
                 .iter()
-                .map(|x| (x.0.clone(), x.1.clone(), STASH, dh_testnet::StakerStatus::Validator))
+                .map(|x| (x.0.clone(), x.1.clone(), STASH, StakerStatus::Validator))
                 .collect(),
             invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
             slash_reward_fraction: Perbill::from_percent(10),
             ..Default::default()
         }),
-        pallet_democracy: Some(dh_testnet::DemocracyConfig::default()),
-        pallet_elections_phragmen: Some(dh_testnet::ElectionsConfig {
+        pallet_democracy: Some(DemocracyConfig::default()),
+        pallet_elections_phragmen: Some(ElectionsConfig {
             members: endowed_accounts
                 .iter()
                 .take((num_endowed_accounts + 1) / 2)
@@ -707,27 +696,27 @@ fn testnet_genesis(
         }),
         pallet_collective_Instance1: Some(Default::default()),
         pallet_collective_Instance2: Some(Default::default()),
-		pallet_sudo: Some(dh_testnet::SudoConfig {
+		pallet_sudo: Some(SudoConfig {
 			// Assign network admin rights.
 			key: root_key.clone(),
         }),
-        pallet_babe: Some(dh_testnet::BabeConfig {
+        pallet_babe: Some(BabeConfig {
             authorities: vec![],
         }),
-        pallet_im_online: Some(dh_testnet::ImOnlineConfig {
+        pallet_im_online: Some(ImOnlineConfig {
             keys: vec![],
         }),
-        pallet_authority_discovery: Some(dh_testnet::AuthorityDiscoveryConfig {
+        pallet_authority_discovery: Some(AuthorityDiscoveryConfig {
             keys: vec![],
         }),
-        pallet_grandpa: Some(dh_testnet::GrandpaConfig {
+        pallet_grandpa: Some(GrandpaConfig {
             authorities: vec![],
         }),
-        pallet_membership_Instance1: Some(dh_testnet::TechnicalMembershipConfig {
+        pallet_membership_Instance1: Some(TechnicalMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
         }),
-        pallet_treasury: Some(dh_testnet::TreasuryConfig::default()),
+        pallet_treasury: Some(TreasuryConfig::default()),
 	}
 }
 
@@ -738,16 +727,15 @@ fn mainnet_genesis(
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     _enable_println: bool, // No println
-) -> dh_mainnet::GenesisConfig {
+) -> GenesisConfig {
     let num_endowed_accounts = endowed_accounts.len();
 
-	dh_mainnet::GenesisConfig {
-        frame_system: Some(dh_mainnet::SystemConfig {
-            // code: wasm_binary_unwrap().to_vec(),
+	GenesisConfig {
+        frame_system: Some(SystemConfig {
             code: wasm_binary.to_vec(),
             changes_trie_config: Default::default(),
         }),
-        pallet_balances: Some(dh_mainnet::BalancesConfig {
+        pallet_balances: Some(BalancesConfig {
             balances: endowed_accounts
                 .iter()
                 .cloned()
@@ -765,28 +753,28 @@ fn mainnet_genesis(
                 })
             .collect(),
         }),
-        pallet_indices: Some(dh_mainnet::IndicesConfig {
+        pallet_indices: Some(IndicesConfig {
             indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
         }),
-        pallet_session: Some(dh_mainnet::SessionConfig {
+        pallet_session: Some(SessionConfig {
             keys: initial_authorities
                 .iter()
-                .map(|x| (x.0.clone(), x.0.clone(), dh_mainnet_session_keys(x.2.clone(), x.3.clone(), x.4.clone(), x.5.clone())))
+                .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone(), x.4.clone(), x.5.clone())))
                 .collect::<Vec<_>>(),
         }),
-        pallet_staking: Some(dh_mainnet::StakingConfig {
+        pallet_staking: Some(StakingConfig {
             validator_count: initial_authorities.len() as u32 * 2,
             minimum_validator_count: initial_authorities.len() as u32,
             stakers: initial_authorities
                 .iter()
-                .map(|x| (x.0.clone(), x.1.clone(), STASH, dh_mainnet::StakerStatus::Validator))
+                .map(|x| (x.0.clone(), x.1.clone(), STASH, StakerStatus::Validator))
                 .collect(),
             invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
             slash_reward_fraction: Perbill::from_percent(10),
             ..Default::default()
         }),
-        pallet_democracy: Some(dh_mainnet::DemocracyConfig::default()),
-        pallet_elections_phragmen: Some(dh_mainnet::ElectionsConfig {
+        pallet_democracy: Some(DemocracyConfig::default()),
+        pallet_elections_phragmen: Some(ElectionsConfig {
             members: endowed_accounts
                 .iter()
                 .take((num_endowed_accounts + 1) / 2)
@@ -796,26 +784,26 @@ fn mainnet_genesis(
         }),
         pallet_collective_Instance1: Some(Default::default()),
         pallet_collective_Instance2: Some(Default::default()),
-		pallet_sudo: Some(dh_mainnet::SudoConfig {
+		pallet_sudo: Some(SudoConfig {
 			// Assign network admin rights.
 			key: root_key.clone(),
         }),
-        pallet_babe: Some(dh_mainnet::BabeConfig {
+        pallet_babe: Some(BabeConfig {
             authorities: vec![],
         }),
-        pallet_im_online: Some(dh_mainnet::ImOnlineConfig {
+        pallet_im_online: Some(ImOnlineConfig {
             keys: vec![],
         }),
-        pallet_authority_discovery: Some(dh_mainnet::AuthorityDiscoveryConfig {
+        pallet_authority_discovery: Some(AuthorityDiscoveryConfig {
             keys: vec![],
         }),
-        pallet_grandpa: Some(dh_mainnet::GrandpaConfig {
+        pallet_grandpa: Some(GrandpaConfig {
             authorities: vec![],
         }),
-        pallet_membership_Instance1: Some(dh_mainnet::TechnicalMembershipConfig {
+        pallet_membership_Instance1: Some(TechnicalMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
         }),
-        pallet_treasury: Some(dh_mainnet::TreasuryConfig::default()),
+        pallet_treasury: Some(TreasuryConfig::default()),
 	}
 }
