@@ -52,7 +52,7 @@ mod tests {
     use std::cell::RefCell;
     // Import Trait for each runtime module being tested
     use chrono::NaiveDate;
-    use datahighway_testnet_runtime::{
+    use datahighway_runtime::{
         AccountId,
         Babe,
         Balance,

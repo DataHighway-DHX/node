@@ -64,7 +64,7 @@ mod tests {
 
     type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
     type Block = frame_system::mocking::MockBlock<Test>;
-    
+
     frame_support::construct_runtime!(
         pub enum Test where
             Block = Block,
@@ -76,7 +76,7 @@ mod tests {
             RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
             TransactionPayment: pallet_transaction_payment::{Module, Storage},
         }
-    );   
+    );
 
     parameter_types! {
         pub const BlockHashCount: u64 = 250;

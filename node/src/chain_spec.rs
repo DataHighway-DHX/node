@@ -5,7 +5,6 @@ use datahighway_runtime::{
     //     Block,
     //     SessionKeys,
     // },
-    wasm_binary_unwrap,
     AuthorityDiscoveryConfig,
     BabeConfig,
     BalancesConfig,
@@ -24,7 +23,8 @@ use datahighway_runtime::{
     SudoConfig,
     SystemConfig,
     TreasuryConfig,
-}
+    WASM_BINARY,
+};
 use module_primitives::{
     constants::currency::{
         DOLLARS,
@@ -641,7 +641,6 @@ fn testnet_genesis(
 
 	GenesisConfig {
         frame_system: Some(SystemConfig {
-            // code: wasm_binary_unwrap().to_vec(),
             code: wasm_binary.to_vec(),
             changes_trie_config: Default::default(),
         }),
@@ -672,7 +671,7 @@ fn testnet_genesis(
         pallet_session: Some(SessionConfig {
             keys: initial_authorities
                 .iter()
-                .map(|x| (x.0.clone(), x.0.clone(), dh_testnet_session_keys(x.2.clone(), x.3.clone(), x.4.clone(), x.5.clone())))
+                .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone(), x.4.clone(), x.5.clone())))
                 .collect::<Vec<_>>(),
         }),
         pallet_staking: Some(StakingConfig {
@@ -733,7 +732,6 @@ fn mainnet_genesis(
 
 	GenesisConfig {
         frame_system: Some(SystemConfig {
-            // code: wasm_binary_unwrap().to_vec(),
             code: wasm_binary.to_vec(),
             changes_trie_config: Default::default(),
         }),
