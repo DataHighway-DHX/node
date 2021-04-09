@@ -643,7 +643,11 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
             ],
 			true,
 		),
-        vec![],
+        vec![
+            // "/ip4/172.31.1.230/tcp/30333/p2p/12D3KooWLRZSpTArSSqckDucDWGGWNgMPBFjKueFe2Gh8ddULYqG"
+            // .parse()
+            // .unwrap(),
+        ],
         // Telemetry Endpoints
         Some(
             TelemetryEndpoints::new(vec![(POLKADOT_STAGING_TELEMETRY_URL.to_string(), 0)])

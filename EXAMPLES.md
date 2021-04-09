@@ -465,6 +465,59 @@ docker-compose -f docker-compose-dev.yml exec alice bash
     ...
 ```
 
+* Generate chain specification and "raw" chain definition
+```
+./target/release/datahighway build-spec \
+  --chain=westlake > ./node/src/chain-spec-templates/chain_spec_westlake.json &&
+./target/release/datahighway build-spec \
+  --chain ./node/src/chain-spec-templates/chain_spec_westlake.json \
+  --raw > ./node/src/chain-definition-custom/chain_def_westlake.json
+```
+
+Note: If the "raw" chain definition is not included [here](./node/src/chain-definition-custom/chain_def_westlake.json) then generate it as shown above.
+
+* Use the "raw" chain definition to run additional validator nodes, where the Bootnode Node ID is `12D3KooWLRZSpTArSSqckDucDWGGWNgMPBFjKueFe2Gh8ddULYqG` and the Bootnode Server IP Address is ip4/172.31.1.230, and X is the validator number.
+```
+./target/release/datahighway \
+  --validator \
+  --base-path ~/chain-base/node-X \
+  --bootnodes /ip4/172.31.1.230/tcp/30333/p2p/12D3KooWLRZSpTArSSqckDucDWGGWNgMPBFjKueFe2Gh8ddULYqG \
+  --chain ./node/src/chain-definition-custom/chain_def_westlake.json \
+  --name "DataHighway Westlake Mainnet - Validator X" \
+  --port 30338 \
+  --rpc-port 9938 \
+  --ws-port 9949 \
+  --telemetry-url 'wss://telemetry.polkadot.io/submit/ 0'
+```
+
+* Insert session keys
+
+Create a secret and assign it to `SECRET`.
+```
+export SECRET=MySecret
+echo $SECRET
+```
+
+Generate controller, stash and sr25519 session keys for Babe, ImOnline, and Authority Discovery
+```
+for i in 0; do for j in controller stash babe imonline audi; do subkey inspect --network datahighway --scheme sr25519 "$SECRET//$i//$j"; done; done
+```
+
+Generate ed25519 session key for Grandpa
+```
+for i in 0; do for j in grandpa; do subkey inspect --network datahighway --scheme ed25519 "$SECRET//$i//$j"; done; done
+```
+
+Insert session keys using cURL. Replace the `<INSERT_PUBLIC_KEY_HEX_???>` with the Public Key (hex) generated above for Grandpa, Babe, ImOnline, and Authority Discovery respectively.
+```
+curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["gran", "//$SECRET//0//grandpa", "<INSERT_PUBLIC_KEY_HEX_GRANDPA>"],"id":1 }' 127.0.0.1:9933
+curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["babe", "//$SECRET//0//babe", "<INSERT_PUBLIC_KEY_HEX_BABE>"],"id":1 }' 127.0.0.1:9933
+curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["imon", "//$SECRET//0//imonline", "<INSERT_PUBLIC_KEY_HEX_IMONLINE>"],"id":1 }' 127.0.0.1:9933
+curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"author_insertKey", "params":["audi", "//$SECRET//0//audi", "<INSERT_PUBLIC_KEY_HEX_AUTHORITY_DISCOVERY>"],"id":1 }' 127.0.0.1:9933
+```
+
+Restart the node for it to both generate blocks and finalize them too.
+
 ## Interact with blockchain using Polkadot.js Apps UI <a id="chapter-6d9058"></a>
 
 * Setup connection between the UI and the node:
