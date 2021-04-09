@@ -465,108 +465,106 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                 // authority #0
                 (
                     // cont
-                    hex!["76d0d3add586849d643444ff9fc55413222dea22d5fa297ba1b39386c79a6618"].into(),
+                    hex!["f2999ee3e9a0219dd0bda829a2878c42f19cc8418f535a52a3416742b498136c"].into(),
                     // stash
-                    hex!["a0dd28a829885c10b413095454a9f774b6cf3bc07f797c33afda2c2f87fb8f35"].into(),
+                    hex!["92fffb5186429e3ce6c7c4ea31521cb2d961d8d0d5a60dad210253d57129c231"].into(),
                     // gran
-                    hex!["3a1de065f4e475584f4943559fbd3b57563117150c98bda1a6c9ebba0ecc8368"]
+                    hex!["e5b8dfc9e5a5c6a030f72aac3b75aa29aea577492e897dc299588076b8f2a931"]
                         .unchecked_into(),
                     // babe
-                    hex!["a8e804e4a03e5afa89d3d4cacc041562fd5145b4b2866eb191265aa9262acc06"]
+                    hex!["e69dc00aa6d47b04ee25f9af4fca2e565be11159e91fa0542824101bf463964c"]
                         .unchecked_into(),
                     // imon
-                    hex!["78ae9f082530ca77f3e0b608df13bd7dc087049fd36d5c999ccc9a0fcb3b6517"]
+                    hex!["0a3a6ced3c91a28f7ec77c5eeddb4bfefd0452b81dadd55418ea508b7d23991a"]
                         .unchecked_into(),
                     // audi
-                    hex!["029632937ad7171486a0c452f8bdb182a2b5a3311e003d7525fd360e059bb668"]
+                    hex!["a4771695cea872eccfa0b3406342bb598f83eb049afc4ead514ba07111a56122"]
                         .unchecked_into(),
                 ),
                 // authority #1
                 (
                     // cont
-                    hex!["a2c5ecadc845295b1c92585007aabd88826111a090908ec03eb6696b69211636"].into(),
+                    hex!["42b728d9c752fe87c3e3db40d9a7d02f22b81bc1f0e49c59a5e128b861f87b08"].into(),
                     // stash
-                    hex!["5c680bbcad7e145f5ec27c27012cbabd32fe203208e96a3c080f8ef32164de51"].into(),
+                    hex!["3c62839f3ce86df3c27c66016b092d15186b23e429db4ad8338501fc219bfa6c"].into(),
                     // gran
-                    hex!["cab049448517b38e3fb22df1565d25365dd09e6f05af36d2ddd5f77b13a95921"]
+                    hex!["dce69d42cf6c256e1ba1595300d72797429dc415f9803e54e822416b6748dfa2"]
                         .unchecked_into(),
                     // babe
-                    hex!["9ca738e4af3a18b2b84c32e5e74a323ccb24aacc7f9337da23c0edaa589fe828"]
+                    hex!["ecb52b9c85909f0a171095022351cced6673e1c9a2930087e1c3f37be6c5cd4c"]
                         .unchecked_into(),
                     // imon
-                    hex!["d2107868645df1c62ae2e794376ccd2708bfe88052d3298e5cf5ef76312bad6f"]
+                    hex!["ce0b5a11f5447727bf8382426620439b716846b539a0045fcf459299a3237c28"]
                         .unchecked_into(),
                     // audi
-                    hex!["40ec24198297c21198c8cf3c2172e7096c3085de96bcef497561a8d81b67230d"]
+                    hex!["9c4471e94b5f8b7741418df3d5e8746970fabe84466cce7346d73fcc7705130b"]
                         .unchecked_into(),
                 ),
                 // authority #2
                 (
                     // cont
-                    hex!["805f3114e41a99126fbc1a56955dbb29df9f267c68721fb6b3c88c4fdd9f0318"].into(),
+                    hex!["e627945747e5a66afd5ff3f383819dfb6dd9633f6c9d52b24b10307cc841d577"].into(),
                     // stash
-                    hex!["62a92866e30a34c72bcf829ec86f7b6883f335151cbe27a99978d5b1ce2b5c31"].into(),
+                    hex!["628580490f55f5340d8a5e5af85eb78fdc066f6ac0385ccb3d17dc9a8b3e651f"].into(),
                     // gran
-                    hex!["e260ef20e7d3fb5a7c4384b625cf548914fe03959dded41a1dc78206b8e1fa31"]
+                    hex!["5e5101464eb9a9d2637a18627632e0817c8592472fc498da76661260337398d9"]
                         .unchecked_into(),
                     // babe
-                    hex!["e2f238e6f968fd44f834967cf39c0c7896380401467cb76745db62ffbf942e4e"]
+                    hex!["9684a0fea1f44ec1558543bd459967225dfdffe260a670981f0ce09d85223278"]
                         .unchecked_into(),
                     // imon
-                    hex!["2063cc1a936f466fd58954d6b28e1b8c84298f0b3b61e64bbed10c74519a2c66"]
+                    hex!["f28436fb808af1121b3873b72a5b818f4231c5c61dfde2cf0d40cfce57b6f03d"]
                         .unchecked_into(),
                     // audi
-                    hex!["706a1ba3800edaf2f84bc80f7ad88b4c9ac74cc78aa99825a50517997a8feb1e"]
+                    hex!["2c4d8c20018b86a3ddab3c501f822e83343b35e670b2b425e53130bd30a5e767"]
                         .unchecked_into(),
                 ),
                 // authority #3
                 (
                     // cont
-                    hex!["283c513c1af26294775258f28cb3ab728e02481c16edf463d260a7d95ecfd66c"].into(),
+                    hex!["32e28b6f06a728b13d782b007d57ab53d7fe3fa2d5def2c58585d27007d5ea05"].into(),
                     // stash
-                    hex!["0ac6bc8c098d6fcf819de3bf30b410e3fcd06d3b8b94f02d7ad0bdec808b686c"].into(),
+                    hex!["44d784f6d346d337a98e273f683590c661ea20b83aa6c9ac93754e02cee4372e"].into(),
                     // gran
-                    hex!["464cfc0c22b9ab67a7e5d526d482dcbdf763e86994034bbf46ea2b007ae3583d"]
+                    hex!["4b0d281fbe2d89bae3955146f10e79c1e63db6aa0d463dc574abafa79656e859"]
                         .unchecked_into(),
                     // babe
-                    hex!["2aa395a47ed11d9fc30295350e7eb56e59681b49a71d10d9ecc3078b42017b32"]
+                    hex!["7c863c62d1615d7768507cea4dd7678dc3836691ba89697656f66554400c894f"]
                         .unchecked_into(),
                     // imon
-                    hex!["76626a3b013571687f201106a3b789c907a5b6e34e918f1ace454f75b7464112"]
+                    hex!["9e6987563f86381f47761ee5ac259e1484b25f5bd5342d6bd975a07cb16c6a6b"]
                         .unchecked_into(),
                     // audi
-                    hex!["40b8f682f2778bd2107a379c8c9f0c01851e819c1a665ef0719944a7ed28b53c"]
+                    hex!["66d5202a408919593bc85e59c18afd9746a432a503c798b0490b4ca9bd3d0930"]
                         .unchecked_into(),
                 ),
                 // authority #4
                 (
                     // cont
-                    hex!["981114473ce826f7a000e97d33ad716dfc055f0e279ab2ea5972a8a2d2dfa706"].into(),
+                    hex!["1e7c18d12311c46ca4fd9fba48f11ea81c7c87e992fc5b1abb4903219cc6b429"].into(),
                     // stash
-                    hex!["e4f734b12b3cd7977e1edf756255930bc5390844c098ccf699bfcdbe18fff536"].into(),
+                    hex!["3ee5ed5cdf314660b60c6acb87d51af5f10c5d8ea24dd762df4c5973a1683416"].into(),
                     // gran
-                    hex!["f4bc2127d317dbae6556f4884ba7e9ae2257f0079b66bd975157b599dc198401"]
+                    hex!["d2e23c0445afc9e714a9ad9307255150e26e5661f1f2fa57cbb35666f1ff3bfd"]
                         .unchecked_into(),
                     // babe
-                    hex!["229cecefd4737a64b87bbde740af607a0000bcd8770ee8470a33427b0944586d"]
+                    hex!["c0fe72b9f944baa43663310c6dc213c416aea90b8f5f72a87feee049d66dec50"]
                         .unchecked_into(),
                     // imon
-                    hex!["f690950a9f553f42255cf3a71bd00e73ab55df31a0f16968829ad9291bf14971"]
+                    hex!["b8916d751735fbb43d1ff679ea017cfdcf9ad7f76cf775c8d5d6e0ffe5454c79"]
                         .unchecked_into(),
                     // audi
-                    hex!["3c1107461309ba8598b586b29887eebdafcd0b7c3208d251368b286d83ecad5f"]
+                    hex!["f2b840b98ea57ca98f17b38493e29c614bf221e8cff7813c71742efd30ff9f59"]
                         .unchecked_into(),
                 ),
             ],
 			// Sudo account
-            hex!["86361c4e8b7ca00a64ecd1f655689bbe06339ae9cf366a8decbec5c07a71360f"].into(),
+            hex!["c201d4551d04a99772d8efe196490a96b4ee5e608ac8e495be9505a99e723069"].into(),
 			// Pre-funded accounts
             vec![
                 // Endow the Sudo account to cover transaction fees
-                // 4M1k2CkBgitVm5tSyj9JWiWZDK8puzPzpQZZh8HdHHeRK16e
-                hex!["86361c4e8b7ca00a64ecd1f655689bbe06339ae9cf366a8decbec5c07a71360f"].into(),
+                hex!["c201d4551d04a99772d8efe196490a96b4ee5e608ac8e495be9505a99e723069"].into(),
                 // Endow the Treasury account with the DHX DAO Unlocked Reserves Balance
-                // 4LTFqiD6H6g8a7ur9WH4RxhWx2givWfK7o5EDed3ai1nYTvk
                 hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
                 // Endow these accounts with a balance so they may bond as authorities.
                 // IMPORTANT: All authorities must be included in the list below so they have
@@ -575,72 +573,73 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
 
                 // authority #0
                 // cont
-                hex!["76d0d3add586849d643444ff9fc55413222dea22d5fa297ba1b39386c79a6618"].into(),
+                hex!["f2999ee3e9a0219dd0bda829a2878c42f19cc8418f535a52a3416742b498136c"].into(),
                 // stash
-                hex!["a0dd28a829885c10b413095454a9f774b6cf3bc07f797c33afda2c2f87fb8f35"].into(),
-                hex!["3a1de065f4e475584f4943559fbd3b57563117150c98bda1a6c9ebba0ecc8368"].into(),
+                hex!["92fffb5186429e3ce6c7c4ea31521cb2d961d8d0d5a60dad210253d57129c231"].into(),
+                // gran
+                hex!["e5b8dfc9e5a5c6a030f72aac3b75aa29aea577492e897dc299588076b8f2a931"].into(),
                 // babe
-                hex!["a8e804e4a03e5afa89d3d4cacc041562fd5145b4b2866eb191265aa9262acc06"].into(),
+                hex!["e69dc00aa6d47b04ee25f9af4fca2e565be11159e91fa0542824101bf463964c"].into(),
                 // imon
-                hex!["78ae9f082530ca77f3e0b608df13bd7dc087049fd36d5c999ccc9a0fcb3b6517"].into(),
+                hex!["0a3a6ced3c91a28f7ec77c5eeddb4bfefd0452b81dadd55418ea508b7d23991a"].into(),
                 // audi
-                hex!["029632937ad7171486a0c452f8bdb182a2b5a3311e003d7525fd360e059bb668"].into(),
+                hex!["a4771695cea872eccfa0b3406342bb598f83eb049afc4ead514ba07111a56122"].into(),
 
                 // authority #1
                 // cont
-                hex!["a2c5ecadc845295b1c92585007aabd88826111a090908ec03eb6696b69211636"].into(),
+                hex!["42b728d9c752fe87c3e3db40d9a7d02f22b81bc1f0e49c59a5e128b861f87b08"].into(),
                 // stash
-                hex!["5c680bbcad7e145f5ec27c27012cbabd32fe203208e96a3c080f8ef32164de51"].into(),
+                hex!["3c62839f3ce86df3c27c66016b092d15186b23e429db4ad8338501fc219bfa6c"].into(),
                 // gran
-                hex!["cab049448517b38e3fb22df1565d25365dd09e6f05af36d2ddd5f77b13a95921"].into(),
+                hex!["dce69d42cf6c256e1ba1595300d72797429dc415f9803e54e822416b6748dfa2"].into(),
                 // babe
-                hex!["9ca738e4af3a18b2b84c32e5e74a323ccb24aacc7f9337da23c0edaa589fe828"].into(),
+                hex!["ecb52b9c85909f0a171095022351cced6673e1c9a2930087e1c3f37be6c5cd4c"].into(),
                 // imon
-                hex!["d2107868645df1c62ae2e794376ccd2708bfe88052d3298e5cf5ef76312bad6f"].into(),
+                hex!["ce0b5a11f5447727bf8382426620439b716846b539a0045fcf459299a3237c28"].into(),
                 // audi
-                hex!["40ec24198297c21198c8cf3c2172e7096c3085de96bcef497561a8d81b67230d"].into(),
+                hex!["9c4471e94b5f8b7741418df3d5e8746970fabe84466cce7346d73fcc7705130b"].into(),
 
                 // authority #2
                 // cont
-                hex!["805f3114e41a99126fbc1a56955dbb29df9f267c68721fb6b3c88c4fdd9f0318"].into(),
+                hex!["e627945747e5a66afd5ff3f383819dfb6dd9633f6c9d52b24b10307cc841d577"].into(),
                 // stash
-                hex!["62a92866e30a34c72bcf829ec86f7b6883f335151cbe27a99978d5b1ce2b5c31"].into(),
+                hex!["628580490f55f5340d8a5e5af85eb78fdc066f6ac0385ccb3d17dc9a8b3e651f"].into(),
                 // gran
-                hex!["e260ef20e7d3fb5a7c4384b625cf548914fe03959dded41a1dc78206b8e1fa31"].into(),
+                hex!["5e5101464eb9a9d2637a18627632e0817c8592472fc498da76661260337398d9"].into(),
                 // babe
-                hex!["e2f238e6f968fd44f834967cf39c0c7896380401467cb76745db62ffbf942e4e"].into(),
+                hex!["9684a0fea1f44ec1558543bd459967225dfdffe260a670981f0ce09d85223278"].into(),
                 // imon
-                hex!["2063cc1a936f466fd58954d6b28e1b8c84298f0b3b61e64bbed10c74519a2c66"].into(),
+                hex!["f28436fb808af1121b3873b72a5b818f4231c5c61dfde2cf0d40cfce57b6f03d"].into(),
                 // audi
-                hex!["706a1ba3800edaf2f84bc80f7ad88b4c9ac74cc78aa99825a50517997a8feb1e"].into(),
+                hex!["2c4d8c20018b86a3ddab3c501f822e83343b35e670b2b425e53130bd30a5e767"].into(),
 
                 // authority #3
                 // cont
-                hex!["283c513c1af26294775258f28cb3ab728e02481c16edf463d260a7d95ecfd66c"].into(),
+                hex!["32e28b6f06a728b13d782b007d57ab53d7fe3fa2d5def2c58585d27007d5ea05"].into(),
                 // stash
-                hex!["0ac6bc8c098d6fcf819de3bf30b410e3fcd06d3b8b94f02d7ad0bdec808b686c"].into(),
+                hex!["44d784f6d346d337a98e273f683590c661ea20b83aa6c9ac93754e02cee4372e"].into(),
                 // gran
-                hex!["464cfc0c22b9ab67a7e5d526d482dcbdf763e86994034bbf46ea2b007ae3583d"].into(),
+                hex!["4b0d281fbe2d89bae3955146f10e79c1e63db6aa0d463dc574abafa79656e859"].into(),
                 // babe
-                hex!["2aa395a47ed11d9fc30295350e7eb56e59681b49a71d10d9ecc3078b42017b32"].into(),
+                hex!["7c863c62d1615d7768507cea4dd7678dc3836691ba89697656f66554400c894f"].into(),
                 // imon
-                hex!["76626a3b013571687f201106a3b789c907a5b6e34e918f1ace454f75b7464112"].into(),
+                hex!["9e6987563f86381f47761ee5ac259e1484b25f5bd5342d6bd975a07cb16c6a6b"].into(),
                 // audi
-                hex!["40b8f682f2778bd2107a379c8c9f0c01851e819c1a665ef0719944a7ed28b53c"].into(),
+                hex!["66d5202a408919593bc85e59c18afd9746a432a503c798b0490b4ca9bd3d0930"].into(),
 
                 // authority #4
                 // cont
-                hex!["981114473ce826f7a000e97d33ad716dfc055f0e279ab2ea5972a8a2d2dfa706"].into(),
+                hex!["1e7c18d12311c46ca4fd9fba48f11ea81c7c87e992fc5b1abb4903219cc6b429"].into(),
                 // stash
-                hex!["e4f734b12b3cd7977e1edf756255930bc5390844c098ccf699bfcdbe18fff536"].into(),
+                hex!["3ee5ed5cdf314660b60c6acb87d51af5f10c5d8ea24dd762df4c5973a1683416"].into(),
                 // gran
-                hex!["f4bc2127d317dbae6556f4884ba7e9ae2257f0079b66bd975157b599dc198401"].into(),
+                hex!["d2e23c0445afc9e714a9ad9307255150e26e5661f1f2fa57cbb35666f1ff3bfd"].into(),
                 // babe
-                hex!["229cecefd4737a64b87bbde740af607a0000bcd8770ee8470a33427b0944586d"].into(),
+                hex!["c0fe72b9f944baa43663310c6dc213c416aea90b8f5f72a87feee049d66dec50"].into(),
                 // imon
-                hex!["f690950a9f553f42255cf3a71bd00e73ab55df31a0f16968829ad9291bf14971"].into(),
+                hex!["b8916d751735fbb43d1ff679ea017cfdcf9ad7f76cf775c8d5d6e0ffe5454c79"].into(),
                 // audi
-                hex!["3c1107461309ba8598b586b29887eebdafcd0b7c3208d251368b286d83ecad5f"].into(),
+                hex!["f2b840b98ea57ca98f17b38493e29c614bf221e8cff7813c71742efd30ff9f59"].into(),
             ],
 			true,
 		),
