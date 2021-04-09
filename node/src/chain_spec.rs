@@ -563,10 +563,8 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
 			// Pre-funded accounts
             vec![
                 // Endow the Sudo account to cover transaction fees
-                // 4M1k2CkBgitVm5tSyj9JWiWZDK8puzPzpQZZh8HdHHeRK16e
-                hex!["86361c4e8b7ca00a64ecd1f655689bbe06339ae9cf366a8decbec5c07a71360f"].into(),
+                hex!["c201d4551d04a99772d8efe196490a96b4ee5e608ac8e495be9505a99e723069"].into(),
                 // Endow the Treasury account with the DHX DAO Unlocked Reserves Balance
-                // 4LTFqiD6H6g8a7ur9WH4RxhWx2givWfK7o5EDed3ai1nYTvk
                 hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
                 // Endow these accounts with a balance so they may bond as authorities.
                 // IMPORTANT: All authorities must be included in the list below so they have
