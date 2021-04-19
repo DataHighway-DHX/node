@@ -28,9 +28,9 @@ std = [
 codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
 safe-mix = { version = '1.0.0', default-features = false }
 log = { version = '0.4.8' }
-serde = { version = '1.0', optional = true }
-roaming-networks = { default_features = false, package = 'roaming-networks', path = '../roaming-networks' }
-roaming-operators = { default_features = false, package = 'roaming-operators', path = '../roaming-operators' }
+serde = { version = '1.0.101', optional = true, features = ['derive'] }
+roaming-networks = { default-features = false, package = 'roaming-networks', path = '../roaming-networks' }
+roaming-operators = { default-features = false, package = 'roaming-operators', path = '../roaming-operators' }
 
 [dependencies.pallet-balances]
 default-features = false

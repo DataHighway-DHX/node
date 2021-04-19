@@ -4,15 +4,16 @@ use codec::{
     Decode,
     Encode,
 };
-use frame_support::traits::Randomness;
-/// A runtime module for managing non-fungible tokens
 use frame_support::{
-    debug,
+    log,
     decl_event,
     decl_module,
     decl_storage,
     ensure,
-    traits::Get,
+    traits::{
+        Get,
+        Randomness,
+    },
     Parameter,
 };
 use frame_system::ensure_signed;
@@ -194,24 +195,24 @@ decl_module! {
 
             // Check roaming network_profile whitelisted network vector already exists with the given roaming network_profile id
             // to determine whether to insert new or mutate existing.
-            debug::info!("Checking if vector of whitelisted networks is defined");
+            log::info!("Checking if vector of whitelisted networks is defined");
             if Self::has_value_for_network_profile_whitelisted_networks(roaming_network_profile_id).is_ok() {
-                debug::info!("Checking if whitelisted network id already exists to mutate its value in the vector");
+                log::info!("Checking if whitelisted network id already exists to mutate its value in the vector");
 
-                debug::info!("Getting vector of whitelisted networks");
+                log::info!("Getting vector of whitelisted networks");
                 fetched_whitelisted_networks = <RoamingNetworkProfileWhitelistedNetworks<T>>::get(roaming_network_profile_id);
 
                 if let Some(whitelisted_networks) = fetched_whitelisted_networks {
-                    debug::info!("Search for element in vector of whitelisted networks that matches the network_id provided");
+                    log::info!("Search for element in vector of whitelisted networks that matches the network_id provided");
                     if whitelisted_networks.contains(&roaming_network_id) {
-                        debug::info!("Provided network_id is already a whitelisted network");
+                        log::info!("Provided network_id is already a whitelisted network");
                         return Err(DispatchError::Other("Provided network_id is already a whitelisted network"));
                     }
 
                     // If it doesn't exist, but we still already have a vector with other whitelisted networks
                     // then we'll append the new whitelisted network to the end of the vector
                     let next_index = whitelisted_networks.len() - 1;
-                    debug::info!("Updating whitelisted networks by appending a new whitelisted network at next_index {:?}: ", next_index);
+                    log::info!("Updating whitelisted networks by appending a new whitelisted network at next_index {:?}: ", next_index);
 
                     <RoamingNetworkProfileWhitelistedNetworks<T>>::mutate(roaming_network_profile_id, |v| {
                         if let Some(value) = v {
@@ -219,17 +220,17 @@ decl_module! {
                         }
                     });
 
-                    debug::info!("Appended whitelisted network");
+                    log::info!("Appended whitelisted network");
 
-                    debug::info!("Checking inserted values");
+                    log::info!("Checking inserted values");
                     fetched_whitelisted_networks = <RoamingNetworkProfileWhitelistedNetworks<T>>::get(roaming_network_profile_id);
 
                     if let Some(_whitelisted_networks) = fetched_whitelisted_networks {
-                        debug::info!("Inserted field roaming_network_id {:#?}", _whitelisted_networks);
+                        log::info!("Inserted field roaming_network_id {:#?}", _whitelisted_networks);
                     }
                 }
             } else {
-                debug::info!("Inserting new vector with the whitelisted network provided since no vector value is defined");
+                log::info!("Inserting new vector with the whitelisted network provided since no vector value is defined");
 
                 let mut new_whitelisted_networks = Vec::new();
                 new_whitelisted_networks.push(roaming_network_id);
@@ -239,13 +240,13 @@ decl_module! {
                     &new_whitelisted_networks
                 );
 
-                debug::info!("Checking inserted values");
+                log::info!("Checking inserted values");
                 fetched_whitelisted_networks = <RoamingNetworkProfileWhitelistedNetworks<T>>::get(roaming_network_profile_id);
 
                 if let Some(_whitelisted_networks) = fetched_whitelisted_networks {
                     // Get the whitelisted network at the 0 index that was inserted
                     if let Some (_whitelisted_network) = _whitelisted_networks.get(0) {
-                        debug::info!("Inserted field roaming_network_id {:#?}", _whitelisted_network);
+                        log::info!("Inserted field roaming_network_id {:#?}", _whitelisted_network);
                     }
                 }
             }
@@ -282,23 +283,23 @@ decl_module! {
 
             // Check roaming network_profile whitelisted network vector already exists with the given roaming network_profile id
             // to determine whether to insert new or mutate existing.
-            debug::info!("Checking if vector of whitelisted networks is defined");
+            log::info!("Checking if vector of whitelisted networks is defined");
             if Self::has_value_for_network_profile_whitelisted_networks(roaming_network_profile_id).is_ok() {
-                debug::info!("Checking if whitelisted network id already exists to mutate its value in the vector");
+                log::info!("Checking if whitelisted network id already exists to mutate its value in the vector");
 
-                debug::info!("Getting vector of whitelisted networks");
+                log::info!("Getting vector of whitelisted networks");
                 fetched_whitelisted_networks = <RoamingNetworkProfileWhitelistedNetworks<T>>::get(roaming_network_profile_id);
 
                 if let Some(whitelisted_networks) = fetched_whitelisted_networks {
                     let mut found_index;
 
-                    debug::info!("Search for element in vector of whitelisted networks that matches the network_id provided");
+                    log::info!("Search for element in vector of whitelisted networks that matches the network_id provided");
                     for (index, whitelisted_network) in whitelisted_networks.iter().enumerate() {
                         if whitelisted_network == &roaming_network_id {
                             found_index = index;
 
-                            debug::info!("Provided network_id is already a whitelisted network at index {:?}", found_index);
-                            debug::info!("Removing whitelisted network at index {:?}: ", found_index);
+                            log::info!("Provided network_id is already a whitelisted network at index {:?}", found_index);
+                            log::info!("Removing whitelisted network at index {:?}: ", found_index);
 
                             <RoamingNetworkProfileWhitelistedNetworks<T>>::mutate(roaming_network_profile_id, |v| {
                                 if let Some(value) = v {
@@ -307,13 +308,13 @@ decl_module! {
                                 }
                             });
 
-                            debug::info!("Removed whitelisted network");
+                            log::info!("Removed whitelisted network");
 
-                            debug::info!("Checking inserted values");
+                            log::info!("Checking inserted values");
                             fetched_whitelisted_networks = <RoamingNetworkProfileWhitelistedNetworks<T>>::get(roaming_network_profile_id);
 
                             if let Some(_whitelisted_networks) = fetched_whitelisted_networks {
-                                debug::info!("Removed field roaming_network_id {:#?}", _whitelisted_networks);
+                                log::info!("Removed field roaming_network_id {:#?}", _whitelisted_networks);
                             }
                         }
                     }
@@ -356,24 +357,24 @@ decl_module! {
 
             // Check roaming network_profile blacklisted device vector already exists with the given roaming network_profile id
             // to determine whether to insert new or mutate existing.
-            debug::info!("Checking if vector of blacklisted devices is defined");
+            log::info!("Checking if vector of blacklisted devices is defined");
             if Self::has_value_for_network_profile_blacklisted_devices(roaming_network_profile_id).is_ok() {
-                debug::info!("Checking if blacklisted device id already exists to mutate its value in the vector");
+                log::info!("Checking if blacklisted device id already exists to mutate its value in the vector");
 
-                debug::info!("Getting vector of blacklisted devices");
+                log::info!("Getting vector of blacklisted devices");
                 fetched_blacklisted_devices = <RoamingNetworkProfileBlacklistedDevices<T>>::get(roaming_network_profile_id);
 
                 if let Some(blacklisted_devices) = fetched_blacklisted_devices {
-                    debug::info!("Search for element in vector of blacklisted devices that matches the network_id provided");
+                    log::info!("Search for element in vector of blacklisted devices that matches the network_id provided");
                     if blacklisted_devices.contains(&roaming_device_id) {
-                        debug::info!("Provided network_id is already a blacklisted device");
+                        log::info!("Provided network_id is already a blacklisted device");
                         return Err(DispatchError::Other("Provided network_id is already a blacklisted device"));
                     }
 
                     // If it doesn't exist, but we still already have a vector with other blacklisted devices
                     // then we'll append the new blacklisted device to the end of the vector
                     let next_index = blacklisted_devices.len() - 1;
-                    debug::info!("Updating blacklisted devices by appending a new blacklisted device at next_index {:?}: ", next_index);
+                    log::info!("Updating blacklisted devices by appending a new blacklisted device at next_index {:?}: ", next_index);
 
                     <RoamingNetworkProfileBlacklistedDevices<T>>::mutate(roaming_network_profile_id, |v| {
                         if let Some(value) = v {
@@ -381,17 +382,17 @@ decl_module! {
                         }
                     });
 
-                    debug::info!("Appended blacklisted device");
+                    log::info!("Appended blacklisted device");
 
-                    debug::info!("Checking inserted values");
+                    log::info!("Checking inserted values");
                     fetched_blacklisted_devices = <RoamingNetworkProfileBlacklistedDevices<T>>::get(roaming_network_profile_id);
 
                     if let Some(_blacklisted_devices) = fetched_blacklisted_devices {
-                        debug::info!("Inserted field roaming_device_id {:#?}", _blacklisted_devices);
+                        log::info!("Inserted field roaming_device_id {:#?}", _blacklisted_devices);
                     }
                 }
             } else {
-                debug::info!("Inserting new vector with the blacklisted device provided since no vector value is defined");
+                log::info!("Inserting new vector with the blacklisted device provided since no vector value is defined");
 
                 let mut new_blacklisted_devices = Vec::new();
                 new_blacklisted_devices.push(roaming_device_id);
@@ -401,13 +402,13 @@ decl_module! {
                     &new_blacklisted_devices
                 );
 
-                debug::info!("Checking inserted values");
+                log::info!("Checking inserted values");
                 fetched_blacklisted_devices = <RoamingNetworkProfileBlacklistedDevices<T>>::get(roaming_network_profile_id);
 
                 if let Some(_blacklisted_devices) = fetched_blacklisted_devices {
                     // Get the blacklisted device at the 0 index that was inserted
                     if let Some (_blacklisted_device) = _blacklisted_devices.get(0) {
-                        debug::info!("Inserted field roaming_device_id {:#?}", _blacklisted_device);
+                        log::info!("Inserted field roaming_device_id {:#?}", _blacklisted_device);
                     }
                 }
             }
@@ -443,23 +444,23 @@ decl_module! {
 
             // Check roaming network_profile blacklisted device vector already exists with the given roaming network_profile id
             // to determine whether to insert new or mutate existing.
-            debug::info!("Checking if vector of blacklisted devices is defined");
+            log::info!("Checking if vector of blacklisted devices is defined");
             if Self::has_value_for_network_profile_blacklisted_devices(roaming_network_profile_id).is_ok() {
-                debug::info!("Checking if blacklisted device id already exists to mutate its value in the vector");
+                log::info!("Checking if blacklisted device id already exists to mutate its value in the vector");
 
-                debug::info!("Getting vector of blacklisted devices");
+                log::info!("Getting vector of blacklisted devices");
                 fetched_blacklisted_devices = <RoamingNetworkProfileBlacklistedDevices<T>>::get(roaming_network_profile_id);
 
                 if let Some(blacklisted_devices) = fetched_blacklisted_devices {
                     let mut found_index;
 
-                    debug::info!("Search for element in vector of blacklisted devices that matches the network_id provided");
+                    log::info!("Search for element in vector of blacklisted devices that matches the network_id provided");
                     for (index, blacklisted_device) in blacklisted_devices.iter().enumerate() {
                         if blacklisted_device == &roaming_device_id {
                             found_index = index;
 
-                            debug::info!("Provided network_id is already a blacklisted device at index {:?}", found_index);
-                            debug::info!("Removing blacklisted device at index {:?}: ", found_index);
+                            log::info!("Provided network_id is already a blacklisted device at index {:?}", found_index);
+                            log::info!("Removing blacklisted device at index {:?}: ", found_index);
 
                             <RoamingNetworkProfileBlacklistedDevices<T>>::mutate(roaming_network_profile_id, |v| {
                                 if let Some(value) = v {
@@ -468,13 +469,13 @@ decl_module! {
                                 }
                             });
 
-                            debug::info!("Removed blacklisted device");
+                            log::info!("Removed blacklisted device");
 
-                            debug::info!("Checking inserted values");
+                            log::info!("Checking inserted values");
                             fetched_blacklisted_devices = <RoamingNetworkProfileBlacklistedDevices<T>>::get(roaming_network_profile_id);
 
                             if let Some(_blacklisted_devices) = fetched_blacklisted_devices {
-                                debug::info!("Removed field roaming_device_id {:#?}", _blacklisted_devices);
+                                log::info!("Removed field roaming_device_id {:#?}", _blacklisted_devices);
                             }
                         }
                     }
@@ -582,7 +583,7 @@ impl<T: Config> Module<T> {
         roaming_network_profile_id: T::RoamingNetworkProfileIndex,
         sender: T::AccountId,
     ) -> Result<(), DispatchError> {
-        debug::info!("Get the network id associated with the network of the given network profile id");
+        log::info!("Get the network id associated with the network of the given network profile id");
         let network_profile_network_id = Self::roaming_network_profile_network(roaming_network_profile_id);
 
         if let Some(_network_profile_network_id) = network_profile_network_id {
@@ -615,28 +616,28 @@ impl<T: Config> Module<T> {
     pub fn has_value_for_network_profile_whitelisted_networks(
         roaming_network_profile_id: T::RoamingNetworkProfileIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if network_profile whitelisted network has a value that is defined");
+        log::info!("Checking if network_profile whitelisted network has a value that is defined");
         let fetched_network_profile_whitelisted_network =
             <RoamingNetworkProfileWhitelistedNetworks<T>>::get(roaming_network_profile_id);
         if let Some(_value) = fetched_network_profile_whitelisted_network {
-            debug::info!("Found value for network_profile whitelisted network");
+            log::info!("Found value for network_profile whitelisted network");
             return Ok(());
         }
-        debug::info!("No value for network_profile whitelisted network");
+        log::info!("No value for network_profile whitelisted network");
         Err(DispatchError::Other("No value for network_profile whitelisted network"))
     }
 
     pub fn has_value_for_network_profile_blacklisted_devices(
         roaming_network_profile_id: T::RoamingNetworkProfileIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if network_profile blacklisted_devices has a value that is defined");
+        log::info!("Checking if network_profile blacklisted_devices has a value that is defined");
         let fetched_network_profile_blacklisted_devices =
             <RoamingNetworkProfileBlacklistedDevices<T>>::get(roaming_network_profile_id);
         if let Some(_value) = fetched_network_profile_blacklisted_devices {
-            debug::info!("Found value for network_profile blacklisted_devices");
+            log::info!("Found value for network_profile blacklisted_devices");
             return Ok(());
         }
-        debug::info!("No value for network_profile blacklisted_devices");
+        log::info!("No value for network_profile blacklisted_devices");
         Err(DispatchError::Other("No value for network_profile blacklisted_devices"))
     }
 
@@ -648,23 +649,23 @@ impl<T: Config> Module<T> {
         // Early exit with error since do not want to append if the given network id already exists as a key,
         // and where its corresponding value is a vector that already contains the given network profile id
         if let Some(network_network_profiles) = Self::roaming_network_network_profiles(roaming_network_id) {
-            debug::info!("Network id key {:?} exists with value {:?}", roaming_network_id, network_network_profiles);
+            log::info!("Network id key {:?} exists with value {:?}", roaming_network_id, network_network_profiles);
             let not_network_contains_network_profile = !network_network_profiles.contains(&roaming_network_profile_id);
             ensure!(not_network_contains_network_profile, "Network already contains the given network profile id");
-            debug::info!("Network id key exists but its vector value does not contain the given network profile id");
+            log::info!("Network id key exists but its vector value does not contain the given network profile id");
             <RoamingNetworkNetworkProfiles<T>>::mutate(roaming_network_id, |v| {
                 if let Some(value) = v {
                     value.push(roaming_network_profile_id);
                 }
             });
-            debug::info!(
+            log::info!(
                 "Associated network profile {:?} with network {:?}",
                 roaming_network_profile_id,
                 roaming_network_id
             );
             Ok(())
         } else {
-            debug::info!(
+            log::info!(
                 "Network id key does not yet exist. Creating the network key {:?} and appending the network profile \
                  id {:?} to its vector value",
                 roaming_network_id,
@@ -683,24 +684,24 @@ impl<T: Config> Module<T> {
         // Early exit with error since do not want to append if the given operator id already exists as a key,
         // and where its corresponding value is a vector that already contains the given network profile id
         if let Some(operator_network_profiles) = Self::roaming_operator_network_profiles(roaming_operator_id) {
-            debug::info!("Operator id key {:?} exists with value {:?}", roaming_operator_id, operator_network_profiles);
+            log::info!("Operator id key {:?} exists with value {:?}", roaming_operator_id, operator_network_profiles);
             let not_operator_contains_network_profile =
                 !operator_network_profiles.contains(&roaming_network_profile_id);
             ensure!(not_operator_contains_network_profile, "Operator already contains the given network profile id");
-            debug::info!("Operator id key exists but its vector value does not contain the given network profile id");
+            log::info!("Operator id key exists but its vector value does not contain the given network profile id");
             <RoamingOperatorNetworkProfiles<T>>::mutate(roaming_operator_id, |v| {
                 if let Some(value) = v {
                     value.push(roaming_network_profile_id);
                 }
             });
-            debug::info!(
+            log::info!(
                 "Associated network profile {:?} with operator {:?}",
                 roaming_network_profile_id,
                 roaming_operator_id
             );
             Ok(())
         } else {
-            debug::info!(
+            log::info!(
                 "Operator id key does not yet exist. Creating the operator key {:?} and appending the network profile \
                  id {:?} to its vector value",
                 roaming_operator_id,

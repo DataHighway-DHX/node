@@ -4,15 +4,16 @@ use codec::{
     Decode,
     Encode,
 };
-use frame_support::traits::Randomness;
-/// A runtime module for managing non-fungible tokens
 use frame_support::{
-    debug,
+    log,
     decl_event,
     decl_module,
     decl_storage,
     ensure,
-    traits::Get,
+    traits::{
+        Get,
+        Randomness,
+    },
     Parameter,
 };
 use frame_system::ensure_signed;
@@ -43,7 +44,6 @@ pub trait Config:
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingAgreementPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type RoamingAgreementPolicyActivationType: Parameter + Member + Default;
-    type RoamingAgreementPolicyExpiry: Parameter + Member + Default;
 }
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
@@ -52,9 +52,9 @@ pub struct RoamingAgreementPolicy(pub [u8; 16]);
 
 #[derive(Encode, Debug, Decode, Default, Clone, PartialEq)]
 // Generic type parameters - Balance
-pub struct RoamingAgreementPolicyConfig<U, V> {
+pub struct RoamingAgreementPolicySetting<U, V> {
     pub policy_activation_type: U, // "passive" or "handover"
-    pub policy_expiry: V,
+    pub policy_expiry_block: V,
 }
 
 decl_event!(
@@ -62,16 +62,16 @@ decl_event!(
         <T as frame_system::Config>::AccountId,
         <T as Config>::RoamingAgreementPolicyIndex,
         <T as Config>::RoamingAgreementPolicyActivationType,
-        <T as Config>::RoamingAgreementPolicyExpiry,
         <T as roaming_accounting_policies::Config>::RoamingAccountingPolicyIndex,
         <T as roaming_networks::Config>::RoamingNetworkIndex,
+        <T as frame_system::Config>::BlockNumber,
     {
         /// A roaming agreement_policy is created. (owner, roaming_agreement_policy_id)
         Created(AccountId, RoamingAgreementPolicyIndex),
         /// A roaming agreement_policy is transferred. (from, to, roaming_agreement_policy_id)
         Transferred(AccountId, AccountId, RoamingAgreementPolicyIndex),
         /// A roaming agreement_policy configuration
-        RoamingAgreementPolicyConfigSet(AccountId, RoamingAgreementPolicyIndex, RoamingAgreementPolicyActivationType, RoamingAgreementPolicyExpiry),
+        RoamingAgreementPolicySettingSet(AccountId, RoamingAgreementPolicyIndex, RoamingAgreementPolicyActivationType, BlockNumber),
         /// A roaming agreement_policy is assigned to a accounting_policy. (owner of network, roaming_agreement_policy_id, roaming_accounting_policy_id)
         AssignedAgreementPolicyToAccountingPolicy(AccountId, RoamingAgreementPolicyIndex, RoamingAccountingPolicyIndex),
         /// A roaming agreement_policy is assigned to a network. (owner of network, roaming_agreement_policy_id, roaming_network_id)
@@ -92,7 +92,7 @@ decl_storage! {
         pub RoamingAgreementPolicyOwners get(fn roaming_agreement_policy_owner): map hasher(opaque_blake2_256) T::RoamingAgreementPolicyIndex => Option<T::AccountId>;
 
         /// Get roaming agreement_policy config
-        pub RoamingAgreementPolicyConfigs get(fn roaming_agreement_policy_configs): map hasher(opaque_blake2_256) T::RoamingAgreementPolicyIndex => Option<RoamingAgreementPolicyConfig<T::RoamingAgreementPolicyActivationType, T::RoamingAgreementPolicyExpiry>>;
+        pub RoamingAgreementPolicySettings get(fn roaming_agreement_policy_settings): map hasher(opaque_blake2_256) T::RoamingAgreementPolicyIndex => Option<RoamingAgreementPolicySetting<T::RoamingAgreementPolicyActivationType, T::BlockNumber>>;
 
         /// Get roaming agreement_policy network
         pub RoamingAgreementPolicyNetwork get(fn roaming_agreement_policy_network): map hasher(opaque_blake2_256) T::RoamingAgreementPolicyIndex => Option<T::RoamingNetworkIndex>;
@@ -153,7 +153,7 @@ decl_module! {
             origin,
             roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
             _policy_activation_type: Option<T::RoamingAgreementPolicyActivationType>, // "passive" or "handover"
-            _policy_expiry: Option<T::RoamingAgreementPolicyExpiry>,
+            _policy_expiry_block: Option<T::BlockNumber>,
         ) {
             let sender = ensure_signed(origin)?;
 
@@ -168,57 +168,57 @@ decl_module! {
                 Some(value) => value,
                 None => Default::default() // Default
             };
-            let policy_expiry = match _policy_expiry {
+            let policy_expiry_block = match _policy_expiry_block {
                 Some(value) => value,
                 None => Default::default() // <timestamp::Module<T>>::get() // Default
             };
 
             // Check if a roaming agreement policy config already exists with the given roaming agreement policy id
             // to determine whether to insert new or mutate existing.
-            if Self::has_value_for_agreement_policy_config_index(roaming_agreement_policy_id).is_ok() {
-                debug::info!("Mutating values");
-                <RoamingAgreementPolicyConfigs<T>>::mutate(roaming_agreement_policy_id, |policy_config| {
-                    if let Some(_policy_config) = policy_config {
+            if Self::has_value_for_agreement_policy_setting_index(roaming_agreement_policy_id).is_ok() {
+                log::info!("Mutating values");
+                <RoamingAgreementPolicySettings<T>>::mutate(roaming_agreement_policy_id, |policy_setting| {
+                    if let Some(_policy_setting) = policy_setting {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
-                        _policy_config.policy_activation_type = policy_activation_type.clone();
-                        _policy_config.policy_expiry = policy_expiry.clone();
+                        _policy_setting.policy_activation_type = policy_activation_type.clone();
+                        _policy_setting.policy_expiry_block = policy_expiry_block.clone();
                     }
                 });
-                debug::info!("Checking mutated values");
-                let fetched_policy_config = <RoamingAgreementPolicyConfigs<T>>::get(roaming_agreement_policy_id);
-                if let Some(_policy_config) = fetched_policy_config {
-                    debug::info!("Latest field policy_activation_type {:#?}", _policy_config.policy_activation_type);
-                    debug::info!("Latest field policy_expiry {:#?}", _policy_config.policy_expiry);
+                log::info!("Checking mutated values");
+                let fetched_policy_setting = <RoamingAgreementPolicySettings<T>>::get(roaming_agreement_policy_id);
+                if let Some(_policy_setting) = fetched_policy_setting {
+                    log::info!("Latest field policy_activation_type {:#?}", _policy_setting.policy_activation_type);
+                    log::info!("Latest field policy_expiry_block {:#?}", _policy_setting.policy_expiry_block);
                 }
             } else {
-                debug::info!("Inserting values");
+                log::info!("Inserting values");
 
                 // Create a new roaming agreement_policy config instance with the input params
-                let roaming_agreement_policy_config_instance = RoamingAgreementPolicyConfig {
+                let roaming_agreement_policy_setting_instance = RoamingAgreementPolicySetting {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     policy_activation_type: policy_activation_type.clone(),
-                    policy_expiry: policy_expiry.clone()
+                    policy_expiry_block: policy_expiry_block.clone()
                 };
 
-                <RoamingAgreementPolicyConfigs<T>>::insert(
+                <RoamingAgreementPolicySettings<T>>::insert(
                     roaming_agreement_policy_id,
-                    &roaming_agreement_policy_config_instance
+                    &roaming_agreement_policy_setting_instance
                 );
 
-                debug::info!("Checking inserted values");
-                let fetched_policy_config = <RoamingAgreementPolicyConfigs<T>>::get(roaming_agreement_policy_id);
-                if let Some(_policy_config) = fetched_policy_config {
-                    debug::info!("Inserted field policy_activation_type {:#?}", _policy_config.policy_activation_type);
-                    debug::info!("Inserted field policy_expiry {:#?}", _policy_config.policy_expiry);
+                log::info!("Checking inserted values");
+                let fetched_policy_setting = <RoamingAgreementPolicySettings<T>>::get(roaming_agreement_policy_id);
+                if let Some(_policy_setting) = fetched_policy_setting {
+                    log::info!("Inserted field policy_activation_type {:#?}", _policy_setting.policy_activation_type);
+                    log::info!("Inserted field policy_expiry_block {:#?}", _policy_setting.policy_expiry_block);
                 }
             }
 
-            Self::deposit_event(RawEvent::RoamingAgreementPolicyConfigSet(
+            Self::deposit_event(RawEvent::RoamingAgreementPolicySettingSet(
                 sender,
                 roaming_agreement_policy_id,
                 policy_activation_type,
-                policy_expiry
+                policy_expiry_block
             ));
         }
 
@@ -315,7 +315,7 @@ impl<T: Config> Module<T> {
 
     // Note: Not required
     // pub fn is_owned_by_required_parent_relationship(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
-    // sender: T::AccountId) -> Result<(), DispatchError> {     debug::info!("Get the network id associated with the
+    // sender: T::AccountId) -> Result<(), DispatchError> {     log::info!("Get the network id associated with the
     // network of the given agreement policy id");     let agreement_policy_network_id =
     // Self::roaming_agreement_policy_network(roaming_agreement_policy_id);
 
@@ -342,25 +342,25 @@ impl<T: Config> Module<T> {
         }
     }
 
-    pub fn exists_roaming_agreement_policy_config(
+    pub fn exists_roaming_agreement_policy_setting(
         roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
     ) -> Result<(), DispatchError> {
-        match Self::roaming_agreement_policy_configs(roaming_agreement_policy_id) {
+        match Self::roaming_agreement_policy_settings(roaming_agreement_policy_id) {
             Some(_value) => Ok(()),
-            None => Err(DispatchError::Other("RoamingAgreementPolicyConfig does not exist")),
+            None => Err(DispatchError::Other("RoamingAgreementPolicySetting does not exist")),
         }
     }
 
-    pub fn has_value_for_agreement_policy_config_index(
+    pub fn has_value_for_agreement_policy_setting_index(
         roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if agreement policy config has a value that is defined");
-        let fetched_policy_config = <RoamingAgreementPolicyConfigs<T>>::get(roaming_agreement_policy_id);
-        if let Some(_value) = fetched_policy_config {
-            debug::info!("Found value for agreement policy config");
+        log::info!("Checking if agreement policy config has a value that is defined");
+        let fetched_policy_setting = <RoamingAgreementPolicySettings<T>>::get(roaming_agreement_policy_id);
+        if let Some(_value) = fetched_policy_setting {
+            log::info!("Found value for agreement policy config");
             return Ok(());
         }
-        debug::info!("No value for agreement policy config");
+        log::info!("No value for agreement policy config");
         Err(DispatchError::Other("No value for agreement policy config"))
     }
 
@@ -372,24 +372,24 @@ impl<T: Config> Module<T> {
         // Early exit with error since do not want to append if the given network id already exists as a key,
         // and where its corresponding value is a vector that already contains the given agreement policy id
         if let Some(network_agreement_policies) = Self::roaming_network_agreement_policies(roaming_network_id) {
-            debug::info!("Network id key {:?} exists with value {:?}", roaming_network_id, network_agreement_policies);
+            log::info!("Network id key {:?} exists with value {:?}", roaming_network_id, network_agreement_policies);
             let not_network_contains_agreement_policy =
                 !network_agreement_policies.contains(&roaming_agreement_policy_id);
             ensure!(not_network_contains_agreement_policy, "Network already contains the given agreement policy id");
-            debug::info!("Network id key exists but its vector value does not contain the given agreement policy id");
+            log::info!("Network id key exists but its vector value does not contain the given agreement policy id");
             <RoamingNetworkAgreementPolicies<T>>::mutate(roaming_network_id, |v| {
                 if let Some(value) = v {
                     value.push(roaming_agreement_policy_id);
                 }
             });
-            debug::info!(
+            log::info!(
                 "Associated agreement policy {:?} with network {:?}",
                 roaming_agreement_policy_id,
                 roaming_network_id
             );
             Ok(())
         } else {
-            debug::info!(
+            log::info!(
                 "Network id key does not yet exist. Creating the network key {:?} and appending the agreement policy \
                  id {:?} to its vector value",
                 roaming_network_id,
@@ -410,7 +410,7 @@ impl<T: Config> Module<T> {
         if let Some(accounting_policy_agreement_policies) =
             Self::roaming_accounting_policy_agreement_policies(roaming_accounting_policy_id)
         {
-            debug::info!(
+            log::info!(
                 "AccountingPolicy id key {:?} exists with value {:?}",
                 roaming_accounting_policy_id,
                 accounting_policy_agreement_policies
@@ -421,7 +421,7 @@ impl<T: Config> Module<T> {
                 not_accounting_policy_contains_agreement_policy,
                 "AccountingPolicy already contains the given agreement policy id"
             );
-            debug::info!(
+            log::info!(
                 "AccountingPolicy id key exists but its vector value does not contain the given agreement policy id"
             );
             <RoamingAccountingPolicyAgreementPolicies<T>>::mutate(roaming_accounting_policy_id, |v| {
@@ -429,14 +429,14 @@ impl<T: Config> Module<T> {
                     value.push(roaming_agreement_policy_id);
                 }
             });
-            debug::info!(
+            log::info!(
                 "Associated agreement policy {:?} with accounting_policy {:?}",
                 roaming_agreement_policy_id,
                 roaming_accounting_policy_id
             );
             Ok(())
         } else {
-            debug::info!(
+            log::info!(
                 "AccountingPolicy id key does not yet exist. Creating the accounting_policy key {:?} and appending \
                  the agreement policy id {:?} to its vector value",
                 roaming_accounting_policy_id,

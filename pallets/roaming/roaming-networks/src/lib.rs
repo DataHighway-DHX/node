@@ -4,19 +4,18 @@ use codec::{
     Decode,
     Encode,
 };
-use frame_support::traits::{
-    Currency,
-    ExistenceRequirement,
-    Randomness,
-};
-/// A runtime module for managing non-fungible tokens
 use frame_support::{
-    debug,
+    log,
     decl_event,
     decl_module,
     decl_storage,
     ensure,
-    traits::Get,
+    traits::{
+        Currency,
+        ExistenceRequirement,
+        Get,
+        Randomness,
+    },
     Parameter,
     StorageMap,
     StorageValue,
@@ -237,19 +236,19 @@ impl<T: Config> Module<T> {
         // Early exit with error since do not want to append if the given operator id already exists as a key,
         // and where its corresponding value is a vector that already contains the given network id
         if let Some(operator_networks) = Self::roaming_operator_networks(roaming_operator_id) {
-            debug::info!("Operator id key {:?} exists with value {:?}", roaming_operator_id, operator_networks);
+            log::info!("Operator id key {:?} exists with value {:?}", roaming_operator_id, operator_networks);
             let not_operator_contains_network = !operator_networks.contains(&roaming_network_id);
             ensure!(not_operator_contains_network, "Operator already contains the given network id");
-            debug::info!("Operator id key exists but its vector value does not contain the given network id");
+            log::info!("Operator id key exists but its vector value does not contain the given network id");
             <RoamingOperatorNetworks<T>>::mutate(roaming_operator_id, |v| {
                 if let Some(value) = v {
                     value.push(roaming_network_id);
                 }
             });
-            debug::info!("Associated network {:?} with operator {:?}", roaming_network_id, roaming_operator_id);
+            log::info!("Associated network {:?} with operator {:?}", roaming_network_id, roaming_operator_id);
             Ok(())
         } else {
-            debug::info!(
+            log::info!(
                 "Operator id key does not yet exist. Creating the operator key {:?} and appending the network id {:?} \
                  to its vector value",
                 roaming_operator_id,

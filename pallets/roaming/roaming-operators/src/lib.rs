@@ -3,19 +3,18 @@ use codec::{
     Decode,
     Encode,
 };
-use frame_support::traits::{
-    Currency,
-    ExistenceRequirement,
-    Randomness,
-};
-/// A runtime module for managing non-fungible tokens
 use frame_support::{
     decl_event,
     decl_module,
     decl_storage,
     dispatch,
     ensure,
-    traits::Get,
+    traits::{
+        Currency,
+        ExistenceRequirement,
+        Get,
+        Randomness,
+    },
     Parameter,
 };
 use frame_system::ensure_signed;
@@ -41,7 +40,7 @@ pub trait Config: frame_system::Config {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingOperatorIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
     type Currency: Currency<Self::AccountId>;
-    type Randomness: Randomness<Self::Hash>;
+    type Randomness: Randomness<Self::Hash, Self::BlockNumber>;
 }
 
 type BalanceOf<T> = <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;

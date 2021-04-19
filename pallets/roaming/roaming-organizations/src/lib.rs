@@ -4,19 +4,18 @@ use codec::{
     Decode,
     Encode,
 };
-use frame_support::traits::{
-    Currency,
-    ExistenceRequirement,
-    Randomness,
-};
-/// A runtime module for managing non-fungible tokens
 use frame_support::{
-    debug,
+    log,
     decl_event,
     decl_module,
     decl_storage,
     ensure,
-    traits::Get,
+    traits::{
+        Currency,
+        ExistenceRequirement,
+        Get,
+        Randomness,
+    },
     Parameter,
 };
 use frame_system::ensure_signed;
@@ -238,7 +237,7 @@ impl<T: Config> Module<T> {
         if let Some(network_server_organizations) =
             Self::roaming_network_server_organizations(roaming_network_server_id)
         {
-            debug::info!(
+            log::info!(
                 "Network Server id key {:?} exists with value {:?}",
                 roaming_network_server_id,
                 network_server_organizations
@@ -249,7 +248,7 @@ impl<T: Config> Module<T> {
                 not_network_server_contains_organization,
                 "Network Server already contains the given organization id"
             );
-            debug::info!(
+            log::info!(
                 "Network Server id key exists but its vector value does not contain the given organization id"
             );
             <RoamingNetworkServerOrganizations<T>>::mutate(roaming_network_server_id, |v| {
@@ -257,14 +256,14 @@ impl<T: Config> Module<T> {
                     value.push(roaming_organization_id);
                 }
             });
-            debug::info!(
+            log::info!(
                 "Associated organization {:?} with network server {:?}",
                 roaming_organization_id,
                 roaming_network_server_id
             );
             Ok(())
         } else {
-            debug::info!(
+            log::info!(
                 "Network Server id key does not yet exist. Creating the network server key {:?} and appending the \
                  organization id {:?} to its vector value",
                 roaming_network_server_id,

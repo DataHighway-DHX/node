@@ -49,6 +49,7 @@ use xcm::v0::{
     NetworkId,
 };
 use xcm_builder::{
+    IsConcrete,
     AccountId32Aliases,
     CurrencyAdapter,
     LocationInverter,
@@ -58,18 +59,22 @@ use xcm_builder::{
     SiblingParachainConvertsVia,
     SignedAccountId32AsNative,
     SovereignSignedViaLocation,
+    NativeAsset,
+    ParentAsSuperuser,
+    TakeWeightCredit,
+    AllowTopLevelPaidExecutionFrom,
+    AllowUnpaidExecutionFrom,
+    FixedWeightBounds,
+    FixedRateOfConcreteFungible,
 };
 use xcm_executor::{
-    traits::{
-        IsConcrete,
-        NativeAsset,
-    },
     Config,
     XcmExecutor,
 };
 
 // A few exports that help ease life for downstream crates.
 pub use frame_support::{
+    PalletId,
     construct_runtime,
     parameter_types,
     traits::{
@@ -77,6 +82,8 @@ pub use frame_support::{
         ContainsLengthBound,
         KeyOwnerProofSystem,
         Randomness,
+        All,
+        IsInVec,
     },
     weights::{
         constants::{
@@ -97,7 +104,6 @@ pub use pallet_timestamp::Call as TimestampCall;
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{
-    ModuleId,
     Perbill,
     Percent,
     Permill,
@@ -262,6 +268,7 @@ impl frame_system::Config for Runtime {
     type SystemWeightInfo = ();
     /// Version of the runtime.
     type Version = Version;
+    type OnSetCode = cumulus_pallet_parachain_system::ParachainSetCode<Self>;
 }
 
 parameter_types! {
@@ -367,10 +374,6 @@ impl Contains<AccountId> for GeneralCouncilProvider {
     fn contains(who: &AccountId) -> bool {
         GeneralCouncil::is_member(who)
     }
-
-    fn sorted_members() -> Vec<AccountId> {
-        GeneralCouncil::members()
-    }
 }
 impl ContainsLengthBound for GeneralCouncilProvider {
     fn min_len() -> usize {
@@ -397,7 +400,7 @@ parameter_types! {
     pub const BountyDepositPayoutDelay: u32 = 3;
     pub const BountyUpdatePeriod: u32 = 20;
     pub const DataDepositPerByte: u64 = 1;
-    pub const TreasuryModuleId: ModuleId = ModuleId(*b"py/trsry");
+    pub const TreasuryPalletId: PalletId = PalletId(*b"py/trsry");
 }
 
 impl pallet_treasury::Config for Runtime {
@@ -413,7 +416,7 @@ impl pallet_treasury::Config for Runtime {
     // type DataDepositPerByte = DataDepositPerByte;
     type Event = Event;
     // type MaximumReasonLength = MaximumReasonLength;
-    type ModuleId = TreasuryModuleId;
+    type PalletId = TreasuryPalletId;
     type OnSlash = ();
     type ProposalBond = ProposalBond;
     type ProposalBondMinimum = ProposalBondMinimum;
@@ -552,7 +555,6 @@ impl roaming_accounting_policies::Config for Runtime {
 impl roaming_agreement_policies::Config for Runtime {
     type Event = Event;
     type RoamingAgreementPolicyActivationType = Vec<u8>;
-    type RoamingAgreementPolicyExpiry = u64;
     type RoamingAgreementPolicyIndex = u64; // <pallet_timestamp::Module<Runtime> as Config>::Moment` timestamp::Module<Runtime>::Moment;
 }
 
@@ -573,23 +575,16 @@ impl roaming_device_profiles::Config for Runtime {
 impl roaming_sessions::Config for Runtime {
     type Event = Event;
     type RoamingSessionIndex = u64;
-    type RoamingSessionJoinRequestAcceptAcceptedAt = u64;
-    type RoamingSessionJoinRequestAcceptExpiry = u64;
-    type RoamingSessionJoinRequestRequestedAt = u64;
 }
 
 impl roaming_billing_policies::Config for Runtime {
     type Event = Event;
-    type RoamingBillingPolicyFrequencyInDays = u64;
     type RoamingBillingPolicyIndex = u64;
-    type RoamingBillingPolicyNextBillingAt = u64;
 }
 
 impl roaming_charging_policies::Config for Runtime {
     type Event = Event;
-    type RoamingChargingPolicyDelayAfterBillingInDays = u64;
     type RoamingChargingPolicyIndex = u64;
-    type RoamingChargingPolicyNextChargingAt = u64;
 }
 
 impl roaming_packet_bundles::Config for Runtime {
@@ -597,128 +592,153 @@ impl roaming_packet_bundles::Config for Runtime {
     type RoamingPacketBundleExternalDataStorageHash = Hash;
     type RoamingPacketBundleIndex = u64;
     type RoamingPacketBundleReceivedAtHome = bool;
-    type RoamingPacketBundleReceivedEndedAt = u64;
     type RoamingPacketBundleReceivedPacketsCount = u64;
     type RoamingPacketBundleReceivedPacketsOkCount = u64;
-    type RoamingPacketBundleReceivedStartedAt = u64;
 }
 
-impl mining_speed_boosts_configuration_token_mining::Config for Runtime {
+impl mining_setting_token::Config for Runtime {
     type Event = Event;
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
-    type MiningSpeedBoostConfigurationTokenMiningIndex = u64;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriod = u32;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodEndDate = u64;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockPeriodStartDate = u64;
-    // type MiningSpeedBoostConfigurationTokenMiningTokenType = MiningSpeedBoostConfigurationTokenMiningTokenTypes;
-    type MiningSpeedBoostConfigurationTokenMiningTokenLockedAmount = u64;
+    type MiningSettingTokenIndex = u64;
+    type MiningSettingTokenLockAmount = u64;
     // Mining Speed Boost Token Mining Config
     // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningSpeedBoostConfigurationTokenMiningTokenType = Vec<u8>;
+    type MiningSettingTokenType = Vec<u8>;
 }
 
-impl mining_speed_boosts_configuration_hardware_mining::Config for Runtime {
+impl mining_setting_hardware::Config for Runtime {
     type Event = Event;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareDevEUI = u64;
-    // type MiningSpeedBoostConfigurationHardwareMiningHardwareType =
-    // MiningSpeedBoostConfigurationHardwareMiningHardwareTypes;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareID = u64;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodEndDate = u64;
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareLockPeriodStartDate = u64;
-    // Mining Speed Boost Hardware Mining Config
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareSecure = bool;
-    // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
-    type MiningSpeedBoostConfigurationHardwareMiningHardwareType = Vec<u8>;
+    type MiningSettingHardwareDevEUI = u64;
+    // type MiningSettingHardwareType =
+    // MiningSettingHardwareTypes;
+    type MiningSettingHardwareID = u64;
     // FIXME - restore when stop temporarily using roaming-operators
     // type Currency = Balances;
     // type Randomness = RandomnessCollectiveFlip;
-    type MiningSpeedBoostConfigurationHardwareMiningIndex = u64;
+    type MiningSettingHardwareIndex = u64;
+    // Mining Speed Boost Hardware Mining Config
+    type MiningSettingHardwareSecure = bool;
+    // FIXME - how to use this enum from std? (including importing `use std::str::FromStr;`)
+    type MiningSettingHardwareType = Vec<u8>;
 }
 
-impl mining_speed_boosts_rates_token_mining::Config for Runtime {
+impl mining_rates_token::Config for Runtime {
     type Event = Event;
-    type MiningSpeedBoostRatesTokenMiningIndex = u64;
-    type MiningSpeedBoostRatesTokenMiningMaxLoyalty = u32;
+    type MiningRatesTokenIndex = u64;
+    type MiningRatesTokenMaxLoyalty = u32;
     // Mining Speed Boost Max Rates
-    type MiningSpeedBoostRatesTokenMiningMaxToken = u32;
-    type MiningSpeedBoostRatesTokenMiningTokenDOT = u32;
-    type MiningSpeedBoostRatesTokenMiningTokenIOTA = u32;
+    type MiningRatesTokenMaxToken = u32;
+    type MiningRatesTokenTokenDOT = u32;
+    type MiningRatesTokenTokenIOTA = u32;
     // Mining Speed Boost Rate
-    type MiningSpeedBoostRatesTokenMiningTokenMXC = u32;
+    type MiningRatesTokenTokenMXC = u32;
 }
 
-impl mining_speed_boosts_rates_hardware_mining::Config for Runtime {
+impl mining_rates_hardware::Config for Runtime {
     type Event = Event;
-    type MiningSpeedBoostRatesHardwareMiningHardwareInsecure = u32;
-    // Mining Speed Boost Rate
-    type MiningSpeedBoostRatesHardwareMiningHardwareSecure = u32;
-    type MiningSpeedBoostRatesHardwareMiningIndex = u64;
+    type MiningRatesHardwareCategory1MaxTokenBonusPerGateway = u32;
+    type MiningRatesHardwareCategory2MaxTokenBonusPerGateway = u32;
+    type MiningRatesHardwareCategory3MaxTokenBonusPerGateway = u32;
+    type MiningRatesHardwareIndex = u64;
+    type MiningRatesHardwareInsecure = u32;
     // Mining Speed Boost Max Rates
-    type MiningSpeedBoostRatesHardwareMiningMaxHardware = u32;
+    type MiningRatesHardwareMaxHardware = u32;
+    // Mining Speed Boost Rate
+    type MiningRatesHardwareSecure = u32;
 }
 
-impl mining_speed_boosts_sampling_token_mining::Config for Runtime {
+impl mining_sampling_token::Config for Runtime {
     type Event = Event;
-    type MiningSpeedBoostSamplingTokenMiningIndex = u64;
-    type MiningSpeedBoostSamplingTokenMiningSampleDate = u64;
-    type MiningSpeedBoostSamplingTokenMiningSampleTokensLocked = u64;
+    type MiningSamplingTokenIndex = u64;
+    type MiningSamplingTokenSampleLockedAmount = u64;
 }
 
-impl mining_speed_boosts_sampling_hardware_mining::Config for Runtime {
+impl mining_sampling_hardware::Config for Runtime {
     type Event = Event;
-    type MiningSpeedBoostSamplingHardwareMiningIndex = u64;
-    type MiningSpeedBoostSamplingHardwareMiningSampleDate = u64;
-    type MiningSpeedBoostSamplingHardwareMiningSampleHardwareOnline = u64;
+    type MiningSamplingHardwareIndex = u64;
+    type MiningSamplingHardwareSampleHardwareOnline = u64;
 }
 
-impl mining_speed_boosts_eligibility_token_mining::Config for Runtime {
+impl mining_eligibility_token::Config for Runtime {
     type Event = Event;
-    type MiningSpeedBoostEligibilityTokenMiningCalculatedEligibility = u64;
-    type MiningSpeedBoostEligibilityTokenMiningIndex = u64;
-    type MiningSpeedBoostEligibilityTokenMiningTokenLockedPercentage = u32;
-    // type MiningSpeedBoostEligibilityTokenMiningDateAudited = u64;
-    // type MiningSpeedBoostEligibilityTokenMiningAuditorAccountID = u64;
+    type MiningEligibilityTokenCalculatedEligibility = u64;
+    type MiningEligibilityTokenIndex = u64;
+    type MiningEligibilityTokenLockedPercentage = u32;
+    // type MiningEligibilityTokenAuditorAccountID = u64;
 }
 
-impl mining_speed_boosts_eligibility_hardware_mining::Config for Runtime {
+impl mining_eligibility_hardware::Config for Runtime {
     type Event = Event;
-    type MiningSpeedBoostEligibilityHardwareMiningCalculatedEligibility = u64;
-    type MiningSpeedBoostEligibilityHardwareMiningHardwareUptimePercentage = u32;
-    type MiningSpeedBoostEligibilityHardwareMiningIndex = u64;
-    // type MiningSpeedBoostEligibilityHardwareMiningDateAudited = u64;
-    // type MiningSpeedBoostEligibilityHardwareMiningAuditorAccountID = u64;
+    type MiningEligibilityHardwareCalculatedEligibility = u64;
+    type MiningEligibilityHardwareIndex = u64;
+    type MiningEligibilityHardwareUptimePercentage = u32;
+    // type MiningEligibilityHardwareAuditorAccountID = u64;
 }
 
-impl mining_speed_boosts_lodgements_token_mining::Config for Runtime {
+impl mining_eligibility_proxy::Config for Runtime {
     type Event = Event;
-    type MiningSpeedBoostLodgementsTokenMiningIndex = u64;
-    type MiningSpeedBoostLodgementsTokenMiningLodgementAmount = u64;
-    type MiningSpeedBoostLodgementsTokenMiningLodgementDateRedeemed = u64;
+    type Currency = Balances;
+    type Randomness = RandomnessCollectiveFlip;
+    // Check membership
+    type MembershipSource = MembershipSupernodes;
+    type MiningEligibilityProxyIndex = u64;
+    type RewardsOfDay = u64;
 }
 
-impl mining_speed_boosts_lodgements_hardware_mining::Config for Runtime {
+impl mining_claims_token::Config for Runtime {
     type Event = Event;
-    type MiningSpeedBoostLodgementsHardwareMiningIndex = u64;
-    type MiningSpeedBoostLodgementsHardwareMiningLodgementAmount = u64;
-    type MiningSpeedBoostLodgementsHardwareMiningLodgementDateRedeemed = u64;
+    type MiningClaimsTokenClaimAmount = u64;
+    type MiningClaimsTokenIndex = u64;
+}
+
+impl mining_claims_hardware::Config for Runtime {
+    type Event = Event;
+    type MiningClaimsHardwareClaimAmount = u64;
+    type MiningClaimsHardwareIndex = u64;
+}
+
+impl mining_execution_token::Config for Runtime {
+    type Event = Event;
+    type MiningExecutionTokenIndex = u64;
+}
+
+impl exchange_rate::Config for Runtime {
+    type DOTRate = u64;
+    type DecimalsAfterPoint = u32;
+    type Event = Event;
+    type ExchangeRateIndex = u64;
+    type FILRate = u64;
+    type HBTCRate = u64;
+    type IOTARate = u64;
+}
+
+impl membership_supernodes::Config for Runtime {
+    type Event = Event;
 }
 
 parameter_types! {
     pub const RococoLocation: MultiLocation = MultiLocation::X1(Junction::Parent);
     pub const RococoNetwork: NetworkId = NetworkId::Polkadot;
-    pub RelayChainOrigin: Origin = cumulus_pallet_xcm_handler::Origin::Relay.into();
+    pub RelayChainOrigin: Origin = cumulus_pallet_xcm::Origin::Relay.into();
     pub Ancestry: MultiLocation = Junction::Parachain {
         id: ParachainInfo::parachain_id().into()
     }.into();
 }
 
-type LocationConverter = (
-    ParentIsDefault<AccountId>,
-    SiblingParachainConvertsVia<Sibling, AccountId>,
-    AccountId32Aliases<RococoNetwork, AccountId>,
+/// Type for specifying how a `MultiLocation` can be converted into an `AccountId`. This is used
+/// when determining ownership of accounts for asset transacting and when attempting to use XCM
+/// `Transact` in order to determine the dispatch Origin.
+pub type LocationToAccountId = (
+	// The parent (Relay-chain) origin converts to the default `AccountId`.
+	ParentIsDefault<AccountId>,
+	// Sibling parachain origins convert to AccountId via the `ParaId::into`.
+	SiblingParachainConvertsVia<Sibling, AccountId>,
+	// Straight up local `AccountId32` origins just alias directly to `AccountId`.
+	AccountId32Aliases<RococoNetwork, AccountId>,
 );
+
 
 type LocalAssetTransactor = CurrencyAdapter<
     // Use this currency:
@@ -726,43 +746,107 @@ type LocalAssetTransactor = CurrencyAdapter<
     // Use this currency when it is a fungible asset matching the given location or name:
     IsConcrete<RococoLocation>,
     // Do a simple punn to convert an AccountId32 MultiLocation into a native chain account ID:
-    LocationConverter,
+    LocationToAccountId,
     // Our chain's account ID type (we can't get away without mentioning it explicitly):
     AccountId,
 >;
 
-type LocalOriginConverter = (
-    SovereignSignedViaLocation<LocationConverter, Origin>,
-    RelayChainAsNative<RelayChainOrigin, Origin>,
-    SiblingParachainAsNative<cumulus_pallet_xcm_handler::Origin, Origin>,
-    SignedAccountId32AsNative<RococoNetwork, Origin>,
+/// This is the type we use to convert an (incoming) XCM origin into a local `Origin` instance,
+/// ready for dispatching a transaction with Xcm's `Transact`. There is an `OriginKind` which can
+/// biases the kind of local `Origin` it will become.
+pub type XcmOriginToTransactDispatchOrigin = (
+	// Sovereign account converter; this attempts to derive an `AccountId` from the origin location
+	// using `LocationToAccountId` and then turn that into the usual `Signed` origin. Useful for
+	// foreign chains who want to have a local sovereign account on this chain which they control.
+	SovereignSignedViaLocation<LocationToAccountId, Origin>,
+	// Native converter for Relay-chain (Parent) location; will converts to a `Relay` origin when
+	// recognised.
+	RelayChainAsNative<RelayChainOrigin, Origin>,
+	// Native converter for sibling Parachains; will convert to a `SiblingPara` origin when
+	// recognised.
+	SiblingParachainAsNative<cumulus_pallet_xcm::Origin, Origin>,
+	// Superuser converter for the Relay-chain (Parent) location. This will allow it to issue a
+	// transaction from the Root origin.
+	ParentAsSuperuser<Origin>,
+	// Native signed account converter; this just converts an `AccountId32` origin into a normal
+	// `Origin::Signed` origin of the same 32-byte value.
+	SignedAccountId32AsNative<RococoNetwork, Origin>,
+);
+
+parameter_types! {
+	pub UnitWeightCost: Weight = 1_000;
+}
+
+parameter_types! {
+	// 1_000_000_000_000 => 1 unit of asset for 1 unit of Weight.
+	// TODO: Should take the actual weight price. This is just 1_000 ROC per second of weight.
+	pub const WeightPrice: (MultiLocation, u128) = (MultiLocation::X1(Junction::Parent), 1_000);
+	pub AllowUnpaidFrom: Vec<MultiLocation> = vec![ MultiLocation::X1(Junction::Parent) ];
+}
+
+pub type Barrier = (
+	TakeWeightCredit,
+	AllowTopLevelPaidExecutionFrom<All<MultiLocation>>,
+	AllowUnpaidExecutionFrom<IsInVec<AllowUnpaidFrom>>,	// <- Parent gets free execution
 );
 
 pub struct XcmConfig;
 impl Config for XcmConfig {
-    // How to withdraw and deposit an asset.
-    type AssetTransactor = LocalAssetTransactor;
-    type Call = Call;
-    type IsReserve = NativeAsset;
-    type IsTeleporter = ();
-    type LocationInverter = LocationInverter<Ancestry>;
-    type OriginConverter = LocalOriginConverter;
-    type XcmSender = XcmHandler;
+	type Call = Call;
+	type XcmSender = XcmRouter;
+	// How to withdraw and deposit an asset.
+	type AssetTransactor = LocalAssetTransactor;
+	type OriginConverter = XcmOriginToTransactDispatchOrigin;
+	type IsReserve = NativeAsset;
+	type IsTeleporter = NativeAsset;	// <- should be enough to allow teleportation of ROC
+	type LocationInverter = LocationInverter<Ancestry>;
+	type Barrier = Barrier;
+	type Weigher = FixedWeightBounds<UnitWeightCost, Call>;
+	type Trader = FixedRateOfConcreteFungible<WeightPrice>;
+	type ResponseHandler = ();	// Don't handle responses for now.
 }
 
-impl cumulus_pallet_xcm_handler::Config for Runtime {
-    type Event = Event;
-    type HrmpMessageSender = ParachainSystem;
-    type UpwardMessageSender = ParachainSystem;
-    type XcmExecutor = XcmExecutor<XcmConfig>;
+impl cumulus_pallet_xcm::Config for Runtime {}
+
+impl cumulus_pallet_xcmp_queue::Config for Runtime {
+	type Event = Event;
+	type XcmExecutor = XcmExecutor<XcmConfig>;
+	type ChannelInfo = ParachainSystem;
+}
+
+parameter_types! {
+	pub const MaxDownwardMessageWeight: Weight = MAXIMUM_BLOCK_WEIGHT / 10;
+}
+
+/// No local origins on this chain are allowed to dispatch XCM sends/executions.
+pub type LocalOriginToLocation = ();
+
+/// The means for routing XCM messages which are not for local execution into the right message
+/// queues.
+pub type XcmRouter = (
+	// Two routers - use UMP to communicate with the relay chain:
+	cumulus_primitives_utility::ParentAsUmp<ParachainSystem>,
+	// ..and XCMP to communicate with the sibling chains.
+	XcmpQueue,
+);
+
+parameter_types! {
+	pub const ReservedXcmpWeight: Weight = MAXIMUM_BLOCK_WEIGHT / 4;
 }
 
 impl cumulus_pallet_parachain_system::Config for Runtime {
-    type DownwardMessageHandlers = ();
-    type Event = Event;
-    type HrmpMessageHandlers = ();
-    type OnValidationData = ();
-    type SelfParaId = parachain_info::Module<Runtime>;
+	type Event = Event;
+	type OnValidationData = ();
+	type SelfParaId = parachain_info::Module<Runtime>;
+	type DownwardMessageHandlers = cumulus_primitives_utility::UnqueuedDmpAsParent<
+		MaxDownwardMessageWeight,
+		XcmExecutor<XcmConfig>,
+		Call,
+	>;
+	type OutboundXcmpMessageSource = XcmpQueue;
+	type XcmpMessageHandler = XcmpQueue;
+	type ReservedXcmpWeight = ReservedXcmpWeight;
+
 }
 
 impl parachain_info::Config for Runtime {}
@@ -774,46 +858,51 @@ construct_runtime!(
         NodeBlock = opaque::Block,
         UncheckedExtrinsic = UncheckedExtrinsic
     {
-        System: frame_system::{Module, Call, Config, Storage, Event<T>},
-        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
-        Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
-        //Indices: pallet_indices::{Module, Call, Storage, Event<T>, Config<T>},
-        Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
-        TransactionPayment: pallet_transaction_payment::{Module, Storage},
-        Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
-        GeneralCouncil: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
-        GeneralCouncilMembership: pallet_membership::<Instance1>::{Module, Call, Storage, Event<T>, Config<T>},
-        PalletTreasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
-        //Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>},
-        DataHighwayRoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingNetworks: roaming_networks::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingOrganizations: roaming_organizations::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingNetworkServers: roaming_network_servers::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingDevices: roaming_devices::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingRoutingProfiles: roaming_routing_profiles::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingServiceProfiles: roaming_service_profiles::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingAccountingPolicies: roaming_accounting_policies::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingAgreementPolicies: roaming_agreement_policies::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingNetworkProfiles: roaming_network_profiles::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingDeviceProfiles: roaming_device_profiles::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingSessions: roaming_sessions::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingBillingPolicies: roaming_billing_policies::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingChargingPolicies: roaming_charging_policies::{Module, Call, Storage, Event<T>},
-        DataHighwayRoamingPacketBundles: roaming_packet_bundles::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostConfigurationTokenMining: mining_speed_boosts_configuration_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostConfigurationHardwareMining: mining_speed_boosts_configuration_hardware_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostRatesTokenMining: mining_speed_boosts_rates_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostRatesHardwareMining: mining_speed_boosts_rates_hardware_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostSamplingTokenMining: mining_speed_boosts_sampling_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostSamplingHardwareMining: mining_speed_boosts_sampling_hardware_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostEligibilityTokenMining: mining_speed_boosts_eligibility_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostEligibilityHardwareMining: mining_speed_boosts_eligibility_hardware_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostLodgementsTokenMining: mining_speed_boosts_lodgements_token_mining::{Module, Call, Storage, Event<T>},
-        DataHighwayMiningSpeedBoostLodgementsHardwareMining: mining_speed_boosts_lodgements_hardware_mining::{Module, Call, Storage, Event<T>},
+        System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Call, Storage},
+        Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent},
+        //Indices: pallet_indices::{Pallet, Call, Storage, Event<T>, Config<T>},
+        Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
+        TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
+        Sudo: pallet_sudo::{Pallet, Call, Config<T>, Storage, Event<T>},
+        GeneralCouncil: pallet_collective::<Instance1>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>},
+        GeneralCouncilMembership: pallet_membership::<Instance1>::{Pallet, Call, Storage, Event<T>, Config<T>},
+        PalletTreasury: pallet_treasury::{Pallet, Call, Storage, Config, Event<T>},
+        //Staking: pallet_staking::{Pallet, Call, Config<T>, Storage, Event<T>},
+        MembershipSupernodes: membership_supernodes::{Pallet, Call, Storage, Event<T>},
+        RoamingOperators: roaming_operators::{Pallet, Call, Storage, Event<T>},
+        RoamingNetworks: roaming_networks::{Pallet, Call, Storage, Event<T>},
+        RoamingOrganizations: roaming_organizations::{Pallet, Call, Storage, Event<T>},
+        RoamingNetworkServers: roaming_network_servers::{Pallet, Call, Storage, Event<T>},
+        RoamingDevices: roaming_devices::{Pallet, Call, Storage, Event<T>},
+        RoamingRoutingProfiles: roaming_routing_profiles::{Pallet, Call, Storage, Event<T>},
+        RoamingServiceProfiles: roaming_service_profiles::{Pallet, Call, Storage, Event<T>},
+        RoamingAccountingPolicies: roaming_accounting_policies::{Pallet, Call, Storage, Event<T>},
+        RoamingAgreementPolicies: roaming_agreement_policies::{Pallet, Call, Storage, Event<T>},
+        RoamingNetworkProfiles: roaming_network_profiles::{Pallet, Call, Storage, Event<T>},
+        RoamingDeviceProfiles: roaming_device_profiles::{Pallet, Call, Storage, Event<T>},
+        RoamingSessions: roaming_sessions::{Pallet, Call, Storage, Event<T>},
+        RoamingBillingPolicies: roaming_billing_policies::{Pallet, Call, Storage, Event<T>},
+        RoamingChargingPolicies: roaming_charging_policies::{Pallet, Call, Storage, Event<T>},
+        RoamingPacketBundles: roaming_packet_bundles::{Pallet, Call, Storage, Event<T>},
+        MiningSettingToken: mining_setting_token::{Pallet, Call, Storage, Event<T>},
+        MiningSettingHardware: mining_setting_hardware::{Pallet, Call, Storage, Event<T>},
+        MiningRatesToken: mining_rates_token::{Pallet, Call, Storage, Event<T>},
+        MiningRatesHardware: mining_rates_hardware::{Pallet, Call, Storage, Event<T>},
+        MiningSamplingToken: mining_sampling_token::{Pallet, Call, Storage, Event<T>},
+        MiningSamplingHardware: mining_sampling_hardware::{Pallet, Call, Storage, Event<T>},
+        MiningEligibilityToken: mining_eligibility_token::{Pallet, Call, Storage, Event<T>},
+        MiningEligibilityHardware: mining_eligibility_hardware::{Pallet, Call, Storage, Event<T>},
+        MiningEligibilityProxy: mining_eligibility_proxy::{Pallet, Call, Storage, Event<T>},
+        MiningClaimsToken: mining_claims_token::{Pallet, Call, Storage, Event<T>},
+        MiningClaimsHardware: mining_claims_hardware::{Pallet, Call, Storage, Event<T>},
+        MiningExecutionToken: mining_execution_token::{Pallet, Call, Storage, Event<T>},
+        ExchangeRate: exchange_rate::{Pallet, Call, Storage, Event<T>},
         // PARACHAIN
-        ParachainSystem: cumulus_pallet_parachain_system::{Module, Call, Storage, Inherent, Event},
-        ParachainInfo: parachain_info::{Module, Storage, Config},
-        XcmHandler: cumulus_pallet_xcm_handler::{Module, Event<T>, Origin},
+        ParachainSystem: cumulus_pallet_parachain_system::{Pallet, Call, Storage, Inherent, Event<T>},
+        ParachainInfo: parachain_info::{Pallet, Storage, Config},
+        XcmHandler: cumulus_pallet_xcm::{Pallet, Origin},
+        XcmpQueue: cumulus_pallet_xcmp_queue::{Pallet, Call, Storage, Event<T>},
     }
 );
 
@@ -887,7 +976,7 @@ impl_runtime_apis! {
         }
 
         fn random_seed() -> <Block as BlockT>::Hash {
-            RandomnessCollectiveFlip::random_seed()
+            RandomnessCollectiveFlip::random_seed().0
         }
     }
 
@@ -940,4 +1029,4 @@ impl_runtime_apis! {
     }
 }
 
-cumulus_pallet_parachain_system::register_validate_block!(Block, Executive);
+cumulus_pallet_parachain_system::register_validate_block!(Runtime, Executive);

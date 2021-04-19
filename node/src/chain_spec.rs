@@ -285,11 +285,11 @@ const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_
 
 fn mk_genesis(endowed_accounts: Vec<AccountId>, root_key: AccountId, parachain_id: ParaId) -> GenesisConfig {
     GenesisConfig {
-        frame_system: Some(datahighway_runtime::SystemConfig {
+        frame_system: datahighway_runtime::SystemConfig {
             code: datahighway_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
             changes_trie_config: Default::default(),
-        }),
-        pallet_balances: Some(BalancesConfig {
+        },
+        pallet_balances: BalancesConfig {
             balances: endowed_accounts
                 .iter()
                 .cloned()
@@ -297,19 +297,19 @@ fn mk_genesis(endowed_accounts: Vec<AccountId>, root_key: AccountId, parachain_i
                 .into_iter()
                 .map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE))
                 .collect(),
-        }),
-        pallet_collective_Instance1: Some(Default::default()),
-        pallet_membership_Instance1: Some(GeneralCouncilMembershipConfig {
+        },
+        pallet_collective_Instance1: Default::default(),
+        pallet_membership_Instance1: GeneralCouncilMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
-        }),
-        pallet_treasury: Some(Default::default()),
-        pallet_sudo: Some(SudoConfig {
+        },
+        pallet_treasury: Default::default(),
+        pallet_sudo: SudoConfig {
             key: root_key.clone(),
-        }),
-        parachain_info: Some(datahighway_runtime::ParachainInfoConfig {
+        },
+        parachain_info: datahighway_runtime::ParachainInfoConfig {
             parachain_id,
-        }),
+        },
     }
 }
 
@@ -320,14 +320,14 @@ fn testnet_genesis(
     id: ParaId,
 ) -> GenesisConfig {
     GenesisConfig {
-        frame_system: Some(datahighway_runtime::SystemConfig {
+        frame_system: datahighway_runtime::SystemConfig {
             code: datahighway_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
             changes_trie_config: Default::default(),
-        }),
-        // pallet_indices: Some(IndicesConfig {
+        },
+        // pallet_indices: IndicesConfig {
         //     indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
-        // }),
-        pallet_balances: Some(BalancesConfig {
+        // },
+        pallet_balances: BalancesConfig {
             balances: endowed_accounts
                 .iter()
                 .cloned()
@@ -335,14 +335,14 @@ fn testnet_genesis(
                 .into_iter()
                 .map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE))
                 .collect(),
-        }),
-        // pallet_session: Some(SessionConfig {
+        },
+        // pallet_session: SessionConfig {
         //     keys: initial_authorities
         //         .iter()
         //         .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone())))
         //         .collect::<Vec<_>>(),
-        // }),
-        // pallet_staking: Some(StakingConfig {
+        // },
+        // pallet_staking: StakingConfig {
         //     validator_count: initial_authorities.len() as u32 * 2,
         //     minimum_validator_count: initial_authorities.len() as u32,
         //     stakers: initial_authorities
@@ -352,25 +352,25 @@ fn testnet_genesis(
         //     invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
         //     slash_reward_fraction: Perbill::from_percent(10),
         //     ..Default::default()
-        // }),
-        pallet_sudo: Some(SudoConfig {
+        // },
+        pallet_sudo: SudoConfig {
             key: root_key.clone(),
-        }),
-        // pallet_babe: Some(BabeConfig {
+        },
+        // pallet_babe: BabeConfig {
         //     authorities: vec![],
-        // }),
-        // pallet_grandpa: Some(GrandpaConfig {
+        // },
+        // pallet_grandpa: GrandpaConfig {
         //     authorities: vec![],
-        // }),
-        pallet_collective_Instance1: Some(Default::default()),
-        pallet_membership_Instance1: Some(GeneralCouncilMembershipConfig {
+        // },
+        pallet_collective_Instance1: Default::default(),
+        pallet_membership_Instance1: GeneralCouncilMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
-        }),
-        pallet_treasury: Some(Default::default()),
-        parachain_info: Some(datahighway_runtime::ParachainInfoConfig {
+        },
+        pallet_treasury: Default::default(),
+        parachain_info: datahighway_runtime::ParachainInfoConfig {
             parachain_id: id,
-        }),
+        },
     }
 }
 
@@ -381,14 +381,14 @@ fn dev_genesis(
     id: ParaId,
 ) -> datahighway_runtime::GenesisConfig {
     datahighway_runtime::GenesisConfig {
-        frame_system: Some(datahighway_runtime::SystemConfig {
+        frame_system: datahighway_runtime::SystemConfig {
             code: datahighway_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
             changes_trie_config: Default::default(),
-        }),
-        // pallet_indices: Some(IndicesConfig {
+        },
+        // pallet_indices: IndicesConfig {
         //     indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
-        // }),
-        pallet_balances: Some(datahighway_runtime::BalancesConfig {
+        // },
+        pallet_balances: datahighway_runtime::BalancesConfig {
             balances: endowed_accounts.iter().cloned().map(|x|
                 // Insert Public key (hex) of the account without the 0x prefix below
                 if x == UncheckedFrom::unchecked_from(hex!("a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21").into()) {
@@ -398,14 +398,14 @@ fn dev_genesis(
                 }
             )
             .collect(),
-        }),
-        // pallet_session: Some(SessionConfig {
+        },
+        // pallet_session: SessionConfig {
         //     keys: initial_authorities
         //         .iter()
         //         .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone())))
         //         .collect::<Vec<_>>(),
-        // }),
-        // pallet_staking: Some(StakingConfig {
+        // },
+        // pallet_staking: StakingConfig {
         //     validator_count: initial_authorities.len() as u32 * 2,
         //     minimum_validator_count: initial_authorities.len() as u32,
         //     stakers: initial_authorities
@@ -415,24 +415,24 @@ fn dev_genesis(
         //     invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
         //     slash_reward_fraction: Perbill::from_percent(10),
         //     ..Default::default()
-        // }),
-        pallet_sudo: Some(datahighway_runtime::SudoConfig {
+        // },
+        pallet_sudo: datahighway_runtime::SudoConfig {
             key: root_key.clone(),
-        }),
-        // pallet_babe: Some(BabeConfig {
+        },
+        // pallet_babe: BabeConfig {
         //     authorities: vec![],
-        // }),
-        // pallet_grandpa: Some(GrandpaConfig {
+        // },
+        // pallet_grandpa: GrandpaConfig {
         //     authorities: vec![],
-        // }),
-        pallet_collective_Instance1: Some(Default::default()),
-        pallet_membership_Instance1: Some(GeneralCouncilMembershipConfig {
+        // },
+        pallet_collective_Instance1: Default::default(),
+        pallet_membership_Instance1: GeneralCouncilMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
-        }),
-        pallet_treasury: Some(Default::default()),
-        parachain_info: Some(datahighway_runtime::ParachainInfoConfig {
+        },
+        pallet_treasury: Default::default(),
+        parachain_info: datahighway_runtime::ParachainInfoConfig {
             parachain_id: id,
-        }),
+        },
     }
 }

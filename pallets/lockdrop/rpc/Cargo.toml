@@ -1,0 +1,68 @@
+[package]
+name = "lockdrop-rpc"
+version = "0.1.0"
+authors = ["Ilya Beregovskiy"]
+edition = "2018"
+
+[dependencies]
+web3 = "0.13.0"
+codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
+safe-mix = { version = '1.0.0', default-features = false }
+log = { version = '0.4.8' }
+serde = { version = '1.0.101', optional = true, features = ['derive'] }
+
+[dependencies.pallet-balances]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.pallet-randomness-collective-flip]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.pallet-transaction-payment]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.frame-support]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.frame-system]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.sp-core]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.sp-io]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.sp-runtime]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.sp-std]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dev-dependencies]

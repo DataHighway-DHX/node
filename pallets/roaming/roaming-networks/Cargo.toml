@@ -26,17 +26,13 @@ std = [
     'roaming-operators/std'
 ]
 
-[dependencies.codec]
-default-features = false
-features = ['derive']
-package = 'parity-scale-codec'
-version = '2.0.0'
-
 [dependencies]
+codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
 safe-mix = { version = '1.0.0', default-features = false }
-roaming-operators = { default_features = false, package = 'roaming-operators', path = '../roaming-operators' }
 log = { version = '0.4.8' }
-serde = { version = '1.0', optional = true }
+serde = { version = '1.0.101', optional = true, features = ['derive'] }
+roaming-operators = { default-features = false, package = 'roaming-operators', path = '../roaming-operators' }
+
 
 [dependencies.pallet-balances]
 default-features = false

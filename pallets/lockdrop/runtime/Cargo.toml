@@ -1,0 +1,18 @@
+[package]
+name = "lockdrop"
+version = "0.1.0"
+authors = ["Ilya Beregovskiy"]
+edition = "2018"
+
+[dependencies]
+[dependencies.sp-std]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[features]
+default = ['std']
+std = [
+    'sp-std/std',
+]

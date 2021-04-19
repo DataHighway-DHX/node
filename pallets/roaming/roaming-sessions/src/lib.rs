@@ -4,15 +4,16 @@ use codec::{
     Decode,
     Encode,
 };
-use frame_support::traits::Randomness;
-/// A runtime module for managing non-fungible tokens
 use frame_support::{
-    debug,
+    log,
     decl_event,
     decl_module,
     decl_storage,
     ensure,
-    traits::Get,
+    traits::{
+        Get,
+        Randomness,
+    },
     Parameter,
 };
 use frame_system::ensure_signed;
@@ -42,9 +43,6 @@ pub trait Config:
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type RoamingSessionIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
-    type RoamingSessionJoinRequestRequestedAt: Parameter + Member + Default;
-    type RoamingSessionJoinRequestAcceptExpiry: Parameter + Member + Default;
-    type RoamingSessionJoinRequestAcceptAcceptedAt: Parameter + Member + Default;
 }
 
 #[derive(Encode, Decode, Clone, PartialEq, Eq)]
@@ -56,7 +54,7 @@ pub struct RoamingSession(pub [u8; 16]);
 // Generic type parameters - Balance
 pub struct RoamingSessionJoinRequest<U, V> {
     session_network_server_id: U,
-    session_join_request_requested_at: V,
+    session_join_requested_at_block: V,
 }
 
 #[cfg_attr(feature = "std", derive(Debug))]
@@ -64,27 +62,25 @@ pub struct RoamingSessionJoinRequest<U, V> {
 // Generic type parameters - Balance
 pub struct RoamingSessionJoinAccept<U, V> {
     session_join_request_accept_expiry: U,
-    session_join_request_accept_accepted_at: V,
+    session_join_request_accept_accepted_at_block: V,
 }
 
 decl_event!(
     pub enum Event<T> where
         <T as frame_system::Config>::AccountId,
         <T as Config>::RoamingSessionIndex,
-        <T as Config>::RoamingSessionJoinRequestRequestedAt,
-        <T as Config>::RoamingSessionJoinRequestAcceptExpiry,
-        <T as Config>::RoamingSessionJoinRequestAcceptAcceptedAt,
         <T as roaming_devices::Config>::RoamingDeviceIndex,
         <T as roaming_network_servers::Config>::RoamingNetworkServerIndex,
+        <T as frame_system::Config>::BlockNumber,
     {
         /// A roaming session is created. (owner, roaming_session_id)
         Created(AccountId, RoamingSessionIndex),
         /// A roaming session is transferred. (from, to, roaming_session_id)
         Transferred(AccountId, AccountId, RoamingSessionIndex),
         /// A roaming session join request requested
-        RoamingSessionJoinRequestRequested(AccountId, RoamingSessionIndex, RoamingNetworkServerIndex, RoamingSessionJoinRequestRequestedAt),
+        RoamingSessionJoinRequestRequested(AccountId, RoamingSessionIndex, RoamingNetworkServerIndex, BlockNumber),
         /// A roaming session join request accepted
-        RoamingSessionJoinRequestAccepted(AccountId, RoamingSessionIndex, RoamingSessionJoinRequestAcceptExpiry, RoamingSessionJoinRequestAcceptAcceptedAt),
+        RoamingSessionJoinRequestAccepted(AccountId, RoamingSessionIndex, BlockNumber, BlockNumber),
         /// A roaming session is assigned to a device. (owner of device, roaming_session_id, roaming_device_id)
         AssignedSessionToDevice(AccountId, RoamingSessionIndex, RoamingDeviceIndex),
     }
@@ -103,10 +99,10 @@ decl_storage! {
         pub RoamingSessionOwners get(fn roaming_session_owner): map hasher(opaque_blake2_256) T::RoamingSessionIndex => Option<T::AccountId>;
 
         /// Get roaming session join requests
-        pub RoamingSessionJoinRequests get(fn roaming_session_join_requests): map hasher(opaque_blake2_256) T::RoamingSessionIndex => Option<RoamingSessionJoinRequest<T::RoamingNetworkServerIndex, T::RoamingSessionJoinRequestRequestedAt>>;
+        pub RoamingSessionJoinRequests get(fn roaming_session_join_requests): map hasher(opaque_blake2_256) T::RoamingSessionIndex => Option<RoamingSessionJoinRequest<T::RoamingNetworkServerIndex, T::BlockNumber>>;
 
         /// Get roaming session join accepts
-        pub RoamingSessionJoinAccepts get(fn roaming_session_join_accepts): map hasher(opaque_blake2_256) T::RoamingSessionIndex => Option<RoamingSessionJoinAccept<T::RoamingSessionJoinRequestAcceptExpiry, T::RoamingSessionJoinRequestAcceptAcceptedAt>>;
+        pub RoamingSessionJoinAccepts get(fn roaming_session_join_accepts): map hasher(opaque_blake2_256) T::RoamingSessionIndex => Option<RoamingSessionJoinAccept<T::BlockNumber, T::BlockNumber>>;
 
         /// Get roaming session device
         pub RoamingSessionDevices get(fn roaming_session_device): map hasher(opaque_blake2_256) T::RoamingSessionIndex => Option<T::RoamingDeviceIndex>;
@@ -157,7 +153,7 @@ decl_module! {
             roaming_session_id: T::RoamingSessionIndex,
             _session_network_server_id: Option<T::RoamingNetworkServerIndex>,
             // FIXME - we shouldn't be passing the requested_at timestamp as an argument, it should be generated from the current time within this function
-            _session_join_request_requested_at: Option<T::RoamingSessionJoinRequestRequestedAt>,
+            _session_join_requested_at_block: Option<T::BlockNumber>,
         ) {
             let sender = ensure_signed(origin)?;
 
@@ -172,12 +168,12 @@ decl_module! {
                 Some(value) => value,
                 None => Default::default() // Default
             };
-            let session_join_request_requested_at = match _session_join_request_requested_at {
+            let session_join_requested_at_block = match _session_join_requested_at_block {
                 Some(value) => value,
                 None => Default::default()
             };
 
-            debug::info!("Checking that only the owner of the given network server id that the device is trying to connect to can set an associated roaming session join request");
+            log::info!("Checking that only the owner of the given network server id that the device is trying to connect to can set an associated roaming session join request");
             // Ensure that the caller is owner of the network server id that the device is trying to connect to for the session join request
             ensure!((<roaming_network_servers::Module<T>>::is_roaming_network_server_owner(
                         session_network_server_id.clone(),
@@ -188,29 +184,29 @@ decl_module! {
             // Check if a roaming session join request already exists with the given roaming session id
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_session_join_request_index(roaming_session_id).is_ok() {
-                debug::info!("Mutating values");
+                log::info!("Mutating values");
                 <RoamingSessionJoinRequests<T>>::mutate(roaming_session_id, |session_join_request| {
                     if let Some(_session_join_request) = session_join_request {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
                         _session_join_request.session_network_server_id = session_network_server_id.clone();
-                        _session_join_request.session_join_request_requested_at = session_join_request_requested_at.clone();
+                        _session_join_request.session_join_requested_at_block = session_join_requested_at_block.clone();
                     }
                 });
-                debug::info!("Checking mutated values");
+                log::info!("Checking mutated values");
                 let fetched_session_join_request = <RoamingSessionJoinRequests<T>>::get(roaming_session_id);
                 if let Some(_session_join_request) = fetched_session_join_request {
-                    debug::info!("Latest field session_network_server_id {:#?}", _session_join_request.session_network_server_id);
-                    debug::info!("Latest field session_join_request_requested_at {:#?}", _session_join_request.session_join_request_requested_at);
+                    log::info!("Latest field session_network_server_id {:#?}", _session_join_request.session_network_server_id);
+                    log::info!("Latest field session_join_requested_at_block {:#?}", _session_join_request.session_join_requested_at_block);
                 }
             } else {
-                debug::info!("Inserting values");
+                log::info!("Inserting values");
 
                 // Create a new roaming session join request instance with the input params
                 let roaming_session_join_request_instance = RoamingSessionJoinRequest {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     session_network_server_id: session_network_server_id.clone(),
-                    session_join_request_requested_at: session_join_request_requested_at.clone()
+                    session_join_requested_at_block: session_join_requested_at_block.clone()
                 };
 
                 <RoamingSessionJoinRequests<T>>::insert(
@@ -218,11 +214,11 @@ decl_module! {
                     &roaming_session_join_request_instance
                 );
 
-                debug::info!("Checking inserted values");
+                log::info!("Checking inserted values");
                 let fetched_session_join_request = <RoamingSessionJoinRequests<T>>::get(roaming_session_id);
                 if let Some(_session_join_request) = fetched_session_join_request {
-                    debug::info!("Inserted field session_network_server_id {:#?}", _session_join_request.session_network_server_id);
-                    debug::info!("Inserted field session_join_request_requested_at {:#?}", _session_join_request.session_join_request_requested_at);
+                    log::info!("Inserted field session_network_server_id {:#?}", _session_join_request.session_network_server_id);
+                    log::info!("Inserted field session_join_requested_at_block {:#?}", _session_join_request.session_join_requested_at_block);
                 }
             }
 
@@ -230,7 +226,7 @@ decl_module! {
                 sender,
                 roaming_session_id,
                 session_network_server_id,
-                session_join_request_requested_at
+                session_join_requested_at_block
             ));
         }
 
@@ -240,9 +236,9 @@ decl_module! {
             origin,
             roaming_session_id: T::RoamingSessionIndex,
             // FIXME - this may stay optional, but if it's not provided we need to set a default value for how long until a join accept expires
-            _session_join_request_accept_expiry: Option<T::RoamingSessionJoinRequestAcceptExpiry>,
+            _session_join_request_accept_expiry: Option<T::BlockNumber>,
             // FIXME - we shouldn't be passing the accepted_at timestamp as an argument, it should be generated from the current time within this function
-            _session_join_request_accept_accepted_at: Option<T::RoamingSessionJoinRequestAcceptAcceptedAt>,
+            _session_join_request_accept_accepted_at_block: Option<T::BlockNumber>,
         ) -> Result<(), DispatchError> {
             let sender = ensure_signed(origin)?;
 
@@ -253,7 +249,7 @@ decl_module! {
             // Ensure that the caller is owner of the session join accept they are trying to change
             ensure!(Self::roaming_session_owner(roaming_session_id) == Some(sender.clone()), "Only owner can set join accept for roaming session");
 
-            debug::info!("Get the network server id associated with the join request of the given session id");
+            log::info!("Get the network server id associated with the join request of the given session id");
             let session_join_request = Self::roaming_session_join_requests(roaming_session_id);
 
             if let Some(_session_join_request) = session_join_request {
@@ -272,7 +268,7 @@ decl_module! {
                 Some(value) => value,
                 None => Default::default() // Default
             };
-            let session_join_request_accept_accepted_at = match _session_join_request_accept_accepted_at {
+            let session_join_request_accept_accepted_at_block = match _session_join_request_accept_accepted_at_block {
                 Some(value) => value,
                 None => Default::default()
             };
@@ -280,29 +276,29 @@ decl_module! {
             // Check if a roaming session join accept already exists with the given roaming session id
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_session_join_accept_index(roaming_session_id).is_ok() {
-                debug::info!("Mutating values");
+                log::info!("Mutating values");
                 <RoamingSessionJoinAccepts<T>>::mutate(roaming_session_id, |session_join_accept| {
                     if let Some(_session_join_accept) = session_join_accept {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
                         _session_join_accept.session_join_request_accept_expiry = session_join_request_accept_expiry.clone();
-                        _session_join_accept.session_join_request_accept_accepted_at = session_join_request_accept_accepted_at.clone();
+                        _session_join_accept.session_join_request_accept_accepted_at_block = session_join_request_accept_accepted_at_block.clone();
                     }
                 });
-                debug::info!("Checking mutated values");
+                log::info!("Checking mutated values");
                 let fetched_session_join_accept = <RoamingSessionJoinAccepts<T>>::get(roaming_session_id);
                 if let Some(_session_join_accept) = fetched_session_join_accept {
-                    debug::info!("Latest field session_join_request_accept_expiry {:#?}", _session_join_accept.session_join_request_accept_expiry);
-                    debug::info!("Latest field session_join_request_accept_accepted_at {:#?}", _session_join_accept.session_join_request_accept_accepted_at);
+                    log::info!("Latest field session_join_request_accept_expiry {:#?}", _session_join_accept.session_join_request_accept_expiry);
+                    log::info!("Latest field session_join_request_accept_accepted_at_block {:#?}", _session_join_accept.session_join_request_accept_accepted_at_block);
                 }
             } else {
-                debug::info!("Inserting values");
+                log::info!("Inserting values");
 
                 // Create a new roaming session join accept instance with the input params
                 let roaming_session_join_accept_instance = RoamingSessionJoinAccept {
                     // Since each parameter passed into the function is optional (i.e. `Option`)
                     // we will assign a default value if a parameter value is not provided.
                     session_join_request_accept_expiry: session_join_request_accept_expiry.clone(),
-                    session_join_request_accept_accepted_at: session_join_request_accept_accepted_at.clone()
+                    session_join_request_accept_accepted_at_block: session_join_request_accept_accepted_at_block.clone()
                 };
 
                 <RoamingSessionJoinAccepts<T>>::insert(
@@ -310,11 +306,11 @@ decl_module! {
                     &roaming_session_join_accept_instance
                 );
 
-                debug::info!("Checking inserted values");
+                log::info!("Checking inserted values");
                 let fetched_session_join_accept = <RoamingSessionJoinAccepts<T>>::get(roaming_session_id);
                 if let Some(_session_join_accept) = fetched_session_join_accept {
-                    debug::info!("Inserted field session_join_request_accept_expiry {:#?}", _session_join_accept.session_join_request_accept_expiry);
-                    debug::info!("Inserted field session_join_request_accept_accepted_at {:#?}", _session_join_accept.session_join_request_accept_accepted_at);
+                    log::info!("Inserted field session_join_request_accept_expiry {:#?}", _session_join_accept.session_join_request_accept_expiry);
+                    log::info!("Inserted field session_join_request_accept_accepted_at_block {:#?}", _session_join_accept.session_join_request_accept_accepted_at_block);
                 }
             }
 
@@ -322,7 +318,7 @@ decl_module! {
                 sender,
                 roaming_session_id,
                 session_join_request_accept_expiry,
-                session_join_request_accept_accepted_at
+                session_join_request_accept_accepted_at_block
             ));
 
             Ok(())
@@ -404,26 +400,26 @@ impl<T: Config> Module<T> {
     pub fn has_value_for_session_join_request_index(
         roaming_session_id: T::RoamingSessionIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if session join request has a value that is defined");
+        log::info!("Checking if session join request has a value that is defined");
         let fetched_session_join_request = <RoamingSessionJoinRequests<T>>::get(roaming_session_id);
         if let Some(_) = fetched_session_join_request {
-            debug::info!("Found value for session join request");
+            log::info!("Found value for session join request");
             return Ok(());
         }
-        debug::info!("No value for session join request");
+        log::info!("No value for session join request");
         Err(DispatchError::Other("No value for session join request"))
     }
 
     pub fn has_value_for_session_join_accept_index(
         roaming_session_id: T::RoamingSessionIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if session join accept has a value that is defined");
+        log::info!("Checking if session join accept has a value that is defined");
         let fetched_session_join_accept = <RoamingSessionJoinAccepts<T>>::get(roaming_session_id);
         if let Some(_) = fetched_session_join_accept {
-            debug::info!("Found value for session join accept");
+            log::info!("Found value for session join accept");
             return Ok(());
         }
-        debug::info!("No value for session join accept");
+        log::info!("No value for session join accept");
         Err(DispatchError::Other("No value for session join accept"))
     }
 
@@ -435,19 +431,19 @@ impl<T: Config> Module<T> {
         // Early exit with error since do not want to append if the given device id already exists as a key,
         // and where its corresponding value is a vector that already contains the given session id
         if let Some(device_sessions) = Self::roaming_device_sessions(roaming_device_id) {
-            debug::info!("Device id key {:?} exists with value {:?}", roaming_device_id, device_sessions);
+            log::info!("Device id key {:?} exists with value {:?}", roaming_device_id, device_sessions);
             let not_device_contains_session = !device_sessions.contains(&roaming_session_id);
             ensure!(not_device_contains_session, "Device already contains the given session id");
-            debug::info!("Device id key exists but its vector value does not contain the given session id");
+            log::info!("Device id key exists but its vector value does not contain the given session id");
             <RoamingDeviceSessions<T>>::mutate(roaming_device_id, |v| {
                 if let Some(value) = v {
                     value.push(roaming_session_id);
                 }
             });
-            debug::info!("Associated session {:?} with device {:?}", roaming_session_id, roaming_device_id);
+            log::info!("Associated session {:?} with device {:?}", roaming_session_id, roaming_device_id);
             Ok(())
         } else {
-            debug::info!(
+            log::info!(
                 "Device id key does not yet exist. Creating the device key {:?} and appending the session id {:?} to \
                  its vector value",
                 roaming_device_id,

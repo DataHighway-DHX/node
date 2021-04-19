@@ -1,0 +1,30 @@
+[package]
+name = "account-set"
+version = "2.0.0"
+edition = "2018"
+authors = ['Substrate DevHub <https://github.com/substrate-developer-hub>']
+repository = 'https://github.com/substrate-developer-hub/recipes'
+description = "A trait that supplies a set of accounts for use in a Substrate runtime"
+license = "GPL-3.0-or-later"
+
+[package.metadata.substrate]
+categories = [
+	"trait",
+	"accounts",
+	"recipe",
+]
+compatibility_version = "2.0.0"
+
+[features]
+default = ['std']
+std = [
+	'sp-std/std',
+]
+
+[dependencies]
+# Substrate packages
+[dependencies.sp-std]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'

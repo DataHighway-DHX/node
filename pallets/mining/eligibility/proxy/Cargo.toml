@@ -1,0 +1,105 @@
+[package]
+name = "mining-eligibility-proxy"
+version = "0.1.0"
+authors = ["Luke Schoen"]
+edition = "2018"
+
+[features]
+default = ['std']
+std = [
+    'chrono/std',
+    'codec/std',
+    'frame-support/std',
+    'frame-system/std',
+    'module-primitives/std',
+    'safe-mix/std',
+    'pallet-balances/std',
+    'pallet-randomness-collective-flip/std',
+    'pallet-timestamp/std',
+    'pallet-transaction-payment/std',
+    'pallet-treasury/std',
+    'sp-core/std',
+    'sp-io/std',
+    'sp-runtime/std',
+    'sp-std/std',
+
+    'account-set/std',
+    'membership-supernodes/std',
+]
+
+[dependencies]
+codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
+safe-mix = { version = '1.0.0', default-features = false }
+chrono = { version = '0.4.19', default_features = false }
+account-set = { path = '../../../../traits/account-set', default-features = false }
+membership-supernodes = { path = '../../../membership/supernodes', default-features = false }
+module-primitives = { version = '3.0.0', default-features = false, path = '../../../primitives' }
+
+[dependencies.frame-support]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+
+[dependencies.frame-system]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.pallet-balances]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.pallet-randomness-collective-flip]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.pallet-timestamp]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.pallet-transaction-payment]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.pallet-treasury]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.sp-std]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.sp-core]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.sp-io]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dependencies.sp-runtime]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "rococo-v1"
+version = '3.0.0'
+
+[dev-dependencies]
