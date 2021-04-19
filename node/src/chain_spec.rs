@@ -644,9 +644,36 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
 			true,
 		),
         vec![
-            // "/ip4/172.31.1.230/tcp/30333/p2p/12D3KooWLRZSpTArSSqckDucDWGGWNgMPBFjKueFe2Gh8ddULYqG"
-            // .parse()
-            // .unwrap(),
+            "/ip4/3.127.123.230/tcp/30333/p2p/12D3KooWPSVWEpuNPKE6EJBAMQQRCrKG4RTfyyabFRjT4xqMkuH5"
+                .parse()
+                .unwrap(),
+            "/ip4/3.65.196.4/tcp/30333/p2p/12D3KooWPZqAuWSez5uomot7GZvpuRQK198zqLYrLLZt5W7bvqPb"
+                .parse()
+                .unwrap(),
+            "/ip4/3.123.21.153/tcp/30333/p2p/12D3KooWAjdURBpSsRVWbvnGRbsqykvueM6Vuoe4x7MhV6cxTtje"
+                .parse()
+                .unwrap(),
+            "/ip4/18.184.76.132/tcp/30333/p2p/12D3KooWCWZc5L6ypCFcvDdGeGwsw9Mo4nniCwiVuU5MB6ApA4ZT"
+                .parse()
+                .unwrap(),
+            "/ip4/3.124.189.68/tcp/30333/p2p/12D3KooWJ1F4BsNgeaVkZVPw2kRhHxAtJuUqeEik2R7dv9ttgPcv"
+                .parse()
+                .unwrap(),
+            "/ip4/104.236.197.177/tcp/30333/p2p/12D3KooWGgVUU6V4MNqhw4Fcbb7u5abEdD2QgLgx3TKmVXovcUft"
+                .parse()
+                .unwrap(),
+            "/ip4/104.236.197.174/tcp/30333/p2p/12D3KooWFGzcJWw7a1q1Sgn8qiLgnQ8UBy3DZqP33ZhrEXabgpm5"
+                .parse()
+                .unwrap(),
+            "/ip4/104.236.197.180/tcp/30333/p2p/12D3KooWFz44eN1nhVEAeq4x7Z4Hdd6GA9dhpc9LSXDmJA4aqfd6"
+                .parse()
+                .unwrap(),
+            "/ip4/104.236.197.172/tcp/30333/p2p/12D3KooWJjuKnSjF3fgrsAPv1b3VZH2nd7qzcVmh9imPNJTbEtSV"
+                .parse()
+                .unwrap(),
+            "/ip4/104.236.197.182/tcp/30333/p2p/12D3KooWST5nKEAFNXnLLQvjnAX88D99yF8Y1XVebSybVgcLDJzz"
+                .parse()
+                .unwrap(),
         ],
         // Telemetry Endpoints
         Some(

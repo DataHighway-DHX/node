@@ -118,7 +118,7 @@ Run Alice's bootnode using the raw chain definition file that was generated
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/alice \
   --keystore-path "/tmp/polkadot-chains/alice/keys" \
-  --chain ./node/src/chain-definition-custom/chain_def_local.json \
+  --chain ./node/src/chain-built/chain_def_local.json \
   --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee \
   --alice \
   --port 30333 \
@@ -149,7 +149,7 @@ Run Bob's Substrate-based node on a different TCP port of 30334, and with his ch
   --base-path /tmp/polkadot-chains/bob \
   --keystore-path "/tmp/polkadot-chains/bob/keys" \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
-  --chain ./node/src/chain-definition-custom/chain_def_local.json \
+  --chain ./node/src/chain-built/chain_def_local.json \
   --bob \
   --port 30334 \
   --ws-port 9945 \
@@ -174,7 +174,7 @@ Run Charlie's Substrate-based node on a different TCP port of 30335, and with hi
   --base-path /tmp/polkadot-chains/charlie \
   --keystore-path "/tmp/polkadot-chains/charlie/keys" \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
-  --chain ./node/src/chain-definition-custom/chain_def_local.json \
+  --chain ./node/src/chain-built/chain_def_local.json \
   --charlie \
   --port 30335 \
   --ws-port 9946 \
@@ -200,7 +200,7 @@ Run Dave's node using different ports.
   --base-path /tmp/polkadot-chains/dave \
   --keystore-path "/tmp/polkadot-chains/dave/keys" \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
-  --chain ./node/src/chain-definition-custom/chain_def_local.json \
+  --chain ./node/src/chain-built/chain_def_local.json \
   --dave \
   --port 30336 \
   --ws-port 9947 \
@@ -223,7 +223,7 @@ Run Eve's node using different ports.
   --base-path /tmp/polkadot-chains/eve \
   --keystore-path "/tmp/polkadot-chains/eve/keys" \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
-  --chain ./node/src/chain-definition-custom/chain_def_local.json \
+  --chain ./node/src/chain-built/chain_def_local.json \
   --eve \
   --port 30337 \
   --ws-port 9948 \
@@ -321,15 +321,15 @@ mkdir -p ./node/src/chain-spec-templates
 * Build "raw" chain definition for the new chain from it
 
 ```bash
-rm ./node/src/chain-definition-custom/chain_def_local.json
-touch ./node/src/chain-definition-custom/chain_def_local.json
-mkdir -p ./node/src/chain-definition-custom
+rm ./node/src/chain-built/chain_def_local.json
+touch ./node/src/chain-built/chain_def_local.json
+mkdir -p ./node/src/chain-built
 ./target/release/datahighway build-spec \
   --chain ./node/src/chain-spec-templates/chain_spec_local.json \
-  --raw > ./node/src/chain-definition-custom/chain_def_local.json
+  --raw > ./node/src/chain-built/chain_def_local.json
 ```
 
-* Repeat the same steps that were done before in Terminals 1 to 5, including first purging your chain, and replacing `--chain ./node/src/chain-definition-custom/chain_def_local.json \` with `--chain local \` in each command.
+* Repeat the same steps that were done before in Terminals 1 to 5, including first purging your chain, and replacing `--chain ./node/src/chain-built/chain_def_local.json \` with `--chain local \` in each command.
 
 #### Run (with Docker containers)
 
@@ -471,10 +471,10 @@ docker-compose -f docker-compose-dev.yml exec alice bash
   --chain=westlake > ./node/src/chain-spec-templates/chain_spec_westlake.json &&
 ./target/release/datahighway build-spec \
   --chain ./node/src/chain-spec-templates/chain_spec_westlake.json \
-  --raw > ./node/src/chain-definition-custom/chain_def_westlake.json
+  --raw > ./node/src/chain-built/chain_def_westlake.json
 ```
 
-Note: If the "raw" chain definition is not included [here](./node/src/chain-definition-custom/chain_def_westlake.json) then generate it as shown above.
+Note: If the "raw" chain definition is not included [here](./node/src/chain-built/chain_def_westlake.json) then generate it as shown above.
 
 * Use the "raw" chain definition to run additional validator nodes, where the Bootnode Node ID is `12D3KooWLRZSpTArSSqckDucDWGGWNgMPBFjKueFe2Gh8ddULYqG` and the Bootnode Server IP Address is ip4/172.31.1.230, and X is the validator number.
 ```
@@ -482,7 +482,7 @@ Note: If the "raw" chain definition is not included [here](./node/src/chain-defi
   --validator \
   --base-path ~/chain-base/node-X \
   --bootnodes /ip4/172.31.1.230/tcp/30333/p2p/12D3KooWLRZSpTArSSqckDucDWGGWNgMPBFjKueFe2Gh8ddULYqG \
-  --chain ./node/src/chain-definition-custom/chain_def_westlake.json \
+  --chain ./node/src/chain-built/chain_def_westlake.json \
   --name "DataHighway Westlake Mainnet - Validator X" \
   --port 30338 \
   --rpc-port 9938 \

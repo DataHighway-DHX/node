@@ -8,4 +8,4 @@ echo "Docker Build Chain Spec"
 # Build "raw" chain definition for the new chain from it
 ../target/release/datahighway build-spec \
   --chain ../node/src/chain-spec-templates/chain_spec_${CHAIN_VERSION}.json \
-  --raw > ../node/src/chain-definition-custom/chain_def_${CHAIN_VERSION}.json
+  --raw > ../node/src/chain-built/chain_def_${CHAIN_VERSION}.json
