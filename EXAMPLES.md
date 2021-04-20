@@ -130,16 +130,16 @@ Run Alice's bootnode using the raw chain definition file that was generated
   --rpc-methods=Unsafe
 ```
 
-When the node has started, copy the libp2p local node identity of the node, and paste in the `bootNodes` of chain_def_local.json if necessary.
+When the node has started, copy the libp2p local node identity of the node, and paste in the `bootNodes` of chain_def_local.json for starting other nodes with, and add it to the list of available bootnodes in chain_spec.rs, or just provide the value to `--bootnodes` when starting other nodes.
 
 * Notes:
   * Alice's Substrate-based node on default TCP port 30333
   * Her chain database stored locally at `/tmp/polkadot-chains/alice`
-  * Bootnode ID of her node is `Local node identity is: QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. Note that `--alice` provides Alice's session key that is shown when you run `subkey inspect --scheme ed25519 "//Alice"`, alternatively you could provide the private key that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`. If you explicitly specify a `--node-key` (i.e. `--node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee`) when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chain_spec_local.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/datahighway
+  * In this example, Bootnode ID of her node is `Local node identity is: QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. In **production** you should NOT share the `--node-key` as other nodes could use it and you might get slashed. Note that `--alice` provides Alice's session key that is shown when you run `subkey inspect --scheme ed25519 "//Alice"`, alternatively you could provide the private key that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`. If you explicitly specify a `--node-key` (i.e. `--node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee`) when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chain_spec_local.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/datahighway
 
 #### Terminal 2
 
-Run Bob's Substrate-based node on a different TCP port of 30334, and with his chain database stored locally at `/tmp/polkadot-chains/bob`. We'll specify a value for the `--bootnodes` option that will connect his node to Alice's bootnode ID on TCP port 30333:
+Run Bob's Substrate-based node on a different TCP port of 30334, and with his chain database stored locally at `/tmp/polkadot-chains/bob`. We'll specify a value for the `--bootnodes` option that will connect his node to Alice's bootnode ID on TCP port 30333. Note that in **production** you might be running these on different servers so you could just use the same ports:
 
 ```bash
 ./target/release/datahighway --validator \
@@ -311,11 +311,11 @@ curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"a
 * Generate the chain specification JSON file from src/chain_spec.rs
 
 ```bash
-rm ./node/src/chain-spec-templates/chain_spec_local.json
-touch ./node/src/chain-spec-templates/chain_spec_local.json
-mkdir -p ./node/src/chain-spec-templates
+rm ./node/src/chain-built/chain_spec_local.json
+touch ./node/src/chain-built/chain_spec_local.json
+mkdir -p ./node/src/chain-built
 ./target/release/datahighway build-spec \
-  --chain=local > ./node/src/chain-spec-templates/chain_spec_local.json
+  --chain=local > ./node/src/chain-built/chain_spec_local.json
 ```
 
 * Build "raw" chain definition for the new chain from it
@@ -325,7 +325,7 @@ rm ./node/src/chain-built/chain_def_local.json
 touch ./node/src/chain-built/chain_def_local.json
 mkdir -p ./node/src/chain-built
 ./target/release/datahighway build-spec \
-  --chain ./node/src/chain-spec-templates/chain_spec_local.json \
+  --chain ./node/src/chain-built/chain_spec_local.json \
   --raw > ./node/src/chain-built/chain_def_local.json
 ```
 
@@ -456,38 +456,59 @@ docker-compose -f docker-compose-dev.yml exec alice bash
 ```
 
 ## Mainnet (standalone) "westlake" PoS (with multiple nodes) <a id="chapter-f023ff"></a>
+
 * Refer to the documentation to setup a validator node and to obtain bootnode to connect to https://dev.datahighway.com/docs/en/tutorials/tutorials-nodes-validator-setup
 
-```
-./target/release/datahighway \
-    ...
-    --chain westlake \
-    ...
+* Build the WebAssembly binary from all code.
+
+```bash
+cargo build --release
 ```
 
-* Generate chain specification and "raw" chain definition
+* Obtain the "raw" chain definition from [here](./node/src/chain-built/chain_def_westlake.json). Note that it should have already been generated for you with:
 ```
 ./target/release/datahighway build-spec \
-  --chain=westlake > ./node/src/chain-spec-templates/chain_spec_westlake.json &&
+  --chain=westlake > ./node/src/chain-built/chain_spec_westlake.json &&
 ./target/release/datahighway build-spec \
-  --chain ./node/src/chain-spec-templates/chain_spec_westlake.json \
+  --chain ./node/src/chain-built/chain_spec_westlake.json \
   --raw > ./node/src/chain-built/chain_def_westlake.json
 ```
 
-Note: If the "raw" chain definition is not included [here](./node/src/chain-built/chain_def_westlake.json) then generate it as shown above.
+* Either use `--chain westlake` to run additional validator nodes, as shown below:
 
-* Use the "raw" chain definition to run additional validator nodes, where the Bootnode Node ID is `12D3KooWLRZSpTArSSqckDucDWGGWNgMPBFjKueFe2Gh8ddULYqG` and the Bootnode Server IP Address is ip4/172.31.1.230, and X is the validator number.
 ```
 ./target/release/datahighway \
   --validator \
   --base-path ~/chain-base/node-X \
-  --bootnodes /ip4/172.31.1.230/tcp/30333/p2p/12D3KooWLRZSpTArSSqckDucDWGGWNgMPBFjKueFe2Gh8ddULYqG \
+  --chain westlake \
+  --name "DataHighway Westlake Mainnet - Validator X" \
+  --port 30333 \
+  --rpc-port 9933 \
+  --ws-port 9944 \
+  --telemetry-url 'wss://telemetry.polkadot.io/submit/ 0' \
+  --unsafe-ws-external \
+  --unsafe-rpc-external \
+  --rpc-cors=all \
+  --rpc-methods=Unsafe
+```
+
+**OR** if the repository's chain_spec.rs file that you have build with `cargo build --release` doesn't include a list of bootnodes to connect to, then instead provide the "raw" chain definition file as the value of `--chain`, and manually add the bootnode values with the flag `--bootnodes`. In the example below the Bootnode Node ID is `<BOOTNODE_PEER_ID>` that obtained from the bootnode logs, and the Bootnode Server IP Address is ip4/172.31.1.230, and X is the validator number.
+
+```
+./target/release/datahighway \
+  --validator \
+  --base-path ~/chain-base/node-X \
+  --bootnodes /ip4/172.31.1.230/tcp/30333/p2p/<BOOTNODE_PEER_ID> \
   --chain ./node/src/chain-built/chain_def_westlake.json \
   --name "DataHighway Westlake Mainnet - Validator X" \
-  --port 30338 \
-  --rpc-port 9938 \
-  --ws-port 9949 \
-  --telemetry-url 'wss://telemetry.polkadot.io/submit/ 0'
+  --port 30333 \
+  --rpc-port 9933 \
+  --ws-port 9944 \
+  --telemetry-url 'wss://telemetry.polkadot.io/submit/ 0' \
+  --unsafe-ws-external \
+  --unsafe-rpc-external \
+  --rpc-cors=all \
+  --rpc-methods=Unsafe
 ```
 
 * Insert session keys

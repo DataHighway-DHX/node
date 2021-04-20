@@ -340,6 +340,13 @@ cargo +nightly-2021-03-10-aarch64-apple-darwin fmt --all -- --check
 * Question: How to debug when running tests?
     * Ans: Run tests with this `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug` in front, i.e. `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug cargo +nightly-2021-03-10 test -p datahighway-runtime`, and use `println!` where you want to log the output (i.e. `println!("claim duration {:#?}", claim_duration);`), as `debug::info` not work in tests
 
+* Question: Why can't I connect my node to telemetry?
+    * Ans: Try use these flags when running your node `--telemetry-url 'wss://telemetry.polkadot.io/submit/ 0' --unsafe-ws-external --unsafe-rpc-external --rpc-cors=all --rpc-methods=Unsafe`
+
+* Question: What is the Peer ID and the `--node-key`?
+    * Ans: See the documentation here https://substrate.dev/docs/en/knowledgebase/integrate/subkey#generating-node-keys. Run the command `subkey generate-node-key --file node-key` to generate and output to the screen a Peer ID for that you may share publicly to the list of bootnodes that validators may connect to. It also generates a file 'node-key' that contains the node's libp2p key that you provide as the value of `--node-key` when starting that validator bootnode, but you should keep the `--node-key` private because if someone else starts their node with the same `--node-key` that you're using then you might get slashed.
+
+
 ## Technical Support <a id="chapter-c00ab7"></a>
 
 * [Discord Chat](https://discord.gg/UuZN2tE)
