@@ -192,6 +192,7 @@ pub fn wasm_binary_unwrap() -> &'static [u8] {
     )
 }
 
+/// Runtime version. See https://github.com/paritytech/substrate/blob/master/primitives/version/src/lib.rs#L50
 pub const VERSION: RuntimeVersion = RuntimeVersion {
     spec_name: create_runtime_str!("datahighway"),
     impl_name: create_runtime_str!("datahighway"),
