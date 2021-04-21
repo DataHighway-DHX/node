@@ -197,7 +197,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
     spec_name: create_runtime_str!("datahighway"),
     impl_name: create_runtime_str!("datahighway"),
     authoring_version: 2,
-    spec_version: 5,
+    spec_version: 6,
     impl_version: 2,
     apis: RUNTIME_API_VERSIONS,
     transaction_version: 2,
@@ -571,7 +571,7 @@ parameter_types! {
     pub const TermDuration: BlockNumber = 7 * DAYS;
     // Check chain_spec. This value should be greater than or equal to the amount of
     // endowed accounts that are added to election_phragmen
-    pub const DesiredMembers: u32 = 19;
+    pub const DesiredMembers: u32 = 62; // validators 1-10 + sudo + treasury
     pub const DesiredRunnersUp: u32 = 7;
     pub const ElectionsPhragmenModuleId: LockIdentifier = *b"phrelect";
 }

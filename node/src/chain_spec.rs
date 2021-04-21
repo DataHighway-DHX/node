@@ -296,7 +296,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
 			wasm_binary,
 			// Initial NPoS authorities
             vec![
-                // authority #0
+                // authority #1
                 (
                     hex!["f64bae0f8fbe2eb59ff1c0ff760a085f55d69af5909aed280ebda09dc364d443"].into(),
                     hex!["ca907b74f921b74638eb40c289e9bf1142b0afcdb25e1a50383ab8f9d515da0d"].into(),
@@ -311,7 +311,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                     hex!["7941e1c7ff93c9541a779b40780715fe6211407c970906f3b554b294a6ba7ec7"]
                         .unchecked_into(),
                 ),
-                // authority #1
+                // authority #2
                 (
                     hex!["420a7b4a8c9f2388eded13c17841d2a0e08ea7c87eda84310da54f3ccecd3931"].into(),
                     hex!["ae69db7838fb139cbf4f93bf877faf5bbef242f3f5aac6eb4f111398e9385e7d"].into(),
@@ -326,7 +326,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                     hex!["48a3726bef363c990585cb550da2b1d5e309ae6a0ea1d4d06bf389bce303dae8"]
                         .unchecked_into(),
                 ),
-                // authority #2
+                // authority #3
                 (
                     hex!["ceecb6cc08c20ff44052ff19952a810d08363aa26ea4fb0a64a62a4630d37f28"].into(),
                     hex!["7652b25328d78d264aef01184202c9771b55f5b391359309a2559ef77fbbb33d"].into(),
@@ -341,7 +341,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                     hex!["138b33e1bd40d51e95455c19a9558ba4b5db4969943183592b10227537366a8e"]
                         .unchecked_into(),
                 ),
-                // authority #3
+                // authority #4
                 (
                     hex!["68bac5586028dd40db59a7becec349b42cd4229f9d3c31875c3eb7a57241cd42"].into(),
                     hex!["eec96d02877a45fa524fcee1c6b7c849cbdc8cee01a95f5db168c427ae766849"].into(),
@@ -356,7 +356,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                     hex!["a3ca5592ca7de669469a94c7ff6f64d8e2fcc5ab226833420748d25fab56bbe0"]
                         .unchecked_into(),
                 ),
-                // authority #4
+                // authority #5
                 (
                     hex!["ca181fc1f02a0aa144885d3b6f95d333a3a84ecc448b4d9f3541b26d21729168"].into(),
                     hex!["f406b4141e7cab5b09e670c617ab65e911da684e4deb76d0d29e94f77a535b39"].into(),
@@ -384,7 +384,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                 // an account balance to avoid session error
                 // `assertion failed: frame_system::Module::<T>::inc_consumers(&account).is_ok()`
 
-                // authority #0
+                // authority #1
                 hex!["f64bae0f8fbe2eb59ff1c0ff760a085f55d69af5909aed280ebda09dc364d443"].into(),
                 hex!["ca907b74f921b74638eb40c289e9bf1142b0afcdb25e1a50383ab8f9d515da0d"].into(),
                 hex!["6a9da05f3e07d68bc29fb6cf9377a1537d59f082f49cb27a47881aef9fbaeaee"].into(),
@@ -392,7 +392,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                 hex!["504cf9eb92f9e992a15370d2536063df83b69744ad4502e05dc91e3dae3b2649"].into(),
                 hex!["7941e1c7ff93c9541a779b40780715fe6211407c970906f3b554b294a6ba7ec7"].into(),
 
-                // authority #1
+                // authority #2
                 hex!["420a7b4a8c9f2388eded13c17841d2a0e08ea7c87eda84310da54f3ccecd3931"].into(),
                 hex!["ae69db7838fb139cbf4f93bf877faf5bbef242f3f5aac6eb4f111398e9385e7d"].into(),
                 hex!["9af1908ac74b042f4be713e10dcf6a2def3770cfce58951c839768e7d6bbcd8e"].into(),
@@ -400,7 +400,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                 hex!["65be4fe3c1efba2b10f05b50bdb25cce394ed9c30ab5ebf2d604c0628d8500e7"].into(),
                 hex!["48a3726bef363c990585cb550da2b1d5e309ae6a0ea1d4d06bf389bce303dae8"].into(),
 
-                // authority #2
+                // authority #3
                 hex!["ceecb6cc08c20ff44052ff19952a810d08363aa26ea4fb0a64a62a4630d37f28"].into(),
                 hex!["7652b25328d78d264aef01184202c9771b55f5b391359309a2559ef77fbbb33d"].into(),
                 hex!["b8902681768fbda7a29666e1de8a18f5be3c778d92cf29139959a86e6bff13e7"].into(),
@@ -408,7 +408,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                 hex!["76a21eefe9824ae269d4fc6609e310f323053acd2ef47fe36e6d0be75a5cd75b"].into(),
                 hex!["138b33e1bd40d51e95455c19a9558ba4b5db4969943183592b10227537366a8e"].into(),
 
-                // authority #3
+                // authority #4
                 hex!["68bac5586028dd40db59a7becec349b42cd4229f9d3c31875c3eb7a57241cd42"].into(),
                 hex!["eec96d02877a45fa524fcee1c6b7c849cbdc8cee01a95f5db168c427ae766849"].into(),
                 hex!["f4807d86cca169a81d42fcf9c7abddeff107b0a73e9e7a809257ac7e4a164741"].into(),
@@ -416,7 +416,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                 hex!["2bb62b29a6c80c32a9284026044483caf85b699744bc155e8c1a0c5819578f4b"].into(),
                 hex!["a3ca5592ca7de669469a94c7ff6f64d8e2fcc5ab226833420748d25fab56bbe0"].into(),
 
-                // authority #4
+                // authority #5
                 hex!["ca181fc1f02a0aa144885d3b6f95d333a3a84ecc448b4d9f3541b26d21729168"].into(),
                 hex!["f406b4141e7cab5b09e670c617ab65e911da684e4deb76d0d29e94f77a535b39"].into(),
                 hex!["9edf290adfc576f4de8b90a09b3b378263f34748f201a1966153f26a879e5a39"].into(),
@@ -462,25 +462,6 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
 			wasm_binary,
 			// Initial NPoS authorities
             vec![
-                // authority #0
-                (
-                    // cont
-                    hex!["f2999ee3e9a0219dd0bda829a2878c42f19cc8418f535a52a3416742b498136c"].into(),
-                    // stash
-                    hex!["92fffb5186429e3ce6c7c4ea31521cb2d961d8d0d5a60dad210253d57129c231"].into(),
-                    // gran
-                    hex!["e5b8dfc9e5a5c6a030f72aac3b75aa29aea577492e897dc299588076b8f2a931"]
-                        .unchecked_into(),
-                    // babe
-                    hex!["e69dc00aa6d47b04ee25f9af4fca2e565be11159e91fa0542824101bf463964c"]
-                        .unchecked_into(),
-                    // imon
-                    hex!["0a3a6ced3c91a28f7ec77c5eeddb4bfefd0452b81dadd55418ea508b7d23991a"]
-                        .unchecked_into(),
-                    // audi
-                    hex!["a4771695cea872eccfa0b3406342bb598f83eb049afc4ead514ba07111a56122"]
-                        .unchecked_into(),
-                ),
                 // authority #1
                 (
                     // cont
@@ -557,6 +538,120 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                     hex!["f2b840b98ea57ca98f17b38493e29c614bf221e8cff7813c71742efd30ff9f59"]
                         .unchecked_into(),
                 ),
+                // authority #5
+                (
+                    // cont
+                    hex!["2643aaa4cf95aa0f014c015722e31a356eb8bd17888f74bca1ca56c404445c39"].into(),
+                    // stash
+                    hex!["b0e6b234c77cc3d9fde0f3a039779c8d6ae0a66cb95d764acc54667e74f4c800"].into(),
+                    // gran
+                    hex!["683d89df05242920e0fdfac6f854b6c96f2fba7934b845bfb60869eeb21549b1"]
+                        .unchecked_into(),
+                    // babe
+                    hex!["84622ff3f45a810e6445cbba2f39c90fd6c93de763f0246d92dc140ef593df2c"]
+                        .unchecked_into(),
+                    // imon
+                    hex!["a42b23e60c547565c52f768fee92d1ab983456f8b14957dcd59e96edb9e18e34"]
+                        .unchecked_into(),
+                    // audi
+                    hex!["ca0949009a9d8d6b42c04751700efe2372ccf97c4c38bb0237079684d2badc33"]
+                        .unchecked_into(),
+                ),
+                // authority #6
+                (
+                    // cont
+                    hex!["3e028f22ca42f5feee5344c3319ba97d23019087a124b43a825cb7d35ed7d522"].into(),
+                    // stash
+                    hex!["48e771e75097d353d06b5fd469edf8cb53d8c9b8eeeb1aa0f480ff7a42e27f28"].into(),
+                    // gran
+                    hex!["215a2ff9562ae7b2f71e07c5976637dfd9dae4c092e18af9828a078ba57c0da0"]
+                        .unchecked_into(),
+                    // babe
+                    hex!["6c2d436d832afc82cce4aac80f8b19a48238f231bf8f30f95ef79173f5773977"]
+                        .unchecked_into(),
+                    // imon
+                    hex!["8ed3a7c2bd72256130d7add011c7fe6ad78942970bcfe6f811bbc5a24da48c2f"]
+                        .unchecked_into(),
+                    // audi
+                    hex!["98d60144aea5209c33cabb647c4de4d93e8ed3e1ff2a5af72a23693a6917262a"]
+                        .unchecked_into(),
+                ),
+                // authority #7
+                (
+                    // cont
+                    hex!["76ea25fc43fbdd113efabf6a12ea1f67c2916f9dd15d7c08a020269aa28cd521"].into(),
+                    // stash
+                    hex!["1ae9a95688b6dcf6db83c61789e59352cdf363c5b13d39f37c27f7434439027e"].into(),
+                    // gran
+                    hex!["ef3f7c3d180b63988ab894d9461a8b989d215604e7c5dbb2ce07f51733c680c5"]
+                        .unchecked_into(),
+                    // babe
+                    hex!["86795b955666d426473dff40ce49c1234c58697c032d295b57c91f612ef44876"]
+                        .unchecked_into(),
+                    // imon
+                    hex!["2082036c6ee9a9680e43433b63235317b6cf7c90f88f0dc6b55d3e7ca0899b7c"]
+                        .unchecked_into(),
+                    // audi
+                    hex!["588493c37be8996e7e50dbce15ffb6ab3caad354b4102f12afc5483bd61c2d3a"]
+                        .unchecked_into(),
+                ),
+                // authority #8
+                (
+                    // cont
+                    hex!["ee323b965d01799f4af213347549ab5e8e533071df69c4d2ed122a354deb930c"].into(),
+                    // stash
+                    hex!["ec9ee2c38014483a454cfe108cc062e0ff641fef7c5c10f0a0f797cfdb860708"].into(),
+                    // gran
+                    hex!["a50919f31950b902e110f0e455ca2307b021f062c24b087fd94a922be68c1618"]
+                        .unchecked_into(),
+                    // babe
+                    hex!["6e094819c4f3d6bebfd83dfd13b15f57a000d7876d8cf22fd774a593a7304544"]
+                        .unchecked_into(),
+                    // imon
+                    hex!["189000f2b00393cac4ffbfb212ab582c2fdb42c2bea382ab0e9bb5b37d427b03"]
+                        .unchecked_into(),
+                    // audi
+                    hex!["aa04bd5ef43bdcc0090737eae432fd32d1a31cdadbd02babb12d548a280d647f"]
+                        .unchecked_into(),
+                ),
+                // authority #9
+                (
+                    // cont
+                    hex!["cc517121c11d0135836a62816526bb40d9c9a0ae47f316c646c148a5cff0f200"].into(),
+                    // stash
+                    hex!["746be7c22192aa11d46d3b2bdad13cc77b1bab69ab9eb10799b629dd7ddfbf7e"].into(),
+                    // gran
+                    hex!["bcd9f49d8a3ce7f0cd71e7effbdfa1aa472f2bd7c66782a71d25be7d98a2c60f"]
+                        .unchecked_into(),
+                    // babe
+                    hex!["98d0045128cc74ec6c6682dd465dd8f5a9c55f0a18d4c2360337c0e727d9b679"]
+                        .unchecked_into(),
+                    // imon
+                    hex!["086c4fbfa5ec20f5bc4d82733f7741ef0f772e2a6d282fd7e6c0e1abf838697b"]
+                        .unchecked_into(),
+                    // audi
+                    hex!["8ecd8e1a9181dc45baae33d09c2c576612f1adf52a294c4e3a5383ef6ebd1c1d"]
+                        .unchecked_into(),
+                ),
+                // authority #10
+                (
+                    // cont
+                    hex!["3c71cfbd77668301af5aefe0c81e3b4ffc1c0f0b07c0d42044922237d574455f"].into(),
+                    // stash
+                    hex!["ecc71d63ef4b80d8feab189a764cd3e759f941062f9b07168bbfcb814da7bf33"].into(),
+                    // gran
+                    hex!["55adaf3d56e97313351424ae62742678ead13c5835dc90b7d1a138ba300f8b93"]
+                        .unchecked_into(),
+                    // babe
+                    hex!["9608d194e070706ae1a63a25e522c53bc80205b174956e804be0dcb1a6d78e10"]
+                        .unchecked_into(),
+                    // imon
+                    hex!["1a811ced21ced4fdab5d32105a65c671da35f367937619ab4fbdc3db9542c450"]
+                        .unchecked_into(),
+                    // audi
+                    hex!["029e12aad36b688dda6937ba93fb95b8076d8242865e9adca69b4182ef77f843"]
+                        .unchecked_into(),
+                ),
             ],
 			// Sudo account
             hex!["c201d4551d04a99772d8efe196490a96b4ee5e608ac8e495be9505a99e723069"].into(),
@@ -570,20 +665,6 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                 // IMPORTANT: All authorities must be included in the list below so they have
                 // an account balance to avoid session error
                 // `assertion failed: frame_system::Module::<T>::inc_consumers(&account).is_ok()`
-
-                // authority #0
-                // cont
-                hex!["f2999ee3e9a0219dd0bda829a2878c42f19cc8418f535a52a3416742b498136c"].into(),
-                // stash
-                hex!["92fffb5186429e3ce6c7c4ea31521cb2d961d8d0d5a60dad210253d57129c231"].into(),
-                // gran
-                hex!["e5b8dfc9e5a5c6a030f72aac3b75aa29aea577492e897dc299588076b8f2a931"].into(),
-                // babe
-                hex!["e69dc00aa6d47b04ee25f9af4fca2e565be11159e91fa0542824101bf463964c"].into(),
-                // imon
-                hex!["0a3a6ced3c91a28f7ec77c5eeddb4bfefd0452b81dadd55418ea508b7d23991a"].into(),
-                // audi
-                hex!["a4771695cea872eccfa0b3406342bb598f83eb049afc4ead514ba07111a56122"].into(),
 
                 // authority #1
                 // cont
@@ -640,37 +721,131 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                 hex!["b8916d751735fbb43d1ff679ea017cfdcf9ad7f76cf775c8d5d6e0ffe5454c79"].into(),
                 // audi
                 hex!["f2b840b98ea57ca98f17b38493e29c614bf221e8cff7813c71742efd30ff9f59"].into(),
+
+                // authority #5
+                // cont
+                hex!["2643aaa4cf95aa0f014c015722e31a356eb8bd17888f74bca1ca56c404445c39"].into(),
+                // stash
+                hex!["b0e6b234c77cc3d9fde0f3a039779c8d6ae0a66cb95d764acc54667e74f4c800"].into(),
+                // gran
+                hex!["683d89df05242920e0fdfac6f854b6c96f2fba7934b845bfb60869eeb21549b1"].into(),
+                // babe
+                hex!["84622ff3f45a810e6445cbba2f39c90fd6c93de763f0246d92dc140ef593df2c"].into(),
+                // imon
+                hex!["a42b23e60c547565c52f768fee92d1ab983456f8b14957dcd59e96edb9e18e34"].into(),
+                // audi
+                hex!["ca0949009a9d8d6b42c04751700efe2372ccf97c4c38bb0237079684d2badc33"].into(),
+
+                // authority #6
+                // cont
+                hex!["3e028f22ca42f5feee5344c3319ba97d23019087a124b43a825cb7d35ed7d522"].into(),
+                // stash
+                hex!["48e771e75097d353d06b5fd469edf8cb53d8c9b8eeeb1aa0f480ff7a42e27f28"].into(),
+                // gran
+                hex!["215a2ff9562ae7b2f71e07c5976637dfd9dae4c092e18af9828a078ba57c0da0"].into(),
+                // babe
+                hex!["6c2d436d832afc82cce4aac80f8b19a48238f231bf8f30f95ef79173f5773977"].into(),
+                // imon
+                hex!["8ed3a7c2bd72256130d7add011c7fe6ad78942970bcfe6f811bbc5a24da48c2f"].into(),
+                // audi
+                hex!["98d60144aea5209c33cabb647c4de4d93e8ed3e1ff2a5af72a23693a6917262a"].into(),
+
+                // authority #7
+                // cont
+                hex!["76ea25fc43fbdd113efabf6a12ea1f67c2916f9dd15d7c08a020269aa28cd521"].into(),
+                // stash
+                hex!["1ae9a95688b6dcf6db83c61789e59352cdf363c5b13d39f37c27f7434439027e"].into(),
+                // gran
+                hex!["ef3f7c3d180b63988ab894d9461a8b989d215604e7c5dbb2ce07f51733c680c5"].into(),
+                // babe
+                hex!["86795b955666d426473dff40ce49c1234c58697c032d295b57c91f612ef44876"].into(),
+                // imon
+                hex!["2082036c6ee9a9680e43433b63235317b6cf7c90f88f0dc6b55d3e7ca0899b7c"].into(),
+                // audi
+                hex!["588493c37be8996e7e50dbce15ffb6ab3caad354b4102f12afc5483bd61c2d3a"].into(),
+
+                // authority #8
+                // cont
+                hex!["ee323b965d01799f4af213347549ab5e8e533071df69c4d2ed122a354deb930c"].into(),
+                // stash
+                hex!["ec9ee2c38014483a454cfe108cc062e0ff641fef7c5c10f0a0f797cfdb860708"].into(),
+                // gran
+                hex!["a50919f31950b902e110f0e455ca2307b021f062c24b087fd94a922be68c1618"].into(),
+                // babe
+                hex!["6e094819c4f3d6bebfd83dfd13b15f57a000d7876d8cf22fd774a593a7304544"].into(),
+                // imon
+                hex!["189000f2b00393cac4ffbfb212ab582c2fdb42c2bea382ab0e9bb5b37d427b03"].into(),
+                // audi
+                hex!["aa04bd5ef43bdcc0090737eae432fd32d1a31cdadbd02babb12d548a280d647f"].into(),
+
+                // authority #9
+                // cont
+                hex!["cc517121c11d0135836a62816526bb40d9c9a0ae47f316c646c148a5cff0f200"].into(),
+                // stash
+                hex!["746be7c22192aa11d46d3b2bdad13cc77b1bab69ab9eb10799b629dd7ddfbf7e"].into(),
+                // gran
+                hex!["bcd9f49d8a3ce7f0cd71e7effbdfa1aa472f2bd7c66782a71d25be7d98a2c60f"].into(),
+                // babe
+                hex!["98d0045128cc74ec6c6682dd465dd8f5a9c55f0a18d4c2360337c0e727d9b679"].into(),
+                // imon
+                hex!["086c4fbfa5ec20f5bc4d82733f7741ef0f772e2a6d282fd7e6c0e1abf838697b"].into(),
+                // audi
+                hex!["8ecd8e1a9181dc45baae33d09c2c576612f1adf52a294c4e3a5383ef6ebd1c1d"].into(),
+
+                // authority #10
+                // cont
+                hex!["3c71cfbd77668301af5aefe0c81e3b4ffc1c0f0b07c0d42044922237d574455f"].into(),
+                // stash
+                hex!["ecc71d63ef4b80d8feab189a764cd3e759f941062f9b07168bbfcb814da7bf33"].into(),
+                // gran
+                hex!["55adaf3d56e97313351424ae62742678ead13c5835dc90b7d1a138ba300f8b93"].into(),
+                // babe
+                hex!["9608d194e070706ae1a63a25e522c53bc80205b174956e804be0dcb1a6d78e10"].into(),
+                // imon
+                hex!["1a811ced21ced4fdab5d32105a65c671da35f367937619ab4fbdc3db9542c450"].into(),
+                // audi
+                hex!["029e12aad36b688dda6937ba93fb95b8076d8242865e9adca69b4182ef77f843"].into(),
             ],
 			true,
 		),
         vec![
+            // authority #1
             "/ip4/3.127.123.230/tcp/30333/p2p/12D3KooWPSVWEpuNPKE6EJBAMQQRCrKG4RTfyyabFRjT4xqMkuH5"
                 .parse()
                 .unwrap(),
+            // authority #2
             "/ip4/3.65.196.4/tcp/30333/p2p/12D3KooWPZqAuWSez5uomot7GZvpuRQK198zqLYrLLZt5W7bvqPb"
                 .parse()
                 .unwrap(),
+            // authority #3
             "/ip4/3.123.21.153/tcp/30333/p2p/12D3KooWAjdURBpSsRVWbvnGRbsqykvueM6Vuoe4x7MhV6cxTtje"
                 .parse()
                 .unwrap(),
+            // authority #4
             "/ip4/18.184.76.132/tcp/30333/p2p/12D3KooWCWZc5L6ypCFcvDdGeGwsw9Mo4nniCwiVuU5MB6ApA4ZT"
                 .parse()
                 .unwrap(),
+            // authority #5
             "/ip4/3.124.189.68/tcp/30333/p2p/12D3KooWJ1F4BsNgeaVkZVPw2kRhHxAtJuUqeEik2R7dv9ttgPcv"
                 .parse()
                 .unwrap(),
+            // authority #6
             "/ip4/104.236.197.177/tcp/30333/p2p/12D3KooWGgVUU6V4MNqhw4Fcbb7u5abEdD2QgLgx3TKmVXovcUft"
                 .parse()
                 .unwrap(),
+            // authority #7
             "/ip4/104.236.197.174/tcp/30333/p2p/12D3KooWFGzcJWw7a1q1Sgn8qiLgnQ8UBy3DZqP33ZhrEXabgpm5"
                 .parse()
                 .unwrap(),
+            // authority #8
             "/ip4/104.236.197.180/tcp/30333/p2p/12D3KooWFz44eN1nhVEAeq4x7Z4Hdd6GA9dhpc9LSXDmJA4aqfd6"
                 .parse()
                 .unwrap(),
+            // authority #9
             "/ip4/104.236.197.172/tcp/30333/p2p/12D3KooWJjuKnSjF3fgrsAPv1b3VZH2nd7qzcVmh9imPNJTbEtSV"
                 .parse()
                 .unwrap(),
+            // authority #10
             "/ip4/104.236.197.182/tcp/30333/p2p/12D3KooWST5nKEAFNXnLLQvjnAX88D99yF8Y1XVebSybVgcLDJzz"
                 .parse()
                 .unwrap(),
