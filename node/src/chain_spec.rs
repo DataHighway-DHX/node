@@ -117,7 +117,7 @@ pub fn development_config() -> Result<ChainSpec, String> {
 	let wasm_binary = WASM_BINARY.ok_or_else(|| "Wasm not available".to_string())?;
 
     let mut properties = Map::new();
-    properties.insert("tokenSymbol".into(), "DHX".into());
+    properties.insert("tokenSymbol".into(), "DEV".into());
     properties.insert("tokenDecimals".into(), 18.into());
 
 	Ok(ChainSpec::from_genesis(
@@ -199,7 +199,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 	let wasm_binary = WASM_BINARY.ok_or_else(|| "Wasm not available".to_string())?;
 
     let mut properties = Map::new();
-    properties.insert("tokenSymbol".into(), "DHX".into());
+    properties.insert("tokenSymbol".into(), "DEV".into());
     properties.insert("tokenDecimals".into(), 18.into());
 
 	Ok(ChainSpec::from_genesis(
@@ -277,7 +277,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
 	let wasm_binary = WASM_BINARY.ok_or_else(|| "Wasm binary not available".to_string())?;
 
     let mut properties = Map::new();
-    properties.insert("tokenSymbol".into(), "DHX".into());
+    properties.insert("tokenSymbol".into(), "HBR".into());
     properties.insert("tokenDecimals".into(), 18.into());
 
 	Ok(ChainSpec::from_genesis(
