@@ -622,6 +622,148 @@ mod tests {
                     device_profile_vendorid: b"1000".to_vec(),
                 })
             );
+
+
+            assert_ok!(RoamingOperatorTestModule::create(Origin::signed(0))); // MXC
+            assert_ok!(RoamingNetworkTestModule::create(Origin::signed(0)));
+            assert_ok!(RoamingNetworkTestModule::is_roaming_network_owner(0, 0));
+            // Assign each network to the MXC network operator, by the owner/creator of the MXC network operator
+            assert_ok!(RoamingNetworkTestModule::assign_network_to_operator(Origin::signed(0), 0, 0));
+            assert_eq!(RoamingNetworkTestModule::roaming_network_owner(0), Some(0));
+            assert_ok!(RoamingOrganizationTestModule::create(Origin::signed(0)));
+            assert_ok!(RoamingNetworkServerTestModule::create(Origin::signed(0))); // Supernode
+
+
+            // Call Functions
+            assert_ok!(RoamingNetworkProfileTestModule::create(Origin::signed(0)));
+            assert_eq!(RoamingNetworkProfileTestModule::roaming_network_profile_owner(0), Some(0));
+            assert_ok!(RoamingNetworkProfileTestModule::assign_network_profile_to_network(Origin::signed(0), 0, 0));
+            assert_ok!(RoamingNetworkProfileTestModule::assign_network_profile_to_operator(Origin::signed(0), 0, 0));
+            assert_ok!(RoamingNetworkProfileTestModule::set_device_access_allowed(Origin::signed(0), 0, true));
+            // Network Profile 0 - Whitelist MXC
+            assert_ok!(RoamingNetworkProfileTestModule::add_whitelisted_network(
+                Origin::signed(0),
+                0, // network_profile_id
+                0, // network_id
+            ));
+            // Create Gateway
+            assert_ok!(RoamingGatewayTestModule::create(Origin::signed(0)));
+            assert_ok!(RoamingGatewayTestModule::assign_gateway_to_organization(Origin::signed(0), 0, 0));
+            assert_ok!(RoamingGatewayTestModule::assign_gateway_to_network_server(Origin::signed(0), 0, 0));
+            assert_ok!(RoamingGatewayProfileTestModule::create(Origin::signed(0)));
+            assert_ok!(RoamingGatewayProfileTestModule::assign_gateway_profile_to_gateway(Origin::signed(0), 0, 0));
+            assert_ok!(RoamingGatewayProfileTestModule::set_config(
+                Origin::signed(0),
+                0,
+                Some(b"1234".to_vec()), // gateway_profile_mac
+                Some(b"1000".to_vec()), // gateway_profile_vendorid
+            ));
+
+            // Create End Device
+            assert_ok!(RoamingDeviceTestModule::create(Origin::signed(0)));
+            assert_eq!(RoamingDeviceTestModule::roaming_device_owner(0), Some(0));
+            assert_ok!(RoamingDeviceTestModule::assign_device_to_organization(Origin::signed(0), 0, 0));
+            assert_ok!(RoamingDeviceTestModule::assign_device_to_network_server(Origin::signed(0), 0, 0));
+            assert_ok!(RoamingDeviceProfileTestModule::create(Origin::signed(0)));
+            assert_ok!(RoamingDeviceProfileTestModule::assign_device_profile_to_device(Origin::signed(0), 0, 0));
+            assert_ok!(RoamingDeviceProfileTestModule::set_config(
+                Origin::signed(0),
+                0,
+                Some(b"1234".to_vec()), // device_profile_devaddr
+                Some(b"5678".to_vec()), // device_profile_deveui
+                Some(b"6789".to_vec()), // device_profile_joineui
+                Some(b"1000".to_vec()), // device_profile_vendorid
+            ));
+
+            // Identity for accounts and their hardware devices
+
+            let sudo = Origin::root();
+
+            let user_owner_account_1 = Origin::signed(1);
+            // Identity info of account_id 1
+            let user_owner_account_1_info = Some(IdentityInfo {
+                email: b"luke@mxc.org".to_vec()
+            });
+
+            // Identity info of hardware device (end device 1)
+            let fetched_gateway_profile_setting = <RoamingDeviceProfileSettings<T>>::get(0);
+            let hardware_device_1 = Origin::signed(3);   // M2 Pro
+            let hardware_device_1_roaming_data = (
+                roaming_device_index: fetched_gateway_profile_setting.roaming_device_index,
+                roaming_device_profile_index: fetched_gateway_profile_setting.roaming_device_profile_index,
+                roaming_device_profile_devaddr: fetched_gateway_profile_setting.device_profile_devaddr,
+                roaming_device_profile_vendorid: fetched_gateway_profile_setting.device_profile_vendorid,
+            ); // Tuple
+            // TODO - how do we store this using Identity pallet, as it says that values greater than u32
+            // such as account_id's that are u64 will be truncated but we want to associate the account_id
+            // https://github.com/paritytech/substrate/blob/master/frame/identity/src/lib.rs
+            let hardware_device_1_additional: Vec<HardwareData<u64, (u64, u64)>> = Vec::new();
+            hardware_device_1_additional.push(hardware_device_1, hardware_device_1_roaming_data);
+            // Reference: https://github.com/paritytech/substrate/blob/master/frame/identity/src/lib.rs#L255
+            let hardware_device_1_info = Some(IdentityInfo {
+                additional: hardware_device_1_additional
+            });
+
+            // Identity info of hardware gateway (gateway 1)
+            let fetched_gateway_profile_setting = <RoamingGatewayProfileSettings<T>>::get(0);
+            let hardware_gateway_1 = Origin::signed(4);  // Gateway
+            // https://dev.datahighway.com/docs/en/whitepaper#gateway-setup--staking
+            let hardware_gateway_1_roaming_data = (
+                supernode_home_account_id: <RoamingGatewayNetworkServers<T>>::get(0),
+                gateway_id_mac: fetched_gateway_profile_setting.gateway_profile_mac.unwrap(),
+                gateway_profile_vendorid: fetched_gateway_profile_setting.gateway_profile_vendorid.unwrap(),
+            ); // Tuple
+            // TODO - how do we store this using Identity pallet, as it says that values greater than u32
+            // such as account_id's that are u64 will be truncated but we want to associate the account_id
+            // https://github.com/paritytech/substrate/blob/master/frame/identity/src/lib.rs
+            let hardware_gateway_1_additional: Vec<HardwareData<u64, (u64, u64)>> = Vec::new();
+            hardware_gateway_1_additional.push(hardware_gateway_1, hardware_gateway_1_roaming_data);
+            // Reference: https://github.com/paritytech/substrate/blob/master/frame/identity/src/lib.rs#L255
+            let hardware_gateway_1_info = Some(IdentityInfo {
+                additional: hardware_gateway_1_additional
+            });
+
+            let registrar_1 = Origin::signed(2);
+            let reg_index_1 = 0u64; // Registrar Index
+
+            let user_owner_account_2 = Origin::signed(5);
+            // Identity info of account_id 2
+            let user_owner_account_2_info = Some(IdentityInfo {
+                email: b"test@mxc.org".to_vec()
+            });
+            // Set an account balance to each account for transaction fees
+            assert_ok!(Balances::set_balance(Origin::root(), 1, 1_000, 0));
+            assert_ok!(Balances::set_balance(Origin::root(), 2, 1_000, 0));
+            assert_ok!(Balances::set_balance(Origin::root(), 3, 1_000, 0));
+            assert_ok!(Balances::set_balance(Origin::root(), 4, 1_000, 0));
+            assert_ok!(Balances::set_balance(Origin::root(), 5, 1_000, 0));
+
+            assert_eq!(Identity::add_registrar(sudo.clone(), registrar_1.clone()), reg_index_1); // Sudo required
+            let registrar_judgement_fee = 100u32;
+            assert_ok!(Identity::set_fee(sudo.clone(), reg_index_1, registrar_judgement_fee.clone())); // Sudo required
+            assert_ok!(Identity::set_fields(sudo.clone(), reg_index_1, registrar_1.clone(), IdentityFields::Email)); // Sudo required
+            assert_ok!(Identity::set_identity(registrar_1, user_owner_account_1_info)); // Set by registrar
+            assert_ok!(Identity::set_identity(registrar_1, hardware_device_1_info)); // Set by registrar
+            assert_ok!(Identity::set_identity(registrar_1, hardware_gateway_1_info)); // Set by registrar
+            let sub_accounts_1 = Vec::new();
+            sub_accounts_1.push(
+                (hardware_device_1, hardware_device_1_info),
+                (hardware_gateway_1, hardware_gateway_1_info),
+            );
+            // Identity is assigned to user wallet upon gw registration
+            assert_ok!(Identity::set_subs(user_owner_account_1, sub_accounts_1);
+            assert_ok!(Identity::add_subs(user_owner_account_1, user_owner_account_2, user_owner_account_2_info);
+            let max_fee = 1u32;
+            // Request judgement of user wallet identity by the registrar
+            // to confirm that their sub-identities (end device and gateway) do infact belong to the user
+            assert_ok!(Identity::request_judgement(user_owner_account_1, reg_index_1, max_fee));
+            assert_ok!(Identity::provide_judgement(registrar_1, reg_index_1, user_owner_account_1, registrar_judgement_fee.clone()));
+
+            // TODO - transfer ownership of M2 Pro and Gateway to a different user
+
+            // TODO - use Proxy to allow another user to make calls on behalf of an identity
+
+            // assert_ok!(Proxy::add_proxy(sudo.clone(), 3, ProxyType::Any, 1));
         });
     }
 }
