@@ -660,7 +660,7 @@ mod tests {
                 email: b"test@mxc.org".to_vec()
             });
             assert_ok!(Identity::set_identity(registrar, user_account_2_info)); // Set by registrar
-            // assert_ok!(Identity::add_subs(user_account_1_signed, user_account_2_signed, user_account_2_info);
+            // assert_ok!(Identity::add_sub(user_account_1_signed, user_account_2_id, user_account_2_info);
 
             // Registrar needs to already exist before `register_gateway` or `register_device` is called
             let registrar_account_id = 11;
@@ -744,14 +744,14 @@ mod tests {
                 // such as account_id's that are u64 will be truncated but we want to associate the account_id
                 // https://github.com/paritytech/substrate/blob/master/frame/identity/src/lib.rs
                 let gateway_account_additional: Vec<HardwareData<u64, (u64, u64)>> = Vec::new();
-                gateway_account_additional.push(gateway_account, gateway_account_roaming_data);
+                gateway_account_additional.push(gateway_account_id, gateway_account_roaming_data);
                 // Reference: https://github.com/paritytech/substrate/blob/master/frame/identity/src/lib.rs#L255
                 let gateway_account_info = Some(IdentityInfo {
                     additional: gateway_account_additional
                 });
                 assert_ok!(Identity::set_identity(registrar, gateway_account_info)); // Set by registrar
                 // Identity is assigned to user wallet upon device registration
-                assert_ok!(Identity::add_subs(user_account_1_signed, gateway_account, gateway_account_info);
+                assert_ok!(Identity::add_sub(user_account_1_signed, gateway_account_id, gateway_account_info);
                 // Request judgement of user wallet identity by the registrar
                 // to confirm that their sub-identities (end device and gateway) do infact belong to the user
                 assert_ok!(Identity::request_judgement(user_account_1_signed, registrar_index, max_fee));
@@ -803,7 +803,7 @@ mod tests {
                 assert_ok!(Identity::set_identity(registrar, device_account_info)); // Set by registrar
 
                 // Identity is assigned to user wallet upon gateway registration
-                assert_ok!(Identity::add_subs(user_account_1_signed, device_account_signed, device_account_info);
+                assert_ok!(Identity::add_sub(user_account_1_signed, device_account_id, device_account_info);
                 // Request judgement of user wallet identity by the registrar
                 // to confirm that their sub-identities (end device and gateway) do infact belong to the user
                 assert_ok!(Identity::request_judgement(user_account_1_signed, registrar_index, max_fee));
@@ -815,12 +815,18 @@ mod tests {
             // TODO - the below `transfer_gateway_owner` extrinsic needs to be added
             assert_ok!(RoamingGatewayTestModule::transfer_gateway_owner(user_account_1_signed, gateway_account_id, user_account_2_id));
                 assert_eq!(RoamingGatewayTestModule::roaming_gateway_owner(gateway_account_id), Some(user_account_2_id));
+                // Note: If a user sells hardware, we need them to remove the hardware from being one of their sub-identities
+                assert_ok!(Identity::remove_sub(user_account_1_signed, gateway_account_id);
+                assert_ok!(Identity::add_sub(user_account_2_id, gateway_account_id, gateway_account_info);
 
             // Transfer identity ownership of end device to a different user
             // ** Device calls this extrinsic function **
             // TODO - the below `transfer_device_owner` extrinsic needs to be added
             assert_ok!(RoamingDeviceTestModule::transfer_device_owner(user_account_1_signed, device_account_id, user_account_2_id));
                 assert_eq!(RoamingDeviceTestModule::roaming_device_owner(device_account_id), Some(user_account_2_id));
+                // Note: If a user sells hardware, we need them to remove the hardware from being one of their sub-identities
+                assert_ok!(Identity::remove_sub(user_account_1_signed, device_account_id);
+                assert_ok!(Identity::add_sub(user_account_2_id, device_account_id, device_account_info);
 
             // TODO - use Proxy to allow another user to make calls on behalf of an identity
             // assert_ok!(Proxy::add_proxy(sudo.clone(), 3, ProxyType::Any, 1));
