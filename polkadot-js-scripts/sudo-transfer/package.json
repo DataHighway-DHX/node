@@ -1,0 +1,12 @@
+{
+    "name": "sudo-transfer",
+    "version": "1.0.0",
+    "main": "index.js",
+    "author": "MXC Foundation GmbH <https://t.me/mxcfoundation>",
+    "license": "Unlicense",
+    "dependencies": {
+        "@polkadot/api": "^4.9.2",
+        "@polkadot/keyring": "^6.3.1",
+        "decimal.js": "^10.2.1"
+    }
+}

@@ -15,3 +15,6 @@ pallets/.DS_Store
 
 *-babe.json
 *-gran.json
+
+**/node_modules/
+polkadot-js-scripts/yarn-error.log
