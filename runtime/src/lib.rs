@@ -367,6 +367,8 @@ impl pallet_membership::Config<GeneralCouncilMembershipInstance> for Runtime {
     type RemoveOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
     type ResetOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
     type SwapOrigin = pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>;
+    type WeightInfo = ();
+    type MaxMembers = CouncilMaxMembers;
 }
 
 pub struct GeneralCouncilProvider;
