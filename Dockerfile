@@ -1,18 +1,13 @@
-FROM debian:buster
-
-ARG CHAIN_VERSION
-ENV _CHAIN_VERSION=${CHAIN_VERSION}
-RUN echo "DataHighway chain version ${_CHAIN_VERSION}"
+# build stage
+FROM rust as builder
 
 WORKDIR /dhx
 
-# FIXME - only copy necessary files to reduce size of image, and try using intermediate stages again
 COPY . .
 
 RUN apt-get update && apt-get install -y build-essential wget cmake pkg-config libssl-dev \
     openssl git gcc clang libclang-dev curl vim unzip screen bash \
     && curl https://getsubstrate.io -sSf | bash -s -- --fast \
-    && . ~/.cargo/env \
     && wget -O - https://sh.rustup.rs | sh -s -- -y \
     && PATH=$PATH:/root/.cargo/bin \
     && rustup update stable \
@@ -25,4 +20,12 @@ RUN apt-get update && apt-get install -y build-essential wget cmake pkg-config l
     && rustc --version \
     && cargo build --release
 
+# runtime stage
+FROM rust as runtime
+
 WORKDIR /dhx/scripts
+
+COPY --from=builder /dhx/target/release/datahighway /usr/local/bin
+COPY --from=builder /dhx/node/src/chain-built /dhx/node/src/chain-built
+
+ENTRYPOINT ["./usr/local/bin/datahighway"]
