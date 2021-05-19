@@ -1171,7 +1171,7 @@ dependencies = [
 
 [[package]]
 name = "datahighway"
-version = "3.0.3"
+version = "3.0.4"
 dependencies = [
  "datahighway-runtime",
  "frame-benchmarking",
@@ -1229,7 +1229,7 @@ dependencies = [
 
 [[package]]
 name = "datahighway-runtime"
-version = "3.0.3"
+version = "3.0.4"
 dependencies = [
  "chrono",
  "exchange-rate",
@@ -1264,6 +1264,7 @@ dependencies = [
  "pallet-im-online",
  "pallet-indices",
  "pallet-membership",
+ "pallet-multisig",
  "pallet-offences",
  "pallet-randomness-collective-flip",
  "pallet-scheduler",
@@ -1276,6 +1277,7 @@ dependencies = [
  "pallet-transaction-payment",
  "pallet-transaction-payment-rpc-runtime-api",
  "pallet-treasury",
+ "pallet-utility",
  "parity-scale-codec",
  "roaming-accounting-policies",
  "roaming-agreement-policies",
@@ -3577,7 +3579,7 @@ dependencies = [
 
 [[package]]
 name = "mining-eligibility-proxy"
-version = "3.0.3"
+version = "3.0.4"
 dependencies = [
  "account-set",
  "chrono",
@@ -3846,7 +3848,7 @@ dependencies = [
 
 [[package]]
 name = "module-primitives"
-version = "3.0.3"
+version = "3.0.4"
 dependencies = [
  "bitmask",
  "parity-scale-codec",
@@ -4336,6 +4338,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-multisig"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "775556e56d1b9ab9a2437b8ea281bb16d7aadda8f309213d6d72d0a6a4c6fec4"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "pallet-offences"
 version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4542,6 +4560,22 @@ dependencies = [
  "pallet-balances",
  "parity-scale-codec",
  "serde",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "pallet-utility"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fcd63d1b336800d155ab60ee918afd111f7449e44cec936f460d555e850fa93b"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "serde",
+ "sp-core",
+ "sp-io",
  "sp-runtime",
  "sp-std",
 ]
