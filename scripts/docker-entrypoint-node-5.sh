@@ -1,6 +1,6 @@
 #!/bin/bash
 
-../target/release/datahighway --validator \
+/usr/local/bin/datahighway --validator \
   --unsafe-ws-external \
   --unsafe-rpc-external \
   --rpc-cors=all \

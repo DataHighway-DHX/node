@@ -5,7 +5,7 @@ echo "Node Key is ${NODE_KEY}"
 echo "Node Env is ${NODE_ENV}"
 echo "Chain Version is ${CHAIN_VERSION}"
 
-../target/release/datahighway --validator \
+/usr/local/bin/datahighway --validator \
   --unsafe-ws-external \
   --unsafe-rpc-external \
   --rpc-cors=all \
