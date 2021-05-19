@@ -18,6 +18,7 @@ services:
     volumes:
       - basePath:/tmp
       - ./scripts:/dhx/scripts
+      - ./node/src/chain-built:/dhx/node/node/src/chain-built
     restart: always
     entrypoint:
       - ./docker-entrypoint-alice.sh
@@ -33,6 +34,7 @@ services:
     volumes:
       - basePath:/tmp
       - ./scripts:/dhx/scripts
+      - ./node/src/chain-built:/dhx/node/node/src/chain-built
     restart: always
     entrypoint:
       - ./docker-entrypoint-bob.sh
@@ -48,6 +50,7 @@ services:
     volumes:
       - basePath:/tmp
       - ./scripts:/dhx/scripts
+      - ./node/src/chain-built:/dhx/node/node/src/chain-built
     restart: always
     entrypoint:
       - ./docker-entrypoint-charlie.sh
@@ -63,6 +66,7 @@ services:
     volumes:
       - basePath:/tmp
       - ./scripts:/dhx/scripts
+      - ./node/src/chain-built:/dhx/node/node/src/chain-built
     restart: always
     entrypoint:
       - ./docker-entrypoint-dave.sh
@@ -78,6 +82,7 @@ services:
     volumes:
       - basePath:/tmp
       - ./scripts:/dhx/scripts
+      - ./node/src/chain-built:/dhx/node/node/src/chain-built
     restart: always
     entrypoint:
       - ./docker-entrypoint-eve.sh
