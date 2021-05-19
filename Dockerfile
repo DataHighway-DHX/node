@@ -1,6 +1,6 @@
 # build stage
 FROM rust as builder
-
+# create a project folder
 WORKDIR /dhx
 
 COPY . .
@@ -22,10 +22,9 @@ RUN apt-get update && apt-get install -y build-essential wget cmake pkg-config l
 
 # runtime stage
 FROM rust as runtime
-
+# set path for docker scripts in case used, to override below default entrypoint
 WORKDIR /dhx/scripts
 
 COPY --from=builder /dhx/target/release/datahighway /usr/local/bin
-COPY --from=builder /dhx/node/src/chain-built /dhx/node/src/chain-built
 
-ENTRYPOINT ["./usr/local/bin/datahighway"]
+ENTRYPOINT ["/usr/local/bin/datahighway"]
