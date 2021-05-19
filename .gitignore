@@ -10,8 +10,3 @@ datahighway
 pallets/.DS_Store
 .DS_Store
 .env
-.env.babe.json
-.env.gran.json
-
-*-babe.json
-*-gran.json
