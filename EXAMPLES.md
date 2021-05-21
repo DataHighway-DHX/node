@@ -3,6 +3,7 @@
 * [Install and update Rust, Substrate, and Subkey](#chapter-ca1234)
 * [Example "dev" development PoS testnet with single nodes](#chapter-ca9336)
 * [Example "local" PoS testnet with multiple nodes](#chapter-f21efd)
+* [Live "brickable" PoS testnet (with multiple nodes)](#chapter-ff1234)
 * [Live "harbour" PoS testnet (with multiple nodes)](#chapter-f023e2)
 * [Live "westlake" PoS mainnet (with multiple nodes)](#chapter-f023ff)
 * [Interact with blockchain using Polkadot.js Apps UI](#chapter-6d9058)
@@ -443,6 +444,12 @@ Note: Where `<SERVICE>` is `alice`, `bob`, `charlie`, `dave`, or `eve` as define
 ```
 docker-compose -f docker-compose-dev.yml exec alice bash
 ```
+
+## Testnet (standalone) "brickable" PoS (with multiple nodes) <a id="chapter-ff1234"></a>
+
+**WARNING:** The purpose of this "brickable" testnet is for initial experiementation with
+multiple validator nodes where chaos such as bricking the chain is permitted,
+to avoid potentially bricking the DataHighway Harbour Testnet and impacting users.
 
 ## Testnet (standalone) "harbour" PoS (with multiple nodes) <a id="chapter-f023e2"></a>
 
