@@ -196,11 +196,11 @@ pub fn wasm_binary_unwrap() -> &'static [u8] {
 pub const VERSION: RuntimeVersion = RuntimeVersion {
     spec_name: create_runtime_str!("datahighway"),
     impl_name: create_runtime_str!("datahighway"),
-    authoring_version: 3,
-    spec_version: 7,
-    impl_version: 3,
+    authoring_version: 2,
+    spec_version: 8,
+    impl_version: 2,
     apis: RUNTIME_API_VERSIONS,
-    transaction_version: 3,
+    transaction_version: 2,
 };
 
 /// Native version.
