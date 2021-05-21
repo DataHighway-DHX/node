@@ -197,7 +197,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
     spec_name: create_runtime_str!("datahighway"),
     impl_name: create_runtime_str!("datahighway"),
     authoring_version: 2,
-    spec_version: 8,
+    spec_version: 7,
     impl_version: 2,
     apis: RUNTIME_API_VERSIONS,
     transaction_version: 2,
