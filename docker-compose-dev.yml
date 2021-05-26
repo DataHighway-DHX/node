@@ -17,7 +17,7 @@ services:
       - 9933:9933 # RPC
     volumes:
       - basePath:/tmp
-      - ./scripts:/dhx/scripts
+      - ./scripts:/dhx/node/scripts
       - ./node/src/chain-built:/dhx/node/node/src/chain-built
     restart: always
     entrypoint:
@@ -33,7 +33,7 @@ services:
       - 9934:9933
     volumes:
       - basePath:/tmp
-      - ./scripts:/dhx/scripts
+      - ./scripts:/dhx/node/scripts
       - ./node/src/chain-built:/dhx/node/node/src/chain-built
     restart: always
     entrypoint:
@@ -49,7 +49,7 @@ services:
       - 9935:9933
     volumes:
       - basePath:/tmp
-      - ./scripts:/dhx/scripts
+      - ./scripts:/dhx/node/scripts
       - ./node/src/chain-built:/dhx/node/node/src/chain-built
     restart: always
     entrypoint:
@@ -65,7 +65,7 @@ services:
       - 9936:9933
     volumes:
       - basePath:/tmp
-      - ./scripts:/dhx/scripts
+      - ./scripts:/dhx/node/scripts
       - ./node/src/chain-built:/dhx/node/node/src/chain-built
     restart: always
     entrypoint:
@@ -81,7 +81,7 @@ services:
       - 9937:9933
     volumes:
       - basePath:/tmp
-      - ./scripts:/dhx/scripts
+      - ./scripts:/dhx/node/scripts
       - ./node/src/chain-built:/dhx/node/node/src/chain-built
     restart: always
     entrypoint:

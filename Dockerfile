@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y build-essential wget cmake pkg-config l
 # runtime stage
 FROM rust as runtime
 # set path for docker scripts in case used, to override below default entrypoint
-WORKDIR /dhx/scripts
+WORKDIR /dhx/node/scripts
 
 COPY --from=builder /dhx/node/target/release/datahighway /usr/local/bin
 
