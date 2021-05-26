@@ -1,5 +1,6 @@
 {
   "Date": "i64",
+  "AccountInfo": "AccountInfoWithDualRefCount",
   "Keys": "SessionKeys2",
   "Address": "MultiAddress",
   "LookupSource": "MultiAddress",
