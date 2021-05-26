@@ -453,7 +453,8 @@ pub fn datahighway_testnet_brickable_config() -> Result<ChainSpec, String> {
             true,
         ),
         vec![
-            "/ip4/3.67.117.245/tcp/30333/p2p/12D3KooWFmR35FFHiXcQv8hsFWDq6ofttqBPeMkd4Jt6qRgq3HnT"
+            // ip4/3.67.117.245
+            "/dns4/brickable.datahighway.com/tcp/30333/p2p/12D3KooWMkhKjaWyJ2Qt4zcQSc1YijnwPFzUQ6R9xfQk9AqWJKiq"
                 .parse()
                 .unwrap(),
         ],
