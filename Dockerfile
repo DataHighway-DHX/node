@@ -1,7 +1,7 @@
 # build stage
 FROM rust as builder
 # create a project folder
-WORKDIR /dhx
+WORKDIR /dhx/node
 
 COPY . .
 
@@ -25,6 +25,6 @@ FROM rust as runtime
 # set path for docker scripts in case used, to override below default entrypoint
 WORKDIR /dhx/scripts
 
-COPY --from=builder /dhx/target/release/datahighway /usr/local/bin
+COPY --from=builder /dhx/node/target/release/datahighway /usr/local/bin
 
 ENTRYPOINT ["/usr/local/bin/datahighway"]
