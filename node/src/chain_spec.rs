@@ -273,6 +273,204 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 	))
 }
 
+// WARNING: The purpose of this testnet is for initial experiementation with
+// multiple validator nodes where chaos such as bricking the chain is permitted,
+// to avoid potentially bricking the DataHighway Harbour Testnet and impacting users.
+pub fn datahighway_testnet_brickable_config() -> Result<ChainSpec, String> {
+    let wasm_binary = WASM_BINARY.ok_or_else(|| "Wasm binary not available".to_string())?;
+
+    let mut properties = Map::new();
+    properties.insert("tokenSymbol".into(), "BRI".into());
+    properties.insert("tokenDecimals".into(), 18.into());
+
+    Ok(ChainSpec::from_genesis(
+        // Name
+        "DataHighway Brickable Testnet",
+        // ID
+        "brickable",
+        ChainType::Live,
+        // TODO: regenerate alphanet according to babe-grandpa consensus
+        // subkey inspect "$SECRET"
+        // for i in 1 2 3 4; do for j in stash controller; do subkey inspect "$SECRET//$i//$j"; done;
+        // done for i in 1 2 3 4; do for j in babe; do subkey inspect
+        // --scheme=sr25519 "$SECRET//$i//$j"; done; done for i in 1 2 3 4; do
+        // for j in grandpa; do subkey inspect --scheme=ed25519 "$SECRET//$i//$j"; done; done
+        move || testnet_genesis(
+            wasm_binary,
+            // Initial NPoS authorities
+            vec![
+                // authority #1
+                (
+                    // cont
+                    hex!["ba75230fdee3ff9f069bcf8047a52f0655ea5053a04e7de509e3b1d019c2b511"].into(),
+                    // stash
+                    hex!["20ee614cc59285dcbca2b4d50c2e20490a87370d4de15baeda649e3538005d4f"].into(),
+                    // babe
+                    hex!["38ac520a6d9e78538d9351526d98eba4e4cdbabac0329f7be20146f69775964b"]
+                        .unchecked_into(),
+                    // gran
+                    hex!["edb0bfee980d12609f9641e1720ee4b2d4bee53e052c71e13580ee8f144a361c"]
+                        .unchecked_into(),
+                    // im_online
+                    hex!["02ac967466f3a26e6160bc89d9f41bf0c919a36329e53c69427038f222eae917"]
+                        .unchecked_into(),
+                    // authority_discovery
+                    hex!["24a4f1c3c73f19467462f575cc2dda90076bdf0ce7e012f76ec255edb3e2ba54"]
+                        .unchecked_into(),
+                ),
+                // authority #2
+                (
+                    // cont
+                    hex!["cc135d9509883c963bc58bf987c5f66867a3bf4a09c65b30bfb7654e88178c4d"].into(),
+                    // stash
+                    hex!["18c8fc8aac47703f11e022b304a78fcff4b06f4723e6a5e748e7ae15106a8c06"].into(),
+                    // babe
+                    hex!["2eac5b0989874724c036a0df4db41adeff9de77e23fb2a136056535722cce84d"]
+                        .unchecked_into(),
+                    // gran
+                    hex!["4bbcc0bb7e3f10a8ad097f00c8cd87ab647904e87c9103a46a3db20e74507bea"]
+                        .unchecked_into(),
+                    // im_online
+                    hex!["b4827253f5bb96ff14cebd31ebe5d4cd1f7300448eddc115f5d9f8b1fde3e404"]
+                        .unchecked_into(),
+                    // authority_discovery
+                    hex!["801ffc2fa88b7a2cc58d0e3dfb975d27b56c8de3bb286bc33a86b549679ba23f"]
+                        .unchecked_into(),
+                ),
+                // authority #3
+                (
+                    // cont
+                    hex!["6eccb2e1ee65d161e85b45b45a2f5d859dd214c075d5c2a0aa35174281af3e76"].into(),
+                    // stash
+                    hex!["26f3fc47ec49a2981a95352dba050435f135d6a76f25cc489004e2ae098c8c5e"].into(),
+                    // babe
+                    hex!["78013a5320fa1b96e4505472f98948e7305af5385fe2e56ef3f08559975d544c"]
+                        .unchecked_into(),
+                    // gran
+                    hex!["f8aaa52bc3a0b168fb1bdcfd3d4fe4220cfd893593371c4c2d21defd605ffa4e"]
+                        .unchecked_into(),
+                    // im_online
+                    hex!["52540f73318658212a94ee627aa1e90cb7e0331a4aac5f7e844d4e704939b330"]
+                        .unchecked_into(),
+                    // authority_discovery
+                    hex!["947f3db6b336ec959c49cb3be516dbaaa4f281d4d63ec794e5e9be63ca0ee165"]
+                        .unchecked_into(),
+                ),
+                // authority #4
+                (
+                    // cont
+                    hex!["c450c238e0bba0afe639c4c9e1b0f254b9acb193c9e7c390938e229446ac6161"].into(),
+                    // stash
+                    hex!["3e41a44cee0ade04ae35e7c96bfb2e4070c605aa6d6dcab77130afa594eced68"].into(),
+                    // babe
+                    hex!["fab99fbe39614ec041e79e18ba95d5826333a5deece3fd8ad59fcd59c262554d"]
+                        .unchecked_into(),
+                    // gran
+                    hex!["5526a6397e13b10a1d2b27114ad8322b8339cdbff9e47867cc11f500783d26ef"]
+                        .unchecked_into(),
+                    // im_online
+                    hex!["a0e8c1d5e5dfd4d4626cc425e6fbd3b55a36cf6632e88ea40739e40c27ed3c36"]
+                        .unchecked_into(),
+                    // authority_discovery
+                    hex!["2c93879839c514b0e845939e4209810e40bd9ff2ceecaf44a382c08f0359c778"]
+                        .unchecked_into(),
+                ),
+                // authority #5
+                (
+                    // cont
+                    hex!["c450c238e0bba0afe639c4c9e1b0f254b9acb193c9e7c390938e229446ac6161"].into(),
+                    // stash
+                    hex!["3e41a44cee0ade04ae35e7c96bfb2e4070c605aa6d6dcab77130afa594eced68"].into(),
+                    // babe
+                    hex!["fab99fbe39614ec041e79e18ba95d5826333a5deece3fd8ad59fcd59c262554d"]
+                        .unchecked_into(),
+                    // gran
+                    hex!["5526a6397e13b10a1d2b27114ad8322b8339cdbff9e47867cc11f500783d26ef"]
+                        .unchecked_into(),
+                    // im_online
+                    hex!["a0e8c1d5e5dfd4d4626cc425e6fbd3b55a36cf6632e88ea40739e40c27ed3c36"]
+                        .unchecked_into(),
+                    // authority_discovery
+                    hex!["2c93879839c514b0e845939e4209810e40bd9ff2ceecaf44a382c08f0359c778"]
+                        .unchecked_into(),
+                ),
+            ],
+            // Sudo account
+            // 4MF7atBumtP8vGUGG1888e798TCYfXrHMNt52BxW8P3CQNpm
+            hex!["9068e3ce9b1055605a3bc4120e697b576c2ac6a13ee6f6ab751ad82e79eb4957"].into(),
+            // Pre-funded accounts
+            vec![
+                // Endow the Sudo account to cover transaction fees
+                hex!["9068e3ce9b1055605a3bc4120e697b576c2ac6a13ee6f6ab751ad82e79eb4957"].into(),
+                // Endow the Treasury account with the DHX DAO Unlocked Reserves Balance
+                // 4LTFqiD6H6g8a7ur9WH4RxhWx2givWfK7o5EDed3ai1nYTvk
+                hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
+                // Endow these accounts with a balance so they may bond as authorities.
+                // IMPORTANT: All authorities must be included in the list below so they have
+                // an account balance to avoid session error
+                // `assertion failed: frame_system::Module::<T>::inc_consumers(&account).is_ok()`
+
+                // authority #1
+                hex!["ba75230fdee3ff9f069bcf8047a52f0655ea5053a04e7de509e3b1d019c2b511"].into(),
+                hex!["20ee614cc59285dcbca2b4d50c2e20490a87370d4de15baeda649e3538005d4f"].into(),
+                hex!["38ac520a6d9e78538d9351526d98eba4e4cdbabac0329f7be20146f69775964b"].into(),
+                hex!["edb0bfee980d12609f9641e1720ee4b2d4bee53e052c71e13580ee8f144a361c"].into(),
+                hex!["02ac967466f3a26e6160bc89d9f41bf0c919a36329e53c69427038f222eae917"].into(),
+                hex!["24a4f1c3c73f19467462f575cc2dda90076bdf0ce7e012f76ec255edb3e2ba54"].into(),
+
+                // authority #2
+                hex!["cc135d9509883c963bc58bf987c5f66867a3bf4a09c65b30bfb7654e88178c4d"].into(),
+                hex!["18c8fc8aac47703f11e022b304a78fcff4b06f4723e6a5e748e7ae15106a8c06"].into(),
+                hex!["2eac5b0989874724c036a0df4db41adeff9de77e23fb2a136056535722cce84d"].into(),
+                hex!["4bbcc0bb7e3f10a8ad097f00c8cd87ab647904e87c9103a46a3db20e74507bea"].into(),
+                hex!["b4827253f5bb96ff14cebd31ebe5d4cd1f7300448eddc115f5d9f8b1fde3e404"].into(),
+                hex!["801ffc2fa88b7a2cc58d0e3dfb975d27b56c8de3bb286bc33a86b549679ba23f"].into(),
+
+                // authority #3
+                hex!["6eccb2e1ee65d161e85b45b45a2f5d859dd214c075d5c2a0aa35174281af3e76"].into(),
+                hex!["26f3fc47ec49a2981a95352dba050435f135d6a76f25cc489004e2ae098c8c5e"].into(),
+                hex!["78013a5320fa1b96e4505472f98948e7305af5385fe2e56ef3f08559975d544c"].into(),
+                hex!["f8aaa52bc3a0b168fb1bdcfd3d4fe4220cfd893593371c4c2d21defd605ffa4e"].into(),
+                hex!["52540f73318658212a94ee627aa1e90cb7e0331a4aac5f7e844d4e704939b330"].into(),
+                hex!["947f3db6b336ec959c49cb3be516dbaaa4f281d4d63ec794e5e9be63ca0ee165"].into(),
+
+                // authority #4
+                hex!["c450c238e0bba0afe639c4c9e1b0f254b9acb193c9e7c390938e229446ac6161"].into(),
+                hex!["3e41a44cee0ade04ae35e7c96bfb2e4070c605aa6d6dcab77130afa594eced68"].into(),
+                hex!["fab99fbe39614ec041e79e18ba95d5826333a5deece3fd8ad59fcd59c262554d"].into(),
+                hex!["5526a6397e13b10a1d2b27114ad8322b8339cdbff9e47867cc11f500783d26ef"].into(),
+                hex!["a0e8c1d5e5dfd4d4626cc425e6fbd3b55a36cf6632e88ea40739e40c27ed3c36"].into(),
+                hex!["2c93879839c514b0e845939e4209810e40bd9ff2ceecaf44a382c08f0359c778"].into(),
+
+                // authority #5
+                hex!["c450c238e0bba0afe639c4c9e1b0f254b9acb193c9e7c390938e229446ac6161"].into(),
+                hex!["3e41a44cee0ade04ae35e7c96bfb2e4070c605aa6d6dcab77130afa594eced68"].into(),
+                hex!["fab99fbe39614ec041e79e18ba95d5826333a5deece3fd8ad59fcd59c262554d"].into(),
+                hex!["5526a6397e13b10a1d2b27114ad8322b8339cdbff9e47867cc11f500783d26ef"].into(),
+                hex!["a0e8c1d5e5dfd4d4626cc425e6fbd3b55a36cf6632e88ea40739e40c27ed3c36"].into(),
+                hex!["2c93879839c514b0e845939e4209810e40bd9ff2ceecaf44a382c08f0359c778"].into(),
+            ],
+            true,
+        ),
+        vec![
+            "/ip4/3.67.117.245/tcp/30333/p2p/12D3KooWMkhKjaWyJ2Qt4zcQSc1YijnwPFzUQ6R9xfQk9AqWJKiq"
+                .parse()
+                .unwrap(),
+        ],
+        // Telemetry Endpoints
+        Some(
+            TelemetryEndpoints::new(vec![(POLKADOT_STAGING_TELEMETRY_URL.to_string(), 0)])
+                .expect("Polkadot telemetry url is valid; qed"),
+        ),
+        // Protocol ID
+        Some("dhx-test-brickable"),
+        // Properties
+        Some(properties),
+        // Extensions
+        Default::default(),
+    ))
+}
+
 pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
 	let wasm_binary = WASM_BINARY.ok_or_else(|| "Wasm binary not available".to_string())?;
 
@@ -376,6 +574,8 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
             hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
 			// Pre-funded accounts
             vec![
+                // Endow the Sudo account to cover transaction fees
+                hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
                 // Endow the Treasury account with the DHX DAO Unlocked Reserves Balance
                 // 4LTFqiD6H6g8a7ur9WH4RxhWx2givWfK7o5EDed3ai1nYTvk
                 hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
@@ -881,10 +1081,10 @@ fn session_keys(
 // Testnet
 
 // in testnet total supply should be 100m, with 30m (30%) going to DHX DAO unlocked reserves, and the remaining
-// 70m split between the initial 8x accounts other than the reserves such that each should receive 8750
-const TESTNET_INITIAL_ENDOWMENT: u128 = 8_750_000_000_000_000_000_000_000_u128; // 70M DHX
+// 70m split between the initial accounts other than the reserves
+const TESTNET_INITIAL_ENDOWMENT: u128 = 10_000_000_000_000_000_000_u128; // 10 DHX
 const TESTNET_INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_000_000_000_000_000_u128; // 30M DHX
-const TESTNET_INITIAL_STASH: u128 = TESTNET_INITIAL_ENDOWMENT / 1000;
+const TESTNET_INITIAL_STASH: u128 = MAINNET_INITIAL_ENDOWMENT / 10; // 1 DHX
 
 // Mainnet
 const MAINNET_INITIAL_ENDOWMENT: u128 = 10_000_000_000_000_000_000_u128; // 10 DHX

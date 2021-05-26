@@ -245,6 +245,16 @@ substrate-module-new <module-name> <author>
 		```
 * Question: How do I upgrade the runtime without stopping the blockchain
 	* Answer: https://www.youtube.com/watch?v=0aTnxHrV_j4&list=PLOyWqupZ-WGt3mA_d9wu74vVe0bM37-39&index=9&t=0s
+    * Additionally read both of these as comments are scattered:
+        * Knowledgebase https://substrate.dev/docs/en/knowledgebase/runtime/upgrades#runtime-versioning * Substrate API Docs code comments https://substrate.dev/rustdocs/v3.0.0/substrate_test_runtime_client/sc_executor/struct.RuntimeVersion.html#structfield.spec_version
+        * Other comments in Substrate codebase say:
+            * bug fixes
+                * should result in an increment of spec_version and possibly authoring_version,
+                * absolutely not impl_version since they change the semantics of the runtime.
+            * runtime behavior changes
+                * increment spec_version and set impl_version to 0
+            * only runtime implementation changes and behavior does not change
+                * then leave spec_version as is and increment impl_version.
 
 * Question: How may I debug and contribute to fixing UI errors or any errors in the browser console that I encounter when using Polkadot.js Apps https://polkadot.js.org/apps?
 	* Answer: If you run Polkadot.js Apps locally from your machine then the errors are easier to debug. Follow the instructions at https://github.com/polkadot-js/apps, including cloning it, and running it. Try to identify and fix the error, and raise an issue in that repository if necessary.

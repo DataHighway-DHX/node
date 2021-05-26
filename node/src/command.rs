@@ -68,6 +68,7 @@ impl SubstrateCli for Cli {
 			"dev" => Box::new(chain_spec::development_config()?),
             "" | "local" => Box::new(chain_spec::local_testnet_config()?),
             // "testnet_file" => Box::new(chain_spec::datahighway_testnet_file_config()?),
+            "brickable" => Box::new(chain_spec::datahighway_testnet_brickable_config()?),
             "harbour" => Box::new(chain_spec::datahighway_testnet_harbour_config()?),
             "westlake" => Box::new(chain_spec::datahighway_mainnet_westlake_config()?),
 			path => Box::new(chain_spec::ChainSpec::from_json_file(

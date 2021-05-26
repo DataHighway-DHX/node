@@ -197,7 +197,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
     spec_name: create_runtime_str!("datahighway"),
     impl_name: create_runtime_str!("datahighway"),
     authoring_version: 2,
-    spec_version: 6,
+    spec_version: 7,
     impl_version: 2,
     apis: RUNTIME_API_VERSIONS,
     transaction_version: 2,
@@ -290,6 +290,30 @@ impl frame_system::Config for Runtime {
     type OnKilledAccount = ();
     type SystemWeightInfo = frame_system::weights::SubstrateWeight<Runtime>;
     type SS58Prefix = SS58Prefix;
+}
+
+impl pallet_utility::Config for Runtime {
+	type Event = Event;
+	type Call = Call;
+	type WeightInfo = pallet_utility::weights::SubstrateWeight<Runtime>;
+}
+
+parameter_types! {
+	// One storage item; key size is 32; value is size 4+4+16+32 bytes = 56 bytes.
+	pub const DepositBase: Balance = deposit(1, 88);
+	// Additional storage item size of 32 bytes.
+	pub const DepositFactor: Balance = deposit(0, 32);
+	pub const MaxSignatories: u16 = 100;
+}
+
+impl pallet_multisig::Config for Runtime {
+	type Event = Event;
+	type Call = Call;
+	type Currency = Balances;
+	type DepositBase = DepositBase;
+	type DepositFactor = DepositFactor;
+	type MaxSignatories = MaxSignatories;
+	type WeightInfo = pallet_multisig::weights::SubstrateWeight<Runtime>;
 }
 
 parameter_types! {
@@ -1065,6 +1089,7 @@ construct_runtime!(
     {
         // IMPORTANT: Order is important. Ensure the order matches Substrate's repository
         System: frame_system::{Module, Call, Config, Storage, Event<T>},
+        Utility: pallet_utility::{Module, Call, Event},
         Babe: pallet_babe::{Module, Call, Storage, Config, ValidateUnsigned},
         Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
         Authorship: pallet_authorship::{Module, Call, Storage, Inherent},
@@ -1088,6 +1113,7 @@ construct_runtime!(
         RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
         Identity: pallet_identity::{Module, Call, Storage, Event<T>},
         Scheduler: pallet_scheduler::{Module, Call, Storage, Event<T>},
+        Multisig: pallet_multisig::{Module, Call, Storage, Event<T>},
         Bounties: pallet_bounties::{Module, Call, Storage, Event<T>},
         Tips: pallet_tips::{Module, Call, Storage, Event<T>},
         MembershipSupernodes: membership_supernodes::{Module, Call, Storage, Event<T>},

@@ -2,7 +2,7 @@
 authors = ['MXC Foundation gGmbH <https://t.me/mxcfoundation>', 'Luke Schoen <luke@mxc.org>', 'Ilya Beregovskiy <ilya@mxc.org>']
 edition = '2018'
 name = 'datahighway-runtime'
-version = '3.0.3'
+version = '3.0.4'
 
 [package.metadata.docs.rs]
 targets = ['x86_64-unknown-linux-gnu']
@@ -27,6 +27,7 @@ pallet-identity = { version = '3.0.0', default-features = false }
 pallet-im-online = { version = '3.0.0', default-features = false }
 pallet-indices = { version = '3.0.0', default-features = false }
 pallet-membership = { version = '3.0.0', default-features = false }
+pallet-multisig = { version = '3.0.0', default-features = false }
 pallet-offences = { version = '3.0.0', default-features = false }
 pallet-randomness-collective-flip = { version = '3.0.0', default-features = false }
 pallet-scheduler = { version = '3.0.0', default-features = false }
@@ -39,6 +40,7 @@ pallet-tips = { version = '3.0.0', default-features = false }
 pallet-transaction-payment = { version = '3.0.0', default-features = false }
 pallet-transaction-payment-rpc-runtime-api = { version = '3.0.0', default-features = false }
 pallet-treasury = { version = '3.0.0', default-features = false }
+pallet-utility = { version = '3.0.0', default-features = false }
 serde = { version = '1.0.101', optional = true, features = ['derive'] }
 sp-authority-discovery = { version = '3.0.0', default-features = false }
 sp-api = { version = '3.0.0', default-features = false }
@@ -111,6 +113,7 @@ std = [
     'pallet-collective/std',
     'pallet-elections-phragmen/std',
     'pallet-membership/std',
+    'pallet-multisig/std',
     'pallet-offences/std',
     'pallet-tips/std',
     'pallet-treasury/std',
@@ -121,6 +124,7 @@ std = [
     'pallet-timestamp/std',
     'pallet-transaction-payment/std',
     'pallet-transaction-payment-rpc-runtime-api/std',
+    'pallet-utility/std',
     'serde',
     'sp-api/std',
     'sp-authority-discovery/std',
