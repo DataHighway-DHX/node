@@ -5,14 +5,14 @@ echo "Node Key is ${NODE_KEY}"
 echo "Node Env is ${NODE_ENV}"
 echo "Chain Version is ${CHAIN_VERSION}"
 
-../target/release/datahighway --validator \
+/usr/local/bin/datahighway --validator \
   --unsafe-ws-external \
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/dave \
   --bootnodes /dns4/${ENDPOINT_DEVELOPMENT}/tcp/30333/p2p/${BOOTNODE_ID_LOCAL} \
   --keystore-path "/tmp/polkadot-chains/dave/keys" \
-  --chain ../node/src/chain-built/chain_def_${CHAIN_VERSION}.json \
+  --chain /dhx/node/node/src/chain-built/chain_def_${CHAIN_VERSION}.json \
   --dave \
   --name "${NODE_ENV} Validator Dave" \
   --port 30336 \
