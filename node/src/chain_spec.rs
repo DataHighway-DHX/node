@@ -378,20 +378,20 @@ pub fn datahighway_testnet_brickable_config() -> Result<ChainSpec, String> {
                 // authority #5
                 (
                     // cont
-                    hex!["c450c238e0bba0afe639c4c9e1b0f254b9acb193c9e7c390938e229446ac6161"].into(),
+                    hex!["0213b3d5ea6e0d760fa7183defcef9ae139d8c5728faf6eba22c2cf5c119b838"].into(),
                     // stash
-                    hex!["3e41a44cee0ade04ae35e7c96bfb2e4070c605aa6d6dcab77130afa594eced68"].into(),
+                    hex!["ce3b5b27aca4be7f957a91a1704ae2ceb8910241f88058c04ef2b6df9a8adb18"].into(),
                     // babe
-                    hex!["fab99fbe39614ec041e79e18ba95d5826333a5deece3fd8ad59fcd59c262554d"]
+                    hex!["a02d7d4b0cf52fa8f00601cc4c82805c48aad2836a0b9c87078a17a4a99aef6a"]
                         .unchecked_into(),
                     // gran
-                    hex!["5526a6397e13b10a1d2b27114ad8322b8339cdbff9e47867cc11f500783d26ef"]
+                    hex!["fdb309f030d63d422cdbaf079ade8fbc580aa7debf6c8a18b7db4c097ae1e854"]
                         .unchecked_into(),
                     // im_online
-                    hex!["a0e8c1d5e5dfd4d4626cc425e6fbd3b55a36cf6632e88ea40739e40c27ed3c36"]
+                    hex!["f4f3b8f5fac4208cf231d3f2ac50e4efd91319eb5e8a65ce393564b542d80132"]
                         .unchecked_into(),
                     // authority_discovery
-                    hex!["2c93879839c514b0e845939e4209810e40bd9ff2ceecaf44a382c08f0359c778"]
+                    hex!["ce3fe564530cbd654871f63e43cc310f9fce59b74d897769dd4edb072420a530"]
                         .unchecked_into(),
                 ),
             ],
@@ -443,12 +443,12 @@ pub fn datahighway_testnet_brickable_config() -> Result<ChainSpec, String> {
                 hex!["2c93879839c514b0e845939e4209810e40bd9ff2ceecaf44a382c08f0359c778"].into(),
 
                 // authority #5
-                hex!["c450c238e0bba0afe639c4c9e1b0f254b9acb193c9e7c390938e229446ac6161"].into(),
-                hex!["3e41a44cee0ade04ae35e7c96bfb2e4070c605aa6d6dcab77130afa594eced68"].into(),
-                hex!["fab99fbe39614ec041e79e18ba95d5826333a5deece3fd8ad59fcd59c262554d"].into(),
-                hex!["5526a6397e13b10a1d2b27114ad8322b8339cdbff9e47867cc11f500783d26ef"].into(),
-                hex!["a0e8c1d5e5dfd4d4626cc425e6fbd3b55a36cf6632e88ea40739e40c27ed3c36"].into(),
-                hex!["2c93879839c514b0e845939e4209810e40bd9ff2ceecaf44a382c08f0359c778"].into(),
+                hex!["0213b3d5ea6e0d760fa7183defcef9ae139d8c5728faf6eba22c2cf5c119b838"].into(),
+                hex!["ce3b5b27aca4be7f957a91a1704ae2ceb8910241f88058c04ef2b6df9a8adb18"].into(),
+                hex!["a02d7d4b0cf52fa8f00601cc4c82805c48aad2836a0b9c87078a17a4a99aef6a"].into(),
+                hex!["fdb309f030d63d422cdbaf079ade8fbc580aa7debf6c8a18b7db4c097ae1e854"].into(),
+                hex!["f4f3b8f5fac4208cf231d3f2ac50e4efd91319eb5e8a65ce393564b542d80132"].into(),
+                hex!["ce3fe564530cbd654871f63e43cc310f9fce59b74d897769dd4edb072420a530"].into(),
             ],
             true,
         ),
