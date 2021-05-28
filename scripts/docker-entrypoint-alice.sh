@@ -11,7 +11,7 @@ echo "Chain Version is ${CHAIN_VERSION}"
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/alice \
   --keystore-path "/tmp/polkadot-chains/alice/keys" \
-  --chain /dhx/node/node/src/chain-built/chain_def_${CHAIN_VERSION}.json \
+  --chain ${CHAIN_VERSION} \
   --node-key ${NODE_KEY} \
   --alice \
   --name "${NODE_ENV} Validator Alice" \

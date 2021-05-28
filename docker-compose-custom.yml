@@ -6,11 +6,11 @@ services:
     env_file:
       - .env
     ports:
-      - 30336:30333
-      - 9947:9944
-      - 9936:9933
+      - 30333:30333
+      - 9944:9944
+      - 9933:9933
     volumes:
-      - ./scripts:/dhx/scripts
+      - ./scripts:/dhx/node/scripts
     restart: always
     entrypoint:
       - ./docker-entrypoint-node-1.sh
@@ -23,7 +23,7 @@ services:
       - 9948:9944
       - 9937:9933
     volumes:
-      - ./scripts:/dhx/scripts
+      - ./scripts:/dhx/node/scripts
     restart: always
     entrypoint:
       - ./docker-entrypoint-node-2.sh
@@ -36,7 +36,7 @@ services:
       - 9949:9944
       - 9938:9933
     volumes:
-      - ./scripts:/dhx/scripts
+      - ./scripts:/dhx/node/scripts
     restart: always
     entrypoint:
       - ./docker-entrypoint-node-3.sh
@@ -49,7 +49,7 @@ services:
       - 9950:9944
       - 9939:9933
     volumes:
-      - ./scripts:/dhx/scripts
+      - ./scripts:/dhx/node/scripts
     restart: always
     entrypoint:
       - ./docker-entrypoint-node-4.sh
@@ -62,7 +62,7 @@ services:
       - 9951:9944
       - 9940:9933
     volumes:
-      - ./scripts:/dhx/scripts
+      - ./scripts:/dhx/node/scripts
     restart: always
     entrypoint:
       - ./docker-entrypoint-node-5.sh
