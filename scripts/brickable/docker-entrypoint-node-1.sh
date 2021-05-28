@@ -6,11 +6,12 @@
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/node-1 \
-  --bootnodes /dns/${ENDPOINT_TESTNET}/tcp/30333/p2p/${BOOTNODE_NODE_ID_TESTNET} \
+  --bootnodes /dns/${ENDPOINT_BRICKABLE}/tcp/30333/p2p/${BOOTNODE_NODE_ID_BRICKABLE} \
   --keystore-path "/tmp/polkadot-chains/node-1/keys" \
-  --chain /dhx/node/node/src/chain-built/chain_def_${CHAIN_VERSION}.json \
-  --name "${NODE_ENV} Validator Node 1" \
-  --node-key ${NODE_KEY_TESTNET} \
+  # --chain /dhx/node/node/src/chain-built/chain_def_brickable.json \
+  --chain brickable \
+  --name "Brickable Validator Node 1" \
+  --node-key ${NODE_KEY_BRICKABLE} \
   --port 30333 \
   --ws-port 9944 \
   --rpc-port 9933 \

@@ -11,7 +11,7 @@ echo "Chain Version is ${CHAIN_VERSION}"
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/bob \
   --keystore-path "/tmp/polkadot-chains/bob/keys" \
-  --bootnodes /dns4/${ENDPOINT_DEVELOPMENT}/tcp/30333/p2p/${BOOTNODE_ID_LOCAL} \
+  --bootnodes /ip4/${ENDPOINT_DEVELOPMENT}/tcp/30333/p2p/${BOOTNODE_NODE_ID_LOCAL} \
   --chain /dhx/node/node/src/chain-built/chain_def_${CHAIN_VERSION}.json \
   --bob \
   --name "${NODE_ENV} Validator Bob" \
