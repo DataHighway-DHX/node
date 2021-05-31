@@ -2,7 +2,6 @@
 
 echo "Docker Entrypoint Eve"
 echo "Node Key is ${NODE_KEY}"
-echo "Node Env is ${NODE_ENV}"
 echo "Chain Version is ${CHAIN_VERSION}"
 
 /usr/local/bin/datahighway --validator \
@@ -10,11 +9,10 @@ echo "Chain Version is ${CHAIN_VERSION}"
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/eve \
-  --bootnodes /dns4/${ENDPOINT_DEVELOPMENT}/tcp/30333/p2p/${BOOTNODE_ID_LOCAL} \
-  --keystore-path "/tmp/polkadot-chains/eve/keys" \
-  --chain /dhx/node/node/src/chain-built/chain_def_${CHAIN_VERSION}.json \
+  --bootnodes /ip4/${BOOTNODE_ENDPOINT_DEV}/tcp/30333/p2p/${BOOTNODE_ID_LOCAL} \
+  --chain ${CHAIN_VERSION} \
   --eve \
-  --name "${NODE_ENV} Validator Eve" \
+  --name "${CHAIN_VERSION} Validator Eve" \
   --port 30337 \
   --ws-port 9948 \
   --rpc-port 9936 \
