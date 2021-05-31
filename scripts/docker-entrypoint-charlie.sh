@@ -12,7 +12,7 @@ echo "Chain Version is ${CHAIN_VERSION}"
   --base-path /tmp/polkadot-chains/charlie \
   --bootnodes /ip4/${ENDPOINT_DEVELOPMENT}/tcp/30333/p2p/${BOOTNODE_NODE_ID_LOCAL} \
   --keystore-path "/tmp/polkadot-chains/charlie/keys" \
-  --chain /dhx/node/node/src/chain-built/chain_def_${CHAIN_VERSION}.json \
+  --chain ${CHAIN_VERSION} \
   --charlie \
   --name "${NODE_ENV} Validator Charlie" \
   --port 30335 \

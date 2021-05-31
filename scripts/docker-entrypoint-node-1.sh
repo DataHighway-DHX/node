@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# FIXME - check security associated with each CLI option
 /usr/local/bin/datahighway --validator \
   --unsafe-ws-external \
   --unsafe-rpc-external \
@@ -8,7 +7,7 @@
   --base-path /tmp/polkadot-chains/node-1 \
   --bootnodes /dns/${ENDPOINT_TESTNET}/tcp/30333/p2p/${BOOTNODE_NODE_ID_TESTNET} \
   --keystore-path "/tmp/polkadot-chains/node-1/keys" \
-  --chain /dhx/node/node/src/chain-built/chain_def_${CHAIN_VERSION}.json \
+  --chain ${CHAIN_VERSION} \
   --name "${NODE_ENV} Validator Node 1" \
   --node-key ${NODE_KEY_TESTNET} \
   --port 30333 \
