@@ -2,7 +2,6 @@
 
 echo "Docker Entrypoint Charlie"
 echo "Node Key is ${NODE_KEY}"
-echo "Node Env is ${NODE_ENV}"
 echo "Chain Version is ${CHAIN_VERSION}"
 
 /usr/local/bin/datahighway --validator \
@@ -10,11 +9,10 @@ echo "Chain Version is ${CHAIN_VERSION}"
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/charlie \
-  --bootnodes /ip4/${ENDPOINT_DEVELOPMENT}/tcp/30333/p2p/${BOOTNODE_NODE_ID_LOCAL} \
-  --keystore-path "/tmp/polkadot-chains/charlie/keys" \
+  --bootnodes /ip4/${BOOTNODE_ENDPOINT_DEV}/tcp/30333/p2p/${BOOTNODE_ID_LOCAL} \
   --chain ${CHAIN_VERSION} \
   --charlie \
-  --name "${NODE_ENV} Validator Charlie" \
+  --name "${CHAIN_VERSION} Validator Charlie" \
   --port 30335 \
   --ws-port 9946 \
   --rpc-port 9934 \

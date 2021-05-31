@@ -2,7 +2,6 @@
 
 echo "Docker Entrypoint Alice"
 echo "Node Key is ${NODE_KEY}"
-echo "Node Env is ${NODE_ENV}"
 echo "Chain Version is ${CHAIN_VERSION}"
 
 /usr/local/bin/datahighway --validator \
@@ -10,11 +9,10 @@ echo "Chain Version is ${CHAIN_VERSION}"
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/alice \
-  --keystore-path "/tmp/polkadot-chains/alice/keys" \
   --chain ${CHAIN_VERSION} \
   --node-key ${NODE_KEY} \
   --alice \
-  --name "${NODE_ENV} Validator Alice" \
+  --name "${CHAIN_VERSION} Validator Alice" \
   --port 30333 \
   --ws-port 9944 \
   --rpc-port 9933 \

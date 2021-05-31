@@ -118,7 +118,6 @@ Run Alice's bootnode using the raw chain definition file that was generated
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/alice \
-  --keystore-path "/tmp/polkadot-chains/alice/keys" \
   --chain ./node/src/chain-built/chain_def_local.json \
   --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee \
   --alice \
@@ -148,7 +147,6 @@ Run Bob's Substrate-based node on a different TCP port of 30334, and with his ch
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/bob \
-  --keystore-path "/tmp/polkadot-chains/bob/keys" \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
   --chain ./node/src/chain-built/chain_def_local.json \
   --bob \
@@ -173,7 +171,6 @@ Run Charlie's Substrate-based node on a different TCP port of 30335, and with hi
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/charlie \
-  --keystore-path "/tmp/polkadot-chains/charlie/keys" \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
   --chain ./node/src/chain-built/chain_def_local.json \
   --charlie \
@@ -199,7 +196,6 @@ Run Dave's node using different ports.
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/dave \
-  --keystore-path "/tmp/polkadot-chains/dave/keys" \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
   --chain ./node/src/chain-built/chain_def_local.json \
   --dave \
@@ -222,7 +218,6 @@ Run Eve's node using different ports.
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/eve \
-  --keystore-path "/tmp/polkadot-chains/eve/keys" \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
   --chain ./node/src/chain-built/chain_def_local.json \
   --eve \

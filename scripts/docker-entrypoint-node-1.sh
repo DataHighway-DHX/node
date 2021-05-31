@@ -5,10 +5,9 @@
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/node-1 \
-  --bootnodes /dns/${ENDPOINT_TESTNET}/tcp/30333/p2p/${BOOTNODE_NODE_ID_TESTNET} \
-  --keystore-path "/tmp/polkadot-chains/node-1/keys" \
+  --bootnodes /ip4/${BOOTNODE_ENDPOINT_TESTNET}/tcp/30333/p2p/${BOOTNODE_NODE_ID_TESTNET} \
   --chain ${CHAIN_VERSION} \
-  --name "${NODE_ENV} Validator Node 1" \
+  --name "${CHAIN_VERSION} Validator Node 1" \
   --node-key ${NODE_KEY_TESTNET} \
   --port 30333 \
   --ws-port 9944 \
