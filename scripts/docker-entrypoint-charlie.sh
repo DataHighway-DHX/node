@@ -10,7 +10,7 @@ echo "Chain Version is ${CHAIN_VERSION}"
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/charlie \
-  --bootnodes /dns4/${ENDPOINT_DEVELOPMENT}/tcp/30333/p2p/${BOOTNODE_ID_LOCAL} \
+  --bootnodes /ip4/${ENDPOINT_DEVELOPMENT}/tcp/30333/p2p/${BOOTNODE_NODE_ID_LOCAL} \
   --keystore-path "/tmp/polkadot-chains/charlie/keys" \
   --chain ${CHAIN_VERSION} \
   --charlie \

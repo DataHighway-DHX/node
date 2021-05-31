@@ -1,0 +1,87 @@
+version: "3.5"
+
+services:
+
+  node-1:
+    build: .
+    image: dhxdocker/datahighway:latest
+    env_file:
+      - .env
+    ports:
+      - 30333:30333 # TCP
+      - 9944:9944 # WS
+      - 9933:9933 # RPC
+    volumes:
+      - basePath:/tmp
+      - ./scripts:/dhx/node/scripts
+      - ./node/src/chain-built:/dhx/node/node/src/chain-built
+    restart: always
+    entrypoint:
+      - ./brickable/docker-entrypoint-node-1.sh
+
+  node-2:
+    image: dhxdocker/datahighway:latest
+    env_file:
+      - .env
+    ports:
+      - 30334:30333
+      - 9945:9944
+      - 9934:9933
+    volumes:
+      - basePath:/tmp
+      - ./scripts:/dhx/node/scripts
+      - ./node/src/chain-built:/dhx/node/node/src/chain-built
+    restart: always
+    entrypoint:
+      - ./brickable/docker-entrypoint-node-2.sh
+
+  node-3:
+    image: dhxdocker/datahighway:latest
+    env_file:
+      - .env
+    ports:
+      - 30335:30333
+      - 9946:9944
+      - 9935:9933
+    volumes:
+      - basePath:/tmp
+      - ./scripts:/dhx/node/scripts
+      - ./node/src/chain-built:/dhx/node/node/src/chain-built
+    restart: always
+    entrypoint:
+      - ./brickable/docker-entrypoint-node-3.sh
+
+  node-4:
+    image: dhxdocker/datahighway:latest
+    env_file:
+      - .env
+    ports:
+      - 30336:30333
+      - 9947:9944
+      - 9936:9933
+    volumes:
+      - basePath:/tmp
+      - ./scripts:/dhx/node/scripts
+      - ./node/src/chain-built:/dhx/node/node/src/chain-built
+    restart: always
+    entrypoint:
+      - ./brickable/docker-entrypoint-node-4.sh
+
+  node-5:
+    image: dhxdocker/datahighway:latest
+    env_file:
+      - .env
+    ports:
+      - 30337:30333
+      - 9948:9944
+      - 9937:9933
+    volumes:
+      - basePath:/tmp
+      - ./scripts:/dhx/node/scripts
+      - ./node/src/chain-built:/dhx/node/node/src/chain-built
+    restart: always
+    entrypoint:
+      - ./brickable/docker-entrypoint-node-1.sh
+
+volumes:
+  basePath:
