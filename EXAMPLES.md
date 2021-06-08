@@ -377,26 +377,61 @@ image: "dhxdocker/datahighway:<YOUR_BRANCH_NAME>"
 * Install or update Rust and dependencies. Build the WebAssembly binary from all code. Create blockchain configuration from chain specification and "raw" chain definition.
 
 ```
-docker-compose --env-file=./.env --file docker-compose-dev.yml --verbose build --no-cache --build-arg CHAIN_VERSION="local"
+docker-compose --env-file=./.env --file docker-compose-dev.yml --verbose build --build-arg CHAIN_VERSION="local"
 ```
 
 Note: If you get error `error: failed to parse manifest at /dhx/runtime/Cargo.toml Caused by: no targets specified in the manifest either src/lib.rs, src/main.rs, a [lib] section, or [[bin]] section must be present` then it's because the necessary folders haven't been copied using Docker's `COPY` (i.e. `COPY ./abc/* /root/abc` doesn't work, it shouldn't have the `*`)
 
-### Run Docker Containers for each Node (Alice, Bob, Charlie, Dave, Eve)
+Note: Run without cache if desired with `--no-cache` (e.g. `docker-compose --env-file=./.env --file docker-compose-dev.yml --verbose build --no-cache --build-arg CHAIN_VERSION="local"`)
+
+### Run All Docker Containers for each Node (Alice, Bob, Charlie, Dave, Eve)
 
 ```
-docker-compose -f docker-compose-dev.yml up --detach alice && \
-docker-compose -f docker-compose-dev.yml up --detach bob && \
-docker-compose -f docker-compose-dev.yml up --detach charlie && \
-docker-compose -f docker-compose-dev.yml up --detach dave && \
-docker-compose -f docker-compose-dev.yml up --detach eve
+docker-compose -f docker-compose-dev.yml up --detach
 ```
 
-### View Logs of each Node
+Note: To run only individual Docker containers in the background use `--detach <SERVICE_NAME>` (e.g. `--detach alice`) instead of just `--detach`.
+
+### View All Docker Container Logs
 
 ```
-docker-compose logs --follow
+docker-compose -f docker-compose-dev.yml logs --follow
 ```
+
+#### Access a Docker Container
+
+Access a Docker Container (e.g. Alice)
+```
+docker-compose -f docker-compose-dev.yml exec alice bash
+```
+
+### Restart All Docker Container
+
+Stop & Remove All Docker Containers
+```
+docker-compose -f docker-compose-dev.yml down
+```
+
+List Docker Volumes
+```
+docker volume ls
+```
+
+Note: Copy the value in the Volume Name column (e.g. `node_basePath`)
+
+Remove a Listed Docker Volume
+```
+docker volume rm <VOLUME_NAME>
+```
+
+Restart All Docker Containers
+```
+docker-compose -f docker-compose-dev.yml up --detach
+```
+
+Note: To stop and remove only an individual Docker container use `down <SERVICE_NAME>` (e.g. `down alice`) instead of just `down`. Same applies to starting an individual Docker container, with `start <SERVICE_NAME>` or `stop <SERVICE_NAME>`.
+
+Note: Where `<SERVICE>` is `alice`, `bob`, `charlie`, `dave`, or `eve` as defined in docker-compose-dev.yml file
 
 ### Interact using UI
 
@@ -410,34 +445,6 @@ const { data: balance } = await api.query.system.account(DHX_DAO);
 const totalIssuance = await api.query.balances.totalIssuance();
 console.log(`DHX DAO Unlocked Reserves has a balance of ${balance.free} DHX`);
 console.log(`DataHighway has a total supply of ${totalIssuance} DHX`);
-```
-
-### Stop or Restart Docker Container
-
-```
-docker-compose -f docker-compose-dev.yml stop alice && \
-docker-compose -f docker-compose-dev.yml stop bob && \
-docker-compose -f docker-compose-dev.yml stop charlie && \
-docker-compose -f docker-compose-dev.yml stop dave && \
-docker-compose -f docker-compose-dev.yml stop eve
-```
-
-```
-docker-compose -f docker-compose-dev.yml start alice && \
-docker-compose -f docker-compose-dev.yml start bob && \
-docker-compose -f docker-compose-dev.yml start charlie && \
-docker-compose -f docker-compose-dev.yml start dave && \
-docker-compose -f docker-compose-dev.yml start eve
-```
-
-Note: Where `<SERVICE>` is `alice`, `bob`, `charlie`, `dave`, or `eve` as defined in docker-compose-dev.yml file
-
-### Other
-
-#### Access the Docker Container
-
-```
-docker-compose -f docker-compose-dev.yml exec alice bash
 ```
 
 ## Testnet (standalone) "brickable" PoS (with multiple nodes) <a id="chapter-ff1234"></a>
