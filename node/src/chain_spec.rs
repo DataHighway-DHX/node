@@ -584,6 +584,101 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                     hex!["ae641bd93c58d5235054b3a498794b1d18213b9818b7c12eaec596dcb283235f"]
                         .unchecked_into(),
                 ),
+                // authority #6
+                (
+                    // stash
+                    hex!["04034be760fa29265c5df75891253c28add3d9dc6acc592ab287e4b4e2bdcb13"].into(),
+                    // cont
+                    hex!["d0dca20158075b94a46aede114a3180d762a7deb9723baa5b3881bda19335716"].into(),
+                    // gran
+                    hex!["16dcf1c6f2c9c37312d34f1f418e758eb9c97cbaf9ef10b06b6f3b4b4b33f724"]
+                        .unchecked_into(),
+                    // babe
+                    hex!["862f4e806774375fe3695fcd715474bff065f91d2f633096a06acf1167fe8d60"]
+                        .unchecked_into(),
+                    // im_online
+                    hex!["209f13424140c5661d4fd6e13f856c1394a167d1631a47d508afd6dd35463c2e"]
+                        .unchecked_into(),
+                    // authority_discovery
+                    hex!["d4ab6cb499d4cf91ea01390b8ceee56e4c50f59a8243a66cdabd9892772edb67"]
+                        .unchecked_into(),
+                ),
+                // authority #7
+                (
+                    // stash
+                    hex!["1e7171d63c29cf75a022f9c7cf817774eb9976a481991fcd7a28c7286d5ec34e"].into(),
+                    // cont
+                    hex!["4eba5183abe641a421249343037087f48cf3eba9c2628d566bd0e347f619db4a"].into(),
+                    // gran
+                    hex!["3a592141f7aaef64444aa506a590fdf5769834b74b47f5087eda97ac6833b23f"]
+                        .unchecked_into(),
+                    // babe
+                    hex!["b4801d80cd15b61d9774bf163c60d2068606f2f00f2ff4ee1f7a720062f2f775"]
+                        .unchecked_into(),
+                    // im_online
+                    hex!["b23f016ff3adc74468775edc594c887cfdb0636468f6a522ec41a434a5367969"]
+                        .unchecked_into(),
+                    // authority_discovery
+                    hex!["3025a89a305f6e1a5599b3b9f551f907950c97d8e7614b6c248a26e36e4e7d2a"]
+                        .unchecked_into(),
+                ),
+                // authority #8
+                (
+                    // stash
+                    hex!["3af49d16869a494380772e47fb2d92f114c3190e291ed655c3bf9b9b5df52e42"].into(),
+                    // cont
+                    hex!["98758865268f1a6f7c1307b6ffe18cb764ce9d57561c97423ac145c8d84a4957"].into(),
+                    // gran
+                    hex!["14d83dc11288148747df1f92d11ad4c5b42dbb12f4aa69f679b36f1f84d41ae0"]
+                        .unchecked_into(),
+                    // babe
+                    hex!["6e239d6162484e5c80efcb4762a98e211e11096f5b71bea251ff5732e3c39244"]
+                        .unchecked_into(),
+                    // im_online
+                    hex!["aa7b10d9bc12874940f92d98f99e7c817c2f86e0630847e3fa124035c6e69a69"]
+                        .unchecked_into(),
+                    // authority_discovery
+                    hex!["1006efa023a6729f0cb8908387e847c42f064d9fc8fe71f1bd869a18fc675f56"]
+                        .unchecked_into(),
+                ),
+                // authority #9
+                (
+                    // stash
+                    hex!["603af684fbf8a984af4cc7e147673b576f91da1b3f55e0835a5655a4470e7f22"].into(),
+                    // cont
+                    hex!["b00da5291fc18c973700c7aeab0ca13bdb9f3e48127657c7c9273e75eb7eb27d"].into(),
+                    // gran
+                    hex!["c95b718120a73e30ba70bb2a9d369eeb87ed1f5708f21e66b6cb5d7bcfb8c8f7"]
+                        .unchecked_into(),
+                    // babe
+                    hex!["48be9f059c8363935514c7cfe3a4f096a77f101a112539057789c9c4fc54a14d"]
+                        .unchecked_into(),
+                    // im_online
+                    hex!["805a13b47ac6089a144618a54a0a1f1dd5da9c8bcdf6f54390d882b8d8ff616c"]
+                        .unchecked_into(),
+                    // authority_discovery
+                    hex!["18e905ae2fbe168ebc14b6682179255ea6410733a0d52e69ed49f3717d73236c"]
+                        .unchecked_into(),
+                ),
+                // authority #10
+                (
+                    // stash
+                    hex!["322b80c5529a20a1da5702acfb78879211eed2110d687ca001309c1c6d57030f"].into(),
+                    // cont
+                    hex!["48357721e05e42c153e3f33e739b56c4f711762cb45c5463c0b0891bd49fa64b"].into(),
+                    // gran
+                    hex!["f44fcaa91171530462d0d43225354d09c0e64fc9ac7e6bed017279947d6a4785"]
+                        .unchecked_into(),
+                    // babe
+                    hex!["9e6b8b9fdd9adc2eb83e2496f95f2f944bdc984dc7739ec724cf825a2faab223"]
+                        .unchecked_into(),
+                    // im_online
+                    hex!["2ec48f57ff1730098daf6a65addefce46f22bff0a5b58b098f306f13b01c145d"]
+                        .unchecked_into(),
+                    // authority_discovery
+                    hex!["886e84efd495efa7b46a8b9a9c45a4e02174ba5b94bdd32381a1bebbdfaf7c77"]
+                        .unchecked_into(),
+                ),
             ],
 			// Sudo account
             hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
@@ -638,6 +733,46 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                 hex!["2ed0676546bc839b77af6e2b084b549403081b1840d4d777a8623f2c44bd0d3e"].into(),
                 hex!["5209213d7d09853295062d63199cb272888a678a4a2bc52aefd62248b6ff9c02"].into(),
                 hex!["ae641bd93c58d5235054b3a498794b1d18213b9818b7c12eaec596dcb283235f"].into(),
+
+                // authority #6
+                hex!["04034be760fa29265c5df75891253c28add3d9dc6acc592ab287e4b4e2bdcb13"].into(),
+                hex!["d0dca20158075b94a46aede114a3180d762a7deb9723baa5b3881bda19335716"].into(),
+                hex!["16dcf1c6f2c9c37312d34f1f418e758eb9c97cbaf9ef10b06b6f3b4b4b33f724"].into(),
+                hex!["862f4e806774375fe3695fcd715474bff065f91d2f633096a06acf1167fe8d60"].into(),
+                hex!["209f13424140c5661d4fd6e13f856c1394a167d1631a47d508afd6dd35463c2e"].into(),
+                hex!["d4ab6cb499d4cf91ea01390b8ceee56e4c50f59a8243a66cdabd9892772edb67"].into(),
+
+                // authority #7
+                hex!["1e7171d63c29cf75a022f9c7cf817774eb9976a481991fcd7a28c7286d5ec34e"].into(),
+                hex!["4eba5183abe641a421249343037087f48cf3eba9c2628d566bd0e347f619db4a"].into(),
+                hex!["3a592141f7aaef64444aa506a590fdf5769834b74b47f5087eda97ac6833b23f"].into(),
+                hex!["b4801d80cd15b61d9774bf163c60d2068606f2f00f2ff4ee1f7a720062f2f775"].into(),
+                hex!["b23f016ff3adc74468775edc594c887cfdb0636468f6a522ec41a434a5367969"].into(),
+                hex!["3025a89a305f6e1a5599b3b9f551f907950c97d8e7614b6c248a26e36e4e7d2a"].into(),
+
+                // authority #8
+                hex!["3af49d16869a494380772e47fb2d92f114c3190e291ed655c3bf9b9b5df52e42"].into(),
+                hex!["98758865268f1a6f7c1307b6ffe18cb764ce9d57561c97423ac145c8d84a4957"].into(),
+                hex!["14d83dc11288148747df1f92d11ad4c5b42dbb12f4aa69f679b36f1f84d41ae0"].into(),
+                hex!["6e239d6162484e5c80efcb4762a98e211e11096f5b71bea251ff5732e3c39244"].into(),
+                hex!["aa7b10d9bc12874940f92d98f99e7c817c2f86e0630847e3fa124035c6e69a69"].into(),
+                hex!["1006efa023a6729f0cb8908387e847c42f064d9fc8fe71f1bd869a18fc675f56"].into(),
+
+                // authority #9
+                hex!["603af684fbf8a984af4cc7e147673b576f91da1b3f55e0835a5655a4470e7f22"].into(),
+                hex!["b00da5291fc18c973700c7aeab0ca13bdb9f3e48127657c7c9273e75eb7eb27d"].into(),
+                hex!["c95b718120a73e30ba70bb2a9d369eeb87ed1f5708f21e66b6cb5d7bcfb8c8f7"].into(),
+                hex!["48be9f059c8363935514c7cfe3a4f096a77f101a112539057789c9c4fc54a14d"].into(),
+                hex!["805a13b47ac6089a144618a54a0a1f1dd5da9c8bcdf6f54390d882b8d8ff616c"].into(),
+                hex!["18e905ae2fbe168ebc14b6682179255ea6410733a0d52e69ed49f3717d73236c"].into(),
+
+                // authority #10
+                hex!["322b80c5529a20a1da5702acfb78879211eed2110d687ca001309c1c6d57030f"].into(),
+                hex!["48357721e05e42c153e3f33e739b56c4f711762cb45c5463c0b0891bd49fa64b"].into(),
+                hex!["f44fcaa91171530462d0d43225354d09c0e64fc9ac7e6bed017279947d6a4785"].into(),
+                hex!["9e6b8b9fdd9adc2eb83e2496f95f2f944bdc984dc7739ec724cf825a2faab223"].into(),
+                hex!["2ec48f57ff1730098daf6a65addefce46f22bff0a5b58b098f306f13b01c145d"].into(),
+                hex!["886e84efd495efa7b46a8b9a9c45a4e02174ba5b94bdd32381a1bebbdfaf7c77"].into(),
             ],
 			true,
 		),
