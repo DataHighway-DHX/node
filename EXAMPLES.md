@@ -392,7 +392,7 @@ docker-compose -f docker-compose-dev.yml up --detach
 
 Note: To run only individual Docker containers in the background use `--detach <SERVICE_NAME>` (e.g. `--detach alice`) instead of just `--detach`.
 
-### View All Docker Container Logs
+#### View All Docker Container Logs
 
 ```
 docker-compose -f docker-compose-dev.yml logs --follow
@@ -405,7 +405,7 @@ Access a Docker Container (e.g. Alice)
 docker-compose -f docker-compose-dev.yml exec alice bash
 ```
 
-### Restart All Docker Container
+#### Restart All Docker Container
 
 Stop & Remove All Docker Containers
 ```
