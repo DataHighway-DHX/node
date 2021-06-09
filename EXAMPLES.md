@@ -10,27 +10,20 @@
 
 ## Install and update: Rust, Substrate, Wasm, and Subkey <a id="chapter-ca1234"></a>
 
-* Install and update dependencies (i.e. cmake, gcc, ssl, llvm, etc)
-    * Refer to the [Dockerfile](./Dockerfile) for details on linux.
-    * Refer to https://getsubstrate.io/ for installation steps on various operating systems.
+* Install and update Build Dependencies by following Substrate Developer Hub instructions https://substrate.dev/docs/en/knowledgebase/getting-started/#1-build-dependencies for your specific operating system
 
-* Install and update Rust, Substrate, Wasm, and Subkey:
+* Install and update Rust, Substrate, Wasm:
 
 ```bash
-curl https://getsubstrate.io -sSf | bash -s -- --fast && \
-cargo install --force subkey --git https://github.com/paritytech/substrate --version 2.0.0 --locked && \
-./scripts/init.sh && \
-. ~/.cargo/env && \
 wget -O - https://sh.rustup.rs | sh -s -- -y && \
+. ~/.cargo/env && \
 PATH=$PATH:~/.cargo/bin && \
-rustup update stable nightly && \
-rustup toolchain install nightly-2021-03-10 && \
-rustup target add wasm32-unknown-unknown --toolchain nightly-2021-03-10 && \
-rustup default nightly-2021-03-10 && \
-rustup override set nightly-2021-03-10 && \
+./scripts/init.sh && \
 cargo version && \
 rustc --version
 ```
+
+* Optionally install Subkey from https://substrate.dev/docs/en/knowledgebase/integrate/subkey
 
 ## Example "dev" development PoS testnet (with single node) <a id="chapter-f21efd"></a>
 
