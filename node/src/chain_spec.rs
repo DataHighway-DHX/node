@@ -670,7 +670,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                     hex!["f44fcaa91171530462d0d43225354d09c0e64fc9ac7e6bed017279947d6a4785"]
                         .unchecked_into(),
                     // babe
-                    hex!["9e6b8b9fdd9adc2eb83e2496f95f2f944bdc984dc7739ec724cf825a2faab223"]
+                    hex!["0233e16df3c3fbed4dcc5cf47e694ed484373899d712665c39ef4441d2fae040"]
                         .unchecked_into(),
                     // im_online
                     hex!["2ec48f57ff1730098daf6a65addefce46f22bff0a5b58b098f306f13b01c145d"]
@@ -770,17 +770,13 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                 hex!["322b80c5529a20a1da5702acfb78879211eed2110d687ca001309c1c6d57030f"].into(),
                 hex!["48357721e05e42c153e3f33e739b56c4f711762cb45c5463c0b0891bd49fa64b"].into(),
                 hex!["f44fcaa91171530462d0d43225354d09c0e64fc9ac7e6bed017279947d6a4785"].into(),
-                hex!["9e6b8b9fdd9adc2eb83e2496f95f2f944bdc984dc7739ec724cf825a2faab223"].into(),
+                hex!["0233e16df3c3fbed4dcc5cf47e694ed484373899d712665c39ef4441d2fae040"].into(),
                 hex!["2ec48f57ff1730098daf6a65addefce46f22bff0a5b58b098f306f13b01c145d"].into(),
                 hex!["886e84efd495efa7b46a8b9a9c45a4e02174ba5b94bdd32381a1bebbdfaf7c77"].into(),
             ],
 			true,
 		),
-        vec![
-            "/ip4/18.185.37.254/tcp/30333/p2p/12D3KooWSuLeUmWVn7eJzQR7DDjQ4pqUmGoNMVXKmopkPjETYjyk"
-                .parse()
-                .unwrap(),
-        ],
+        vec![],
         // Telemetry Endpoints
         Some(
             TelemetryEndpoints::new(vec![(POLKADOT_STAGING_TELEMETRY_URL.to_string(), 0)])
