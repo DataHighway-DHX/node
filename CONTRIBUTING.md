@@ -356,6 +356,44 @@ cargo +nightly-2021-03-10-aarch64-apple-darwin fmt --all -- --check
 * Question: What is the Peer ID and the `--node-key`?
     * Ans: See the documentation here https://substrate.dev/docs/en/knowledgebase/integrate/subkey#generating-node-keys. Run the command `subkey generate-node-key --file node-key` to generate and output to the screen a Peer ID for that you may share publicly to the list of bootnodes that validators may connect to. It also generates a file 'node-key' that contains the node's libp2p key that you provide as the value of `--node-key` when starting that validator bootnode, but you should keep the `--node-key` private because if someone else starts their node with the same `--node-key` that you're using then you might get slashed.
 
+* Question: Why do I get this error when trying to run a node on chain "local" `Error: Service(Network(The same bootnode (`/ip4/127.0.0.1/tcp/30333`) is registered with two different peer ids: 12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo and 12D3KooWC92KaQrzxLa3xk7yVJwCCs9vMGndt23dZAtMoR1aQc3V))`?
+    * Ans: It is likely that you have run the first node with the following Node Key, where chain_def_local.json was build on your local machine, and the 2nd node was run as shown below and tries to connect to `QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ`, which is actually the Peer ID for DataHighway Harbour Testnet, when you should instead be using the Peer ID of `12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo` for DataHighway Local Testnet that has already been included in chain_spec.rs genesis configuration such that the `--bootnodes` flag does not need to be specified.
+
+First node
+```
+./target/release/datahighway --validator \
+  ...
+  --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee
+  --chain ./node/src/chain-built/chain_def_local.json \
+  --name "Local Validator Node 1" \
+  --port 30333 \
+  --ws-port 9944 \
+  --rpc-port 9933 \
+  ...
+```
+
+Second node
+
+```
+./target/release/datahighway --validator \
+  ...
+  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo \
+  --chain ./node/src/chain-built/chain_def_local.json \
+  --name "Local Validator Node 2" \
+  --port 30334 \
+  --ws-port 9945 \
+  --rpc-port 9934 \
+  ...
+```
+
+* Question: Why do I get this error when trying to run a node on chain "local"
+```
+ERROR tokio-runtime-worker sync: Bootnode with peer id `12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo` is on a different chain (our genesis: 0x0aa8…cdf9 theirs: 0x7787…87ed)
+```
+    * Ans: It is likely because you have started chain "local" with at least one node, and you have tried to run a subsequent node and provided the flag `--chain ./node/src/chain-built/chain_def_local.json`, but where you the file chain_def_local.json that you are using was generated on a different machine.
+
+* Question: When I run a local network using chain "local" by connecting the peer nodes using `--chain local`, why doesn't it generate blocks like it does when using `--chain ./node/src/chain-built/chain_def_local.json` and finalise blocks after running at least five nodes, where the chain_def_local.json file that is used was built on the same machine we are running the command from?
+    * Ans: TODO
 
 ## Technical Support <a id="chapter-c00ab7"></a>
 
