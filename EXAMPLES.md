@@ -112,13 +112,15 @@ In each terminal we will connect using the "local" chain specification
 
 Run Alice's bootnode using the raw chain definition file that was generated
 
+Note that it should work whether you use `--chain local \` or `--chain ./node/src/chain-built/chain_def_local.json \` below. See section "Create custom blockchain configuration" and https://substrate.dev/docs/en/tutorials/start-a-private-network/customspec for when we would generate the chain spec and definition .json file when we have a custom chain (e.g. brickable, harbour and westlake)
+
 ```bash
 ./target/release/datahighway --validator \
   --unsafe-ws-external \
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/alice \
-  --chain ./node/src/chain-built/chain_def_local.json \
+  --chain local \
   --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee \
   --alice \
   --port 30333 \
@@ -148,7 +150,7 @@ Run Bob's Substrate-based node on a different TCP port of 30334, and with his ch
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/bob \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo \
-  --chain ./node/src/chain-built/chain_def_local.json \
+  --chain local \
   --bob \
   --port 30334 \
   --ws-port 9945 \
@@ -172,7 +174,7 @@ Run Charlie's Substrate-based node on a different TCP port of 30335, and with hi
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/charlie \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo \
-  --chain ./node/src/chain-built/chain_def_local.json \
+  --chain local \
   --charlie \
   --port 30335 \
   --ws-port 9946 \
@@ -197,7 +199,7 @@ Run Dave's node using different ports.
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/dave \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo \
-  --chain ./node/src/chain-built/chain_def_local.json \
+  --chain local \
   --dave \
   --port 30336 \
   --ws-port 9947 \
@@ -219,7 +221,7 @@ Run Eve's node using different ports.
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/eve \
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo \
-  --chain ./node/src/chain-built/chain_def_local.json \
+  --chain local \
   --eve \
   --port 30337 \
   --ws-port 9948 \
