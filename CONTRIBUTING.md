@@ -390,10 +390,10 @@ Second node
 ```
 ERROR tokio-runtime-worker sync: Bootnode with peer id `12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo` is on a different chain (our genesis: 0x0aa8…cdf9 theirs: 0x7787…87ed)
 ```
-    * Ans: It is likely because you have started chain "local" with at least one node, and you have tried to run a subsequent node and provided the flag `--chain ./node/src/chain-built/chain_def_local.json`, but where you the file chain_def_local.json that you are using was generated on a different machine.
+    * Ans: Check that you have added all necessary flags in your command, and if you've used multiple lines make sure there are no missing newline characters `\` so that it recognises the `--chain ...` that you've provided
 
 * Question: When I run a local network using chain "local" by connecting the peer nodes using `--chain local`, why doesn't it generate blocks like it does when using `--chain ./node/src/chain-built/chain_def_local.json` and finalise blocks after running at least five nodes, where the chain_def_local.json file that is used was built on the same machine we are running the command from?
-    * Ans: TODO
+    * Ans: Check that you have added all necessary flags in your command, and if you've used multiple lines make sure there are no missing newline characters `\` so that it recognises the `--chain ...` that you've provided
 
 ## Technical Support <a id="chapter-c00ab7"></a>
 
