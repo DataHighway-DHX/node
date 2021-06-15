@@ -112,13 +112,15 @@ In each terminal we will connect using the "local" chain specification
 
 Run Alice's bootnode using the raw chain definition file that was generated
 
+Note that it should work whether you use `--chain local \` or `--chain ./node/src/chain-built/chain_def_local.json \` below. See section "Create custom blockchain configuration" and https://substrate.dev/docs/en/tutorials/start-a-private-network/customspec for when we would generate the chain spec and definition .json file when we have a custom chain (e.g. brickable, harbour and westlake)
+
 ```bash
 ./target/release/datahighway --validator \
   --unsafe-ws-external \
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/alice \
-  --chain ./node/src/chain-built/chain_def_local.json \
+  --chain local \
   --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee \
   --alice \
   --port 30333 \
@@ -135,7 +137,7 @@ When the node has started, copy the libp2p local node identity of the node, and 
 * Notes:
   * Alice's Substrate-based node on default TCP port 30333
   * Her chain database stored locally at `/tmp/polkadot-chains/alice`
-  * In this example, Bootnode ID of her node is `Local node identity is: QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. In **production** you should NOT share the `--node-key` as other nodes could use it and you might get slashed. Note that `--alice` provides Alice's session key that is shown when you run `subkey inspect --scheme ed25519 "//Alice"`, alternatively you could provide the private key that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`. If you explicitly specify a `--node-key` (i.e. `--node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee`) when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chain_spec_local.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/datahighway
+  * In this example, Bootnode ID of her node is `Local node identity is: 12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo` (peer id), which is generated from the `--node-key` value specified below and shown when the node is running. In **production** you should NOT share the `--node-key` as other nodes could use it and you might get slashed. Note that `--alice` provides Alice's session key that is shown when you run `subkey inspect --scheme ed25519 "//Alice"`, alternatively you could provide the private key that is necessary to produce blocks with `--key "bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice"`. In production the session keys are provided to the node using RPC calls `author_insertKey` and `author_rotateKeys`. If you explicitly specify a `--node-key` (i.e. `--node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee`) when you start your validator node, the logs will still display your peer id with `Local node identity is: Qxxxxxx`, and you could then include it in the chain_spec_local.json file under "bootNodes". Also the peer id is listed when you go to view the list of full nodes and authority nodes at Polkadot.js Apps https://polkadot.js.org/apps/#/explorer/datahighway
 
 #### Terminal 2
 
@@ -147,8 +149,8 @@ Run Bob's Substrate-based node on a different TCP port of 30334, and with his ch
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/bob \
-  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
-  --chain ./node/src/chain-built/chain_def_local.json \
+  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo \
+  --chain local \
   --bob \
   --port 30334 \
   --ws-port 9945 \
@@ -171,8 +173,8 @@ Run Charlie's Substrate-based node on a different TCP port of 30335, and with hi
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/charlie \
-  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
-  --chain ./node/src/chain-built/chain_def_local.json \
+  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo \
+  --chain local \
   --charlie \
   --port 30335 \
   --ws-port 9946 \
@@ -196,8 +198,8 @@ Run Dave's node using different ports.
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/dave \
-  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
-  --chain ./node/src/chain-built/chain_def_local.json \
+  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo \
+  --chain local \
   --dave \
   --port 30336 \
   --ws-port 9947 \
@@ -218,8 +220,8 @@ Run Eve's node using different ports.
   --unsafe-rpc-external \
   --rpc-cors=all \
   --base-path /tmp/polkadot-chains/eve \
-  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ \
-  --chain ./node/src/chain-built/chain_def_local.json \
+  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo \
+  --chain local \
   --eve \
   --port 30337 \
   --ws-port 9948 \
@@ -229,6 +231,8 @@ Run Eve's node using different ports.
   -lruntime=debug \
   --rpc-methods=Unsafe
 ```
+
+* Note: On DataHighway Harbour Testnet, the peer bootnode ID (node ID) that should be included in the .env file is different since a different node-key is used. On DataHighway Local Testnet we use node ID of `12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo`, which is included in the chain_spec.rs
 
 * Check that the chain is finalizing blocks (i.e. finalized is non-zero `main-tokio- INFO substrate  Idle (2 peers), best: #3 (0xaede…b8d9), finalized #1 (0x4c69…f605), ⬇ 3.3kiB/s ⬆ 3.7kiB/s`)
 
