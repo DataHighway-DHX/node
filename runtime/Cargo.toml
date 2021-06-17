@@ -14,6 +14,7 @@ codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = 
 frame-executive = { version = '3.0.0', default-features = false }
 frame-support = { version = '3.0.0', default-features = false }
 frame-system-rpc-runtime-api = { version = '3.0.0', default-features = false }
+pallet-assets  = { version = '3.0.0', default-features = false }
 pallet-authorship = { version = '3.0.0', default-features = false }
 pallet-authority-discovery = { version = '3.0.0', default-features = false }
 pallet-balances = { version = '3.0.0', default-features = false }
@@ -102,6 +103,7 @@ std = [
     'module-primitives/std',
     'pallet-authorship/std',
     'pallet-authority-discovery/std',
+    'pallet-assets/std',
     'pallet-balances/std',
     'pallet-babe/std',
     'pallet-bounties/std',

@@ -197,7 +197,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
     spec_name: create_runtime_str!("datahighway"),
     impl_name: create_runtime_str!("datahighway"),
     authoring_version: 2,
-    spec_version: 8,
+    spec_version: 9,
     impl_version: 2,
     apis: RUNTIME_API_VERSIONS,
     transaction_version: 2,
@@ -1080,6 +1080,27 @@ impl membership_supernodes::Config for Runtime {
     type Event = Event;
 }
 
+parameter_types! {
+	pub const AssetDepositBase: Balance = 100 * DOLLARS;
+	pub const AssetDepositPerZombie: Balance = 1 * DOLLARS;
+	pub const StringLimit: u32 = 50;
+	pub const MetadataDepositBase: Balance = 10 * DOLLARS;
+	pub const MetadataDepositPerByte: Balance = 1 * DOLLARS;
+}
+
+impl pallet_assets::Config for Runtime {
+    type Event = Event;
+    type Balance = u64;
+    type AssetId = u32;
+    type Currency = Balances;
+    type ForceOrigin = EnsureRoot<AccountId>;
+    type AssetDepositBase = AssetDepositBase;
+    type AssetDepositPerZombie = AssetDepositPerZombie;
+    type StringLimit = StringLimit;
+    type MetadataDepositBase = MetadataDepositBase;
+    type MetadataDepositPerByte = MetadataDepositPerByte;
+    type WeightInfo = pallet_assets::weights::SubstrateWeight<Runtime>;
+}
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
     pub enum Runtime where
@@ -1145,6 +1166,7 @@ construct_runtime!(
         MiningClaimsHardware: mining_claims_hardware::{Module, Call, Storage, Event<T>},
         MiningExecutionToken: mining_execution_token::{Module, Call, Storage, Event<T>},
         ExchangeRate: exchange_rate::{Module, Call, Storage, Event<T>},
+        Assets: pallet_assets::{Module, Call, Storage, Event<T>},
     }
 );
 
