@@ -1137,6 +1137,7 @@ construct_runtime!(
         Multisig: pallet_multisig::{Module, Call, Storage, Event<T>},
         Bounties: pallet_bounties::{Module, Call, Storage, Event<T>},
         Tips: pallet_tips::{Module, Call, Storage, Event<T>},
+        Assets: pallet_assets::{Module, Call, Storage, Event<T>},
         MembershipSupernodes: membership_supernodes::{Module, Call, Storage, Event<T>},
         RoamingOperators: roaming_operators::{Module, Call, Storage, Event<T>},
         RoamingNetworks: roaming_networks::{Module, Call, Storage, Event<T>},
@@ -1166,7 +1167,6 @@ construct_runtime!(
         MiningClaimsHardware: mining_claims_hardware::{Module, Call, Storage, Event<T>},
         MiningExecutionToken: mining_execution_token::{Module, Call, Storage, Event<T>},
         ExchangeRate: exchange_rate::{Module, Call, Storage, Event<T>},
-        Assets: pallet_assets::{Module, Call, Storage, Event<T>},
     }
 );
 
