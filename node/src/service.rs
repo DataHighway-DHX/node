@@ -113,7 +113,7 @@ pub fn new_partial(
         client.clone(),
         select_chain.clone(),
         inherent_data_providers.clone(),
-        &task_manager.spawn_handle(),
+        &task_manager.spawn_essential_handle(),
         config.prometheus_registry(),
         sp_consensus::CanAuthorWithNativeVersion::new(client.executor().clone()),
     )?;
@@ -434,9 +434,7 @@ pub fn new_light_base(
         client.clone(),
         select_chain.clone(),
         inherent_data_providers.clone(),
-        // TODO - find out why in Substrate 3 they use
-        // &task_manager.spawn_essential_handle(), but it doesn't work
-        &task_manager.spawn_handle(),
+        &task_manager.spawn_essential_handle(),
         config.prometheus_registry(),
         sp_consensus::NeverCanAuthor,
     )?;
