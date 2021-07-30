@@ -24,6 +24,7 @@ use datahighway_runtime::{
     SystemConfig,
     TreasuryConfig,
     WASM_BINARY,
+    BABE_GENESIS_EPOCH_CONFIG,
 };
 use module_primitives::{
     constants::currency::{
@@ -1310,6 +1311,7 @@ fn testnet_genesis(
         },
         pallet_babe: BabeConfig {
             authorities: vec![],
+            epoch_config: Some(datahighway_runtime::BABE_GENESIS_EPOCH_CONFIG),
         },
         pallet_im_online: ImOnlineConfig {
             keys: vec![],
@@ -1398,6 +1400,7 @@ fn mainnet_genesis(
         },
         pallet_babe: BabeConfig {
             authorities: vec![],
+            epoch_config: Some(datahighway_runtime::BABE_GENESIS_EPOCH_CONFIG),
         },
         pallet_im_online: ImOnlineConfig {
             keys: vec![],
