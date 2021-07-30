@@ -794,16 +794,54 @@ impl pallet_staking::Config for Runtime {
     type SessionInterface = Self;
     type RewardCurve = RewardCurve;
     type NextNewSession = Session;
+    type MaxNominatorRewardedPerValidator = MaxNominatorRewardedPerValidator;
     type ElectionLookahead = ElectionLookahead;
     type Call = Call;
     type MaxIterations = MaxIterations;
     type MinSolutionScoreBump = MinSolutionScoreBump;
-    type MaxNominatorRewardedPerValidator = MaxNominatorRewardedPerValidator;
     type UnsignedPriority = StakingUnsignedPriority;
     // The unsigned solution weight targeted by the OCW. We set it to the maximum possible value of
     // a single extrinsic.
     type OffchainSolutionWeightLimit = OffchainSolutionWeightLimit;
+    type ElectionProvider = ElectionProviderMultiPhase;
     type WeightInfo = pallet_staking::weights::SubstrateWeight<Runtime>;
+}
+
+parameter_types! {
+	// phase durations. 1/4 of the last session for each.
+	pub const SignedPhase: u32 = EPOCH_DURATION_IN_BLOCKS / 4;
+	pub const UnsignedPhase: u32 = EPOCH_DURATION_IN_BLOCKS / 4;
+
+	// fallback: no need to do on-chain phragmen initially.
+	pub const Fallback: pallet_election_provider_multi_phase::FallbackStrategy =
+		pallet_election_provider_multi_phase::FallbackStrategy::Nothing;
+
+	pub SolutionImprovementThreshold: Perbill = Perbill::from_rational_approximation(1u32, 10_000);
+
+	// miner configs
+	pub const MultiPhaseUnsignedPriority: TransactionPriority = StakingUnsignedPriority::get() - 1u64;
+	pub const MinerMaxIterations: u32 = 10;
+	pub MinerMaxWeight: Weight = RuntimeBlockWeights::get()
+		.get(DispatchClass::Normal)
+		.max_extrinsic.expect("Normal extrinsics have a weight limit configured; qed")
+		.saturating_sub(BlockExecutionWeight::get());
+}
+
+impl pallet_election_provider_multi_phase::Config for Runtime {
+	type Event = Event;
+	type Currency = Balances;
+	type SignedPhase = SignedPhase;
+	type UnsignedPhase = UnsignedPhase;
+	type SolutionImprovementThreshold = MinSolutionScoreBump;
+	type MinerMaxIterations = MinerMaxIterations;
+	type MinerMaxWeight = MinerMaxWeight;
+	type MinerTxPriority = MultiPhaseUnsignedPriority;
+	type DataProvider = Staking;
+	type OnChainAccuracy = Perbill;
+	type CompactSolution = pallet_staking::CompactAssignments;
+	type Fallback = Fallback;
+	type WeightInfo = pallet_election_provider_multi_phase::weights::SubstrateWeight<Runtime>;
+	type BenchmarkingConfig = ();
 }
 
 parameter_types! {
@@ -1096,6 +1134,7 @@ construct_runtime!(
         Indices: pallet_indices::{Module, Call, Storage, Config<T>, Event<T>},
         Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
         TransactionPayment: pallet_transaction_payment::{Module, Storage},
+        ElectionProviderMultiPhase: pallet_election_provider_multi_phase::{Module, Call, Storage, Event<T>, ValidateUnsigned},
         Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>, ValidateUnsigned},
         Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
         Democracy: pallet_democracy::{Module, Call, Storage, Config, Event<T>},
