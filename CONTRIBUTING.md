@@ -61,12 +61,13 @@ version = "0.4.8"
 
 * Add to my-module/src/lib.rs
 ```rust
-use log::{error, info, debug, trace};
+use log::{error, warn, info, debug, trace};
 ...
 log::debug!("hello {:?}", world); // Only shows in terminal in debug mode
 log::info!("hello {:?}", world); // Shows in terminal in release mode
-debug::native::info!("hello {:?}", world);
 ```
+
+Note: The use of `debug::native::info!("hello {:?}", world);` does not appear to work anymore since Substrate updates in Feb 2021.
 
 ### Detailed Debugging
 
@@ -348,7 +349,7 @@ cargo +nightly-2021-03-10-aarch64-apple-darwin fmt --all -- --check
     * Ans: Because there is a type mismatch, perhaps the first variable requires a `Balance` instead of `u32` in custom_types.json or similar.
 
 * Question: How to debug when running tests?
-    * Ans: Run tests with this `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug` in front, i.e. `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug cargo +nightly-2021-03-10 test -p datahighway-runtime`, and use `println!` where you want to log the output (i.e. `println!("claim duration {:#?}", claim_duration);`), as `debug::info` not work in tests
+    * Ans: Run tests with this `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug` in front, i.e. `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug cargo +nightly-2021-03-10 test -p datahighway-runtime`, and use `println!` where you want to log the output (i.e. `println!("claim duration {:#?}", claim_duration);`), as `debug::info!` not work in tests. Try using `info!` (have not tried yet)
 
 * Question: Why can't I connect my node to telemetry?
     * Ans: Try use these flags when running your node `--telemetry-url 'wss://telemetry.polkadot.io/submit/ 0' --unsafe-ws-external --unsafe-rpc-external --rpc-cors=all --rpc-methods=Unsafe`

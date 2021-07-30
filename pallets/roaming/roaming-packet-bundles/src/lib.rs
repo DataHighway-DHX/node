@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use log::{warn, info};
 use codec::{
     Decode,
     Encode,
 };
 use frame_support::{
-    debug,
     decl_event,
     decl_module,
     decl_storage,
@@ -276,7 +276,7 @@ decl_module! {
             // Check if a roaming packet bundle receiver already exists with the given roaming packet bundle id
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_packet_bundle_receiver_index(roaming_packet_bundle_id, roaming_network_server_id).is_ok() {
-                debug::info!("Mutating values");
+                info!("Mutating values");
                 <RoamingPacketBundleReceivers<T>>::mutate((roaming_packet_bundle_id, roaming_network_server_id), |packet_bundle_receiver| {
                     if let Some(_packet_bundle_receiver) = packet_bundle_receiver {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
@@ -288,18 +288,18 @@ decl_module! {
                         _packet_bundle_receiver.packet_bundle_external_data_storage_hash = packet_bundle_external_data_storage_hash.clone();
                     }
                 });
-                debug::info!("Checking mutated values");
+                info!("Checking mutated values");
                 let fetched_packet_bundle_receiver = <RoamingPacketBundleReceivers<T>>::get((roaming_packet_bundle_id, roaming_network_server_id));
                 if let Some(_packet_bundle_receiver) = fetched_packet_bundle_receiver {
-                    debug::info!("Latest field packet_bundle_received_at_home {:#?}", _packet_bundle_receiver.packet_bundle_received_at_home);
-                    debug::info!("Latest field packet_bundle_received_packets_count {:#?}", _packet_bundle_receiver.packet_bundle_received_packets_count);
-                    debug::info!("Latest field packet_bundle_received_packets_ok_count {:#?}", _packet_bundle_receiver.packet_bundle_received_packets_ok_count);
-                    debug::info!("Latest field packet_bundle_received_started_at_block {:#?}", _packet_bundle_receiver.packet_bundle_received_started_at_block);
-                    debug::info!("Latest field packet_bundle_received_ended_at_block {:#?}", _packet_bundle_receiver.packet_bundle_received_ended_at_block);
-                    debug::info!("Latest field packet_bundle_external_data_storage_hash {:#?}", _packet_bundle_receiver.packet_bundle_external_data_storage_hash);
+                    info!("Latest field packet_bundle_received_at_home {:#?}", _packet_bundle_receiver.packet_bundle_received_at_home);
+                    info!("Latest field packet_bundle_received_packets_count {:#?}", _packet_bundle_receiver.packet_bundle_received_packets_count);
+                    info!("Latest field packet_bundle_received_packets_ok_count {:#?}", _packet_bundle_receiver.packet_bundle_received_packets_ok_count);
+                    info!("Latest field packet_bundle_received_started_at_block {:#?}", _packet_bundle_receiver.packet_bundle_received_started_at_block);
+                    info!("Latest field packet_bundle_received_ended_at_block {:#?}", _packet_bundle_receiver.packet_bundle_received_ended_at_block);
+                    info!("Latest field packet_bundle_external_data_storage_hash {:#?}", _packet_bundle_receiver.packet_bundle_external_data_storage_hash);
                 }
             } else {
-                debug::info!("Inserting values");
+                info!("Inserting values");
 
                 // Create a new roaming packet_bundle receiver instance with the input params
                 let roaming_packet_bundle_receiver_instance = RoamingPacketBundleReceiver {
@@ -318,15 +318,15 @@ decl_module! {
                     &roaming_packet_bundle_receiver_instance
                 );
 
-                debug::info!("Checking inserted values");
+                info!("Checking inserted values");
                 let fetched_packet_bundle_receiver = <RoamingPacketBundleReceivers<T>>::get((roaming_packet_bundle_id, roaming_network_server_id));
                 if let Some(_packet_bundle_receiver) = fetched_packet_bundle_receiver {
-                    debug::info!("Inserted field packet_bundle_received_at_home {:#?}", _packet_bundle_receiver.packet_bundle_received_at_home);
-                    debug::info!("Inserted field packet_bundle_received_packets_count {:#?}", _packet_bundle_receiver.packet_bundle_received_packets_count);
-                    debug::info!("Inserted field packet_bundle_received_packets_ok_count {:#?}", _packet_bundle_receiver.packet_bundle_received_packets_ok_count);
-                    debug::info!("Inserted field packet_bundle_received_started_at_block {:#?}", _packet_bundle_receiver.packet_bundle_received_started_at_block);
-                    debug::info!("Inserted field packet_bundle_received_ended_at_block {:#?}", _packet_bundle_receiver.packet_bundle_received_ended_at_block);
-                    debug::info!("Inserted field packet_bundle_external_data_storage_hash {:#?}", _packet_bundle_receiver.packet_bundle_external_data_storage_hash);
+                    info!("Inserted field packet_bundle_received_at_home {:#?}", _packet_bundle_receiver.packet_bundle_received_at_home);
+                    info!("Inserted field packet_bundle_received_packets_count {:#?}", _packet_bundle_receiver.packet_bundle_received_packets_count);
+                    info!("Inserted field packet_bundle_received_packets_ok_count {:#?}", _packet_bundle_receiver.packet_bundle_received_packets_ok_count);
+                    info!("Inserted field packet_bundle_received_started_at_block {:#?}", _packet_bundle_receiver.packet_bundle_received_started_at_block);
+                    info!("Inserted field packet_bundle_received_ended_at_block {:#?}", _packet_bundle_receiver.packet_bundle_received_ended_at_block);
+                    info!("Inserted field packet_bundle_external_data_storage_hash {:#?}", _packet_bundle_receiver.packet_bundle_external_data_storage_hash);
                 }
             }
 
@@ -456,7 +456,7 @@ impl<T: Config> Module<T> {
         roaming_packet_bundle_id: T::RoamingPacketBundleIndex,
         sender: T::AccountId,
     ) -> Result<(), DispatchError> {
-        debug::info!("Get the packet bundle session id associated with the session of the given packet bundle id");
+        info!("Get the packet bundle session id associated with the session of the given packet bundle id");
         let packet_bundle_session_id = Self::roaming_packet_bundle_session(roaming_packet_bundle_id);
 
         if let Some(_packet_bundle_session_id) = packet_bundle_session_id {
@@ -499,7 +499,7 @@ impl<T: Config> Module<T> {
     pub fn exists_roaming_network_server(
         roaming_network_server_id: T::RoamingNetworkServerIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Ensuring that the caller has provided a network server id that actually exists");
+        info!("Ensuring that the caller has provided a network server id that actually exists");
         match <roaming_network_servers::Module<T>>::exists_roaming_network_server(roaming_network_server_id) {
             Ok(_) => Ok(()),
             Err(_e) => Err(DispatchError::Other("RoamingNetworkServer does not exist")),
@@ -510,7 +510,7 @@ impl<T: Config> Module<T> {
         roaming_network_server_id: T::RoamingNetworkServerIndex,
         sender: T::AccountId,
     ) -> Result<(), DispatchError> {
-        debug::info!(
+        info!(
             "Ensuring that the caller is owner of the given network server id associated with the given packet bundle \
              id"
         );
@@ -529,14 +529,14 @@ impl<T: Config> Module<T> {
         roaming_packet_bundle_id: T::RoamingPacketBundleIndex,
         roaming_network_server_id: T::RoamingNetworkServerIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if packet bundle receiver has a value that is defined");
+        info!("Checking if packet bundle receiver has a value that is defined");
         let fetched_packet_bundle_receiver =
             <RoamingPacketBundleReceivers<T>>::get((roaming_packet_bundle_id, roaming_network_server_id));
         if let Some(_) = fetched_packet_bundle_receiver {
-            debug::info!("Found value for packet bundle receiver");
+            info!("Found value for packet bundle receiver");
             return Ok(());
         }
-        debug::info!("No value for packet bundle receiver");
+        warn!("No value for packet bundle receiver");
         Err(DispatchError::Other("No value for packet bundle receiver"))
     }
 
@@ -548,23 +548,23 @@ impl<T: Config> Module<T> {
         // Early exit with error since do not want to append if the given session id already exists as a key,
         // and where its corresponding value is a vector that already contains the given packet bundle id
         if let Some(session_packet_bundles) = Self::roaming_session_packet_bundles(roaming_session_id) {
-            debug::info!("Session id key {:?} exists with value {:?}", roaming_session_id, session_packet_bundles);
+            info!("Session id key {:?} exists with value {:?}", roaming_session_id, session_packet_bundles);
             let not_session_contains_packet_bundle = !session_packet_bundles.contains(&roaming_packet_bundle_id);
             ensure!(not_session_contains_packet_bundle, "Session already contains the given packet bundle id");
-            debug::info!("Session id key exists but its vector value does not contain the given packet bundle id");
+            info!("Session id key exists but its vector value does not contain the given packet bundle id");
             <RoamingSessionPacketBundles<T>>::mutate(roaming_session_id, |v| {
                 if let Some(value) = v {
                     value.push(roaming_packet_bundle_id);
                 }
             });
-            debug::info!(
+            info!(
                 "Associated packet bundle {:?} with session {:?}",
                 roaming_packet_bundle_id,
                 roaming_session_id
             );
             Ok(())
         } else {
-            debug::info!(
+            info!(
                 "Session id key does not yet exist. Creating the session key {:?} and appending the packet bundle id \
                  {:?} to its vector value",
                 roaming_session_id,
@@ -584,7 +584,7 @@ impl<T: Config> Module<T> {
     //     // Early exit with error since do not want to append if the given operator id already exists as a key,
     //     // and where its corresponding value is a vector that already contains the given packet bundle id
     //     if let Some(operator_packet_bundles) = Self::roaming_operator_packet_bundles(roaming_operator_id) {
-    //         debug::info!("Operator id key {:?} exists with value {:?}", roaming_operator_id,
+    //         info!("Operator id key {:?} exists with value {:?}", roaming_operator_id,
     // operator_packet_bundles);         let not_operator_contains_packet_bundle =
     // !operator_packet_bundles.contains(&roaming_packet_bundle_id);         ensure!
     // (not_operator_contains_packet_bundle, "Operator already contains the given packet bundle id");         debug:
@@ -594,10 +594,10 @@ impl<T: Config> Module<T> {
     //                 value.push(roaming_packet_bundle_id);
     //             }
     //         });
-    //         debug::info!("Associated packet bundle {:?} with operator {:?}", roaming_packet_bundle_id,
+    //         info!("Associated packet bundle {:?} with operator {:?}", roaming_packet_bundle_id,
     // roaming_operator_id);         Ok(())
     //     } else {
-    //         debug::info!("Operator id key does not yet exist. Creating the operator key {:?} and appending the packet
+    //         info!("Operator id key does not yet exist. Creating the operator key {:?} and appending the packet
     // bundle id {:?} to its vector value", roaming_operator_id, roaming_packet_bundle_id);
     //         <RoamingOperatorPacketBundles<T>>::insert(roaming_operator_id, &vec![roaming_packet_bundle_id]);
     //         Ok(())

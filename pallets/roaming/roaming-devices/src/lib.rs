@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use log::{warn, info};
 use codec::{
     Decode,
     Encode,
 };
 use frame_support::{
-    debug,
     decl_event,
     decl_module,
     decl_storage,
@@ -280,27 +280,27 @@ impl<T: Config> Module<T> {
         // Early exit with error since do not want to append if the given network server id already exists as a key,
         // and where its corresponding value is a vector that already contains the given device id
         if let Some(network_server_devices) = Self::roaming_network_server_devices(roaming_network_server_id) {
-            debug::info!(
+            info!(
                 "Network Server id key {:?} exists with value {:?}",
                 roaming_network_server_id,
                 network_server_devices
             );
             let not_network_server_contains_device = !network_server_devices.contains(&roaming_device_id);
             ensure!(not_network_server_contains_device, "Network Server already contains the given device id");
-            debug::info!("Network Server id key exists but its vector value does not contain the given device id");
+            info!("Network Server id key exists but its vector value does not contain the given device id");
             <RoamingNetworkServerDevices<T>>::mutate(roaming_network_server_id, |v| {
                 if let Some(value) = v {
                     value.push(roaming_device_id);
                 }
             });
-            debug::info!(
+            info!(
                 "Associated device {:?} with network server {:?}",
                 roaming_device_id,
                 roaming_network_server_id
             );
             Ok(())
         } else {
-            debug::info!(
+            info!(
                 "Network Server id key does not yet exist. Creating the network server key {:?} and appending the \
                  device id {:?} to its vector value",
                 roaming_network_server_id,
@@ -319,23 +319,23 @@ impl<T: Config> Module<T> {
         // Early exit with error since do not want to append if the given network server id already exists as a key,
         // and where its corresponding value is a vector that already contains the given device id
         if let Some(organization_devices) = Self::roaming_organization_devices(roaming_organization_id) {
-            debug::info!(
+            info!(
                 "Organization id key {:?} exists with value {:?}",
                 roaming_organization_id,
                 organization_devices
             );
             let not_organization_contains_device = !organization_devices.contains(&roaming_device_id);
             ensure!(not_organization_contains_device, "Organization already contains the given device id");
-            debug::info!("Organization id key exists but its vector value does not contain the given device id");
+            info!("Organization id key exists but its vector value does not contain the given device id");
             <RoamingOrganizationDevices<T>>::mutate(roaming_organization_id, |v| {
                 if let Some(value) = v {
                     value.push(roaming_device_id);
                 }
             });
-            debug::info!("Associated device {:?} with network server {:?}", roaming_device_id, roaming_organization_id);
+            info!("Associated device {:?} with network server {:?}", roaming_device_id, roaming_organization_id);
             Ok(())
         } else {
-            debug::info!(
+            info!(
                 "Organization id key does not yet exist. Creating the network server key {:?} and appending the \
                  device id {:?} to its vector value",
                 roaming_organization_id,

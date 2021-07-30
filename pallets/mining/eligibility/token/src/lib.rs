@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use log::{warn, info};
 use codec::{
     Decode,
     Encode,
 };
 use frame_support::{
-    debug,
     decl_event,
     decl_module,
     decl_storage,
@@ -222,7 +222,7 @@ decl_module! {
         //                     sample_count += 1;
 
         //                     if tokens_locked == 0 {
-        //                       debug::info!("Mining rate sample has nothing locked. Skipping to next sampling.");
+        //                       info!("Mining rate sample has nothing locked. Skipping to next sampling.");
         //                       continue;
         //                     }
         //                     current_sample_tokens_locked = tokens_locked;
@@ -241,7 +241,7 @@ decl_module! {
 
         //                       part_token_calculated_eligibility = part_token_calculated_eligibility + token_locked_percentage * current_token_max_tokens;
         //                     } else {
-        //                       debug::info!("Mining rate config missing");
+        //                       warn!("Mining rate config missing");
         //                       // break;
         //                       return Err(DispatchError::Other("Mining rate config missing"));
         //                     }
@@ -249,7 +249,7 @@ decl_module! {
         //                 }
         //               }
         //               token_calculated_eligibility = part_token_calculated_eligibility / sample_count;
-        //               debug::info!("Calculate eligibilty based on average {:#?}", token_calculated_eligibility);
+        //               info!("Calculate eligibilty based on average {:#?}", token_calculated_eligibility);
         //             }
         //           }
         //         }
@@ -259,7 +259,7 @@ decl_module! {
         //     // Check if a mining_eligibility_token_result already exists with the given mining_eligibility_token_id
         //     // to determine whether to insert new or mutate existing.
         //     if Self::has_value_for_mining_eligibility_token_result_index(mining_setting_token_id, mining_eligibility_token_id).is_ok() {
-        //         debug::info!("Mutating values");
+        //         info!("Mutating values");
         //         <MiningEligibilityTokenResults<T>>::mutate((mining_setting_token_id, mining_eligibility_token_id), |mining_eligibility_token_result| {
         //             if let Some(_mining_eligibility_token_result) = mining_eligibility_token_result {
         //                 // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
@@ -269,16 +269,16 @@ decl_module! {
         //                 // _mining_eligibility_token_result.token_auditor_account_id = token_auditor_account_id.clone();
         //             }
         //         });
-        //         debug::info!("Checking mutated values");
+        //         info!("Checking mutated values");
         //         let fetched_mining_eligibility_token_result = <MiningEligibilityTokenResults<T>>::get((mining_setting_token_id, mining_eligibility_token_id));
         //         if let Some(_mining_eligibility_token_result) = fetched_mining_eligibility_token_result {
-        //             debug::info!("Latest field token_calculated_eligibility {:#?}", _mining_eligibility_token_result.token_calculated_eligibility);
-        //             debug::info!("Latest field token_locked_percentage {:#?}", _mining_eligibility_token_result.token_locked_percentage);
-        //             // debug::info!("Latest field token_block_audited {:#?}", _mining_eligibility_token_result.token_block_audited);
-        //             // debug::info!("Latest field token_auditor_account_id {:#?}", _mining_eligibility_token_result.token_auditor_account_id);
+        //             info!("Latest field token_calculated_eligibility {:#?}", _mining_eligibility_token_result.token_calculated_eligibility);
+        //             info!("Latest field token_locked_percentage {:#?}", _mining_eligibility_token_result.token_locked_percentage);
+        //             // info!("Latest field token_block_audited {:#?}", _mining_eligibility_token_result.token_block_audited);
+        //             // info!("Latest field token_auditor_account_id {:#?}", _mining_eligibility_token_result.token_auditor_account_id);
         //         }
         //     } else {
-        //         debug::info!("Inserting values");
+        //         info!("Inserting values");
 
         //         // Create a new mining mining_eligibility_token_result instance with the input params
         //         let mining_eligibility_token_result_instance = MiningEligibilityTokenResult {
@@ -295,13 +295,13 @@ decl_module! {
         //             &mining_eligibility_token_result_instance
         //         );
 
-        //         debug::info!("Checking inserted values");
+        //         info!("Checking inserted values");
         //         let fetched_mining_eligibility_token_result = <MiningEligibilityTokenResults<T>>::get((mining_setting_token_id, mining_eligibility_token_id));
         //         if let Some(_mining_eligibility_token_result) = fetched_mining_eligibility_token_result {
-        //             debug::info!("Inserted field token_calculated_eligibility {:#?}", _mining_eligibility_token_result.token_calculated_eligibility);
-        //             debug::info!("Inserted field token_locked_percentage {:#?}", _mining_eligibility_token_result.token_locked_percentage);
-        //             // debug::info!("Inserted field token_block_audited {:#?}", _mining_eligibility_token_result.token_block_audited);
-        //             // debug::info!("Inserted field token_auditor_account_id {:#?}", _mining_eligibility_token_result.token_auditor_account_id);
+        //             info!("Inserted field token_calculated_eligibility {:#?}", _mining_eligibility_token_result.token_calculated_eligibility);
+        //             info!("Inserted field token_locked_percentage {:#?}", _mining_eligibility_token_result.token_locked_percentage);
+        //             // info!("Inserted field token_block_audited {:#?}", _mining_eligibility_token_result.token_block_audited);
+        //             // info!("Inserted field token_auditor_account_id {:#?}", _mining_eligibility_token_result.token_auditor_account_id);
         //         }
         //     }
 
@@ -357,7 +357,7 @@ decl_module! {
             // Check if a mining_eligibility_token_result already exists with the given mining_eligibility_token_id
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_mining_eligibility_token_result_index(mining_setting_token_id, mining_eligibility_token_id).is_ok() {
-                debug::info!("Mutating values");
+                info!("Mutating values");
                 <MiningEligibilityTokenResults<T>>::mutate((mining_setting_token_id, mining_eligibility_token_id), |mining_eligibility_token_result| {
                     if let Some(_mining_eligibility_token_result) = mining_eligibility_token_result {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
@@ -368,16 +368,16 @@ decl_module! {
                     }
                 });
 
-                debug::info!("Checking mutated values");
+                info!("Checking mutated values");
                 let fetched_mining_eligibility_token_result = <MiningEligibilityTokenResults<T>>::get((mining_setting_token_id, mining_eligibility_token_id));
                 if let Some(_mining_eligibility_token_result) = fetched_mining_eligibility_token_result {
-                    debug::info!("Latest field token_calculated_eligibility {:#?}", _mining_eligibility_token_result.token_calculated_eligibility);
-                    debug::info!("Latest field token_locked_percentage {:#?}", _mining_eligibility_token_result.token_locked_percentage);
-                    // debug::info!("Latest field token_block_audited {:#?}", _mining_eligibility_token_result.token_block_audited);
-                    // debug::info!("Latest field token_auditor_account_id {:#?}", _mining_eligibility_token_result.token_auditor_account_id);
+                    info!("Latest field token_calculated_eligibility {:#?}", _mining_eligibility_token_result.token_calculated_eligibility);
+                    info!("Latest field token_locked_percentage {:#?}", _mining_eligibility_token_result.token_locked_percentage);
+                    // info!("Latest field token_block_audited {:#?}", _mining_eligibility_token_result.token_block_audited);
+                    // info!("Latest field token_auditor_account_id {:#?}", _mining_eligibility_token_result.token_auditor_account_id);
                 }
             } else {
-                debug::info!("Inserting values");
+                info!("Inserting values");
 
                 // Create a new mining mining_eligibility_token_result instance with the input params
                 let mining_eligibility_token_result_instance = MiningEligibilityTokenResult {
@@ -394,13 +394,13 @@ decl_module! {
                     &mining_eligibility_token_result_instance
                 );
 
-                debug::info!("Checking inserted values");
+                info!("Checking inserted values");
                 let fetched_mining_eligibility_token_result = <MiningEligibilityTokenResults<T>>::get((mining_setting_token_id, mining_eligibility_token_id));
                 if let Some(_mining_eligibility_token_result) = fetched_mining_eligibility_token_result {
-                    debug::info!("Inserted field token_calculated_eligibility {:#?}", _mining_eligibility_token_result.token_calculated_eligibility);
-                    debug::info!("Inserted field token_locked_percentage {:#?}", _mining_eligibility_token_result.token_locked_percentage);
-                    // debug::info!("Inserted field token_block_audited {:#?}", _mining_eligibility_token_result.token_block_audited);
-                    // debug::info!("Inserted field token_auditor_account_id {:#?}", _mining_eligibility_token_result.token_auditor_account_id);
+                    info!("Inserted field token_calculated_eligibility {:#?}", _mining_eligibility_token_result.token_calculated_eligibility);
+                    info!("Inserted field token_locked_percentage {:#?}", _mining_eligibility_token_result.token_locked_percentage);
+                    // info!("Inserted field token_block_audited {:#?}", _mining_eligibility_token_result.token_block_audited);
+                    // info!("Inserted field token_auditor_account_id {:#?}", _mining_eligibility_token_result.token_auditor_account_id);
                 }
             }
 
@@ -491,14 +491,14 @@ impl<T: Config> Module<T> {
         mining_setting_token_id: T::MiningSettingTokenIndex,
         mining_eligibility_token_id: T::MiningEligibilityTokenIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if mining_eligibility_token_result has a value that is defined");
+        info!("Checking if mining_eligibility_token_result has a value that is defined");
         let fetched_mining_eligibility_token_result =
             <MiningEligibilityTokenResults<T>>::get((mining_setting_token_id, mining_eligibility_token_id));
         if let Some(_value) = fetched_mining_eligibility_token_result {
-            debug::info!("Found value for mining_eligibility_token_result");
+            info!("Found value for mining_eligibility_token_result");
             return Ok(());
         }
-        debug::info!("No value for mining_eligibility_token_result");
+        warn!("No value for mining_eligibility_token_result");
         Err(DispatchError::Other("No value for mining_eligibility_token_result"))
     }
 
@@ -510,7 +510,7 @@ impl<T: Config> Module<T> {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given eligibility id
         if let Some(configuration_eligibilities) = Self::token_setting_eligibilities(mining_setting_token_id) {
-            debug::info!(
+            info!(
                 "Configuration id key {:?} exists with value {:?}",
                 mining_setting_token_id,
                 configuration_eligibilities
@@ -518,20 +518,20 @@ impl<T: Config> Module<T> {
             let not_configuration_contains_eligibility =
                 !configuration_eligibilities.contains(&mining_eligibility_token_id);
             ensure!(not_configuration_contains_eligibility, "Configuration already contains the given eligibility id");
-            debug::info!("Configuration id key exists but its vector value does not contain the given eligibility id");
+            info!("Configuration id key exists but its vector value does not contain the given eligibility id");
             <TokenSettingEligibilities<T>>::mutate(mining_setting_token_id, |v| {
                 if let Some(value) = v {
                     value.push(mining_eligibility_token_id);
                 }
             });
-            debug::info!(
+            info!(
                 "Associated eligibility {:?} with configuration {:?}",
                 mining_eligibility_token_id,
                 mining_setting_token_id
             );
             Ok(())
         } else {
-            debug::info!(
+            info!(
                 "Configuration id key does not yet exist. Creating the configuration key {:?} and appending the \
                  eligibility id {:?} to its vector value",
                 mining_setting_token_id,

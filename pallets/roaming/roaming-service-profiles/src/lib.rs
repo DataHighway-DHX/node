@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use log::{warn, info};
 use codec::{
     Decode,
     Encode,
 };
 use frame_support::{
-    debug,
     decl_event,
     decl_module,
     decl_storage,
@@ -217,7 +217,7 @@ impl<T: Config> Module<T> {
     }
 
     // pub fn is_owned_by_required_parent_relationship(roaming_service_profile_id: T::RoamingServiceProfileIndex,
-    // sender: T::AccountId) -> Result<(), DispatchError> {     debug::info!("Get the network_server id associated
+    // sender: T::AccountId) -> Result<(), DispatchError> {     info!("Get the network_server id associated
     // with the network_server of the given service profile id");     let service_profile_network_server_id =
     // Self::roaming_service_profile_network_server(roaming_service_profile_id);
 
@@ -245,7 +245,7 @@ impl<T: Config> Module<T> {
         if let Some(network_server_service_profiles) =
             Self::roaming_network_server_service_profiles(roaming_network_server_id)
         {
-            debug::info!(
+            info!(
                 "NetworkServer id key {:?} exists with value {:?}",
                 roaming_network_server_id,
                 network_server_service_profiles
@@ -256,7 +256,7 @@ impl<T: Config> Module<T> {
                 not_network_server_contains_service_profile,
                 "NetworkServer already contains the given service_profile id"
             );
-            debug::info!(
+            info!(
                 "NetworkServer id key exists but its vector value does not contain the given service_profile id"
             );
             <RoamingNetworkServerServiceProfiles<T>>::mutate(roaming_network_server_id, |v| {
@@ -264,14 +264,14 @@ impl<T: Config> Module<T> {
                     value.push(roaming_service_profile_id);
                 }
             });
-            debug::info!(
+            info!(
                 "Associated service_profile {:?} with network_server {:?}",
                 roaming_service_profile_id,
                 roaming_network_server_id
             );
             Ok(())
         } else {
-            debug::info!(
+            info!(
                 "NetworkServer id key does not yet exist. Creating the network_server key {:?} and appending the \
                  service_profile id {:?} to its vector value",
                 roaming_network_server_id,

@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use log::{warn, info};
 use codec::{
     Decode,
     Encode,
 };
 use frame_support::{
-    debug,
     decl_event,
     decl_module,
     decl_storage,
@@ -194,7 +194,7 @@ impl<T: Config> Module<T> {
     }
 
     // pub fn is_owned_by_required_parent_relationship(roaming_routing_profile_id: T::RoamingRoutingProfileIndex,
-    // sender: T::AccountId) -> Result<(), DispatchError> {     debug::info!("Get the device id associated with the
+    // sender: T::AccountId) -> Result<(), DispatchError> {     info!("Get the device id associated with the
     // device of the given routing profile id");     let routing_profile_device_id =
     // Self::roaming_routing_profile_device(roaming_routing_profile_id);
 
@@ -220,23 +220,23 @@ impl<T: Config> Module<T> {
         // Early exit with error since do not want to append if the given device id already exists as a key,
         // and where its corresponding value is a vector that already contains the given routing_profile id
         if let Some(device_routing_profiles) = Self::roaming_device_routing_profiles(roaming_device_id) {
-            debug::info!("Device id key {:?} exists with value {:?}", roaming_device_id, device_routing_profiles);
+            info!("Device id key {:?} exists with value {:?}", roaming_device_id, device_routing_profiles);
             let not_device_contains_routing_profile = !device_routing_profiles.contains(&roaming_routing_profile_id);
             ensure!(not_device_contains_routing_profile, "Device already contains the given routing_profile id");
-            debug::info!("Device id key exists but its vector value does not contain the given routing_profile id");
+            info!("Device id key exists but its vector value does not contain the given routing_profile id");
             <RoamingDeviceRoutingProfiles<T>>::mutate(roaming_device_id, |v| {
                 if let Some(value) = v {
                     value.push(roaming_routing_profile_id);
                 }
             });
-            debug::info!(
+            info!(
                 "Associated routing_profile {:?} with device {:?}",
                 roaming_routing_profile_id,
                 roaming_device_id
             );
             Ok(())
         } else {
-            debug::info!(
+            info!(
                 "Device id key does not yet exist. Creating the device key {:?} and appending the routing_profile id \
                  {:?} to its vector value",
                 roaming_device_id,

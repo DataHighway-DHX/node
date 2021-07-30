@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use log::{warn, info};
 use codec::{
     Decode,
     Encode,
 };
 use frame_support::{
-    debug,
     decl_event,
     decl_module,
     decl_storage,
@@ -176,7 +176,7 @@ decl_module! {
             // Check if a roaming agreement policy config already exists with the given roaming agreement policy id
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_agreement_policy_setting_index(roaming_agreement_policy_id).is_ok() {
-                debug::info!("Mutating values");
+                info!("Mutating values");
                 <RoamingAgreementPolicySettings<T>>::mutate(roaming_agreement_policy_id, |policy_setting| {
                     if let Some(_policy_setting) = policy_setting {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
@@ -184,14 +184,14 @@ decl_module! {
                         _policy_setting.policy_expiry_block = policy_expiry_block.clone();
                     }
                 });
-                debug::info!("Checking mutated values");
+                info!("Checking mutated values");
                 let fetched_policy_setting = <RoamingAgreementPolicySettings<T>>::get(roaming_agreement_policy_id);
                 if let Some(_policy_setting) = fetched_policy_setting {
-                    debug::info!("Latest field policy_activation_type {:#?}", _policy_setting.policy_activation_type);
-                    debug::info!("Latest field policy_expiry_block {:#?}", _policy_setting.policy_expiry_block);
+                    info!("Latest field policy_activation_type {:#?}", _policy_setting.policy_activation_type);
+                    info!("Latest field policy_expiry_block {:#?}", _policy_setting.policy_expiry_block);
                 }
             } else {
-                debug::info!("Inserting values");
+                info!("Inserting values");
 
                 // Create a new roaming agreement_policy config instance with the input params
                 let roaming_agreement_policy_setting_instance = RoamingAgreementPolicySetting {
@@ -206,11 +206,11 @@ decl_module! {
                     &roaming_agreement_policy_setting_instance
                 );
 
-                debug::info!("Checking inserted values");
+                info!("Checking inserted values");
                 let fetched_policy_setting = <RoamingAgreementPolicySettings<T>>::get(roaming_agreement_policy_id);
                 if let Some(_policy_setting) = fetched_policy_setting {
-                    debug::info!("Inserted field policy_activation_type {:#?}", _policy_setting.policy_activation_type);
-                    debug::info!("Inserted field policy_expiry_block {:#?}", _policy_setting.policy_expiry_block);
+                    info!("Inserted field policy_activation_type {:#?}", _policy_setting.policy_activation_type);
+                    info!("Inserted field policy_expiry_block {:#?}", _policy_setting.policy_expiry_block);
                 }
             }
 
@@ -315,7 +315,7 @@ impl<T: Config> Module<T> {
 
     // Note: Not required
     // pub fn is_owned_by_required_parent_relationship(roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
-    // sender: T::AccountId) -> Result<(), DispatchError> {     debug::info!("Get the network id associated with the
+    // sender: T::AccountId) -> Result<(), DispatchError> {     info!("Get the network id associated with the
     // network of the given agreement policy id");     let agreement_policy_network_id =
     // Self::roaming_agreement_policy_network(roaming_agreement_policy_id);
 
@@ -354,13 +354,13 @@ impl<T: Config> Module<T> {
     pub fn has_value_for_agreement_policy_setting_index(
         roaming_agreement_policy_id: T::RoamingAgreementPolicyIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if agreement policy config has a value that is defined");
+        info!("Checking if agreement policy config has a value that is defined");
         let fetched_policy_setting = <RoamingAgreementPolicySettings<T>>::get(roaming_agreement_policy_id);
         if let Some(_value) = fetched_policy_setting {
-            debug::info!("Found value for agreement policy config");
+            info!("Found value for agreement policy config");
             return Ok(());
         }
-        debug::info!("No value for agreement policy config");
+        warn!("No value for agreement policy config");
         Err(DispatchError::Other("No value for agreement policy config"))
     }
 
@@ -372,24 +372,24 @@ impl<T: Config> Module<T> {
         // Early exit with error since do not want to append if the given network id already exists as a key,
         // and where its corresponding value is a vector that already contains the given agreement policy id
         if let Some(network_agreement_policies) = Self::roaming_network_agreement_policies(roaming_network_id) {
-            debug::info!("Network id key {:?} exists with value {:?}", roaming_network_id, network_agreement_policies);
+            info!("Network id key {:?} exists with value {:?}", roaming_network_id, network_agreement_policies);
             let not_network_contains_agreement_policy =
                 !network_agreement_policies.contains(&roaming_agreement_policy_id);
             ensure!(not_network_contains_agreement_policy, "Network already contains the given agreement policy id");
-            debug::info!("Network id key exists but its vector value does not contain the given agreement policy id");
+            info!("Network id key exists but its vector value does not contain the given agreement policy id");
             <RoamingNetworkAgreementPolicies<T>>::mutate(roaming_network_id, |v| {
                 if let Some(value) = v {
                     value.push(roaming_agreement_policy_id);
                 }
             });
-            debug::info!(
+            info!(
                 "Associated agreement policy {:?} with network {:?}",
                 roaming_agreement_policy_id,
                 roaming_network_id
             );
             Ok(())
         } else {
-            debug::info!(
+            info!(
                 "Network id key does not yet exist. Creating the network key {:?} and appending the agreement policy \
                  id {:?} to its vector value",
                 roaming_network_id,
@@ -410,7 +410,7 @@ impl<T: Config> Module<T> {
         if let Some(accounting_policy_agreement_policies) =
             Self::roaming_accounting_policy_agreement_policies(roaming_accounting_policy_id)
         {
-            debug::info!(
+            info!(
                 "AccountingPolicy id key {:?} exists with value {:?}",
                 roaming_accounting_policy_id,
                 accounting_policy_agreement_policies
@@ -421,7 +421,7 @@ impl<T: Config> Module<T> {
                 not_accounting_policy_contains_agreement_policy,
                 "AccountingPolicy already contains the given agreement policy id"
             );
-            debug::info!(
+            info!(
                 "AccountingPolicy id key exists but its vector value does not contain the given agreement policy id"
             );
             <RoamingAccountingPolicyAgreementPolicies<T>>::mutate(roaming_accounting_policy_id, |v| {
@@ -429,14 +429,14 @@ impl<T: Config> Module<T> {
                     value.push(roaming_agreement_policy_id);
                 }
             });
-            debug::info!(
+            info!(
                 "Associated agreement policy {:?} with accounting_policy {:?}",
                 roaming_agreement_policy_id,
                 roaming_accounting_policy_id
             );
             Ok(())
         } else {
-            debug::info!(
+            info!(
                 "AccountingPolicy id key does not yet exist. Creating the accounting_policy key {:?} and appending \
                  the agreement policy id {:?} to its vector value",
                 roaming_accounting_policy_id,

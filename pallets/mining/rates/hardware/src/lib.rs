@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use log::{warn, info};
 use codec::{
     Decode,
     Encode,
 };
 use frame_support::{
-    debug,
     decl_event,
     decl_module,
     decl_storage,
@@ -215,7 +215,7 @@ decl_module! {
             // Check if a mining_rates_hardware_rates_config already exists with the given mining_rates_hardware_id
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_mining_rates_hardware_rates_config_index(mining_rates_hardware_id).is_ok() {
-                debug::info!("Mutating values");
+                info!("Mutating values");
                 <MiningRatesHardwareSettings<T>>::mutate(mining_rates_hardware_id, |mining_rates_hardware_rates_config| {
                     if let Some(_mining_rates_hardware_rates_config) = mining_rates_hardware_rates_config {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
@@ -227,18 +227,18 @@ decl_module! {
                         _mining_rates_hardware_rates_config.hardware_category_3_max_token_bonus_per_gateway = hardware_category_3_max_token_bonus_per_gateway.clone();
                     }
                 });
-                debug::info!("Checking mutated values");
+                info!("Checking mutated values");
                 let fetched_mining_rates_hardware_rates_config = <MiningRatesHardwareSettings<T>>::get(mining_rates_hardware_id);
                 if let Some(_mining_rates_hardware_rates_config) = fetched_mining_rates_hardware_rates_config {
-                    debug::info!("Latest field hardware_hardware_secure {:#?}", _mining_rates_hardware_rates_config.hardware_hardware_secure);
-                    debug::info!("Latest field hardware_hardware_insecure {:#?}", _mining_rates_hardware_rates_config.hardware_hardware_insecure);
-                    debug::info!("Latest field hardware_max_hardware {:#?}", _mining_rates_hardware_rates_config.hardware_max_hardware);
-                    debug::info!("Latest field hardware_category_1_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_1_max_token_bonus_per_gateway);
-                    debug::info!("Latest field hardware_category_2_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_2_max_token_bonus_per_gateway);
-                    debug::info!("Latest field hardware_category_3_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_3_max_token_bonus_per_gateway);
+                    info!("Latest field hardware_hardware_secure {:#?}", _mining_rates_hardware_rates_config.hardware_hardware_secure);
+                    info!("Latest field hardware_hardware_insecure {:#?}", _mining_rates_hardware_rates_config.hardware_hardware_insecure);
+                    info!("Latest field hardware_max_hardware {:#?}", _mining_rates_hardware_rates_config.hardware_max_hardware);
+                    info!("Latest field hardware_category_1_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_1_max_token_bonus_per_gateway);
+                    info!("Latest field hardware_category_2_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_2_max_token_bonus_per_gateway);
+                    info!("Latest field hardware_category_3_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_3_max_token_bonus_per_gateway);
                 }
             } else {
-                debug::info!("Inserting values");
+                info!("Inserting values");
 
                 // Create a new mining mining_rates_hardware_rates_config instance with the input params
                 let mining_rates_hardware_rates_config_instance = MiningRatesHardwareSetting {
@@ -257,15 +257,15 @@ decl_module! {
                     &mining_rates_hardware_rates_config_instance
                 );
 
-                debug::info!("Checking inserted values");
+                info!("Checking inserted values");
                 let fetched_mining_rates_hardware_rates_config = <MiningRatesHardwareSettings<T>>::get(mining_rates_hardware_id);
                 if let Some(_mining_rates_hardware_rates_config) = fetched_mining_rates_hardware_rates_config {
-                    debug::info!("Inserted field hardware_hardware_secure {:#?}", _mining_rates_hardware_rates_config.hardware_hardware_secure);
-                    debug::info!("Inserted field hardware_hardware_insecure {:#?}", _mining_rates_hardware_rates_config.hardware_hardware_insecure);
-                    debug::info!("Inserted field hardware_max_hardware {:#?}", _mining_rates_hardware_rates_config.hardware_max_hardware);
-                    debug::info!("Inserted field hardware_category_1_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_1_max_token_bonus_per_gateway);
-                    debug::info!("Inserted field hardware_category_2_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_2_max_token_bonus_per_gateway);
-                    debug::info!("Inserted field hardware_category_3_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_3_max_token_bonus_per_gateway);
+                    info!("Inserted field hardware_hardware_secure {:#?}", _mining_rates_hardware_rates_config.hardware_hardware_secure);
+                    info!("Inserted field hardware_hardware_insecure {:#?}", _mining_rates_hardware_rates_config.hardware_hardware_insecure);
+                    info!("Inserted field hardware_max_hardware {:#?}", _mining_rates_hardware_rates_config.hardware_max_hardware);
+                    info!("Inserted field hardware_category_1_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_1_max_token_bonus_per_gateway);
+                    info!("Inserted field hardware_category_2_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_2_max_token_bonus_per_gateway);
+                    info!("Inserted field hardware_category_3_max_token_bonus_per_gateway {:#?}", _mining_rates_hardware_rates_config.hardware_category_3_max_token_bonus_per_gateway);
                 }
             }
 
@@ -316,13 +316,13 @@ impl<T: Config> Module<T> {
     pub fn has_value_for_mining_rates_hardware_rates_config_index(
         mining_rates_hardware_id: T::MiningRatesHardwareIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if mining_rates_hardware_rates_config has a value that is defined");
+        info!("Checking if mining_rates_hardware_rates_config has a value that is defined");
         let fetched_mining_rates_hardware_rates_config = <MiningRatesHardwareSettings<T>>::get(mining_rates_hardware_id);
         if let Some(_value) = fetched_mining_rates_hardware_rates_config {
-            debug::info!("Found value for mining_rates_hardware_rates_config");
+            info!("Found value for mining_rates_hardware_rates_config");
             return Ok(());
         }
-        debug::info!("No value for mining_rates_hardware_rates_config");
+        warn!("No value for mining_rates_hardware_rates_config");
         Err(DispatchError::Other("No value for mining_rates_hardware_rates_config"))
     }
 
