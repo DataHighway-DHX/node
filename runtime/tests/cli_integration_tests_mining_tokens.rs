@@ -7,6 +7,7 @@ extern crate mining_eligibility_token as mining_eligibility_token;
 extern crate mining_execution_token as mining_execution_token;
 extern crate mining_rates_token as mining_rates_token;
 extern crate mining_sampling_token as mining_sampling_token;
+extern crate mining_rewards_token as mining_rewards_token;
 extern crate roaming_operators as roaming_operators;
 
 const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u64 = 30000000;
@@ -108,6 +109,11 @@ mod tests {
         MiningSamplingTokenSetting,
         Module as MiningSamplingTokenModule,
         Config as MiningSamplingTokenConfig,
+    };
+    use mining_rewards_token::{
+        // MiningRewardsTokenSetting,
+        Module as MiningRewardsTokenModule,
+        Config as MiningRewardsTokenConfig,
     };
     use roaming_operators;
 
@@ -334,6 +340,10 @@ mod tests {
         type Event = ();
         type MiningExecutionTokenIndex = u64;
     }
+    impl MiningRewardsTokenConfig for Test {
+        type Event = ();
+        type MiningRewardsTokenIndex = u64;
+    }
     impl MembershipSupernodesConfig for Test {
         type Event = ();
     }
@@ -345,6 +355,7 @@ mod tests {
     pub type MiningEligibilityProxyTestModule = MiningEligibilityProxyModule<Test>;
     pub type MiningClaimsTokenTestModule = MiningClaimsTokenModule<Test>;
     pub type MiningExecutionTokenTestModule = MiningExecutionTokenModule<Test>;
+    pub type MiningRewardsTokenTestModule = MiningRewardsTokenModule<Test>;
     pub type MembershipSupernodesTestModule = MembershipSupernodesModule<Test>;
     type Randomness = pallet_randomness_collective_flip::Module<Test>;
     type MembershipSupernodes = membership_supernodes::Module<Test>;
@@ -890,6 +901,82 @@ mod tests {
             );
 
             System::set_block_number(500);
+
+            System::set_block_number(0);
+
+
+            // Call Functions
+            // Note: `create` already called earlier in a different integration test
+            assert_ok!(MiningSettingTokenTestModule::set_mining_setting_token_global_bonding_settings(
+                Origin::signed(0),
+                0,                     // mining_token_id
+                Some(1),               // interval_multiplier_enabled
+                Some(0),               // interval_multiplier_reset
+                Some(2),               // interval_multiplier_current
+                Some(5),               // interval_multiplier_days
+                Some(7),               // cooling_off_period_days
+                Some(7),               // cooling_off_period_days_remaining
+                Some(10),              // min_bonded_dhx_daily_default
+                Some(10),              // min_bonded_dhx_daily_current
+            ));
+            assert_ok!(MiningSettingTokenTestModule::set_mining_setting_token_global_mpower_settings(
+                Origin::signed(0),
+                0,                     // mining_token_id
+                Some(5),               // min_mpower_daily_default
+                Some(5),               // min_mpower_daily_current
+            ));
+
+            // Verify Storage
+            assert_eq!(
+                MiningSettingTokenTestModule::mining_setting_token_global_bonding_settings(0),
+                Some(MiningSettingTokenGlobalBondingSetting {
+                    interval_multiplier_enabled: 1,         // interval_multiplier_enabled
+                    interval_multiplier_reset: 0,           // interval_multiplier_reset
+                    interval_multiplier_current: 2,         // interval_multiplier_current
+                    interval_multiplier_days: 5,            // interval_multiplier_days
+                    cooling_off_period_days: 7,             // cooling_off_period_days
+                    cooling_off_period_days_remaining: 7,   // cooling_off_period_days_remaining
+                    min_bonded_dhx_daily_default: 10,       // min_bonded_dhx_daily_default
+                    min_bonded_dhx_daily_current: 10,       // min_bonded_dhx_daily_current
+                })
+            );
+            assert_eq!(
+                MiningSettingTokenTestModule::mining_setting_token_global_mpower_settings(0),
+                Some(MiningSettingTokenGlobalMPowerSetting {
+                    min_mpower_daily_default: 5,        // min_mpower_daily_default
+                    min_mpower_daily_current: 5,        // min_mpower_daily_current
+                })
+            );
+
+
+            // assert_ok!(MiningBondingTokenTestModule::create(Origin::signed(0)));
+            // assert_ok!(MiningBondingTokenTestModule::assign_bonding_to_configuration(Origin::signed(0), 0, 0));
+            // // assert_ok!(MiningBondingTokenTestModule::set_bonded_current(
+            // //     Origin::signed(0),
+            // //     1, // user_id
+            // //     1, // bonded DHX tokens
+            // //     1, // date
+            // // ));
+
+            /// Mapping of token category no. (e.g. 1 -> DHX, MXC; 2 -> E.IOTA, DOT; 3 -> H.BTC, Filecoin, OKB
+            /// to category multiplier (CM) (e.g. 1 -> 1; 2 -> 0.2; 3 -> 0.1)
+            // TODO - add this to pallet `pub CategoryMultipliers get(fn category_multiplier): map hasher(opaque_blake2_256) u32 => u32;`
+            //        where T::TokenCategory => Option<T::CategoryMultiplier>
+
+            // FIXME - convert float values to fixed-piont arithmetic using
+            //        reference https://github.com/ltfschoen/substrate-node-template/pull/5/files
+            // assert_eq!(MiningCategoryMultiplierTokenTestModule::category_multiplier(&1), 1);
+            // assert_eq!(MiningCategoryMultiplierTokenTestModule::category_multiplier(&2), 0.2);
+            // assert_eq!(MiningCategoryMultiplierTokenTestModule::category_multiplier(&3), 0.1);
+
+            // assert_ok!(MiningDurationBonusTokenTestModule::create(Origin::signed(0)));
+            // assert_ok!(MiningDurationBonusTokenTestModule::set_mining_duration_bonus_token_config(
+            //     Origin::signed(0),
+            //     0,       // mining_duration_bonus_token_category_id
+            //     Some(1), // token_category
+            //     Some(1),              // token_category_multiplier
+            //     Some(7),               // token_lock_min_blocks
+            // ));
         });
     }
 }

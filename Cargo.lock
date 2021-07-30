@@ -1171,7 +1171,7 @@ dependencies = [
 
 [[package]]
 name = "datahighway"
-version = "3.0.4"
+version = "3.0.5"
 dependencies = [
  "datahighway-runtime",
  "frame-benchmarking",
@@ -1229,7 +1229,7 @@ dependencies = [
 
 [[package]]
 name = "datahighway-runtime"
-version = "3.0.4"
+version = "3.0.5"
 dependencies = [
  "chrono",
  "exchange-rate",
@@ -1246,6 +1246,7 @@ dependencies = [
  "mining-execution-token",
  "mining-rates-hardware",
  "mining-rates-token",
+ "mining-rewards-token",
  "mining-sampling-hardware",
  "mining-sampling-token",
  "mining-setting-hardware",
@@ -3579,7 +3580,7 @@ dependencies = [
 
 [[package]]
 name = "mining-eligibility-proxy"
-version = "3.0.4"
+version = "3.0.5"
 dependencies = [
  "account-set",
  "chrono",
@@ -3677,6 +3678,29 @@ dependencies = [
  "roaming-operators",
  "safe-mix",
  "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "mining-rewards-token"
+version = "3.0.5"
+dependencies = [
+ "chrono",
+ "frame-support",
+ "frame-system",
+ "module-primitives",
+ "pallet-balances",
+ "pallet-elections-phragmen",
+ "pallet-randomness-collective-flip",
+ "pallet-timestamp",
+ "pallet-transaction-payment",
+ "pallet-treasury",
+ "parity-scale-codec",
+ "roaming-operators",
+ "safe-mix",
  "sp-core",
  "sp-io",
  "sp-runtime",
@@ -3848,7 +3872,7 @@ dependencies = [
 
 [[package]]
 name = "module-primitives"
-version = "3.0.4"
+version = "3.0.5"
 dependencies = [
  "bitmask",
  "parity-scale-codec",

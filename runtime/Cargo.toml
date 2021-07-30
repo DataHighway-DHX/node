@@ -87,6 +87,7 @@ mining-eligibility-proxy = { default_features = false, package = 'mining-eligibi
 mining-claims-token = { default-features = false, package = 'mining-claims-token', path = '../pallets/mining/claims/token' }
 mining-claims-hardware = { default-features = false, package = 'mining-claims-hardware', path = '../pallets/mining/claims/hardware' }
 mining-execution-token = { default-features = false, package = 'mining-execution-token', path = '../pallets/mining/execution/token' }
+mining-rewards-token = { default-features = false, package = 'mining-rewards-token', path = '../pallets/mining/rewards/token' }
 exchange-rate = { default-features = false, package = 'exchange-rate', path = '../pallets/exchange-rate' }
 module-primitives = { default-features = false, path = '../pallets/primitives' }
 chrono = { version = '0.4.19', default_features = false }
@@ -168,6 +169,7 @@ std = [
     'mining-claims-token/std',
     'mining-claims-hardware/std',
     'mining-execution-token/std',
+    'mining-rewards-token/std',
     'exchange-rate/std',
 ]
 

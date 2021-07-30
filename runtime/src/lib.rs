@@ -1066,6 +1066,13 @@ impl mining_execution_token::Config for Runtime {
     type MiningExecutionTokenIndex = u64;
 }
 
+impl mining_rewards_token::Config for Runtime {
+    type Event = Event;
+    type Currency = Balances;
+    type Randomness = RandomnessCollectiveFlip;
+    type MiningRewardsTokenIndex = u64;
+}
+
 impl exchange_rate::Config for Runtime {
     type DOTRate = u64;
     type DecimalsAfterPoint = u32;
@@ -1144,6 +1151,7 @@ construct_runtime!(
         MiningClaimsToken: mining_claims_token::{Module, Call, Storage, Event<T>},
         MiningClaimsHardware: mining_claims_hardware::{Module, Call, Storage, Event<T>},
         MiningExecutionToken: mining_execution_token::{Module, Call, Storage, Event<T>},
+        MiningRewardsToken: mining_rewards_token::{Module, Call, Storage, Event<T>},
         ExchangeRate: exchange_rate::{Module, Call, Storage, Event<T>},
     }
 );
