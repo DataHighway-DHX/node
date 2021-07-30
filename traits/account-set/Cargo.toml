@@ -23,4 +23,4 @@ std = [
 
 [dependencies]
 # Substrate packages
-sp-std = { git = 'https://github.com/paritytech/substrate', rev = '4365fa6f95f0de4a97d0238cef7111f1e284da97', default-features = false }
+sp-std = { git = 'https://github.com/paritytech/substrate', rev = 'bb8ab898e042e90eea3cdd3325f533f39562934f', default-features = false }
