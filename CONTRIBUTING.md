@@ -22,7 +22,7 @@ To skip running the CI unnecessarily for simple changes such as updating the doc
 
 ### Linting
 
-Check with Rust Format. Note: If you need a specific version of it replace `+nightly` with say `+nightly-2021-03-10`
+Check with Rust Format. Note: If you need a specific version of it replace `+nightly` with say `+nightly-2021-07-30`
 ```
 cargo +nightly fmt --all -- --check
 ```
@@ -148,9 +148,9 @@ cargo clippy --release -- -D warnings
 The following is a temporary fix. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
 
 ```
-rustup component add clippy --toolchain nightly-2021-03-10-x86_64-unknown-linux-gnu
-rustup component add clippy-preview --toolchain nightly-2021-03-10-x86_64-unknown-linux-gnu
-cargo +nightly-2021-03-10 clippy-preview -Zunstable-options
+rustup component add clippy --toolchain nightly-2021-07-30-x86_64-unknown-linux-gnu
+rustup component add clippy-preview --toolchain nightly-2021-07-30-x86_64-unknown-linux-gnu
+cargo +nightly-2021-07-30 clippy-preview -Zunstable-options
 ```
 
 #### Clippy and Continuous Integration (CI)
@@ -176,7 +176,7 @@ The styles are defined in the rustfmt.toml configuration file, which was generat
 #### Install RustFmt
 
 ```bash
-rustup component add rustfmt --toolchain nightly-2021-03-10-x86_64-unknown-linux-gnu
+rustup component add rustfmt --toolchain nightly-2021-07-30-x86_64-unknown-linux-gnu
 ```
 
 #### Check Formating Changes that RustFmt before applying them
@@ -221,7 +221,7 @@ substrate-module-new <module-name> <author>
 	so we must manually change this to the latest Rust Nightly version only
 	when it is known to work.
 		```bash
-		rustup toolchain install nightly-2021-03-10
+		rustup toolchain install nightly-2021-07-30
 		rustup update stable
 		rustup target add wasm32-unknown-unknown --toolchain nightly
 		```
@@ -231,7 +231,7 @@ substrate-module-new <module-name> <author>
 	and because developers may forget to update to the latest version of Rust
 	Nightly locally. So the solution is to install a specific version of
 	Rust Nightly in .github/workflows/rust.yml (i.e.
-	`rustup toolchain install nightly-2021-03-10`), since for example
+	`rustup toolchain install nightly-2021-07-30`), since for example
 	the latest Rust Nightly version nightly-2020-02-20 may cause our CI tests
 	to fail (i.e. https://github.com/DataHighway-DHX/node/issues/32)
 
@@ -330,7 +330,7 @@ pub trait Config: frame_system::Config {
 * Question: When using Docker you get error: `FileNotFoundError: [Errno 2] No such file or directory: '/Users/ls/code/src/DataHighway-com/node/target/rls/debug/deps/save-analysis/libsc_executor_common-f236f3ddcd6862b3.json'`
     * Answer: Try run `rm -rf ./target/rls/debug` a few times until it no longer says `Directory not empty`
 
-* Quesion: If I am using an Apple ARM (M1) processor instead of an Apple Intel processor, it gives warnings like `warning: toolchain 'nightly-2021-03-10-x86_64-unknown-linux-gnu' may not be able to run on this system.` and you are unable to install it with `x86_64-unknown-linux-gnu`, what may I need to do?
+* Quesion: If I am using an Apple ARM (M1) processor instead of an Apple Intel processor, it gives warnings like `warning: toolchain 'nightly-2021-07-30-x86_64-unknown-linux-gnu' may not be able to run on this system.` and you are unable to install it with `x86_64-unknown-linux-gnu`, what may I need to do?
     * Answer: Try using `aarch64-apple-darwin` instead, e.g.
 ```
 softwareupdate --install-rosetta
@@ -340,16 +340,16 @@ echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/ls2/.profile
 eval "$(/opt/homebrew/bin/brew shellenv)"
 brew update
 
-rustup toolchain install nightly-2021-03-10-aarch64-apple-darwin
-rustup component add rustfmt --toolchain nightly-2021-03-10-aarch64-apple-darwin
-cargo +nightly-2021-03-10-aarch64-apple-darwin fmt --all -- --check
+rustup toolchain install nightly-2021-07-30-aarch64-apple-darwin
+rustup component add rustfmt --toolchain nightly-2021-07-30-aarch64-apple-darwin
+cargo +nightly-2021-07-30-aarch64-apple-darwin fmt --all -- --check
 ```
 
 * Question: Why do I get an error `1002: Verification Error: Execution: Could not convert parameter 'tx' between node and runtime: Error decoding field Call:: MiningEligibilityProxy.0 RuntimeApi` when in polkadot.js.apps when I try to 'Add Item' with data to a Vec?
     * Ans: Because there is a type mismatch, perhaps the first variable requires a `Balance` instead of `u32` in custom_types.json or similar.
 
 * Question: How to debug when running tests?
-    * Ans: Run tests with this `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug` in front, i.e. `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug cargo +nightly-2021-03-10 test -p datahighway-runtime`, and use `println!` where you want to log the output (i.e. `println!("claim duration {:#?}", claim_duration);`), as `debug::info!` not work in tests. Try using `info!` (have not tried yet)
+    * Ans: Run tests with this `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug` in front, i.e. `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug cargo +nightly-2021-07-30 test -p datahighway-runtime`, and use `println!` where you want to log the output (i.e. `println!("claim duration {:#?}", claim_duration);`), as `debug::info!` not work in tests. Try using `info!` (have not tried yet)
 
 * Question: Why can't I connect my node to telemetry?
     * Ans: Try use these flags when running your node `--telemetry-url 'wss://telemetry.polkadot.io/submit/ 0' --unsafe-ws-external --unsafe-rpc-external --rpc-cors=all --rpc-methods=Unsafe`

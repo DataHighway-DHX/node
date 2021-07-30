@@ -18,16 +18,16 @@ jobs:
       - name: Add wasm toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly-2021-03-10
+          toolchain: nightly-2021-07-30
           target: wasm32-unknown-unknown
           override: true
 
       - name: Initialize environment and build
         run: |
           rustup update stable
-          rustup toolchain install nightly-2021-03-10
-          rustup default nightly-2021-03-10
-          rustup target add wasm32-unknown-unknown --toolchain nightly-2021-03-10
+          rustup toolchain install nightly-2021-07-30
+          rustup default nightly-2021-07-30
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2021-07-30
           cargo build --release
 
       - name: Upload artifact

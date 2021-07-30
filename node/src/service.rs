@@ -37,6 +37,7 @@ use sc_telemetry::{
     TelemetryConnectionNotifier,
     TelemetrySpan,
 };
+use sc_consensus_babe::SlotProportion;
 use sp_inherents::InherentDataProviders;
 use futures::prelude::*;
 use sp_runtime::traits::Block as BlockT;
@@ -297,6 +298,7 @@ pub fn new_full_base(
             backoff_authoring_blocks,
             babe_link,
             can_author_with,
+            block_proposal_slot_portion: SlotProportion::new(0.5),
         };
 
         let babe = sc_consensus_babe::start_babe(babe_config)?;

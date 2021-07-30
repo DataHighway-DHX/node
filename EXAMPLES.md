@@ -24,10 +24,10 @@ cargo install --force subkey --git https://github.com/paritytech/substrate --ver
 wget -O - https://sh.rustup.rs | sh -s -- -y && \
 PATH=$PATH:~/.cargo/bin && \
 rustup update stable nightly && \
-rustup toolchain install nightly-2021-03-10 && \
-rustup target add wasm32-unknown-unknown --toolchain nightly-2021-03-10 && \
-rustup default nightly-2021-03-10 && \
-rustup override set nightly-2021-03-10 && \
+rustup toolchain install nightly-2021-07-30 && \
+rustup target add wasm32-unknown-unknown --toolchain nightly-2021-07-30 && \
+rustup default nightly-2021-07-30 && \
+rustup override set nightly-2021-07-30 && \
 cargo version && \
 rustc --version
 ```
