@@ -265,8 +265,7 @@ pub fn new_full_base(
         remote_blockchain: None,
         network_status_sinks: network_status_sinks.clone(),
         system_rpc_tx,
-                // FIXME - why do i have to remove this? it appears to be required in Substrate 3.
-        // telemetry_span: Some(telemetry_span.clone()),
+        telemetry_span: Some(telemetry_span.clone()),
     })?;
 
     let (block_import, grandpa_link, babe_link) = import_setup;
@@ -489,8 +488,7 @@ pub fn new_light_base(
         system_rpc_tx,
         network: network.clone(),
         task_manager: &mut task_manager,
-        // FIXME - why do i have to remove this? it appears to be required in Substrate 3.
-        // telemetry_span: Some(telemetry_span.clone()),
+        telemetry_span: Some(telemetry_span.clone()),
     })?;
 
     Ok((task_manager, rpc_handlers, telemetry_connection_notifier, client, network, transaction_pool))
