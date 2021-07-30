@@ -1248,11 +1248,11 @@ fn testnet_genesis(
     let num_endowed_accounts = endowed_accounts.len();
 
 	GenesisConfig {
-        frame_system: Some(SystemConfig {
+        frame_system: SystemConfig {
             code: wasm_binary.to_vec(),
             changes_trie_config: Default::default(),
-        }),
-        pallet_balances: Some(BalancesConfig {
+        },
+        pallet_balances: BalancesConfig {
             balances: endowed_accounts
                 .iter()
                 .cloned()
@@ -1272,17 +1272,17 @@ fn testnet_genesis(
                     }
                 })
             .collect(),
-        }),
-        pallet_indices: Some(IndicesConfig {
+        },
+        pallet_indices: IndicesConfig {
             indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
-        }),
-        pallet_session: Some(SessionConfig {
+        },
+        pallet_session: SessionConfig {
             keys: initial_authorities
                 .iter()
                 .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone(), x.4.clone(), x.5.clone())))
                 .collect::<Vec<_>>(),
-        }),
-        pallet_staking: Some(StakingConfig {
+        },
+        pallet_staking: StakingConfig {
             validator_count: initial_authorities.len() as u32 * 2,
             minimum_validator_count: initial_authorities.len() as u32,
             stakers: initial_authorities
@@ -1292,39 +1292,39 @@ fn testnet_genesis(
             invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
             slash_reward_fraction: Perbill::from_percent(10),
             ..Default::default()
-        }),
-        pallet_democracy: Some(DemocracyConfig::default()),
-        pallet_elections_phragmen: Some(ElectionsConfig {
+        },
+        pallet_democracy: DemocracyConfig::default(),
+        pallet_elections_phragmen: ElectionsConfig {
             members: endowed_accounts
                 .iter()
                 .take((num_endowed_accounts + 1) / 2)
                 .cloned()
                 .map(|member| (member, TESTNET_INITIAL_STASH))
                 .collect(),
-        }),
-        pallet_collective_Instance1: Some(Default::default()),
-        pallet_collective_Instance2: Some(Default::default()),
-		pallet_sudo: Some(SudoConfig {
+        },
+        pallet_collective_Instance1: Default::default(),
+        pallet_collective_Instance2: Default::default(),
+		pallet_sudo: SudoConfig {
 			// Assign network admin rights.
 			key: root_key.clone(),
-        }),
-        pallet_babe: Some(BabeConfig {
+        },
+        pallet_babe: BabeConfig {
             authorities: vec![],
-        }),
-        pallet_im_online: Some(ImOnlineConfig {
+        },
+        pallet_im_online: ImOnlineConfig {
             keys: vec![],
-        }),
-        pallet_authority_discovery: Some(AuthorityDiscoveryConfig {
+        },
+        pallet_authority_discovery: AuthorityDiscoveryConfig {
             keys: vec![],
-        }),
-        pallet_grandpa: Some(GrandpaConfig {
+        },
+        pallet_grandpa: GrandpaConfig {
             authorities: vec![],
-        }),
-        pallet_membership_Instance1: Some(TechnicalMembershipConfig {
+        },
+        pallet_membership_Instance1: TechnicalMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
-        }),
-        pallet_treasury: Some(TreasuryConfig::default()),
+        },
+        pallet_treasury: TreasuryConfig::default(),
 	}
 }
 
@@ -1339,11 +1339,11 @@ fn mainnet_genesis(
     let num_endowed_accounts = endowed_accounts.len();
 
 	GenesisConfig {
-        frame_system: Some(SystemConfig {
+        frame_system: SystemConfig {
             code: wasm_binary.to_vec(),
             changes_trie_config: Default::default(),
-        }),
-        pallet_balances: Some(BalancesConfig {
+        },
+        pallet_balances: BalancesConfig {
             balances: endowed_accounts
                 .iter()
                 .cloned()
@@ -1360,17 +1360,17 @@ fn mainnet_genesis(
                     }
                 })
             .collect(),
-        }),
-        pallet_indices: Some(IndicesConfig {
+        },
+        pallet_indices: IndicesConfig {
             indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
-        }),
-        pallet_session: Some(SessionConfig {
+        },
+        pallet_session: SessionConfig {
             keys: initial_authorities
                 .iter()
                 .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone(), x.4.clone(), x.5.clone())))
                 .collect::<Vec<_>>(),
-        }),
-        pallet_staking: Some(StakingConfig {
+        },
+        pallet_staking: StakingConfig {
             validator_count: initial_authorities.len() as u32 * 2,
             minimum_validator_count: initial_authorities.len() as u32,
             stakers: initial_authorities
@@ -1380,38 +1380,38 @@ fn mainnet_genesis(
             invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
             slash_reward_fraction: Perbill::from_percent(10),
             ..Default::default()
-        }),
-        pallet_democracy: Some(DemocracyConfig::default()),
-        pallet_elections_phragmen: Some(ElectionsConfig {
+        },
+        pallet_democracy: DemocracyConfig::default(),
+        pallet_elections_phragmen: ElectionsConfig {
             members: endowed_accounts
                 .iter()
                 .take((num_endowed_accounts + 1) / 2)
                 .cloned()
                 .map(|member| (member, MAINNET_INITIAL_STASH))
                 .collect(),
-        }),
-        pallet_collective_Instance1: Some(Default::default()),
-        pallet_collective_Instance2: Some(Default::default()),
-		pallet_sudo: Some(SudoConfig {
+        },
+        pallet_collective_Instance1: Default::default(),
+        pallet_collective_Instance2: Default::default(),
+		pallet_sudo: SudoConfig {
 			// Assign network admin rights.
 			key: root_key.clone(),
-        }),
-        pallet_babe: Some(BabeConfig {
+        },
+        pallet_babe: BabeConfig {
             authorities: vec![],
-        }),
-        pallet_im_online: Some(ImOnlineConfig {
+        },
+        pallet_im_online: ImOnlineConfig {
             keys: vec![],
-        }),
-        pallet_authority_discovery: Some(AuthorityDiscoveryConfig {
+        },
+        pallet_authority_discovery: AuthorityDiscoveryConfig {
             keys: vec![],
-        }),
-        pallet_grandpa: Some(GrandpaConfig {
+        },
+        pallet_grandpa: GrandpaConfig {
             authorities: vec![],
-        }),
-        pallet_membership_Instance1: Some(TechnicalMembershipConfig {
+        },
+        pallet_membership_Instance1: TechnicalMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
-        }),
-        pallet_treasury: Some(TreasuryConfig::default()),
+        },
+        pallet_treasury: TreasuryConfig::default(),
 	}
 }
