@@ -193,11 +193,11 @@ decl_module! {
             let token_execution_executor_account_id = sender.clone();
             let token_execution_started_block = match _token_execution_started_block.clone() {
                 Some(value) => value,
-                None => <frame_system::Module<T>>::block_number()
+                None => <frame_system::Pallet<T>>::block_number()
             };
             let token_execution_ended_block = match _token_execution_ended_block {
                 Some(value) => value,
-                None => <frame_system::Module<T>>::block_number() + 1u32.into() // Default
+                None => <frame_system::Pallet<T>>::block_number() + 1u32.into() // Default
             };
 
             // FIXME
@@ -362,7 +362,7 @@ impl<T: Config> Module<T> {
     ) -> Result<(), DispatchError> {
         // Check that the extrinsic call is made after the start date defined in the provided configuration
 
-        let current_block = <frame_system::Module<T>>::block_number();
+        let current_block = <frame_system::Pallet<T>>::block_number();
         // Get the config associated with the given configuration_token
         if let Some(configuration_token_setting) =
             <mining_setting_token::Module<T>>::mining_setting_token_token_settings(mining_setting_token_id)
@@ -531,8 +531,8 @@ impl<T: Config> Module<T> {
         let payload = (
             T::Randomness::random(&[0]),
             sender,
-            <frame_system::Module<T>>::extrinsic_index(),
-            <frame_system::Module<T>>::block_number(),
+            <frame_system::Pallet<T>>::extrinsic_index(),
+            <frame_system::Pallet<T>>::block_number(),
         );
         payload.using_encoded(blake2_128)
     }

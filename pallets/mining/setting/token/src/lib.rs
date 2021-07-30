@@ -190,7 +190,7 @@ decl_module! {
             };
             let token_lock_start_block = match _token_lock_start_block {
                 Some(value) => value,
-                None => <frame_system::Module<T>>::block_number()
+                None => <frame_system::Pallet<T>>::block_number()
             };
             let token_lock_interval_blocks = match _token_lock_interval_blocks {
                 Some(value) => value,
@@ -405,8 +405,8 @@ impl<T: Config> Module<T> {
         let payload = (
             T::Randomness::random(&[0]),
             sender,
-            <frame_system::Module<T>>::extrinsic_index(),
-            <frame_system::Module<T>>::block_number(),
+            <frame_system::Pallet<T>>::extrinsic_index(),
+            <frame_system::Pallet<T>>::block_number(),
         );
         payload.using_encoded(blake2_128)
     }

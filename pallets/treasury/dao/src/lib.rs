@@ -51,7 +51,7 @@ decl_module! {
             info!("treasury-dao - on_finalize");
             info!("treasury-dao - current block number {:#?}", current_block_number);
 
-            if <frame_system::Module<T>>::block_number() == 0u32.into() {
+            if <frame_system::Pallet<T>>::block_number() == 0u32.into() {
                 info!("treasury-dao - on_finalize: Genesis block");
                 let treasury_account_id: T::AccountId = <pallet_treasury::Module<T>>::account_id();
                 // FIXME - why does this give error:

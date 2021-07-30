@@ -319,7 +319,7 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // get the current block & current date/time
-            let current_block = <frame_system::Module<T>>::block_number();
+            let current_block = <frame_system::Pallet<T>>::block_number();
             let requested_date = <pallet_timestamp::Module<T>>::get();
 
             // convert the current date/time to the start of the current day date/time.
@@ -617,7 +617,7 @@ impl<T: Config> Module<T> {
         proxy_claim_total_reward_amount: BalanceOf<T>,
         sent_date_millis: Date,
     ) -> Result<(), DispatchError> {
-        let current_block = <frame_system::Module<T>>::block_number();
+        let current_block = <frame_system::Pallet<T>>::block_number();
         // block reward max is 5000 DHX per day until year 2023, so by 2024 we'd be up to
         // 20000 * 4 * 365 = 29200000 block, then reduces to 4800 DHX per day, and so on per halving cycle.
         // assume worse case scenario of only one supernode requesting
@@ -796,8 +796,8 @@ impl<T: Config> Module<T> {
         let payload = (
             T::Randomness::random(&[0]),
             sender,
-            <frame_system::Module<T>>::extrinsic_index(),
-            <frame_system::Module<T>>::block_number(),
+            <frame_system::Pallet<T>>::extrinsic_index(),
+            <frame_system::Pallet<T>>::block_number(),
         );
         payload.using_encoded(blake2_128)
     }
@@ -874,7 +874,7 @@ impl<T: Config> Module<T> {
         let proxy_claim_requestor_account_id = _proxy_claim_requestor_account_id.clone();
         let proxy_claim_total_reward_amount = _proxy_claim_total_reward_amount.clone();
         let proxy_claim_rewardees_data = _proxy_claim_rewardees_data.clone();
-        let current_block = <frame_system::Module<T>>::block_number();
+        let current_block = <frame_system::Pallet<T>>::block_number();
         let proxy_claim_block_redeemed = current_block;
         let proxy_claim_timestamp_redeemed = <pallet_timestamp::Module<T>>::get();
 

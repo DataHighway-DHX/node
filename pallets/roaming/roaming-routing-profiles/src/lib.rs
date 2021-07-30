@@ -251,8 +251,8 @@ impl<T: Config> Module<T> {
         let payload = (
             T::Randomness::random(&[0]),
             sender,
-            <frame_system::Module<T>>::extrinsic_index(),
-            <frame_system::Module<T>>::block_number(),
+            <frame_system::Pallet<T>>::extrinsic_index(),
+            <frame_system::Pallet<T>>::block_number(),
         );
         payload.using_encoded(blake2_128)
     }
