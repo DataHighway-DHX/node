@@ -70,12 +70,14 @@ parameter_types! {
     pub const ExistentialDeposit: u64 = 1;
 }
 impl pallet_balances::Config for Test {
-    type AccountStore = System;
+    type MaxLocks = ();
+	type MaxReserves = ();
+	type ReserveIdentifier = [u8; 8];
     type Balance = u64;
     type DustRemoval = ();
     type Event = ();
     type ExistentialDeposit = ExistentialDeposit;
-    type MaxLocks = ();
+    type AccountStore = System;
     type WeightInfo = ();
 }
 parameter_types! {

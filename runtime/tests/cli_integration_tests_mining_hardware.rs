@@ -80,7 +80,7 @@ mod tests {
 
     parameter_types! {
         pub const BlockHashCount: u64 = 250;
-        pub const SS58Prefix: u8 = 33;
+        pub const SS58Prefix: u16 = 33;
     }
     impl frame_system::Config for Test {
         type AccountData = pallet_balances::AccountData<u64>;
