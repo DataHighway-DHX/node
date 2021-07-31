@@ -39,60 +39,60 @@ mod tests {
     };
     // Import Config for each runtime module being tested
     use roaming_accounting_policies::{
-        Module as RoamingAccountingPolicyModule,
+        Pallet as RoamingAccountingPolicyModule,
         RoamingAccountingPolicySetting,
         Config as RoamingAccountingPolicyConfig,
     };
     use roaming_agreement_policies::{
-        Module as RoamingAgreementPolicyModule,
+        Pallet as RoamingAgreementPolicyModule,
         RoamingAgreementPolicySetting,
         Config as RoamingAgreementPolicyConfig,
     };
     use roaming_billing_policies::{
-        Module as RoamingBillingPolicyModule,
+        Pallet as RoamingBillingPolicyModule,
         RoamingBillingPolicySetting,
         Config as RoamingBillingPolicyConfig,
     };
     use roaming_charging_policies::{
-        Module as RoamingChargingPolicyModule,
+        Pallet as RoamingChargingPolicyModule,
         RoamingChargingPolicySetting,
         Config as RoamingChargingPolicyConfig,
     };
     use roaming_device_profiles::{
-        Module as RoamingDeviceProfileModule,
+        Pallet as RoamingDeviceProfileModule,
         RoamingDeviceProfileSetting,
         Config as RoamingDeviceProfileConfig,
     };
     use roaming_devices::{
-        Module as RoamingDeviceModule,
+        Pallet as RoamingDeviceModule,
         Config as RoamingDeviceConfig,
     };
     use roaming_network_profiles::{
-        Module as RoamingNetworkProfileModule,
+        Pallet as RoamingNetworkProfileModule,
         Config as RoamingNetworkProfileConfig,
     };
     use roaming_network_servers::{
-        Module as RoamingNetworkServerModule,
+        Pallet as RoamingNetworkServerModule,
         Config as RoamingNetworkServerConfig,
     };
     use roaming_networks::{
-        Module as RoamingNetworkModule,
+        Pallet as RoamingNetworkModule,
         Config as RoamingNetworkConfig,
     };
     use roaming_operators::{
-        Module as RoamingOperatorModule,
+        Pallet as RoamingOperatorModule,
         Config as RoamingOperatorConfig,
     };
     use roaming_organizations::{
-        Module as RoamingOrganizationModule,
+        Pallet as RoamingOrganizationModule,
         Config as RoamingOrganizationConfig,
     };
     use roaming_routing_profiles::{
-        Module as RoamingRoutingProfileModule,
+        Pallet as RoamingRoutingProfileModule,
         Config as RoamingRoutingProfileConfig,
     };
     use roaming_service_profiles::{
-        Module as RoamingServiceProfileModule,
+        Pallet as RoamingServiceProfileModule,
         Config as RoamingServiceProfileConfig,
     };
 
@@ -109,10 +109,10 @@ mod tests {
             NodeBlock = Block,
             UncheckedExtrinsic = UncheckedExtrinsic,
         {
-            System: frame_system::{Module, Call, Config, Storage, Event<T>},
-            Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
-            RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
-            TransactionPayment: pallet_transaction_payment::{Module, Storage},
+            System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+            Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
+            RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
+            TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
         }
     );
 

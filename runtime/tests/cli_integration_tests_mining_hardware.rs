@@ -33,27 +33,27 @@ mod tests {
     // Import Config for each runtime module being tested
     use mining_claims_hardware::{
         MiningClaimsHardwareClaimResult,
-        Module as MiningClaimsHardwareModule,
+        Pallet as MiningClaimsHardwareModule,
         Config as MiningClaimsHardwareConfig,
     };
     use mining_setting_hardware::{
         MiningSettingHardwareSetting,
-        Module as MiningSettingHardwareModule,
+        Pallet as MiningSettingHardwareModule,
         Config as MiningSettingHardwareConfig,
     };
     use mining_eligibility_hardware::{
         MiningEligibilityHardwareResult,
-        Module as MiningEligibilityHardwareModule,
+        Pallet as MiningEligibilityHardwareModule,
         Config as MiningEligibilityHardwareConfig,
     };
     use mining_rates_hardware::{
         MiningRatesHardwareSetting,
-        Module as MiningRatesHardwareModule,
+        Pallet as MiningRatesHardwareModule,
         Config as MiningRatesHardwareConfig,
     };
     use mining_sampling_hardware::{
         MiningSamplingHardwareSetting,
-        Module as MiningSamplingHardwareModule,
+        Pallet as MiningSamplingHardwareModule,
         Config as MiningSamplingHardwareConfig,
     };
     use roaming_operators;
@@ -71,10 +71,10 @@ mod tests {
             NodeBlock = Block,
             UncheckedExtrinsic = UncheckedExtrinsic,
         {
-            System: frame_system::{Module, Call, Config, Storage, Event<T>},
-            Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
-            RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
-            TransactionPayment: pallet_transaction_payment::{Module, Storage},
+            System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+            Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
+            RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
+            TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
         }
     );
 
@@ -181,7 +181,7 @@ mod tests {
     pub type MiningSamplingHardwareTestModule = MiningSamplingHardwareModule<Test>;
     pub type MiningEligibilityHardwareTestModule = MiningEligibilityHardwareModule<Test>;
     pub type MiningClaimsHardwareTestModule = MiningClaimsHardwareModule<Test>;
-    pub type Randomness = pallet_randomness_collective_flip::Module<Test>;
+    pub type Randomness = pallet_randomness_collective_flip::Pallet<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.

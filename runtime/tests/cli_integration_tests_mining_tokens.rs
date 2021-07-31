@@ -65,25 +65,25 @@ mod tests {
         CurrencyAdapter,
     };
     use membership_supernodes::{
-        Module as MembershipSupernodesModule,
+        Pallet as MembershipSupernodesModule,
         Config as MembershipSupernodesConfig,
     };
     use mining_claims_token::{
         MiningClaimsTokenClaimResult,
-        Module as MiningClaimsTokenModule,
+        Pallet as MiningClaimsTokenModule,
         Config as MiningClaimsTokenConfig,
     };
     use mining_setting_token::{
         MiningSettingTokenSetting,
         MiningSettingTokenRequirementsSetting,
-        Module as MiningSettingTokenModule,
+        Pallet as MiningSettingTokenModule,
         Config as MiningSettingTokenConfig,
     };
     use mining_eligibility_proxy::{
         Event as MiningEligibilityProxyEvent,
         MiningEligibilityProxyClaimRewardeeData,
         MiningEligibilityProxyRewardRequest,
-        Module as MiningEligibilityProxyModule,
+        Pallet as MiningEligibilityProxyModule,
         RewardDailyData,
         RewardRequestorData,
         RewardTransferData,
@@ -91,22 +91,22 @@ mod tests {
     };
     use mining_eligibility_token::{
         MiningEligibilityTokenResult,
-        Module as MiningEligibilityTokenModule,
+        Pallet as MiningEligibilityTokenModule,
         Config as MiningEligibilityTokenConfig,
     };
     use mining_execution_token::{
         MiningExecutionTokenExecutionResult,
-        Module as MiningExecutionTokenModule,
+        Pallet as MiningExecutionTokenModule,
         Config as MiningExecutionTokenConfig,
     };
     use mining_rates_token::{
         MiningRatesTokenSetting,
-        Module as MiningRatesTokenModule,
+        Pallet as MiningRatesTokenModule,
         Config as MiningRatesTokenConfig,
     };
     use mining_sampling_token::{
         MiningSamplingTokenSetting,
-        Module as MiningSamplingTokenModule,
+        Pallet as MiningSamplingTokenModule,
         Config as MiningSamplingTokenConfig,
     };
     use roaming_operators;
@@ -123,14 +123,14 @@ mod tests {
             NodeBlock = Block,
             UncheckedExtrinsic = UncheckedExtrinsic,
         {
-            System: frame_system::{Module, Call, Config, Storage, Event<T>},
-            Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
-            Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
-            RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
-            TransactionPayment: pallet_transaction_payment::{Module, Storage},
-            Treasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
-            Bounties: pallet_bounties::{Module, Call, Storage, Event<T>},
-            Tips: pallet_tips::{Module, Call, Storage, Event<T>},
+            System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+            Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent},
+            Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
+            RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
+            TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
+            Treasury: pallet_treasury::{Pallet, Call, Storage, Config, Event<T>},
+            Bounties: pallet_bounties::{Pallet, Call, Storage, Event<T>},
+            Tips: pallet_tips::{Pallet, Call, Storage, Event<T>},
         }
     );
 
@@ -346,8 +346,8 @@ mod tests {
     pub type MiningClaimsTokenTestModule = MiningClaimsTokenModule<Test>;
     pub type MiningExecutionTokenTestModule = MiningExecutionTokenModule<Test>;
     pub type MembershipSupernodesTestModule = MembershipSupernodesModule<Test>;
-    type Randomness = pallet_randomness_collective_flip::Module<Test>;
-    type MembershipSupernodes = membership_supernodes::Module<Test>;
+    type Randomness = pallet_randomness_collective_flip::Pallet<Test>;
+    type MembershipSupernodes = membership_supernodes::Pallet<Test>;
 
     // fn last_event() -> MiningEligibilityProxyEvent {
     //     System::events().pop().expect("Event expected").event
