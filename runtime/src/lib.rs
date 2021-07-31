@@ -57,7 +57,6 @@ use sp_runtime::{
     },
     ApplyExtrinsicResult,
     FixedPointNumber,
-    ModuleId,
     Perbill,
     Percent,
     Permill,
@@ -95,6 +94,7 @@ pub use frame_support::{
         IdentityFee,
         Weight,
     },
+    PalletId,
     StorageValue,
 };
 use frame_system::{
@@ -604,7 +604,7 @@ parameter_types! {
     // endowed accounts that are added to election_phragmen
     pub const DesiredMembers: u32 = 62; // validators 1-10 + sudo + treasury
     pub const DesiredRunnersUp: u32 = 7;
-    pub const ElectionsPhragmenModuleId: LockIdentifier = *b"phrelect";
+    pub const ElectionsPhragmenPalletId: LockIdentifier = *b"phrelect";
 }
 
 // Make sure that there are no more than `MaxMembers` members elected via elections-phragmen.
@@ -612,7 +612,7 @@ const_assert!(DesiredMembers::get() <= CouncilMaxMembers::get());
 
 impl pallet_elections_phragmen::Config for Runtime {
     type Event = Event;
-    type ModuleId = ElectionsPhragmenModuleId;
+    type PalletId = ElectionsPhragmenPalletId;
     type Currency = Balances;
     type ChangeMembers = Council;
     // NOTE: this implies that council's genesis members cannot be set directly and must come from
@@ -675,7 +675,7 @@ parameter_types! {
     pub const DataDepositPerByte: Balance = 1 * CENTS;
     pub const BountyDepositBase: Balance = 1 * DOLLARS;
     pub const BountyDepositPayoutDelay: BlockNumber = 1 * DAYS;
-    pub const TreasuryModuleId: ModuleId = ModuleId(*b"py/trsry");
+    pub const TreasuryPalletId: PalletId = PalletId(*b"py/trsry");
     pub const BountyUpdatePeriod: BlockNumber = 14 * DAYS;
     pub const MaximumReasonLength: u32 = 16384;
     pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
@@ -683,7 +683,7 @@ parameter_types! {
 }
 
 impl pallet_treasury::Config for Runtime {
-    type ModuleId = TreasuryModuleId;
+    type PalletId = TreasuryPalletId;
     type Currency = Balances;
     type ApproveOrigin = EnsureOneOf<
         AccountId,
@@ -818,6 +818,11 @@ parameter_types! {
 		.get(DispatchClass::Normal)
 		.max_extrinsic.expect("Normal extrinsics have a weight limit configured; qed")
 		.saturating_sub(BlockExecutionWeight::get());
+	// Solution can occupy 90% of normal block size
+	pub MinerMaxLength: u32 = Perbill::from_rational(9u32, 10) *
+		*RuntimeBlockLength::get()
+		.max
+		.get(DispatchClass::Normal);
 }
 
 sp_npos_elections::generate_solution_type!(
@@ -837,6 +842,7 @@ impl pallet_election_provider_multi_phase::Config for Runtime {
 	type SolutionImprovementThreshold = SolutionImprovementThreshold;
 	type MinerMaxIterations = MinerMaxIterations;
 	type MinerMaxWeight = MinerMaxWeight;
+    type MinerMaxLength = MinerMaxLength;
 	type MinerTxPriority = MultiPhaseUnsignedPriority;
 	type DataProvider = Staking;
 	type OnChainAccuracy = Perbill;
