@@ -446,16 +446,10 @@ impl pallet_im_online::Config for Runtime {
     type WeightInfo = pallet_im_online::weights::SubstrateWeight<Runtime>;
 }
 
-parameter_types! {
-    pub OffencesWeightSoftLimit: Weight = Perbill::from_percent(60) *
-        RuntimeBlockWeights::get().max_block;
-}
-
 impl pallet_offences::Config for Runtime {
     type Event = Event;
     type IdentificationTuple = pallet_session::historical::IdentificationTuple<Self>;
     type OnOffenceHandler = Staking;
-    type WeightSoftLimit = OffencesWeightSoftLimit;
 }
 
 impl pallet_authority_discovery::Config for Runtime {}
@@ -662,6 +656,8 @@ impl pallet_membership::Config<pallet_membership::Instance1> for Runtime {
     type PrimeOrigin = EnsureRootOrHalfCouncil;
     type MembershipInitialized = TechnicalCommittee;
     type MembershipChanged = TechnicalCommittee;
+	type MaxMembers = TechnicalMaxMembers;
+	type WeightInfo = pallet_membership::weights::SubstrateWeight<Runtime>;
 }
 
 parameter_types! {
@@ -680,6 +676,7 @@ parameter_types! {
     pub const MaximumReasonLength: u32 = 16384;
     pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
     pub const BountyValueMinimum: Balance = 5 * DOLLARS;
+    pub const MaxApprovals: u32 = 100;
 }
 
 impl pallet_treasury::Config for Runtime {
@@ -704,6 +701,7 @@ impl pallet_treasury::Config for Runtime {
     type BurnDestination = ();
     type SpendFunds = Bounties;
     type WeightInfo = pallet_treasury::weights::SubstrateWeight<Runtime>;
+	type MaxApprovals = MaxApprovals;
 }
 
 impl pallet_bounties::Config for Runtime {
@@ -771,6 +769,7 @@ parameter_types! {
     pub const SlashDeferDuration: pallet_staking::EraIndex = 27;
     pub const RewardCurve: &'static PiecewiseLinear<'static> = &REWARD_CURVE;
     pub const MaxNominatorRewardedPerValidator: u32 = 256;
+	pub OffchainRepeat: BlockNumber = 5;
 }
 
 impl pallet_staking::Config for Runtime {
@@ -840,6 +839,7 @@ impl pallet_election_provider_multi_phase::Config for Runtime {
 	type SignedPhase = SignedPhase;
 	type UnsignedPhase = UnsignedPhase;
 	type SolutionImprovementThreshold = SolutionImprovementThreshold;
+	type OffchainRepeat = OffchainRepeat;
 	type MinerMaxIterations = MinerMaxIterations;
 	type MinerMaxWeight = MinerMaxWeight;
     type MinerMaxLength = MinerMaxLength;
