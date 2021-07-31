@@ -32,15 +32,15 @@ std = [
 codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
 log = { version = '0.4.14', default-features = false }
 safe-mix = { version = '1.0.0', default-features = false }
-frame-support = { git = 'https://github.com/paritytech/substrate', rev = '4df3c9ac85d6a4e2a8e6a5553de416eab0853c02', default-features = false }
-frame-system = { git = 'https://github.com/paritytech/substrate', rev = '4df3c9ac85d6a4e2a8e6a5553de416eab0853c02', default-features = false }
-pallet-balances = { git = 'https://github.com/paritytech/substrate', rev = '4df3c9ac85d6a4e2a8e6a5553de416eab0853c02', default-features = false }
-pallet-randomness-collective-flip = { git = 'https://github.com/paritytech/substrate', rev = '4df3c9ac85d6a4e2a8e6a5553de416eab0853c02', default-features = false }
-pallet-transaction-payment = { git = 'https://github.com/paritytech/substrate', rev = '4df3c9ac85d6a4e2a8e6a5553de416eab0853c02', default-features = false }
-sp-core = { git = 'https://github.com/paritytech/substrate', rev = '4df3c9ac85d6a4e2a8e6a5553de416eab0853c02', default-features = false }
-sp-io = { git = 'https://github.com/paritytech/substrate', rev = '4df3c9ac85d6a4e2a8e6a5553de416eab0853c02', default-features = false }
-sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '4df3c9ac85d6a4e2a8e6a5553de416eab0853c02', default-features = false }
-sp-std = { git = 'https://github.com/paritytech/substrate', rev = '4df3c9ac85d6a4e2a8e6a5553de416eab0853c02', default-features = false }
+frame-support = { git = 'https://github.com/paritytech/substrate', rev = '91f45595ad28463205a6b207b8487290125266c2', default-features = false }
+frame-system = { git = 'https://github.com/paritytech/substrate', rev = '91f45595ad28463205a6b207b8487290125266c2', default-features = false }
+pallet-balances = { git = 'https://github.com/paritytech/substrate', rev = '91f45595ad28463205a6b207b8487290125266c2', default-features = false }
+pallet-randomness-collective-flip = { git = 'https://github.com/paritytech/substrate', rev = '91f45595ad28463205a6b207b8487290125266c2', default-features = false }
+pallet-transaction-payment = { git = 'https://github.com/paritytech/substrate', rev = '91f45595ad28463205a6b207b8487290125266c2', default-features = false }
+sp-core = { git = 'https://github.com/paritytech/substrate', rev = '91f45595ad28463205a6b207b8487290125266c2', default-features = false }
+sp-io = { git = 'https://github.com/paritytech/substrate', rev = '91f45595ad28463205a6b207b8487290125266c2', default-features = false }
+sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '91f45595ad28463205a6b207b8487290125266c2', default-features = false }
+sp-std = { git = 'https://github.com/paritytech/substrate', rev = '91f45595ad28463205a6b207b8487290125266c2', default-features = false }
 
 roaming-operators = { default-features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
 mining-setting-token = { default-features = false, package = 'mining-setting-token', path = '../../../mining/setting/token' }
