@@ -300,6 +300,8 @@ impl frame_system::Config for Runtime {
     type OnSetCode = ();
 }
 
+impl pallet_randomness_collective_flip::Config for Runtime {}
+
 impl pallet_utility::Config for Runtime {
 	type Event = Event;
 	type Call = Call;
@@ -775,6 +777,7 @@ parameter_types! {
 	pub OffchainRepeat: BlockNumber = 5;
 }
 
+use frame_election_provider_support::onchain;
 impl pallet_staking::Config for Runtime {
 	const MAX_NOMINATIONS: u32 =
 		<NposCompactSolution16 as sp_npos_elections::CompactSolution>::LIMIT as u32;
@@ -799,6 +802,8 @@ impl pallet_staking::Config for Runtime {
     type NextNewSession = Session;
     type MaxNominatorRewardedPerValidator = MaxNominatorRewardedPerValidator;
     type ElectionProvider = ElectionProviderMultiPhase;
+	type GenesisElectionProvider =
+		onchain::OnChainSequentialPhragmen<pallet_election_provider_multi_phase::OnChainConfig<Self>>;
     type WeightInfo = pallet_staking::weights::SubstrateWeight<Runtime>;
 }
 
@@ -809,7 +814,7 @@ parameter_types! {
 
 	// fallback: no need to do on-chain phragmen initially.
 	pub const Fallback: pallet_election_provider_multi_phase::FallbackStrategy =
-		pallet_election_provider_multi_phase::FallbackStrategy::OnChain;
+		pallet_election_provider_multi_phase::FallbackStrategy::Nothing;
 
 	pub SolutionImprovementThreshold: Perbill = Perbill::from_rational_approximation(1u32, 10_000);
 
