@@ -24,11 +24,13 @@ mod tests {
             ContainsLengthBound,
             Currency,
             EnsureOrigin,
+            SortedMembers,
         },
         weights::{
             IdentityFee,
             Weight,
         },
+        PalletId,
     };
     use frame_system::{
         EnsureRoot,
@@ -40,11 +42,9 @@ mod tests {
         traits::{
             BlakeTwo256,
             IdentityLookup,
-
         },
         DispatchError,
         DispatchResult,
-        ModuleId,
         Perbill,
         Percent,
         Permill,
@@ -65,25 +65,25 @@ mod tests {
         CurrencyAdapter,
     };
     use membership_supernodes::{
-        Pallet as MembershipSupernodesModule,
+        Module as MembershipSupernodesModule,
         Config as MembershipSupernodesConfig,
     };
     use mining_claims_token::{
         MiningClaimsTokenClaimResult,
-        Pallet as MiningClaimsTokenModule,
+        Module as MiningClaimsTokenModule,
         Config as MiningClaimsTokenConfig,
     };
     use mining_setting_token::{
         MiningSettingTokenSetting,
         MiningSettingTokenRequirementsSetting,
-        Pallet as MiningSettingTokenModule,
+        Module as MiningSettingTokenModule,
         Config as MiningSettingTokenConfig,
     };
     use mining_eligibility_proxy::{
         Event as MiningEligibilityProxyEvent,
         MiningEligibilityProxyClaimRewardeeData,
         MiningEligibilityProxyRewardRequest,
-        Pallet as MiningEligibilityProxyModule,
+        Module as MiningEligibilityProxyModule,
         RewardDailyData,
         RewardRequestorData,
         RewardTransferData,
@@ -91,22 +91,22 @@ mod tests {
     };
     use mining_eligibility_token::{
         MiningEligibilityTokenResult,
-        Pallet as MiningEligibilityTokenModule,
+        Module as MiningEligibilityTokenModule,
         Config as MiningEligibilityTokenConfig,
     };
     use mining_execution_token::{
         MiningExecutionTokenExecutionResult,
-        Pallet as MiningExecutionTokenModule,
+        Module as MiningExecutionTokenModule,
         Config as MiningExecutionTokenConfig,
     };
     use mining_rates_token::{
         MiningRatesTokenSetting,
-        Pallet as MiningRatesTokenModule,
+        Module as MiningRatesTokenModule,
         Config as MiningRatesTokenConfig,
     };
     use mining_sampling_token::{
         MiningSamplingTokenSetting,
-        Pallet as MiningSamplingTokenModule,
+        Module as MiningSamplingTokenModule,
         Config as MiningSamplingTokenConfig,
     };
     use roaming_operators;
@@ -139,30 +139,31 @@ mod tests {
         pub const SS58Prefix: u16 = 33;
     }
     impl frame_system::Config for Test {
-        type AccountData = pallet_balances::AccountData<u64>;
-        type AccountId = u64;
         type BaseCallFilter = ();
-        type BlockHashCount = BlockHashCount;
-        type BlockLength = ();
-        type BlockNumber = u64;
         type BlockWeights = ();
-        type Call = Call;
+        type BlockLength = ();
         type DbWeight = ();
-        // type WeightMultiplierUpdate = ();
-        type Event = ();
+        type Origin = Origin;
+        type Call = Call;
+        type Index = u64;
+        type BlockNumber = u64;
         type Hash = H256;
         type Hashing = BlakeTwo256;
-        type Header = Header;
-        type Index = u64;
+        type AccountId = u128; // u64 is not enough to hold bytes used to generate bounty account
         type Lookup = IdentityLookup<Self::AccountId>;
-        type OnKilledAccount = ();
-        type OnNewAccount = ();
-        type Origin = Origin;
-        type PalletInfo = PalletInfo;
-        type SS58Prefix = SS58Prefix;
-        type SystemWeightInfo = ();
+        type Header = Header;
+        type Event = ();
+        type BlockHashCount = ();
         type Version = ();
+        type PalletInfo = PalletInfo;
+        type AccountData = pallet_balances::AccountData<u64>;
+        type OnNewAccount = ();
+        type OnKilledAccount = ();
+        type SystemWeightInfo = ();
+        type SS58Prefix = SS58Prefix;
+    	type OnSetCode = ();
     }
+    impl pallet_randomness_collective_flip::Config for Test {}
     parameter_types! {
         pub const MinimumPeriod: u64 = SLOT_DURATION / 2;
     }
@@ -177,12 +178,14 @@ mod tests {
         pub const ExistentialDeposit: u64 = 1;
     }
     impl pallet_balances::Config for Test {
-        type AccountStore = System;
+        type MaxLocks = ();
+        type MaxReserves = ();
+        type ReserveIdentifier = [u8; 8];
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();
         type ExistentialDeposit = ExistentialDeposit;
-        type MaxLocks = ();
+        type AccountStore = System;
         type WeightInfo = ();
     }
     impl pallet_transaction_payment::Config for Test {
@@ -193,16 +196,16 @@ mod tests {
     }
 
     thread_local! {
-        static TEN_TO_FOURTEEN: RefCell<Vec<u64>> = RefCell::new(vec![10,11,12,13,14]);
+        static TEN_TO_FOURTEEN: RefCell<Vec<u128>> = RefCell::new(vec![10,11,12,13,14]);
     }
     pub struct TenToFourteen;
-    impl Contains<u64> for TenToFourteen {
-        fn sorted_members() -> Vec<u64> {
+    impl SortedMembers<u128> for TenToFourteen {
+        fn sorted_members() -> Vec<u128> {
             TEN_TO_FOURTEEN.with(|v| v.borrow().clone())
         }
 
         #[cfg(feature = "runtime-benchmarks")]
-        fn add(new: &u64) {
+        fn add(new: &u128) {
             TEN_TO_FOURTEEN.with(|v| {
                 let mut members = v.borrow_mut();
                 members.push(*new);
@@ -228,21 +231,22 @@ mod tests {
         pub const TipCountdown: BlockNumber = 1;
         pub const TipFindersFee: Percent = Percent::from_percent(20);
         pub const TipReportDepositBase: u64 = 1_000_000_000_000_000_000;
-        pub const MaximumReasonLength: u32 = 16384;
-        pub const BountyValueMinimum: u64 = 1;
-        pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
+        pub const DataDepositPerByte: u64 = 1;
         pub const BountyDepositBase: u64 = 80;
         pub const BountyDepositPayoutDelay: u32 = 3;
+        pub const TreasuryPalletId: PalletId = PalletId(*b"py/trsry");
         pub const BountyUpdatePeriod: u32 = 20;
-        pub const DataDepositPerByte: u64 = 1;
-        pub const TreasuryModuleId: ModuleId = ModuleId(*b"py/trsry");
+        pub const MaximumReasonLength: u32 = 16384;
+        pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
+        pub const BountyValueMinimum: u64 = 1;
+        pub const MaxApprovals: u32 = 100;
     }
 
     impl pallet_treasury::Config for Test {
-        type ModuleId = TreasuryModuleId;
+        type PalletId = TreasuryPalletId;
         type Currency = Balances;
-        type ApproveOrigin = EnsureRoot<u64>;
-        type RejectOrigin = EnsureRoot<u64>;
+        type ApproveOrigin = EnsureRoot<u128>;
+        type RejectOrigin = EnsureRoot<u128>;
         type Event = ();
         type OnSlash = ();
         type ProposalBond = ProposalBond;
@@ -252,6 +256,7 @@ mod tests {
         type BurnDestination = ();
         type SpendFunds = Bounties;
         type WeightInfo = pallet_treasury::weights::SubstrateWeight<Test>;
+        type MaxApprovals = MaxApprovals;
     }
 
     impl pallet_bounties::Config for Test {
@@ -347,7 +352,7 @@ mod tests {
     pub type MiningExecutionTokenTestModule = MiningExecutionTokenModule<Test>;
     pub type MembershipSupernodesTestModule = MembershipSupernodesModule<Test>;
     type Randomness = pallet_randomness_collective_flip::Pallet<Test>;
-    type MembershipSupernodes = membership_supernodes::Pallet<Test>;
+    type MembershipSupernodes = membership_supernodes::Module<Test>;
 
     // fn last_event() -> MiningEligibilityProxyEvent {
     //     System::events().pop().expect("Event expected").event
@@ -653,7 +658,7 @@ mod tests {
                 proxy_claim_start_date: NaiveDate::from_ymd(2000, 1, 1).and_hms(0, 0, 0).timestamp() * 1000,
                 proxy_claim_end_date: NaiveDate::from_ymd(2000, 1, 9).and_hms(0, 0, 0).timestamp() * 1000,
             };
-            let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, i64, i64>> =
+            let mut proxy_claim_rewardees_data: Vec<MiningEligibilityProxyClaimRewardeeData<u128, u64, i64, i64>> =
                 Vec::new();
             proxy_claim_rewardees_data.push(rewardee_data);
 
@@ -712,7 +717,7 @@ mod tests {
             // assert_eq!(
             //     last_event(),
             //     MiningEligibilityProxyEvent::MiningEligibilityProxyRewardRequestSet(
-            //         1u64, // proxy_claim_requestor_account_id
+            //         1u128, // proxy_claim_requestor_account_id
             //         0u64, // mining_eligibility_proxy_id
             //         1000u64, // proxy_claim_total_reward_amount
             //         proxy_claim_rewardees_data.clone(), // proxy_claim_rewardees_data
@@ -766,7 +771,7 @@ mod tests {
             assert_eq!(
                 MiningEligibilityProxyTestModule::mining_eligibility_proxy_eligibility_reward_requests(0),
                 Some(MiningEligibilityProxyRewardRequest {
-                    proxy_claim_requestor_account_id: 1u64,
+                    proxy_claim_requestor_account_id: 1u128,
                     proxy_claim_total_reward_amount: 1000u64,
                     proxy_claim_timestamp_redeemed: 1616724600000u64, // current timestamp
                 })
@@ -798,7 +803,7 @@ mod tests {
                 assert_eq!(false, true);
             }
 
-            if let Some(reward_transfer_data) = MiningEligibilityProxyTestModule::reward_transfers(1u64) {
+            if let Some(reward_transfer_data) = MiningEligibilityProxyTestModule::reward_transfers(1u128) {
                 // Check that data about the proxy claim reward transfer data has been stored.
                 // Check latest transfer added to vector for transfer AccountId 0
                 assert_eq!(
@@ -824,7 +829,7 @@ mod tests {
                 proxy_claim_start_date: NaiveDate::from_ymd(2000, 1, 1).and_hms(0, 0, 0).timestamp() * 1000,
                 proxy_claim_end_date: NaiveDate::from_ymd(2000, 1, 9).and_hms(0, 0, 0).timestamp() * 1000,
             };
-            let mut proxy_claim_rewardees_data_large: Vec<MiningEligibilityProxyClaimRewardeeData<u64, u64, i64, i64>> =
+            let mut proxy_claim_rewardees_data_large: Vec<MiningEligibilityProxyClaimRewardeeData<u128, u64, i64, i64>> =
                 Vec::new();
                 proxy_claim_rewardees_data_large.push(rewardee_data_large);
 
@@ -849,7 +854,7 @@ mod tests {
                     Some(RewardDailyData {
                         mining_eligibility_proxy_id: 1u64,
                         total_amt: 3000u64,
-                        proxy_claim_requestor_account_id: 2u64,
+                        proxy_claim_requestor_account_id: 2u128,
                         member_kind: 1u32,
                         rewarded_date: date_redeemed_millis_2021_03_27.clone(),
                     })

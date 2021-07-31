@@ -33,27 +33,27 @@ mod tests {
     // Import Config for each runtime module being tested
     use mining_claims_hardware::{
         MiningClaimsHardwareClaimResult,
-        Pallet as MiningClaimsHardwareModule,
+        Module as MiningClaimsHardwareModule,
         Config as MiningClaimsHardwareConfig,
     };
     use mining_setting_hardware::{
         MiningSettingHardwareSetting,
-        Pallet as MiningSettingHardwareModule,
+        Module as MiningSettingHardwareModule,
         Config as MiningSettingHardwareConfig,
     };
     use mining_eligibility_hardware::{
         MiningEligibilityHardwareResult,
-        Pallet as MiningEligibilityHardwareModule,
+        Module as MiningEligibilityHardwareModule,
         Config as MiningEligibilityHardwareConfig,
     };
     use mining_rates_hardware::{
         MiningRatesHardwareSetting,
-        Pallet as MiningRatesHardwareModule,
+        Module as MiningRatesHardwareModule,
         Config as MiningRatesHardwareConfig,
     };
     use mining_sampling_hardware::{
         MiningSamplingHardwareSetting,
-        Pallet as MiningSamplingHardwareModule,
+        Module as MiningSamplingHardwareModule,
         Config as MiningSamplingHardwareConfig,
     };
     use roaming_operators;
@@ -83,40 +83,43 @@ mod tests {
         pub const SS58Prefix: u16 = 33;
     }
     impl frame_system::Config for Test {
-        type AccountData = pallet_balances::AccountData<u64>;
-        type AccountId = u64;
         type BaseCallFilter = ();
-        type BlockHashCount = ();
-        type BlockLength = ();
-        type BlockNumber = u64;
         type BlockWeights = ();
-        type Call = Call;
+        type BlockLength = ();
         type DbWeight = ();
-        // type WeightMultiplierUpdate = ();
-        type Event = ();
+        type Origin = Origin;
+        type Call = Call;
+        type Index = u64;
+        type BlockNumber = u64;
         type Hash = H256;
         type Hashing = BlakeTwo256;
-        type Header = Header;
-        type Index = u64;
+        type AccountId = u128; // u64 is not enough to hold bytes used to generate bounty account
         type Lookup = IdentityLookup<Self::AccountId>;
-        type OnKilledAccount = ();
-        type OnNewAccount = ();
-        type Origin = Origin;
-        type PalletInfo = PalletInfo;
-        type SS58Prefix = SS58Prefix;
-        type SystemWeightInfo = ();
+        type Header = Header;
+        type Event = ();
+        type BlockHashCount = ();
         type Version = ();
+        type PalletInfo = PalletInfo;
+        type AccountData = pallet_balances::AccountData<u64>;
+        type OnNewAccount = ();
+        type OnKilledAccount = ();
+        type SystemWeightInfo = ();
+        type SS58Prefix = SS58Prefix;
+    	type OnSetCode = ();
     }
+    impl pallet_randomness_collective_flip::Config for Test {}
     parameter_types! {
         pub const ExistentialDeposit: u64 = 1;
     }
     impl pallet_balances::Config for Test {
-        type AccountStore = System;
+        type MaxLocks = ();
+        type MaxReserves = ();
+        type ReserveIdentifier = [u8; 8];
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();
         type ExistentialDeposit = ExistentialDeposit;
-        type MaxLocks = ();
+        type AccountStore = System;
         type WeightInfo = ();
     }
     impl pallet_transaction_payment::Config for Test {

@@ -39,60 +39,60 @@ mod tests {
     };
     // Import Config for each runtime module being tested
     use roaming_accounting_policies::{
-        Pallet as RoamingAccountingPolicyModule,
+        Module as RoamingAccountingPolicyModule,
         RoamingAccountingPolicySetting,
         Config as RoamingAccountingPolicyConfig,
     };
     use roaming_agreement_policies::{
-        Pallet as RoamingAgreementPolicyModule,
+        Module as RoamingAgreementPolicyModule,
         RoamingAgreementPolicySetting,
         Config as RoamingAgreementPolicyConfig,
     };
     use roaming_billing_policies::{
-        Pallet as RoamingBillingPolicyModule,
+        Module as RoamingBillingPolicyModule,
         RoamingBillingPolicySetting,
         Config as RoamingBillingPolicyConfig,
     };
     use roaming_charging_policies::{
-        Pallet as RoamingChargingPolicyModule,
+        Module as RoamingChargingPolicyModule,
         RoamingChargingPolicySetting,
         Config as RoamingChargingPolicyConfig,
     };
     use roaming_device_profiles::{
-        Pallet as RoamingDeviceProfileModule,
+        Module as RoamingDeviceProfileModule,
         RoamingDeviceProfileSetting,
         Config as RoamingDeviceProfileConfig,
     };
     use roaming_devices::{
-        Pallet as RoamingDeviceModule,
+        Module as RoamingDeviceModule,
         Config as RoamingDeviceConfig,
     };
     use roaming_network_profiles::{
-        Pallet as RoamingNetworkProfileModule,
+        Module as RoamingNetworkProfileModule,
         Config as RoamingNetworkProfileConfig,
     };
     use roaming_network_servers::{
-        Pallet as RoamingNetworkServerModule,
+        Module as RoamingNetworkServerModule,
         Config as RoamingNetworkServerConfig,
     };
     use roaming_networks::{
-        Pallet as RoamingNetworkModule,
+        Module as RoamingNetworkModule,
         Config as RoamingNetworkConfig,
     };
     use roaming_operators::{
-        Pallet as RoamingOperatorModule,
+        Module as RoamingOperatorModule,
         Config as RoamingOperatorConfig,
     };
     use roaming_organizations::{
-        Pallet as RoamingOrganizationModule,
+        Module as RoamingOrganizationModule,
         Config as RoamingOrganizationConfig,
     };
     use roaming_routing_profiles::{
-        Pallet as RoamingRoutingProfileModule,
+        Module as RoamingRoutingProfileModule,
         Config as RoamingRoutingProfileConfig,
     };
     use roaming_service_profiles::{
-        Pallet as RoamingServiceProfileModule,
+        Module as RoamingServiceProfileModule,
         Config as RoamingServiceProfileConfig,
     };
 
@@ -121,40 +121,43 @@ mod tests {
         pub const SS58Prefix: u16 = 33;
     }
     impl frame_system::Config for Test {
-        type AccountData = pallet_balances::AccountData<u64>;
-        type AccountId = u64;
         type BaseCallFilter = ();
-        type BlockHashCount = BlockHashCount;
-        type BlockLength = ();
-        type BlockNumber = u64;
         type BlockWeights = ();
-        type Call = Call;
+        type BlockLength = ();
         type DbWeight = ();
-        // type WeightMultiplierUpdate = ();
-        type Event = ();
+        type Origin = Origin;
+        type Call = Call;
+        type Index = u64;
+        type BlockNumber = u64;
         type Hash = H256;
         type Hashing = BlakeTwo256;
-        type Header = Header;
-        type Index = u64;
+        type AccountId = u128; // u64 is not enough to hold bytes used to generate bounty account
         type Lookup = IdentityLookup<Self::AccountId>;
-        type OnKilledAccount = ();
-        type OnNewAccount = ();
-        type Origin = Origin;
-        type PalletInfo = PalletInfo;
-        type SS58Prefix = SS58Prefix;
-        type SystemWeightInfo = ();
+        type Header = Header;
+        type Event = ();
+        type BlockHashCount = ();
         type Version = ();
+        type PalletInfo = PalletInfo;
+        type AccountData = pallet_balances::AccountData<u64>;
+        type OnNewAccount = ();
+        type OnKilledAccount = ();
+        type SystemWeightInfo = ();
+        type SS58Prefix = SS58Prefix;
+    	type OnSetCode = ();
     }
+    impl pallet_randomness_collective_flip::Config for Test {}
     parameter_types! {
         pub const ExistentialDeposit: u64 = 1;
     }
     impl pallet_balances::Config for Test {
-        type AccountStore = System;
+        type MaxLocks = ();
+        type MaxReserves = ();
+        type ReserveIdentifier = [u8; 8];
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();
         type ExistentialDeposit = ExistentialDeposit;
-        type MaxLocks = ();
+        type AccountStore = System;
         type WeightInfo = ();
     }
     impl pallet_transaction_payment::Config for Test {

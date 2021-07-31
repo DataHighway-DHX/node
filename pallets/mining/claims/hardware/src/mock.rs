@@ -1,7 +1,7 @@
 // Creating mock runtime here
 
 use crate::{
-    Module,
+    Pallet,
     Config,
 };
 
@@ -32,9 +32,9 @@ frame_support::construct_runtime!(
         NodeBlock = Block,
         UncheckedExtrinsic = UncheckedExtrinsic,
     {
-        System: frame_system::{Module, Call, Config, Storage, Event<T>},
-        Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
-        TransactionPayment: pallet_transaction_payment::{Module, Storage},
+        System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+        Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
+        TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
         RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
     }
 );
@@ -44,7 +44,7 @@ parameter_types! {
 }
 impl frame_system::Config for Test {
     type AccountData = pallet_balances::AccountData<u64>;
-    type AccountId = u64;
+	type AccountId = u128; // u64 is not enough to hold bytes used to generate bounty account
     type BaseCallFilter = ();
     type BlockHashCount = BlockHashCount;
     type BlockNumber = u64;
@@ -141,7 +141,7 @@ impl Config for Test {
     type MiningClaimsHardwareIndex = u64;
 }
 
-pub type MiningClaimsHardwareTestModule = Module<Test>;
+pub type MiningClaimsHardwareTestModule = Pallet<Test>;
 
 // This function basically just builds a genesis storage key/value store according to
 // our desired mockup.

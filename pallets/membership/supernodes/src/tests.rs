@@ -31,7 +31,7 @@
 // }
 // impl frame_system::Config for TestRuntime {
 //     type AccountData = pallet_balances::AccountData<u64>;
-//     type AccountId = u64;
+//     type AccountId = u128; // u64 is not enough to hold bytes used to generate bounty account
 //     type BaseCallFilter = ();
 //     type BlockHashCount = BlockHashCount;
 //     type BlockLength = ();

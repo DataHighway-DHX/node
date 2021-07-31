@@ -140,9 +140,9 @@ pub fn development_config() -> Result<ChainSpec, String> {
 			// Pre-funded accounts
             vec![
                 // DHX DAO Unlocked Reserves Balance
-                // Given a Treasury ModuleId in runtime parameter_types of
+                // Given a Treasury PalletId in runtime parameter_types of
                 // `py/trsry`, we convert that to its associated address
-                // using Module ID" to Address" at https://www.shawntabrizi.com/substrate-js-utilities/,
+                // using Pallet ID" to Address" at https://www.shawntabrizi.com/substrate-js-utilities/,
                 // which generates 5EYCAe5ijiYfyeZ2JJCGq56LmPyNRAKzpG4QkoQkkQNB5e6Z,
                 // and find its corresponding hex value by pasting the address into
                 // "AccountId to Hex" at that same link to return
