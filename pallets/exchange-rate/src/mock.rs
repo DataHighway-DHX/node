@@ -32,9 +32,9 @@ frame_support::construct_runtime!(
         NodeBlock = Block,
         UncheckedExtrinsic = UncheckedExtrinsic,
     {
-        System: frame_system::{Module, Call, Config, Storage, Event<T>},
-        Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
-        TransactionPayment: pallet_transaction_payment::{Module, Storage},
+        System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+        Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
+        TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
         RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
     }
 );
@@ -43,29 +43,31 @@ parameter_types! {
     pub const BlockHashCount: u64 = 250;
 }
 impl frame_system::Config for Test {
-    type AccountData = pallet_balances::AccountData<u64>;
-	type AccountId = u128; // u64 is not enough to hold bytes used to generate bounty account
     type BaseCallFilter = ();
-    type BlockHashCount = BlockHashCount;
-    type BlockNumber = u64;
-    type BlockLength = ();
     type BlockWeights = ();
-    type Call = Call;
+    type BlockLength = ();
     type DbWeight = ();
-    type Event = ();
+    type Origin = Origin;
+    type Call = Call;
+    type Index = u64;
+    type BlockNumber = u64;
     type Hash = H256;
     type Hashing = BlakeTwo256;
-    type Header = Header;
-    type Index = u64;
+    type AccountId = u128; // u64 is not enough to hold bytes used to generate bounty account
     type Lookup = IdentityLookup<Self::AccountId>;
-    type OnKilledAccount = ();
-    type OnNewAccount = ();
-    type Origin = Origin;
-    type PalletInfo = PalletInfo;
-    type SS58Prefix = ();
-    type SystemWeightInfo = ();
+    type Header = Header;
+    type Event = ();
+    type BlockHashCount = ();
     type Version = ();
+    type PalletInfo = PalletInfo;
+    type AccountData = pallet_balances::AccountData<u64>;
+    type OnNewAccount = ();
+    type OnKilledAccount = ();
+    type SystemWeightInfo = ();
+    type SS58Prefix = ();
+    type OnSetCode = ();
 }
+impl pallet_randomness_collective_flip::Config for Test {}
 parameter_types! {
     pub const ExistentialDeposit: u64 = 1;
 }
