@@ -4,7 +4,6 @@ use log::{warn, info};
 use codec::{
     Decode,
     Encode,
-    MaxEncodedLen,
 };
 use frame_support::{
     decl_event,

@@ -39,7 +39,7 @@ use sp_blockchain::{
 use sp_consensus::SelectChain;
 use sp_consensus_babe::BabeApi;
 use sp_keystore::SyncCryptoStorePtr;
-use sp_transaction_pool::TransactionPool;
+use sc_transaction_pool_api::TransactionPool;
 
 /// Light client extra dependencies.
 pub struct LightDeps<C, F, P> {
