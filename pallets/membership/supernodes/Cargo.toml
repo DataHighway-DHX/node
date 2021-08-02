@@ -19,18 +19,18 @@ compatibility_version = "2.0.0"
 codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
 
 # Substrate packages
-frame-support = { git = 'https://github.com/paritytech/substrate', rev = '2543f6f6d80b374da8a2986a258987f20c0c28c6', default-features = false }
-frame-system = { git = 'https://github.com/paritytech/substrate', rev = '2543f6f6d80b374da8a2986a258987f20c0c28c6', default-features = false }
-pallet-balances = { git = 'https://github.com/paritytech/substrate', rev = '2543f6f6d80b374da8a2986a258987f20c0c28c6', default-features = false }
-sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '2543f6f6d80b374da8a2986a258987f20c0c28c6', default-features = false }
-sp-std = { git = 'https://github.com/paritytech/substrate', rev = '2543f6f6d80b374da8a2986a258987f20c0c28c6', default-features = false }
+frame-support = { git = 'https://github.com/paritytech/substrate', rev = '993907f9deb180795b291ba752b9c204165d74dc', default-features = false }
+frame-system = { git = 'https://github.com/paritytech/substrate', rev = '993907f9deb180795b291ba752b9c204165d74dc', default-features = false }
+pallet-balances = { git = 'https://github.com/paritytech/substrate', rev = '993907f9deb180795b291ba752b9c204165d74dc', default-features = false }
+sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '993907f9deb180795b291ba752b9c204165d74dc', default-features = false }
+sp-std = { git = 'https://github.com/paritytech/substrate', rev = '993907f9deb180795b291ba752b9c204165d74dc', default-features = false }
 
 # local packages
 account-set = { path = '../../../traits/account-set', default-features = false }
 
 [dev-dependencies]
-sp-core = { git = 'https://github.com/paritytech/substrate', rev = '2543f6f6d80b374da8a2986a258987f20c0c28c6', default-features = false }
-sp-io = { git = 'https://github.com/paritytech/substrate', rev = '2543f6f6d80b374da8a2986a258987f20c0c28c6', default-features = false }
+sp-core = { git = 'https://github.com/paritytech/substrate', rev = '993907f9deb180795b291ba752b9c204165d74dc', default-features = false }
+sp-io = { git = 'https://github.com/paritytech/substrate', rev = '993907f9deb180795b291ba752b9c204165d74dc', default-features = false }
 
 [features]
 default = ['std']
