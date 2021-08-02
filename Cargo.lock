@@ -1202,7 +1202,7 @@ dependencies = [
 
 [[package]]
 name = "datahighway"
-version = "3.0.5"
+version = "3.0.6"
 dependencies = [
  "datahighway-runtime",
  "frame-benchmarking",
@@ -1263,7 +1263,7 @@ dependencies = [
 
 [[package]]
 name = "datahighway-runtime"
-version = "3.0.5"
+version = "3.0.6"
 dependencies = [
  "chrono",
  "exchange-rate",
@@ -1772,6 +1772,8 @@ dependencies = [
  "frame-benchmarking",
  "frame-support",
  "handlebars",
+ "linked-hash-map",
+ "log",
  "parity-scale-codec",
  "sc-cli",
  "sc-client-db",
@@ -3705,7 +3707,7 @@ dependencies = [
 
 [[package]]
 name = "mining-eligibility-proxy"
-version = "3.0.5"
+version = "3.0.6"
 dependencies = [
  "account-set",
  "chrono",
@@ -3983,7 +3985,7 @@ dependencies = [
 
 [[package]]
 name = "module-primitives"
-version = "3.0.5"
+version = "3.0.6"
 dependencies = [
  "bitmask",
  "parity-scale-codec",
@@ -6369,7 +6371,6 @@ dependencies = [
  "sc-state-db",
  "sp-arithmetic",
  "sp-blockchain",
- "sp-consensus",
  "sp-core",
  "sp-database",
  "sp-runtime",
@@ -6384,11 +6385,23 @@ version = "0.10.0-dev"
 source = "git+https://github.com/paritytech/substrate?rev=a41578d5d27c56f2843d5e513d007e891d0b4129#a41578d5d27c56f2843d5e513d007e891d0b4129"
 dependencies = [
  "async-trait",
+ "futures 0.3.16",
+ "futures-timer 3.0.2",
+ "libp2p",
+ "log",
  "parking_lot 0.11.1",
  "sc-client-api",
+ "serde",
+ "sp-api",
  "sp-blockchain",
  "sp-consensus",
+ "sp-core",
  "sp-runtime",
+ "sp-state-machine",
+ "sp-utils",
+ "substrate-prometheus-endpoint",
+ "thiserror",
+ "wasm-timer",
 ]
 
 [[package]]
@@ -6404,6 +6417,7 @@ dependencies = [
  "parity-scale-codec",
  "sc-block-builder",
  "sc-client-api",
+ "sc-consensus",
  "sc-consensus-slots",
  "sc-telemetry",
  "sp-api",
@@ -6443,6 +6457,7 @@ dependencies = [
  "rand 0.7.3",
  "retain_mut",
  "sc-client-api",
+ "sc-consensus",
  "sc-consensus-epochs",
  "sc-consensus-slots",
  "sc-consensus-uncles",
@@ -6517,6 +6532,7 @@ dependencies = [
  "log",
  "parity-scale-codec",
  "sc-client-api",
+ "sc-consensus",
  "sc-telemetry",
  "sp-api",
  "sp-application-crypto",
@@ -6642,7 +6658,7 @@ dependencies = [
  "parity-scale-codec",
  "parking_lot 0.11.1",
  "pin-project 1.0.8",
- "rand 0.7.3",
+ "rand 0.8.4",
  "sc-block-builder",
  "sc-client-api",
  "sc-consensus",
@@ -6782,6 +6798,7 @@ dependencies = [
  "rand 0.7.3",
  "sc-block-builder",
  "sc-client-api",
+ "sc-consensus",
  "sc-peerset",
  "serde",
  "serde_json",
@@ -6790,6 +6807,7 @@ dependencies = [
  "sp-blockchain",
  "sp-consensus",
  "sp-core",
+ "sp-finality-grandpa",
  "sp-runtime",
  "sp-utils",
  "substrate-prometheus-endpoint",
@@ -6970,6 +6988,7 @@ dependencies = [
  "sc-chain-spec",
  "sc-client-api",
  "sc-client-db",
+ "sc-consensus",
  "sc-executor",
  "sc-informant",
  "sc-keystore",
@@ -7637,7 +7656,6 @@ dependencies = [
  "async-trait",
  "futures 0.3.16",
  "futures-timer 3.0.2",
- "libp2p",
  "log",
  "parity-scale-codec",
  "parking_lot 0.11.1",

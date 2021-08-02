@@ -3,6 +3,7 @@
 use crate::{
     rpc as datahighway_rpc,
 };
+use futures::prelude::*;
 use datahighway_runtime::{
     self,
     opaque::{
@@ -16,6 +17,8 @@ use sc_client_api::{
     ExecutorProvider,
     RemoteBackend,
 };
+use sc_consensus_babe::{self, SlotProportion};
+use sc_consensus::{BlockImport, BlockImportParams, ForkChoiceStrategy};
 use sc_executor::native_executor_instance;
 pub use sc_executor::NativeExecutor;
 // use sc_finality_grandpa::{
@@ -37,15 +40,14 @@ use sc_telemetry::{
     Telemetry,
     TelemetryWorker,
 };
-use sc_consensus::{BlockImport, BlockImportParams, ForkChoiceStrategy, SlotProportion};
 use sp_consensus::{BlockOrigin, Environment, Proposer, SlotData};
-use futures::prelude::*;
 use sp_runtime::traits::Block as BlockT;
 use std::{
     sync::Arc,
     time::Duration,
 };
 
+// TODO - consider refactoring into a `node_executor::Executor` the way Substrate does it.
 // Our native executor instance.
 native_executor_instance!(
     pub Executor,
@@ -169,7 +171,10 @@ pub fn new_partial(
         let rpc_setup = shared_voter_state.clone();
 
         let finality_proof_provider =
-            sc_finality_grandpa::FinalityProofProvider::new_for_service(backend.clone(), Some(shared_authority_set.clone()));
+            sc_finality_grandpa::FinalityProofProvider::new_for_service(
+                backend.clone(),
+                Some(shared_authority_set.clone())
+            );
 
         let babe_config = babe_link.config().clone();
         let shared_epoch_changes = babe_link.epoch_changes().clone();
@@ -246,12 +251,12 @@ pub fn new_full_base(
     } = new_partial(&config)?;
 
     let shared_voter_state = rpc_setup;
+    let auth_disc_publish_non_global_ips = config.network.allow_non_globals_in_dht;
 
     config.network.extra_sets.push(sc_finality_grandpa::grandpa_peers_set_config());
-
 	let warp_sync = Arc::new(sc_finality_grandpa::warp_proof::NetworkProvider::new(
 		backend.clone(),
-		grandpa_link.shared_authority_set().clone(),
+		import_setup.1.shared_authority_set().clone(),
 	));
 
     let (network, system_rpc_tx, network_starter) =
@@ -369,7 +374,11 @@ pub fn new_full_base(
                 Event::Dht(e) => Some(e),
                 _ => None,
             }});
-        let (authority_discovery_worker, _service) = sc_authority_discovery::new_worker_and_service(
+        let (authority_discovery_worker, _service) = sc_authority_discovery::new_worker_and_service_with_config(
+            sc_authority_discovery::WorkerConfig {
+                publish_non_global_ips: auth_disc_publish_non_global_ips,
+                ..Default::default()
+            },
             client.clone(),
             network.clone(),
             Box::pin(dht_event_stream),
@@ -410,10 +419,10 @@ pub fn new_full_base(
             config,
             link: grandpa_link,
             network: network.clone(),
+            telemetry: telemetry.as_ref().map(|x| x.handle()),
             voting_rule: sc_finality_grandpa::VotingRulesBuilder::default().build(),
             prometheus_registry,
             shared_voter_state: sc_finality_grandpa::SharedVoterState::empty(),
-            telemetry: telemetry.as_ref().map(|x| x.handle()),
         };
 
         // the GRANDPA voter task is considered infallible, i.e.
@@ -499,7 +508,7 @@ pub fn new_light_base(
         on_demand.clone(),
     ));
 
-    let (grandpa_block_import, _) =
+    let (grandpa_block_import, grandpa_link) =
         sc_finality_grandpa::block_import(
             client.clone(),
             &(client.clone() as Arc<_>),
@@ -557,7 +566,27 @@ pub fn new_light_base(
             block_announce_validator_builder: None,
             warp_sync: Some(warp_sync),
         })?;
-    network_starter.start_network();
+
+
+    let enable_grandpa = !config.disable_grandpa;
+    if enable_grandpa {
+        let name = config.network.node_name.clone();
+
+        let config = sc_finality_grandpa::Config {
+            gossip_duration: std::time::Duration::from_millis(333),
+            justification_period: 512,
+            name: Some(name),
+            observer_enabled: false,
+            keystore: None,
+            local_role: config.role.clone(),
+            telemetry: telemetry.as_ref().map(|x| x.handle()),
+        };
+
+        task_manager.spawn_handle().spawn_blocking(
+            "grandpa-observer",
+            sc_finality_grandpa::run_grandpa_observer(config, grandpa_link, network.clone())?,
+        );
+    }
 
     if config.offchain_worker.enabled {
         sc_service::build_offchain_workers(
@@ -594,6 +623,7 @@ pub fn new_light_base(
         }
     )?;
 
+    network_starter.start_network();
     Ok((
         task_manager,
         rpc_handlers,

@@ -1,6 +1,6 @@
 [package]
 name = 'module-primitives'
-version = '3.0.5'
+version = '3.0.6'
 authors = ['Laminar Developers <hello@laminar.one>', 'MXC Foundation GmbH <https://t.me/mxcfoundation>', 'Luke Schoen']
 edition = '2018'
 

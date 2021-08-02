@@ -2,7 +2,7 @@
 authors = ['MXC Foundation gGmbH <https://t.me/mxcfoundation>', 'Luke Schoen <luke@mxc.org>', 'Ilya Beregovskiy <ilya@mxc.org>']
 edition = '2018'
 name = 'datahighway-runtime'
-version = '3.0.5'
+version = '3.0.6'
 
 [package.metadata.docs.rs]
 targets = ['x86_64-unknown-linux-gnu']
