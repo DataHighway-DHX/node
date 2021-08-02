@@ -37,8 +37,8 @@ use sc_telemetry::{
     Telemetry,
     TelemetryWorker,
 };
-use sc_consensus_babe::SlotProportion;
-use sp_consensus::SlotData;
+use sc_consensus::{BlockImport, BlockImportParams, ForkChoiceStrategy, SlotProportion};
+use sp_consensus::{BlockOrigin, Environment, Proposer, SlotData};
 use futures::prelude::*;
 use sp_runtime::traits::Block as BlockT;
 use std::{
@@ -67,7 +67,7 @@ pub fn new_partial(
         FullClient,
         FullBackend,
         FullSelectChain,
-        sp_consensus::DefaultImportQueue<Block, FullClient>,
+        sc_consensus::DefaultImportQueue<Block, FullClient>,
         sc_transaction_pool::FullPool<Block, FullClient>,
         (
             impl Fn(datahighway_rpc::DenyUnsafe, sc_rpc::SubscriptionTaskExecutor) -> datahighway_rpc::IoHandler,
@@ -249,13 +249,10 @@ pub fn new_full_base(
 
     config.network.extra_sets.push(sc_finality_grandpa::grandpa_peers_set_config());
 
-    #[cfg(feature = "cli")]
-    config.network.request_response_protocols.push(sc_finality_grandpa_warp_sync::request_response_config_for_chain(
-        &config,
-        task_manager.spawn_handle(),
-        backend.clone(),
-        import_setup.1.shared_authority_set().clone(),
-    ));
+	let warp_sync = Arc::new(sc_finality_grandpa::warp_proof::NetworkProvider::new(
+		backend.clone(),
+		grandpa_link.shared_authority_set().clone(),
+	));
 
     let (network, system_rpc_tx, network_starter) =
         sc_service::build_network(sc_service::BuildNetworkParams {
@@ -266,6 +263,7 @@ pub fn new_full_base(
             import_queue,
             on_demand: None,
             block_announce_validator_builder: None,
+            warp_sync: Some(warp_sync),
         })?;
 
     if config.offchain_worker.enabled {
@@ -543,6 +541,11 @@ pub fn new_light_base(
         telemetry.as_ref().map(|x| x.handle()),
     )?;
 
+	let warp_sync = Arc::new(sc_finality_grandpa::warp_proof::NetworkProvider::new(
+		backend.clone(),
+		grandpa_link.shared_authority_set().clone(),
+	));
+
     let (network, system_rpc_tx, network_starter) =
         sc_service::build_network(sc_service::BuildNetworkParams {
             config: &config,
@@ -552,6 +555,7 @@ pub fn new_light_base(
             import_queue,
             on_demand: Some(on_demand.clone()),
             block_announce_validator_builder: None,
+            warp_sync: Some(warp_sync),
         })?;
     network_starter.start_network();
 
