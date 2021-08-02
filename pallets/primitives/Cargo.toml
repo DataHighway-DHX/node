@@ -7,10 +7,10 @@ edition = '2018'
 [dependencies]
 serde = { version = '1.0.126', optional = true, features = ['derive'] }
 codec = { version = '2.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive', 'max-encoded-len'] }
-sp-core = { git = 'https://github.com/paritytech/substrate', rev = '1d5abf01abafdb6c15bcd0172f5de09fd87c5fbf', default-features = false }
-sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '1d5abf01abafdb6c15bcd0172f5de09fd87c5fbf', default-features = false }
+sp-core = { git = 'https://github.com/paritytech/substrate', rev = '0ae6aac3b0f8bea55bf91737a179fa01cd50f13f', default-features = false }
+sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '0ae6aac3b0f8bea55bf91737a179fa01cd50f13f', default-features = false }
 bitmask = { version = '0.5.0', default-features = false }
-sp-std = { git = 'https://github.com/paritytech/substrate', rev = '1d5abf01abafdb6c15bcd0172f5de09fd87c5fbf', default-features = false }
+sp-std = { git = 'https://github.com/paritytech/substrate', rev = '0ae6aac3b0f8bea55bf91737a179fa01cd50f13f', default-features = false }
 
 [features]
 default = ['std']
