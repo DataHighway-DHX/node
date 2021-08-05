@@ -12,19 +12,19 @@ bitmask = { version = '0.5.0', default-features = false }
 [dependencies.sp-core]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
+branch = "polkadot-v0.9.8"
 version = '3.0.0'
 
 [dependencies.sp-runtime]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
+branch = "polkadot-v0.9.8"
 version = '3.0.0'
 
 [dependencies.sp-std]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
+branch = "polkadot-v0.9.8"
 version = '3.0.0'
 
 [features]

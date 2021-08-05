@@ -41,11 +41,14 @@ use sp_std::prelude::*;
 #[cfg(feature = "std")]
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
-
+use pallet_xcm::XcmPassthrough;
 use polkadot_parachain::primitives::Sibling;
 use xcm::v0::{
+    BodyId,
     Junction,
+    Junction::*,
     MultiLocation,
+    MultiLocation::*,
     NetworkId,
 };
 use xcm_builder::{
@@ -65,7 +68,7 @@ use xcm_builder::{
     AllowTopLevelPaidExecutionFrom,
     AllowUnpaidExecutionFrom,
     FixedWeightBounds,
-    FixedRateOfConcreteFungible,
+    UsingComponents,
 };
 use xcm_executor::{
     Config,
@@ -76,6 +79,7 @@ use xcm_executor::{
 pub use frame_support::{
     PalletId,
     construct_runtime,
+    match_type,
     parameter_types,
     traits::{
         Contains,
@@ -151,7 +155,8 @@ pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
 pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
 pub const HOURS: BlockNumber = MINUTES * 60;
 pub const DAYS: BlockNumber = HOURS * 24;
-
+// Unit = the base number of indivisible units for balances
+pub const UNIT: Balance = 1_000_000_000_000;
 /// The version information used to identify this runtime when compiled natively.
 #[cfg(feature = "std")]
 pub fn native_version() -> NativeVersion {
@@ -751,6 +756,8 @@ type LocalAssetTransactor = CurrencyAdapter<
     LocationToAccountId,
     // Our chain's account ID type (we can't get away without mentioning it explicitly):
     AccountId,
+    // We don't track any teleports.
+    (),
 >;
 
 /// This is the type we use to convert an (incoming) XCM origin into a local `Origin` instance,
@@ -773,23 +780,28 @@ pub type XcmOriginToTransactDispatchOrigin = (
 	// Native signed account converter; this just converts an `AccountId32` origin into a normal
 	// `Origin::Signed` origin of the same 32-byte value.
 	SignedAccountId32AsNative<RococoNetwork, Origin>,
+    // Xcm origins can be represented natively under the Xcm pallet's Xcm origin.
+    XcmPassthrough<Origin>,
 );
 
 parameter_types! {
-	pub UnitWeightCost: Weight = 1_000;
+	// One XCM operation is 1_000_000 weight - almost certainly a conservative estimate.
+	pub UnitWeightCost: Weight = 1_000_000;
+	// One UNIT buys 1 second of weight.
+	pub const WeightPrice: (MultiLocation, u128) = (X1(Parent), UNIT);
 }
 
-parameter_types! {
-	// 1_000_000_000_000 => 1 unit of asset for 1 unit of Weight.
-	// TODO: Should take the actual weight price. This is just 1_000 ROC per second of weight.
-	pub const WeightPrice: (MultiLocation, u128) = (MultiLocation::X1(Junction::Parent), 1_000);
-	pub AllowUnpaidFrom: Vec<MultiLocation> = vec![ MultiLocation::X1(Junction::Parent) ];
+match_type! {
+	pub type ParentOrParentsUnitPlurality: impl Contains<MultiLocation> = {
+		X1(Parent) | X2(Parent, Plurality { id: BodyId::Unit, .. })
+	};
 }
 
 pub type Barrier = (
-	TakeWeightCredit,
-	AllowTopLevelPaidExecutionFrom<All<MultiLocation>>,
-	AllowUnpaidExecutionFrom<IsInVec<AllowUnpaidFrom>>,	// <- Parent gets free execution
+    TakeWeightCredit,
+    AllowTopLevelPaidExecutionFrom<All<MultiLocation>>,
+    AllowUnpaidExecutionFrom<ParentOrParentsUnitPlurality>,
+    // ^^^ Parent & its unit plurality gets free execution
 );
 
 pub struct XcmConfig;
@@ -804,7 +816,7 @@ impl Config for XcmConfig {
 	type LocationInverter = LocationInverter<Ancestry>;
 	type Barrier = Barrier;
 	type Weigher = FixedWeightBounds<UnitWeightCost, Call>;
-	type Trader = FixedRateOfConcreteFungible<WeightPrice>;
+    type Trader = UsingComponents<IdentityFee<Balance>, RococoLocation, AccountId, Balances, ()>;
 	type ResponseHandler = ();	// Don't handle responses for now.
 }
 
@@ -840,11 +852,6 @@ impl cumulus_pallet_parachain_system::Config for Runtime {
 	type Event = Event;
 	type OnValidationData = ();
 	type SelfParaId = parachain_info::Module<Runtime>;
-	type DownwardMessageHandlers = cumulus_primitives_utility::UnqueuedDmpAsParent<
-		MaxDownwardMessageWeight,
-		XcmExecutor<XcmConfig>,
-		Call,
-	>;
 	type OutboundXcmpMessageSource = XcmpQueue;
 	type XcmpMessageHandler = XcmpQueue;
 	type ReservedXcmpWeight = ReservedXcmpWeight;
@@ -852,6 +859,8 @@ impl cumulus_pallet_parachain_system::Config for Runtime {
 }
 
 impl parachain_info::Config for Runtime {}
+
+impl cumulus_pallet_aura_ext::Config for Runtime {}
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
@@ -861,10 +870,11 @@ construct_runtime!(
         UncheckedExtrinsic = UncheckedExtrinsic
     {
         System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
-        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Call, Storage},
+        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
         Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent},
         //Indices: pallet_indices::{Pallet, Call, Storage, Event<T>, Config<T>},
         Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
+        AuraExt: cumulus_pallet_aura_ext::{Pallet, Config},
         TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
         Sudo: pallet_sudo::{Pallet, Call, Config<T>, Storage, Event<T>},
         GeneralCouncil: pallet_collective::<Instance1>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>},
@@ -977,9 +987,6 @@ impl_runtime_apis! {
             data.check_extrinsics(&block)
         }
 
-        fn random_seed() -> <Block as BlockT>::Hash {
-            RandomnessCollectiveFlip::random_seed().0
-        }
     }
 
     impl sp_transaction_pool::runtime_api::TaggedTransactionQueue<Block> for Runtime {
@@ -1031,4 +1038,31 @@ impl_runtime_apis! {
     }
 }
 
-cumulus_pallet_parachain_system::register_validate_block!(Runtime, Executive);
+struct CheckInherents;
+
+impl cumulus_pallet_parachain_system::CheckInherents<Block> for CheckInherents {
+    fn check_inherents(
+        block: &Block,
+        relay_state_proof: &cumulus_pallet_parachain_system::RelayChainStateProof,
+    ) -> sp_inherents::CheckInherentsResult {
+        let relay_chain_slot = relay_state_proof
+            .read_slot()
+            .expect("Could not read the relay chain slot from the proof");
+
+        let inherent_data =
+            cumulus_primitives_timestamp::InherentDataProvider::from_relay_chain_slot_and_duration(
+                relay_chain_slot,
+                sp_std::time::Duration::from_secs(6),
+            )
+                .create_inherent_data()
+                .expect("Could not create the timestamp inherent data");
+
+        inherent_data.check_extrinsics(&block)
+    }
+}
+
+cumulus_pallet_parachain_system::register_validate_block!(
+	Runtime = Runtime,
+	BlockExecutor = cumulus_pallet_aura_ext::BlockExecutor::<Runtime, Executive>,
+	CheckInherents = CheckInherents,
+);
