@@ -253,24 +253,21 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
         },
         // Bootnodes
         vec![
-            // Note: The local node identity that is shown when you start the bootnode
-            // with the following flags and options is
-            // `12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo`:
-            // ./target/release/datahighway \
-            //   ...
-            //   --alice \
-            //   --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee \
-            //   ...
-            // Since it is an IP address we use `/ip4/`, whereas if it were a domain we'd use `/dns/`
-            "/ip4/127.0.0.1/tcp/30333/p2p/12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo"
-                .parse()
-                .unwrap(),
+            // // Note: The local node identity that is shown when you start the bootnode
+            // // with the following flags and options is
+            // // `12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo`:
+            // // ./target/release/datahighway \
+            // //   ...
+            // //   --alice \
+            // //   --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee \
+            // //   ...
+            // // Since it is an IP address we use `/ip4/`, whereas if it were a domain we'd use `/dns/`
+            // "/ip4/127.0.0.1/tcp/30333/p2p/12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo"
+            //     .parse()
+            //     .unwrap(),
         ],
         // Telemetry Endpoints
-        Some(
-            TelemetryEndpoints::new(vec![(POLKADOT_STAGING_TELEMETRY_URL.to_string(), 0)])
-                .expect("Polkadot telemetry url is valid; qed"),
-        ),
+        None,
         // Protocol ID
         Some("dhx-test"),
         // Properties
