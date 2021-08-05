@@ -13,13 +13,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "account-set"
-version = "2.0.0"
-dependencies = [
- "sp-std",
-]
-
-[[package]]
 name = "addr2line"
 version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1012,9 +1005,9 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-deque"
-version = "0.7.3"
+version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f02af974daeee82218205558e51ec8768b48cf524bd01d550abe5573a608285"
+checksum = "c20ff29ded3204c5106278a81a38f4b482636ed4fa1e6cfbeef193291beb29ed"
 dependencies = [
  "crossbeam-epoch 0.8.2",
  "crossbeam-utils 0.7.2",
@@ -1023,9 +1016,9 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-deque"
-version = "0.8.0"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94af6efb46fef72616855b036a624cf27ba656ffc9be1b9a3c931cfc7749a9a9"
+checksum = "6455c0ca19f0d2fbf751b908d5c55c1f5cbc65e03c4225427254b46890bdde1e"
 dependencies = [
  "cfg-if 1.0.0",
  "crossbeam-epoch 0.9.5",
@@ -1163,9 +1156,9 @@ dependencies = [
 
 [[package]]
 name = "curve25519-dalek"
-version = "3.1.0"
+version = "3.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "639891fde0dbea823fc3d798a0fdf9d2f9440a42d64a78ab3488b0ca025117b3"
+checksum = "0b9fdf9972b2bd6af2d913799d9ebc165ea4d2e65878e329d9c6b372c4491b61"
 dependencies = [
  "byteorder",
  "digest 0.9.0",
@@ -1266,26 +1259,12 @@ name = "datahighway-runtime"
 version = "3.0.6"
 dependencies = [
  "chrono",
- "exchange-rate",
  "frame-election-provider-support",
  "frame-executive",
  "frame-support",
  "frame-system",
  "frame-system-rpc-runtime-api",
  "log",
- "membership-supernodes",
- "mining-claims-hardware",
- "mining-claims-token",
- "mining-eligibility-hardware",
- "mining-eligibility-proxy",
- "mining-eligibility-token",
- "mining-execution-token",
- "mining-rates-hardware",
- "mining-rates-token",
- "mining-sampling-hardware",
- "mining-sampling-token",
- "mining-setting-hardware",
- "mining-setting-token",
  "module-primitives",
  "pallet-authority-discovery",
  "pallet-authorship",
@@ -1316,21 +1295,6 @@ dependencies = [
  "pallet-treasury",
  "pallet-utility",
  "parity-scale-codec",
- "roaming-accounting-policies",
- "roaming-agreement-policies",
- "roaming-billing-policies",
- "roaming-charging-policies",
- "roaming-device-profiles",
- "roaming-devices",
- "roaming-network-profiles",
- "roaming-network-servers",
- "roaming-networks",
- "roaming-operators",
- "roaming-organizations",
- "roaming-packet-bundles",
- "roaming-routing-profiles",
- "roaming-service-profiles",
- "roaming-sessions",
  "serde",
  "sp-api",
  "sp-authority-discovery",
@@ -1481,7 +1445,7 @@ version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c762bae6dcaf24c4c84667b8579785430908723d5c889f469d76a41d59cc7a9d"
 dependencies = [
- "curve25519-dalek 3.1.0",
+ "curve25519-dalek 3.2.0",
  "ed25519",
  "rand 0.7.3",
  "serde",
@@ -1583,26 +1547,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7531096570974c3a9dcf9e4b8e1cede1ec26cf5046219fb3b9d897503b9be59"
 
 [[package]]
-name = "exchange-rate"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
 name = "exit-future"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1675,9 +1619,9 @@ dependencies = [
 
 [[package]]
 name = "finality-grandpa"
-version = "0.14.1"
+version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74a1bfdcc776e63e49f741c7ce6116fa1b887e8ac2e3ccb14dd4aa113e54feb9"
+checksum = "c832d0ed507622c7cb98e9b7f10426850fc9d38527ab8071778dcc3a81d45875"
 dependencies = [
  "either",
  "futures 0.3.16",
@@ -1686,6 +1630,7 @@ dependencies = [
  "num-traits",
  "parity-scale-codec",
  "parking_lot 0.11.1",
+ "scale-info",
 ]
 
 [[package]]
@@ -2696,18 +2641,18 @@ checksum = "dd25036021b0de88a0aff6b850051563c6516d0bf53f8638938edbb9de732736"
 
 [[package]]
 name = "jobserver"
-version = "0.1.22"
+version = "0.1.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "972f5ae5d1cb9c6ae417789196c803205313edde988685da5e3aae0827b9e7fd"
+checksum = "f5ca711fd837261e14ec9e674f092cbb931d3fa1482b017ae59328ddc6f3212b"
 dependencies = [
  "libc",
 ]
 
 [[package]]
 name = "js-sys"
-version = "0.3.51"
+version = "0.3.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83bdfbace3a0e81a4253f73b49e960b053e396a11012cbd49b9b74d6a2b67062"
+checksum = "ce791b7ca6638aae45be056e068fc756d871eb3b3b10b8efa62d1c9cec616752"
 dependencies = [
  "wasm-bindgen",
 ]
@@ -3172,7 +3117,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "36db0f0db3b0433f5b9463f1c0cd9eadc0a3734a9170439ce501ff99733a88bd"
 dependencies = [
  "bytes 1.0.1",
- "curve25519-dalek 3.1.0",
+ "curve25519-dalek 3.2.0",
  "futures 0.3.16",
  "lazy_static",
  "libp2p-core",
@@ -3538,21 +3483,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "60302e4db3a61da70c0cb7991976248362f30319e88850c487b9b95bbf059e00"
 
 [[package]]
-name = "membership-supernodes"
-version = "2.0.0"
-dependencies = [
- "account-set",
- "frame-support",
- "frame-system",
- "pallet-balances",
- "parity-scale-codec",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
 name = "memchr"
 version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3632,270 +3562,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "mining-claims-hardware"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "mining-eligibility-hardware",
- "mining-rates-hardware",
- "mining-sampling-hardware",
- "mining-setting-hardware",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-claims-token"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "mining-eligibility-token",
- "mining-rates-token",
- "mining-sampling-token",
- "mining-setting-token",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-eligibility-hardware"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "mining-rates-hardware",
- "mining-sampling-hardware",
- "mining-setting-hardware",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-eligibility-proxy"
-version = "3.0.6"
-dependencies = [
- "account-set",
- "chrono",
- "frame-support",
- "frame-system",
- "log",
- "membership-supernodes",
- "module-primitives",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-timestamp",
- "pallet-transaction-payment",
- "pallet-treasury",
- "parity-scale-codec",
- "safe-mix",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-eligibility-token"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "mining-rates-token",
- "mining-sampling-token",
- "mining-setting-token",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-execution-token"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "mining-claims-token",
- "mining-eligibility-token",
- "mining-rates-token",
- "mining-sampling-token",
- "mining-setting-token",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-rates-hardware"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-rates-token"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-sampling-hardware"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "mining-setting-hardware",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-sampling-token"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "mining-setting-token",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-setting-hardware"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "mining-setting-token"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
 ]
 
 [[package]]
@@ -5517,7 +5183,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c06aca804d41dbc8ba42dfd964f0d01334eceb64314b9ecf7c5fad5188a06d90"
 dependencies = [
  "autocfg",
- "crossbeam-deque 0.8.0",
+ "crossbeam-deque 0.8.1",
  "either",
  "rayon-core",
 ]
@@ -5529,7 +5195,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d78120e2c850279833f1dd3582f730c4ab53ed95aeaaaa862a2a5c71b1656d8e"
 dependencies = [
  "crossbeam-channel",
- "crossbeam-deque 0.8.0",
+ "crossbeam-deque 0.8.1",
  "crossbeam-utils 0.8.5",
  "lazy_static",
  "num_cpus",
@@ -5680,338 +5346,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "roaming-accounting-policies"
-version = "1.0.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-networks",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "roaming-agreement-policies"
-version = "1.0.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-accounting-policies",
- "roaming-networks",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "roaming-billing-policies"
-version = "1.0.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-networks",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "roaming-charging-policies"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-networks",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "roaming-device-profiles"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-devices",
- "roaming-network-servers",
- "roaming-networks",
- "roaming-operators",
- "roaming-organizations",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "roaming-devices"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-network-servers",
- "roaming-networks",
- "roaming-operators",
- "roaming-organizations",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "roaming-network-profiles"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-devices",
- "roaming-network-servers",
- "roaming-networks",
- "roaming-operators",
- "roaming-organizations",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "roaming-network-servers"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-networks",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "roaming-networks"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "roaming-operators"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "roaming-organizations"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-network-servers",
- "roaming-networks",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "roaming-packet-bundles"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-devices",
- "roaming-network-servers",
- "roaming-networks",
- "roaming-operators",
- "roaming-organizations",
- "roaming-sessions",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "roaming-routing-profiles"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-devices",
- "roaming-network-servers",
- "roaming-networks",
- "roaming-operators",
- "roaming-organizations",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "roaming-service-profiles"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-network-servers",
- "roaming-networks",
- "roaming-operators",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "roaming-sessions"
-version = "0.1.0"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "pallet-balances",
- "pallet-randomness-collective-flip",
- "pallet-transaction-payment",
- "parity-scale-codec",
- "roaming-devices",
- "roaming-network-servers",
- "roaming-networks",
- "roaming-operators",
- "roaming-organizations",
- "safe-mix",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
 name = "rocksdb"
 version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6073,7 +5407,7 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bfa0f585226d2e68097d4f95d113b15b83a82e819ab25717ec0590d9584ef366"
 dependencies = [
- "semver 1.0.3",
+ "semver 1.0.4",
 ]
 
 [[package]]
@@ -7179,6 +6513,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "scale-info"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d2e62ff266e136db561a007c84569985805f84a1d5a08278e52c36aacb6e061b"
+dependencies = [
+ "bitvec 0.20.4",
+ "cfg-if 1.0.0",
+ "derive_more",
+ "parity-scale-codec",
+ "scale-info-derive",
+]
+
+[[package]]
+name = "scale-info-derive"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b648fa291891a4c80187a25532f6a7d96b82c70353e30b868b14632b8fe043d6"
+dependencies = [
+ "proc-macro-crate 1.0.0",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "schannel"
 version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7290,9 +6649,9 @@ dependencies = [
 
 [[package]]
 name = "semver"
-version = "1.0.3"
+version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f3aac57ee7f3272d8395c6e4f502f434f0e289fcd62876f70daa008c20dcabe"
+checksum = "568a8e6258aa33c13358f81fd834adb854c6f7c9468520910a9b1e8fac068012"
 
 [[package]]
 name = "semver-parser"
@@ -7311,18 +6670,18 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.126"
+version = "1.0.127"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec7505abeacaec74ae4778d9d9328fe5a5d04253220a85c4ee022239fc996d03"
+checksum = "f03b9878abf6d14e6779d3f24f07b2cfa90352cfec4acc5aab8f1ac7f146fae8"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.126"
+version = "1.0.127"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "963a7dbc9895aeac7ac90e74f34a5d5261828f79df35cbed41e10189d3804d43"
+checksum = "a024926d3432516606328597e0f224a51355a493b49fdd67e9209187cbe55ecc"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -7404,9 +6763,9 @@ dependencies = [
 
 [[package]]
 name = "sharded-slab"
-version = "0.1.1"
+version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "79c719719ee05df97490f80a45acfc99e5a30ce98a1e4fb67aee422745ae14e3"
+checksum = "740223c51853f3145fe7c90360d2d4232f2b62e3449489c207eccde818979982"
 dependencies = [
  "lazy_static",
 ]
@@ -8758,7 +8117,7 @@ version = "0.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "df720b6581784c118f0eb4310796b12b1d242a7eb95f716a8367855325c25f89"
 dependencies = [
- "crossbeam-deque 0.7.3",
+ "crossbeam-deque 0.7.4",
  "crossbeam-queue",
  "crossbeam-utils 0.7.2",
  "futures 0.1.31",
@@ -9246,9 +8605,9 @@ checksum = "1a143597ca7c7793eff794def352d41792a93c481eb1042423ff7ff72ba2c31f"
 
 [[package]]
 name = "wasm-bindgen"
-version = "0.2.74"
+version = "0.2.75"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d54ee1d4ed486f78874278e63e4069fc1ab9f6a18ca492076ffb90c5eb2997fd"
+checksum = "b608ecc8f4198fe8680e2ed18eccab5f0cd4caaf3d83516fa5fb2e927fda2586"
 dependencies = [
  "cfg-if 1.0.0",
  "wasm-bindgen-macro",
@@ -9256,9 +8615,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-backend"
-version = "0.2.74"
+version = "0.2.75"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b33f6a0694ccfea53d94db8b2ed1c3a8a4c86dd936b13b9f0a15ec4a451b900"
+checksum = "580aa3a91a63d23aac5b6b267e2d13cb4f363e31dce6c352fca4752ae12e479f"
 dependencies = [
  "bumpalo",
  "lazy_static",
@@ -9271,9 +8630,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-futures"
-version = "0.4.24"
+version = "0.4.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5fba7978c679d53ce2d0ac80c8c175840feb849a161664365d1287b41f2e67f1"
+checksum = "16646b21c3add8e13fdb8f20172f8a28c3dbf62f45406bcff0233188226cfe0c"
 dependencies = [
  "cfg-if 1.0.0",
  "js-sys",
@@ -9283,9 +8642,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-macro"
-version = "0.2.74"
+version = "0.2.75"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "088169ca61430fe1e58b8096c24975251700e7b1f6fd91cc9d59b04fb9b18bd4"
+checksum = "171ebf0ed9e1458810dfcb31f2e766ad6b3a89dbda42d8901f2b268277e5f09c"
 dependencies = [
  "quote",
  "wasm-bindgen-macro-support",
@@ -9293,9 +8652,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-macro-support"
-version = "0.2.74"
+version = "0.2.75"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "be2241542ff3d9f241f5e2cb6dd09b37efe786df8851c54957683a49f0987a97"
+checksum = "6c2657dd393f03aa2a659c25c6ae18a13a4048cebd220e147933ea837efc589f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -9306,9 +8665,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-shared"
-version = "0.2.74"
+version = "0.2.75"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7cff876b8f18eed75a66cf49b65e7f967cb354a7aa16003fb55dbfd25b44b4f"
+checksum = "2e0c4a743a309662d45f4ede961d7afa4ba4131a59a639f29b0069c3798bbcc2"
 
 [[package]]
 name = "wasm-gc-api"
@@ -9557,9 +8916,9 @@ dependencies = [
 
 [[package]]
 name = "web-sys"
-version = "0.3.51"
+version = "0.3.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e828417b379f3df7111d3a2a9e5753706cae29c41f7c4029ee9fd77f3e09e582"
+checksum = "01c70a82d842c9979078c772d4a1344685045f1a5628f677c2b2eab4dd7d2696"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
@@ -9595,9 +8954,9 @@ dependencies = [
 
 [[package]]
 name = "which"
-version = "4.2.1"
+version = "4.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7cc009ab82a2afc94b9e467ab4214aee9cad1356cd9191264203d7d72006e00d"
+checksum = "ea187a8ef279bc014ec368c27a920da2024d2a711109bfbe3440585d5cf27ad9"
 dependencies = [
  "either",
  "lazy_static",
@@ -9684,7 +9043,7 @@ version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a0c105152107e3b96f6a00a65e86ce82d9b125230e1c4302940eca58ff71f4f"
 dependencies = [
- "curve25519-dalek 3.1.0",
+ "curve25519-dalek 3.2.0",
  "rand_core 0.5.1",
  "zeroize",
 ]
