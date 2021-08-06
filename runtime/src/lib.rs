@@ -43,14 +43,7 @@ use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
 use pallet_xcm::XcmPassthrough;
 use polkadot_parachain::primitives::Sibling;
-use xcm::v0::{
-    BodyId,
-    Junction,
-    Junction::*,
-    MultiLocation,
-    MultiLocation::*,
-    NetworkId,
-};
+use xcm::v0::{BodyId, Junction::*, MultiAsset, MultiLocation, MultiLocation::*, NetworkId, Xcm};
 use xcm_builder::{
     IsConcrete,
     AccountId32Aliases,
@@ -69,6 +62,8 @@ use xcm_builder::{
     AllowUnpaidExecutionFrom,
     FixedWeightBounds,
     UsingComponents,
+    SignedToAccountId32,
+    EnsureXcmOrigin,
 };
 use xcm_executor::{
     Config,
@@ -105,6 +100,7 @@ pub use frame_support::{
 pub use pallet_balances::Call as BalancesCall;
 // pub use pallet_staking::StakerStatus;
 pub use pallet_timestamp::Call as TimestampCall;
+pub use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{
@@ -314,6 +310,7 @@ impl pallet_timestamp::Config for Runtime {
 parameter_types! {
     pub const ExistentialDeposit: u128 = 500;
     pub const MaxLocks: u32 = 50;
+    pub const MaxReserves: u32 = 50;
 }
 
 impl pallet_balances::Config for Runtime {
@@ -325,7 +322,9 @@ impl pallet_balances::Config for Runtime {
     type Event = Event;
     type ExistentialDeposit = ExistentialDeposit;
     type MaxLocks = MaxLocks;
+    type MaxReserves = MaxReserves;
     type WeightInfo = ();
+    type ReserveIdentifier = [u8; 8];
 }
 
 parameter_types! {
@@ -408,6 +407,8 @@ parameter_types! {
     pub const BountyUpdatePeriod: u32 = 20;
     pub const DataDepositPerByte: u64 = 1;
     pub const TreasuryPalletId: PalletId = PalletId(*b"py/trsry");
+    pub const MaxApprovals: u32 = 100;
+
 }
 
 impl pallet_treasury::Config for Runtime {
@@ -436,6 +437,7 @@ impl pallet_treasury::Config for Runtime {
     // type Tippers = GeneralCouncilProvider;
     // Just gets burned.
     type WeightInfo = ();
+    type MaxApprovals = MaxApprovals;
 }
 
 parameter_types! {
@@ -726,12 +728,10 @@ impl membership_supernodes::Config for Runtime {
 }
 
 parameter_types! {
-    pub const RococoLocation: MultiLocation = MultiLocation::X1(Junction::Parent);
+    pub const RococoLocation: MultiLocation = MultiLocation::X1(Parent);
     pub const RococoNetwork: NetworkId = NetworkId::Polkadot;
     pub RelayChainOrigin: Origin = cumulus_pallet_xcm::Origin::Relay.into();
-    pub Ancestry: MultiLocation = Junction::Parachain {
-        id: ParachainInfo::parachain_id().into()
-    }.into();
+    pub Ancestry: MultiLocation = X1(Parachain(ParachainInfo::parachain_id().into()));
 }
 
 /// Type for specifying how a `MultiLocation` can be converted into an `AccountId`. This is used
@@ -820,7 +820,34 @@ impl Config for XcmConfig {
 	type ResponseHandler = ();	// Don't handle responses for now.
 }
 
-impl cumulus_pallet_xcm::Config for Runtime {}
+/// No local origins on this chain are allowed to dispatch XCM sends/executions.
+pub type LocalOriginToLocation = SignedToAccountId32<Origin, AccountId, RococoNetwork>;
+
+/// The means for routing XCM messages which are not for local execution into the right message
+/// queues.
+pub type XcmRouter = (
+    // Two routers - use UMP to communicate with the relay chain:
+    cumulus_primitives_utility::ParentAsUmp<ParachainSystem>,
+    // ..and XCMP to communicate with the sibling chains.
+    XcmpQueue,
+);
+
+impl pallet_xcm::Config for Runtime {
+    type Event = Event;
+    type SendXcmOrigin = EnsureXcmOrigin<Origin, LocalOriginToLocation>;
+    type XcmRouter = XcmRouter;
+    type ExecuteXcmOrigin = EnsureXcmOrigin<Origin, LocalOriginToLocation>;
+    type XcmExecuteFilter = All<(MultiLocation, Xcm<Call>)>;
+    type XcmExecutor = XcmExecutor<XcmConfig>;
+    type XcmTeleportFilter = All<(MultiLocation, Vec<MultiAsset>)>;
+    type XcmReserveTransferFilter = ();
+    type Weigher = FixedWeightBounds<UnitWeightCost, Call>;
+}
+
+impl cumulus_pallet_xcm::Config for Runtime {
+    type Event = Event;
+    type XcmExecutor = XcmExecutor<XcmConfig>;
+}
 
 impl cumulus_pallet_xcmp_queue::Config for Runtime {
 	type Event = Event;
@@ -832,35 +859,38 @@ parameter_types! {
 	pub const MaxDownwardMessageWeight: Weight = MAXIMUM_BLOCK_WEIGHT / 10;
 }
 
-/// No local origins on this chain are allowed to dispatch XCM sends/executions.
-pub type LocalOriginToLocation = ();
-
-/// The means for routing XCM messages which are not for local execution into the right message
-/// queues.
-pub type XcmRouter = (
-	// Two routers - use UMP to communicate with the relay chain:
-	cumulus_primitives_utility::ParentAsUmp<ParachainSystem>,
-	// ..and XCMP to communicate with the sibling chains.
-	XcmpQueue,
-);
-
 parameter_types! {
 	pub const ReservedXcmpWeight: Weight = MAXIMUM_BLOCK_WEIGHT / 4;
+	pub const ReservedDmpWeight: Weight = MAXIMUM_BLOCK_WEIGHT / 4;
 }
 
 impl cumulus_pallet_parachain_system::Config for Runtime {
-	type Event = Event;
-	type OnValidationData = ();
-	type SelfParaId = parachain_info::Module<Runtime>;
-	type OutboundXcmpMessageSource = XcmpQueue;
-	type XcmpMessageHandler = XcmpQueue;
-	type ReservedXcmpWeight = ReservedXcmpWeight;
-
+    type Event = Event;
+    type OnValidationData = ();
+    type SelfParaId = parachain_info::Pallet<Runtime>;
+    type OutboundXcmpMessageSource = XcmpQueue;
+    type DmpMessageHandler = DmpQueue;
+    type ReservedDmpWeight = ReservedDmpWeight;
+    type XcmpMessageHandler = XcmpQueue;
+    type ReservedXcmpWeight = ReservedXcmpWeight;
 }
+
 
 impl parachain_info::Config for Runtime {}
 
 impl cumulus_pallet_aura_ext::Config for Runtime {}
+
+impl pallet_randomness_collective_flip::Config for Runtime {}
+
+impl cumulus_pallet_dmp_queue::Config for Runtime {
+    type Event = Event;
+    type XcmExecutor = XcmExecutor<XcmConfig>;
+    type ExecuteOverweightOrigin = frame_system::EnsureRoot<AccountId>;
+}
+
+impl pallet_aura::Config for Runtime {
+    type AuthorityId = AuraId;
+}
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
@@ -874,6 +904,7 @@ construct_runtime!(
         Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent},
         //Indices: pallet_indices::{Pallet, Call, Storage, Event<T>, Config<T>},
         Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
+        Aura: pallet_aura::{Pallet, Config<T>},
         AuraExt: cumulus_pallet_aura_ext::{Pallet, Config},
         TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
         Sudo: pallet_sudo::{Pallet, Call, Config<T>, Storage, Event<T>},
@@ -913,8 +944,10 @@ construct_runtime!(
         // PARACHAIN
         ParachainSystem: cumulus_pallet_parachain_system::{Pallet, Call, Storage, Inherent, Event<T>},
         ParachainInfo: parachain_info::{Pallet, Storage, Config},
-        XcmHandler: cumulus_pallet_xcm::{Pallet, Origin},
+        PolkadotXcm: pallet_xcm::{Pallet, Call, Event<T>, Origin},
+        XcmHandler: cumulus_pallet_xcm::{Pallet, Call, Event<T>, Origin},
         XcmpQueue: cumulus_pallet_xcmp_queue::{Pallet, Call, Storage, Event<T>},
+        DmpQueue: cumulus_pallet_dmp_queue::{Pallet, Call, Storage, Event<T>},
     }
 );
 
@@ -993,8 +1026,9 @@ impl_runtime_apis! {
         fn validate_transaction(
             source: TransactionSource,
             tx: <Block as BlockT>::Extrinsic,
+            block_hash: <Block as BlockT>::Hash,
         ) -> TransactionValidity {
-            Executive::validate_transaction(source, tx)
+            Executive::validate_transaction(source, tx, block_hash)
         }
     }
 
@@ -1015,6 +1049,16 @@ impl_runtime_apis! {
             opaque::SessionKeys::decode_into_raw_public_keys(&encoded)
         }
     }
+
+    impl sp_consensus_aura::AuraApi<Block, AuraId> for Runtime {
+		fn slot_duration() -> sp_consensus_aura::SlotDuration {
+			sp_consensus_aura::SlotDuration::from_millis(Aura::slot_duration())
+		}
+
+		fn authorities() -> Vec<AuraId> {
+			Aura::authorities()
+		}
+	}
 
     impl frame_system_rpc_runtime_api::AccountNonceApi<Block, AccountId, Index> for Runtime {
         fn account_nonce(account: AccountId) -> Index {

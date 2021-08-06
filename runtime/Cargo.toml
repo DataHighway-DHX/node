@@ -150,6 +150,11 @@ git = 'https://github.com/paritytech/substrate.git'
 branch = "polkadot-v0.9.8"
 version = '3.0.0'
 
+[dependencies.sp-consensus-aura]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+branch = "polkadot-v0.9.8"
+
 [dependencies.sp-inherents]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
@@ -220,6 +225,11 @@ git = 'https://github.com/paritytech/cumulus.git'
 branch = "polkadot-v0.9.8"
 default-features = false
 
+[dependencies.cumulus-pallet-dmp-queue]
+git = 'https://github.com/paritytech/cumulus.git'
+branch = "polkadot-v0.9.8"
+default-features = false
+
 [dependencies.cumulus-primitives-utility]
 git = 'https://github.com/paritytech/cumulus.git'
 branch = "polkadot-v0.9.8"
@@ -266,13 +276,12 @@ git = "https://github.com/paritytech/polkadot"
 branch = "release-v0.9.8"
 default-features = false
 
-[dependencies.pallet-balances]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+[dependencies.pallet-aura]
+git = "https://github.com/paritytech/substrate"
 branch = "polkadot-v0.9.8"
-version = '3.0.0'
+default-features = false
 
-[dependencies.pallet-babe]
+[dependencies.pallet-balances]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 branch = "polkadot-v0.9.8"
@@ -327,12 +336,6 @@ git = 'https://github.com/paritytech/substrate.git'
 branch = "polkadot-v0.9.8"
 version = '3.0.0'
 
-[dependencies.sp-consensus-babe]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.8"
-version = '0.9.0'
-
 [dependencies.sp-staking]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
@@ -375,7 +378,6 @@ std = [
 	"pallet-timestamp/std",
 	"pallet-sudo/std",
 	"pallet-transaction-payment/std",
-    'pallet-babe/std',
     'pallet-grandpa/std',
     'pallet-indices/std',
     'pallet-collective/std',
@@ -392,6 +394,7 @@ std = [
 	"xcm-executor/std",
 	"cumulus-pallet-xcm/std",
 	"cumulus-pallet-xcmp-queue/std",
-    'sp-consensus-babe/std',
     "cumulus-pallet-aura-ext/std",
+    "pallet-aura/std",
+    "sp-consensus-aura/std",
 ]
