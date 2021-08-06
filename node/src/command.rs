@@ -1,11 +1,9 @@
 use crate::{
     chain_spec,
-    cli::{
-        Cli,
-        RelayChainCli,
-        Subcommand,
-    },
+    cli::{Cli, RelayChainCli, Subcommand},
+    service::{new_partial, DataHighwayRuntimeExecutor}
 };
+use datahighway_runtime::RuntimeApi;
 use codec::Encode;
 use cumulus_client_service::genesis::generate_genesis_block;
 use cumulus_primitives_core::ParaId;
@@ -133,6 +131,24 @@ fn extract_genesis_wasm(chain_spec: &Box<dyn sc_service::ChainSpec>) -> Result<V
         .ok_or_else(|| "Could not find wasm file in genesis state!".into())
 }
 
+macro_rules! construct_async_run {
+	(|$components:ident, $cli:ident, $cmd:ident, $config:ident| $( $code:tt )* ) => {{
+		let runner = $cli.create_runner($cmd)?;
+		runner.async_run(|$config| {
+			let $components = new_partial::<
+				RuntimeApi,
+				DataHighwayRuntimeExecutor,
+				_
+			>(
+				&$config,
+				crate::service::parachain_build_import_queue,
+			)?;
+			let task_manager = $components.task_manager;
+			{ $( $code )* }.map(|v| (v, task_manager))
+		})
+	}}
+}
+
 /// Parse command line arguments into service configuration.
 pub fn run() -> Result<()> {
     let cli = Cli::from_args();
@@ -143,67 +159,49 @@ pub fn run() -> Result<()> {
             runner.sync_run(|config| cmd.run(config.chain_spec, config.network))
         }
         Some(Subcommand::CheckBlock(cmd)) => {
-            let runner = cli.create_runner(cmd)?;
-            runner.async_run(|config| {
-                let PartialComponents {
-                    client,
-                    task_manager,
-                    import_queue,
-                    ..
-                } = crate::service::new_partial(&config)?;
-                Ok((cmd.run(client, import_queue), task_manager))
-            })
+            construct_async_run!(|components, cli, cmd, config| {
+				Ok(cmd.run(components.client, components.import_queue))
+			})
         }
         Some(Subcommand::ExportBlocks(cmd)) => {
-            let runner = cli.create_runner(cmd)?;
-            runner.async_run(|config| {
-                let PartialComponents {
-                    client,
-                    task_manager,
-                    ..
-                } = crate::service::new_partial(&config)?;
-                Ok((cmd.run(client, config.database), task_manager))
-            })
+            construct_async_run!(|components, cli, cmd, config| {
+				Ok(cmd.run(components.client, config.database))
+			})
         }
         Some(Subcommand::ExportState(cmd)) => {
-            let runner = cli.create_runner(cmd)?;
-            runner.async_run(|config| {
-                let PartialComponents {
-                    client,
-                    task_manager,
-                    ..
-                } = crate::service::new_partial(&config)?;
-                Ok((cmd.run(client, config.chain_spec), task_manager))
-            })
+            construct_async_run!(|components, cli, cmd, config| {
+				Ok(cmd.run(components.client, config.chain_spec))
+			})
         }
         Some(Subcommand::ImportBlocks(cmd)) => {
-            let runner = cli.create_runner(cmd)?;
-            runner.async_run(|config| {
-                let PartialComponents {
-                    client,
-                    task_manager,
-                    import_queue,
-                    ..
-                } = crate::service::new_partial(&config)?;
-                Ok((cmd.run(client, import_queue), task_manager))
-            })
+            construct_async_run!(|components, cli, cmd, config| {
+				Ok(cmd.run(components.client, components.import_queue))
+			})
         }
         Some(Subcommand::PurgeChain(cmd)) => {
             let runner = cli.create_runner(cmd)?;
-            runner.sync_run(|config| cmd.run(config.database))
-        }
-        Some(Subcommand::Revert(cmd)) => {
-            let runner = cli.create_runner(cmd)?;
-            runner.async_run(|config| {
-                let PartialComponents {
-                    client,
-                    task_manager,
-                    backend,
-                    ..
-                } = crate::service::new_partial(&config)?;
-                Ok((cmd.run(client, backend), task_manager))
+
+            runner.sync_run(|config| {
+                let polkadot_cli = RelayChainCli::new(
+                    &config,
+                    [RelayChainCli::executable_name().to_string()]
+                        .iter()
+                        .chain(cli.relaychain_args.iter()),
+                );
+
+                let polkadot_config = SubstrateCli::create_configuration(
+                    &polkadot_cli,
+                    &polkadot_cli,
+                    config.task_executor.clone(),
+                )
+                    .map_err(|err| format!("Relay chain argument error: {}", err))?;
+
+                cmd.run(config, polkadot_config)
             })
         }
+        Some(Subcommand::Revert(cmd)) => construct_async_run!(|components, cli, cmd, config| {
+			Ok(cmd.run(components.client, components.backend))
+		}),
         Some(Subcommand::ExportGenesisState(params)) => {
             let mut builder = sc_cli::LoggerBuilder::new("");
             builder.with_profiling(sc_tracing::TracingReceiver::Log, "");
@@ -249,54 +247,52 @@ pub fn run() -> Result<()> {
             Ok(())
         }
         None => {
-            let runner = cli.create_runner(&*cli.run)?;
+            let runner = cli.create_runner(&cli.run.normalize())?;
 
-            runner.run_node_until_exit(|config| {
-                async move {
-                    // TODO
-                    let key = sp_core::Pair::generate().0;
+            runner.run_node_until_exit(|config| async move {
+                let para_id =
+                    chain_spec::Extensions::try_get(&*config.chain_spec).map(|e| e.para_id);
 
-                    let extension = chain_spec::Extensions::try_get(&*config.chain_spec);
-                    let relay_chain_id = extension.map(|e| e.relay_chain.clone());
-                    let para_id = extension.map(|e| e.para_id);
+                let polkadot_cli = RelayChainCli::new(
+                    &config,
+                    [RelayChainCli::executable_name().to_string()]
+                        .iter()
+                        .chain(cli.relaychain_args.iter()),
+                );
 
-                    let polkadot_cli = RelayChainCli::new(
-                        config.base_path.as_ref().map(|x| x.path().join("polkadot")),
-                        relay_chain_id,
-                        [RelayChainCli::executable_name().to_string()].iter().chain(cli.relaychain_args.iter()),
-                    );
+                let id = ParaId::from(cli.run.parachain_id.or(para_id).unwrap_or(2000));
 
-                    let id = ParaId::from(cli.run.parachain_id.or(para_id).unwrap_or(200));
+                let parachain_account =
+                    AccountIdConversion::<polkadot_primitives::v0::AccountId>::into_account(&id);
 
-                    let parachain_account =
-                        AccountIdConversion::<polkadot_primitives::v0::AccountId>::into_account(&id);
+                let block: Block =
+                    generate_genesis_block(&config.chain_spec).map_err(|e| format!("{:?}", e))?;
+                let genesis_state = format!("0x{:?}", HexDisplay::from(&block.header().encode()));
 
-                    let block: Block = generate_genesis_block(&config.chain_spec).map_err(|e| format!("{:?}", e))?;
-                    let genesis_state = format!("0x{:?}", HexDisplay::from(&block.header().encode()));
+                let task_executor = config.task_executor.clone();
+                let polkadot_config = SubstrateCli::create_configuration(
+                    &polkadot_cli,
+                    &polkadot_cli,
+                    task_executor,
+                )
+                    .map_err(|err| format!("Relay chain argument error: {}", err))?;
 
-                    let task_executor = config.task_executor.clone();
-                    let polkadot_config =
-                        SubstrateCli::create_configuration(&polkadot_cli, &polkadot_cli, task_executor)
-                            .map_err(|err| format!("Relay chain argument error: {}", err))?;
-                    let collator = cli.run.base.validator || cli.collator;
+                info!("Parachain id: {:?}", id);
+                info!("Parachain Account: {}", parachain_account);
+                info!("Parachain genesis state: {}", genesis_state);
+                info!(
+					"Is collating: {}",
+					if config.role.is_authority() {
+						"yes"
+					} else {
+						"no"
+					}
+				);
 
-                    info!("Parachain id: {:?}", id);
-                    info!("Parachain Account: {}", parachain_account);
-                    info!("Parachain genesis state: {}", genesis_state);
-                    info!(
-                        "Is collating: {}",
-                        if collator {
-                            "yes"
-                        } else {
-                            "no"
-                        }
-                    );
-
-                    crate::service::start_node(config, key, polkadot_config, id, collator)
-                        .await
-                        .map(|r| r.0)
-                        .map_err(Into::into)
-                }
+                crate::service::start_node(config, polkadot_config, id)
+                    .await
+                    .map(|r| r.0)
+                    .map_err(Into::into)
             })
         }
     }

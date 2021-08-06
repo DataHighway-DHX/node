@@ -285,11 +285,11 @@ const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_
 
 fn mk_genesis(endowed_accounts: Vec<AccountId>, root_key: AccountId, parachain_id: ParaId) -> GenesisConfig {
     GenesisConfig {
-        frame_system: datahighway_runtime::SystemConfig {
+        system: datahighway_runtime::SystemConfig {
             code: datahighway_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
             changes_trie_config: Default::default(),
         },
-        pallet_balances: BalancesConfig {
+        balances: BalancesConfig {
             balances: endowed_accounts
                 .iter()
                 .cloned()
@@ -298,18 +298,20 @@ fn mk_genesis(endowed_accounts: Vec<AccountId>, root_key: AccountId, parachain_i
                 .map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE))
                 .collect(),
         },
-        pallet_collective_Instance1: Default::default(),
-        pallet_membership_Instance1: GeneralCouncilMembershipConfig {
+        general_council: Default::default(),
+        general_council_membership: GeneralCouncilMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
         },
         pallet_treasury: Default::default(),
-        pallet_sudo: SudoConfig {
+        sudo: SudoConfig {
             key: root_key.clone(),
         },
         parachain_info: datahighway_runtime::ParachainInfoConfig {
             parachain_id,
         },
+        aura: Default::default(),
+        aura_ext: Default::default(),
     }
 }
 
@@ -320,14 +322,14 @@ fn testnet_genesis(
     id: ParaId,
 ) -> GenesisConfig {
     GenesisConfig {
-        frame_system: datahighway_runtime::SystemConfig {
+        system: datahighway_runtime::SystemConfig {
             code: datahighway_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
             changes_trie_config: Default::default(),
         },
         // pallet_indices: IndicesConfig {
         //     indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
         // },
-        pallet_balances: BalancesConfig {
+        balances: BalancesConfig {
             balances: endowed_accounts
                 .iter()
                 .cloned()
@@ -353,7 +355,7 @@ fn testnet_genesis(
         //     slash_reward_fraction: Perbill::from_percent(10),
         //     ..Default::default()
         // },
-        pallet_sudo: SudoConfig {
+        sudo: SudoConfig {
             key: root_key.clone(),
         },
         // pallet_babe: BabeConfig {
@@ -362,8 +364,8 @@ fn testnet_genesis(
         // pallet_grandpa: GrandpaConfig {
         //     authorities: vec![],
         // },
-        pallet_collective_Instance1: Default::default(),
-        pallet_membership_Instance1: GeneralCouncilMembershipConfig {
+        general_council: Default::default(),
+        general_council_membership: GeneralCouncilMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
         },
@@ -371,6 +373,8 @@ fn testnet_genesis(
         parachain_info: datahighway_runtime::ParachainInfoConfig {
             parachain_id: id,
         },
+        aura: Default::default(),
+        aura_ext: Default::default(),
     }
 }
 
@@ -381,14 +385,14 @@ fn dev_genesis(
     id: ParaId,
 ) -> datahighway_runtime::GenesisConfig {
     datahighway_runtime::GenesisConfig {
-        frame_system: datahighway_runtime::SystemConfig {
+        system: datahighway_runtime::SystemConfig {
             code: datahighway_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
             changes_trie_config: Default::default(),
         },
         // pallet_indices: IndicesConfig {
         //     indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
         // },
-        pallet_balances: datahighway_runtime::BalancesConfig {
+        balances: datahighway_runtime::BalancesConfig {
             balances: endowed_accounts.iter().cloned().map(|x|
                 // Insert Public key (hex) of the account without the 0x prefix below
                 if x == UncheckedFrom::unchecked_from(hex!("a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21").into()) {
@@ -416,7 +420,7 @@ fn dev_genesis(
         //     slash_reward_fraction: Perbill::from_percent(10),
         //     ..Default::default()
         // },
-        pallet_sudo: datahighway_runtime::SudoConfig {
+        sudo: datahighway_runtime::SudoConfig {
             key: root_key.clone(),
         },
         // pallet_babe: BabeConfig {
@@ -425,8 +429,8 @@ fn dev_genesis(
         // pallet_grandpa: GrandpaConfig {
         //     authorities: vec![],
         // },
-        pallet_collective_Instance1: Default::default(),
-        pallet_membership_Instance1: GeneralCouncilMembershipConfig {
+        general_council: Default::default(),
+        general_council_membership: GeneralCouncilMembershipConfig {
             members: vec![root_key.clone()],
             phantom: Default::default(),
         },
@@ -434,5 +438,7 @@ fn dev_genesis(
         parachain_info: datahighway_runtime::ParachainInfoConfig {
             parachain_id: id,
         },
+        aura: Default::default(),
+        aura_ext: Default::default(),
     }
 }

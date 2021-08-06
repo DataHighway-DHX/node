@@ -28,6 +28,11 @@ git = 'https://github.com/paritytech/substrate.git'
 branch = "polkadot-v0.9.8"
 version = '3.0.0'
 
+[dependencies.substrate-prometheus-endpoint]
+git = 'https://github.com/paritytech/substrate.git'
+branch = "polkadot-v0.9.8"
+version = '0.9.0'
+
 [dependencies.sc-basic-authorship]
 git = 'https://github.com/paritytech/substrate.git'
 branch = "polkadot-v0.9.8"
@@ -59,6 +64,10 @@ features = ['wasmtime']
 git = 'https://github.com/paritytech/substrate.git'
 branch = "polkadot-v0.9.8"
 version = '0.9.0'
+
+[dependencies.sc-network]
+git = 'https://github.com/paritytech/substrate.git'
+branch = "polkadot-v0.9.8"
 
 [dependencies.sc-keystore]
 git = 'https://github.com/paritytech/substrate.git'
@@ -111,6 +120,11 @@ git = 'https://github.com/paritytech/substrate.git'
 branch = "polkadot-v0.9.8"
 version = '0.9.0'
 
+[dependencies.sp-consensus-aura]
+git = 'https://github.com/paritytech/substrate.git'
+branch = "polkadot-v0.9.8"
+version = '0.9.0'
+
 [dependencies.sp-core]
 git = 'https://github.com/paritytech/substrate.git'
 branch = "polkadot-v0.9.8"
@@ -121,7 +135,23 @@ git = 'https://github.com/paritytech/substrate.git'
 branch = "polkadot-v0.9.8"
 version = '3.0.0'
 
+[dependencies.sp-keystore]
+git = 'https://github.com/paritytech/substrate.git'
+branch = "polkadot-v0.9.8"
+version = '0.9.0'
+
+
+[dependencies.sp-offchain]
+git = 'https://github.com/paritytech/substrate.git'
+branch = "polkadot-v0.9.8"
+version = '3.0.0'
+
 [dependencies.sp-runtime]
+git = 'https://github.com/paritytech/substrate.git'
+branch = "polkadot-v0.9.8"
+version = '3.0.0'
+
+[dependencies.sp-session]
 git = 'https://github.com/paritytech/substrate.git'
 branch = "polkadot-v0.9.8"
 version = '3.0.0'
@@ -152,11 +182,24 @@ branch = "polkadot-v0.9.8"
 version = '3.0.0'
 
 # Cumulus dependencies
+[dependencies.cumulus-client-consensus-aura]
+git = 'https://github.com/paritytech/cumulus.git'
+branch = "polkadot-v0.9.8"
+
+[dependencies.cumulus-client-consensus-common]
+git = 'https://github.com/paritytech/cumulus.git'
+branch = "polkadot-v0.9.8"
+
+
 [dependencies.cumulus-client-consensus-relay-chain]
 git = 'https://github.com/paritytech/cumulus.git'
 branch = "polkadot-v0.9.8"
 
 [dependencies.cumulus-client-collator]
+git = 'https://github.com/paritytech/cumulus.git'
+branch = "polkadot-v0.9.8"
+
+[dependencies.cumulus-client-cli]
 git = 'https://github.com/paritytech/cumulus.git'
 branch = "polkadot-v0.9.8"
 
@@ -169,6 +212,10 @@ git = 'https://github.com/paritytech/cumulus.git'
 branch = "polkadot-v0.9.8"
 
 [dependencies.cumulus-client-service]
+git = 'https://github.com/paritytech/cumulus.git'
+branch = "polkadot-v0.9.8"
+
+[dependencies.cumulus-primitives-parachain-inherent]
 git = 'https://github.com/paritytech/cumulus.git'
 branch = "polkadot-v0.9.8"
 
