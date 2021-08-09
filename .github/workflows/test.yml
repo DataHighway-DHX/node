@@ -26,12 +26,12 @@ jobs:
       - name: Initialize WASM build environment
         run: |
           rustup update stable
-          rustup toolchain install nightly-2020-12-12
-          rustup default nightly-2020-12-12
-          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-12-12
+          rustup toolchain install nightly-2021-06-21
+          rustup default nightly-2021-06-21
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2021-06-21
 
       - name: Run cargo check
-        run: cargo +nightly-2020-12-12 check
+        run: cargo +nightly-2021-06-21 check
 
   test:
     name: Test Suite
@@ -56,14 +56,14 @@ jobs:
       - name: Initialize WASM build environment
         run: |
           rustup update stable
-          rustup toolchain install nightly-2020-12-12
-          rustup default nightly-2020-12-12
-          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-12-12
+          rustup toolchain install nightly-2021-06-21
+          rustup default nightly-2021-06-21
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2021-06-21
 
       # Runs integration tests in the runtime/tests folder
       - name: Run All Tests
         run: |
-          cargo +nightly-2020-12-12 test
+          cargo +nightly-2021-06-21 test
 
   lints:
     name: Lints
@@ -88,18 +88,18 @@ jobs:
           override: true
           components: rustfmt, clippy
 
-      # nightly-2020-12-12-x86_64-unknown-linux-gnu
+      # nightly-2021-06-21-x86_64-unknown-linux-gnu
       - name: Initialize WASM build environment
         run: |
           rustup update stable
-          rustup toolchain install nightly-2020-12-12
-          rustup default nightly-2020-12-12
-          rustup target add wasm32-unknown-unknown --toolchain nightly-2020-12-12
+          rustup toolchain install nightly-2021-06-21
+          rustup default nightly-2021-06-21
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2021-06-21
 
       - name: Run cargo fmt
         run: |
-          rustup component add rustfmt --toolchain nightly-2020-12-12-x86_64-unknown-linux-gnu
-          cargo +nightly-2020-12-12 fmt --all -- --check
+          rustup component add rustfmt --toolchain nightly-2021-06-21-x86_64-unknown-linux-gnu
+          cargo +nightly-2021-06-21 fmt --all -- --check
 
       # Ignore use of Clippy until a clippy.toml file may be used. See README.md
       # - name: Run cargo clippy
@@ -109,6 +109,6 @@ jobs:
       #   #   args:  --release -- -D warnings
       #   # FIXME - temporary fix below. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
       #   run: |
-      #     rustup component add clippy --toolchain nightly-2020-12-12-x86_64-unknown-linux-gnu
-      #     rustup component add clippy-preview --toolchain nightly-2020-12-12-x86_64-unknown-linux-gnu
-      #     cargo +nightly-2020-12-12 clippy-preview -Zunstable-options
+      #     rustup component add clippy --toolchain nightly-2021-06-21-x86_64-unknown-linux-gnu
+      #     rustup component add clippy-preview --toolchain nightly-2021-06-21-x86_64-unknown-linux-gnu
+      #     cargo +nightly-2021-06-21 clippy-preview -Zunstable-options
