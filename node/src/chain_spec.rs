@@ -6,7 +6,7 @@ use datahighway_runtime::{
     //     SessionKeys,
     // },
     AuthorityDiscoveryConfig,
-    BabeConfig,
+    AuraConfig,
     BalancesConfig,
     Block,
     CouncilConfig,
@@ -26,7 +26,6 @@ use datahighway_runtime::{
     TechnicalMembershipConfig,
     TreasuryConfig,
     WASM_BINARY,
-    BABE_GENESIS_EPOCH_CONFIG,
 };
 use module_primitives::{
     constants::currency::{
@@ -43,13 +42,14 @@ use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 use sc_chain_spec::ChainSpecExtension;
 use sc_service;
 use sc_service::ChainType;
+use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sc_telemetry::TelemetryEndpoints;
 use serde::{
     Deserialize,
     Serialize,
 };
 use serde_json::map::Map;
-use sp_consensus_babe::AuthorityId as BabeId;
+
 use sp_core::{
     crypto::{
         UncheckedFrom,
@@ -105,12 +105,12 @@ where
 }
 
 /// Helper function to generate an authority key from seed
-pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, GrandpaId, BabeId, ImOnlineId, AuthorityDiscoveryId) {
+pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, GrandpaId, AuraId, ImOnlineId, AuthorityDiscoveryId) {
     (
         get_account_id_from_seed::<sr25519::Public>(&format!("{}//stash", seed)),
         get_account_id_from_seed::<sr25519::Public>(seed),
         get_from_seed::<GrandpaId>(seed),
-        get_from_seed::<BabeId>(seed),
+        get_from_seed::<AuraId>(seed),
         get_from_seed::<ImOnlineId>(seed),
         get_from_seed::<AuthorityDiscoveryId>(seed),
     )
@@ -311,7 +311,7 @@ pub fn datahighway_testnet_brickable_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["edb0bfee980d12609f9641e1720ee4b2d4bee53e052c71e13580ee8f144a361c"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["38ac520a6d9e78538d9351526d98eba4e4cdbabac0329f7be20146f69775964b"]
                             .unchecked_into(),
                         // im_online
@@ -330,7 +330,7 @@ pub fn datahighway_testnet_brickable_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["4bbcc0bb7e3f10a8ad097f00c8cd87ab647904e87c9103a46a3db20e74507bea"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["2eac5b0989874724c036a0df4db41adeff9de77e23fb2a136056535722cce84d"]
                             .unchecked_into(),
                         // im_online
@@ -349,7 +349,7 @@ pub fn datahighway_testnet_brickable_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["f8aaa52bc3a0b168fb1bdcfd3d4fe4220cfd893593371c4c2d21defd605ffa4e"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["78013a5320fa1b96e4505472f98948e7305af5385fe2e56ef3f08559975d544c"]
                             .unchecked_into(),
                         // im_online
@@ -368,7 +368,7 @@ pub fn datahighway_testnet_brickable_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["5526a6397e13b10a1d2b27114ad8322b8339cdbff9e47867cc11f500783d26ef"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["fab99fbe39614ec041e79e18ba95d5826333a5deece3fd8ad59fcd59c262554d"]
                             .unchecked_into(),
                         // im_online
@@ -387,7 +387,7 @@ pub fn datahighway_testnet_brickable_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["fdb309f030d63d422cdbaf079ade8fbc580aa7debf6c8a18b7db4c097ae1e854"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["a02d7d4b0cf52fa8f00601cc4c82805c48aad2836a0b9c87078a17a4a99aef6a"]
                             .unchecked_into(),
                         // im_online
@@ -488,10 +488,10 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
 		// ID
 		"harbour",
         ChainType::Live,
-		// TODO: regenerate alphanet according to babe-grandpa consensus
+		// TODO: regenerate alphanet according to aura-grandpa consensus
 		// subkey inspect "$SECRET"
 		// for i in 1 2 3 4; do for j in stash controller; do subkey inspect "$SECRET//$i//$j"; done;
-		// done for i in 1 2 3 4; do for j in babe; do subkey inspect
+		// done for i in 1 2 3 4; do for j in aura; do subkey inspect
 		// --scheme=sr25519 "$SECRET//$i//$j"; done; done for i in 1 2 3 4; do
 		// for j in grandpa; do subkey inspect --scheme=ed25519 "$SECRET//$i//$j"; done; done
 		move || {
@@ -508,7 +508,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["6a9da05f3e07d68bc29fb6cf9377a1537d59f082f49cb27a47881aef9fbaeaee"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"]
                             .unchecked_into(),
                         // im_online
@@ -527,7 +527,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["9af1908ac74b042f4be713e10dcf6a2def3770cfce58951c839768e7d6bbcd8e"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["1e91a7902c89289f97756c4e20c0e9536f34de61c7c21af7773d670b0e644030"]
                             .unchecked_into(),
                         // im_online
@@ -546,7 +546,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["b8902681768fbda7a29666e1de8a18f5be3c778d92cf29139959a86e6bff13e7"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["aaabcb653ce5dfd63035430dba10ce9aed5d064883b9e2b19ec5d9b26a457f57"]
                             .unchecked_into(),
                         // im_online
@@ -565,7 +565,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["f4807d86cca169a81d42fcf9c7abddeff107b0a73e9e7a809257ac7e4a164741"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["a49ac1053a40a2c7c33ffa41cb285cef7c3bc9db7e03a16d174cc8b5b5ac0247"]
                             .unchecked_into(),
                         // im_online
@@ -584,7 +584,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["a240fbd4575d03b4c62e2d2d546327e393db5fc508bc92203fba354a3232f006"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["2ed0676546bc839b77af6e2b084b549403081b1840d4d777a8623f2c44bd0d3e"]
                             .unchecked_into(),
                         // im_online
@@ -603,7 +603,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["16dcf1c6f2c9c37312d34f1f418e758eb9c97cbaf9ef10b06b6f3b4b4b33f724"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["862f4e806774375fe3695fcd715474bff065f91d2f633096a06acf1167fe8d60"]
                             .unchecked_into(),
                         // im_online
@@ -622,7 +622,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["3a592141f7aaef64444aa506a590fdf5769834b74b47f5087eda97ac6833b23f"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["b4801d80cd15b61d9774bf163c60d2068606f2f00f2ff4ee1f7a720062f2f775"]
                             .unchecked_into(),
                         // im_online
@@ -641,7 +641,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["14d83dc11288148747df1f92d11ad4c5b42dbb12f4aa69f679b36f1f84d41ae0"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["6e239d6162484e5c80efcb4762a98e211e11096f5b71bea251ff5732e3c39244"]
                             .unchecked_into(),
                         // im_online
@@ -660,7 +660,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["c95b718120a73e30ba70bb2a9d369eeb87ed1f5708f21e66b6cb5d7bcfb8c8f7"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["48be9f059c8363935514c7cfe3a4f096a77f101a112539057789c9c4fc54a14d"]
                             .unchecked_into(),
                         // im_online
@@ -679,7 +679,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["f44fcaa91171530462d0d43225354d09c0e64fc9ac7e6bed017279947d6a4785"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["0233e16df3c3fbed4dcc5cf47e694ed484373899d712665c39ef4441d2fae040"]
                             .unchecked_into(),
                         // im_online
@@ -829,7 +829,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["dce69d42cf6c256e1ba1595300d72797429dc415f9803e54e822416b6748dfa2"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["ecb52b9c85909f0a171095022351cced6673e1c9a2930087e1c3f37be6c5cd4c"]
                             .unchecked_into(),
                         // imon
@@ -848,7 +848,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["5e5101464eb9a9d2637a18627632e0817c8592472fc498da76661260337398d9"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["9684a0fea1f44ec1558543bd459967225dfdffe260a670981f0ce09d85223278"]
                             .unchecked_into(),
                         // imon
@@ -867,7 +867,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["4b0d281fbe2d89bae3955146f10e79c1e63db6aa0d463dc574abafa79656e859"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["7c863c62d1615d7768507cea4dd7678dc3836691ba89697656f66554400c894f"]
                             .unchecked_into(),
                         // imon
@@ -886,7 +886,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["d2e23c0445afc9e714a9ad9307255150e26e5661f1f2fa57cbb35666f1ff3bfd"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["c0fe72b9f944baa43663310c6dc213c416aea90b8f5f72a87feee049d66dec50"]
                             .unchecked_into(),
                         // imon
@@ -905,7 +905,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["683d89df05242920e0fdfac6f854b6c96f2fba7934b845bfb60869eeb21549b1"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["84622ff3f45a810e6445cbba2f39c90fd6c93de763f0246d92dc140ef593df2c"]
                             .unchecked_into(),
                         // imon
@@ -924,7 +924,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["215a2ff9562ae7b2f71e07c5976637dfd9dae4c092e18af9828a078ba57c0da0"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["6c2d436d832afc82cce4aac80f8b19a48238f231bf8f30f95ef79173f5773977"]
                             .unchecked_into(),
                         // imon
@@ -943,7 +943,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["ef3f7c3d180b63988ab894d9461a8b989d215604e7c5dbb2ce07f51733c680c5"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["86795b955666d426473dff40ce49c1234c58697c032d295b57c91f612ef44876"]
                             .unchecked_into(),
                         // imon
@@ -962,7 +962,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["a50919f31950b902e110f0e455ca2307b021f062c24b087fd94a922be68c1618"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["6e094819c4f3d6bebfd83dfd13b15f57a000d7876d8cf22fd774a593a7304544"]
                             .unchecked_into(),
                         // imon
@@ -981,7 +981,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["bcd9f49d8a3ce7f0cd71e7effbdfa1aa472f2bd7c66782a71d25be7d98a2c60f"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["98d0045128cc74ec6c6682dd465dd8f5a9c55f0a18d4c2360337c0e727d9b679"]
                             .unchecked_into(),
                         // imon
@@ -1000,7 +1000,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                         // gran
                         hex!["55adaf3d56e97313351424ae62742678ead13c5835dc90b7d1a138ba300f8b93"]
                             .unchecked_into(),
-                        // babe
+                        // aura
                         hex!["9608d194e070706ae1a63a25e522c53bc80205b174956e804be0dcb1a6d78e10"]
                             .unchecked_into(),
                         // imon
@@ -1031,7 +1031,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                     hex!["42b728d9c752fe87c3e3db40d9a7d02f22b81bc1f0e49c59a5e128b861f87b08"].into(),
                     // gran
                     hex!["dce69d42cf6c256e1ba1595300d72797429dc415f9803e54e822416b6748dfa2"].into(),
-                    // babe
+                    // aura
                     hex!["ecb52b9c85909f0a171095022351cced6673e1c9a2930087e1c3f37be6c5cd4c"].into(),
                     // imon
                     hex!["ce0b5a11f5447727bf8382426620439b716846b539a0045fcf459299a3237c28"].into(),
@@ -1045,7 +1045,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                     hex!["e627945747e5a66afd5ff3f383819dfb6dd9633f6c9d52b24b10307cc841d577"].into(),
                     // gran
                     hex!["5e5101464eb9a9d2637a18627632e0817c8592472fc498da76661260337398d9"].into(),
-                    // babe
+                    // aura
                     hex!["9684a0fea1f44ec1558543bd459967225dfdffe260a670981f0ce09d85223278"].into(),
                     // imon
                     hex!["f28436fb808af1121b3873b72a5b818f4231c5c61dfde2cf0d40cfce57b6f03d"].into(),
@@ -1059,7 +1059,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                     hex!["32e28b6f06a728b13d782b007d57ab53d7fe3fa2d5def2c58585d27007d5ea05"].into(),
                     // gran
                     hex!["4b0d281fbe2d89bae3955146f10e79c1e63db6aa0d463dc574abafa79656e859"].into(),
-                    // babe
+                    // aura
                     hex!["7c863c62d1615d7768507cea4dd7678dc3836691ba89697656f66554400c894f"].into(),
                     // imon
                     hex!["9e6987563f86381f47761ee5ac259e1484b25f5bd5342d6bd975a07cb16c6a6b"].into(),
@@ -1073,7 +1073,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                     hex!["3ee5ed5cdf314660b60c6acb87d51af5f10c5d8ea24dd762df4c5973a1683416"].into(),
                     // gran
                     hex!["d2e23c0445afc9e714a9ad9307255150e26e5661f1f2fa57cbb35666f1ff3bfd"].into(),
-                    // babe
+                    // aura
                     hex!["c0fe72b9f944baa43663310c6dc213c416aea90b8f5f72a87feee049d66dec50"].into(),
                     // imon
                     hex!["b8916d751735fbb43d1ff679ea017cfdcf9ad7f76cf775c8d5d6e0ffe5454c79"].into(),
@@ -1087,7 +1087,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                     hex!["2643aaa4cf95aa0f014c015722e31a356eb8bd17888f74bca1ca56c404445c39"].into(),
                     // gran
                     hex!["683d89df05242920e0fdfac6f854b6c96f2fba7934b845bfb60869eeb21549b1"].into(),
-                    // babe
+                    // aura
                     hex!["84622ff3f45a810e6445cbba2f39c90fd6c93de763f0246d92dc140ef593df2c"].into(),
                     // imon
                     hex!["a42b23e60c547565c52f768fee92d1ab983456f8b14957dcd59e96edb9e18e34"].into(),
@@ -1101,7 +1101,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                     hex!["3e028f22ca42f5feee5344c3319ba97d23019087a124b43a825cb7d35ed7d522"].into(),
                     // gran
                     hex!["215a2ff9562ae7b2f71e07c5976637dfd9dae4c092e18af9828a078ba57c0da0"].into(),
-                    // babe
+                    // aura
                     hex!["6c2d436d832afc82cce4aac80f8b19a48238f231bf8f30f95ef79173f5773977"].into(),
                     // imon
                     hex!["8ed3a7c2bd72256130d7add011c7fe6ad78942970bcfe6f811bbc5a24da48c2f"].into(),
@@ -1115,7 +1115,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                     hex!["76ea25fc43fbdd113efabf6a12ea1f67c2916f9dd15d7c08a020269aa28cd521"].into(),
                     // gran
                     hex!["ef3f7c3d180b63988ab894d9461a8b989d215604e7c5dbb2ce07f51733c680c5"].into(),
-                    // babe
+                    // aura
                     hex!["86795b955666d426473dff40ce49c1234c58697c032d295b57c91f612ef44876"].into(),
                     // imon
                     hex!["2082036c6ee9a9680e43433b63235317b6cf7c90f88f0dc6b55d3e7ca0899b7c"].into(),
@@ -1129,7 +1129,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                     hex!["ee323b965d01799f4af213347549ab5e8e533071df69c4d2ed122a354deb930c"].into(),
                     // gran
                     hex!["a50919f31950b902e110f0e455ca2307b021f062c24b087fd94a922be68c1618"].into(),
-                    // babe
+                    // aura
                     hex!["6e094819c4f3d6bebfd83dfd13b15f57a000d7876d8cf22fd774a593a7304544"].into(),
                     // imon
                     hex!["189000f2b00393cac4ffbfb212ab582c2fdb42c2bea382ab0e9bb5b37d427b03"].into(),
@@ -1143,7 +1143,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                     hex!["cc517121c11d0135836a62816526bb40d9c9a0ae47f316c646c148a5cff0f200"].into(),
                     // gran
                     hex!["bcd9f49d8a3ce7f0cd71e7effbdfa1aa472f2bd7c66782a71d25be7d98a2c60f"].into(),
-                    // babe
+                    // aura
                     hex!["98d0045128cc74ec6c6682dd465dd8f5a9c55f0a18d4c2360337c0e727d9b679"].into(),
                     // imon
                     hex!["086c4fbfa5ec20f5bc4d82733f7741ef0f772e2a6d282fd7e6c0e1abf838697b"].into(),
@@ -1157,7 +1157,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                     hex!["3c71cfbd77668301af5aefe0c81e3b4ffc1c0f0b07c0d42044922237d574455f"].into(),
                     // gran
                     hex!["55adaf3d56e97313351424ae62742678ead13c5835dc90b7d1a138ba300f8b93"].into(),
-                    // babe
+                    // aura
                     hex!["9608d194e070706ae1a63a25e522c53bc80205b174956e804be0dcb1a6d78e10"].into(),
                     // imon
                     hex!["1a811ced21ced4fdab5d32105a65c671da35f367937619ab4fbdc3db9542c450"].into(),
@@ -1225,13 +1225,13 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
 
 fn session_keys(
     grandpa: GrandpaId,
-    babe: BabeId,
+    aura: AuraId,
     im_online: ImOnlineId,
     authority_discovery: AuthorityDiscoveryId,
 ) -> SessionKeys {
     SessionKeys {
         grandpa,
-        babe,
+        aura,
         im_online,
         authority_discovery,
     }
@@ -1253,7 +1253,7 @@ const MAINNET_INITIAL_STASH: u128 = MAINNET_INITIAL_ENDOWMENT / 10; // 1 DHX
 /// Configure initial storage state for FRAME modules.
 fn testnet_genesis(
     wasm_binary: &[u8],
-    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId, ImOnlineId, AuthorityDiscoveryId)>,
+    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, AuraId, ImOnlineId, AuthorityDiscoveryId)>,
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     _enable_println: bool, // No println
@@ -1324,16 +1324,15 @@ fn testnet_genesis(
 			// Assign network admin rights.
 			key: root_key.clone(),
         },
-        babe: BabeConfig {
-            authorities: vec![],
-            epoch_config: Some(datahighway_runtime::BABE_GENESIS_EPOCH_CONFIG),
-        },
         im_online: ImOnlineConfig {
             keys: vec![],
         },
         authority_discovery: AuthorityDiscoveryConfig {
             keys: vec![],
         },
+        aura: AuraConfig {
+			authorities: vec![],
+		},
         grandpa: GrandpaConfig {
             authorities: vec![],
         },
@@ -1349,7 +1348,7 @@ fn testnet_genesis(
 /// Configure initial storage state for FRAME modules.
 fn mainnet_genesis(
     wasm_binary: &[u8],
-    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId, ImOnlineId, AuthorityDiscoveryId)>,
+    initial_authorities: Vec<(AccountId, AccountId, GrandpaId, AuraId, ImOnlineId, AuthorityDiscoveryId)>,
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     _enable_println: bool, // No println
@@ -1417,16 +1416,15 @@ fn mainnet_genesis(
 			// Assign network admin rights.
 			key: root_key.clone(),
         },
-        babe: BabeConfig {
-            authorities: vec![],
-            epoch_config: Some(datahighway_runtime::BABE_GENESIS_EPOCH_CONFIG),
-        },
         im_online: ImOnlineConfig {
             keys: vec![],
         },
         authority_discovery: AuthorityDiscoveryConfig {
             keys: vec![],
         },
+        aura: AuraConfig {
+			authorities: vec![],
+		},
         grandpa: GrandpaConfig {
             authorities: vec![],
         },
