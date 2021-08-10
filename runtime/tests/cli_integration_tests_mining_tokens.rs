@@ -1,9 +1,9 @@
 // extern crate env as env;
-extern crate mining_speed_boosts_configuration_token_mining as mining_speed_boosts_configuration_token_mining;
-extern crate mining_speed_boosts_eligibility_token_mining as mining_speed_boosts_eligibility_token_mining;
-extern crate mining_speed_boosts_lodgements_token_mining as mining_speed_boosts_lodgements_token_mining;
-extern crate mining_speed_boosts_rates_token_mining as mining_speed_boosts_rates_token_mining;
-extern crate mining_speed_boosts_sampling_token_mining as mining_speed_boosts_sampling_token_mining;
+extern crate mining_claims_hardware as mining_claims_hardware;
+extern crate mining_setting_hardware as mining_setting_hardware;
+extern crate mining_eligibility_hardware as mining_eligibility_hardware;
+extern crate mining_rates_hardware as mining_rates_hardware;
+extern crate mining_sampling_hardware as mining_sampling_hardware;
 extern crate roaming_operators as roaming_operators;
 
 #[cfg(test)]
@@ -33,30 +33,30 @@ mod tests {
         Permill,
     };
     // Import Config for each runtime module being tested
-    use mining_speed_boosts_configuration_token_mining::{
-        Config as MiningSpeedBoostConfigurationTokenMiningTrait,
-        MiningSpeedBoostConfigurationTokenMiningTokenConfig,
-        Module as MiningSpeedBoostConfigurationTokenMiningModule,
+    use mining_claims_hardware::{
+        MiningClaimsHardwareClaimResult,
+        Module as MiningClaimsHardwareModule,
+        Config as MiningClaimsHardwareConfig,
     };
-    use mining_speed_boosts_eligibility_token_mining::{
-        Config as MiningSpeedBoostEligibilityTokenMiningTrait,
-        MiningSpeedBoostEligibilityTokenMiningEligibilityResult,
-        Module as MiningSpeedBoostEligibilityTokenMiningModule,
+    use mining_setting_hardware::{
+        MiningSettingHardwareSetting,
+        Module as MiningSettingHardwareModule,
+        Config as MiningSettingHardwareConfig,
     };
-    use mining_speed_boosts_lodgements_token_mining::{
-        Config as MiningSpeedBoostLodgementsTokenMiningTrait,
-        MiningSpeedBoostLodgementsTokenMiningLodgementResult,
-        Module as MiningSpeedBoostLodgementsTokenMiningModule,
+    use mining_eligibility_hardware::{
+        MiningEligibilityHardwareResult,
+        Module as MiningEligibilityHardwareModule,
+        Config as MiningEligibilityHardwareConfig,
     };
-    use mining_speed_boosts_rates_token_mining::{
-        Config as MiningSpeedBoostRatesTokenMiningTrait,
-        MiningSpeedBoostRatesTokenMiningRatesConfig,
-        Module as MiningSpeedBoostRatesTokenMiningModule,
+    use mining_rates_hardware::{
+        MiningRatesHardwareSetting,
+        Module as MiningRatesHardwareModule,
+        Config as MiningRatesHardwareConfig,
     };
-    use mining_speed_boosts_sampling_token_mining::{
-        Config as MiningSpeedBoostSamplingTokenMiningTrait,
-        MiningSpeedBoostSamplingTokenMiningSamplingConfig,
-        Module as MiningSpeedBoostSamplingTokenMiningModule,
+    use mining_sampling_hardware::{
+        MiningSamplingHardwareSetting,
+        Module as MiningSamplingHardwareModule,
+        Config as MiningSamplingHardwareConfig,
     };
     use roaming_operators;
 

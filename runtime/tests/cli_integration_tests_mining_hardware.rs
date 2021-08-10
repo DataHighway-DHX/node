@@ -1,9 +1,9 @@
 // extern crate env as env;
-extern crate mining_speed_boosts_configuration_hardware_mining as mining_speed_boosts_configuration_hardware_mining;
-extern crate mining_speed_boosts_eligibility_hardware_mining as mining_speed_boosts_eligibility_hardware_mining;
-extern crate mining_speed_boosts_lodgements_hardware_mining as mining_speed_boosts_lodgements_hardware_mining;
-extern crate mining_speed_boosts_rates_hardware_mining as mining_speed_boosts_rates_hardware_mining;
-extern crate mining_speed_boosts_sampling_hardware_mining as mining_speed_boosts_sampling_hardware_mining;
+extern crate mining_claims_hardware as mining_claims_hardware;
+extern crate mining_setting_hardware as mining_setting_hardware;
+extern crate mining_eligibility_hardware as mining_eligibility_hardware;
+extern crate mining_rates_hardware as mining_rates_hardware;
+extern crate mining_sampling_hardware as mining_sampling_hardware;
 extern crate roaming_operators as roaming_operators;
 
 #[cfg(test)]
@@ -33,30 +33,30 @@ mod tests {
         Permill,
     };
     // Import Config for each runtime module being tested
-    use mining_speed_boosts_configuration_hardware_mining::{
-        Config as MiningSpeedBoostConfigurationHardwareMiningTrait,
-        MiningSpeedBoostConfigurationHardwareMiningHardwareConfig,
-        Module as MiningSpeedBoostConfigurationHardwareMiningModule,
+    use mining_claims_hardware::{
+        MiningClaimsHardwareClaimResult,
+        Module as MiningClaimsHardwareModule,
+        Config as MiningClaimsHardwareConfig,
     };
-    use mining_speed_boosts_eligibility_hardware_mining::{
-        Config as MiningSpeedBoostEligibilityHardwareMiningTrait,
-        MiningSpeedBoostEligibilityHardwareMiningEligibilityResult,
-        Module as MiningSpeedBoostEligibilityHardwareMiningModule,
+    use mining_setting_hardware::{
+        MiningSettingHardwareSetting,
+        Module as MiningSettingHardwareModule,
+        Config as MiningSettingHardwareConfig,
     };
-    use mining_speed_boosts_lodgements_hardware_mining::{
-        Config as MiningSpeedBoostLodgementsHardwareMiningTrait,
-        MiningSpeedBoostLodgementsHardwareMiningLodgementResult,
-        Module as MiningSpeedBoostLodgementsHardwareMiningModule,
+    use mining_eligibility_hardware::{
+        MiningEligibilityHardwareResult,
+        Module as MiningEligibilityHardwareModule,
+        Config as MiningEligibilityHardwareConfig,
     };
-    use mining_speed_boosts_rates_hardware_mining::{
-        Config as MiningSpeedBoostRatesHardwareMiningTrait,
-        MiningSpeedBoostRatesHardwareMiningRatesConfig,
-        Module as MiningSpeedBoostRatesHardwareMiningModule,
+    use mining_rates_hardware::{
+        MiningRatesHardwareSetting,
+        Module as MiningRatesHardwareModule,
+        Config as MiningRatesHardwareConfig,
     };
-    use mining_speed_boosts_sampling_hardware_mining::{
-        Config as MiningSpeedBoostSamplingHardwareMiningTrait,
-        MiningSpeedBoostSamplingHardwareMiningSamplingConfig,
-        Module as MiningSpeedBoostSamplingHardwareMiningModule,
+    use mining_sampling_hardware::{
+        MiningSamplingHardwareSetting,
+        Module as MiningSamplingHardwareModule,
+        Config as MiningSamplingHardwareConfig,
     };
     use roaming_operators;
 
