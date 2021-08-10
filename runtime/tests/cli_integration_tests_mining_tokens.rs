@@ -29,6 +29,7 @@ mod tests {
         weights::{
             IdentityFee,
             Weight,
+            RocksDbWeight,
         },
         PalletId,
     };
@@ -134,15 +135,24 @@ mod tests {
         }
     );
 
+    const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
+
     parameter_types! {
-        pub const BlockHashCount: u64 = 250;
+        pub const BlockHashCount: u64 = 2400;
+        /// We allow for 2 seconds of compute with a 6 second average block time.
+        pub BlockWeights: frame_system::limits::BlockWeights = frame_system::limits::BlockWeights
+            ::with_sensible_defaults(2 * WEIGHT_PER_SECOND, NORMAL_DISPATCH_RATIO);
+        pub BlockLength: frame_system::limits::BlockLength = frame_system::limits::BlockLength
+            ::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
         pub const SS58Prefix: u16 = 33;
     }
     impl frame_system::Config for Test {
         type BaseCallFilter = frame_support::traits::AllowAll;
-        type BlockWeights = ();
-        type BlockLength = ();
-        type DbWeight = ();
+        /// Block & extrinsics weights: base values and limits.
+        type BlockWeights = BlockWeights;
+        /// The maximum length of a block (in bytes).
+        type BlockLength = BlockLength;
+        type DbWeight = RocksDbWeight;
         type Origin = Origin;
         type Call = Call;
         type Index = u64;

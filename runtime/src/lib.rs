@@ -118,6 +118,13 @@ use pallet_transaction_payment::{
     FeeDetails,
     RuntimeDispatchInfo,
 };
+use module_primitives::{
+	types::{
+        Index,
+        Moment,
+    },
+};
+
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 #[cfg(any(feature = "std", test))]
@@ -274,6 +281,8 @@ impl frame_system::Config for Runtime {
     type BaseCallFilter = frame_support::traits::AllowAll;
     type BlockWeights = RuntimeBlockWeights;
     type BlockLength = RuntimeBlockLength;
+    // type BlockWeights = BlockWeights;
+    // type BlockLength = BlockLength;
     type DbWeight = RocksDbWeight;
     type Origin = Origin;
     type Call = Call;
@@ -282,7 +291,9 @@ impl frame_system::Config for Runtime {
     type Hash = Hash;
     type Hashing = BlakeTwo256;
     type AccountId = AccountId;
-    type Lookup = Indices;
+    // type Lookup = Indices;
+    // See address format of `type Address`
+    type Lookup = AccountIdLookup<AccountId, AccountIndex>;
     type Header = generic::Header<BlockNumber, BlakeTwo256>;
     type Event = Event;
     type BlockHashCount = BlockHashCount;
@@ -440,24 +451,43 @@ parameter_types! {
 		BondingDuration::get() as u64 * SessionsPerEra::get() as u64 * EpochDuration::get();
 }
 
+// impl pallet_grandpa::Config for Runtime {
+//     type Event = Event;
+//     type Call = Call;
+
+//     type KeyOwnerProofSystem = Historical;
+
+//     type KeyOwnerProof =
+//         <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::Proof;
+
+//     type KeyOwnerIdentification = <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(
+//         KeyTypeId,
+//         GrandpaId,
+//     )>>::IdentificationTuple;
+
+//     type HandleEquivocation =
+//         pallet_grandpa::EquivocationHandler<Self::KeyOwnerIdentification, Offences, ReportLongevity>;
+
+//     type WeightInfo = ();
+// }
+
 impl pallet_grandpa::Config for Runtime {
-    type Event = Event;
-    type Call = Call;
+	type Event = Event;
+	type Call = Call;
 
-    type KeyOwnerProofSystem = Historical;
+	type KeyOwnerProofSystem = ();
 
-    type KeyOwnerProof =
-        <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::Proof;
+	type KeyOwnerProof =
+		<Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::Proof;
 
-    type KeyOwnerIdentification = <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(
-        KeyTypeId,
-        GrandpaId,
-    )>>::IdentificationTuple;
+	type KeyOwnerIdentification = <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(
+		KeyTypeId,
+		GrandpaId,
+	)>>::IdentificationTuple;
 
-    type HandleEquivocation =
-        pallet_grandpa::EquivocationHandler<Self::KeyOwnerIdentification, Offences, ReportLongevity>;
+	type HandleEquivocation = ();
 
-    type WeightInfo = ();
+	type WeightInfo = ();
 }
 
 parameter_types! {
@@ -489,6 +519,7 @@ parameter_types! {
 }
 
 impl pallet_timestamp::Config for Runtime {
+    /// A timestamp: milliseconds since the unix epoch.
     type Moment = Moment;
     type OnTimestampSet = Aura;
     type MinimumPeriod = MinimumPeriod;
@@ -1318,12 +1349,13 @@ impl_runtime_apis! {
             >,
             key_owner_proof: fg_primitives::OpaqueKeyOwnershipProof,
         ) -> Option<()> {
-            let key_owner_proof = key_owner_proof.decode()?;
+            // let key_owner_proof = key_owner_proof.decode()?;
 
-            Grandpa::submit_unsigned_equivocation_report(
-                equivocation_proof,
-                key_owner_proof,
-            )
+            // Grandpa::submit_unsigned_equivocation_report(
+            //     equivocation_proof,
+            //     key_owner_proof,
+            // )
+            None
         }
 
         fn generate_key_ownership_proof(
@@ -1332,9 +1364,14 @@ impl_runtime_apis! {
         ) -> Option<fg_primitives::OpaqueKeyOwnershipProof> {
             use codec::Encode;
 
-            Historical::prove((fg_primitives::KEY_TYPE, authority_id))
-                .map(|p| p.encode())
-                .map(fg_primitives::OpaqueKeyOwnershipProof::new)
+            // Historical::prove((fg_primitives::KEY_TYPE, authority_id))
+            //     .map(|p| p.encode())
+            //     .map(fg_primitives::OpaqueKeyOwnershipProof::new)
+
+            // NOTE: this is the only implementation possible since we've
+			// defined our key owner proof type as a bottom type (i.e. a type
+			// with no values).
+			None
         }
     }
 
