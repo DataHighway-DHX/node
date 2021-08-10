@@ -32,10 +32,10 @@ frame_support::construct_runtime!(
         NodeBlock = Block,
         UncheckedExtrinsic = UncheckedExtrinsic,
     {
-        System: frame_system::{Module, Call, Config, Storage, Event<T>},
-        Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
-        TransactionPayment: pallet_transaction_payment::{Module, Storage},
-        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
+        System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+        Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
+        TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
+        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
     }
 );
 
@@ -65,6 +65,7 @@ impl frame_system::Config for Test {
     type SS58Prefix = ();
     type SystemWeightInfo = ();
     type Version = ();
+    type OnSetCode = ();
 }
 parameter_types! {
     pub const ExistentialDeposit: u64 = 1;
@@ -77,6 +78,8 @@ impl pallet_balances::Config for Test {
     type ExistentialDeposit = ExistentialDeposit;
     type MaxLocks = ();
     type WeightInfo = ();
+    type MaxReserves = ();
+    type ReserveIdentifier = [u8; 8];
 }
 parameter_types! {
     pub const TransactionByteFee: u64 = 1;
@@ -87,6 +90,9 @@ impl pallet_transaction_payment::Config for Test {
     type TransactionByteFee = TransactionByteFee;
     type WeightToFee = IdentityFee<u64>;
 }
+
+impl pallet_randomness_collective_flip::Config for Test {}
+
 impl roaming_operators::Config for Test {
     type Currency = Balances;
     type Event = ();
