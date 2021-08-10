@@ -17,12 +17,12 @@
 
 //! Some configurable implementations as associated type for the substrate runtime.
 
-use frame_support::traits::{OnUnbalanced, Currency};
-use crate::{Balances, Authorship, NegativeImbalance};
+// use frame_support::traits::{OnUnbalanced, Currency};
+// use crate::{Balances, Authorship, NegativeImbalance};
 
-pub struct Author;
-impl OnUnbalanced<NegativeImbalance> for Author {
-    fn on_nonzero_unbalanced(amount: NegativeImbalance) {
-        Balances::resolve_creating(&Authorship::author(), amount);
-    }
-}
+// pub struct Author;
+// impl OnUnbalanced<NegativeImbalance> for Author {
+//     fn on_nonzero_unbalanced(amount: NegativeImbalance) {
+//         Balances::resolve_creating(&Authorship::author(), amount);
+//     }
+// }
