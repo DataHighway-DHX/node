@@ -60,12 +60,12 @@ impl frame_system::Config for Test {
     type Lookup = IdentityLookup<Self::AccountId>;
     type OnKilledAccount = ();
     type OnNewAccount = ();
+    type OnSetCode = ();
     type Origin = Origin;
     type PalletInfo = PalletInfo;
     type SS58Prefix = ();
     type SystemWeightInfo = ();
     type Version = ();
-    type OnSetCode = ();
 }
 parameter_types! {
     pub const ExistentialDeposit: u64 = 1;
@@ -78,9 +78,9 @@ impl pallet_balances::Config for Test {
     type Event = ();
     type ExistentialDeposit = ExistentialDeposit;
     type MaxLocks = ();
-    type WeightInfo = ();
     type MaxReserves = ();
     type ReserveIdentifier = [u8; 8];
+    type WeightInfo = ();
 }
 parameter_types! {
     pub const TransactionByteFee: u64 = 1;

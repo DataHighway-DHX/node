@@ -18,7 +18,6 @@ mod tests {
 
     use frame_support::{
         assert_ok,
-        impl_outer_origin,
         parameter_types,
         weights::{
             IdentityFee,
@@ -26,74 +25,71 @@ mod tests {
         },
     };
 
+    pub use pallet_transaction_payment::CurrencyAdapter;
     use sp_core::H256;
     use sp_runtime::{
         testing::Header,
         traits::{
             BlakeTwo256,
             IdentityLookup,
-            Zero,
         },
-        DispatchResult,
-        Perbill,
-        Permill,
     };
     // Import Config for each runtime module being tested
     use roaming_accounting_policies::{
-        Config as RoamingAccountingPolicyTrait,
+        Config as RoamingAccountingPolicyConfig,
         Module as RoamingAccountingPolicyModule,
-        RoamingAccountingPolicyConfig,
+        RoamingAccountingPolicySetting,
     };
     use roaming_agreement_policies::{
-        Config as RoamingAgreementPolicyTrait,
+        Config as RoamingAgreementPolicyConfig,
         Module as RoamingAgreementPolicyModule,
-        RoamingAgreementPolicyConfig,
+        RoamingAgreementPolicySetting,
     };
     use roaming_billing_policies::{
-        Config as RoamingBillingPolicyTrait,
+        Config as RoamingBillingPolicyConfig,
         Module as RoamingBillingPolicyModule,
-        RoamingBillingPolicyConfig,
+        RoamingBillingPolicySetting,
     };
     use roaming_charging_policies::{
-        Config as RoamingChargingPolicyTrait,
+        Config as RoamingChargingPolicyConfig,
         Module as RoamingChargingPolicyModule,
-        RoamingChargingPolicyConfig,
+        RoamingChargingPolicySetting,
     };
     use roaming_device_profiles::{
-        Config as RoamingDeviceProfileTrait,
+        Config as RoamingDeviceProfileConfig,
         Module as RoamingDeviceProfileModule,
-        RoamingDeviceProfileConfig,
+        RoamingDeviceProfileSetting,
     };
     use roaming_devices::{
-        Config as RoamingDeviceTrait,
+        Config as RoamingDeviceConfig,
         Module as RoamingDeviceModule,
     };
     use roaming_network_profiles::{
-        Config as RoamingNetworkProfileTrait,
+        Config as RoamingNetworkProfileConfig,
         Module as RoamingNetworkProfileModule,
     };
     use roaming_network_servers::{
-        Config as RoamingNetworkServerTrait,
+        Config as RoamingNetworkServerConfig,
         Module as RoamingNetworkServerModule,
     };
     use roaming_networks::{
-        Config as RoamingNetworkTrait,
+        Config as RoamingNetworkConfig,
         Module as RoamingNetworkModule,
     };
     use roaming_operators::{
-        Config as RoamingOperatorTrait,
+        Config as RoamingOperatorConfig,
         Module as RoamingOperatorModule,
     };
     use roaming_organizations::{
-        Config as RoamingOrganizationTrait,
+        Config as RoamingOrganizationConfig,
         Module as RoamingOrganizationModule,
     };
     use roaming_routing_profiles::{
-        Config as RoamingRoutingProfileTrait,
+        Config as RoamingRoutingProfileConfig,
         Module as RoamingRoutingProfileModule,
     };
     use roaming_service_profiles::{
-        Config as RoamingServiceProfileTrait,
+        Config as RoamingServiceProfileConfig,
         Module as RoamingServiceProfileModule,
     };
 
@@ -101,17 +97,25 @@ mod tests {
     // 	<Runtime as frame_system::Config>::Origin::signed((*who).clone())
     // }
 
-    impl_outer_origin! {
-        pub enum Origin for Test {}
-    }
+    type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
+    type Block = frame_system::mocking::MockBlock<Test>;
 
-    #[derive(Clone, Eq, PartialEq)]
-    pub struct Test;
+    frame_support::construct_runtime!(
+        pub enum Test where
+            Block = Block,
+            NodeBlock = Block,
+            UncheckedExtrinsic = UncheckedExtrinsic,
+        {
+            System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+            Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
+            RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
+            TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
+        }
+    );
+
     parameter_types! {
         pub const BlockHashCount: u64 = 250;
-        pub const MaximumBlockWeight: Weight = 1024;
-        pub const MaximumBlockLength: u32 = 2 * 1024;
-        pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
+        pub const SS58Prefix: u8 = 33;
     }
     impl frame_system::Config for Test {
         type AccountData = pallet_balances::AccountData<u64>;
@@ -121,8 +125,9 @@ mod tests {
         type BlockLength = ();
         type BlockNumber = u64;
         type BlockWeights = ();
-        type Call = ();
+        type Call = Call;
         type DbWeight = ();
+        // type WeightMultiplierUpdate = ();
         type Event = ();
         type Hash = H256;
         type Hashing = BlakeTwo256;
@@ -131,9 +136,10 @@ mod tests {
         type Lookup = IdentityLookup<Self::AccountId>;
         type OnKilledAccount = ();
         type OnNewAccount = ();
+        type OnSetCode = ();
         type Origin = Origin;
-        type PalletInfo = ();
-        type SS58Prefix = ();
+        type PalletInfo = PalletInfo;
+        type SS58Prefix = SS58Prefix;
         type SystemWeightInfo = ();
         type Version = ();
     }
@@ -142,85 +148,80 @@ mod tests {
     }
     impl pallet_balances::Config for Test {
         type AccountStore = System;
-        type Balance = u128;
+        type Balance = u64;
         type DustRemoval = ();
         type Event = ();
         type ExistentialDeposit = ExistentialDeposit;
         type MaxLocks = ();
+        type MaxReserves = ();
+        type ReserveIdentifier = [u8; 8];
         type WeightInfo = ();
     }
-    parameter_types! {
-        pub const TransactionByteFee: u64 = 1;
-    }
+    impl pallet_randomness_collective_flip::Config for Test {}
     impl pallet_transaction_payment::Config for Test {
         type FeeMultiplierUpdate = ();
-        type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
-        type TransactionByteFee = TransactionByteFee;
+        type OnChargeTransaction = CurrencyAdapter<Balances, ()>;
+        type TransactionByteFee = ();
         type WeightToFee = IdentityFee<u64>;
     }
-    impl RoamingOperatorTrait for Test {
+    impl RoamingOperatorConfig for Test {
         type Currency = Balances;
         type Event = ();
-        type Randomness = Randomness;
+        type Randomness = RandomnessCollectiveFlip;
         type RoamingOperatorIndex = u64;
     }
-    impl RoamingNetworkTrait for Test {
+    impl RoamingNetworkConfig for Test {
         type Event = ();
         type RoamingNetworkIndex = u64;
     }
-    impl RoamingOrganizationTrait for Test {
+    impl RoamingOrganizationConfig for Test {
         type Event = ();
         type RoamingOrganizationIndex = u64;
     }
-    impl RoamingNetworkServerTrait for Test {
+    impl RoamingNetworkServerConfig for Test {
         type Event = ();
         type RoamingNetworkServerIndex = u64;
     }
-    impl RoamingAgreementPolicyTrait for Test {
+    impl RoamingAgreementPolicyConfig for Test {
         type Event = ();
         type RoamingAgreementPolicyActivationType = Vec<u8>;
-        type RoamingAgreementPolicyExpiry = u64;
         type RoamingAgreementPolicyIndex = u64;
     }
-    impl RoamingAccountingPolicyTrait for Test {
+    impl RoamingAccountingPolicyConfig for Test {
         type Event = ();
         type RoamingAccountingPolicyDownlinkFeeFactor = u32;
         type RoamingAccountingPolicyIndex = u64;
         type RoamingAccountingPolicyType = Vec<u8>;
         type RoamingAccountingPolicyUplinkFeeFactor = u32;
     }
-    impl RoamingRoutingProfileTrait for Test {
+    impl RoamingRoutingProfileConfig for Test {
         type Event = ();
         type RoamingRoutingProfileAppServer = Vec<u8>;
         type RoamingRoutingProfileIndex = u64;
     }
-    impl RoamingDeviceTrait for Test {
+    impl RoamingDeviceConfig for Test {
         type Event = ();
         type RoamingDeviceIndex = u64;
     }
-    impl RoamingServiceProfileTrait for Test {
+    impl RoamingServiceProfileConfig for Test {
         type Event = ();
         type RoamingServiceProfileDownlinkRate = u32;
         type RoamingServiceProfileIndex = u64;
         type RoamingServiceProfileUplinkRate = u32;
     }
-    impl RoamingBillingPolicyTrait for Test {
+    impl RoamingBillingPolicyConfig for Test {
         type Event = ();
-        type RoamingBillingPolicyFrequencyInDays = u64;
         type RoamingBillingPolicyIndex = u64;
-        type RoamingBillingPolicyNextBillingAt = u64;
     }
-    impl RoamingChargingPolicyTrait for Test {
+    impl RoamingChargingPolicyConfig for Test {
         type Event = ();
-        type RoamingChargingPolicyDelayAfterBillingInDays = u64;
         type RoamingChargingPolicyIndex = u64;
-        type RoamingChargingPolicyNextChargingAt = u64;
     }
-    impl RoamingNetworkProfileTrait for Test {
+    impl RoamingNetworkProfileConfig for Test {
         type Event = ();
         type RoamingNetworkProfileIndex = u64;
     }
-    impl RoamingDeviceProfileTrait for Test {
+    impl RoamingDeviceProfileConfig for Test {
         type Event = ();
         type RoamingDeviceProfileDevAddr = Vec<u8>;
         type RoamingDeviceProfileDevEUI = Vec<u8>;
@@ -229,8 +230,6 @@ mod tests {
         type RoamingDeviceProfileVendorID = Vec<u8>;
     }
 
-    type System = frame_system::Module<Test>;
-    pub type Balances = pallet_balances::Module<Test>;
     pub type RoamingOperatorTestModule = RoamingOperatorModule<Test>;
     pub type RoamingNetworkTestModule = RoamingNetworkModule<Test>;
     pub type RoamingOrganizationTestModule = RoamingOrganizationModule<Test>;
@@ -244,7 +243,6 @@ mod tests {
     pub type RoamingChargingPolicyTestModule = RoamingChargingPolicyModule<Test>;
     pub type RoamingNetworkProfileTestModule = RoamingNetworkProfileModule<Test>;
     pub type RoamingDeviceProfileTestModule = RoamingDeviceProfileModule<Test>;
-    type Randomness = pallet_randomness_collective_flip::Module<Test>;
 
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
@@ -366,8 +364,8 @@ mod tests {
             // Verify Storage
             assert_eq!(RoamingAccountingPolicyTestModule::roaming_accounting_policies_count(), 1);
             assert_eq!(
-                RoamingAccountingPolicyTestModule::roaming_accounting_policy_configs(0),
-                Some(RoamingAccountingPolicyConfig {
+                RoamingAccountingPolicyTestModule::roaming_accounting_policy_settings(0),
+                Some(RoamingAccountingPolicySetting {
                     policy_type: b"subscription".to_vec(), // policy_type
                     subscription_fee: 200,                 // subscription_fee
                     uplink_fee_factor: 15,                 // uplink_fee_factor
@@ -397,10 +395,10 @@ mod tests {
             // Verify Storage
             assert_eq!(RoamingAgreementPolicyTestModule::roaming_agreement_policies_count(), 1);
             assert_eq!(
-                RoamingAgreementPolicyTestModule::roaming_agreement_policy_configs(0),
-                Some(RoamingAgreementPolicyConfig {
+                RoamingAgreementPolicyTestModule::roaming_agreement_policy_settings(0),
+                Some(RoamingAgreementPolicySetting {
                     policy_activation_type: b"passive".to_vec(),
-                    policy_expiry: 2019,
+                    policy_expiry_block: 2019,
                 })
             );
 
@@ -484,10 +482,10 @@ mod tests {
             // Verify Storage
             assert_eq!(RoamingBillingPolicyTestModule::roaming_billing_policies_count(), 1);
             assert_eq!(
-                RoamingBillingPolicyTestModule::roaming_billing_policy_configs(0),
-                Some(RoamingBillingPolicyConfig {
-                    policy_next_billing_at: 102020,
-                    policy_frequency_in_days: 30,
+                RoamingBillingPolicyTestModule::roaming_billing_policy_settings(0),
+                Some(RoamingBillingPolicySetting {
+                    policy_next_billing_at_block: 102020,
+                    policy_frequency_in_blocks: 30,
                 })
             );
 
@@ -524,10 +522,10 @@ mod tests {
             // Verify Storage
             assert_eq!(RoamingChargingPolicyTestModule::roaming_charging_policies_count(), 1);
             assert_eq!(
-                RoamingChargingPolicyTestModule::roaming_charging_policy_configs(0),
-                Some(RoamingChargingPolicyConfig {
-                    policy_next_charging_at: 102020,
-                    policy_delay_after_billing_in_days: 7,
+                RoamingChargingPolicyTestModule::roaming_charging_policy_settings(0),
+                Some(RoamingChargingPolicySetting {
+                    policy_next_charging_at_block: 102020,
+                    policy_delay_after_billing_in_blocks: 7,
                 })
             );
 
@@ -617,8 +615,8 @@ mod tests {
             // Verify Storage
             assert_eq!(RoamingDeviceProfileTestModule::roaming_device_profiles_count(), 1);
             assert_eq!(
-                RoamingDeviceProfileTestModule::roaming_device_profile_configs(0),
-                Some(RoamingDeviceProfileConfig {
+                RoamingDeviceProfileTestModule::roaming_device_profile_settings(0),
+                Some(RoamingDeviceProfileSetting {
                     device_profile_devaddr: b"1234".to_vec(),
                     device_profile_deveui: b"5678".to_vec(),
                     device_profile_joineui: b"6789".to_vec(),
