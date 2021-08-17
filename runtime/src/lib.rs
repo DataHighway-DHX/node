@@ -118,6 +118,13 @@ use pallet_transaction_payment::{
     FeeDetails,
     RuntimeDispatchInfo,
 };
+use module_primitives::{
+    types::{
+        AccountIndex,
+        Index,
+        Moment,
+    },
+};
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 #[cfg(any(feature = "std", test))]
@@ -489,6 +496,7 @@ parameter_types! {
 }
 
 impl pallet_timestamp::Config for Runtime {
+    /// A timestamp: milliseconds since the unix epoch.
     type Moment = Moment;
     type OnTimestampSet = Aura;
     type MinimumPeriod = MinimumPeriod;
@@ -511,12 +519,12 @@ parameter_types! {
     // For weight estimation, we assume that the most locks on an individual account will be 50.
     // This number may need to be adjusted in the future if this assumption no longer holds true.
     pub const MaxLocks: u32 = 50;
-	pub const MaxReserves: u32 = 50;
+    pub const MaxReserves: u32 = 50;
 }
 
 impl pallet_balances::Config for Runtime {
     type MaxLocks = MaxLocks;
-	type MaxReserves = MaxReserves;
+    type MaxReserves = MaxReserves;
 	type ReserveIdentifier = [u8; 8];
     type Balance = Balance;
     type DustRemoval = ();

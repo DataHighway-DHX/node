@@ -7,7 +7,12 @@
 
 use std::sync::Arc;
 
-use datahighway_runtime::{opaque::Block, AccountId, Balance, Index};
+use datahighway_runtime::{opaque::Block, AccountId, Balance};
+use module_primitives::{
+	types::{
+        Index,
+    },
+};
 pub use sc_rpc_api::DenyUnsafe;
 use sc_transaction_pool_api::TransactionPool;
 use sp_api::ProvideRuntimeApi;

@@ -187,4 +187,4 @@ std = [
 ]
 
 [build-dependencies]
-substrate-wasm-builder = { version = '4.0.0', package = 'substrate-wasm-builder' }
+substrate-wasm-builder = { git = 'https://github.com/paritytech/substrate', rev = '4d28ebeb8b027ca0227fe7779c5beb70a7b56467', default-features = false, package = 'substrate-wasm-builder' }
