@@ -118,7 +118,7 @@ use pallet_transaction_payment::{
     FeeDetails,
     RuntimeDispatchInfo,
 };
-use module_primitives::{
+pub use module_primitives::{
     types::{
         AccountIndex,
         Index,
