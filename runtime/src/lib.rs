@@ -6,6 +6,7 @@ use codec::{
     Decode,
     Encode,
 };
+use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use pallet_grandpa::{
     fg_primitives,
     AuthorityId as GrandpaId,
@@ -147,7 +148,7 @@ pub mod opaque {
 
 impl_opaque_keys! {
     pub struct SessionKeys {
-        pub babe: Babe,
+        pub aura: Aura,
         pub grandpa: Grandpa,
         pub im_online: ImOnline,
         pub authority_discovery: AuthorityDiscovery,
@@ -240,6 +241,8 @@ const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
 const MAXIMUM_BLOCK_WEIGHT: Weight = 2 * WEIGHT_PER_SECOND;
 
 parameter_types! {
+    pub const Period: BlockNumber = 1;
+    pub const Offset: BlockNumber = 0;
     pub const BlockHashCount: BlockNumber = 2400;
     pub const Version: RuntimeVersion = VERSION;
     pub RuntimeBlockLength: BlockLength =
@@ -334,36 +337,6 @@ impl pallet_scheduler::Config for Runtime {
 }
 
 parameter_types! {
-    pub const EpochDuration: u64 = EPOCH_DURATION_IN_SLOTS;
-    pub const ExpectedBlockTime: Moment = MILLISECS_PER_BLOCK;
-    pub const ReportLongevity: u64 =
-        BondingDuration::get() as u64 * SessionsPerEra::get() as u64 * EpochDuration::get();
-}
-
-impl pallet_babe::Config for Runtime {
-    type EpochDuration = EpochDuration;
-    type ExpectedBlockTime = ExpectedBlockTime;
-    type EpochChangeTrigger = pallet_babe::ExternalTrigger;
-
-    type KeyOwnerProofSystem = Historical;
-
-    type KeyOwnerProof = <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(
-        KeyTypeId,
-        pallet_babe::AuthorityId,
-    )>>::Proof;
-
-    type KeyOwnerIdentification = <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(
-        KeyTypeId,
-        pallet_babe::AuthorityId,
-    )>>::IdentificationTuple;
-
-    type HandleEquivocation =
-        pallet_babe::EquivocationHandler<Self::KeyOwnerIdentification, Offences, ReportLongevity>;
-
-    type WeightInfo = ();
-}
-
-parameter_types! {
     pub const SessionDuration: BlockNumber = EPOCH_DURATION_IN_SLOTS as _;
     pub const ImOnlineUnsignedPriority: TransactionPriority = TransactionPriority::max_value();
     /// We prioritize im-online heartbeats over election solution submission.
@@ -453,6 +426,19 @@ impl pallet_offences::Config for Runtime {
 
 impl pallet_authority_discovery::Config for Runtime {}
 
+impl pallet_aura::Config for Runtime {
+    type AuthorityId = AuraId;
+}
+
+parameter_types! {
+    // NOTE: Currently it is not possible to change the epoch duration after the chain has started.
+    //       Attempting to do so will brick block production.
+    pub const EpochDuration: u64 = EPOCH_DURATION_IN_SLOTS;
+    pub const ExpectedBlockTime: Moment = MILLISECS_PER_BLOCK;
+    pub const ReportLongevity: u64 =
+        BondingDuration::get() as u64 * SessionsPerEra::get() as u64 * EpochDuration::get();
+}
+
 impl pallet_grandpa::Config for Runtime {
     type Event = Event;
     type Call = Call;
@@ -503,7 +489,7 @@ parameter_types! {
 
 impl pallet_timestamp::Config for Runtime {
     type Moment = Moment;
-    type OnTimestampSet = Babe;
+    type OnTimestampSet = Aura;
     type MinimumPeriod = MinimumPeriod;
     type WeightInfo = pallet_timestamp::weights::SubstrateWeight<Runtime>;
 }
@@ -513,7 +499,7 @@ parameter_types! {
 }
 
 impl pallet_authorship::Config for Runtime {
-    type FindAuthor = pallet_session::FindAccountFromAuthorIndex<Self, Babe>;
+    type FindAuthor = pallet_session::FindAccountFromAuthorIndex<Self, Aura>;
     type UncleGenerations = UncleGenerations;
     type FilterUncle = ();
     type EventHandler = (Staking, ImOnline);
@@ -730,8 +716,8 @@ impl pallet_session::Config for Runtime {
     type Event = Event;
     type ValidatorId = <Self as frame_system::Config>::AccountId;
     type ValidatorIdOf = pallet_staking::StashOf<Self>;
-    type ShouldEndSession = Babe;
-    type NextSessionRotation = Babe;
+    type ShouldEndSession = pallet_session::PeriodicSessions<Period, Offset>;
+    type NextSessionRotation = pallet_session::PeriodicSessions<Period, Offset>;
     type SessionManager = pallet_session::historical::NoteHistoricalRoot<Self, Staking>;
     type SessionHandler = <SessionKeys as OpaqueKeys>::KeyTypeIdProviders;
     type Keys = SessionKeys;
@@ -1090,9 +1076,9 @@ construct_runtime!(
         // IMPORTANT: Order is important. Ensure the order matches Substrate's repository
         System: frame_system::{Module, Call, Config, Storage, Event<T>},
         Utility: pallet_utility::{Module, Call, Event},
-        Babe: pallet_babe::{Module, Call, Storage, Config, ValidateUnsigned},
         Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
         Authorship: pallet_authorship::{Module, Call, Storage, Inherent},
+        Aura: pallet_aura::{Module, Config<T>},
         Indices: pallet_indices::{Module, Call, Storage, Config<T>, Event<T>},
         Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
         TransactionPayment: pallet_transaction_payment::{Module, Storage},
@@ -1267,59 +1253,6 @@ impl_runtime_apis! {
         }
     }
 
-	impl sp_consensus_babe::BabeApi<Block> for Runtime {
-        fn configuration() -> sp_consensus_babe::BabeGenesisConfiguration {
-            // The choice of `c` parameter (where `1 - c` represents the
-            // probability of a slot being empty), is done in accordance to the
-            // slot duration and expected target block time, for safely
-            // resisting network delays of maximum two seconds.
-            // <https://research.web3.foundation/en/latest/polkadot/BABE/Babe/#6-practical-results>
-            sp_consensus_babe::BabeGenesisConfiguration {
-                slot_duration: Babe::slot_duration(),
-                epoch_length: EpochDuration::get(),
-                c: PRIMARY_PROBABILITY,
-                genesis_authorities: Babe::authorities(),
-                randomness: Babe::randomness(),
-                allowed_slots: sp_consensus_babe::AllowedSlots::PrimaryAndSecondaryPlainSlots,
-            }
-        }
-
-        fn current_epoch_start() -> sp_consensus_babe::Slot {
-            Babe::current_epoch_start()
-        }
-
-        fn current_epoch() -> sp_consensus_babe::Epoch {
-            Babe::current_epoch()
-        }
-
-        fn next_epoch() -> sp_consensus_babe::Epoch {
-            Babe::next_epoch()
-        }
-
-        fn generate_key_ownership_proof(
-            _slot: sp_consensus_babe::Slot,
-            authority_id: sp_consensus_babe::AuthorityId,
-        ) -> Option<sp_consensus_babe::OpaqueKeyOwnershipProof> {
-            use codec::Encode;
-
-            Historical::prove((sp_consensus_babe::KEY_TYPE, authority_id))
-                .map(|p| p.encode())
-                .map(sp_consensus_babe::OpaqueKeyOwnershipProof::new)
-        }
-
-        fn submit_report_equivocation_unsigned_extrinsic(
-            equivocation_proof: sp_consensus_babe::EquivocationProof<<Block as BlockT>::Header>,
-            key_owner_proof: sp_consensus_babe::OpaqueKeyOwnershipProof,
-        ) -> Option<()> {
-            let key_owner_proof = key_owner_proof.decode()?;
-
-            Babe::submit_unsigned_equivocation_report(
-                equivocation_proof,
-                key_owner_proof,
-            )
-        }
-    }
-
     impl sp_authority_discovery::AuthorityDiscoveryApi<Block> for Runtime {
         fn authorities() -> Vec<AuthorityDiscoveryId> {
             AuthorityDiscovery::authorities()
@@ -1341,6 +1274,16 @@ impl_runtime_apis! {
         }
         fn query_fee_details(uxt: <Block as BlockT>::Extrinsic, len: u32) -> FeeDetails<Balance> {
             TransactionPayment::query_fee_details(uxt, len)
+        }
+    }
+
+    impl sp_consensus_aura::AuraApi<Block, AuraId> for Runtime {
+        fn slot_duration() -> u64 {
+            Aura::slot_duration()
+        }
+
+        fn authorities() -> Vec<AuraId> {
+            Aura::authorities()
         }
     }
 

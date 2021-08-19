@@ -980,6 +980,7 @@ fn mainnet_genesis(
             keys: vec![],
         }),
         pallet_aura: Some(AuraConfig {
+            // empty otherwise `Thread 'main' panicked at 'Authorities are already initialized!`
             authorities: vec![],
         }),
         pallet_grandpa: Some(GrandpaConfig {
