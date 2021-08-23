@@ -92,14 +92,14 @@ jobs:
       - name: Initialize WASM build environment
         run: |
           rustup update stable
-          rustup toolchain install nightly
-          rustup default nightly
-          rustup target add wasm32-unknown-unknown --toolchain nightly
+          rustup toolchain install nightly-2021-06-21
+          rustup default nightly-2021-06-21
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2021-06-21
 
       - name: Run cargo fmt
         run: |
-          rustup component add rustfmt --toolchain nightly
-          cargo fmt --all -- --check
+          rustup component add rustfmt --toolchain nightly-2021-06-21
+          cargo +nightly-2021-06-21 fmt --all -- --check
 
       # Ignore use of Clippy until a clippy.toml file may be used. See README.md
       # - name: Run cargo clippy
