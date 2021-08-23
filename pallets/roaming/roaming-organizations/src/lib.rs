@@ -5,11 +5,11 @@ use codec::{
     Encode,
 };
 use frame_support::{
-    log,
     decl_event,
     decl_module,
     decl_storage,
     ensure,
+    log,
     traits::{
         Currency,
         ExistenceRequirement,
@@ -248,9 +248,7 @@ impl<T: Config> Module<T> {
                 not_network_server_contains_organization,
                 "Network Server already contains the given organization id"
             );
-            log::info!(
-                "Network Server id key exists but its vector value does not contain the given organization id"
-            );
+            log::info!("Network Server id key exists but its vector value does not contain the given organization id");
             <RoamingNetworkServerOrganizations<T>>::mutate(roaming_network_server_id, |v| {
                 if let Some(value) = v {
                     value.push(roaming_organization_id);

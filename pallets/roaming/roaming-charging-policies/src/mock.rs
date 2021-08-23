@@ -1,8 +1,8 @@
 // Creating mock runtime here
 
 use crate::{
-    Module,
     Config,
+    Module,
 };
 
 use frame_support::{
@@ -47,8 +47,8 @@ impl frame_system::Config for Test {
     type AccountId = u64;
     type BaseCallFilter = ();
     type BlockHashCount = BlockHashCount;
-    type BlockNumber = u64;
     type BlockLength = ();
+    type BlockNumber = u64;
     type BlockWeights = ();
     type Call = Call;
     type DbWeight = ();

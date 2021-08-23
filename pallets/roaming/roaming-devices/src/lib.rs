@@ -5,11 +5,11 @@ use codec::{
     Encode,
 };
 use frame_support::{
-    log,
     decl_event,
     decl_module,
     decl_storage,
     ensure,
+    log,
     traits::{
         Currency,
         ExistenceRequirement,
@@ -293,11 +293,7 @@ impl<T: Config> Module<T> {
                     value.push(roaming_device_id);
                 }
             });
-            log::info!(
-                "Associated device {:?} with network server {:?}",
-                roaming_device_id,
-                roaming_network_server_id
-            );
+            log::info!("Associated device {:?} with network server {:?}", roaming_device_id, roaming_network_server_id);
             Ok(())
         } else {
             log::info!(

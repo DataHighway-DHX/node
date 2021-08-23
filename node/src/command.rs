@@ -358,8 +358,8 @@ impl CliConfiguration<Self> for RelayChainCli {
     }
 
     fn init<C: SubstrateCli>(&self) -> Result<()> {
-		unreachable!("PolkadotCli is never initialized; qed");
-	}
+        unreachable!("PolkadotCli is never initialized; qed");
+    }
 
     fn chain_id(&self, is_dev: bool) -> Result<String> {
         let chain_id = self.base.base.chain_id(is_dev)?;

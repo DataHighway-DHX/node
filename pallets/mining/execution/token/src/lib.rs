@@ -5,11 +5,11 @@ use codec::{
     Encode,
 };
 use frame_support::{
-    log,
     decl_event,
     decl_module,
     decl_storage,
     ensure,
+    log,
     traits::{
         Get,
         Randomness,
@@ -32,10 +32,10 @@ use sp_std::prelude::*; // Imports Vec
 // FIXME - remove roaming_operators here, only use this approach since do not know how to use BalanceOf using only
 // mining runtime module
 use mining_claims_token;
-use mining_setting_token;
 use mining_eligibility_token;
 use mining_rates_token;
 use mining_sampling_token;
+use mining_setting_token;
 
 // #[cfg(test)]
 // mod mock;
@@ -390,7 +390,9 @@ impl<T: Config> Module<T> {
             <mining_setting_token::Module<T>>::mining_setting_token_token_settings((mining_setting_token_id))
         {
             if let Some(cooldown_configuration_token) =
-                <mining_setting_token::Module<T>>::mining_setting_token_token_cooldown_configs((mining_setting_token_id))
+                <mining_setting_token::Module<T>>::mining_setting_token_token_cooldown_configs(
+                    (mining_setting_token_id),
+                )
             {
                 if let token_lock_interval_blocks = configuration_token.token_lock_interval_blocks {
                     if let token_lock_min_blocks = cooldown_configuration_token.token_lock_min_blocks {
@@ -427,7 +429,9 @@ impl<T: Config> Module<T> {
             <mining_setting_token::Module<T>>::mining_setting_token_token_settings((mining_setting_token_id))
         {
             if let Some(cooldown_configuration_token) =
-                <mining_setting_token::Module<T>>::mining_setting_token_token_cooldown_configs((mining_setting_token_id))
+                <mining_setting_token::Module<T>>::mining_setting_token_token_cooldown_configs(
+                    (mining_setting_token_id),
+                )
             {
                 if let locked_amount = configuration_token.token_lock_amount {
                     if let lock_min_amount = cooldown_configuration_token.token_lock_min_amount {

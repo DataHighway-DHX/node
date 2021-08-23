@@ -5,11 +5,11 @@ use codec::{
     Encode,
 };
 use frame_support::{
-    log,
     decl_event,
     decl_module,
     decl_storage,
     ensure,
+    log,
     traits::{
         Get,
         Randomness,

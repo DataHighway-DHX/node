@@ -5,11 +5,11 @@ use codec::{
     Encode,
 };
 use frame_support::{
-    log,
     decl_event,
     decl_module,
     decl_storage,
     ensure,
+    log,
     traits::{
         Get,
         Randomness,
@@ -31,9 +31,9 @@ use sp_std::prelude::*; // Imports Vec
 
 // FIXME - remove roaming_operators here, only use this approach since do not know how to use BalanceOf using only
 // mining runtime module
-use mining_setting_hardware;
 use mining_rates_hardware;
 use mining_sampling_hardware;
+use mining_setting_hardware;
 
 #[cfg(test)]
 mod mock;
@@ -539,7 +539,10 @@ impl<T: Config> Module<T> {
                 mining_setting_hardware_id,
                 mining_eligibility_hardware_id
             );
-            <HardwareSettingEligibilities<T>>::insert(mining_setting_hardware_id, &vec![mining_eligibility_hardware_id]);
+            <HardwareSettingEligibilities<T>>::insert(
+                mining_setting_hardware_id,
+                &vec![mining_eligibility_hardware_id],
+            );
             Ok(())
         }
     }

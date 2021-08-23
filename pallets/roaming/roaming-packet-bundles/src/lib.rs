@@ -5,11 +5,11 @@ use codec::{
     Encode,
 };
 use frame_support::{
-    log,
     decl_event,
     decl_module,
     decl_storage,
     ensure,
+    log,
     traits::{
         Currency,
         ExistenceRequirement,
@@ -557,11 +557,7 @@ impl<T: Config> Module<T> {
                     value.push(roaming_packet_bundle_id);
                 }
             });
-            log::info!(
-                "Associated packet bundle {:?} with session {:?}",
-                roaming_packet_bundle_id,
-                roaming_session_id
-            );
+            log::info!("Associated packet bundle {:?} with session {:?}", roaming_packet_bundle_id, roaming_session_id);
             Ok(())
         } else {
             log::info!(

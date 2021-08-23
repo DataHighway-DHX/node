@@ -2,21 +2,21 @@
 
 use account_set::AccountSet;
 use chrono::{
+    Duration,
     NaiveDate,
     NaiveDateTime,
-    Duration,
 };
 use codec::{
     Decode,
     Encode,
 };
 use frame_support::{
-    log,
     decl_error,
     decl_event,
     decl_module,
     decl_storage,
     ensure,
+    log,
     traits::{
         Currency,
         ExistenceRequirement,
@@ -26,8 +26,8 @@ use frame_support::{
     Parameter,
 };
 use frame_system::{
-    ensure_signed,
     ensure_root,
+    ensure_signed,
 };
 use module_primitives::{
     constants::time::MILLISECS_PER_BLOCK,
@@ -56,10 +56,7 @@ use sp_std::{
 
 /// The module's configuration trait.
 pub trait Config:
-    frame_system::Config
-    + pallet_treasury::Config
-    + pallet_balances::Config
-    + pallet_timestamp::Config
+    frame_system::Config + pallet_treasury::Config + pallet_balances::Config + pallet_timestamp::Config
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
     type Currency: Currency<Self::AccountId>;
@@ -630,8 +627,11 @@ impl<T: Config> Module<T> {
 
         if let Some(total_rewards_per_day_retrieved) = <TotalRewardsPerDay<T>>::get(sent_date_millis.clone()) {
             let total_rewards_per_day_retrieved_as_u128 =
-                    TryInto::<u128>::try_into(total_rewards_per_day_retrieved).ok().unwrap();
-            log::info!("Retrieved new total_rewards_per_day_retrieved_as_u128 storage item: {:?}", total_rewards_per_day_retrieved_as_u128.clone());
+                TryInto::<u128>::try_into(total_rewards_per_day_retrieved).ok().unwrap();
+            log::info!(
+                "Retrieved new total_rewards_per_day_retrieved_as_u128 storage item: {:?}",
+                total_rewards_per_day_retrieved_as_u128.clone()
+            );
 
             let sum = total_rewards_per_day_retrieved_as_u128 + proxy_claim_total_reward_amount_as_u128;
             // println!("sum {:#?}", sum);
@@ -661,7 +661,10 @@ impl<T: Config> Module<T> {
         Ok(())
     }
 
-    pub fn is_valid_reward_data(_proxy_claim_total_reward_amount: BalanceOf<T>, _proxy_claim_rewardees_data: Vec<RewardeeData<T>>) -> Result<(), DispatchError> {
+    pub fn is_valid_reward_data(
+        _proxy_claim_total_reward_amount: BalanceOf<T>,
+        _proxy_claim_rewardees_data: Vec<RewardeeData<T>>,
+    ) -> Result<(), DispatchError> {
         ensure!(_proxy_claim_rewardees_data.len() > 0, "Rewardees data is invalid as no elements");
 
         let current_timestamp = <pallet_timestamp::Module<T>>::get();
@@ -696,7 +699,10 @@ impl<T: Config> Module<T> {
                     let claim_duration = proxy_claim_end_date.signed_duration_since(proxy_claim_start_date);
 
                     if proxy_claim_end_date >= current_date {
-                        log::info!("invalid proxy_claim_end_date must be prior to current_date: {:#?}", proxy_claim_end_date);
+                        log::info!(
+                            "invalid proxy_claim_end_date must be prior to current_date: {:#?}",
+                            proxy_claim_end_date
+                        );
                         is_valid = 0;
                         break;
                     } else if claim_duration <= MIN_COOLDOWN_PERIOD_DAYS {
@@ -738,7 +744,10 @@ impl<T: Config> Module<T> {
             TryInto::<u128>::try_into(_proxy_claim_total_reward_amount).ok().unwrap();
         if sum_reward_amounts != _proxy_claim_total_reward_amount_as_u128 {
             is_valid = 0;
-            return Err(DispatchError::Other("Inconsistent data provided as total reward amount requested does not equal sum of all rewardee data claim amounts"));
+            return Err(DispatchError::Other(
+                "Inconsistent data provided as total reward amount requested does not equal sum of all rewardee data \
+                 claim amounts",
+            ));
         }
 
         Ok(())
@@ -895,10 +904,7 @@ impl<T: Config> Module<T> {
         );
 
         log::info!("Insert rewardees {:#?}", proxy_claim_rewardees_data.clone());
-        <MiningEligibilityProxyRewardees<T>>::insert(
-            mining_eligibility_proxy_id,
-            proxy_claim_rewardees_data.clone(),
-        );
+        <MiningEligibilityProxyRewardees<T>>::insert(mining_eligibility_proxy_id, proxy_claim_rewardees_data.clone());
 
         let proxy_claim_timestamp_redeemed_as_u64 =
             TryInto::<u64>::try_into(proxy_claim_timestamp_redeemed).ok().unwrap();

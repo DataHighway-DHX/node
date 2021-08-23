@@ -5,11 +5,11 @@ use codec::{
     Encode,
 };
 use frame_support::{
-    log,
     decl_event,
     decl_module,
     decl_storage,
     ensure,
+    log,
     traits::{
         Get,
         Randomness,
@@ -347,11 +347,7 @@ impl<T: Config> Module<T> {
                     value.push(roaming_device_profile_id);
                 }
             });
-            log::info!(
-                "Associated device_profile {:?} with device {:?}",
-                roaming_device_profile_id,
-                roaming_device_id
-            );
+            log::info!("Associated device_profile {:?} with device {:?}", roaming_device_profile_id, roaming_device_id);
             Ok(())
         } else {
             log::info!(

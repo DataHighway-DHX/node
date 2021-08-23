@@ -5,11 +5,11 @@ use codec::{
     Encode,
 };
 use frame_support::{
-    log,
     decl_event,
     decl_module,
     decl_storage,
     ensure,
+    log,
     traits::{
         Get,
         Randomness,
@@ -317,7 +317,8 @@ impl<T: Config> Module<T> {
         mining_rates_hardware_id: T::MiningRatesHardwareIndex,
     ) -> Result<(), DispatchError> {
         log::info!("Checking if mining_rates_hardware_rates_config has a value that is defined");
-        let fetched_mining_rates_hardware_rates_config = <MiningRatesHardwareSettings<T>>::get(mining_rates_hardware_id);
+        let fetched_mining_rates_hardware_rates_config =
+            <MiningRatesHardwareSettings<T>>::get(mining_rates_hardware_id);
         if let Some(_value) = fetched_mining_rates_hardware_rates_config {
             log::info!("Found value for mining_rates_hardware_rates_config");
             return Ok(());

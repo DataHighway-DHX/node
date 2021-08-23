@@ -5,11 +5,11 @@ use codec::{
     Encode,
 };
 use frame_support::{
-    log,
     decl_event,
     decl_module,
     decl_storage,
     ensure,
+    log,
     traits::{
         Get,
         Randomness,
@@ -309,9 +309,7 @@ impl<T: Config> Module<T> {
         roaming_charging_policy_id: T::RoamingChargingPolicyIndex,
         sender: T::AccountId,
     ) -> Result<(), DispatchError> {
-        log::info!(
-            "Get the charging policy operator id associated with the operator of the given charging policy id"
-        );
+        log::info!("Get the charging policy operator id associated with the operator of the given charging policy id");
         let charging_policy_operator_id = Self::roaming_charging_policy_operator(roaming_charging_policy_id);
 
         if let Some(_charging_policy_operator_id) = charging_policy_operator_id {
@@ -406,11 +404,7 @@ impl<T: Config> Module<T> {
         // Early exit with error since do not want to append if the given operator id already exists as a key,
         // and where its corresponding value is a vector that already contains the given charging policy id
         if let Some(operator_charging_policies) = Self::roaming_operator_charging_policies(roaming_operator_id) {
-            log::info!(
-                "Operator id key {:?} exists with value {:?}",
-                roaming_operator_id,
-                operator_charging_policies
-            );
+            log::info!("Operator id key {:?} exists with value {:?}", roaming_operator_id, operator_charging_policies);
             let not_operator_contains_charging_policy =
                 !operator_charging_policies.contains(&roaming_charging_policy_id);
             ensure!(not_operator_contains_charging_policy, "Operator already contains the given charging policy id");
