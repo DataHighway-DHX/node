@@ -98,6 +98,7 @@ jobs:
 
       - name: Run cargo fmt
         run: |
+          rustup component add rustfmt
           cargo +nightly-2021-06-21 fmt --all -- --check
 
       # Ignore use of Clippy until a clippy.toml file may be used. See README.md
