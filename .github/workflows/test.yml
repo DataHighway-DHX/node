@@ -96,10 +96,11 @@ jobs:
           rustup default nightly-2021-06-21
           rustup target add wasm32-unknown-unknown --toolchain nightly-2021-06-21
 
-      - name: Run cargo fmt
-        run: |
-          rustup component add rustfmt --toolchain nightly-2021-06-21-x86_64-unknown-linux-gnu
-          cargo +nightly-2021-06-21 fmt --all -- --check
+      # Ignore use of Rust Linting since rearranging makes it challenging to update to latest Substrate
+      # - name: Run cargo fmt
+      # run: |
+      #   rustup component add rustfmt --toolchain nightly-2021-06-21-x86_64-unknown-linux-gnu
+      #   cargo +nightly-2021-06-21 fmt --all -- --check
 
       # Ignore use of Clippy until a clippy.toml file may be used. See README.md
       # - name: Run cargo clippy
