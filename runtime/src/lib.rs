@@ -395,17 +395,17 @@ where
 //     type WeightInfo = pallet_im_online::weights::SubstrateWeight<Runtime>;
 // }
 
-parameter_types! {
-    pub OffencesWeightSoftLimit: Weight = Perbill::from_percent(60) *
-        RuntimeBlockWeights::get().max_block;
-}
+// parameter_types! {
+//     pub OffencesWeightSoftLimit: Weight = Perbill::from_percent(60) *
+//         RuntimeBlockWeights::get().max_block;
+// }
 
-impl pallet_offences::Config for Runtime {
-    type Event = Event;
-    type IdentificationTuple = pallet_session::historical::IdentificationTuple<Self>;
-    type OnOffenceHandler = Staking;
-    type WeightSoftLimit = OffencesWeightSoftLimit;
-}
+// impl pallet_offences::Config for Runtime {
+//     type Event = Event;
+//     type IdentificationTuple = pallet_session::historical::IdentificationTuple<Self>;
+//     type OnOffenceHandler = Staking;
+//     type WeightSoftLimit = OffencesWeightSoftLimit;
+// }
 
 impl pallet_aura::Config for Runtime {
     type AuthorityId = AuraId;
@@ -474,16 +474,16 @@ impl pallet_timestamp::Config for Runtime {
     type WeightInfo = ();
 }
 
-parameter_types! {
-    pub const UncleGenerations: BlockNumber = 5;
-}
+// parameter_types! {
+//     pub const UncleGenerations: BlockNumber = 5;
+// }
 
-impl pallet_authorship::Config for Runtime {
-    type FindAuthor = pallet_session::FindAccountFromAuthorIndex<Self, Aura>;
-    type UncleGenerations = UncleGenerations;
-    type FilterUncle = ();
-    type EventHandler = (Staking, ());
-}
+// impl pallet_authorship::Config for Runtime {
+//     type FindAuthor = pallet_session::FindAccountFromAuthorIndex<Self, Aura>;
+//     type UncleGenerations = UncleGenerations;
+//     type FilterUncle = ();
+//     type EventHandler = (Staking, ());
+// }
 
 parameter_types! {
     pub const ExistentialDeposit: Balance = 500;
@@ -694,10 +694,10 @@ parameter_types! {
 impl pallet_session::Config for Runtime {
     type Event = Event;
     type ValidatorId = <Self as frame_system::Config>::AccountId;
-    type ValidatorIdOf = pallet_staking::StashOf<Self>;
+    type ValidatorIdOf = ();
     type ShouldEndSession = pallet_session::PeriodicSessions<Period, Offset>;
     type NextSessionRotation = pallet_session::PeriodicSessions<Period, Offset>;
-    type SessionManager = pallet_session::historical::NoteHistoricalRoot<Self, Staking>;
+    type SessionManager = ();
     type SessionHandler = <SessionKeys as OpaqueKeys>::KeyTypeIdProviders;
     type Keys = SessionKeys;
     type DisabledValidatorsThreshold = DisabledValidatorsThreshold;
@@ -705,71 +705,71 @@ impl pallet_session::Config for Runtime {
 }
 
 impl pallet_session::historical::Config for Runtime {
-    type FullIdentification = pallet_staking::Exposure<AccountId, Balance>;
-    type FullIdentificationOf = pallet_staking::ExposureOf<Runtime>;
+    type FullIdentification = ();
+    type FullIdentificationOf = ();
 }
 
-pallet_staking_reward_curve::build! {
-    const REWARD_CURVE: PiecewiseLinear<'static> = curve!(
-        min_inflation: 0_025_000,
-        max_inflation: 0_100_000,
-        ideal_stake: 0_500_000,
-        falloff: 0_050_000,
-        max_piece_count: 40,
-        test_precision: 0_005_000,
-    );
-}
+// pallet_staking_reward_curve::build! {
+//     const REWARD_CURVE: PiecewiseLinear<'static> = curve!(
+//         min_inflation: 0_025_000,
+//         max_inflation: 0_100_000,
+//         ideal_stake: 0_500_000,
+//         falloff: 0_050_000,
+//         max_piece_count: 40,
+//         test_precision: 0_005_000,
+//     );
+// }
 
-parameter_types! {
-    // 1 hour session, 6 hour era
-    pub const SessionsPerEra: sp_staking::SessionIndex = 6;
-    // 28 eras * 6 hours/era = 7 day bonding duration
-    pub const BondingDuration: pallet_staking::EraIndex = 28;
-    // 27 eras * 6 hours/era = 6.75 day slash duration in which slashes can be cancelled
-    pub const SlashDeferDuration: pallet_staking::EraIndex = 27;
-    pub const RewardCurve: &'static PiecewiseLinear<'static> = &REWARD_CURVE;
-    pub const MaxNominatorRewardedPerValidator: u32 = 256;
-    pub const ElectionLookahead: BlockNumber = EPOCH_DURATION_IN_BLOCKS / 4;
-    pub const MaxIterations: u32 = 10;
-    // 0.05%. The higher the value, the more strict solution acceptance becomes.
-    pub MinSolutionScoreBump: Perbill = Perbill::from_rational_approximation(5u32, 10_000);
-    pub OffchainSolutionWeightLimit: Weight = RuntimeBlockWeights::get()
-        .get(DispatchClass::Normal)
-        .max_extrinsic.expect("Normal extrinsics have a weight limit configured; qed")
-        .saturating_sub(BlockExecutionWeight::get());
-}
+// parameter_types! {
+//     // 1 hour session, 6 hour era
+//     pub const SessionsPerEra: sp_staking::SessionIndex = 6;
+//     // 28 eras * 6 hours/era = 7 day bonding duration
+//     pub const BondingDuration: pallet_staking::EraIndex = 28;
+//     // 27 eras * 6 hours/era = 6.75 day slash duration in which slashes can be cancelled
+//     pub const SlashDeferDuration: pallet_staking::EraIndex = 27;
+//     pub const RewardCurve: &'static PiecewiseLinear<'static> = &REWARD_CURVE;
+//     pub const MaxNominatorRewardedPerValidator: u32 = 256;
+//     pub const ElectionLookahead: BlockNumber = EPOCH_DURATION_IN_BLOCKS / 4;
+//     pub const MaxIterations: u32 = 10;
+//     // 0.05%. The higher the value, the more strict solution acceptance becomes.
+//     pub MinSolutionScoreBump: Perbill = Perbill::from_rational_approximation(5u32, 10_000);
+//     pub OffchainSolutionWeightLimit: Weight = RuntimeBlockWeights::get()
+//         .get(DispatchClass::Normal)
+//         .max_extrinsic.expect("Normal extrinsics have a weight limit configured; qed")
+//         .saturating_sub(BlockExecutionWeight::get());
+// }
 
-impl pallet_staking::Config for Runtime {
-    type Currency = Balances;
-    type UnixTime = Timestamp;
-    type CurrencyToVote = U128CurrencyToVote;
-    type RewardRemainder = Treasury;
-    type Event = Event;
-    type Slash = Treasury; // send the slashed funds to the treasury.
-    type Reward = (); // rewards are minted from the void
-    type SessionsPerEra = SessionsPerEra;
-    type BondingDuration = BondingDuration;
-    type SlashDeferDuration = SlashDeferDuration;
-    /// A super-majority of the council can cancel the slash.
-    type SlashCancelOrigin = EnsureOneOf<
-        AccountId,
-        EnsureRoot<AccountId>,
-        pallet_collective::EnsureProportionAtLeast<_3, _4, AccountId, CouncilCollective>
-    >;
-    type SessionInterface = Self;
-    type RewardCurve = RewardCurve;
-    type NextNewSession = Session;
-    type ElectionLookahead = ElectionLookahead;
-    type Call = Call;
-    type MaxIterations = MaxIterations;
-    type MinSolutionScoreBump = MinSolutionScoreBump;
-    type MaxNominatorRewardedPerValidator = MaxNominatorRewardedPerValidator;
-    type UnsignedPriority = StakingUnsignedPriority;
-    // The unsigned solution weight targeted by the OCW. We set it to the maximum possible value of
-    // a single extrinsic.
-    type OffchainSolutionWeightLimit = OffchainSolutionWeightLimit;
-    type WeightInfo = pallet_staking::weights::SubstrateWeight<Runtime>;
-}
+// impl pallet_staking::Config for Runtime {
+//     type Currency = Balances;
+//     type UnixTime = Timestamp;
+//     type CurrencyToVote = U128CurrencyToVote;
+//     type RewardRemainder = Treasury;
+//     type Event = Event;
+//     type Slash = Treasury; // send the slashed funds to the treasury.
+//     type Reward = (); // rewards are minted from the void
+//     type SessionsPerEra = SessionsPerEra;
+//     type BondingDuration = BondingDuration;
+//     type SlashDeferDuration = SlashDeferDuration;
+//     /// A super-majority of the council can cancel the slash.
+//     type SlashCancelOrigin = EnsureOneOf<
+//         AccountId,
+//         EnsureRoot<AccountId>,
+//         pallet_collective::EnsureProportionAtLeast<_3, _4, AccountId, CouncilCollective>
+//     >;
+//     type SessionInterface = Self;
+//     type RewardCurve = RewardCurve;
+//     type NextNewSession = Session;
+//     type ElectionLookahead = ElectionLookahead;
+//     type Call = Call;
+//     type MaxIterations = MaxIterations;
+//     type MinSolutionScoreBump = MinSolutionScoreBump;
+//     type MaxNominatorRewardedPerValidator = MaxNominatorRewardedPerValidator;
+//     type UnsignedPriority = StakingUnsignedPriority;
+//     // The unsigned solution weight targeted by the OCW. We set it to the maximum possible value of
+//     // a single extrinsic.
+//     type OffchainSolutionWeightLimit = OffchainSolutionWeightLimit;
+//     type WeightInfo = pallet_staking::weights::SubstrateWeight<Runtime>;
+// }
 
 parameter_types! {
     pub const LaunchPeriod: BlockNumber = 28 * 24 * 60 * MINUTES;
@@ -1056,12 +1056,12 @@ construct_runtime!(
         System: frame_system::{Module, Call, Config, Storage, Event<T>},
         Utility: pallet_utility::{Module, Call, Event},
         Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
-        Authorship: pallet_authorship::{Module, Call, Storage, Inherent},
+        // Authorship: pallet_authorship::{Module, Call, Storage, Inherent},
         Aura: pallet_aura::{Module, Config<T>},
         Indices: pallet_indices::{Module, Call, Storage, Config<T>, Event<T>},
         Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
         TransactionPayment: pallet_transaction_payment::{Module, Storage},
-        Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>, ValidateUnsigned},
+        // Staking: pallet_staking::{Module, Call, Config<T>, Storage, Event<T>, ValidateUnsigned},
         Session: pallet_session::{Module, Call, Storage, Event, Config<T>},
         Democracy: pallet_democracy::{Module, Call, Storage, Config, Event<T>},
         Council: pallet_collective::<Instance1>::{Module, Call, Storage, Origin<T>, Event<T>, Config<T>},
@@ -1071,7 +1071,7 @@ construct_runtime!(
         Grandpa: pallet_grandpa::{Module, Call, Storage, Config, Event, ValidateUnsigned},
         Treasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
         Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
-        Offences: pallet_offences::{Module, Call, Storage, Event},
+        // Offences: pallet_offences::{Module, Call, Storage, Event},
         Historical: pallet_session_historical::{Module},
         RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
         Identity: pallet_identity::{Module, Call, Storage, Event<T>},

@@ -19,7 +19,7 @@ use datahighway_runtime::{
     SessionConfig,
     SessionKeys,
     StakerStatus,
-    StakingConfig,
+    // StakingConfig,
     SudoConfig,
     SystemConfig,
     TreasuryConfig,
@@ -129,6 +129,7 @@ pub fn development_config() -> Result<ChainSpec, String> {
 			// Initial NPoS authorities
             vec![
                 get_authority_keys_from_seed("Alice"),
+                get_authority_keys_from_seed("Bob"),
             ],
 			// Sudo account
 			get_account_id_from_seed::<sr25519::Public>("Alice"),
@@ -765,17 +766,17 @@ fn testnet_genesis(
                 .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone())))
                 .collect::<Vec<_>>(),
         }),
-        pallet_staking: Some(StakingConfig {
-            validator_count: initial_authorities.len() as u32 * 2,
-            minimum_validator_count: initial_authorities.len() as u32,
-            stakers: initial_authorities
-                .iter()
-                .map(|x| (x.0.clone(), x.1.clone(), TESTNET_INITIAL_STASH, StakerStatus::Validator))
-                .collect(),
-            invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
-            slash_reward_fraction: Perbill::from_percent(10),
-            ..Default::default()
-        }),
+        // pallet_staking: Some(StakingConfig {
+        //     validator_count: initial_authorities.len() as u32 * 2,
+        //     minimum_validator_count: initial_authorities.len() as u32,
+        //     stakers: initial_authorities
+        //         .iter()
+        //         .map(|x| (x.0.clone(), x.1.clone(), TESTNET_INITIAL_STASH, StakerStatus::Validator))
+        //         .collect(),
+        //     invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
+        //     slash_reward_fraction: Perbill::from_percent(10),
+        //     ..Default::default()
+        // }),
         pallet_democracy: Some(DemocracyConfig::default()),
         pallet_elections_phragmen: Some(ElectionsConfig {
             members: endowed_accounts
@@ -792,10 +793,11 @@ fn testnet_genesis(
 			key: root_key.clone(),
         }),
         pallet_aura: Some(AuraConfig {
-            authorities: vec![],
+            // empty otherwise `Thread 'main' panicked at 'Authorities are already initialized!`
+            authorities: initial_authorities.iter().map(|x| (x.3.clone())).collect(),
         }),
         pallet_grandpa: Some(GrandpaConfig {
-            authorities: vec![],
+            authorities: initial_authorities.iter().map(|x| (x.2.clone(), 1)).collect(),
         }),
         pallet_membership_Instance1: Some(TechnicalMembershipConfig {
             members: vec![root_key.clone()],
@@ -847,17 +849,17 @@ fn mainnet_genesis(
                 .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone())))
                 .collect::<Vec<_>>(),
         }),
-        pallet_staking: Some(StakingConfig {
-            validator_count: initial_authorities.len() as u32 * 2,
-            minimum_validator_count: initial_authorities.len() as u32,
-            stakers: initial_authorities
-                .iter()
-                .map(|x| (x.0.clone(), x.1.clone(), MAINNET_INITIAL_STASH, StakerStatus::Validator))
-                .collect(),
-            invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
-            slash_reward_fraction: Perbill::from_percent(10),
-            ..Default::default()
-        }),
+        // pallet_staking: Some(StakingConfig {
+        //     validator_count: initial_authorities.len() as u32 * 2,
+        //     minimum_validator_count: initial_authorities.len() as u32,
+        //     stakers: initial_authorities
+        //         .iter()
+        //         .map(|x| (x.0.clone(), x.1.clone(), MAINNET_INITIAL_STASH, StakerStatus::Validator))
+        //         .collect(),
+        //     invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
+        //     slash_reward_fraction: Perbill::from_percent(10),
+        //     ..Default::default()
+        // }),
         pallet_democracy: Some(DemocracyConfig::default()),
         pallet_elections_phragmen: Some(ElectionsConfig {
             members: endowed_accounts
@@ -875,10 +877,10 @@ fn mainnet_genesis(
         }),
         pallet_aura: Some(AuraConfig {
             // empty otherwise `Thread 'main' panicked at 'Authorities are already initialized!`
-            authorities: vec![],
+            authorities: initial_authorities.iter().map(|x| (x.3.clone())).collect(),
         }),
         pallet_grandpa: Some(GrandpaConfig {
-            authorities: vec![],
+            authorities: initial_authorities.iter().map(|x| (x.2.clone(), 1)).collect(),
         }),
         pallet_membership_Instance1: Some(TechnicalMembershipConfig {
             members: vec![root_key.clone()],
