@@ -130,7 +130,7 @@ pub fn development_config() -> Result<ChainSpec, String> {
 			wasm_binary,
 			// Initial NPoS authorities
             vec![
-                get_authority_keys_from_seed("Alice")
+                get_authority_keys_from_seed("Alice"),
             ],
 			// Sudo account
 			get_account_id_from_seed::<sr25519::Public>("Alice"),

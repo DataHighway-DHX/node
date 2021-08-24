@@ -155,9 +155,9 @@ impl_opaque_keys! {
     }
 }
 
-/// Implementations of some helper traits passed into runtime modules as associated types.
-pub mod impls;
-pub use impls::Author;
+// /// Implementations of some helper traits passed into runtime modules as associated types.
+// pub mod impls;
+// pub use impls::Author;
 
 pub use module_primitives::{
 	constants::currency::{
@@ -213,58 +213,43 @@ pub fn native_version() -> NativeVersion {
     }
 }
 
-type NegativeImbalance = <Balances as Currency<AccountId>>::NegativeImbalance;
+// type NegativeImbalance = <Balances as Currency<AccountId>>::NegativeImbalance;
 
-pub struct DealWithFees;
-impl OnUnbalanced<NegativeImbalance> for DealWithFees {
-    fn on_unbalanceds<B>(mut fees_then_tips: impl Iterator<Item=NegativeImbalance>) {
-        if let Some(fees) = fees_then_tips.next() {
-            // for fees, 80% to treasury, 20% to author
-            let mut split = fees.ration(80, 20);
-            if let Some(tips) = fees_then_tips.next() {
-                // for tips, if any, 80% to treasury, 20% to author (though this can be anything)
-                tips.ration_merge_into(80, 20, &mut split);
-            }
-            Treasury::on_unbalanced(split.0);
-            Author::on_unbalanced(split.1);
-        }
-    }
-}
+// pub struct DealWithFees;
+// impl OnUnbalanced<NegativeImbalance> for DealWithFees {
+//     fn on_unbalanceds<B>(mut fees_then_tips: impl Iterator<Item=NegativeImbalance>) {
+//         if let Some(fees) = fees_then_tips.next() {
+//             // for fees, 80% to treasury, 20% to author
+//             let mut split = fees.ration(80, 20);
+//             if let Some(tips) = fees_then_tips.next() {
+//                 // for tips, if any, 80% to treasury, 20% to author (though this can be anything)
+//                 tips.ration_merge_into(80, 20, &mut split);
+//             }
+//             Treasury::on_unbalanced(split.0);
+//             Author::on_unbalanced(split.1);
+//         }
+//     }
+// }
 
-/// We assume that ~10% of the block weight is consumed by `on_initialize` handlers.
-/// This is used to limit the maximal weight of a single extrinsic.
-const AVERAGE_ON_INITIALIZE_RATIO: Perbill = Perbill::from_percent(10);
-/// We allow `Normal` extrinsics to fill up the block up to 75%, the rest can be used
-/// by  Operational  extrinsics.
+// /// We assume that ~10% of the block weight is consumed by `on_initialize` handlers.
+// /// This is used to limit the maximal weight of a single extrinsic.
+// const AVERAGE_ON_INITIALIZE_RATIO: Perbill = Perbill::from_percent(10);
+// /// We allow `Normal` extrinsics to fill up the block up to 75%, the rest can be used
+// /// by  Operational  extrinsics.
 const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
-/// We allow for 2 seconds of compute with a 6 second average block time.
-const MAXIMUM_BLOCK_WEIGHT: Weight = 2 * WEIGHT_PER_SECOND;
+// /// We allow for 2 seconds of compute with a 6 second average block time.
+// const MAXIMUM_BLOCK_WEIGHT: Weight = 2 * WEIGHT_PER_SECOND;
 
 parameter_types! {
     pub const Period: BlockNumber = 1;
     pub const Offset: BlockNumber = 0;
     pub const BlockHashCount: BlockNumber = 2400;
     pub const Version: RuntimeVersion = VERSION;
-    pub RuntimeBlockLength: BlockLength =
-        BlockLength::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
-    pub RuntimeBlockWeights: BlockWeights = BlockWeights::builder()
-        .base_block(BlockExecutionWeight::get())
-        .for_class(DispatchClass::all(), |weights| {
-            weights.base_extrinsic = ExtrinsicBaseWeight::get();
-        })
-        .for_class(DispatchClass::Normal, |weights| {
-            weights.max_total = Some(NORMAL_DISPATCH_RATIO * MAXIMUM_BLOCK_WEIGHT);
-        })
-        .for_class(DispatchClass::Operational, |weights| {
-            weights.max_total = Some(MAXIMUM_BLOCK_WEIGHT);
-            // Operational transactions have some extra reserved space, so that they
-            // are included even if block reached `MAXIMUM_BLOCK_WEIGHT`.
-            weights.reserved = Some(
-                MAXIMUM_BLOCK_WEIGHT - NORMAL_DISPATCH_RATIO * MAXIMUM_BLOCK_WEIGHT
-            );
-        })
-        .avg_block_initialization(AVERAGE_ON_INITIALIZE_RATIO)
-        .build_or_panic();
+	/// We allow for 2 seconds of compute with a 6 second average block time.
+	pub RuntimeBlockWeights: frame_system::limits::BlockWeights = frame_system::limits::BlockWeights
+		::with_sensible_defaults(2 * WEIGHT_PER_SECOND, NORMAL_DISPATCH_RATIO);
+	pub RuntimeBlockLength: frame_system::limits::BlockLength = frame_system::limits::BlockLength
+		::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
     pub const SS58Prefix: u8 = 33;
 }
 
@@ -282,7 +267,7 @@ impl frame_system::Config for Runtime {
     type Hash = Hash;
     type Hashing = BlakeTwo256;
     type AccountId = AccountId;
-    type Lookup = Indices;
+    type Lookup = AccountIdLookup<AccountId, ()>;
     type Header = generic::Header<BlockNumber, BlakeTwo256>;
     type Event = Event;
     type BlockHashCount = BlockHashCount;
@@ -291,7 +276,7 @@ impl frame_system::Config for Runtime {
     type AccountData = pallet_balances::AccountData<Balance>;
     type OnNewAccount = ();
     type OnKilledAccount = ();
-    type SystemWeightInfo = frame_system::weights::SubstrateWeight<Runtime>;
+    type SystemWeightInfo = ();
     type SS58Prefix = SS58Prefix;
 }
 
@@ -343,56 +328,56 @@ parameter_types! {
     pub const StakingUnsignedPriority: TransactionPriority = TransactionPriority::max_value() / 2;
 }
 
-impl<LocalCall> frame_system::offchain::CreateSignedTransaction<LocalCall> for Runtime
-    where
-        Call: From<LocalCall>,
-{
-    fn create_transaction<C: frame_system::offchain::AppCrypto<Self::Public, Self::Signature>>(
-        call: Call,
-        public: <Signature as traits::Verify>::Signer,
-        account: AccountId,
-        nonce: Index,
-    ) -> Option<(Call, <UncheckedExtrinsic as traits::Extrinsic>::SignaturePayload)> {
-        let tip = 0;
-        // take the biggest period possible.
-        let period = BlockHashCount::get()
-            .checked_next_power_of_two()
-            .map(|c| c / 2)
-            .unwrap_or(2) as u64;
-        let current_block = System::block_number()
-            .saturated_into::<u64>()
-            // The `System::block_number` is initialized with `n+1`,
-            // so the actual block number is `n`.
-            .saturating_sub(1);
-        let era = Era::mortal(period, current_block);
-        let extra = (
-            frame_system::CheckSpecVersion::<Runtime>::new(),
-            frame_system::CheckTxVersion::<Runtime>::new(),
-            frame_system::CheckGenesis::<Runtime>::new(),
-            frame_system::CheckEra::<Runtime>::from(era),
-            frame_system::CheckNonce::<Runtime>::from(nonce),
-            frame_system::CheckWeight::<Runtime>::new(),
-            pallet_transaction_payment::ChargeTransactionPayment::<Runtime>::from(tip),
-        );
-        let raw_payload = SignedPayload::new(call, extra)
-            .map_err(|e| {
-                debug::warn!("Unable to create signed payload: {:?}", e);
-            })
-            .ok()?;
-        let signature = raw_payload
-            .using_encoded(|payload| {
-                C::sign(payload, public)
-            })?;
-        let address = Indices::unlookup(account);
-        let (call, extra, _) = raw_payload.deconstruct();
-        Some((call, (address, signature.into(), extra)))
-    }
-}
+// impl<LocalCall> frame_system::offchain::CreateSignedTransaction<LocalCall> for Runtime
+//     where
+//         Call: From<LocalCall>,
+// {
+//     fn create_transaction<C: frame_system::offchain::AppCrypto<Self::Public, Self::Signature>>(
+//         call: Call,
+//         public: <Signature as traits::Verify>::Signer,
+//         account: AccountId,
+//         nonce: Index,
+//     ) -> Option<(Call, <UncheckedExtrinsic as traits::Extrinsic>::SignaturePayload)> {
+//         let tip = 0;
+//         // take the biggest period possible.
+//         let period = BlockHashCount::get()
+//             .checked_next_power_of_two()
+//             .map(|c| c / 2)
+//             .unwrap_or(2) as u64;
+//         let current_block = System::block_number()
+//             .saturated_into::<u64>()
+//             // The `System::block_number` is initialized with `n+1`,
+//             // so the actual block number is `n`.
+//             .saturating_sub(1);
+//         let era = Era::mortal(period, current_block);
+//         let extra = (
+//             frame_system::CheckSpecVersion::<Runtime>::new(),
+//             frame_system::CheckTxVersion::<Runtime>::new(),
+//             frame_system::CheckGenesis::<Runtime>::new(),
+//             frame_system::CheckEra::<Runtime>::from(era),
+//             frame_system::CheckNonce::<Runtime>::from(nonce),
+//             frame_system::CheckWeight::<Runtime>::new(),
+//             pallet_transaction_payment::ChargeTransactionPayment::<Runtime>::from(tip),
+//         );
+//         let raw_payload = SignedPayload::new(call, extra)
+//             .map_err(|e| {
+//                 debug::warn!("Unable to create signed payload: {:?}", e);
+//             })
+//             .ok()?;
+//         let signature = raw_payload
+//             .using_encoded(|payload| {
+//                 C::sign(payload, public)
+//             })?;
+//         let address = Indices::unlookup(account);
+//         let (call, extra, _) = raw_payload.deconstruct();
+//         Some((call, (address, signature.into(), extra)))
+//     }
+// }
 
-impl frame_system::offchain::SigningTypes for Runtime {
-	type Public = <Signature as traits::Verify>::Signer;
-	type Signature = Signature;
-}
+// impl frame_system::offchain::SigningTypes for Runtime {
+// 	type Public = <Signature as traits::Verify>::Signer;
+// 	type Signature = Signature;
+// }
 
 impl<C> frame_system::offchain::SendTransactionTypes<C> for Runtime
 where
@@ -430,20 +415,20 @@ impl pallet_aura::Config for Runtime {
     type AuthorityId = AuraId;
 }
 
-parameter_types! {
-    // NOTE: Currently it is not possible to change the epoch duration after the chain has started.
-    //       Attempting to do so will brick block production.
-    pub const EpochDuration: u64 = EPOCH_DURATION_IN_SLOTS;
-    pub const ExpectedBlockTime: Moment = MILLISECS_PER_BLOCK;
-    pub const ReportLongevity: u64 =
-        BondingDuration::get() as u64 * SessionsPerEra::get() as u64 * EpochDuration::get();
-}
+// parameter_types! {
+//     // NOTE: Currently it is not possible to change the epoch duration after the chain has started.
+//     //       Attempting to do so will brick block production.
+//     pub const EpochDuration: u64 = EPOCH_DURATION_IN_SLOTS;
+//     pub const ExpectedBlockTime: Moment = MILLISECS_PER_BLOCK;
+//     pub const ReportLongevity: u64 =
+//         BondingDuration::get() as u64 * SessionsPerEra::get() as u64 * EpochDuration::get();
+// }
 
 impl pallet_grandpa::Config for Runtime {
     type Event = Event;
     type Call = Call;
 
-    type KeyOwnerProofSystem = Historical;
+    type KeyOwnerProofSystem = ();
 
     type KeyOwnerProof =
         <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::Proof;
@@ -453,8 +438,7 @@ impl pallet_grandpa::Config for Runtime {
         GrandpaId,
     )>>::IdentificationTuple;
 
-    type HandleEquivocation =
-        pallet_grandpa::EquivocationHandler<Self::KeyOwnerIdentification, Offences, ReportLongevity>;
+    type HandleEquivocation = ();
 
     type WeightInfo = ();
 }
@@ -488,10 +472,10 @@ parameter_types! {
 }
 
 impl pallet_timestamp::Config for Runtime {
-    type Moment = Moment;
+    type Moment = u64;
     type OnTimestampSet = Aura;
     type MinimumPeriod = MinimumPeriod;
-    type WeightInfo = pallet_timestamp::weights::SubstrateWeight<Runtime>;
+    type WeightInfo = ();
 }
 
 parameter_types! {
@@ -518,23 +502,22 @@ impl pallet_balances::Config for Runtime {
     type DustRemoval = ();
     type Event = Event;
     type ExistentialDeposit = ExistentialDeposit;
-    type AccountStore = frame_system::Module<Runtime>;
+    type AccountStore = System;
     type WeightInfo = pallet_balances::weights::SubstrateWeight<Runtime>;
 }
 
 parameter_types! {
-    pub const TransactionByteFee: Balance = 10 * MILLICENTS;
-    pub const TargetBlockFullness: Perquintill = Perquintill::from_percent(25);
-    pub AdjustmentVariable: Multiplier = Multiplier::saturating_from_rational(1, 100_000);
-    pub MinimumMultiplier: Multiplier = Multiplier::saturating_from_rational(1, 1_000_000_000u128);
+    pub const TransactionByteFee: Balance = 1;
+    // pub const TargetBlockFullness: Perquintill = Perquintill::from_percent(25);
+    // pub AdjustmentVariable: Multiplier = Multiplier::saturating_from_rational(1, 100_000);
+    // pub MinimumMultiplier: Multiplier = Multiplier::saturating_from_rational(1, 1_000_000_000u128);
 }
 
 impl pallet_transaction_payment::Config for Runtime {
-    type OnChargeTransaction = CurrencyAdapter<Balances, DealWithFees>;
+    type OnChargeTransaction = CurrencyAdapter<Balances, ()>;
     type TransactionByteFee = TransactionByteFee;
     type WeightToFee = IdentityFee<Balance>;
-    type FeeMultiplierUpdate =
-        TargetedFeeAdjustment<Self, TargetBlockFullness, AdjustmentVariable, MinimumMultiplier>;
+    type FeeMultiplierUpdate = ();
 }
 
 impl pallet_sudo::Config for Runtime {
@@ -1135,7 +1118,7 @@ construct_runtime!(
 );
 
 /// The address format for describing accounts.
-pub type Address = sp_runtime::MultiAddress<AccountId, AccountIndex>;
+pub type Address = sp_runtime::MultiAddress<AccountId, ()>;
 /// Block header type as expected by this runtime.
 pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
 /// Block type as expected by this runtime.
@@ -1156,8 +1139,8 @@ pub type SignedExtra = (
 );
 /// Unchecked extrinsic type as expected by this runtime.
 pub type UncheckedExtrinsic = generic::UncheckedExtrinsic<Address, Call, Signature, SignedExtra>;
-/// The payload being signed in transactions.
-pub type SignedPayload = generic::SignedPayload<Call, SignedExtra>;
+// /// The payload being signed in transactions.
+// pub type SignedPayload = generic::SignedPayload<Call, SignedExtra>;
 /// Extrinsic type that has already been checked.
 pub type CheckedExtrinsic = generic::CheckedExtrinsic<AccountId, Call, SignedExtra>;
 /// Executive: handles dispatch to the various modules.
