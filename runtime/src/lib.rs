@@ -150,8 +150,6 @@ impl_opaque_keys! {
     pub struct SessionKeys {
         pub aura: Aura,
         pub grandpa: Grandpa,
-        pub im_online: ImOnline,
-        pub authority_discovery: AuthorityDiscovery,
     }
 }
 
@@ -322,8 +320,8 @@ impl pallet_scheduler::Config for Runtime {
 }
 
 parameter_types! {
-    pub const SessionDuration: BlockNumber = EPOCH_DURATION_IN_SLOTS as _;
-    pub const ImOnlineUnsignedPriority: TransactionPriority = TransactionPriority::max_value();
+    // pub const SessionDuration: BlockNumber = EPOCH_DURATION_IN_SLOTS as _;
+    // pub const ImOnlineUnsignedPriority: TransactionPriority = TransactionPriority::max_value();
     /// We prioritize im-online heartbeats over election solution submission.
     pub const StakingUnsignedPriority: TransactionPriority = TransactionPriority::max_value() / 2;
 }
@@ -387,15 +385,15 @@ where
     type OverarchingCall = Call;
 }
 
-impl pallet_im_online::Config for Runtime {
-    type AuthorityId = ImOnlineId;
-    type Event = Event;
-    type ValidatorSet = Historical;
-    type SessionDuration = SessionDuration;
-    type ReportUnresponsiveness = Offences;
-    type UnsignedPriority = ImOnlineUnsignedPriority;
-    type WeightInfo = pallet_im_online::weights::SubstrateWeight<Runtime>;
-}
+// impl pallet_im_online::Config for Runtime {
+//     type AuthorityId = ImOnlineId;
+//     type Event = Event;
+//     type ValidatorSet = Historical;
+//     type SessionDuration = SessionDuration;
+//     type ReportUnresponsiveness = Offences;
+//     type UnsignedPriority = ImOnlineUnsignedPriority;
+//     type WeightInfo = pallet_im_online::weights::SubstrateWeight<Runtime>;
+// }
 
 parameter_types! {
     pub OffencesWeightSoftLimit: Weight = Perbill::from_percent(60) *
@@ -408,8 +406,6 @@ impl pallet_offences::Config for Runtime {
     type OnOffenceHandler = Staking;
     type WeightSoftLimit = OffencesWeightSoftLimit;
 }
-
-impl pallet_authority_discovery::Config for Runtime {}
 
 impl pallet_aura::Config for Runtime {
     type AuthorityId = AuraId;
@@ -486,7 +482,7 @@ impl pallet_authorship::Config for Runtime {
     type FindAuthor = pallet_session::FindAccountFromAuthorIndex<Self, Aura>;
     type UncleGenerations = UncleGenerations;
     type FilterUncle = ();
-    type EventHandler = (Staking, ImOnline);
+    type EventHandler = (Staking, ());
 }
 
 parameter_types! {
@@ -1075,8 +1071,6 @@ construct_runtime!(
         Grandpa: pallet_grandpa::{Module, Call, Storage, Config, Event, ValidateUnsigned},
         Treasury: pallet_treasury::{Module, Call, Storage, Config, Event<T>},
         Sudo: pallet_sudo::{Module, Call, Config<T>, Storage, Event<T>},
-        ImOnline: pallet_im_online::{Module, Call, Storage, Event<T>, ValidateUnsigned, Config<T>},
-        AuthorityDiscovery: pallet_authority_discovery::{Module, Call, Config},
         Offences: pallet_offences::{Module, Call, Storage, Event},
         Historical: pallet_session_historical::{Module},
         RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
@@ -1233,12 +1227,6 @@ impl_runtime_apis! {
             Historical::prove((fg_primitives::KEY_TYPE, authority_id))
                 .map(|p| p.encode())
                 .map(fg_primitives::OpaqueKeyOwnershipProof::new)
-        }
-    }
-
-    impl sp_authority_discovery::AuthorityDiscoveryApi<Block> for Runtime {
-        fn authorities() -> Vec<AuthorityDiscoveryId> {
-            AuthorityDiscovery::authorities()
         }
     }
 
