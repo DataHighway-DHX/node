@@ -1,6 +1,13 @@
 {
   "Date": "i64",
-  "AccountInfo": "AccountInfoWithDualRefCount",
+  "AccountInfo": "AccountInfoWithTripleRefCount",
+  "AccountInfoWithTripleRefCount": {
+    "nonce": "Index",
+    "consumers": "RefCount",
+    "providers": "RefCount",
+    "sufficients": "RefCount",
+    "data": "AccountData"
+  },
   "Keys": "SessionKeys2",
   "Address": "MultiAddress",
   "LookupSource": "MultiAddress",
