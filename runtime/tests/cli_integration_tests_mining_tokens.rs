@@ -54,7 +54,7 @@ mod tests {
     use chrono::NaiveDate;
     use datahighway_runtime::{
         AccountId,
-        Babe,
+        Aura,
         Balance,
         BlockNumber,
         Moment,
@@ -171,7 +171,7 @@ mod tests {
         type MinimumPeriod = MinimumPeriod;
         /// A timestamp: milliseconds since the unix epoch.
         type Moment = Moment;
-        type OnTimestampSet = Babe;
+        type OnTimestampSet = Aura;
         type WeightInfo = ();
     }
     parameter_types! {

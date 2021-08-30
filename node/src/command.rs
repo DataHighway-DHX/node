@@ -1,6 +1,6 @@
 // This file is part of Substrate.
 
-// Copyright (C) 2017-2020 Parity Technologies (UK) Ltd.
+// Copyright (C) 2017-2021 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use datahighway_runtime;
-use datahighway_runtime::{
-    opaque::{
-        Block,
-    },
-};
 use crate::{
     chain_spec,
     cli::{
@@ -29,7 +23,12 @@ use crate::{
     },
     service,
 };
-
+use datahighway_runtime;
+use datahighway_runtime::{
+    opaque::{
+        Block,
+    },
+};
 use sc_cli::{
     ChainSpec,
     Role,
