@@ -472,7 +472,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                     hex!["ceecb6cc08c20ff44052ff19952a810d08363aa26ea4fb0a64a62a4630d37f28"].into(),
                     hex!["7652b25328d78d264aef01184202c9771b55f5b391359309a2559ef77fbbb33d"].into(),
                     hex!["b8902681768fbda7a29666e1de8a18f5be3c778d92cf29139959a86e6bff13e7"].into(),
-                    hex!["b8902681768fbda7a29666e1de8a18f5be3c778d92cf29139959a86e6bff13e7"].into(),
+                    hex!["367c0c647c9c417de992cfa762758e237bea5ff61653c69d29bd924ad6c4476e"].into(),
                     hex!["2003bccdbc7d1016ee647856b6cf178fbb9a0f36d841dc9483a39f63cd912e0e"].into(),
                     hex!["bc2e58bf62bc0f49a6a324cd93920f01619a8917d3d9c960f4201cb6cf11721b"].into(),
 
@@ -480,7 +480,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                     hex!["68bac5586028dd40db59a7becec349b42cd4229f9d3c31875c3eb7a57241cd42"].into(),
                     hex!["eec96d02877a45fa524fcee1c6b7c849cbdc8cee01a95f5db168c427ae766849"].into(),
                     hex!["f4807d86cca169a81d42fcf9c7abddeff107b0a73e9e7a809257ac7e4a164741"].into(),
-                    hex!["f4807d86cca169a81d42fcf9c7abddeff107b0a73e9e7a809257ac7e4a164741"].into(),
+                    hex!["9a861c7c72bdf2105766e90376069a4f3237c6722fdcf27ca4bb37d0fc22be5d"].into(),
                     hex!["a6e8669d0916754c654f1adb57d7b28a8f1a7a58794f9bdd4334135458cbab5c"].into(),
                     hex!["06140939946d86bd67d4fc3ab8eee4a9bddd669cd464ace4f5256aa4d9469e19"].into(),
 
@@ -488,7 +488,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                     hex!["181319cac9b915a33586196cb1ed64b7f37f9d50ae9f5c04b0d92ecdb342cd0a"].into(),
                     hex!["80c17c61a1f2f6252b23677510cbd0c3f3ad1ad8694dba9170e98ab430100a7f"].into(),
                     hex!["a240fbd4575d03b4c62e2d2d546327e393db5fc508bc92203fba354a3232f006"].into(),
-                    hex!["a240fbd4575d03b4c62e2d2d546327e393db5fc508bc92203fba354a3232f006"].into(),
+                    hex!["b49084ae7915090d935213fb9468c123b3c86fafa978096324fe65e1c430f364"].into(),
                     hex!["5209213d7d09853295062d63199cb272888a678a4a2bc52aefd62248b6ff9c02"].into(),
                     hex!["ae641bd93c58d5235054b3a498794b1d18213b9818b7c12eaec596dcb283235f"].into(),
 
