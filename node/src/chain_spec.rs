@@ -16,6 +16,7 @@ use datahighway_runtime::{
     GrandpaConfig,
     ImOnlineConfig,
     IndicesConfig,
+    MiningRewardsAllowance,
     SessionConfig,
     SessionKeys,
     StakerStatus,
@@ -915,6 +916,10 @@ fn testnet_genesis(
         grandpa: GrandpaConfig {
             authorities: vec![],
         },
+        mining_rewards_allowance: MiningRewardsAllowanceConfig {
+            rewards_allowance_dhx_current: 5_000_000_000_000_000_000_000u128,
+            rewards_allowance_dhx_for_date: Default::default(),
+        },
         // pallet_membership_Instance1
         technical_membership: TechnicalMembershipConfig {
             members: vec![root_key.clone()],
@@ -1006,6 +1011,10 @@ fn mainnet_genesis(
 		},
         grandpa: GrandpaConfig {
             authorities: vec![],
+        },
+        mining_rewards_allowance: MiningRewardsAllowanceConfig {
+            rewards_allowance_dhx_current: 5_000_000_000_000_000_000_000u128,
+            rewards_allowance_dhx_for_date: Default::default(),
         },
         // pallet_membership_Instance1
         technical_membership: TechnicalMembershipConfig {

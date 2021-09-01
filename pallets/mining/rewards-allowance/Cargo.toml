@@ -1,0 +1,43 @@
+[package]
+name = "mining-rewards-allowance"
+version = "3.0.6"
+authors = ["Luke Schoen"]
+edition = "2018"
+
+[package.metadata.docs.rs]
+targets = ['x86_64-unknown-linux-gnu']
+
+[features]
+default = ['std']
+std = [
+    'chrono/std',
+    'log/std',
+    'codec/std',
+    'serde/std',
+    'frame-support/std',
+    'frame-system/std',
+    'pallet-balances/std',
+    'pallet-timestamp/std',
+    # 'pallet-transaction-payment/std',
+    'sp-core/std',
+    'sp-io/std',
+    'sp-runtime/std',
+    'sp-std/std',
+]
+
+[dependencies]
+chrono = { version = '0.4.19', default_features = false }
+log = { version = '0.4.14', default-features = false }
+codec = { version = '2.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive', 'max-encoded-len'] }
+frame-support = { git = 'https://github.com/paritytech/substrate', rev = 'b7a1a2cda5c860f18a7802051e881c5062828042', default-features = false }
+frame-system = { git = 'https://github.com/paritytech/substrate', rev = 'b7a1a2cda5c860f18a7802051e881c5062828042', default-features = false }
+pallet-balances = { git = 'https://github.com/paritytech/substrate', rev = 'b7a1a2cda5c860f18a7802051e881c5062828042', default-features = false }
+pallet-timestamp = { git = 'https://github.com/paritytech/substrate', rev = 'b7a1a2cda5c860f18a7802051e881c5062828042', default_features = false }
+# pallet-transaction-payment = { git = 'https://github.com/paritytech/substrate', rev = 'b7a1a2cda5c860f18a7802051e881c5062828042', default-features = false }
+sp-std = { git = 'https://github.com/paritytech/substrate', rev = 'b7a1a2cda5c860f18a7802051e881c5062828042', default-features = false }
+
+[dev-dependencies]
+serde = { version = '1.0.126', features = ['derive'] }
+sp-core = { git = 'https://github.com/paritytech/substrate', rev = 'b7a1a2cda5c860f18a7802051e881c5062828042', default-features = false }
+sp-io = { git = 'https://github.com/paritytech/substrate', rev = 'b7a1a2cda5c860f18a7802051e881c5062828042', default-features = false }
+sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = 'b7a1a2cda5c860f18a7802051e881c5062828042', default-features = false }
