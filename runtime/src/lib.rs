@@ -436,6 +436,7 @@ impl pallet_authority_discovery::Config for Runtime {}
 
 impl pallet_aura::Config for Runtime {
 	type AuthorityId = AuraId;
+    type DisabledValidators = ();
 }
 
 parameter_types! {
