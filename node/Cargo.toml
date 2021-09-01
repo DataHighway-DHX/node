@@ -62,6 +62,8 @@ sc-network = { git = 'https://github.com/paritytech/substrate', rev = '852bab073
 sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6' }
 sp-timestamp = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6' }
 sp-authorship = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6' }
+sp-transaction-pool = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6' }
+sp-transaction-storage-proof = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6' }
 sc-consensus-uncles = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6' }
 sc-telemetry = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6' }
 substrate-frame-rpc-system = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6' }

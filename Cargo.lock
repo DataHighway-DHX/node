@@ -1188,6 +1188,8 @@ dependencies = [
  "sp-keystore",
  "sp-runtime",
  "sp-timestamp",
+ "sp-transaction-pool",
+ "sp-transaction-storage-proof",
  "structopt",
  "substrate-build-script-utils",
  "substrate-frame-rpc-system",

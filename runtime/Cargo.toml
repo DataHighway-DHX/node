@@ -59,7 +59,7 @@ pallet-multisig = { git = 'https://github.com/paritytech/substrate', rev = '852b
 pallet-offences = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
 pallet-randomness-collective-flip = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
 pallet-scheduler = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
-pallet-session = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
+pallet-session = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false, features = ['historical'] }
 pallet-staking = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
 pallet-staking-reward-curve = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
 pallet-sudo = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
@@ -105,6 +105,7 @@ exchange-rate = { default-features = false, package = 'exchange-rate', path = '.
 
 [features]
 default = ['std']
+with-tracing = ['frame-executive/with-tracing']
 std = [
     'chrono/std',
     'codec/std',

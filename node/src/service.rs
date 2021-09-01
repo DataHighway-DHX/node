@@ -8,6 +8,7 @@ use sc_finality_grandpa::SharedVoterState;
 use sc_keystore::LocalKeystore;
 use sc_service::{error::Error as ServiceError, Configuration, TaskManager};
 use sc_telemetry::{Telemetry, TelemetryWorker};
+use sp_runtime::traits::Block as BlockT;
 use sp_consensus::SlotData;
 use sp_consensus_aura::sr25519::AuthorityPair as AuraPair;
 use std::{sync::Arc, time::Duration};
@@ -120,8 +121,12 @@ pub fn new_partial(
 						slot_duration,
 					);
 
-				Ok((timestamp, slot))
+                                let uncles =
+                                        sp_authorship::InherentDataProvider::<<Block as BlockT>::Header>::check_inherents();
+
+                                Ok((timestamp, slot, uncles))
 			},
+
 			spawner: &task_manager.spawn_essential_handle(),
 			can_author_with: sp_consensus::CanAuthorWithNativeVersion::new(
 				client.executor().clone(),
@@ -250,6 +255,7 @@ pub fn new_full(mut config: Configuration) -> Result<TaskManager, ServiceError> 
 		let slot_duration = sc_consensus_aura::slot_duration(&*client)?;
 		let raw_slot_duration = slot_duration.slot_duration();
 
+                let client_clone = client.clone();
 		let aura = sc_consensus_aura::start_aura::<AuraPair, _, _, _, _, _, _, _, _, _, _, _>(
 			StartAuraParams {
 				slot_duration,
@@ -257,16 +263,30 @@ pub fn new_full(mut config: Configuration) -> Result<TaskManager, ServiceError> 
 				select_chain,
 				block_import,
 				proposer_factory,
-				create_inherent_data_providers: move |_, ()| async move {
-					let timestamp = sp_timestamp::InherentDataProvider::from_system_time();
+				create_inherent_data_providers: move |parent, ()| {
+                                        let client_clone = client_clone.clone();
+                                        async move {
+                                                let uncles = sc_consensus_uncles::create_uncles_inherent_data_provider(
+                                                        &*client_clone,
+                                                        parent,
+                                                )?;
 
-					let slot =
-						sp_consensus_aura::inherents::InherentDataProvider::from_timestamp_and_duration(
-							*timestamp,
-							raw_slot_duration,
-						);
+                                                let timestamp = sp_timestamp::InherentDataProvider::from_system_time();
 
-					Ok((timestamp, slot))
+                                                let slot =
+                                                        sp_consensus_aura::inherents::InherentDataProvider::from_timestamp_and_duration(
+                                                                *timestamp,
+                                                                raw_slot_duration,
+                                                        );
+
+                                                let storage_proof =
+                                                        sp_transaction_storage_proof::registration::new_data_provider(
+                                                                &*client_clone,
+                                                                &parent,
+                                                        )?;
+
+                                                Ok((timestamp, slot, uncles, storage_proof))
+                                        }
 				},
 				force_authoring,
 				backoff_authoring_blocks,
@@ -396,7 +416,10 @@ pub fn new_light(mut config: Configuration) -> Result<TaskManager, ServiceError>
 						slot_duration,
 					);
 
-				Ok((timestamp, slot))
+                                let uncles =
+                                        sp_authorship::InherentDataProvider::<<Block as BlockT>::Header>::check_inherents();
+
+                                Ok((timestamp, slot, uncles))
 			},
 			spawner: &task_manager.spawn_essential_handle(),
 			can_author_with: sp_consensus::NeverCanAuthor,
