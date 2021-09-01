@@ -775,7 +775,7 @@ parameter_types! {
 
 use frame_election_provider_support::onchain;
 impl pallet_staking::Config for Runtime {
-	const MAX_NOMINATIONS: u32 = MAX_NOMINATIONS;
+    const MAX_NOMINATIONS: u32 = MAX_NOMINATIONS;
     type Currency = Balances;
     type UnixTime = Timestamp;
     type CurrencyToVote = U128CurrencyToVote;
@@ -1318,9 +1318,9 @@ impl_runtime_apis! {
             Grandpa::grandpa_authorities()
         }
 
-		fn current_set_id() -> fg_primitives::SetId {
-			Grandpa::current_set_id()
-		}
+        fn current_set_id() -> fg_primitives::SetId {
+            Grandpa::current_set_id()
+        }
 
         fn submit_report_equivocation_unsigned_extrinsic(
             equivocation_proof: fg_primitives::EquivocationProof<
