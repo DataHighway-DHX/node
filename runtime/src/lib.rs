@@ -278,7 +278,7 @@ parameter_types! {
 // Configure FRAME pallets to include in runtime.
 
 impl frame_system::Config for Runtime {
-    type BaseCallFilter = frame_support::traits::AllowAll;
+    type BaseCallFilter = frame_support::traits::Everything;
     type BlockWeights = RuntimeBlockWeights;
     type BlockLength = RuntimeBlockLength;
     type DbWeight = RocksDbWeight;
@@ -772,8 +772,7 @@ parameter_types! {
 
 use frame_election_provider_support::onchain;
 impl pallet_staking::Config for Runtime {
-	const MAX_NOMINATIONS: u32 =
-		<NposCompactSolution16 as sp_npos_elections::CompactSolution>::LIMIT as u32;
+	const MAX_NOMINATIONS: u32 = MAX_NOMINATIONS;
     type Currency = Balances;
     type UnixTime = Timestamp;
     type CurrencyToVote = U128CurrencyToVote;
@@ -832,7 +831,7 @@ parameter_types! {
 
 sp_npos_elections::generate_solution_type!(
 	#[compact]
-	pub struct NposCompactSolution16::<
+	pub struct NposSolution16::<
 		VoterIndex = u32,
 		TargetIndex = u16,
 		Accuracy = sp_runtime::PerU16,
@@ -840,7 +839,7 @@ sp_npos_elections::generate_solution_type!(
 );
 
 pub const MAX_NOMINATIONS: u32 =
-	<NposCompactSolution16 as sp_npos_elections::CompactSolution>::LIMIT as u32;
+	<NposSolution16 as sp_npos_elections::NposSolution>::LIMIT as u32;
 
 /// The numbers configured here should always be more than the the maximum limits of staking pallet
 /// to ensure election snapshot will not run out of memory.
@@ -877,7 +876,7 @@ impl pallet_election_provider_multi_phase::Config for Runtime {
 	type RewardHandler = (); // nothing to do upon rewards
 	type DataProvider = Staking;
 	type OnChainAccuracy = Perbill;
-	type CompactSolution = NposCompactSolution16;
+	type Solution = NposSolution16;
 	type Fallback = Fallback;
 	type WeightInfo = pallet_election_provider_multi_phase::weights::SubstrateWeight<Runtime>;
 	type ForceOrigin = EnsureRootOrHalfCouncil;
