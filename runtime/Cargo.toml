@@ -11,10 +11,10 @@ targets = ['x86_64-unknown-linux-gnu']
 
 # third-party dependencies
 static_assertions = '1.1.0'
-codec = { version = '2.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive', 'max-encoded-len'] }
 chrono = { version = '0.4.19', default_features = false }
 log = { version = '0.4.14', default-features = false }
 serde = { version = '1.0.126', optional = true, features = ['derive'] }
+codec = { version = '2.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive', 'max-encoded-len'] }
 
 # primitives
 sp-authority-discovery = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
@@ -107,10 +107,10 @@ exchange-rate = { default-features = false, package = 'exchange-rate', path = '.
 [features]
 default = ['std']
 std = [
+    'serde',
     'chrono/std',
     'codec/std',
     'log/std',
-    'serde',
     'sp-api/std',
     'sp-authority-discovery/std',
     'sp-block-builder/std',

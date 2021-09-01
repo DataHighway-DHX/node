@@ -16,7 +16,7 @@ use datahighway_runtime::{
     GrandpaConfig,
     ImOnlineConfig,
     IndicesConfig,
-    MiningRewardsAllowance,
+    MiningRewardsAllowanceConfig,
     SessionConfig,
     SessionKeys,
     StakerStatus,

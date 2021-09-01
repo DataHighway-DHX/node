@@ -1215,6 +1215,7 @@ dependencies = [
  "mining-execution-token",
  "mining-rates-hardware",
  "mining-rates-token",
+ "mining-rewards-allowance",
  "mining-sampling-hardware",
  "mining-sampling-token",
  "mining-setting-hardware",
@@ -3685,6 +3686,24 @@ dependencies = [
  "parity-scale-codec",
  "roaming-operators",
  "safe-mix",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "mining-rewards-allowance"
+version = "3.0.6"
+dependencies = [
+ "chrono",
+ "frame-support",
+ "frame-system",
+ "log",
+ "pallet-balances",
+ "pallet-timestamp",
+ "parity-scale-codec",
  "serde",
  "sp-core",
  "sp-io",
