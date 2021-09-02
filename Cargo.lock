@@ -1170,7 +1170,6 @@ dependencies = [
  "sc-rpc",
  "sc-rpc-api",
  "sc-service",
- "sc-sync-state-rpc",
  "sc-telemetry",
  "sc-transaction-pool",
  "sc-transaction-pool-api",
@@ -6299,49 +6298,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sc-consensus-babe"
-version = "0.10.0-dev"
-source = "git+https://github.com/paritytech/substrate?rev=852bab073407b65b5e3e461baaa0541c4e0bc3d6#852bab073407b65b5e3e461baaa0541c4e0bc3d6"
-dependencies = [
- "async-trait",
- "derive_more",
- "fork-tree",
- "futures 0.3.17",
- "log",
- "merlin",
- "num-bigint",
- "num-rational 0.2.4",
- "num-traits",
- "parity-scale-codec",
- "parking_lot 0.11.2",
- "rand 0.7.3",
- "retain_mut",
- "sc-client-api",
- "sc-consensus",
- "sc-consensus-epochs",
- "sc-consensus-slots",
- "sc-keystore",
- "sc-telemetry",
- "schnorrkel",
- "serde",
- "sp-api",
- "sp-application-crypto",
- "sp-block-builder",
- "sp-blockchain",
- "sp-consensus",
- "sp-consensus-babe",
- "sp-consensus-slots",
- "sp-consensus-vrf",
- "sp-core",
- "sp-inherents",
- "sp-io",
- "sp-keystore",
- "sp-runtime",
- "sp-version",
- "substrate-prometheus-endpoint",
-]
-
-[[package]]
 name = "sc-consensus-epochs"
 version = "0.10.0-dev"
 source = "git+https://github.com/paritytech/substrate?rev=852bab073407b65b5e3e461baaa0541c4e0bc3d6#852bab073407b65b5e3e461baaa0541c4e0bc3d6"
@@ -6820,28 +6776,6 @@ dependencies = [
  "parking_lot 0.11.2",
  "sc-client-api",
  "sp-core",
-]
-
-[[package]]
-name = "sc-sync-state-rpc"
-version = "0.10.0-dev"
-source = "git+https://github.com/paritytech/substrate?rev=852bab073407b65b5e3e461baaa0541c4e0bc3d6#852bab073407b65b5e3e461baaa0541c4e0bc3d6"
-dependencies = [
- "jsonrpc-core",
- "jsonrpc-core-client",
- "jsonrpc-derive",
- "parity-scale-codec",
- "sc-chain-spec",
- "sc-client-api",
- "sc-consensus-babe",
- "sc-consensus-epochs",
- "sc-finality-grandpa",
- "sc-rpc-api",
- "serde",
- "serde_json",
- "sp-blockchain",
- "sp-runtime",
- "thiserror",
 ]
 
 [[package]]
@@ -7474,28 +7408,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sp-consensus-babe"
-version = "0.10.0-dev"
-source = "git+https://github.com/paritytech/substrate?rev=852bab073407b65b5e3e461baaa0541c4e0bc3d6#852bab073407b65b5e3e461baaa0541c4e0bc3d6"
-dependencies = [
- "async-trait",
- "merlin",
- "parity-scale-codec",
- "serde",
- "sp-api",
- "sp-application-crypto",
- "sp-consensus",
- "sp-consensus-slots",
- "sp-consensus-vrf",
- "sp-core",
- "sp-inherents",
- "sp-keystore",
- "sp-runtime",
- "sp-std",
- "sp-timestamp",
-]
-
-[[package]]
 name = "sp-consensus-slots"
 version = "0.10.0-dev"
 source = "git+https://github.com/paritytech/substrate?rev=852bab073407b65b5e3e461baaa0541c4e0bc3d6#852bab073407b65b5e3e461baaa0541c4e0bc3d6"
@@ -7503,18 +7415,6 @@ dependencies = [
  "parity-scale-codec",
  "sp-arithmetic",
  "sp-runtime",
-]
-
-[[package]]
-name = "sp-consensus-vrf"
-version = "0.10.0-dev"
-source = "git+https://github.com/paritytech/substrate?rev=852bab073407b65b5e3e461baaa0541c4e0bc3d6#852bab073407b65b5e3e461baaa0541c4e0bc3d6"
-dependencies = [
- "parity-scale-codec",
- "schnorrkel",
- "sp-core",
- "sp-runtime",
- "sp-std",
 ]
 
 [[package]]

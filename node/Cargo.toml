@@ -46,7 +46,6 @@ sc-executor = { features = ['wasmtime'], git = 'https://github.com/paritytech/su
 sc-rpc = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6' }
 sc-rpc-api = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6' }
 sc-service = {  git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false, features = ['wasmtime'] }
-sc-sync-state-rpc = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6' }
 sc-transaction-pool = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6' }
 sc-transaction-pool-api = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6' }
 sp-api = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6' }
