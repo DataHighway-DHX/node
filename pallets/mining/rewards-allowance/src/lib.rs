@@ -19,6 +19,10 @@ pub mod pallet {
 	use chrono::{
 		NaiveDateTime,
 	};
+        use codec::{
+                Decode,
+                Encode,
+        };
 	use frame_support::{dispatch::DispatchResult, pallet_prelude::*,
 		traits::{
 			Currency,
@@ -30,11 +34,26 @@ pub mod pallet {
 			TryFrom,
 			TryInto,
 		},
+        prelude::*, // Imports Vec
 	};
 
 	// type BalanceOf<T> = <T as pallet_balances::Config>::Balance;
 	type BalanceOf<T> = <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 	type Date = i64;
+
+        #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
+        #[cfg_attr(feature = "std", derive())]
+        pub struct BondedDHXForAccountData<U, V, W> {
+                pub account_id: U,
+                pub bonded_dhx_current: V,
+                pub requestor_account_id: W,
+        }
+
+        type BondedData<T> = BondedDHXForAccountData<
+                <T as frame_system::Config>::AccountId,
+                BalanceOf<T>,
+                <T as frame_system::Config>::AccountId,
+        >;
 
 	/// Configure the pallet by specifying the parameters and types on which it depends.
 	#[pallet::config]
@@ -57,6 +76,13 @@ pub mod pallet {
 	// Learn more about declaring storage items:
 	// https://substrate.dev/docs/en/knowledgebase/runtime/storage#declaring-storage-items
 	pub type Something<T> = StorageValue<_, u32>;
+
+        #[pallet::storage]
+        #[pallet::getter(fn bonded_dhx_of_account_for_date)]
+        pub(super) type BondedDHXForAccountForDate<T: Config> = StorageMap<_, Blake2_128Concat,
+                Date,
+                Option<Vec<BondedData<T>>>
+        >;
 
 	#[pallet::storage]
 	#[pallet::getter(fn rewards_allowance_dhx_for_date)]
@@ -216,7 +242,55 @@ pub mod pallet {
 	// Dispatchable functions must be annotated with a weight and must return a DispatchResult.
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-		// customised by governance at any time
+		// customised by governance at any time. this function allows us to change it each year
+  		// https://docs.google.com/spreadsheets/d/1W2AzOH9Cs9oCR8UYfYCbpmd9X7hp-USbYXL7AuwMY_Q/edit#gid=970997021
+                #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
+                pub fn set_bonded_dhx_of_account_for_date(origin: OriginFor<T>, account_id: T::AccountId) -> DispatchResult {
+                        let _who = ensure_signed(origin)?;
+
+                        // Note: we DO need the following as we're using the current timestamp, rather than a function parameter.
+                        let timestamp: <T as pallet_timestamp::Config>::Moment = <pallet_timestamp::Pallet<T>>::get();
+                        let requested_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone())?;
+                        log::info!("requested_date_as_u64: {:?}", requested_date_as_u64.clone());
+
+                        // convert the requested date/time to the start of that day date/time to signify that date for lookup
+                        // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
+                        let requested_date_millis = Self::convert_u64_in_milliseconds_to_start_of_date(requested_date_as_u64.clone())?;
+
+                        // TODO - fetch from democracy or elections
+                        let bonded_dhx_current_u128 = 1000u128;
+
+                        let bonded_dhx_current;
+                        let _bonded_dhx_current = Self::convert_u128_to_balance(bonded_dhx_current_u128.clone());
+                        match _bonded_dhx_current {
+                                Err(_e) => {
+                                        log::error!("Unable to convert u128 to balance for bonded_dhx_current");
+                                        return Err(DispatchError::Other("Unable to convert u128 to balance for bonded_dhx_current"));
+                                },
+                                Ok(ref x) => {
+                                        bonded_dhx_current = x;
+                                }
+                        }
+
+                        let bonded_data: BondedData<T> = BondedDHXForAccountData {
+                                account_id: account_id.clone(),
+                                bonded_dhx_current: bonded_dhx_current.clone(),
+                                requestor_account_id: _who.clone(),
+                        };
+
+                        // Update storage. Override the default that may have been set in on_initialize
+                        <RewardsAllowanceDHXForDate<T>>::insert(requested_date_millis.clone(), &bonded_data);
+                        log::info!("account_id: {:?}", &account_id);
+                        log::info!("bonded_data: {:?}", &bonded_data);
+
+                        // Emit an event.
+                        // TODO
+
+                        // Return a successful DispatchResultWithPostInfo
+                        Ok(())
+                }
+
+                // customised by governance at any time
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
 		pub fn set_rewards_allowance_dhx_current(origin: OriginFor<T>, rewards_allowance: BalanceOf<T>) -> DispatchResult {
 			let _who = ensure_signed(origin)?;
