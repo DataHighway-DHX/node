@@ -1,5 +1,5 @@
 [package]
-name = "mining-rewards-allowance"
+name = "mining-rewards"
 version = "3.0.6"
 authors = ["Luke Schoen"]
 edition = "2018"

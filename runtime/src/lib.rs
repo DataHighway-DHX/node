@@ -1146,7 +1146,7 @@ impl mining_execution_token::Config for Runtime {
     type MiningExecutionTokenIndex = u64;
 }
 
-impl mining_rewards_allowance::Config for Runtime {
+impl mining_rewards::Config for Runtime {
     type Event = Event;
     type Currency = Balances;
 }
@@ -1222,7 +1222,7 @@ construct_runtime!(
         MiningSettingHardware: mining_setting_hardware::{Pallet, Call, Storage, Event<T>},
         MiningRatesToken: mining_rates_token::{Pallet, Call, Storage, Event<T>},
         MiningRatesHardware: mining_rates_hardware::{Pallet, Call, Storage, Event<T>},
-        MiningRewardsAllowance: mining_rewards_allowance::{Pallet, Call, Storage, Config<T>, Event<T>},
+        MiningRewards: mining_rewards::{Pallet, Call, Storage, Config<T>, Event<T>},
         MiningSamplingToken: mining_sampling_token::{Pallet, Call, Storage, Event<T>},
         MiningSamplingHardware: mining_sampling_hardware::{Pallet, Call, Storage, Event<T>},
         MiningEligibilityToken: mining_eligibility_token::{Pallet, Call, Storage, Event<T>},

@@ -1215,7 +1215,7 @@ dependencies = [
  "mining-execution-token",
  "mining-rates-hardware",
  "mining-rates-token",
- "mining-rewards-allowance",
+ "mining-rewards",
  "mining-sampling-hardware",
  "mining-sampling-token",
  "mining-setting-hardware",
@@ -3694,7 +3694,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mining-rewards-allowance"
+name = "mining-rewards"
 version = "3.0.6"
 dependencies = [
  "chrono",

@@ -93,7 +93,7 @@ mining-setting-token = { default-features = false, package = 'mining-setting-tok
 mining-setting-hardware = { default-features = false, package = 'mining-setting-hardware', path = '../pallets/mining/setting/hardware' }
 mining-rates-token = { default-features = false, package = 'mining-rates-token', path = '../pallets/mining/rates/token' }
 mining-rates-hardware = { default-features = false, package = 'mining-rates-hardware', path = '../pallets/mining/rates/hardware' }
-mining-rewards-allowance = { default-features = false, package = 'mining-rewards-allowance', path = '../pallets/mining/rewards-allowance' }
+mining-rewards = { default-features = false, package = 'mining-rewards', path = '../pallets/mining/rewards' }
 mining-sampling-token = { default-features = false, package = 'mining-sampling-token', path = '../pallets/mining/sampling/token' }
 mining-sampling-hardware = { default-features = false, package = 'mining-sampling-hardware', path = '../pallets/mining/sampling/hardware' }
 mining-eligibility-token = { default-features = false, package = 'mining-eligibility-token', path = '../pallets/mining/eligibility/token' }
@@ -178,7 +178,7 @@ std = [
     'mining-setting-hardware/std',
     'mining-rates-token/std',
     'mining-rates-hardware/std',
-    'mining-rewards-allowance/std',
+    'mining-rewards/std',
     'mining-sampling-token/std',
     'mining-sampling-hardware/std',
     'mining-eligibility-token/std',

@@ -7,7 +7,7 @@ extern crate mining_eligibility_token as mining_eligibility_token;
 extern crate mining_execution_token as mining_execution_token;
 extern crate mining_rates_token as mining_rates_token;
 extern crate mining_sampling_token as mining_sampling_token;
-extern crate mining_rewards_allowance as mining_rewards_allowance;
+extern crate mining_rewards as mining_rewards;
 extern crate roaming_operators as roaming_operators;
 
 const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u64 = 30000000;
@@ -110,9 +110,9 @@ mod tests {
         Module as MiningSamplingTokenModule,
         Config as MiningSamplingTokenConfig,
     };
-    use mining_rewards_allowance::{
-        Module as MiningRewardsAllowanceModule,
-        Config as MiningRewardsAllowanceConfig,
+    use mining_rewards::{
+        Module as MiningRewardsModule,
+        Config as MiningRewardsConfig,
     };
     use roaming_operators;
 
@@ -347,7 +347,7 @@ mod tests {
     impl MembershipSupernodesConfig for Test {
         type Event = ();
     }
-    impl MiningRewardsAllowanceConfig for Test {
+    impl MiningRewardsConfig for Test {
         type Event = ();
         type Currency = Balances;
     }
@@ -360,7 +360,7 @@ mod tests {
     pub type MiningClaimsTokenTestModule = MiningClaimsTokenModule<Test>;
     pub type MiningExecutionTokenTestModule = MiningExecutionTokenModule<Test>;
     pub type MembershipSupernodesTestModule = MembershipSupernodesModule<Test>;
-    pub type MiningRewardsAllowanceTestModule = MiningRewardsAllowanceModule<Test>;
+    pub type MiningRewardsTestModule = MiningRewardsModule<Test>;
     type Randomness = pallet_randomness_collective_flip::Pallet<Test>;
     type MembershipSupernodes = membership_supernodes::Module<Test>;
 
@@ -913,21 +913,21 @@ mod tests {
             // 27th August 2021 @ 12am is 1630022400000 (start of day)
             Timestamp::set_timestamp(1630049371000u64);
 
-            assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_allowance_dhx_current(
+            assert_ok!(MiningRewardsTestModule::set_mining_rewards_dhx_current(
                 Origin::signed(0),
                 5_000u64
             ));
 
-            assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_allowance_dhx_for_date(
+            assert_ok!(MiningRewardsTestModule::set_mining_rewards_dhx_for_date(
                 Origin::signed(0),
                 5_000u64,
                 1630049371000
             ));
 
             // Verify Storage
-            assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_current(), Some(5_000_000_000_000_000_000_000u128));
+            assert_eq!(MiningRewardsTestModule::mining_rewards_dhx_current(), Some(5_000_000_000_000_000_000_000u128));
 
-            assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(5_000u64));
+            assert_eq!(MiningRewardsTestModule::mining_rewards_dhx_for_date(1630022400000), Some(5_000u64));
         });
     }
 }
