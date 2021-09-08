@@ -3,9 +3,12 @@ use crate as mining_rewards_allowance;
 use crate::{
     Config as MiningRewardsAllowanceConfig,
 };
-
 use frame_support::{
+    ord_parameter_types,
     parameter_types,
+    traits::{
+        SortedMembers,
+    },
     weights::{
         IdentityFee,
         Weight,
@@ -14,6 +17,7 @@ use frame_support::{
 use frame_system::{
     EnsureOneOf,
     EnsureRoot,
+    EnsureSignedBy,
 };
 use sp_core::H256;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
@@ -66,6 +70,8 @@ frame_support::construct_runtime!(
 
 parameter_types! {
     pub const BlockHashCount: u64 = 250;
+    pub BlockWeights: frame_system::limits::BlockWeights =
+			frame_system::limits::BlockWeights::simple_max(2_000_000_000_000);
 }
 impl frame_system::Config for Test {
     type BaseCallFilter = frame_support::traits::Everything;
@@ -95,8 +101,20 @@ impl frame_system::Config for Test {
 impl pallet_randomness_collective_flip::Config for Test {}
 
 parameter_types! {
-    pub MaximumSchedulerWeight: Weight = 10u64;
+    pub MaximumSchedulerWeight: Weight = Perbill::from_percent(80) * BlockWeights::get().max_block;
     pub const MaxScheduledPerBlock: u32 = 50;
+}
+ord_parameter_types! {
+    pub const One: u64 = 1;
+}
+
+pub struct OneToFive;
+impl SortedMembers<u64> for OneToFive {
+	fn sorted_members() -> Vec<u64> {
+		vec![1, 2, 3, 4, 5]
+	}
+	#[cfg(feature = "runtime-benchmarks")]
+	fn add(_m: &u64) {}
 }
 
 impl pallet_scheduler::Config for Test {
@@ -105,7 +123,7 @@ impl pallet_scheduler::Config for Test {
     type PalletsOrigin = OriginCaller;
     type Call = Call;
     type MaximumWeight = MaximumSchedulerWeight;
-    type ScheduleOrigin = EnsureRoot<u64>;
+    type ScheduleOrigin = EnsureOneOf<u64, EnsureRoot<u64>, EnsureSignedBy<OneToFive, u64>>;
     type MaxScheduledPerBlock = MaxScheduledPerBlock;
     type WeightInfo = ();
 }
