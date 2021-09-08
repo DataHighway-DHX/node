@@ -17,12 +17,14 @@ std = [
     'frame-support/std',
     'frame-system/std',
     'pallet-balances/std',
+    'pallet-randomness-collective-flip/std',
     'pallet-timestamp/std',
-    # 'pallet-transaction-payment/std',
+    'pallet-transaction-payment/std',
     'sp-core/std',
     'sp-io/std',
     'sp-runtime/std',
     'sp-std/std',
+    'module-primitives/std',
 ]
 
 [dependencies]
@@ -34,11 +36,13 @@ frame-support = { git = 'https://github.com/paritytech/substrate', rev = '852bab
 frame-system = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
 pallet-balances = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
 pallet-timestamp = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default_features = false }
-# pallet-transaction-payment = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
+pallet-randomness-collective-flip = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
+pallet-transaction-payment = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
 sp-core = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
 sp-io = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
 sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
 sp-std = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
+module-primitives = { version = '3.0.6', default-features = false, path = '../../primitives' }
 
 [dev-dependencies]
 
