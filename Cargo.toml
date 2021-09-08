@@ -24,6 +24,7 @@ members = [
     'pallets/mining/setting/hardware',
     'pallets/mining/rates/token',
     'pallets/mining/rates/hardware',
+    'pallets/mining/rewards-allowance',
     'pallets/mining/sampling/token',
     'pallets/mining/sampling/hardware',
     'pallets/mining/eligibility/token',
