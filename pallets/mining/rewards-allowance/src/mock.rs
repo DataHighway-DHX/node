@@ -1,8 +1,7 @@
 // Creating mock runtime here
-
+use crate as mining_rewards_allowance;
 use crate::{
-    Pallet,
-    Config,
+    Config as MiningRewardsAllowanceConfig,
 };
 
 use frame_support::{
@@ -55,6 +54,7 @@ frame_support::construct_runtime!(
         Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
         TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
         RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
+        MiningRewardsAllowanceTestModule: mining_rewards_allowance::{Pallet, Call, Storage, Config<T>, Event<T>},
     }
 );
 
@@ -121,13 +121,10 @@ impl pallet_transaction_payment::Config for Test {
     type WeightToFee = IdentityFee<u64>;
 }
 
-// MiningRewardsAllowanceConfig
-impl Config for Test {
+impl MiningRewardsAllowanceConfig for Test {
     type Event = ();
     type Currency = Balances;
 }
-
-pub type MiningRewardsAllowanceTestModule = Pallet<Test>;
 
 // This function basically just builds a genesis storage key/value store according to
 // our desired mockup.

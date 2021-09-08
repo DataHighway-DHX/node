@@ -26,7 +26,7 @@ fn it_sets_rewards_allowance_with_timestamp() {
         ));
 
         // Verify Storage
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_current(), Some(5_000_000_000_000_000_000_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_current(), Some(5_000u128));
 
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(5_000u64));
     })
