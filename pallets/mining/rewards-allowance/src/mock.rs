@@ -1,6 +1,7 @@
 // Creating mock runtime here
 use crate as mining_rewards_allowance;
 use crate::{
+    BondedDHXForAccountForDate,
     Config as MiningRewardsAllowanceConfig,
 };
 

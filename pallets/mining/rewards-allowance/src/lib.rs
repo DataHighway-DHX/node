@@ -81,12 +81,15 @@ pub mod pallet {
     #[pallet::getter(fn bonded_dhx_of_account_for_date)]
     pub(super) type BondedDHXForAccountForDate<T: Config> = StorageMap<_, Blake2_128Concat,
         Date,
-        Option<Vec<BondedData<T>>>
+        BondedData<T>
     >;
 
     #[pallet::storage]
     #[pallet::getter(fn rewards_allowance_dhx_for_date)]
-    pub(super) type RewardsAllowanceDHXForDate<T: Config> = StorageMap<_, Blake2_128Concat, Date, BalanceOf<T>>;
+    pub(super) type RewardsAllowanceDHXForDate<T: Config> = StorageMap<_, Blake2_128Concat,
+        Date,
+        BalanceOf<T>
+    >;
 
     #[pallet::storage]
     #[pallet::getter(fn rewards_allowance_dhx_current)]
@@ -272,19 +275,16 @@ pub mod pallet {
                 }
             }
 
-            // FIXME - find out how to get this to compile
-            // https://matrix.to/#/!XOxcnpiHXHhAjJfRFP:matrix.parity.io/$US-DFaIU5vD7pxIHbDJ9XOOsOcFqAsexUDcfevdtNjY?via=matrix.parity.io&via=matrix.org&via=web3.foundation
+            let bonded_data: BondedData<T> = BondedDHXForAccountData {
+                account_id: account_id.clone(),
+                bonded_dhx_current: bonded_dhx_current.clone(),
+                requestor_account_id: _who.clone(),
+            };
 
-            // let bonded_data: BondedData<T> = BondedDHXForAccountData {
-            //     account_id: account_id.clone(),
-            //     bonded_dhx_current: bonded_dhx_current.clone(),
-            //     requestor_account_id: _who.clone(),
-            // };
-
-            // // Update storage. Override the default that may have been set in on_initialize
-            // <RewardsAllowanceDHXForDate<T>>::insert(requested_date_millis.clone(), &bonded_data);
-            // log::info!("account_id: {:?}", &account_id);
-            // log::info!("bonded_data: {:?}", &bonded_data);
+            // Update storage. Override the default that may have been set in on_initialize
+            <BondedDHXForAccountForDate<T>>::insert(requested_date_millis.clone(), &bonded_data);
+            log::info!("account_id: {:?}", &account_id);
+            log::info!("bonded_data: {:?}", &bonded_data);
 
             // Emit an event.
             // TODO

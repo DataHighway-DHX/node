@@ -1,4 +1,5 @@
 use crate::{mock::*, Error};
+use crate::{BondedDHXForAccountData};
 use frame_support::{assert_noop, assert_ok};
 
 #[test]
@@ -25,9 +26,23 @@ fn it_sets_rewards_allowance_with_timestamp() {
             1630049371000
         ));
 
+        assert_ok!(MiningRewardsAllowanceTestModule::set_bonded_dhx_of_account_for_date(
+            Origin::signed(0),
+            1
+        ));
+
         // Verify Storage
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_current(), Some(5_000u128));
 
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(5_000u64));
+
+        assert_eq!(
+            MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date(1630022400000),
+            Some(BondedDHXForAccountData {
+                account_id: 1,
+                bonded_dhx_current: 1_000u64,
+                requestor_account_id: 0,
+            })
+        );
     })
 }
