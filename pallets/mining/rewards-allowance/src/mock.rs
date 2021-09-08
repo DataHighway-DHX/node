@@ -1,7 +1,6 @@
 // Creating mock runtime here
 use crate as mining_rewards_allowance;
 use crate::{
-    BondedDHXForAccountForDate,
     Config as MiningRewardsAllowanceConfig,
 };
 
@@ -12,7 +11,10 @@ use frame_support::{
         Weight,
     },
 };
-
+use frame_system::{
+    EnsureOneOf,
+    EnsureRoot,
+};
 use sp_core::H256;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_runtime::{
@@ -57,6 +59,7 @@ frame_support::construct_runtime!(
         Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
         TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
         RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
+        Scheduler: pallet_scheduler::{Pallet, Call, Storage, Event<T>},
         MiningRewardsAllowanceTestModule: mining_rewards_allowance::{Pallet, Call, Storage, Config<T>, Event<T>},
     }
 );
@@ -90,6 +93,22 @@ impl frame_system::Config for Test {
     type OnSetCode = ();
 }
 impl pallet_randomness_collective_flip::Config for Test {}
+
+parameter_types! {
+    pub MaximumSchedulerWeight: Weight = 10u64;
+    pub const MaxScheduledPerBlock: u32 = 50;
+}
+
+impl pallet_scheduler::Config for Test {
+    type Event = ();
+    type Origin = Origin;
+    type PalletsOrigin = OriginCaller;
+    type Call = Call;
+    type MaximumWeight = MaximumSchedulerWeight;
+    type ScheduleOrigin = EnsureRoot<u64>;
+    type MaxScheduledPerBlock = MaxScheduledPerBlock;
+    type WeightInfo = ();
+}
 
 impl pallet_aura::Config for Test {
 	type AuthorityId = AuraId;

@@ -3706,6 +3706,7 @@ dependencies = [
  "pallet-aura",
  "pallet-balances",
  "pallet-randomness-collective-flip",
+ "pallet-scheduler",
  "pallet-timestamp",
  "pallet-transaction-payment",
  "parity-scale-codec",
