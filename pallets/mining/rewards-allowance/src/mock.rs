@@ -13,6 +13,7 @@ use frame_support::{
 };
 
 use sp_core::H256;
+use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_runtime::{
     testing::Header,
     traits::{
@@ -50,6 +51,7 @@ frame_support::construct_runtime!(
         UncheckedExtrinsic = UncheckedExtrinsic,
     {
         System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+        Aura: pallet_aura::{Pallet, Config<T>},
         Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent},
         Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
         TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
@@ -87,6 +89,12 @@ impl frame_system::Config for Test {
     type OnSetCode = ();
 }
 impl pallet_randomness_collective_flip::Config for Test {}
+
+impl pallet_aura::Config for Test {
+	type AuthorityId = AuraId;
+    type DisabledValidators = ();
+}
+
 parameter_types! {
     pub const ExistentialDeposit: u64 = 1;
 }
@@ -97,7 +105,7 @@ impl pallet_timestamp::Config for Test {
     type MinimumPeriod = MinimumPeriod;
     /// A timestamp: milliseconds since the unix epoch.
     type Moment = Moment;
-    type OnTimestampSet = ();
+    type OnTimestampSet = Aura;
     type WeightInfo = ();
 }
 impl pallet_balances::Config for Test {
