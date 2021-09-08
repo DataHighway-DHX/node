@@ -44,5 +44,16 @@ fn it_sets_rewards_allowance_with_timestamp() {
                 requestor_account_id: 0,
             })
         );
+
+        assert_ok!(MiningRewardsAllowanceTestModule::reduce_remaining_rewards_allowance_dhx_for_date(
+            Origin::signed(0),
+            500,
+            1630049371000,
+        ));
+
+        // reducing the remaining rewards for a specific date does not change the default rewards allowance
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_current(), Some(5_000u128));
+
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(4_500u64));
     })
 }
