@@ -144,18 +144,19 @@ pub mod pallet {
         /// \[date, amount_dhx, sender\]
         SetRewardsAllowanceDHXForDateStored(Date, BalanceOf<T>, T::AccountId),
 
-        /// Reduction of the stored reward allowance in DHX for a specific date by an origin account.
-        /// \[date, reduction_amount_dhx, sender\]
-        ReducedRewardsAllowanceDHXForDateStored(Date, BalanceOf<T>, T::AccountId),
+        /// Change the stored reward allowance in DHX for a specific date by an origin account, and
+        /// where change is 0 for an decrease or any other value like 1 for an increase to the remaining
+        /// rewards allowance.
+        /// \[date, reduction_amount_dhx, sender, change\]
+        ChangedRewardsAllowanceDHXForDateStored(Date, BalanceOf<T>, T::AccountId, u8),
     }
 
-    // Errors inform users that something went wrong.
+    // Errors inform users that something went wrong should be descriptive and have helpful documentation
     #[pallet::error]
     pub enum Error<T> {
-        /// Error names should be descriptive.
         NoneValue,
-        /// Errors should have helpful documentation associated with them.
         StorageOverflow,
+        StorageUnderflow,
     }
 
     // Pallet implements [`Hooks`] trait to define some logic to execute in some context.
@@ -364,10 +365,9 @@ pub mod pallet {
         }
 
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
-        // TODO - change from `reduce_` to `change_`, and provide another parameter `change: u8`, whose value
-        // maybe 0 or 1 to represent that we want to make a corresponding decrease or increase to the remaining
-        // dhx rewards allowance for a given date.
-        pub fn reduce_remaining_rewards_allowance_dhx_for_date(origin: OriginFor<T>, daily_rewards: BalanceOf<T>, timestamp: u64) -> DispatchResult {
+        // parameter `change: u8` value may be 0 or 1 (or any other value) to represent that we want to make a
+        // corresponding decrease or increase to the remaining dhx rewards allowance for a given date.
+        pub fn change_remaining_rewards_allowance_dhx_for_date(origin: OriginFor<T>, daily_rewards: BalanceOf<T>, timestamp: u64, change: u8) -> DispatchResult {
             let _who = ensure_signed(origin)?;
 
             let requested_date_millis = Self::convert_u64_in_milliseconds_to_start_of_date(timestamp.clone())?;
@@ -393,8 +393,18 @@ pub mod pallet {
             ensure!(daily_rewards_as_u128 > 0u128, DispatchError::Other("Daily rewards must be greater than zero"));
             ensure!(existing_allowance_as_u128 >= daily_rewards_as_u128, DispatchError::Other("Daily rewards cannot exceed current remaining allowance"));
 
-            let new_remaining_allowance_as_u128 = existing_allowance_as_u128 - daily_rewards_as_u128;
-            let new_remaining_allowance_as_balance = Self::convert_u128_to_balance(new_remaining_allowance_as_u128.clone())?;
+            let new_remaining_allowance_as_balance;
+            if change == 0 {
+                // Decrementing the value will error in the event of underflow.
+                let new_remaining_allowance_as_u128 = existing_allowance_as_u128.checked_sub(daily_rewards_as_u128).ok_or(Error::<T>::StorageUnderflow)?;
+                new_remaining_allowance_as_balance = Self::convert_u128_to_balance(new_remaining_allowance_as_u128.clone())?;
+                log::info!("Decreasing rewards_allowance_dhx_for_date at Date: {:?}", &requested_date_millis);
+            } else {
+                // Incrementing the value will error in the event of overflow.
+                let new_remaining_allowance_as_u128 = existing_allowance_as_u128.checked_add(daily_rewards_as_u128).ok_or(Error::<T>::StorageOverflow)?;
+                new_remaining_allowance_as_balance = Self::convert_u128_to_balance(new_remaining_allowance_as_u128.clone())?;
+                log::info!("Increasing rewards_allowance_dhx_for_date at Date: {:?}", &requested_date_millis);
+            }
 
             // Update storage
             <RewardsAllowanceDHXForDate<T>>::mutate(
@@ -403,15 +413,15 @@ pub mod pallet {
                     if let Some(_allowance) = allowance {
                         *_allowance = new_remaining_allowance_as_balance.clone();
                     }
-                    log::info!("Reduced rewards_allowance_dhx_for_date at Date: {:?}", &requested_date_millis);
                 },
             );
 
             // Emit an event.
-            Self::deposit_event(Event::ReducedRewardsAllowanceDHXForDateStored(
+            Self::deposit_event(Event::ChangedRewardsAllowanceDHXForDateStored(
                 requested_date_millis.clone(),
                 new_remaining_allowance_as_balance.clone(),
-                _who.clone()
+                _who.clone(),
+                change.clone(),
             ));
 
             // Return a successful DispatchResultWithPostInfo
