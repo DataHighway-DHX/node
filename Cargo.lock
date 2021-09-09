@@ -3708,6 +3708,7 @@ dependencies = [
  "pallet-bounties",
  "pallet-collective",
  "pallet-democracy",
+ "pallet-elections-phragmen",
  "pallet-membership",
  "pallet-randomness-collective-flip",
  "pallet-scheduler",

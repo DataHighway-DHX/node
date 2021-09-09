@@ -20,6 +20,7 @@ std = [
     'pallet-balances/std',
     'pallet-bounties/std',
     'pallet-democracy/std',
+    'pallet-elections-phragmen/std',
     'pallet-collective/std',
     'pallet-membership/std',
     'pallet-randomness-collective-flip/std',
@@ -48,6 +49,7 @@ pallet-balances = { git = 'https://github.com/paritytech/substrate', rev = '852b
 pallet-bounties = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
 pallet-collective = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
 pallet-democracy = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
+pallet-elections-phragmen = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
 pallet-timestamp = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default_features = false }
 pallet-tips = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
 pallet-membership = { git = 'https://github.com/paritytech/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
