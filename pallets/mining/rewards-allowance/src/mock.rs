@@ -4,20 +4,14 @@ use crate::{
     Config as MiningRewardsAllowanceConfig,
 };
 use frame_support::{
-    ord_parameter_types,
     parameter_types,
-    traits::{
-        SortedMembers,
-    },
     weights::{
         IdentityFee,
         Weight,
     },
 };
 use frame_system::{
-    EnsureOneOf,
     EnsureRoot,
-    EnsureSignedBy,
 };
 use sp_core::H256;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
@@ -48,11 +42,11 @@ pub use module_primitives::{
     },
 };
 
-type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Runtime>;
-type Block = frame_system::mocking::MockBlock<Runtime>;
+type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
+type Block = frame_system::mocking::MockBlock<Test>;
 
 frame_support::construct_runtime!(
-    pub enum Runtime where
+    pub enum Test where
         Block = Block,
         NodeBlock = Block,
         UncheckedExtrinsic = UncheckedExtrinsic,
@@ -73,7 +67,7 @@ parameter_types! {
     pub BlockWeights: frame_system::limits::BlockWeights =
 			frame_system::limits::BlockWeights::simple_max(2_000_000_000_000);
 }
-impl frame_system::Config for Runtime {
+impl frame_system::Config for Test {
     type BaseCallFilter = frame_support::traits::Everything;
     type BlockWeights = ();
     type BlockLength = ();
@@ -98,25 +92,25 @@ impl frame_system::Config for Runtime {
     type SS58Prefix = ();
     type OnSetCode = ();
 }
-impl pallet_randomness_collective_flip::Config for Runtime {}
+impl pallet_randomness_collective_flip::Config for Test {}
 
 parameter_types! {
     pub MaximumSchedulerWeight: Weight = Perbill::from_percent(80) * BlockWeights::get().max_block;
     pub const MaxScheduledPerBlock: u32 = 50;
 }
 
-impl pallet_scheduler::Config for Runtime {
+impl pallet_scheduler::Config for Test {
     type Event = ();
     type Origin = Origin;
     type PalletsOrigin = OriginCaller;
     type Call = Call;
     type MaximumWeight = MaximumSchedulerWeight;
-    type ScheduleOrigin = EnsureRoot<u64>;
+    type ScheduleOrigin = EnsureRoot<u128>;
     type MaxScheduledPerBlock = MaxScheduledPerBlock;
     type WeightInfo = ();
 }
 
-impl pallet_aura::Config for Runtime {
+impl pallet_aura::Config for Test {
     type AuthorityId = AuraId;
     type DisabledValidators = ();
 }
@@ -127,14 +121,14 @@ parameter_types! {
 parameter_types! {
     pub const MinimumPeriod: u64 = SLOT_DURATION / 2;
 }
-impl pallet_timestamp::Config for Runtime {
+impl pallet_timestamp::Config for Test {
     type MinimumPeriod = MinimumPeriod;
     /// A timestamp: milliseconds since the unix epoch.
     type Moment = Moment;
     type OnTimestampSet = Aura;
     type WeightInfo = ();
 }
-impl pallet_balances::Config for Runtime {
+impl pallet_balances::Config for Test {
     type MaxLocks = ();
 	type MaxReserves = ();
     type ReserveIdentifier = [u8; 8];
@@ -148,14 +142,14 @@ impl pallet_balances::Config for Runtime {
 parameter_types! {
     pub const TransactionByteFee: u64 = 1;
 }
-impl pallet_transaction_payment::Config for Runtime {
+impl pallet_transaction_payment::Config for Test {
     type FeeMultiplierUpdate = ();
     type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
     type TransactionByteFee = TransactionByteFee;
     type WeightToFee = IdentityFee<u64>;
 }
 
-impl MiningRewardsAllowanceConfig for Runtime {
+impl MiningRewardsAllowanceConfig for Test {
     type Event = ();
     type Currency = Balances;
 }
@@ -163,8 +157,8 @@ impl MiningRewardsAllowanceConfig for Runtime {
 // This function basically just builds a genesis storage key/value store according to
 // our desired mockup.
 pub fn new_test_ext() -> sp_io::TestExternalities {
-    let mut t = frame_system::GenesisConfig::default().build_storage::<Runtime>().unwrap();
-    pallet_balances::GenesisConfig::<Runtime> {
+    let mut t = frame_system::GenesisConfig::default().build_storage::<Test>().unwrap();
+    pallet_balances::GenesisConfig::<Test> {
         balances: vec![(0, 10), (1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60)],
     }
     .assimilate_storage(&mut t)
