@@ -16,9 +16,18 @@ use frame_support::{
     PalletId,
 };
 use frame_system::{
+    EnsureOneOf,
     EnsureRoot,
 };
-use sp_core::H256;
+use sp_core::{
+    H256,
+    u32_trait::{
+        _1,
+        _2,
+        _3,
+        _4,
+    },
+};
 use codec::{
     Decode,
     Encode,
@@ -45,11 +54,12 @@ pub use module_primitives::{
     constants::time::{
         DAYS,
         SLOT_DURATION,
+        MINUTES,
     },
 	types::{
-        AccountId,
-        Balance,
-        BlockNumber,
+        // AccountId, // Use override below
+        // Balance, // Use override below
+        // BlockNumber, // Use override below
         Moment,
     },
 };
@@ -68,6 +78,10 @@ frame_support::construct_runtime!(
         Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent},
         Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
         TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
+        Democracy: pallet_democracy::{Pallet, Call, Storage, Config<T>, Event<T>},
+        Council: pallet_collective::<Instance1>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>},
+        TechnicalCommittee: pallet_collective::<Instance2>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>},
+        TechnicalMembership: pallet_membership::<Instance1>::{Pallet, Call, Storage, Event<T>, Config<T>},
         Treasury: pallet_treasury::{Pallet, Call, Storage, Config, Event<T>},
         RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
         Scheduler: pallet_scheduler::{Pallet, Call, Storage, Event<T>},
@@ -76,6 +90,11 @@ frame_support::construct_runtime!(
         MiningRewardsAllowanceTestModule: mining_rewards_allowance::{Pallet, Call, Storage, Config<T>, Event<T>},
     }
 );
+
+// Override primitives
+pub type AccountId = u128;
+pub type Balance = u64;
+pub type BlockNumber = u64;
 
 parameter_types! {
     pub const BlockHashCount: u64 = 250;
@@ -90,10 +109,10 @@ impl frame_system::Config for Test {
     type Origin = Origin;
     type Call = Call;
     type Index = u64;
-    type BlockNumber = u64;
+    type BlockNumber = BlockNumber;
     type Hash = H256;
     type Hashing = BlakeTwo256;
-    type AccountId = u128; // u64 is not enough to hold bytes used to generate bounty account
+    type AccountId = AccountId; // u64 is not enough to hold bytes used to generate bounty account
     type Lookup = IdentityLookup<Self::AccountId>;
     type Header = Header;
     type Event = ();
@@ -162,6 +181,60 @@ impl pallet_transaction_payment::Config for Test {
     type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
     type TransactionByteFee = TransactionByteFee;
     type WeightToFee = IdentityFee<u64>;
+}
+
+parameter_types! {
+    pub const CouncilMotionDuration: BlockNumber = 5 * DAYS;
+    pub const CouncilMaxProposals: u32 = 100;
+    pub const CouncilMaxMembers: u32 = 100;
+}
+
+type CouncilCollective = pallet_collective::Instance1;
+impl pallet_collective::Config<CouncilCollective> for Test {
+    type Origin = Origin;
+    type Proposal = Call;
+    type Event = ();
+    type MotionDuration = CouncilMotionDuration;
+    type MaxProposals = CouncilMaxProposals;
+    type MaxMembers = CouncilMaxMembers;
+    type DefaultVote = pallet_collective::PrimeDefaultVote;
+    type WeightInfo = pallet_collective::weights::SubstrateWeight<Test>;
+}
+
+parameter_types! {
+    pub const TechnicalMotionDuration: BlockNumber = 5 * DAYS;
+    pub const TechnicalMaxProposals: u32 = 100;
+    pub const TechnicalMaxMembers: u32 = 100;
+}
+
+type TechnicalCollective = pallet_collective::Instance2;
+impl pallet_collective::Config<TechnicalCollective> for Test {
+    type Origin = Origin;
+    type Proposal = Call;
+    type Event = ();
+    type MotionDuration = TechnicalMotionDuration;
+    type MaxProposals = TechnicalMaxProposals;
+    type MaxMembers = TechnicalMaxMembers;
+    type DefaultVote = pallet_collective::PrimeDefaultVote;
+    type WeightInfo = pallet_collective::weights::SubstrateWeight<Test>;
+}
+
+type EnsureRootOrHalfCouncil = EnsureOneOf<
+    AccountId,
+    EnsureRoot<AccountId>,
+    pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>,
+>;
+impl pallet_membership::Config<pallet_membership::Instance1> for Test {
+    type Event = ();
+    type AddOrigin = EnsureRootOrHalfCouncil;
+    type RemoveOrigin = EnsureRootOrHalfCouncil;
+    type SwapOrigin = EnsureRootOrHalfCouncil;
+    type ResetOrigin = EnsureRootOrHalfCouncil;
+    type PrimeOrigin = EnsureRootOrHalfCouncil;
+    type MembershipInitialized = TechnicalCommittee;
+    type MembershipChanged = TechnicalCommittee;
+	type MaxMembers = TechnicalMaxMembers;
+	type WeightInfo = pallet_membership::weights::SubstrateWeight<Test>;
 }
 
 thread_local! {
@@ -249,6 +322,65 @@ impl pallet_tips::Config for Test {
     type TipFindersFee = TipFindersFee;
     type TipReportDepositBase = TipReportDepositBase;
     type WeightInfo = pallet_tips::weights::SubstrateWeight<Test>;
+}
+
+parameter_types! {
+    pub const LaunchPeriod: BlockNumber = 1 * MINUTES;
+    pub const VotingPeriod: BlockNumber = 1 * MINUTES;
+    pub const FastTrackVotingPeriod: BlockNumber = 1 * MINUTES;
+    pub const InstantAllowed: bool = true;
+    pub const MinimumDeposit: Balance = 1 * DOLLARS;
+    pub const EnactmentPeriod: BlockNumber = 1 * MINUTES;
+    pub const CooloffPeriod: BlockNumber = 1 * MINUTES;
+    // One cent: $10,000 / MB
+    pub const PreimageByteDeposit: Balance = 1 * CENTS;
+    pub const MaxVotes: u32 = 100;
+    pub const MaxProposals: u32 = 100;
+}
+
+impl pallet_democracy::Config for Test {
+    type Proposal = Call;
+    type Event = ();
+    type Currency = Balances;
+    type EnactmentPeriod = EnactmentPeriod;
+    type LaunchPeriod = LaunchPeriod;
+    type VotingPeriod = VotingPeriod;
+    type MinimumDeposit = MinimumDeposit;
+    /// A straight majority of the council can decide what their next motion is.
+    type ExternalOrigin = pallet_collective::EnsureProportionAtLeast<_1, _2, AccountId, CouncilCollective>;
+    /// A super-majority can have the next scheduled referendum be a straight majority-carries vote.
+    type ExternalMajorityOrigin = pallet_collective::EnsureProportionAtLeast<_3, _4, AccountId, CouncilCollective>;
+    /// A unanimous council can have the next scheduled referendum be a straight default-carries
+    /// (NTB) vote.
+    type ExternalDefaultOrigin = pallet_collective::EnsureProportionAtLeast<_1, _1, AccountId, CouncilCollective>;
+    /// Two thirds of the technical committee can have an ExternalMajority/ExternalDefault vote
+    /// be tabled immediately and with a shorter voting/enactment period.
+    type FastTrackOrigin = pallet_collective::EnsureProportionAtLeast<_2, _3, AccountId, TechnicalCollective>;
+    type InstantOrigin = pallet_collective::EnsureProportionAtLeast<_1, _1, AccountId, TechnicalCollective>;
+    type InstantAllowed = InstantAllowed;
+    type FastTrackVotingPeriod = FastTrackVotingPeriod;
+    // To cancel a proposal which has been passed, 2/3 of the council must agree to it.
+    type CancellationOrigin = pallet_collective::EnsureProportionAtLeast<_2, _3, AccountId, CouncilCollective>;
+    // To cancel a proposal before it has been passed, the technical committee must be unanimous or
+    // Root must agree.
+    type CancelProposalOrigin = EnsureOneOf<
+        AccountId,
+        EnsureRoot<AccountId>,
+        pallet_collective::EnsureProportionAtLeast<_1, _1, AccountId, TechnicalCollective>,
+    >;
+    type BlacklistOrigin = EnsureRoot<AccountId>;
+    // Any single technical committee member may veto a coming council proposal, however they can
+    // only do it once and it lasts only for the cooloff period.
+    type VetoOrigin = pallet_collective::EnsureMember<AccountId, TechnicalCollective>;
+    type CooloffPeriod = CooloffPeriod;
+    type PreimageByteDeposit = PreimageByteDeposit;
+    type OperationalPreimageOrigin = pallet_collective::EnsureMember<AccountId, CouncilCollective>;
+    type Slash = Treasury;
+    type Scheduler = Scheduler;
+    type PalletsOrigin = OriginCaller;
+    type MaxVotes = MaxVotes;
+    type WeightInfo = ();
+    type MaxProposals = MaxProposals;
 }
 
 impl MiningRewardsAllowanceConfig for Test {
