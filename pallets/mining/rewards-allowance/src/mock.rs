@@ -48,11 +48,11 @@ pub use module_primitives::{
     },
 };
 
-type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
-type Block = frame_system::mocking::MockBlock<Test>;
+type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Runtime>;
+type Block = frame_system::mocking::MockBlock<Runtime>;
 
 frame_support::construct_runtime!(
-    pub enum Test where
+    pub enum Runtime where
         Block = Block,
         NodeBlock = Block,
         UncheckedExtrinsic = UncheckedExtrinsic,
@@ -73,7 +73,7 @@ parameter_types! {
     pub BlockWeights: frame_system::limits::BlockWeights =
 			frame_system::limits::BlockWeights::simple_max(2_000_000_000_000);
 }
-impl frame_system::Config for Test {
+impl frame_system::Config for Runtime {
     type BaseCallFilter = frame_support::traits::Everything;
     type BlockWeights = ();
     type BlockLength = ();
@@ -98,38 +98,26 @@ impl frame_system::Config for Test {
     type SS58Prefix = ();
     type OnSetCode = ();
 }
-impl pallet_randomness_collective_flip::Config for Test {}
+impl pallet_randomness_collective_flip::Config for Runtime {}
 
 parameter_types! {
     pub MaximumSchedulerWeight: Weight = Perbill::from_percent(80) * BlockWeights::get().max_block;
     pub const MaxScheduledPerBlock: u32 = 50;
 }
-ord_parameter_types! {
-    pub const One: u64 = 1;
-}
 
-pub struct OneToFive;
-impl SortedMembers<u64> for OneToFive {
-	fn sorted_members() -> Vec<u64> {
-		vec![1, 2, 3, 4, 5]
-	}
-	#[cfg(feature = "runtime-benchmarks")]
-	fn add(_m: &u64) {}
-}
-
-impl pallet_scheduler::Config for Test {
+impl pallet_scheduler::Config for Runtime {
     type Event = ();
     type Origin = Origin;
     type PalletsOrigin = OriginCaller;
     type Call = Call;
     type MaximumWeight = MaximumSchedulerWeight;
-    type ScheduleOrigin = EnsureOneOf<u64, EnsureRoot<u64>, EnsureSignedBy<OneToFive, u64>>;
+    type ScheduleOrigin = EnsureRoot<u64>;
     type MaxScheduledPerBlock = MaxScheduledPerBlock;
     type WeightInfo = ();
 }
 
-impl pallet_aura::Config for Test {
-	type AuthorityId = AuraId;
+impl pallet_aura::Config for Runtime {
+    type AuthorityId = AuraId;
     type DisabledValidators = ();
 }
 
@@ -139,17 +127,17 @@ parameter_types! {
 parameter_types! {
     pub const MinimumPeriod: u64 = SLOT_DURATION / 2;
 }
-impl pallet_timestamp::Config for Test {
+impl pallet_timestamp::Config for Runtime {
     type MinimumPeriod = MinimumPeriod;
     /// A timestamp: milliseconds since the unix epoch.
     type Moment = Moment;
     type OnTimestampSet = Aura;
     type WeightInfo = ();
 }
-impl pallet_balances::Config for Test {
+impl pallet_balances::Config for Runtime {
     type MaxLocks = ();
 	type MaxReserves = ();
-	type ReserveIdentifier = [u8; 8];
+    type ReserveIdentifier = [u8; 8];
     type Balance = u64;
     type DustRemoval = ();
     type Event = ();
@@ -160,14 +148,14 @@ impl pallet_balances::Config for Test {
 parameter_types! {
     pub const TransactionByteFee: u64 = 1;
 }
-impl pallet_transaction_payment::Config for Test {
+impl pallet_transaction_payment::Config for Runtime {
     type FeeMultiplierUpdate = ();
     type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
     type TransactionByteFee = TransactionByteFee;
     type WeightToFee = IdentityFee<u64>;
 }
 
-impl MiningRewardsAllowanceConfig for Test {
+impl MiningRewardsAllowanceConfig for Runtime {
     type Event = ();
     type Currency = Balances;
 }
@@ -175,8 +163,8 @@ impl MiningRewardsAllowanceConfig for Test {
 // This function basically just builds a genesis storage key/value store according to
 // our desired mockup.
 pub fn new_test_ext() -> sp_io::TestExternalities {
-    let mut t = frame_system::GenesisConfig::default().build_storage::<Test>().unwrap();
-    pallet_balances::GenesisConfig::<Test> {
+    let mut t = frame_system::GenesisConfig::default().build_storage::<Runtime>().unwrap();
+    pallet_balances::GenesisConfig::<Runtime> {
         balances: vec![(0, 10), (1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60)],
     }
     .assimilate_storage(&mut t)

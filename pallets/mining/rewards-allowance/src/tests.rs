@@ -1,6 +1,7 @@
 use crate::{mock::*, Error};
 use crate::{BondedDHXForAccountData};
 use frame_support::{assert_noop, assert_ok};
+use codec::{Encode};
 
 #[test]
 fn it_sets_rewards_allowance_with_timestamp() {
@@ -62,5 +63,7 @@ fn it_sets_rewards_allowance_with_timestamp() {
         ));
 
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(6_500u64));
+
+        assert_ok!(Scheduler::cancel_named(1u32.encode(), Vec(1)).unwrap());
     })
 }
