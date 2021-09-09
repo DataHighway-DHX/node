@@ -5,15 +5,24 @@ use crate::{
 };
 use frame_support::{
     parameter_types,
+    traits::{
+        ContainsLengthBound,
+        SortedMembers,
+    },
     weights::{
         IdentityFee,
         Weight,
     },
+    PalletId,
 };
 use frame_system::{
     EnsureRoot,
 };
 use sp_core::H256;
+use codec::{
+    Decode,
+    Encode,
+};
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_runtime::{
     testing::Header,
@@ -22,7 +31,10 @@ use sp_runtime::{
         IdentityLookup,
     },
     Perbill,
+    Percent,
+    Permill,
 };
+use std::cell::RefCell;
 pub use module_primitives::{
 	constants::currency::{
         CENTS,
@@ -56,8 +68,11 @@ frame_support::construct_runtime!(
         Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent},
         Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
         TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
+        Treasury: pallet_treasury::{Pallet, Call, Storage, Config, Event<T>},
         RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
         Scheduler: pallet_scheduler::{Pallet, Call, Storage, Event<T>},
+        Bounties: pallet_bounties::{Pallet, Call, Storage, Event<T>},
+        Tips: pallet_tips::{Pallet, Call, Storage, Event<T>},
         MiningRewardsAllowanceTestModule: mining_rewards_allowance::{Pallet, Call, Storage, Config<T>, Event<T>},
     }
 );
@@ -147,6 +162,93 @@ impl pallet_transaction_payment::Config for Test {
     type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
     type TransactionByteFee = TransactionByteFee;
     type WeightToFee = IdentityFee<u64>;
+}
+
+thread_local! {
+    static TEN_TO_FOURTEEN: RefCell<Vec<u128>> = RefCell::new(vec![10,11,12,13,14]);
+}
+pub struct TenToFourteen;
+impl SortedMembers<u128> for TenToFourteen {
+    fn sorted_members() -> Vec<u128> {
+        TEN_TO_FOURTEEN.with(|v| v.borrow().clone())
+    }
+
+    #[cfg(feature = "runtime-benchmarks")]
+    fn add(new: &u128) {
+        TEN_TO_FOURTEEN.with(|v| {
+            let mut members = v.borrow_mut();
+            members.push(*new);
+            members.sort();
+        })
+    }
+}
+impl ContainsLengthBound for TenToFourteen {
+    fn max_len() -> usize {
+        TEN_TO_FOURTEEN.with(|v| v.borrow().len())
+    }
+
+    fn min_len() -> usize {
+        0
+    }
+}
+
+parameter_types! {
+    pub const ProposalBond: Permill = Permill::from_percent(5);
+    pub const ProposalBondMinimum: u64 = 1_000_000_000_000_000_000;
+    pub const SpendPeriod: BlockNumber = 1 * DAYS;
+    pub const Burn: Permill = Permill::from_percent(0);
+    pub const TipCountdown: BlockNumber = 1;
+    pub const TipFindersFee: Percent = Percent::from_percent(20);
+    pub const TipReportDepositBase: u64 = 1_000_000_000_000_000_000;
+    pub const DataDepositPerByte: u64 = 1;
+    pub const BountyDepositBase: u64 = 80;
+    pub const BountyDepositPayoutDelay: u32 = 3;
+    pub const TreasuryPalletId: PalletId = PalletId(*b"py/trsry");
+    pub const BountyUpdatePeriod: u32 = 20;
+    pub const MaximumReasonLength: u32 = 16384;
+    pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
+    pub const BountyValueMinimum: u64 = 1;
+    pub const MaxApprovals: u32 = 100;
+}
+
+impl pallet_treasury::Config for Test {
+    type PalletId = TreasuryPalletId;
+    type Currency = Balances;
+    type ApproveOrigin = EnsureRoot<u128>;
+    type RejectOrigin = EnsureRoot<u128>;
+    type Event = ();
+    type OnSlash = ();
+    type ProposalBond = ProposalBond;
+    type ProposalBondMinimum = ProposalBondMinimum;
+    type SpendPeriod = SpendPeriod;
+    type Burn = Burn;
+    type BurnDestination = ();
+    type SpendFunds = Bounties;
+    type WeightInfo = pallet_treasury::weights::SubstrateWeight<Test>;
+    type MaxApprovals = MaxApprovals;
+}
+
+impl pallet_bounties::Config for Test {
+    type Event = ();
+    type BountyDepositBase = BountyDepositBase;
+    type BountyDepositPayoutDelay = BountyDepositPayoutDelay;
+    type BountyUpdatePeriod = BountyUpdatePeriod;
+    type BountyCuratorDeposit = BountyCuratorDeposit;
+    type BountyValueMinimum = BountyValueMinimum;
+    type DataDepositPerByte = DataDepositPerByte;
+    type MaximumReasonLength = MaximumReasonLength;
+    type WeightInfo = pallet_bounties::weights::SubstrateWeight<Test>;
+}
+
+impl pallet_tips::Config for Test {
+    type Event = ();
+    type DataDepositPerByte = DataDepositPerByte;
+    type MaximumReasonLength = MaximumReasonLength;
+    type Tippers = TenToFourteen;
+    type TipCountdown = TipCountdown;
+    type TipFindersFee = TipFindersFee;
+    type TipReportDepositBase = TipReportDepositBase;
+    type WeightInfo = pallet_tips::weights::SubstrateWeight<Test>;
 }
 
 impl MiningRewardsAllowanceConfig for Test {
