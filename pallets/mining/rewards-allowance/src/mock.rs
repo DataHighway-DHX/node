@@ -7,6 +7,7 @@ use frame_support::{
     parameter_types,
     traits::{
         ContainsLengthBound,
+        LockIdentifier,
         SortedMembers,
     },
     weights::{
@@ -44,17 +45,18 @@ use sp_runtime::{
     Permill,
 };
 use std::cell::RefCell;
+use static_assertions::const_assert;
 pub use module_primitives::{
 	constants::currency::{
-        CENTS,
+        // CENTS, // Use override below
         deposit,
-        DOLLARS,
-        MILLICENTS,
+        // DOLLARS, // Use override below
+        // MILLICENTS, // Use override below
     },
     constants::time::{
-        DAYS,
+        // DAYS, // Use override below
         SLOT_DURATION,
-        MINUTES,
+        // MINUTES, // Use override below
     },
 	types::{
         // AccountId, // Use override below
@@ -96,6 +98,14 @@ frame_support::construct_runtime!(
 pub type AccountId = u128;
 pub type Balance = u64;
 pub type BlockNumber = u64;
+
+pub const MILLISECS_PER_BLOCK: Moment = 4320;
+pub const MILLICENTS: Balance = 1_000_000_000;
+pub const CENTS: Balance = 1_000 * MILLICENTS; // assume this is worth about a cent.
+pub const DOLLARS: Balance = 100 * CENTS;
+pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
+pub const HOURS: BlockNumber = MINUTES * 60;
+pub const DAYS: BlockNumber = HOURS * 24;
 
 parameter_types! {
     pub const BlockHashCount: u64 = 250;
@@ -205,9 +215,9 @@ impl pallet_collective::Config<CouncilCollective> for Test {
 parameter_types! {
     pub const CandidacyBond: Balance = 10 * DOLLARS;
     // 1 storage item created, key size is 32 bytes, value size is 16+16.
-    pub const VotingBondBase: Balance = deposit(1, 64);
+    pub const VotingBondBase: Balance = 1;
     // additional data per vote is 32 bytes (account id).
-    pub const VotingBondFactor: Balance = deposit(0, 32);
+    pub const VotingBondFactor: Balance = 1;
     pub const TermDuration: BlockNumber = 7 * DAYS;
     // Check chain_spec. This value should be greater than or equal to the amount of
     // endowed accounts that are added to election_phragmen
@@ -220,14 +230,14 @@ parameter_types! {
 const_assert!(DesiredMembers::get() <= CouncilMaxMembers::get());
 
 impl pallet_elections_phragmen::Config for Test {
-    type Event = Event;
+    type Event = ();
     type PalletId = ElectionsPhragmenPalletId;
     type Currency = Balances;
     type ChangeMembers = Council;
     // NOTE: this implies that council's genesis members cannot be set directly and must come from
     // this module.
     type InitializeMembers = Council;
-    type CurrencyToVote = U128CurrencyToVote;
+    type CurrencyToVote = frame_support::traits::SaturatingCurrencyToVote;
     type CandidacyBond = CandidacyBond;
     type VotingBondBase = VotingBondBase;
     type VotingBondFactor = VotingBondFactor;

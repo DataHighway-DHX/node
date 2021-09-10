@@ -38,6 +38,7 @@ std = [
 ]
 
 [dependencies]
+static_assertions = '1.1.0'
 chrono = { version = '0.4.19', default_features = false }
 log = { version = '0.4.14', default-features = false }
 serde = { version = '1.0.126', features = ['derive'] }
