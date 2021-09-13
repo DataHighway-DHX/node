@@ -155,6 +155,8 @@ pub mod pallet {
     #[pallet::error]
     pub enum Error<T> {
         NoneValue,
+        /// Preimage already noted
+		DuplicatePreimage,
         StorageOverflow,
         StorageUnderflow,
     }
