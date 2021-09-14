@@ -2,7 +2,8 @@ version: "3"
 
 services:
   node-1:
-    image: dhxdocker/datahighway:latest
+    build: .
+    # image: dhxdocker/datahighway:lukemmd1309A
     env_file:
       - .env
     ports:
@@ -15,7 +16,8 @@ services:
     entrypoint:
       - ./docker-entrypoint-node-1.sh
   node-2:
-    image: dhxdocker/datahighway:latest
+    build: .
+    # image: dhxdocker/datahighway:lukemmd1309A
     env_file:
       - .env
     ports:
@@ -28,7 +30,8 @@ services:
     entrypoint:
       - ./docker-entrypoint-node-2.sh
   node-3:
-    image: dhxdocker/datahighway:latest
+    build: .
+    # image: dhxdocker/datahighway:lukemmd1309A
     env_file:
       - .env
     ports:
@@ -41,7 +44,8 @@ services:
     entrypoint:
       - ./docker-entrypoint-node-3.sh
   node-4:
-    image: dhxdocker/datahighway:latest
+    build: .
+    # image: dhxdocker/datahighway:lukemmd1309A
     env_file:
       - .env
     ports:
@@ -54,7 +58,8 @@ services:
     entrypoint:
       - ./docker-entrypoint-node-4.sh
   node-5:
-    image: dhxdocker/datahighway:latest
+    build: .
+    # image: dhxdocker/datahighway:lukemmd1309A
     env_file:
       - .env
     ports:
