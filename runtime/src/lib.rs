@@ -81,8 +81,8 @@ pub use frame_support::{
         ContainsLengthBound,
         KeyOwnerProofSystem,
         Randomness,
-        All,
         IsInVec,
+        Everything,
     },
     weights::{
         constants::{
@@ -799,7 +799,7 @@ match_type! {
 
 pub type Barrier = (
     TakeWeightCredit,
-    AllowTopLevelPaidExecutionFrom<All<MultiLocation>>,
+    AllowTopLevelPaidExecutionFrom<Everything>,
     AllowUnpaidExecutionFrom<ParentOrParentsUnitPlurality>,
     // ^^^ Parent & its unit plurality gets free execution
 );
@@ -837,11 +837,12 @@ impl pallet_xcm::Config for Runtime {
     type SendXcmOrigin = EnsureXcmOrigin<Origin, LocalOriginToLocation>;
     type XcmRouter = XcmRouter;
     type ExecuteXcmOrigin = EnsureXcmOrigin<Origin, LocalOriginToLocation>;
-    type XcmExecuteFilter = All<(MultiLocation, Xcm<Call>)>;
+    type XcmExecuteFilter = Everything;
     type XcmExecutor = XcmExecutor<XcmConfig>;
-    type XcmTeleportFilter = All<(MultiLocation, Vec<MultiAsset>)>;
+    type XcmTeleportFilter = Everything;
     type XcmReserveTransferFilter = ();
     type Weigher = FixedWeightBounds<UnitWeightCost, Call>;
+    type LocationInverter = LocationInverter<Ancestry>;
 }
 
 impl cumulus_pallet_xcm::Config for Runtime {
@@ -890,6 +891,7 @@ impl cumulus_pallet_dmp_queue::Config for Runtime {
 
 impl pallet_aura::Config for Runtime {
     type AuthorityId = AuraId;
+    type DisabledValidators = ();
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -977,7 +979,7 @@ pub type UncheckedExtrinsic = generic::UncheckedExtrinsic<Address, Call, Signatu
 pub type CheckedExtrinsic = generic::CheckedExtrinsic<AccountId, Call, SignedExtra>;
 /// Executive: handles dispatch to the various modules.
 pub type Executive =
-    frame_executive::Executive<Runtime, Block, frame_system::ChainContext<Runtime>, Runtime, AllModules>;
+    frame_executive::Executive<Runtime, Block, frame_system::ChainContext<Runtime>, Runtime, AllPallets>;
 
 impl_runtime_apis! {
     impl sp_api::Core<Block> for Runtime {

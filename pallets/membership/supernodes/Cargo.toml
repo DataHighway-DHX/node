@@ -25,46 +25,39 @@ account-set = { path = '../../../traits/account-set', default-features = false }
 [dependencies.frame-support]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.8"
-version = '3.0.0'
+branch = "polkadot-v0.9.9"
 
 
 [dependencies.frame-system]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.8"
-version = '3.0.0'
+branch = "polkadot-v0.9.9"
 
 [dependencies.pallet-balances]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.8"
-version = '3.0.0'
+branch = "polkadot-v0.9.9"
 
 [dependencies.sp-runtime]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.8"
-version = '3.0.0'
+branch = "polkadot-v0.9.9"
 
 [dependencies.sp-std]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.8"
-version = '3.0.0'
+branch = "polkadot-v0.9.9"
 
 [dev-dependencies]
 [dependencies.sp-io]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.8"
-version = '3.0.0'
+branch = "polkadot-v0.9.9"
 
 [dependencies.sp-core]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.8"
-version = '3.0.0'
+branch = "polkadot-v0.9.9"
 
 [features]
 default = ['std']

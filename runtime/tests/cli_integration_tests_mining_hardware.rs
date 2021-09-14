@@ -12,7 +12,6 @@ mod tests {
 
     use frame_support::{
         assert_ok,
-        impl_outer_origin,
         parameter_types,
         weights::{
             IdentityFee,
