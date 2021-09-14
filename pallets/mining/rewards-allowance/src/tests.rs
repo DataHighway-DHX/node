@@ -94,16 +94,42 @@ fn setup_preimage() {
             Err(x) if x == Error::<Test>::DuplicatePreimage.into() => (),
             Err(x) => panic!("Democracy::note_preimage error {:?}", x),
         }
-        assert_eq!(System::events(),
+        System::set_block_number(1);
+        let record =
+            |event| EventRecord { phase: Phase::Initialization, event, topics: vec![] };
+
+        // let topics = vec![H256::repeat_byte(1), H256::repeat_byte(2), H256::repeat_byte(3)];
+        // System::deposit_event_indexed(&topics[0..3], SysEvent::NewAccount(1).into());
+
+        assert_eq!(
+            System::events(),
             vec![
-                EventRecord {
-                    phase: Phase::ApplyExtrinsic(0),
-                    event: Default::default(),
-                    topics: vec![],
-                }
+                // record(Event::Democracy(RawEvent::PreimageNoted(0x00, 1, 0))),
+                // record(Event::ExtrinsicSuccess(DispatchInfo {
+				// 	weight: transfer_weight,
+				// 	..Default::default()
+				// })),
+                // record(Event::System(frame_system::Event::ExtrinsicSuccess(DispatchInfo {
+				// 	weight: transfer_weight,
+				// 	..Default::default()
+				// }))),
             ]
         );
-        System::set_block_number(1);
+
+        // let event = SysEvent::NewAccount(32).into();
+        // let event_record = EventRecord {
+        //     phase: Phase::ApplyExtrinsic(0),
+        //     // proposal_hash, who, deposit
+        //     event: event.clone(),
+        //     // event: Event::Democracy(pallet_democracy::Event::PreimageNoted(0x00, 1, 0)),
+        //     topics: vec![],
+        // };
+        // System::deposit_event(event.clone());
+        // System::finalize();
+        // assert_eq!(System::events(), vec![event_record.clone()]);
+        // assert_eq!(System::events(), vec![]);
+
+
         // add a public proposal with a pre-image hash (with a required deposit)
         // to the proposal queue prior to it becoming a referendum
         //

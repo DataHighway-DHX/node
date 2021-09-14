@@ -98,6 +98,7 @@ frame_support::construct_runtime!(
 pub type AccountId = u128;
 pub type Balance = u64;
 pub type BlockNumber = u64;
+// pub type SysEvent = frame_system::Event<Test>;
 
 pub const MILLISECS_PER_BLOCK: Moment = 4320;
 pub const MILLICENTS: Balance = 1_000_000_000;
