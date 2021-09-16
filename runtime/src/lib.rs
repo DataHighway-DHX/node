@@ -902,14 +902,26 @@ construct_runtime!(
         UncheckedExtrinsic = UncheckedExtrinsic
     {
         System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
-        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
         Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent},
-        //Indices: pallet_indices::{Pallet, Call, Storage, Event<T>, Config<T>},
+        Sudo: pallet_sudo::{Pallet, Call, Config<T>, Storage, Event<T>},
+        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
+        TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
+
+        // PARACHAIN
+        ParachainSystem: cumulus_pallet_parachain_system::{Pallet, Call, Storage, Inherent, Event<T>},
+        ParachainInfo: parachain_info::{Pallet, Storage, Config},
+
         Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
+
+        // Consensus
         Aura: pallet_aura::{Pallet, Config<T>},
         AuraExt: cumulus_pallet_aura_ext::{Pallet, Config},
-        TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
-        Sudo: pallet_sudo::{Pallet, Call, Config<T>, Storage, Event<T>},
+
+        XcmpQueue: cumulus_pallet_xcmp_queue::{Pallet, Call, Storage, Event<T>},
+        PolkadotXcm: pallet_xcm::{Pallet, Call, Event<T>, Origin},
+        XcmHandler: cumulus_pallet_xcm::{Pallet, Call, Event<T>, Origin},
+        DmpQueue: cumulus_pallet_dmp_queue::{Pallet, Call, Storage, Event<T>},
+
         GeneralCouncil: pallet_collective::<Instance1>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>},
         GeneralCouncilMembership: pallet_membership::<Instance1>::{Pallet, Call, Storage, Event<T>, Config<T>},
         PalletTreasury: pallet_treasury::{Pallet, Call, Storage, Config, Event<T>},
@@ -943,13 +955,7 @@ construct_runtime!(
         MiningClaimsHardware: mining_claims_hardware::{Pallet, Call, Storage, Event<T>},
         MiningExecutionToken: mining_execution_token::{Pallet, Call, Storage, Event<T>},
         ExchangeRate: exchange_rate::{Pallet, Call, Storage, Event<T>},
-        // PARACHAIN
-        ParachainSystem: cumulus_pallet_parachain_system::{Pallet, Call, Storage, Inherent, Event<T>},
-        ParachainInfo: parachain_info::{Pallet, Storage, Config},
-        PolkadotXcm: pallet_xcm::{Pallet, Call, Event<T>, Origin},
-        XcmHandler: cumulus_pallet_xcm::{Pallet, Call, Event<T>, Origin},
-        XcmpQueue: cumulus_pallet_xcmp_queue::{Pallet, Call, Storage, Event<T>},
-        DmpQueue: cumulus_pallet_dmp_queue::{Pallet, Call, Storage, Event<T>},
+
     }
 );
 
