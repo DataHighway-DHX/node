@@ -1,6 +1,8 @@
 use cumulus_primitives_core::ParaId;
 use datahighway_runtime::{
     AccountId,
+    AuraId,
+    AuraConfig,
     BalancesConfig,
     GeneralCouncilMembershipConfig,
     GenesisConfig,
@@ -98,8 +100,8 @@ pub fn development_config(id: ParaId) -> ChainSpec {
         ChainType::Local,
         move || {
             dev_genesis(
-                vec![get_authority_keys_from_seed("Alice")],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
+                vec![get_from_seed::<AuraId>("Alice")],
                 vec![
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
@@ -132,13 +134,12 @@ pub fn local_testnet_config(id: ParaId) -> ChainSpec {
         ChainType::Local,
         move || {
             dev_genesis(
-                vec![
-                    get_authority_keys_from_seed("Alice"),
-                    get_authority_keys_from_seed("Bob"),
-                    get_authority_keys_from_seed("Charlie"),
-                    get_authority_keys_from_seed("Dave"),
-                ],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
+                vec![
+                    get_from_seed::<AuraId>("Alice"),
+                    get_from_seed::<AuraId>("Bob"),
+                    get_from_seed::<AuraId>("Charlie"),
+                    get_from_seed::<AuraId>("Dave")],
                 vec![
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
@@ -175,33 +176,17 @@ pub fn harbor_testnet_config(id: ParaId) -> ChainSpec {
         ChainType::Local,
         move || {
             testnet_genesis(
+                hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
                 vec![
-                    (
-                        hex!["f64bae0f8fbe2eb59ff1c0ff760a085f55d69af5909aed280ebda09dc364d443"].into(),
-                        hex!["ca907b74f921b74638eb40c289e9bf1142b0afcdb25e1a50383ab8f9d515da0d"].into(),
+                        hex!["f64bae0f8fbe2eb59ff1c0ff760a085f55d69af5909aed280ebda09dc364d443"].unchecked_into(),
+                        hex!["ca907b74f921b74638eb40c289e9bf1142b0afcdb25e1a50383ab8f9d515da0d"].unchecked_into(),
                         hex!["6a9da05f3e07d68bc29fb6cf9377a1537d59f082f49cb27a47881aef9fbaeaee"].unchecked_into(),
                         hex!["f2bf53bfe43164d88fcb2e83891137e7cf597857810a870b4c24fb481291b43a"].unchecked_into(),
-                    ),
-                    (
-                        hex!["420a7b4a8c9f2388eded13c17841d2a0e08ea7c87eda84310da54f3ccecd3931"].into(),
-                        hex!["ae69db7838fb139cbf4f93bf877faf5bbef242f3f5aac6eb4f111398e9385e7d"].into(),
+                        hex!["420a7b4a8c9f2388eded13c17841d2a0e08ea7c87eda84310da54f3ccecd3931"].unchecked_into(),
+                        hex!["ae69db7838fb139cbf4f93bf877faf5bbef242f3f5aac6eb4f111398e9385e7d"].unchecked_into(),
                         hex!["9af1908ac74b042f4be713e10dcf6a2def3770cfce58951c839768e7d6bbcd8e"].unchecked_into(),
                         hex!["1e91a7902c89289f97756c4e20c0e9536f34de61c7c21af7773d670b0e644030"].unchecked_into(),
-                    ),
-                    (
-                        hex!["ceecb6cc08c20ff44052ff19952a810d08363aa26ea4fb0a64a62a4630d37f28"].into(),
-                        hex!["7652b25328d78d264aef01184202c9771b55f5b391359309a2559ef77fbbb33d"].into(),
-                        hex!["b8902681768fbda7a29666e1de8a18f5be3c778d92cf29139959a86e6bff13e7"].unchecked_into(),
-                        hex!["aaabcb653ce5dfd63035430dba10ce9aed5d064883b9e2b19ec5d9b26a457f57"].unchecked_into(),
-                    ),
-                    (
-                        hex!["68bac5586028dd40db59a7becec349b42cd4229f9d3c31875c3eb7a57241cd42"].into(),
-                        hex!["eec96d02877a45fa524fcee1c6b7c849cbdc8cee01a95f5db168c427ae766849"].into(),
-                        hex!["f4807d86cca169a81d42fcf9c7abddeff107b0a73e9e7a809257ac7e4a164741"].unchecked_into(),
-                        hex!["a49ac1053a40a2c7c33ffa41cb285cef7c3bc9db7e03a16d174cc8b5b5ac0247"].unchecked_into(),
-                    ),
                 ],
-                hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
                 vec![
                     // Endow this account with the DHX DAO Unlocked Reserves Balance
                     // 5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr
@@ -316,8 +301,8 @@ fn mk_genesis(endowed_accounts: Vec<AccountId>, root_key: AccountId, parachain_i
 }
 
 fn testnet_genesis(
-    _initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
     root_key: AccountId,
+    initial_authorities: Vec<AuraId>,
     endowed_accounts: Vec<AccountId>,
     id: ParaId,
 ) -> GenesisConfig {
@@ -326,9 +311,6 @@ fn testnet_genesis(
             code: datahighway_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
             changes_trie_config: Default::default(),
         },
-        // pallet_indices: IndicesConfig {
-        //     indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
-        // },
         balances: BalancesConfig {
             balances: endowed_accounts
                 .iter()
@@ -338,32 +320,9 @@ fn testnet_genesis(
                 .map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE))
                 .collect(),
         },
-        // pallet_session: SessionConfig {
-        //     keys: initial_authorities
-        //         .iter()
-        //         .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone())))
-        //         .collect::<Vec<_>>(),
-        // },
-        // pallet_staking: StakingConfig {
-        //     validator_count: initial_authorities.len() as u32 * 2,
-        //     minimum_validator_count: initial_authorities.len() as u32,
-        //     stakers: initial_authorities
-        //         .iter()
-        //         .map(|x| (x.0.clone(), x.1.clone(), INITIAL_STAKING, StakerStatus::Validator))
-        //         .collect(),
-        //     invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
-        //     slash_reward_fraction: Perbill::from_percent(10),
-        //     ..Default::default()
-        // },
         sudo: SudoConfig {
             key: root_key.clone(),
         },
-        // pallet_babe: BabeConfig {
-        //     authorities: vec![],
-        // },
-        // pallet_grandpa: GrandpaConfig {
-        //     authorities: vec![],
-        // },
         general_council: Default::default(),
         general_council_membership: GeneralCouncilMembershipConfig {
             members: vec![root_key.clone()],
@@ -373,14 +332,14 @@ fn testnet_genesis(
         parachain_info: datahighway_runtime::ParachainInfoConfig {
             parachain_id: id,
         },
-        aura: Default::default(),
+        aura: AuraConfig { authorities: initial_authorities },
         aura_ext: Default::default(),
     }
 }
 
 fn dev_genesis(
-    _initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
     root_key: AccountId,
+    initial_authorities: Vec<AuraId>,
     endowed_accounts: Vec<AccountId>,
     id: ParaId,
 ) -> datahighway_runtime::GenesisConfig {
@@ -389,9 +348,6 @@ fn dev_genesis(
             code: datahighway_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
             changes_trie_config: Default::default(),
         },
-        // pallet_indices: IndicesConfig {
-        //     indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
-        // },
         balances: datahighway_runtime::BalancesConfig {
             balances: endowed_accounts.iter().cloned().map(|x|
                 // Insert Public key (hex) of the account without the 0x prefix below
@@ -403,32 +359,9 @@ fn dev_genesis(
             )
             .collect(),
         },
-        // pallet_session: SessionConfig {
-        //     keys: initial_authorities
-        //         .iter()
-        //         .map(|x| (x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone())))
-        //         .collect::<Vec<_>>(),
-        // },
-        // pallet_staking: StakingConfig {
-        //     validator_count: initial_authorities.len() as u32 * 2,
-        //     minimum_validator_count: initial_authorities.len() as u32,
-        //     stakers: initial_authorities
-        //         .iter()
-        //         .map(|x| (x.0.clone(), x.1.clone(), INITIAL_STAKING, StakerStatus::Validator))
-        //         .collect(),
-        //     invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
-        //     slash_reward_fraction: Perbill::from_percent(10),
-        //     ..Default::default()
-        // },
         sudo: datahighway_runtime::SudoConfig {
             key: root_key.clone(),
         },
-        // pallet_babe: BabeConfig {
-        //     authorities: vec![],
-        // },
-        // pallet_grandpa: GrandpaConfig {
-        //     authorities: vec![],
-        // },
         general_council: Default::default(),
         general_council_membership: GeneralCouncilMembershipConfig {
             members: vec![root_key.clone()],
@@ -438,7 +371,7 @@ fn dev_genesis(
         parachain_info: datahighway_runtime::ParachainInfoConfig {
             parachain_id: id,
         },
-        aura: Default::default(),
+        aura: AuraConfig { authorities: initial_authorities },
         aura_ext: Default::default(),
     }
 }
