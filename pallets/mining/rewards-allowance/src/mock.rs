@@ -437,6 +437,9 @@ impl MiningRewardsAllowanceConfig for Test {
     type Currency = Balances;
 }
 
+pub type SysEvent = frame_system::Event<Test>;
+pub type DemocracyEvent = pallet_democracy::Event<Test>;
+
 // This function basically just builds a genesis storage key/value store according to
 // our desired mockup.
 pub fn new_test_ext() -> sp_io::TestExternalities {

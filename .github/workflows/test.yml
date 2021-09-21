@@ -91,6 +91,7 @@ jobs:
           cargo +nightly-2021-08-31 test -p mining-setting-hardware &&
           cargo +nightly-2021-08-31 test -p mining-rates-token &&
           cargo +nightly-2021-08-31 test -p mining-rates-hardware &&
+          cargo +nightly-2021-08-31 test -p mining-rewards-allowance &&
           cargo +nightly-2021-08-31 test -p mining-sampling-token &&
           cargo +nightly-2021-08-31 test -p mining-sampling-hardware &&
           cargo +nightly-2021-08-31 test -p mining-eligibility-token &&

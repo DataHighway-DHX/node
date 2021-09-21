@@ -1,3 +1,4 @@
+use super::{Call, Event, *};
 use crate::{mock::*, Error};
 use crate::{BondedDHXForAccountData};
 use codec::Encode;
@@ -95,108 +96,79 @@ fn setup_preimage() {
             Err(x) => panic!("Democracy::note_preimage error {:?}", x),
         }
         System::set_block_number(1);
-        let record =
-            |event| EventRecord { phase: Phase::Initialization, event, topics: vec![] };
 
-        // let topics = vec![H256::repeat_byte(1), H256::repeat_byte(2), H256::repeat_byte(3)];
-        // System::deposit_event_indexed(&topics[0..3], SysEvent::NewAccount(1).into());
-
+        let event: SysEvent = SysEvent::NewAccount(32).into();
+        let event_record: EventRecord<(), H256> = EventRecord {
+            phase: Phase::Initialization,
+            // we cannot do `event.clone() or it gives error:
+            //   `expected `()`, found enum `frame_system::Event``
+            event: (),
+            topics: vec![],
+        };
+        let hash = sp_core::H256::default();
+        // PreimageNoted: proposal_hash, who, deposit
+        let event2: DemocracyEvent = DemocracyEvent::PreimageNoted(hash.clone(), 1, 0);
+        System::deposit_event(event.clone());
+        System::deposit_event(event2.clone());
+        System::finalize();
         assert_eq!(
             System::events(),
             vec![
-                // record(Event::Democracy(RawEvent::PreimageNoted(0x00, 1, 0))),
-                // record(Event::ExtrinsicSuccess(DispatchInfo {
-				// 	weight: transfer_weight,
-				// 	..Default::default()
-				// })),
-                // record(Event::System(frame_system::Event::ExtrinsicSuccess(DispatchInfo {
-				// 	weight: transfer_weight,
-				// 	..Default::default()
-				// }))),
+                event_record.clone(),
+                event_record.clone(),
             ]
         );
+        // Note: We are just going to assume that the event `DemocracyEvent::PreimageNoted`
+        // emits a pre-image hash that we may then use to create a proposal with.
+        let pre_image_hash = BlakeTwo256::hash(b"test");
+        // let pre_image = <Preimages<T>>::take(&proposal_hash);
 
-        // let event = SysEvent::NewAccount(32).into();
-        // let event_record = EventRecord {
-        //     phase: Phase::ApplyExtrinsic(0),
-        //     // proposal_hash, who, deposit
-        //     event: event.clone(),
-        //     // event: Event::Democracy(pallet_democracy::Event::PreimageNoted(0x00, 1, 0)),
-        //     topics: vec![],
-        // };
-        // System::deposit_event(event.clone());
-        // System::finalize();
-        // assert_eq!(System::events(), vec![event_record.clone()]);
-        // assert_eq!(System::events(), vec![]);
-
-
-        // add a public proposal with a pre-image hash (with a required deposit)
+        // add a public proposal with a proposal pre-image hash (with a required deposit)
         // to the proposal queue prior to it becoming a referendum
         //
         // since we've configured MinimumDeposit to be 100 * DOLLARS, which is 100_000_000_000_000,
         // we need to deposit at least that much otherwise we get error `ValueLow`
-        match Democracy::propose(Origin::signed(1), BlakeTwo256::hash(b"test"), 100_000_000_000_000) {
+        match Democracy::propose(Origin::signed(1), pre_image_hash.clone(), 100_000_000_000_000) {
             Ok(_) => (),
             Err(x) => panic!(" Democracy::propose error {:?}", x),
         }
-
-        // // add a single proposal with a pre-image hash (no deposit required)
-        // // that originates from an external origin (i.e. collective group)
-        // // to the external queue prior to it becoming a referendum
-        // match Democracy::external_propose(Origin::signed(3), BlakeTwo256::hash(b"test")) {
-        //     Ok(_) => (),
-        //     Err(x) => panic!(" Democracy::external_propose error {:?}", x),
-        // }
-
-        // the above returns `BadOrigin`
 
         System::set_block_number(2);
         Democracy::note_imminent_preimage(Origin::signed(1), encoded_proposal_preimage.clone());
         let public_prop_count = Democracy::public_prop_count();
         assert_eq!(public_prop_count, 1);
-        // check if a lock exists on an account until a block in the future.
-        // there shouldn't be any yet
+        // check if a lock exists on an account until a block in the future. there shouldn't be any yet
         let locks_until_block_for_account = Democracy::locks(1);
         assert_eq!(locks_until_block_for_account, None);
+        // second the proposals
         assert_ok!(Democracy::second(Origin::signed(1), 0, u32::MAX));
+        System::set_block_number(3);
         // check the deposits made on a proposal index
 		let deposits = Democracy::deposit_of(0).ok_or("Proposal not created").unwrap();
 		assert_eq!(deposits.0.len(), 2 as usize, "Seconds not recorded");
 
-        // let preimage = <Preimages<T>>::take(&proposal_hash);
+        // check for info about referendums. there shouldn't be any yet.
+        let referendum_count = Democracy::referendum_count();
+        assert_eq!(referendum_count, 0);
+        // info about a referendum index
+        let referendum_info_1 = Democracy::referendum_info(0);
+        assert_eq!(referendum_info_1, None);
 
-        // // second the proposals
-        // assert_ok!(Democracy::second(Origin::signed(1), 0, u32::MAX));
+        // we have 4.32 seconds per block, with a launch period of 672 hours,
+        // so there are 10450944 blocks in the launch period before the the
+        // public and external proposals take turns becoming a referendum
+        System::set_block_number(11_000_000);
 
-        // let referendum_count = Democracy::referendum_count();
-        // assert_eq!(referendum_count, Some(0));
+        // Note: Unfortunately we cannot use `Democracy::referendum_status` since it's a
+        // private function
 
-        // // info about a referendum index
-        // let referendum_info_1 = Democracy::referendum_info(0);
-        // assert_eq!(referendum_info_1, None);
-
-        // thread 'tests::setup_preimage' panicked at 'Expected Ok(_). Got Err(
-        //     Module {
-        //         index: 5,
-        //         error: 1,
-        //         message: Some(
-        //             "ProposalMissing",
-        //         ),
-        //     },
-        // )', pallets/mining/rewards-allowance/src/tests.rs:105:9
-
-
-        // // we have 4.32 seconds per block, with a launch period of 672 hours,
-        // // so there are 10450944 blocks in the launch period before the the
-        // // public and external proposals take turns becoming a referendum
-        // System::set_block_number(11_000_000);
         // // wait for referendums to be launched from the proposals after the launch period
 		// // external proposal becomes referendum first
 		// assert_eq!(
 		// 	Democracy::referendum_status(0),
 		// 	Ok(ReferendumStatus {
 		// 		end: 11_000_020, // block when voting on referendum ends
-		// 		proposal_hash: BlakeTwo256::hash(b"test"),
+		// 		proposal_hash: pre_image_hash.clone(),
 		// 		threshold: VoteThreshold::SuperMajorityApprove,
 		// 		delay: 2,
 		// 		tally: Tally { ayes: 0, nays: 0, turnout: 0 },
@@ -207,12 +179,13 @@ fn setup_preimage() {
 		// 	Democracy::referendum_status(1),
 		// 	Ok(ReferendumStatus {
 		// 		end: 11_000_020,
-		// 		proposal_hash: BlakeTwo256::hash(b"test"),
+		// 		proposal_hash: pre_image_hash.clone(),
 		// 		threshold: VoteThreshold::SuperMajorityApprove,
 		// 		delay: 2,
 		// 		tally: Tally { ayes: 0, nays: 0, turnout: 0 },
 		// 	})
 		// );
+
         // System::set_block_number(11_000_001);
         // // end of voting on referendum
         // System::set_block_number(11_000_050);
