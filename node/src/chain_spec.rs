@@ -21,7 +21,6 @@ use serde::{
     Serialize,
 };
 use serde_json::map::Map;
-use sp_consensus_babe::AuthorityId as BabeId;
 use sp_core::{
     crypto::{
         UncheckedFrom,
@@ -31,7 +30,6 @@ use sp_core::{
     Pair,
     Public,
 };
-use sp_finality_grandpa::AuthorityId as GrandpaId;
 use sp_runtime::traits::{
     IdentifyAccount,
     Verify,
@@ -70,15 +68,6 @@ type AccountPublic = <Signature as Verify>::Signer;
 
 // Note this is the URL for the telemetry server
 const POLKADOT_STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
-
-pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, GrandpaId, BabeId) {
-    (
-        get_account_id_from_seed::<sr25519::Public>(&format!("{}//stash", seed)),
-        get_account_id_from_seed::<sr25519::Public>(seed),
-        get_from_seed::<GrandpaId>(seed),
-        get_from_seed::<BabeId>(seed),
-    )
-}
 
 /// Helper function to generate an account ID from seed
 pub fn get_account_id_from_seed<TPublic: Public>(seed: &str) -> AccountId
@@ -254,13 +243,6 @@ pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
         },
     )
 }
-
-// fn session_keys(grandpa: GrandpaId, babe: BabeId) -> SessionKeys {
-//     SessionKeys {
-//         grandpa,
-//         babe,
-//     }
-// }
 
 // total supply should be 100m, with 30m (30%) going to DHX DAO unlocked reserves, and the remaining
 // 70m split between the initial 8x accounts other than the reserves such that each should receive 8750

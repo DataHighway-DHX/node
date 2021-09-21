@@ -268,11 +268,6 @@ default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 branch = "polkadot-v0.9.9"
 
-[dependencies.pallet-grandpa]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.9"
-
 [dependencies.pallet-indices]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
@@ -343,7 +338,6 @@ std = [
 	"pallet-timestamp/std",
 	"pallet-sudo/std",
 	"pallet-transaction-payment/std",
-    'pallet-grandpa/std',
     'pallet-indices/std',
     'pallet-collective/std',
     'pallet-membership/std',
