@@ -20,6 +20,7 @@ use frame_system::{
     EnsureOneOf,
     EnsureRoot,
 };
+use pallet_democracy::{self, Conviction, Vote};
 use sp_core::{
     H256,
     u32_trait::{
@@ -107,6 +108,10 @@ pub const DOLLARS: Balance = 100 * CENTS;
 pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
 pub const HOURS: BlockNumber = MINUTES * 60;
 pub const DAYS: BlockNumber = HOURS * 24;
+
+// from Substrate pallet_democracy tests
+pub const AYE: Vote = Vote { aye: true, conviction: Conviction::None };
+pub const NAY: Vote = Vote { aye: false, conviction: Conviction::None };
 
 parameter_types! {
     pub const BlockHashCount: u64 = 250;

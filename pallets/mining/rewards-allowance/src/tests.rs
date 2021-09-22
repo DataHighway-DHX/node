@@ -6,6 +6,7 @@ use frame_support::{assert_noop, assert_ok,
     weights::{DispatchClass, DispatchInfo, GetDispatchInfo},
 };
 use frame_system::{self, AccountInfo, EventRecord, Phase};
+use pallet_democracy::{self, AccountVote, ReferendumStatus, Tally, VoteThreshold};
 use sp_core::{
     H256,
     Hasher, // so we may use BlakeTwo256::hash
@@ -160,40 +161,48 @@ fn setup_preimage() {
         System::set_block_number(11_000_000);
 
         // Note: Unfortunately we cannot use `Democracy::referendum_status` since it's a
-        // private function
+        // private function if don't fork Substrate and modify the Democracy module
 
-        // // wait for referendums to be launched from the proposals after the launch period
-		// // external proposal becomes referendum first
-		// assert_eq!(
-		// 	Democracy::referendum_status(0),
-		// 	Ok(ReferendumStatus {
-		// 		end: 11_000_020, // block when voting on referendum ends
-		// 		proposal_hash: pre_image_hash.clone(),
-		// 		threshold: VoteThreshold::SuperMajorityApprove,
-		// 		delay: 2,
-		// 		tally: Tally { ayes: 0, nays: 0, turnout: 0 },
-		// 	})
-		// );
-		// // public proposal's turn to become a referendum
-		// assert_eq!(
-		// 	Democracy::referendum_status(1),
-		// 	Ok(ReferendumStatus {
-		// 		end: 11_000_020,
-		// 		proposal_hash: pre_image_hash.clone(),
-		// 		threshold: VoteThreshold::SuperMajorityApprove,
-		// 		delay: 2,
-		// 		tally: Tally { ayes: 0, nays: 0, turnout: 0 },
-		// 	})
-		// );
+        // in fork DataHighway-DHX/substrate, branch luke/democracy,
+        // commit 527101517d0ad67780131def8d227de51e503a89
+        // we made this `inject_referendum` a public function
+        let r = Democracy::inject_referendum(
+			11_000_020,
+			pre_image_hash.clone(),
+			VoteThreshold::SuperMajorityApprove,
+			2,
+		);
 
-        // System::set_block_number(11_000_001);
-        // // end of voting on referendum
-        // System::set_block_number(11_000_050);
-        // // vote on referenda using time-lock voting with a conviction to scale the vote power
-        // // note: second parameter is the referendum index
-		// assert_ok!(Democracy::vote(Origin::signed(1), 0, aye(1)));
-        // assert_eq!(tally(0), Tally { ayes: 1, nays: 0, turnout: 10 });
-		// assert_ok!(Democracy::vote(Origin::signed(1), 1, aye(1)));
-        // assert_eq!(tally(1), Tally { ayes: 1, nays: 0, turnout: 10 });
+        assert!(Democracy::referendum_status(r).is_ok());
+
+        // wait for referendums to be launched from the proposals after the launch period
+		// external proposal becomes referendum first then public proposals
+		assert_eq!(
+            // in fork DataHighway-DHX/substrate, branch luke/democracy,
+            // commit 527101517d0ad67780131def8d227de51e503a89
+            // we made this `referendum_status` a public function
+			Democracy::referendum_status(0),
+			Ok(ReferendumStatus {
+				end: 11_000_020, // block when voting on referendum ends
+				proposal_hash: pre_image_hash.clone(),
+				threshold: VoteThreshold::SuperMajorityApprove,
+				delay: 2,
+				tally: Tally { ayes: 0, nays: 0, turnout: 0 },
+			})
+		);
+
+        System::set_block_number(11_000_001);
+        // end of voting on referendum
+        System::set_block_number(11_000_050);
+        // vote on referenda using time-lock voting with a conviction to scale the vote power
+        // note: second parameter is the referendum index being voted on
+		assert_ok!(Democracy::vote(
+            Origin::signed(1),
+            0,
+            // aye(1), // cannot use aye(..) from Substrate pallet_democracy
+            // since functions used as tests cannot have any arguments
+            AccountVote::Standard { vote: AYE, balance: Balances::free_balance(1) },
+        ));
+        assert_eq!(Democracy::referendum_status(r).unwrap().tally, Tally { ayes: 30000000000000, nays: 0, turnout: 300000000000000 });
 	});
 }
