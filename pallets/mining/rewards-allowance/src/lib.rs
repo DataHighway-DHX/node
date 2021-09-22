@@ -16,6 +16,7 @@ mod tests;
 
 #[frame_support::pallet]
 pub mod pallet {
+    use log::{warn, info};
     use chrono::{
         NaiveDateTime,
     };
@@ -36,10 +37,43 @@ pub mod pallet {
         },
         prelude::*, // Imports Vec
     };
+    use sp_core::{
+        sr25519,
+        Pair,
+        Public,
+    };
+    use sp_runtime::traits::{
+        IdentifyAccount,
+        Verify,
+    };
+    use module_primitives::{
+        types::{
+            AccountId,
+            Balance,
+            Signature,
+        },
+    };
 
     // type BalanceOf<T> = <T as pallet_balances::Config>::Balance;
     type BalanceOf<T> = <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
     type Date = i64;
+
+    /// Helper function to generate a crypto pair from seed
+    pub fn get_from_seed<TPublic: Public>(seed: &str) -> <TPublic::Pair as Pair>::Public {
+        TPublic::Pair::from_string(&format!("//{}", seed), None)
+            .expect("static values are valid; qed")
+            .public()
+    }
+
+    type AccountPublic = <Signature as Verify>::Signer;
+
+    /// Helper function to generate an account ID from seed
+    pub fn get_account_id_from_seed<TPublic: Public>(seed: &str) -> AccountId
+    where
+        AccountPublic: From<<TPublic::Pair as Pair>::Public>,
+    {
+        AccountPublic::from(get_from_seed::<TPublic>(seed)).into_account()
+    }
 
     #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
     #[cfg_attr(feature = "std", derive())]
@@ -91,11 +125,19 @@ pub mod pallet {
     #[pallet::getter(fn rewards_allowance_dhx_current)]
     pub(super) type RewardsAllowanceDHXCurrent<T: Config> = StorageValue<_, u128>;
 
+	/// Those who registered that they want to participate in DHX Mining
+	///
+	/// TWOX-NOTE: Safe, as increasing integer keys are safe.
+    #[pallet::storage]
+    #[pallet::getter(fn registered_dhx_miners)]
+    pub(super) type RegisteredDHXMiners<T: Config> = StorageValue<_, Vec<T::AccountId>>;
+
     // The genesis config type.
     #[pallet::genesis_config]
     pub struct GenesisConfig<T: Config> {
         pub rewards_allowance_dhx_for_date: Vec<(Date, BalanceOf<T>)>,
         pub rewards_allowance_dhx_current: u128,
+        pub registered_dhx_miners: Vec<T::AccountId>
     }
 
     // The default value for the genesis config type.
@@ -106,6 +148,10 @@ pub mod pallet {
                 rewards_allowance_dhx_for_date: Default::default(),
                 // 5000 UNIT, where UNIT token has 18 decimal places
                 rewards_allowance_dhx_current: 5_000_000_000_000_000_000_000u128,
+                registered_dhx_miners: vec![
+                    get_account_id_from_seed::<sr25519::Public>("Alice"),
+                    get_account_id_from_seed::<sr25519::Public>("Bob"),
+                ]
             }
         }
     }
@@ -118,6 +164,9 @@ pub mod pallet {
                 <RewardsAllowanceDHXForDate<T>>::insert(a, b);
             }
             <RewardsAllowanceDHXCurrent<T>>::put(&self.rewards_allowance_dhx_current);
+            for (a) in &self.registered_dhx_miners {
+                <RegisteredDHXMiners<T>>::append(a);
+            }
         }
     }
 
@@ -157,6 +206,8 @@ pub mod pallet {
         NoneValue,
         /// Preimage already noted
 		DuplicatePreimage,
+        /// Proposal does not exist
+		ProposalMissing,
         StorageOverflow,
         StorageUnderflow,
     }
@@ -253,6 +304,27 @@ pub mod pallet {
         // `on_finalize` is executed at the end of block after all extrinsic are dispatched.
         fn on_finalize(_n: T::BlockNumber) {
             // Perform necessary data/state clean up here.
+
+            // we only check accounts that have registered that they want to participate in DHX Mining
+            let reg_dhx_miners;
+            let reg_dhx_miners_to_try = <RegisteredDHXMiners<T>>::get();
+            if let Some(_reg_dhx_miners_to_try) = reg_dhx_miners_to_try {
+                reg_dhx_miners = _reg_dhx_miners_to_try;
+            } else {
+                log::error!("Unable to retrieve any registered DHX Miners");
+                return ();
+            }
+            if reg_dhx_miners.len() == 0 {
+                log::error!("Registered DHX Miners has no elements");
+                return ();
+            };
+            let mut miner_count = 0;
+            for (index, miner) in reg_dhx_miners.iter().enumerate() {
+                miner_count += 1;
+                info!("miner_count {:#?}", miner_count);
+                info!("miner {:#?}", miner);
+            }
+
         }
     }
 

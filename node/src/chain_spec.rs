@@ -917,6 +917,10 @@ fn testnet_genesis(
         mining_rewards_allowance: MiningRewardsAllowanceConfig {
             rewards_allowance_dhx_current: 5_000_000_000_000_000_000_000u128,
             rewards_allowance_dhx_for_date: Default::default(),
+            registered_dhx_miners: vec![
+                get_account_id_from_seed::<sr25519::Public>("Alice"),
+                get_account_id_from_seed::<sr25519::Public>("Bob"),
+            ],
         },
         // pallet_membership_Instance1
         technical_membership: TechnicalMembershipConfig {
@@ -1013,6 +1017,10 @@ fn mainnet_genesis(
         mining_rewards_allowance: MiningRewardsAllowanceConfig {
             rewards_allowance_dhx_current: 5_000_000_000_000_000_000_000u128,
             rewards_allowance_dhx_for_date: Default::default(),
+            registered_dhx_miners: vec![
+                get_account_id_from_seed::<sr25519::Public>("Alice"),
+                get_account_id_from_seed::<sr25519::Public>("Bob"),
+            ],
         },
         // pallet_membership_Instance1
         technical_membership: TechnicalMembershipConfig {
