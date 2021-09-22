@@ -1,6 +1,3 @@
-use cumulus_client_consensus_relay_chain::{
-	build_relay_chain_consensus, BuildRelayChainConsensusParams,
-};
 use cumulus_client_consensus_aura::{
     build_aura_consensus, BuildAuraConsensusParams, SlotProportion,
 };

@@ -20,7 +20,6 @@ use serde::{
     Deserialize,
     Serialize,
 };
-use serde_json::map::Map;
 use sp_core::{
     crypto::{
         UncheckedFrom,
@@ -78,7 +77,7 @@ where
 }
 
 pub fn development_config(id: ParaId) -> ChainSpec {
-    let mut properties = Map::new();
+    let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
     properties.insert("tokenDecimals".into(), 18.into());
     ChainSpec::from_genesis(
@@ -112,7 +111,7 @@ pub fn development_config(id: ParaId) -> ChainSpec {
 }
 
 pub fn local_testnet_config(id: ParaId) -> ChainSpec {
-    let mut properties = Map::new();
+    let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
     properties.insert("tokenDecimals".into(), 18.into());
     ChainSpec::from_genesis(
@@ -154,7 +153,7 @@ pub fn local_testnet_config(id: ParaId) -> ChainSpec {
 }
 
 pub fn harbor_testnet_config(id: ParaId) -> ChainSpec {
-    let mut properties = Map::new();
+    let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
     properties.insert("tokenDecimals".into(), 18.into());
     ChainSpec::from_genesis(
@@ -205,7 +204,7 @@ pub fn harbor_testnet_config(id: ParaId) -> ChainSpec {
 }
 
 pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
-    let mut properties = Map::new();
+    let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
     properties.insert("tokenDecimals".into(), 18.into());
     let boot_nodes = vec![];

@@ -11,7 +11,7 @@ repository = 'https://github.com/DataHighway-DHX/node'
 targets = ['x86_64-unknown-linux-gnu']
 
 [build-dependencies.substrate-wasm-builder]
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies]
@@ -56,34 +56,34 @@ version = '2.0.0'
 
 [dependencies.frame-benchmarking]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 optional = true
 branch = "polkadot-v0.9.9"
 
 [dependencies.frame-executive]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.frame-support]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.frame-system]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.frame-system-benchmarking]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 optional = true
 branch = "polkadot-v0.9.9"
 
 [dependencies.frame-system-rpc-runtime-api]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.hex-literal]
@@ -92,27 +92,27 @@ version = '0.3.1'
 
 [dependencies.pallet-randomness-collective-flip]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.pallet-sudo]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.pallet-timestamp]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.pallet-transaction-payment]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.pallet-transaction-payment-rpc-runtime-api]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.serde]
@@ -122,62 +122,62 @@ version = '1.0.119'
 
 [dependencies.sp-api]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.sp-block-builder]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.sp-core]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.sp-consensus-aura]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.sp-inherents]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.sp-io]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.sp-offchain]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.sp-runtime]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.sp-session]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.sp-std]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.sp-transaction-pool]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.sp-version]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.parachain-info]
@@ -260,47 +260,47 @@ default-features = false
 
 [dependencies.pallet-balances]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.pallet-collective]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.pallet-indices]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.pallet-membership]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.pallet-session]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.pallet-staking]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.pallet-staking-reward-curve]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.pallet-treasury]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [dependencies.sp-staking]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+git = 'https://github.com/paritytech/substrate'
 branch = "polkadot-v0.9.9"
 
 [features]
@@ -345,15 +345,16 @@ std = [
     'pallet-staking/std',
     'pallet-transaction-payment-rpc-runtime-api/std',
 	"parachain-info/std",
-	"cumulus-pallet-parachain-system/std",
-    "cumulus-primitives-timestamp/std",
-	"cumulus-primitives-core/std",
-	"xcm/std",
-	"xcm-builder/std",
-	"xcm-executor/std",
-	"cumulus-pallet-xcm/std",
-	"cumulus-pallet-xcmp-queue/std",
-    "cumulus-pallet-aura-ext/std",
-    "pallet-aura/std",
-    "sp-consensus-aura/std",
+    'cumulus-pallet-aura-ext/std',
+    'cumulus-pallet-parachain-system/std',
+    'cumulus-pallet-xcmp-queue/std',
+    'cumulus-pallet-xcm/std',
+    'cumulus-primitives-core/std',
+    'cumulus-primitives-timestamp/std',
+    'cumulus-primitives-utility/std',
+    'xcm/std',
+    'xcm-builder/std',
+    'xcm-executor/std',
+    'pallet-aura/std',
+    'sp-consensus-aura/std',
 ]

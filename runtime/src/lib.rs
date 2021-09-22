@@ -143,7 +143,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
     transaction_version: 1,
 };
 
-pub const MILLISECS_PER_BLOCK: u64 = 6000;
+pub const MILLISECS_PER_BLOCK: u64 = 12000;
 
 pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
 
@@ -153,6 +153,8 @@ pub const HOURS: BlockNumber = MINUTES * 60;
 pub const DAYS: BlockNumber = HOURS * 24;
 // Unit = the base number of indivisible units for balances
 pub const UNIT: Balance = 1_000_000_000_000;
+pub const MILLIUNIT: Balance = 1_000_000_000;
+pub const MICROUNIT: Balance = 1_000_000;
 /// The version information used to identify this runtime when compiled natively.
 #[cfg(feature = "std")]
 pub fn native_version() -> NativeVersion {
@@ -168,18 +170,11 @@ const AVERAGE_ON_INITIALIZE_RATIO: Perbill = Perbill::from_percent(10);
 /// We allow `Normal` extrinsics to fill up the block up to 75%, the rest can be used
 /// by  Operational  extrinsics.
 const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
-/// We allow for 2 seconds of compute with a 6 second average block time.
-const MAXIMUM_BLOCK_WEIGHT: Weight = 2 * WEIGHT_PER_SECOND;
+/// We allow for 0.5 of a second of compute with a 12 second average block time.
+const MAXIMUM_BLOCK_WEIGHT: Weight = WEIGHT_PER_SECOND / 2;
 
 parameter_types! {
     pub const BlockHashCount: BlockNumber = 2400;
-    /// We allow for 2 seconds of compute with a 6 second average block time.
-    pub const MaximumBlockWeight: Weight = 2 * WEIGHT_PER_SECOND;
-    // pub const AvailableBlockRatio: Perbill = Perbill::from_percent(75);
-    /// Assume 10% of weight for average on_initialize calls.
-    // pub MaximumExtrinsicWeight: Weight = AvailableBlockRatio::get()
-    //     .saturating_sub(Perbill::from_percent(10)) * MaximumBlockWeight::get();
-    pub const MaximumBlockLength: u32 = 5 * 1024 * 1024;
     pub const Version: RuntimeVersion = VERSION;
     pub RuntimeBlockLength: BlockLength =
         BlockLength::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
@@ -214,7 +209,7 @@ impl frame_system::Config for Runtime {
     /// Portion of the block weight that is available to all normal transactions.
     // type AvailableBlockRatio = AvailableBlockRatio;
     /// The basic call filter to use in dispatchable.
-    type BaseCallFilter = ();
+    type BaseCallFilter = Everything;
     /// The weight of the overhead invoked on the block import process, independent of the
     /// extrinsics included in that block.
     // type BlockExecutionWeight = BlockExecutionWeight;
@@ -229,7 +224,7 @@ impl frame_system::Config for Runtime {
     /// The aggregated dispatch type that is available for extrinsics.
     type Call = Call;
     /// The weight of database operations that the runtime can invoke.
-    type DbWeight = RocksDbWeight;
+    type DbWeight = ();
     /// The ubiquitous event type.
     type Event = Event;
     /// The base weight of any extrinsic processed by the runtime, independent of the
@@ -245,10 +240,6 @@ impl frame_system::Config for Runtime {
     type Index = Index;
     /// The lookup mechanism to get account ID from whatever is passed in dispatchers.
     type Lookup = IdentityLookup<AccountId>;
-    /// Maximum size of all encoded transactions (in bytes) that are allowed in one block.
-    // type MaximumBlockLength = MaximumBlockLength;
-    /// Maximum weight of each block.
-    // type MaximumBlockWeight = MaximumBlockWeight;
     /// The maximum weight that a single extrinsic of `Normal` dispatch class can have,
     /// idependent of the logic of that extrinsics. (Roughly max block weight - average on
     /// initialize cost).
@@ -273,29 +264,6 @@ impl frame_system::Config for Runtime {
 }
 
 parameter_types! {
-    pub const EpochDuration: u64 = EPOCH_DURATION_IN_SLOTS;
-    pub const ExpectedBlockTime: Moment = MILLISECS_PER_BLOCK;
-}
-
-// impl pallet_indices::Config for Runtime {
-//     /// The type for recording indexing into the account enumeration. If this ever overflows, there
-//     /// will be problems!
-//     type AccountIndex = AccountIndex;
-//     /// The currency type.
-//     type Currency = Balances;
-//     /// How much an index costs.
-//     type Deposit = IndexDeposit;
-//     /// The ubiquitous event type.
-//     type Event = Event;
-//     type WeightInfo = ();
-// }
-
-parameter_types! {
-    /// How much an index costs.
-    pub const IndexDeposit: u128 = 100;
-}
-
-parameter_types! {
     pub const MinimumPeriod: u64 = SLOT_DURATION / 2;
 }
 
@@ -308,9 +276,10 @@ impl pallet_timestamp::Config for Runtime {
 }
 
 parameter_types! {
-    pub const ExistentialDeposit: u128 = 500;
+    pub const ExistentialDeposit: u128 = 1 * MILLIUNIT;
     pub const MaxLocks: u32 = 50;
     pub const MaxReserves: u32 = 50;
+    pub const TransactionByteFee: u128 = 1 * MICROUNIT;
 }
 
 impl pallet_balances::Config for Runtime {
@@ -325,10 +294,6 @@ impl pallet_balances::Config for Runtime {
     type MaxReserves = MaxReserves;
     type WeightInfo = ();
     type ReserveIdentifier = [u8; 8];
-}
-
-parameter_types! {
-    pub const TransactionByteFee: Balance = 1;
 }
 
 impl pallet_transaction_payment::Config for Runtime {
@@ -728,8 +693,8 @@ impl membership_supernodes::Config for Runtime {
 }
 
 parameter_types! {
-    pub const RococoLocation: MultiLocation = MultiLocation::X1(Parent);
-    pub const RococoNetwork: NetworkId = NetworkId::Polkadot;
+    pub const RelayLocation: MultiLocation = X1(Parent);
+    pub const RelayNetwork: NetworkId = NetworkId::Polkadot;
     pub RelayChainOrigin: Origin = cumulus_pallet_xcm::Origin::Relay.into();
     pub Ancestry: MultiLocation = X1(Parachain(ParachainInfo::parachain_id().into()));
 }
@@ -743,7 +708,7 @@ pub type LocationToAccountId = (
 	// Sibling parachain origins convert to AccountId via the `ParaId::into`.
 	SiblingParachainConvertsVia<Sibling, AccountId>,
 	// Straight up local `AccountId32` origins just alias directly to `AccountId`.
-	AccountId32Aliases<RococoNetwork, AccountId>,
+	AccountId32Aliases<RelayNetwork, AccountId>,
 );
 
 
@@ -751,7 +716,7 @@ type LocalAssetTransactor = CurrencyAdapter<
     // Use this currency:
     Balances,
     // Use this currency when it is a fungible asset matching the given location or name:
-    IsConcrete<RococoLocation>,
+    IsConcrete<RelayLocation>,
     // Do a simple punn to convert an AccountId32 MultiLocation into a native chain account ID:
     LocationToAccountId,
     // Our chain's account ID type (we can't get away without mentioning it explicitly):
@@ -779,7 +744,7 @@ pub type XcmOriginToTransactDispatchOrigin = (
 	ParentAsSuperuser<Origin>,
 	// Native signed account converter; this just converts an `AccountId32` origin into a normal
 	// `Origin::Signed` origin of the same 32-byte value.
-	SignedAccountId32AsNative<RococoNetwork, Origin>,
+	SignedAccountId32AsNative<RelayNetwork, Origin>,
     // Xcm origins can be represented natively under the Xcm pallet's Xcm origin.
     XcmPassthrough<Origin>,
 );
@@ -812,16 +777,16 @@ impl Config for XcmConfig {
 	type AssetTransactor = LocalAssetTransactor;
 	type OriginConverter = XcmOriginToTransactDispatchOrigin;
 	type IsReserve = NativeAsset;
-	type IsTeleporter = NativeAsset;	// <- should be enough to allow teleportation of ROC
+	type IsTeleporter = ();	// <- should be enough to allow teleportation of ROC
 	type LocationInverter = LocationInverter<Ancestry>;
 	type Barrier = Barrier;
 	type Weigher = FixedWeightBounds<UnitWeightCost, Call>;
-    type Trader = UsingComponents<IdentityFee<Balance>, RococoLocation, AccountId, Balances, ()>;
+    type Trader = UsingComponents<IdentityFee<Balance>, RelayLocation, AccountId, Balances, ()>;
 	type ResponseHandler = ();	// Don't handle responses for now.
 }
 
 /// No local origins on this chain are allowed to dispatch XCM sends/executions.
-pub type LocalOriginToLocation = SignedToAccountId32<Origin, AccountId, RococoNetwork>;
+pub type LocalOriginToLocation = SignedToAccountId32<Origin, AccountId, RelayNetwork>;
 
 /// The means for routing XCM messages which are not for local execution into the right message
 /// queues.
@@ -854,10 +819,6 @@ impl cumulus_pallet_xcmp_queue::Config for Runtime {
 	type Event = Event;
 	type XcmExecutor = XcmExecutor<XcmConfig>;
 	type ChannelInfo = ParachainSystem;
-}
-
-parameter_types! {
-	pub const MaxDownwardMessageWeight: Weight = MAXIMUM_BLOCK_WEIGHT / 10;
 }
 
 parameter_types! {
