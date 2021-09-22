@@ -5,7 +5,7 @@ authors = ['Ilya Beregovskiy']
 edition = "2018"
 
 [dependencies]
-sp-api = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false}
+sp-api = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '527101517d0ad67780131def8d227de51e503a89', default-features = false}
 
 [features]
 default = ["std"]

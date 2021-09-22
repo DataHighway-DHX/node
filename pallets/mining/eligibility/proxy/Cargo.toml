@@ -32,18 +32,18 @@ std = [
 codec = { version = '2.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive', 'max-encoded-len'] }
 log = { version = '0.4.14', default-features = false }
 safe-mix = { version = '1.0.0', default-features = false }
-frame-support = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
-frame-system = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
+frame-support = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '527101517d0ad67780131def8d227de51e503a89', default-features = false }
+frame-system = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '527101517d0ad67780131def8d227de51e503a89', default-features = false }
 module-primitives = { version = '3.0.6', default-features = false, path = '../../../primitives' }
-pallet-balances = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
-pallet-randomness-collective-flip = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
-pallet-timestamp = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default_features = false }
-pallet-transaction-payment = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
-pallet-treasury = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
-sp-core = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
-sp-io = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
-sp-runtime = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
-sp-std = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '852bab073407b65b5e3e461baaa0541c4e0bc3d6', default-features = false }
+pallet-balances = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '527101517d0ad67780131def8d227de51e503a89', default-features = false }
+pallet-randomness-collective-flip = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '527101517d0ad67780131def8d227de51e503a89', default-features = false }
+pallet-timestamp = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '527101517d0ad67780131def8d227de51e503a89', default_features = false }
+pallet-transaction-payment = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '527101517d0ad67780131def8d227de51e503a89', default-features = false }
+pallet-treasury = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '527101517d0ad67780131def8d227de51e503a89', default-features = false }
+sp-core = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '527101517d0ad67780131def8d227de51e503a89', default-features = false }
+sp-io = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '527101517d0ad67780131def8d227de51e503a89', default-features = false }
+sp-runtime = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '527101517d0ad67780131def8d227de51e503a89', default-features = false }
+sp-std = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '527101517d0ad67780131def8d227de51e503a89', default-features = false }
 chrono = { version = '0.4.19', default_features = false }
 
 account-set = { path = '../../../../traits/account-set', default-features = false }
