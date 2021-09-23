@@ -42,13 +42,16 @@ pub mod pallet {
         Pair,
         Public,
     };
-    use sp_runtime::traits::{
-        IdentifyAccount,
-        Verify,
+    use sp_runtime::{
+        AccountId32,
+        traits::{
+            IdentifyAccount,
+            Verify,
+        },
     };
     use module_primitives::{
         types::{
-            AccountId,
+            // AccountId,
             Balance,
             Signature,
         },
@@ -57,9 +60,11 @@ pub mod pallet {
     // type BalanceOf<T> = <T as pallet_balances::Config>::Balance;
     type BalanceOf<T> = <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
     type Date = i64;
+    type AccountId<T> = <T as frame_system::Config>::AccountId;
+
 
     /// Helper function to generate a crypto pair from seed
-    pub fn get_from_seed<TPublic: Public>(seed: &str) -> <TPublic::Pair as Pair>::Public {
+    pub fn get_from_seed<TPublic: Public, T: Config>(seed: &str) -> <TPublic::Pair as Pair>::Public {
         TPublic::Pair::from_string(&format!("//{}", seed), None)
             .expect("static values are valid; qed")
             .public()
@@ -68,11 +73,21 @@ pub mod pallet {
     type AccountPublic = <Signature as Verify>::Signer;
 
     /// Helper function to generate an account ID from seed
-    pub fn get_account_id_from_seed<TPublic: Public>(seed: &str) -> AccountId
+    pub fn get_account_id_from_seed<TPublic: Public, T: Config>(seed: &str) -> AccountId<T>
     where
         AccountPublic: From<<TPublic::Pair as Pair>::Public>,
     {
-        AccountPublic::from(get_from_seed::<TPublic>(seed)).into_account()
+        let account_id: AccountId32 = AccountPublic::from(get_from_seed::<TPublic, T>(seed)).into_account();
+        // convert struct `AccountId32` to associated type `<T as frame_system::Config>::AccountId`
+
+        let account_id_assoc;
+        if let Some(_account_id_assoc) = TryInto::<<T as frame_system::Config>::AccountId>::try_into(account_id).ok() {
+            account_id_assoc = _account_id_assoc;
+            account_id_assoc
+        } else {
+            log::error!("Unable to convert AccountId32 to <T as frame_system::Config>::AccountId for account id");
+            None
+        }
     }
 
     #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
@@ -149,8 +164,8 @@ pub mod pallet {
                 // 5000 UNIT, where UNIT token has 18 decimal places
                 rewards_allowance_dhx_current: 5_000_000_000_000_000_000_000u128,
                 registered_dhx_miners: vec![
-                    get_account_id_from_seed::<sr25519::Public>("Alice"),
-                    get_account_id_from_seed::<sr25519::Public>("Bob"),
+                    get_account_id_from_seed::<sr25519::Public, T>("Alice"),
+                    get_account_id_from_seed::<sr25519::Public, T>("Bob"),
                 ]
             }
         }
