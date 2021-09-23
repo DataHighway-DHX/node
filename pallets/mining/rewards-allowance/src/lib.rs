@@ -39,8 +39,6 @@ pub mod pallet {
     };
     use sp_core::{
         sr25519,
-        Pair,
-        Public,
     };
     use sp_runtime::traits::{
         IdentifyAccount,
@@ -57,23 +55,6 @@ pub mod pallet {
     // type BalanceOf<T> = <T as pallet_balances::Config>::Balance;
     type BalanceOf<T> = <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
     type Date = i64;
-
-    /// Helper function to generate a crypto pair from seed
-    pub fn get_from_seed<TPublic: Public>(seed: &str) -> <TPublic::Pair as Pair>::Public {
-        TPublic::Pair::from_string(&format!("//{}", seed), None)
-            .expect("static values are valid; qed")
-            .public()
-    }
-
-    type AccountPublic = <Signature as Verify>::Signer;
-
-    /// Helper function to generate an account ID from seed
-    pub fn get_account_id_from_seed<TPublic: Public>(seed: &str) -> AccountId
-    where
-        AccountPublic: From<<TPublic::Pair as Pair>::Public>,
-    {
-        AccountPublic::from(get_from_seed::<TPublic>(seed)).into_account()
-    }
 
     #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
     #[cfg_attr(feature = "std", derive())]
@@ -149,8 +130,8 @@ pub mod pallet {
                 // 5000 UNIT, where UNIT token has 18 decimal places
                 rewards_allowance_dhx_current: 5_000_000_000_000_000_000_000u128,
                 registered_dhx_miners: vec![
-                    get_account_id_from_seed::<sr25519::Public>("Alice"),
-                    get_account_id_from_seed::<sr25519::Public>("Bob"),
+                    Default::default(),
+                    Default::default(),
                 ]
             }
         }
@@ -324,7 +305,6 @@ pub mod pallet {
                 info!("miner_count {:#?}", miner_count);
                 info!("miner {:#?}", miner);
             }
-
         }
     }
 
