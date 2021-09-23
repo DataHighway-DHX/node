@@ -89,7 +89,7 @@ pub fn development_config(id: ParaId) -> ChainSpec {
         move || {
             dev_genesis(
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
-                vec![get_from_seed::<AuraId>("Alice")],
+                vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
                 vec![
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
@@ -104,7 +104,7 @@ pub fn development_config(id: ParaId) -> ChainSpec {
         None,
         Some(properties),
         Extensions {
-            relay_chain: "rococo-dev".into(),
+            relay_chain: "rococo-local".into(),
             para_id: id.into(),
         },
     )
@@ -123,25 +123,25 @@ pub fn local_testnet_config(id: ParaId) -> ChainSpec {
         move || {
             dev_genesis(
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
-                vec![
-                    get_from_seed::<AuraId>("Alice"),
-                    get_from_seed::<AuraId>("Bob"),
-                    get_from_seed::<AuraId>("Charlie"),
-                    get_from_seed::<AuraId>("Dave")],
+                vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
                 vec![
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
                     get_account_id_from_seed::<sr25519::Public>("Charlie"),
                     get_account_id_from_seed::<sr25519::Public>("Dave"),
+                    get_account_id_from_seed::<sr25519::Public>("Eve"),
+                    get_account_id_from_seed::<sr25519::Public>("Ferdie"),
                     get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
                     get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
                     get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
                     get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                 ],
                 id,
             )
         },
-        vec![],
+        Vec::new(),
         None,
         None,
         Some(properties),
@@ -278,6 +278,7 @@ fn mk_genesis(endowed_accounts: Vec<AccountId>, root_key: AccountId, parachain_i
         },
         aura: Default::default(),
         aura_ext: Default::default(),
+        parachain_system: Default::default(),
     }
 }
 
@@ -315,6 +316,7 @@ fn testnet_genesis(
         },
         aura: AuraConfig { authorities: initial_authorities },
         aura_ext: Default::default(),
+        parachain_system: Default::default(),
     }
 }
 
@@ -345,14 +347,15 @@ fn dev_genesis(
         },
         general_council: Default::default(),
         general_council_membership: GeneralCouncilMembershipConfig {
-            members: vec![root_key.clone()],
+            members: vec![root_key],
             phantom: Default::default(),
         },
         pallet_treasury: Default::default(),
         parachain_info: datahighway_runtime::ParachainInfoConfig {
             parachain_id: id,
         },
-        aura: AuraConfig { authorities: initial_authorities },
+        aura: datahighway_runtime::AuraConfig { authorities: initial_authorities },
         aura_ext: Default::default(),
+        parachain_system: Default::default(),
     }
 }

@@ -869,7 +869,7 @@ construct_runtime!(
         TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
 
         // PARACHAIN
-        ParachainSystem: cumulus_pallet_parachain_system::{Pallet, Call, Storage, Inherent, Event<T>},
+		ParachainSystem: cumulus_pallet_parachain_system::{Pallet, Call, Config, Storage, Inherent, Event<T>, ValidateUnsigned},
         ParachainInfo: parachain_info::{Pallet, Storage, Config},
 
         Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
