@@ -915,11 +915,22 @@ fn testnet_genesis(
             authorities: vec![],
         },
         mining_rewards_allowance: MiningRewardsAllowanceConfig {
-            rewards_allowance_dhx_current: 5_000_000_000_000_000_000_000u128,
+            rewards_allowance_dhx_daily: 5_000_000_000_000_000_000_000u128,
             rewards_allowance_dhx_for_date: Default::default(),
             registered_dhx_miners: vec![
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 get_account_id_from_seed::<sr25519::Public>("Bob"),
+            ],
+            min_bonded_dhx_daily: 10u128,
+            cooling_off_period_days: 7u32,
+            cooling_off_period_days_remaining: vec![
+                (
+                    get_account_id_from_seed::<sr25519::Public>("Alice"),
+                    (
+                        7u32,
+                        0u32,
+                    ),
+                ),
             ],
         },
         // pallet_membership_Instance1
@@ -1015,11 +1026,22 @@ fn mainnet_genesis(
             authorities: vec![],
         },
         mining_rewards_allowance: MiningRewardsAllowanceConfig {
-            rewards_allowance_dhx_current: 5_000_000_000_000_000_000_000u128,
+            rewards_allowance_dhx_daily: 5_000_000_000_000_000_000_000u128,
             rewards_allowance_dhx_for_date: Default::default(),
             registered_dhx_miners: vec![
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 get_account_id_from_seed::<sr25519::Public>("Bob"),
+            ],
+            min_bonded_dhx_daily: 10u128,
+            cooling_off_period_days: 7u32,
+            cooling_off_period_days_remaining: vec![
+                (
+                    get_account_id_from_seed::<sr25519::Public>("Alice"),
+                    (
+                        7u32,
+                        0u32,
+                    ),
+                ),
             ],
         },
         // pallet_membership_Instance1
