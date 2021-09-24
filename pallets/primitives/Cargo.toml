@@ -7,10 +7,10 @@ edition = '2018'
 [dependencies]
 serde = { version = '1.0.126', optional = true, features = ['derive'] }
 codec = { version = '2.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive', 'max-encoded-len'] }
-sp-core = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '527101517d0ad67780131def8d227de51e503a89', default-features = false }
-sp-runtime = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '527101517d0ad67780131def8d227de51e503a89', default-features = false }
+sp-core = { git = 'https://github.com/DataHighway-DHX/substrate', rev = 'f5dc02a8a491c149fba05a2a5a51c80ce1b3cead', default-features = false }
+sp-runtime = { git = 'https://github.com/DataHighway-DHX/substrate', rev = 'f5dc02a8a491c149fba05a2a5a51c80ce1b3cead', default-features = false }
 bitmask = { version = '0.5.0', default-features = false }
-sp-std = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '527101517d0ad67780131def8d227de51e503a89', default-features = false }
+sp-std = { git = 'https://github.com/DataHighway-DHX/substrate', rev = 'f5dc02a8a491c149fba05a2a5a51c80ce1b3cead', default-features = false }
 
 [features]
 default = ['std']

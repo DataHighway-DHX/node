@@ -23,4 +23,4 @@ std = [
 
 [dependencies]
 # Substrate packages
-sp-std = { git = 'https://github.com/DataHighway-DHX/substrate', rev = '527101517d0ad67780131def8d227de51e503a89', default-features = false }
+sp-std = { git = 'https://github.com/DataHighway-DHX/substrate', rev = 'f5dc02a8a491c149fba05a2a5a51c80ce1b3cead', default-features = false }
