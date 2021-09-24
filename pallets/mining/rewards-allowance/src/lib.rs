@@ -343,18 +343,22 @@ pub mod pallet {
                 miner_count += 1;
                 log::info!("miner_count {:#?}", miner_count);
                 log::info!("miner {:#?}", miner);
-                let locks_until_block_for_account = <pallet_balances::Pallet<T>>::locks(miner);
-                // NOTE - I fixed the following error after asking the community here and getting a
-                // response in Substrate Builders weekly meeting https://matrix.to/#/!HzySYSaIhtyWrwiwEV:matrix.org/$163243681163543vyfkW:matrix.org?via=matrix.parity.io&via=matrix.org&via=corepaper.org
-                //
-                // `WeakBoundedVec<BalanceLock<<T as pallet_balances::Config>::Balance>,
-                // <T as pallet_balances::Config>::MaxLocks>` cannot be formatted using
-                // `{:?}` because it doesn't implement `core::fmt::Debug`
-                //
-                // https://substrate.dev/rustdocs/latest/frame_support/storage/weak_bounded_vec/struct.WeakBoundedVec.html
-                log::info!("miner locks {:#?}", locks_until_block_for_account.into_inner());
+                // let locks_until_block_for_account = <pallet_balances::Pallet<T>>::locks(miner.clone());
+                // // NOTE - I fixed the following error by using `.into_inner()` after asking the community here and getting a
+                // // response in Substrate Builders weekly meeting https://matrix.to/#/!HzySYSaIhtyWrwiwEV:matrix.org/$163243681163543vyfkW:matrix.org?via=matrix.parity.io&via=matrix.org&via=corepaper.org
+                // //
+                // // `WeakBoundedVec<BalanceLock<<T as pallet_balances::Config>::Balance>,
+                // // <T as pallet_balances::Config>::MaxLocks>` cannot be formatted using
+                // // `{:?}` because it doesn't implement `core::fmt::Debug`
+                // //
+                // // https://substrate.dev/rustdocs/latest/frame_support/storage/weak_bounded_vec/struct.WeakBoundedVec.html
+                // log::info!("miner locks {:#?}", locks_until_block_for_account.into_inner().clone());
+                // let locked: BalanceLock<<T as pallet_balances::Config>::Balance> =
+                //     locks_until_block_for_account.into_inner().clone()[0];
+
                 let locked: BalanceLock<<T as pallet_balances::Config>::Balance> =
-                    locks_until_block_for_account.into_inner()[0];
+                    <pallet_balances::Pallet<T>>::locks(miner.clone()).into_inner().clone()[0];
+                log::info!("miner locks {:#?}", locked.clone());
 
                 // Example output below of vote with 9.9999 tokens on a referendum associated with a proposal
                 // that was seconded
@@ -397,7 +401,7 @@ pub mod pallet {
                 }
                 log::info!("min_bonded_dhx_daily_u128: {:?}", min_bonded_dhx_daily_u128.clone());
 
-                let is_bonding_min_dhx = false;
+                let mut is_bonding_min_dhx = false;
                 if locks_first_amount > min_bonded_dhx_daily_u128 {
                     is_bonding_min_dhx = true;
                 }
@@ -435,9 +439,24 @@ pub mod pallet {
                 // if cooling_off_period_days_remaining.0 is Some(above 0), then decrement, but not eligible yet for rewards.
                 } else if cooling_off_period_days_remaining.0 > 0 && is_bonding_min_dhx == true {
                     let old_cooling_off_period_days_remaining = cooling_off_period_days_remaining.0.clone();
+
+                    // we cannot do this because of error: cannot use the `?` operator in a method that returns `()`
+                    // let new_cooling_off_period_days_remaining =
+                    //     old_cooling_off_period_days_remaining.checked_sub(One::one()).ok_or(Error::<T>::StorageOverflow)?;
+
                     // Subtract, handling overflow
-                    let new_cooling_off_period_days_remaining =
-                        old_cooling_off_period_days_remaining.checked_sub(One::one()).ok_or(Error::<T>::StorageOverflow)?;
+                    let new_cooling_off_period_days_remaining;
+                    let _new_cooling_off_period_days_remaining =
+                        old_cooling_off_period_days_remaining.checked_sub(One::one());
+                    match _new_cooling_off_period_days_remaining {
+                        None => {
+                            log::error!("Unable to subtract one from cooling_off_period_days_remaining due to StorageOverflow");
+                            return ();
+                        },
+                        Some(x) => {
+                            new_cooling_off_period_days_remaining = x;
+                        }
+                    }
 
                     // Write the new value to storage
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
@@ -466,9 +485,30 @@ pub mod pallet {
                     }
 
                     let timestamp: <T as pallet_timestamp::Config>::Moment = <pallet_timestamp::Pallet<T>>::get();
-                    let requested_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone())?;
+                    let requested_date_as_u64;
+                    let _requested_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone());
+                    match _requested_date_as_u64 {
+                        Err(_e) => {
+                            log::error!("Unable to convert moment to u64");
+                            return ();
+                        },
+                        Ok(ref x) => {
+                            requested_date_as_u64 = x;
+                        }
+                    }
+
                     log::info!("requested_date_as_u64: {:?}", requested_date_as_u64.clone());
-                    let requested_date_millis = Self::convert_u64_in_milliseconds_to_start_of_date(requested_date_as_u64.clone())?;
+                    let requested_date_millis;
+                    let _requested_date_millis = Self::convert_u64_in_milliseconds_to_start_of_date(requested_date_as_u64.clone());
+                    match _requested_date_millis {
+                        Err(_e) => {
+                            log::error!("Unable to convert u64 in milliseconds to start of date");
+                            return ();
+                        },
+                        Ok(ref x) => {
+                            requested_date_millis = x;
+                        }
+                    }
 
                     // https://substrate.dev/rustdocs/latest/frame_support/storage/trait.StorageMap.html
                     if <RewardsAllowanceDHXForDate<T>>::contains_key(&requested_date_millis) == false {
@@ -481,14 +521,23 @@ pub mod pallet {
                     // Validate inputs so the daily_rewards is less or equal to the existing_allowance
                     let existing_allowance_as_u128;
                     if let Some(_existing_allowance_to_try) = existing_allowance_to_try.clone() {
-                        existing_allowance_as_u128 = Self::convert_balance_to_u128(_existing_allowance_to_try.clone())?;
+                        let _existing_allowance_as_u128 = Self::convert_balance_to_u128(_existing_allowance_to_try.clone());
+                        match _existing_allowance_as_u128.clone() {
+                            Err(_e) => {
+                                log::error!("Unable to convert balance to u128");
+                                return ();
+                            },
+                            Ok(x) => {
+                                existing_allowance_as_u128 = x;
+                            }
+                        }
                         log::info!("existing_allowance_as_u128: {:?}", existing_allowance_as_u128.clone());
                     } else {
                         log::error!("Unable to retrieve balance from value provided.");
                         return ();
                     }
 
-                    let rewards_allowance_dhx_today_remaining = existing_allowance_as_u128;
+                    let rewards_allowance_dhx_today_remaining = existing_allowance_as_u128.clone();
 
                     // TODO - calculate the miner's reward for this day, as a proportion taking other eligible miner's
                     // who are eligible for daily rewards into account since we want to split them fairly
@@ -532,9 +581,20 @@ pub mod pallet {
                     // && is_bonding_min_dhx == false
                 {
                     let old_cooling_off_period_days_remaining = cooling_off_period_days_remaining.0.clone();
+
                     // Subtract, handling overflow
-                    let new_cooling_off_period_days_remaining =
-                        old_cooling_off_period_days_remaining.checked_sub(One::one()).ok_or(Error::<T>::Overflow)?;
+                    let new_cooling_off_period_days_remaining;
+                    let _new_cooling_off_period_days_remaining =
+                        old_cooling_off_period_days_remaining.checked_sub(One::one());
+                    match _new_cooling_off_period_days_remaining {
+                        None => {
+                            log::error!("Unable to subtract one from cooling_off_period_days_remaining due to StorageOverflow");
+                            return ();
+                        },
+                        Some(x) => {
+                            new_cooling_off_period_days_remaining = x;
+                        }
+                    }
 
                     // Write the new value to storage
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
