@@ -108,6 +108,13 @@ pub mod pallet {
     >;
 
     #[pallet::storage]
+    #[pallet::getter(fn rewards_allowance_dhx_for_date_distributed)]
+    pub(super) type RewardsAllowanceDHXForDateDistributed<T: Config> = StorageMap<_, Blake2_128Concat,
+        Date,
+        bool
+    >;
+
+    #[pallet::storage]
     #[pallet::getter(fn rewards_allowance_dhx_daily)]
     pub(super) type RewardsAllowanceDHXDaily<T: Config> = StorageValue<_, u128>;
 
@@ -145,6 +152,7 @@ pub mod pallet {
     #[pallet::genesis_config]
     pub struct GenesisConfig<T: Config> {
         pub rewards_allowance_dhx_for_date: Vec<(Date, BalanceOf<T>)>,
+        pub rewards_allowance_dhx_for_date_distributed: Vec<(Date, bool)>,
         pub rewards_allowance_dhx_daily: u128,
         pub registered_dhx_miners: Vec<T::AccountId>,
         pub min_bonded_dhx_daily: BalanceOf<T>,
@@ -158,6 +166,7 @@ pub mod pallet {
         fn default() -> Self {
             Self {
                 rewards_allowance_dhx_for_date: Default::default(),
+                rewards_allowance_dhx_for_date_distributed: Default::default(),
                 // 5000 UNIT, where UNIT token has 18 decimal places
                 rewards_allowance_dhx_daily: 5_000_000_000_000_000_000_000u128,
                 registered_dhx_miners: vec![
@@ -177,6 +186,9 @@ pub mod pallet {
         fn build(&self) {
             for (a, b) in &self.rewards_allowance_dhx_for_date {
                 <RewardsAllowanceDHXForDate<T>>::insert(a, b);
+            }
+            for (a, b) in &self.rewards_allowance_dhx_for_date_distributed {
+                <RewardsAllowanceDHXForDateDistributed<T>>::insert(a, b);
             }
             <RewardsAllowanceDHXDaily<T>>::put(&self.rewards_allowance_dhx_daily);
             for (a) in &self.registered_dhx_miners {
@@ -222,6 +234,11 @@ pub mod pallet {
         /// Transferred a proportion of the daily DHX rewards allowance to a DHX Miner on a given date
         /// \[date, miner_reward, remaining_rewards_allowance_today, miner_account_id\]
         TransferredRewardsAllowanceDHXToMinerForDate(Date, BalanceOf<T>, BalanceOf<T>, T::AccountId),
+
+        /// Exhausted distributing all the daily DHX rewards allowance to DHX Miners on a given date.
+        /// Note: There may be some leftover for the day so we record it here
+        /// \[date, remaining_rewards_allowance_today\]
+        DistributedRewardsAllowanceDHXForDate(Date, BalanceOf<T>),
     }
 
     // Errors inform users that something went wrong should be descriptive and have helpful documentation
@@ -275,7 +292,7 @@ pub mod pallet {
 
             // https://substrate.dev/rustdocs/latest/frame_support/storage/trait.StorageMap.html
             let contains_key = <RewardsAllowanceDHXForDate<T>>::contains_key(&start_of_requested_date_millis);
-            let mut was_key_added = false;
+            let mut is_key_added = false;
             // add the start_of_requested_date to storage if it doesn't already exist
             if contains_key == false {
                 let rewards_allowance_dhx_daily_u128;
@@ -301,19 +318,25 @@ pub mod pallet {
 
                 // Update storage. Use RewardsAllowanceDHXDaily as fallback incase not previously set prior to block
                 <RewardsAllowanceDHXForDate<T>>::insert(start_of_requested_date_millis.clone(), &rewards_allowance_dhx_daily);
+                <RewardsAllowanceDHXForDateDistributed<T>>::insert(start_of_requested_date_millis.clone(), false);
                 log::info!("on_initialize");
                 log::info!("start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
                 log::info!("rewards_allowance: {:?}", &rewards_allowance_dhx_daily);
-                was_key_added = true;
+                is_key_added = true;
             }
 
             // check again whether the start_of_requested_date has been added to storage
-            if was_key_added == false {
+            if is_key_added == false {
                 log::error!("Unable to add start_of_requested_date to storage");
                 return 0;
             }
 
-            // TODO - only run the following once per day.
+            // only run the following once per day until rewards_allowance_dhx_for_date is exhausted
+            let is_already_distributed = <RewardsAllowanceDHXForDateDistributed<T>>::get(start_of_requested_date_millis.clone());
+            if is_already_distributed == Some(true) {
+                log::error!("Unable to distribute further rewards allowance today");
+                return 0;
+            }
 
             // we only check accounts that have registered that they want to participate in DHX Mining
             let reg_dhx_miners;
@@ -329,6 +352,9 @@ pub mod pallet {
                 return 0;
             };
             let mut miner_count = 0;
+            // TODO - iterate through the registered miners in random order, otherwise the same miners get the rewards each day
+            // and possibly the same miners miss out. if the miners at the start of the list have large rewards they
+            // could possibly exhaust the daily allocation of rewards just by themselves each day
             for (index, miner) in reg_dhx_miners.iter().enumerate() {
                 miner_count += 1;
                 log::info!("miner_count {:#?}", miner_count);
@@ -603,6 +629,29 @@ pub mod pallet {
                         ));
                     } else {
                         log::error!("Insufficient remaining rewards allowance to pay daily reward to miner");
+
+                        let rewards_allowance_dhx_remaining_today;
+                        let _rewards_allowance_dhx_remaining_today = Self::convert_u128_to_balance(rewards_allowance_dhx_remaining_today_as_u128.clone());
+                        match _rewards_allowance_dhx_remaining_today {
+                            Err(_e) => {
+                                log::error!("Unable to convert u128 to balance for rewards_allowance_dhx_remaining_today");
+                                return 0;
+                            },
+                            Ok(ref x) => {
+                                rewards_allowance_dhx_remaining_today = x;
+                            }
+                        }
+
+                        <RewardsAllowanceDHXForDateDistributed<T>>::insert(
+                            start_of_requested_date_millis.clone(),
+                            true
+                        );
+
+                        Self::deposit_event(Event::DistributedRewardsAllowanceDHXForDate(
+                            start_of_requested_date_millis.clone(),
+                            rewards_allowance_dhx_remaining_today.clone(),
+                        ));
+
                         return 0;
                     }
                 // if they stop bonding the min dhx, and
