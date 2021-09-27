@@ -13,6 +13,7 @@ std = [
     'chrono/std',
     'log/std',
     'serde/std',
+    'rand/std',
     'codec/std',
     'frame-support/std',
     'frame-system/std',
@@ -42,6 +43,7 @@ static_assertions = '1.1.0'
 chrono = { version = '0.4.19', default_features = false }
 log = { version = '0.4.14', default-features = false }
 serde = { version = '1.0.126', features = ['derive'] }
+rand = { version = '0.8.4', default-features = false }
 codec = { version = '2.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive', 'max-encoded-len'] }
 frame-support = { git = 'https://github.com/DataHighway-DHX/substrate', rev = 'f5dc02a8a491c149fba05a2a5a51c80ce1b3cead', default-features = false }
 frame-system = { git = 'https://github.com/DataHighway-DHX/substrate', rev = 'f5dc02a8a491c149fba05a2a5a51c80ce1b3cead', default-features = false }

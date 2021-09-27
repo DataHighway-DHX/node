@@ -3717,6 +3717,7 @@ dependencies = [
  "pallet-transaction-payment",
  "pallet-treasury",
  "parity-scale-codec",
+ "rand 0.8.4",
  "serde",
  "sp-consensus-aura",
  "sp-core",
