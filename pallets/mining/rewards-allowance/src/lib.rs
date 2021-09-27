@@ -275,6 +275,8 @@ pub mod pallet {
 
             // https://substrate.dev/rustdocs/latest/frame_support/storage/trait.StorageMap.html
             let contains_key = <RewardsAllowanceDHXForDate<T>>::contains_key(&start_of_requested_date_millis);
+            let mut was_key_added = false;
+            // add the start_of_requested_date to storage if it doesn't already exist
             if contains_key == false {
                 let rewards_allowance_dhx_daily_u128;
                 let dhx_to_try = <RewardsAllowanceDHXDaily<T>>::get();
@@ -285,23 +287,30 @@ pub mod pallet {
                     return 0;
                 }
 
-                let rewards_allowance;
-                let _rewards_allowance = Self::convert_u128_to_balance(rewards_allowance_dhx_daily_u128.clone());
-                match _rewards_allowance {
+                let rewards_allowance_dhx_daily;
+                let _rewards_allowance_dhx_daily = Self::convert_u128_to_balance(rewards_allowance_dhx_daily_u128.clone());
+                match _rewards_allowance_dhx_daily {
                     Err(_e) => {
-                        log::error!("Unable to convert u128 to balance for rewards_allowance");
+                        log::error!("Unable to convert u128 to balance for rewards_allowance_dhx_daily");
                         return 0;
                     },
                     Ok(ref x) => {
-                        rewards_allowance = x;
+                        rewards_allowance_dhx_daily = x;
                     }
                 }
 
                 // Update storage. Use RewardsAllowanceDHXDaily as fallback incase not previously set prior to block
-                <RewardsAllowanceDHXForDate<T>>::insert(start_of_requested_date_millis.clone(), &rewards_allowance);
+                <RewardsAllowanceDHXForDate<T>>::insert(start_of_requested_date_millis.clone(), &rewards_allowance_dhx_daily);
                 log::info!("on_initialize");
                 log::info!("start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
-                log::info!("rewards_allowance: {:?}", &rewards_allowance);
+                log::info!("rewards_allowance: {:?}", &rewards_allowance_dhx_daily);
+                was_key_added = true;
+            }
+
+            // check again whether the start_of_requested_date has been added to storage
+            if was_key_added == false {
+                log::error!("Unable to add start_of_requested_date to storage");
+                return 0;
             }
 
             // TODO - only run the following once per day.
