@@ -157,9 +157,9 @@ decl_module! {
         #[weight = 10_000 + T::DbWeight::get().writes(1)]
         pub fn claim(
             origin,
-            mining_setting_hardware_id: T::MiningSettingHardwareIndex,
-            mining_eligibility_hardware_id: T::MiningEligibilityHardwareIndex,
-            mining_claims_hardware_id: T::MiningClaimsHardwareIndex,
+            _mining_setting_hardware_id: T::MiningSettingHardwareIndex,
+            _mining_eligibility_hardware_id: T::MiningEligibilityHardwareIndex,
+            _mining_claims_hardware_id: T::MiningClaimsHardwareIndex,
         ) {
             let _sender = ensure_signed(origin)?;
 
@@ -172,7 +172,7 @@ decl_module! {
         pub fn set_mining_claims_hardware_claims_result(
             origin,
             mining_setting_hardware_id: T::MiningSettingHardwareIndex,
-            mining_eligibility_hardware_id: T::MiningEligibilityHardwareIndex,
+            _mining_eligibility_hardware_id: T::MiningEligibilityHardwareIndex,
             mining_claims_hardware_id: T::MiningClaimsHardwareIndex,
             _hardware_claim_amount: Option<T::MiningClaimsHardwareClaimAmount>,
             // FIXME - the date should be generated without the extrinsic itself, not passed as an argument like this
@@ -376,8 +376,8 @@ impl<T: Config> Module<T> {
         let payload = (
             T::Randomness::random(&[0]),
             sender,
-            <frame_system::Module<T>>::extrinsic_index(),
-            <frame_system::Module<T>>::block_number(),
+            <frame_system::Pallet<T>>::extrinsic_index(),
+            <frame_system::Pallet<T>>::block_number(),
         );
         payload.using_encoded(blake2_128)
     }

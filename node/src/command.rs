@@ -27,7 +27,6 @@ use sc_service::{
         BasePath,
         PrometheusConfig,
     },
-    PartialComponents,
 };
 use sp_core::hexdisplay::HexDisplay;
 use sp_runtime::traits::Block as BlockT;

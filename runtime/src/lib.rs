@@ -42,7 +42,7 @@ use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
 use pallet_xcm::XcmPassthrough;
 use polkadot_parachain::primitives::Sibling;
-use xcm::v0::{BodyId, Junction::*, MultiAsset, MultiLocation, MultiLocation::*, NetworkId, Xcm};
+use xcm::v0::{BodyId, Junction::*, MultiLocation, MultiLocation::*, NetworkId};
 use xcm_builder::{
     IsConcrete,
     AccountId32Aliases,
@@ -427,7 +427,7 @@ parameter_types! {
     //pub const RewardCurve: &'static PiecewiseLinear<'static> = &REWARD_CURVE;
     //pub const StakingUnsignedPriority: TransactionPriority = TransactionPriority::max_value() / 2;
     pub const MaxNominatorRewardedPerValidator: u32 = 64;
-    pub MinSolutionScoreBump: Perbill = Perbill::from_rational_approximation(5u32, 10_000);
+    pub MinSolutionScoreBump: Perbill = Perbill::from_rational(5u32, 10_000);
     pub const MaxIterations: u32 = 10;
     pub const ElectionLookahead: BlockNumber = EPOCH_DURATION_IN_BLOCKS / 4;
     /// A limit for off-chain phragmen unsigned solution submission.

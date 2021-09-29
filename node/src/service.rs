@@ -11,11 +11,10 @@ use cumulus_client_service::{
     StartFullNodeParams,
 };
 use datahighway_runtime::{
-    opaque::{Block, Header},
+    opaque::Block,
     RuntimeApi,
 };
 use datahighway_runtime::Hash;
-use polkadot_primitives::v0::CollatorPair;
 use sc_executor::native_executor_instance;
 pub use sc_executor::NativeExecutor;
 use sc_service::{
@@ -28,9 +27,7 @@ use sc_service::{
 };
 use sc_client_api::ExecutorProvider;
 use sp_api::ConstructRuntimeApi;
-use sp_core::Pair;
 use sp_runtime::traits::BlakeTwo256;
-use sp_trie::PrefixedMemoryDB;
 use std::sync::Arc;
 use cumulus_primitives_core::ParaId;
 use sp_consensus::SlotData;

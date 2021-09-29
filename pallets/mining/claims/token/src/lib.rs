@@ -182,7 +182,7 @@ decl_module! {
             // Check that the extrinsic call is made after the end date defined in the provided configuration
 
             // FIXME
-            // let current_block = <frame_system::Module<T>>::block_number();
+            // let current_block = <frame_system::Pallet<T>>::block_number();
             // // Get the config associated with the given configuration_token
             // if let Some(configuration_token_setting) = <mining_setting_token::Module<T>>::mining_setting_token_token_settings(mining_setting_token_id) {
             //   if let _token_lock_interval_blocks = configuration_token_setting.token_lock_interval_blocks {
@@ -204,15 +204,12 @@ decl_module! {
 
             // Record the claim associated with their configuration/eligibility
             let token_claim_amount: T::MiningClaimsTokenClaimAmount = 0u32.into();
-            let token_claim_block_redeemed: T::BlockNumber = <frame_system::Module<T>>::block_number();
+            let token_claim_block_redeemed: T::BlockNumber = <frame_system::Pallet<T>>::block_number();
             if let Some(eligibility_token) = <mining_eligibility_token::Module<T>>::mining_eligibility_token_eligibility_results((mining_setting_token_id, mining_eligibility_token_id)) {
-              if let token_calculated_eligibility = eligibility_token.token_calculated_eligibility {
+                let token_calculated_eligibility = eligibility_token.token_calculated_eligibility;
                 ensure!(token_calculated_eligibility > 0u32.into(), "Calculated eligibility is zero. Nothing to claim.");
                 // FIXME - unable to figure out how to cast here!
                 // token_claim_amount = (token_calculated_eligibility as T::MiningClaimsTokenClaimAmount).clone();
-              } else {
-                return Err(DispatchError::Other("Cannot find token_eligibility calculated_eligibility associated with the claim"));
-              }
             } else {
               return Err(DispatchError::Other("Cannot find token_eligibility associated with the claim"));
             }
@@ -276,7 +273,7 @@ decl_module! {
         pub fn set_mining_claims_token_claims_result(
             origin,
             mining_setting_token_id: T::MiningSettingTokenIndex,
-            mining_eligibility_token_id: T::MiningEligibilityTokenIndex,
+            _mining_eligibility_token_id: T::MiningEligibilityTokenIndex,
             mining_claims_token_id: T::MiningClaimsTokenIndex,
             _token_claim_amount: Option<T::MiningClaimsTokenClaimAmount>,
             _token_claim_block_redeemed: Option<T::BlockNumber>,
@@ -297,7 +294,7 @@ decl_module! {
             };
             let token_claim_block_redeemed = match _token_claim_block_redeemed {
                 Some(value) => value,
-                None => <frame_system::Module<T>>::block_number()
+                None => <frame_system::Pallet<T>>::block_number()
             };
 
             // Check if a mining_claims_token_claims_result already exists with the given mining_claims_token_id
@@ -477,8 +474,8 @@ impl<T: Config> Module<T> {
         let payload = (
             T::Randomness::random(&[0]),
             sender,
-            <frame_system::Module<T>>::extrinsic_index(),
-            <frame_system::Module<T>>::block_number(),
+            <frame_system::Pallet<T>>::extrinsic_index(),
+            <frame_system::Pallet<T>>::block_number(),
         );
         payload.using_encoded(blake2_128)
     }

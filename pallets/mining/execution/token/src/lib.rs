@@ -193,11 +193,11 @@ decl_module! {
             let token_execution_executor_account_id = sender.clone();
             let token_execution_started_block = match _token_execution_started_block.clone() {
                 Some(value) => value,
-                None => <frame_system::Module<T>>::block_number()
+                None => <frame_system::Pallet<T>>::block_number()
             };
             let token_execution_ended_block = match _token_execution_ended_block {
                 Some(value) => value,
-                None => <frame_system::Module<T>>::block_number() + 1u32.into() // Default
+                None => <frame_system::Pallet<T>>::block_number() + 1u32.into() // Default
             };
 
             // FIXME
@@ -357,25 +357,22 @@ impl<T: Config> Module<T> {
 
     // Check that the token execution has a token_execution_started_block > current_block
     pub fn token_execution_started_block_greater_than_current_block(
-        mining_execution_token_id: T::MiningExecutionTokenIndex,
+        _mining_execution_token_id: T::MiningExecutionTokenIndex,
         mining_setting_token_id: T::MiningSettingTokenIndex,
     ) -> Result<(), DispatchError> {
         // Check that the extrinsic call is made after the start date defined in the provided configuration
 
-        let current_block = <frame_system::Module<T>>::block_number();
+        let current_block = <frame_system::Pallet<T>>::block_number();
         // Get the config associated with the given configuration_token
         if let Some(configuration_token_setting) =
             <mining_setting_token::Module<T>>::mining_setting_token_token_settings(mining_setting_token_id)
         {
-            if let _token_lock_start_block = configuration_token_setting.token_lock_start_block {
+                let token_lock_start_block = configuration_token_setting.token_lock_start_block;
                 ensure!(
-                    current_block > _token_lock_start_block,
+                    current_block > token_lock_start_block,
                     "Execution may not be made until after the start block of the lock period in the configuration"
                 );
                 Ok(())
-            } else {
-                return Err(DispatchError::Other("Cannot find token_setting start_date associated with the execution"));
-            }
         } else {
             return Err(DispatchError::Other("Cannot find token_setting associated with the execution"));
         }
@@ -383,33 +380,23 @@ impl<T: Config> Module<T> {
 
     // Check that the associated token configuration has a token_lock_interval_blocks > token_lock_min_blocks
     pub fn token_lock_interval_blocks_greater_than_token_lock_min_blocks(
-        mining_execution_token_id: T::MiningExecutionTokenIndex,
+        _mining_execution_token_id: T::MiningExecutionTokenIndex,
         mining_setting_token_id: T::MiningSettingTokenIndex,
     ) -> Result<(), DispatchError> {
         if let Some(configuration_token) =
-            <mining_setting_token::Module<T>>::mining_setting_token_token_settings((mining_setting_token_id))
+            <mining_setting_token::Module<T>>::mining_setting_token_token_settings(mining_setting_token_id)
         {
             if let Some(cooldown_configuration_token) =
-                <mining_setting_token::Module<T>>::mining_setting_token_token_cooldown_configs((mining_setting_token_id))
+                <mining_setting_token::Module<T>>::mining_setting_token_token_cooldown_configs(mining_setting_token_id)
             {
-                if let token_lock_interval_blocks = configuration_token.token_lock_interval_blocks {
-                    if let token_lock_min_blocks = cooldown_configuration_token.token_lock_min_blocks {
+                       let token_lock_interval_blocks = configuration_token.token_lock_interval_blocks;
+                       let token_lock_min_blocks = cooldown_configuration_token.token_lock_min_blocks;
                         ensure!(
                             token_lock_interval_blocks > token_lock_min_blocks,
                             "Lock period must be longer than the minimum lock period of the cooldown config. Cannot \
                              execute."
                         );
                         Ok(())
-                    } else {
-                        return Err(DispatchError::Other(
-                            "Cannot find token_setting with token_lock_min_blocks associated with the execution",
-                        ));
-                    }
-                } else {
-                    return Err(DispatchError::Other(
-                        "Cannot find token_setting with token_lock_interval_blocks associated with the execution",
-                    ));
-                }
             } else {
                 return Err(DispatchError::Other("Cannot find token_cooldown_config associated with the execution"));
             }
@@ -420,33 +407,23 @@ impl<T: Config> Module<T> {
 
     // Check that the associated token configuration has a token_lock_amount > token_lock_min_amount
     pub fn token_lock_amount_greater_than_token_lock_min_amount(
-        mining_execution_token_id: T::MiningExecutionTokenIndex,
+        _mining_execution_token_id: T::MiningExecutionTokenIndex,
         mining_setting_token_id: T::MiningSettingTokenIndex,
     ) -> Result<(), DispatchError> {
         if let Some(configuration_token) =
-            <mining_setting_token::Module<T>>::mining_setting_token_token_settings((mining_setting_token_id))
+            <mining_setting_token::Module<T>>::mining_setting_token_token_settings(mining_setting_token_id)
         {
             if let Some(cooldown_configuration_token) =
-                <mining_setting_token::Module<T>>::mining_setting_token_token_cooldown_configs((mining_setting_token_id))
+                <mining_setting_token::Module<T>>::mining_setting_token_token_cooldown_configs(mining_setting_token_id)
             {
-                if let locked_amount = configuration_token.token_lock_amount {
-                    if let lock_min_amount = cooldown_configuration_token.token_lock_min_amount {
+                        let locked_amount = configuration_token.token_lock_amount;
+                        let lock_min_amount = cooldown_configuration_token.token_lock_min_amount;
                         ensure!(
                             locked_amount > lock_min_amount,
                             "Locked amount must be larger than the minimum locked amount of the cooldown config. \
                              Cannot execute."
                         );
                         Ok(())
-                    } else {
-                        return Err(DispatchError::Other(
-                            "Cannot find token_setting with token_lock_min_blocks associated with the execution",
-                        ));
-                    }
-                } else {
-                    return Err(DispatchError::Other(
-                        "Cannot find token_setting with token_lock_interval_blocks associated with the execution",
-                    ));
-                }
             } else {
                 return Err(DispatchError::Other("Cannot find token_cooldown_config associated with the execution"));
             }
@@ -456,9 +433,9 @@ impl<T: Config> Module<T> {
     }
 
     pub fn execution(
-        sender: T::AccountId,
-        mining_setting_token_id: T::MiningSettingTokenIndex,
-        mining_execution_token_id: T::MiningExecutionTokenIndex,
+        _sender: T::AccountId,
+        _mining_setting_token_id: T::MiningSettingTokenIndex,
+        _mining_execution_token_id: T::MiningExecutionTokenIndex,
         _token_execution_executor_account_id: T::AccountId,
         _token_execution_started_block: T::BlockNumber,
         _token_execution_ended_block: T::BlockNumber,
@@ -531,8 +508,8 @@ impl<T: Config> Module<T> {
         let payload = (
             T::Randomness::random(&[0]),
             sender,
-            <frame_system::Module<T>>::extrinsic_index(),
-            <frame_system::Module<T>>::block_number(),
+            <frame_system::Pallet<T>>::extrinsic_index(),
+            <frame_system::Pallet<T>>::block_number(),
         );
         payload.using_encoded(blake2_128)
     }

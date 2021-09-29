@@ -173,7 +173,7 @@ decl_module! {
             let mut default_token_type = Default::default();
             let mut default_token_lock_min_amount = Default::default();
             let mut default_token_lock_min_blocks = Default::default();
-            let mut fetched_mining_setting_token_token_cooldown_config = <MiningSettingTokenRequirementsSettings<T>>::get(mining_setting_token_id);
+            let fetched_mining_setting_token_token_cooldown_config = <MiningSettingTokenRequirementsSettings<T>>::get(mining_setting_token_id);
             if let Some(_mining_setting_token_token_cooldown_config) = fetched_mining_setting_token_token_cooldown_config {
                 default_token_type = _mining_setting_token_token_cooldown_config.token_type;
                 default_token_lock_min_amount = _mining_setting_token_token_cooldown_config.token_lock_min_amount;
@@ -190,7 +190,7 @@ decl_module! {
             };
             let token_lock_start_block = match _token_lock_start_block {
                 Some(value) => value,
-                None => <frame_system::Module<T>>::block_number()
+                None => <frame_system::Pallet<T>>::block_number()
             };
             let token_lock_interval_blocks = match _token_lock_interval_blocks {
                 Some(value) => value,
@@ -405,8 +405,8 @@ impl<T: Config> Module<T> {
         let payload = (
             T::Randomness::random(&[0]),
             sender,
-            <frame_system::Module<T>>::extrinsic_index(),
-            <frame_system::Module<T>>::block_number(),
+            <frame_system::Pallet<T>>::extrinsic_index(),
+            <frame_system::Pallet<T>>::block_number(),
         );
         payload.using_encoded(blake2_128)
     }

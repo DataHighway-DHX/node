@@ -15,7 +15,6 @@ use sc_chain_spec::{
     ChainSpecGroup,
 };
 use sc_service::ChainType;
-use sc_telemetry::TelemetryEndpoints;
 use serde::{
     Deserialize,
     Serialize,
@@ -64,9 +63,6 @@ impl Extensions {
 }
 
 type AccountPublic = <Signature as Verify>::Signer;
-
-// Note this is the URL for the telemetry server
-const POLKADOT_STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
 
 /// Helper function to generate an account ID from seed
 pub fn get_account_id_from_seed<TPublic: Public>(seed: &str) -> AccountId
