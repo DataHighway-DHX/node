@@ -364,6 +364,8 @@ pub mod pallet {
             // Kian Enigma - you can't use (arbitrary) randomness in the runtime, that simply does not add
             // up to how a distributed consensus system works. How can you make sure everyone executes the
             // same code when there's something random in it.
+            //
+            // TODO - Immanuel John - you can maintain another binding to check whether rewards is shared to that account or not
 
             // let mut reg_dhx_miners_to_shuffle = reg_dhx_miners.clone();
             // let test = reg_dhx_miners
