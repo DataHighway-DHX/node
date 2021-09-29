@@ -1823,7 +1823,7 @@ dependencies = [
  "pallet-transaction-payment-rpc-runtime-api",
  "pallet-treasury",
  "pallet-xcm",
- "parachain-info",
+ "parachain-info 0.1.0 (git+https://github.com/paritytech/cumulus.git?branch=polkadot-v0.9.9)",
  "parity-scale-codec",
  "polkadot-parachain",
  "roaming-accounting-policies",
@@ -5684,6 +5684,18 @@ dependencies = [
 [[package]]
 name = "parachain-info"
 version = "0.1.0"
+dependencies = [
+ "cumulus-primitives-core",
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "serde",
+]
+
+[[package]]
+name = "parachain-info"
+version = "0.1.0"
+source = "git+https://github.com/paritytech/cumulus.git?branch=polkadot-v0.9.9#fd80849dde5c209c20a996cfcc5aaacd4666dcbe"
 dependencies = [
  "cumulus-primitives-core",
  "frame-support",

@@ -5,7 +5,6 @@
 // Make the WASM binary available.
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
-mod constants;
 mod types;
 
 use frame_system::limits::{
@@ -130,7 +129,6 @@ pub mod opaque {
     }
 }
 
-pub use constants::time::*;
 pub use types::*;
 
 pub const VERSION: RuntimeVersion = RuntimeVersion {
@@ -146,6 +144,8 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 pub const MILLISECS_PER_BLOCK: u64 = 12000;
 
 pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
+
+pub const EPOCH_DURATION_IN_BLOCKS: BlockNumber = 10 * MINUTES;
 
 // Time is measured by number of blocks.
 pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
