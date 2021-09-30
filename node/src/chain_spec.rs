@@ -928,6 +928,7 @@ fn testnet_genesis(
                 (
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     (
+                        0,
                         7u32,
                         0u32,
                     ),
@@ -1040,6 +1041,7 @@ fn mainnet_genesis(
                 (
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     (
+                        0,
                         7u32,
                         0u32,
                     ),

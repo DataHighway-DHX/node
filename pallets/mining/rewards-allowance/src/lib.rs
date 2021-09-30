@@ -140,6 +140,10 @@ pub mod pallet {
     pub(super) type CoolingOffPeriodDaysRemaining<T: Config> = StorageMap<_, Blake2_128Concat,
         T::AccountId,
         (
+            // date when cooling off period started for a given miner, or the date when we last reduced their cooling off period.
+            // we do not reduce their cooling off period days remaining if we've already set this to a date that is the
+            // current date for a miner (i.e. only reduce the days remaining once per day per miner)
+            Date,
             u32, // days remaining
             // 0: unbonded (i.e. never bonded, or finished cool-down period and no longer bonding)
             // 1: bonded/bonding (i.e. waiting in the cool-down period before start getting rewards or eligible for rewards)
@@ -159,7 +163,7 @@ pub mod pallet {
         pub registered_dhx_miners: Vec<T::AccountId>,
         pub min_bonded_dhx_daily: BalanceOf<T>,
         pub cooling_off_period_days: u32,
-        pub cooling_off_period_days_remaining: Vec<(T::AccountId, (u32, u32))>,
+        pub cooling_off_period_days_remaining: Vec<(T::AccountId, (Date, u32, u32))>,
     }
 
     // The default value for the genesis config type.
@@ -185,6 +189,7 @@ pub mod pallet {
                         (
                             Default::default(),
                             Default::default(),
+                            Default::default(),
                         ),
                     ),
                 ]
@@ -208,8 +213,8 @@ pub mod pallet {
             }
             <MinBondedDHXDaily<T>>::put(&self.min_bonded_dhx_daily);
             <CoolingOffPeriodDays<T>>::put(&self.cooling_off_period_days);
-            for (a, (b, c)) in &self.cooling_off_period_days_remaining {
-                <CoolingOffPeriodDaysRemaining<T>>::insert(a, (b, c));
+            for (a, (b, c, d)) in &self.cooling_off_period_days_remaining {
+                <CoolingOffPeriodDaysRemaining<T>>::insert(a, (b, c, d));
             }
         }
     }
@@ -474,37 +479,53 @@ pub mod pallet {
                     return 0;
                 }
 
-                // TODO - for some reason the default values in the chain_spec.rs and GenesisConfig do not get applied
-                // so we set the default value here to override otherwise (i.e. if no cooling off period days remaining
-                // is recorded for the miner, then set it to 7 days, as if they are unbonded).
                 let mut cooling_off_period_days_remaining = (
+                    start_of_requested_date_millis.clone(),
                     7u32,
                     0u32,
                 );
                 let cooling_off_period_days_remaining_to_try = <CoolingOffPeriodDaysRemaining<T>>::get(miner.clone());
                 if let Some(_cooling_off_period_days_remaining_to_try) = cooling_off_period_days_remaining_to_try {
-                    cooling_off_period_days_remaining = _cooling_off_period_days_remaining_to_try;
+                    // we do not change cooling_off_period_days_remaining.0 to the default value in the chain_spec.rs of 0,
+                    // instead we want to use today's date `start_of_requested_date_millis.clone()` by default, as we did above.
+                    if _cooling_off_period_days_remaining_to_try.0 != 0 {
+                        cooling_off_period_days_remaining.0 = _cooling_off_period_days_remaining_to_try.0;
+                    }
+                    cooling_off_period_days_remaining.1 = _cooling_off_period_days_remaining_to_try.1;
+                    cooling_off_period_days_remaining.2 = _cooling_off_period_days_remaining_to_try.2;
                 } else {
                     log::info!("Unable to retrieve cooling off period days remaining for given miner, using default {:?}", miner.clone());
                 }
-                log::info!("cooling_off_period_days_remaining {:?} {:?}", cooling_off_period_days_remaining, miner.clone());
-                // if cooling_off_period_days_remaining.1 is 0u32, it means we haven't recognised they that are bonding yet (unbonded),
+                log::info!("cooling_off_period_days_remaining {:?} {:?} {:?}", start_of_requested_date_millis.clone(), cooling_off_period_days_remaining, miner.clone());
+                // if cooling_off_period_days_remaining.2 is 0u32, it means we haven't recognised they that are bonding yet (unbonded),
                 // they aren't currently bonding, they haven't started cooling off to start bonding,
                 // or have already finished cooling down after bonding.
                 // so if we detect they are now bonding above the min. then we should start at max. remaining days
                 // before starting to decrement on subsequent blocks
-                if cooling_off_period_days_remaining.1 == 0u32 && is_bonding_min_dhx == true {
+                if
+                    cooling_off_period_days_remaining.2 == 0u32 &&
+                    is_bonding_min_dhx == true
+                {
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
                         miner.clone(),
                         (
+                            start_of_requested_date_millis.clone(),
                             cooling_off_period_days.clone(),
                             1u32, // they are bonded again, waiting to start getting rewards
                         ),
                     );
-                    log::info!("Added CoolingOffPeriodDaysRemaining for miner {:?} {:?}", miner.clone(), cooling_off_period_days.clone());
-                // if cooling_off_period_days_remaining.0 is Some(above 0), then decrement, but not eligible yet for rewards.
-                } else if cooling_off_period_days_remaining.0 > 0u32 && is_bonding_min_dhx == true {
-                    let old_cooling_off_period_days_remaining = cooling_off_period_days_remaining.0.clone();
+                    log::info!("Added CoolingOffPeriodDaysRemaining for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner.clone(), cooling_off_period_days.clone());
+                // if cooling_off_period_days_remaining.0 is not the start of the current date
+                //   (since if they just started bonding and we just set days remaining to 7, or we already decremented
+                //   a miner's days remaining for the current date, then we want to wait until the next day until we
+                //   decrement another day).
+                // if cooling_off_period_days_remaining.1 is Some(above 0), then decrement, but not eligible yet for rewards.
+                } else if
+                    cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
+                    cooling_off_period_days_remaining.1 > 0u32 &&
+                    is_bonding_min_dhx == true
+                {
+                    let old_cooling_off_period_days_remaining = cooling_off_period_days_remaining.1.clone();
 
                     // we cannot do this because of error: cannot use the `?` operator in a method that returns `()`
                     // let new_cooling_off_period_days_remaining =
@@ -528,18 +549,23 @@ pub mod pallet {
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
                         miner.clone(),
                         (
+                            start_of_requested_date_millis.clone(),
                             new_cooling_off_period_days_remaining.clone(),
                             1u32, // they are bonded again, waiting to start getting rewards
                         ),
                     );
-                    log::info!("Reduced CoolingOffPeriodDaysRemaining for miner {:?} {:?}", miner.clone(), new_cooling_off_period_days_remaining.clone());
-                // if cooling_off_period_days_remaining.0 is Some(0),
-                // and if cooling_off_period_days_remaining.1 is 1
+                    log::info!("Reduced CoolingOffPeriodDaysRemaining for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner.clone(), new_cooling_off_period_days_remaining.clone());
+                // if cooling_off_period_days_remaining.0 is not the start of the current date
+                //   (since if we decremented days remaining from 1 to 0 days left for a miner
+                //   then we want to wait until the next day before we distribute the rewards to them)
+                // if cooling_off_period_days_remaining.1 is Some(0),
+                // and if cooling_off_period_days_remaining.2 is 1
                 // and then no more cooling off days, but don't decrement,
                 // and say they are eligible for reward payments
                 } else if
-                    cooling_off_period_days_remaining.0 == 0u32 &&
-                    cooling_off_period_days_remaining.1 == 1u32 &&
+                    cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
+                    cooling_off_period_days_remaining.1 == 0u32 &&
+                    cooling_off_period_days_remaining.2 == 1u32 &&
                     is_bonding_min_dhx == true
                 {
                     // only run the following once per day until rewards_allowance_dhx_for_date is exhausted
@@ -733,19 +759,20 @@ pub mod pallet {
                         return 0;
                     }
                 // if they stop bonding the min dhx, and
-                // if cooling_off_period_days_remaining.0 is Some(0),
-                // and if cooling_off_period_days_remaining.1 is 1 (where they had just been bonding and getting rewards)
+                // if cooling_off_period_days_remaining.1 is Some(0),
+                // and if cooling_off_period_days_remaining.2 is 1 (where they had just been bonding and getting rewards)
                 // so since we detected they are no longer bonding above the min. then we should start at max. remaining days
                 // before starting to decrement on subsequent blocks
                 } else if
-                    cooling_off_period_days_remaining.0 == 0u32 &&
-                    cooling_off_period_days_remaining.1 == 1u32 &&
+                    cooling_off_period_days_remaining.1 == 0u32 &&
+                    cooling_off_period_days_remaining.2 == 1u32 &&
                     is_bonding_min_dhx == false
                 {
                     // Write the new value to storage
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
                         miner.clone(),
                         (
+                            start_of_requested_date_millis.clone(),
                             cooling_off_period_days.clone(),
                             2u32, // they have unbonded again, waiting to finish cooling down period
                         ),
@@ -753,18 +780,24 @@ pub mod pallet {
 
                     log::info!("Unbonding detected for miner. Starting cooling down period {:?} {:?}", miner.clone(), cooling_off_period_days.clone());
 
-                // if cooling_off_period_days_remaining.0 is Some(above 0), then decrement,
+                // if cooling_off_period_days_remaining.0 is not the start of the current date
+                //   (since if they just started un-bonding and we just set days remaining to 7, or we already decremented
+                //   a miner's days remaining for the current date, then we want to wait until the next day until we
+                //   decrement another day).
+                // if cooling_off_period_days_remaining.1 is Some(above 0), then decrement,
                 // but not yet completely unbonded so cannot withdraw yet
                 // note: we don't care if they stop bonding below the min. dhx during the cooling off period,
                 // as the user needs to learn that they should always been bonding the min. to
                 // maintain rewards, otherwise they have to wait for entire cooling down period and
                 // then the cooling off period again.
                 //
-                } else if cooling_off_period_days_remaining.0 > 0u32 &&
-                    cooling_off_period_days_remaining.1 == 2u32
+                } else if
+                    cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
+                    cooling_off_period_days_remaining.1 > 0u32 &&
+                    cooling_off_period_days_remaining.2 == 2u32
                     // && is_bonding_min_dhx == false
                 {
-                    let old_cooling_off_period_days_remaining = cooling_off_period_days_remaining.0.clone();
+                    let old_cooling_off_period_days_remaining = cooling_off_period_days_remaining.1.clone();
 
                     // Subtract, handling overflow
                     let new_cooling_off_period_days_remaining;
@@ -784,22 +817,31 @@ pub mod pallet {
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
                         miner.clone(),
                         (
+                            start_of_requested_date_millis.clone(),
                             new_cooling_off_period_days_remaining.clone(),
                             2u32, // they have unbonded again, waiting to finish cooling down period
                         ),
                     );
 
                     log::info!("Unbonded miner. Reducing cooling down period dates remaining {:?} {:?}", miner.clone(), new_cooling_off_period_days_remaining.clone());
-                // if cooling_off_period_days_remaining.0 is Some(0), do not subtract anymore, they are
+
+                // if cooling_off_period_days_remaining.0 is not the start of the current date
+                //   (since if we decremented days remaining to from 1 to 0 days left for a miner
+                //   then we want to wait until the next day before we set cooling_off_period_days_remaining.2 to 0u32
+                //   to allow them to be completely unbonded and withdraw).
+                // if cooling_off_period_days_remaining.1 is Some(0), do not subtract anymore, they are
                 // completely unbonded so can withdraw
-                } else if cooling_off_period_days_remaining.0 == 0u32 &&
-                    cooling_off_period_days_remaining.1 == 2u32
+                } else if
+                    cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
+                    cooling_off_period_days_remaining.1 == 0u32 &&
+                    cooling_off_period_days_remaining.2 == 2u32
                     // && is_bonding_min_dhx == false
                 {
                     // Write the new value to storage
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
                         miner.clone(),
                         (
+                            start_of_requested_date_millis.clone(),
                             0u32,
                             0u32, // they are completely unbonded again
                         ),
