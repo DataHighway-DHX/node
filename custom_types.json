@@ -1,5 +1,6 @@
 {
   "Keys": "SessionKeys2",
+  "AccountInfo": "AccountInfoWithTripleRefCount",
   "Address": "AccountId",
   "LookupSource": "AccountId",
   "RoamingOperator": "[u8; 16]",
