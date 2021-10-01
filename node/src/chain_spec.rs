@@ -922,6 +922,8 @@ fn testnet_genesis(
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 get_account_id_from_seed::<sr25519::Public>("Bob"),
             ],
+            rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
+            rewards_accumulated_dhx_for_miner_for_date: Default::default(),
             min_bonded_dhx_daily: 10u128,
             cooling_off_period_days: 7u32,
             cooling_off_period_days_remaining: vec![
@@ -1035,6 +1037,8 @@ fn mainnet_genesis(
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 get_account_id_from_seed::<sr25519::Public>("Bob"),
             ],
+            rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
+            rewards_accumulated_dhx_for_miner_for_date: Default::default(),
             min_bonded_dhx_daily: 10u128,
             cooling_off_period_days: 7u32,
             cooling_off_period_days_remaining: vec![

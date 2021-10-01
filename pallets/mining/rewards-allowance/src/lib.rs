@@ -120,6 +120,20 @@ pub mod pallet {
     #[pallet::getter(fn rewards_allowance_dhx_daily)]
     pub(super) type RewardsAllowanceDHXDaily<T: Config> = StorageValue<_, u128>;
 
+    #[pallet::storage]
+    #[pallet::getter(fn rewards_aggregated_dhx_for_all_miners_for_date)]
+    pub(super) type RewardsAggregatedDHXForAllMinersForDate<T: Config> = StorageMap<_, Blake2_128Concat,
+        Date,
+        BalanceOf<T>,
+    >;
+
+    #[pallet::storage]
+    #[pallet::getter(fn rewards_accumulated_dhx_for_miner_for_date)]
+    pub(super) type RewardsAccumulatedDHXForMinerForDate<T: Config> = StorageMap<_, Blake2_128Concat,
+        Date,
+        BalanceOf<T>,
+    >;
+
 	/// Those who registered that they want to participate in DHX Mining
 	///
 	/// TWOX-NOTE: Safe, as increasing integer keys are safe.
@@ -160,6 +174,8 @@ pub mod pallet {
         pub rewards_allowance_dhx_for_date: Vec<(Date, BalanceOf<T>)>,
         pub rewards_allowance_dhx_for_date_distributed: Vec<(Date, bool)>,
         pub rewards_allowance_dhx_daily: u128,
+        pub rewards_aggregated_dhx_for_all_miners_for_date: Vec<(Date, BalanceOf<T>)>,
+        pub rewards_accumulated_dhx_for_miner_for_date: Vec<(Date, BalanceOf<T>)>,
         pub registered_dhx_miners: Vec<T::AccountId>,
         pub min_bonded_dhx_daily: BalanceOf<T>,
         pub cooling_off_period_days: u32,
@@ -175,6 +191,8 @@ pub mod pallet {
                 rewards_allowance_dhx_for_date_distributed: Default::default(),
                 // 5000 UNIT, where UNIT token has 18 decimal places
                 rewards_allowance_dhx_daily: 5_000_000_000_000_000_000_000u128,
+                rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
+                rewards_accumulated_dhx_for_miner_for_date: Default::default(),
                 registered_dhx_miners: vec![
                     Default::default(),
                     Default::default(),
@@ -210,6 +228,12 @@ pub mod pallet {
             <RewardsAllowanceDHXDaily<T>>::put(&self.rewards_allowance_dhx_daily);
             for (a) in &self.registered_dhx_miners {
                 <RegisteredDHXMiners<T>>::append(a);
+            }
+            for (a, b) in &self.rewards_aggregated_dhx_for_all_miners_for_date {
+                <RewardsAggregatedDHXForAllMinersForDate<T>>::insert(a, b);
+            }
+            for (a, b) in &self.rewards_accumulated_dhx_for_miner_for_date {
+                <RewardsAccumulatedDHXForMinerForDate<T>>::insert(a, b);
             }
             <MinBondedDHXDaily<T>>::put(&self.min_bonded_dhx_daily);
             <CoolingOffPeriodDays<T>>::put(&self.cooling_off_period_days);
@@ -404,8 +428,7 @@ pub mod pallet {
                 // assume DHX Miner only has one lock for simplicity. retrieve the amount locked
                 // TODO - miner may have multiple locks, so we actually want to go through the vector
                 // and find the lock(s) we're interested in, and aggregate the total, and later check
-                // that it's greater than min_bonded_dhx_daily_u128
-
+                // that it's greater than min_bonded_dhx_daily_u128.
                 // default for demonstration incase miner does not have any locks when checking below
                 let mut locks_first_amount_as_u128 = 10u128;
 
@@ -613,9 +636,26 @@ pub mod pallet {
 
                     let rewards_allowance_dhx_remaining_today_as_u128 = existing_allowance_as_u128.clone();
 
-                    // TODO - calculate the miner's reward for this day, as a proportion taking other eligible miner's
-                    // who are eligible for daily rewards into account since we want to split them fairly
-                    let daily_reward_for_miner_as_u128 = 100u128; // hard coded
+                    // calculate the daily reward for the miner in DHX based on their bonded DHX.
+                    // TODO - it should be a proportion taking other eligible miner's who are eligible for
+                    // daily rewards into account since we want to split them fairly.
+                    //
+                    // assuming min_bonded_dhx_daily is 10u128, and they have that minimum of 10 DHX bonded (10u128) for
+                    // the locks_first_amount_as_u128 value, then they are eligible for 1 DHX reward
+                    // Divide, handling overflow
+                    let mut daily_reward_for_miner_as_u128 = 0u128;
+                    // note: this rounds down to the nearest integer
+                    let _daily_reward_for_miner_as_u128 = locks_first_amount_as_u128.clone().checked_div(min_bonded_dhx_daily_u128.clone());
+                    match _daily_reward_for_miner_as_u128 {
+                        None => {
+                            log::error!("Unable to divide min_bonded_dhx_daily from locks_first_amount_as_u128 due to StorageOverflow");
+                            return 0;
+                        },
+                        Some(x) => {
+                            daily_reward_for_miner_as_u128 = x;
+                        }
+                    }
+                    log::info!("daily_reward_for_miner_as_u128: {:?}", daily_reward_for_miner_as_u128.clone());
 
                     let daily_reward_for_miner;
                     let _daily_reward_for_miner = Self::convert_u128_to_balance(daily_reward_for_miner_as_u128.clone());
@@ -628,7 +668,70 @@ pub mod pallet {
                             daily_reward_for_miner = x;
                         }
                     }
+                    log::info!("daily_reward_for_miner: {:?}", daily_reward_for_miner.clone());
 
+                    let rewards_aggregated_dhx_daily;
+                    let aggregated_to_try = <RewardsAggregatedDHXForAllMinersForDate<T>>::get(&start_of_requested_date_millis);
+                    if let Some(_rewards_aggregated_dhx_daily) = aggregated_to_try {
+                        rewards_aggregated_dhx_daily = _rewards_aggregated_dhx_daily;
+                    } else {
+                        log::error!("Unable to retrieve balance for rewards_aggregated_dhx_daily");
+                        return 0;
+                    }
+
+                    let rewards_aggregated_dhx_daily_as_u128;
+                    let _rewards_aggregated_dhx_daily_as_u128 = Self::convert_balance_to_u128(rewards_aggregated_dhx_daily.clone());
+                    match _rewards_aggregated_dhx_daily_as_u128.clone() {
+                        Err(_e) => {
+                            log::error!("Unable to convert balance to u128 for rewards_aggregated_dhx_daily_as_u128");
+                            return 0;
+                        },
+                        Ok(x) => {
+                            rewards_aggregated_dhx_daily_as_u128 = x;
+                        }
+                    }
+                    log::info!("rewards_aggregated_dhx_daily_as_u128: {:?}", rewards_aggregated_dhx_daily_as_u128.clone());
+
+                    // Add, handling overflow
+                    let new_rewards_aggregated_dhx_daily_as_u128;
+                    let _new_rewards_aggregated_dhx_daily_as_u128 =
+                        rewards_aggregated_dhx_daily_as_u128.clone().checked_add(daily_reward_for_miner_as_u128.clone());
+                    match _new_rewards_aggregated_dhx_daily_as_u128 {
+                        None => {
+                            log::error!("Unable to add daily_reward_for_miner to rewards_aggregated_dhx_daily due to StorageOverflow");
+                            return 0;
+                        },
+                        Some(x) => {
+                            new_rewards_aggregated_dhx_daily_as_u128 = x;
+                        }
+                    }
+
+                    let new_rewards_aggregated_dhx_daily;
+                    let _new_rewards_aggregated_dhx_daily = Self::convert_u128_to_balance(new_rewards_aggregated_dhx_daily_as_u128.clone());
+                    match _new_rewards_aggregated_dhx_daily {
+                        Err(_e) => {
+                            log::error!("Unable to convert u128 to balance for new_rewards_aggregated_dhx_daily");
+                            return 0;
+                        },
+                        Ok(ref x) => {
+                            new_rewards_aggregated_dhx_daily = x;
+                        }
+                    }
+
+                    // add to storage item that accumulates total rewards for all registered miners for the day
+                    <RewardsAggregatedDHXForAllMinersForDate<T>>::insert(
+                        start_of_requested_date_millis.clone(),
+                        new_rewards_aggregated_dhx_daily.clone(),
+                    );
+
+                    // add to storage item that maps the date to the registered miner and the calculated reward
+                    // (prior to possibly reducing it so they get a proportion of the daily rewards that are available)
+                    <RewardsAccumulatedDHXForMinerForDate<T>>::insert(
+                        start_of_requested_date_millis.clone(),
+                        daily_reward_for_miner.clone(),
+                    );
+
+                    // TODO - move this out of this loop
                     let treasury_account_id: T::AccountId = <pallet_treasury::Pallet<T>>::account_id();
                     let max_payout = pallet_balances::Pallet::<T>::usable_balance(treasury_account_id.clone());
                     log::info!("Treasury account id: {:?}", treasury_account_id.clone());
