@@ -125,7 +125,9 @@ pub mod opaque {
     pub type BlockId = generic::BlockId<Block>;
 
     impl_opaque_keys! {
-        pub struct SessionKeys {}
+        pub struct SessionKeys {
+		pub aura: Aura,
+	    }
     }
 }
 
