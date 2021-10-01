@@ -1098,5 +1098,17 @@ pub mod pallet {
 
             return Ok(balance);
         }
+
+        fn convert_blocknumber_to_u64(blocknumber: T::BlockNumber) -> Result<u64, DispatchError> {
+            let mut blocknumber_u64 = 0u64;
+            if let Some(_blocknumber_u64) = TryInto::<u64>::try_into(blocknumber).ok() {
+                blocknumber_u64 = _blocknumber_u64;
+            } else {
+                log::error!("Unable to convert BlockNumber to u64");
+            }
+            log::info!("blocknumber_u64: {:?}", blocknumber_u64.clone());
+
+            return Ok(blocknumber_u64);
+        }
     }
 }
