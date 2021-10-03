@@ -559,7 +559,7 @@ pub mod pallet {
                 //   decrement another day).
                 // if cooling_off_period_days_remaining.1 is Some(above 0), then decrement, but not eligible yet for rewards.
                 } else if
-                    // cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
+                    cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
                     cooling_off_period_days_remaining.1 > 0u32 &&
                     is_bonding_min_dhx == true
                 {
@@ -601,7 +601,7 @@ pub mod pallet {
                 // and then no more cooling off days, but don't decrement,
                 // and say they are eligible for reward payments
                 } else if
-                    // cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
+                    cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
                     cooling_off_period_days_remaining.1 == 0u32 &&
                     cooling_off_period_days_remaining.2 == 1u32 &&
                     is_bonding_min_dhx == true
@@ -760,7 +760,7 @@ pub mod pallet {
                 // then the cooling off period again.
                 //
                 } else if
-                    // cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
+                    cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
                     cooling_off_period_days_remaining.1 > 0u32 &&
                     cooling_off_period_days_remaining.2 == 2u32
                     // && is_bonding_min_dhx == false
@@ -800,7 +800,7 @@ pub mod pallet {
                 // if cooling_off_period_days_remaining.1 is Some(0), do not subtract anymore, they are
                 // completely unbonded so can withdraw
                 } else if
-                    // cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
+                    cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
                     cooling_off_period_days_remaining.1 == 0u32 &&
                     cooling_off_period_days_remaining.2 == 2u32
                     // && is_bonding_min_dhx == false
