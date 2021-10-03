@@ -21,6 +21,15 @@ pub mod pallet {
         NaiveDateTime,
     };
     use rand::{seq::SliceRandom, Rng};
+    use substrate_fixed::{
+        types::{
+            extra::U3,
+            U16F16,
+            U32F32,
+            U64F64,
+        },
+        FixedU128,
+    };
     use codec::{
         Decode,
         Encode,
@@ -432,7 +441,10 @@ pub mod pallet {
                 // TODO - miner may have multiple locks, so we actually want to go through the vector
                 // and find the lock(s) we're interested in, and aggregate the total, and later check
                 // that it's greater than min_bonded_dhx_daily_u128.
-                // default for demonstration incase miner does not have any locks when checking below
+                // default for demonstration incase miner does not have any locks when checking below.
+                //
+                // Test with 2x registered miners each with values like `25133000000000000000000u128`, which is over
+                // half of 5000 DHX daily allowance (of 2500 DHX), but in that case we split the rewards
                 let mut locks_first_amount_as_u128 = 25133000000000000000000u128;
 
                 let locked_vec = <pallet_balances::Pallet<T>>::locks(miner.clone()).into_inner();
@@ -883,25 +895,77 @@ pub mod pallet {
             // so we'd have a multiplier of 5000/6000 = 5/6, so they'd receive ~1666 & 3333 DHX respectively.
             // e.g. 2: if miner rewards are 2000 & 2000 DHX respectively, this is less than 5000 DHX daily allowance
             // so we'd just use a multiplier of 1, so they'd receive 2000 & 2000 DHX respectively.
-            let mut distribution_multiplier_for_day_u128 = 1u128;
+            // https://docs.rs/fixed/0.5.4/fixed/struct.FixedU128.html
+            let mut distribution_multiplier_for_day_fixed128 = FixedU128::from_num(1);
 
             if rewards_aggregated_dhx_daily_as_u128.clone() > rewards_allowance_dhx_daily_u128.clone() {
                 // FIXME - this doesn't work, because if we divide say 5000/5100 then it returns a value less than 1,
                 // but it rounds down to 0 since fractions aren't supported, so we can't use the multiplier
                 // Divide, handling overflow
-                let _distribution_multiplier_for_day_u128 =
-                    rewards_allowance_dhx_daily_u128.clone().checked_div(rewards_aggregated_dhx_daily_as_u128.clone());
-                match _distribution_multiplier_for_day_u128 {
+
+                // Note: If the rewards_allowance_dhx_daily_u128 is 5000 DHX, its 5000000000000000000000,
+                // but we can't convert to u64 since largest value is 18446744073709551615.
+                // Since we expect the rewards_aggregated_dhx_daily_as_u128 to be at least 1 DHX (i.e. 1000000000000000000),
+                // we could just divide both numbers by 1000000000000000000, so we'd have say 5000 and 1 instead,
+                // since we're just using these values to get a multiplier output.
+
+                let mut manageable_rewards_allowance_dhx_daily_u128 = 0u128;
+                if let Some(_manageable_rewards_allowance_dhx_daily_u128) =
+                    rewards_allowance_dhx_daily_u128.clone().checked_div(1000000000000000000u128) {
+                        manageable_rewards_allowance_dhx_daily_u128 = _manageable_rewards_allowance_dhx_daily_u128;
+                } else {
+                    log::error!("Unable to divide rewards_allowance_dhx_daily_u128 to make it smaller");
+                    return 0;
+                }
+
+                let mut rewards_allowance_dhx_daily_u64 = 0u64;
+                if let Some(_rewards_allowance_dhx_daily_u64) =
+				    TryInto::<u64>::try_into(manageable_rewards_allowance_dhx_daily_u128.clone()).ok() {
+                        rewards_allowance_dhx_daily_u64 = _rewards_allowance_dhx_daily_u64;
+                } else {
+                    log::error!("Unable to convert u128 to u64 for rewards_allowance_dhx_daily_u128");
+                    return 0;
+                }
+
+                let mut manageable_rewards_aggregated_dhx_daily_as_u128 = 0u128;
+                if let Some(_manageable_rewards_aggregated_dhx_daily_as_u128) = rewards_aggregated_dhx_daily_as_u128.clone().checked_div(1000000000000000000u128) {
+                    manageable_rewards_aggregated_dhx_daily_as_u128 = _manageable_rewards_aggregated_dhx_daily_as_u128;
+                } else {
+                    log::error!("Unable to divide manageable_rewards_aggregated_dhx_daily_as_u128 to make it smaller");
+                    return 0;
+                }
+
+                let mut rewards_aggregated_dhx_daily_as_u64 = 0u64;
+                if let Some(_rewards_aggregated_dhx_daily_as_u64) =
+				    TryInto::<u64>::try_into(manageable_rewards_aggregated_dhx_daily_as_u128.clone()).ok() {
+                        rewards_aggregated_dhx_daily_as_u64 = _rewards_aggregated_dhx_daily_as_u64;
+                } else {
+                    log::error!("Unable to convert u128 to u64 for rewards_aggregated_dhx_daily_as_u128");
+                    return 0;
+                }
+
+                // See https://github.com/ltfschoen/substrate-node-template/pull/6/commits/175ef4805d07093042431c5814dda52da1ebde18
+                let _fraction_distribution_multiplier_for_day_fixed128 =
+                    U64F64::from_num(manageable_rewards_allowance_dhx_daily_u128.clone())
+                        .checked_div(U64F64::from_num(manageable_rewards_aggregated_dhx_daily_as_u128.clone()));
+                // let _distribution_multiplier_for_day_u128 =
+                //     rewards_allowance_dhx_daily_u128.clone().checked_div(rewards_aggregated_dhx_daily_as_u128.clone());
+
+                let _distribution_multiplier_for_day_fixed128 = _fraction_distribution_multiplier_for_day_fixed128.clone();
+                // // round down to nearest integer (by rounding up then subtracting one)
+                // let _distribution_multiplier_for_day_u128 = _fraction_distribution_multiplier_for_day_u128.floor().to_num::<u128>();
+
+                match _distribution_multiplier_for_day_fixed128 {
                     None => {
                         log::error!("Unable to divide rewards_allowance_dhx_daily_u128 due to StorageOverflow by rewards_aggregated_dhx_daily_as_u128");
                         return 0;
                     },
                     Some(x) => {
-                        distribution_multiplier_for_day_u128 = x;
+                        distribution_multiplier_for_day_fixed128 = x;
                     }
                 }
             }
-            log::info!("distribution_multiplier_for_day_u128 {:#?}", distribution_multiplier_for_day_u128);
+            log::info!("distribution_multiplier_for_day_fixed128 {:#?}", distribution_multiplier_for_day_fixed128);
 
             miner_count = 0;
             for (index, miner) in reg_dhx_miners.iter().enumerate() {
@@ -943,20 +1007,48 @@ pub mod pallet {
                 }
                 log::info!("daily_reward_for_miner_as_u128: {:?}", daily_reward_for_miner_as_u128.clone());
 
+                let mut manageable_daily_reward_for_miner_as_u128 = 0u128;
+                if let Some(_manageable_daily_reward_for_miner_as_u128) =
+                    daily_reward_for_miner_as_u128.clone().checked_div(1000000000000000000u128) {
+                        manageable_daily_reward_for_miner_as_u128 = _manageable_daily_reward_for_miner_as_u128;
+                } else {
+                    log::error!("Unable to divide daily_reward_for_miner_as_u128 to make it smaller");
+                    return 0;
+                }
+
                 // Multiply, handling overflow
-                let proportion_of_daily_reward_for_miner_u128;
-                let _proportion_of_daily_reward_for_miner_u128 =
-                    distribution_multiplier_for_day_u128.clone().checked_mul(daily_reward_for_miner_as_u128.clone());
-                match _proportion_of_daily_reward_for_miner_u128 {
+                // TODO - probably have to initialise below proportion_of_daily_reward_for_miner_fixed128 to 0u128,
+                // and convert distribution_multiplier_for_day_fixed128 to u64,
+                // and convert daily_reward_for_miner_as_u128 to u64 too, like i did earlier
+                let proportion_of_daily_reward_for_miner_fixed128;
+                let _proportion_of_daily_reward_for_miner_fixed128 =
+                    U64F64::from_num(distribution_multiplier_for_day_fixed128.clone()).checked_mul(U64F64::from_num(manageable_daily_reward_for_miner_as_u128.clone()));
+                match _proportion_of_daily_reward_for_miner_fixed128 {
                     None => {
-                        log::error!("Unable to multiply proportion_of_daily_reward_for_miner_u128 with daily_reward_for_miner_as_u128 due to StorageOverflow");
+                        log::error!("Unable to multiply proportion_of_daily_reward_for_miner_fixed128 with daily_reward_for_miner_as_u128 due to StorageOverflow");
                         return 0;
                     },
                     Some(x) => {
-                        proportion_of_daily_reward_for_miner_u128 = x;
+                        proportion_of_daily_reward_for_miner_fixed128 = x;
                     }
                 }
-                log::info!("proportion_of_daily_reward_for_miner_u128: {:?}", proportion_of_daily_reward_for_miner_u128.clone());
+                log::info!("proportion_of_daily_reward_for_miner_fixed128: {:?}", proportion_of_daily_reward_for_miner_fixed128.clone());
+
+                // round down to nearest integer. we need to round down, because if we round up then if there are
+                // 3x registered miners with 5000 DHX rewards allowance per day then they would each get 1667 rewards,
+                // but there would only be 1666 remaining after the first two, so the last one would miss out.
+                // so if we round down they each get 1666 DHX and there is 2 DHX from the daily allocation that doesn't get distributed at all.
+                let proportion_of_daily_reward_for_miner_u128: u128 = proportion_of_daily_reward_for_miner_fixed128.floor().to_num::<u128>();
+
+                // we lose some accuracy doing this conversion, but at least we split the bulk of the rewards proportionally and fairly
+                let mut restored_proportion_of_daily_reward_for_miner_u128 = 0u128;
+                if let Some(_restored_proportion_of_daily_reward_for_miner_u128) =
+                    proportion_of_daily_reward_for_miner_u128.clone().checked_mul(1000000000000000000u128) {
+                        restored_proportion_of_daily_reward_for_miner_u128 = _restored_proportion_of_daily_reward_for_miner_u128;
+                } else {
+                    log::error!("Unable to multiply proportion_of_daily_reward_for_miner_fixed128 to restore it larger again");
+                    return 0;
+                }
 
                 let treasury_account_id: T::AccountId = <pallet_treasury::Pallet<T>>::account_id();
                 let max_payout = pallet_balances::Pallet::<T>::usable_balance(treasury_account_id.clone());
@@ -965,7 +1057,7 @@ pub mod pallet {
                 log::info!("Treasury balance max payout: {:?}", max_payout.clone());
 
                 let proportion_of_daily_reward_for_miner;
-                let _proportion_of_daily_reward_for_miner = Self::convert_u128_to_balance(proportion_of_daily_reward_for_miner_u128.clone());
+                let _proportion_of_daily_reward_for_miner = Self::convert_u128_to_balance(restored_proportion_of_daily_reward_for_miner_u128.clone());
                 match _proportion_of_daily_reward_for_miner {
                     Err(_e) => {
                         log::error!("Unable to convert u128 to balance for proportion_of_daily_reward_for_miner");
@@ -1009,9 +1101,9 @@ pub mod pallet {
                 let rewards_allowance_dhx_remaining_today_as_u128 = existing_allowance_as_u128.clone();
 
                 // check if miner's reward is less than or equal to: rewards_allowance_dhx_daily_remaining
-                if proportion_of_daily_reward_for_miner_u128.clone() > 0u128 &&
-                    rewards_allowance_dhx_remaining_today_as_u128.clone() >= proportion_of_daily_reward_for_miner_u128.clone() &&
-                    max_payout_as_u128.clone() >= proportion_of_daily_reward_for_miner_u128.clone()
+                if restored_proportion_of_daily_reward_for_miner_u128.clone() > 0u128 &&
+                    rewards_allowance_dhx_remaining_today_as_u128.clone() >= restored_proportion_of_daily_reward_for_miner_u128.clone() &&
+                    max_payout_as_u128.clone() >= restored_proportion_of_daily_reward_for_miner_u128.clone()
                 {
                     // pay the miner their daily reward
                     info!("Paying the miner a proportion of the remaining daily reward allowance");
@@ -1034,17 +1126,17 @@ pub mod pallet {
                     }
                     info!("Transfer to the miner tx_result: {:?}", tx_result.clone());
 
-                    info!("Success paying the reward to the miner: {:?}", proportion_of_daily_reward_for_miner_u128.clone());
+                    info!("Success paying the reward to the miner: {:?}", restored_proportion_of_daily_reward_for_miner_u128.clone());
 
                     // TODO - move into function `reduce_remaining_rewards_allowance_dhx_for_date`?
 
                     // Subtract, handling overflow
                     let new_rewards_allowance_dhx_remaining_today_as_u128;
                     let _new_rewards_allowance_dhx_remaining_today_as_u128 =
-                        rewards_allowance_dhx_remaining_today_as_u128.clone().checked_sub(proportion_of_daily_reward_for_miner_u128.clone());
+                        rewards_allowance_dhx_remaining_today_as_u128.clone().checked_sub(restored_proportion_of_daily_reward_for_miner_u128.clone());
                     match _new_rewards_allowance_dhx_remaining_today_as_u128 {
                         None => {
-                            log::error!("Unable to subtract proportion_of_daily_reward_for_miner_u128 from rewards_allowance_dhx_remaining_today due to StorageOverflow");
+                            log::error!("Unable to subtract restored_proportion_of_daily_reward_for_miner_u128 from rewards_allowance_dhx_remaining_today due to StorageOverflow");
                             return 0;
                         },
                         Some(x) => {

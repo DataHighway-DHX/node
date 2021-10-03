@@ -921,6 +921,7 @@ fn testnet_genesis(
             registered_dhx_miners: vec![
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 get_account_id_from_seed::<sr25519::Public>("Bob"),
+                get_account_id_from_seed::<sr25519::Public>("Charlie"),
             ],
             rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),
@@ -1036,6 +1037,7 @@ fn mainnet_genesis(
             registered_dhx_miners: vec![
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 get_account_id_from_seed::<sr25519::Public>("Bob"),
+                get_account_id_from_seed::<sr25519::Public>("Charlie"),
             ],
             rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),

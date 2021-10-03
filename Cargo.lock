@@ -3725,6 +3725,7 @@ dependencies = [
  "sp-runtime",
  "sp-std",
  "static_assertions",
+ "substrate-fixed",
 ]
 
 [[package]]
@@ -8027,6 +8028,15 @@ version = "3.0.0"
 source = "git+https://github.com/DataHighway-DHX/substrate?rev=f5dc02a8a491c149fba05a2a5a51c80ce1b3cead#f5dc02a8a491c149fba05a2a5a51c80ce1b3cead"
 dependencies = [
  "platforms",
+]
+
+[[package]]
+name = "substrate-fixed"
+version = "0.5.6"
+source = "git+https://github.com/encointer/substrate-fixed#b33d186888c60f38adafcfc0ec3a21aab263aef1"
+dependencies = [
+ "parity-scale-codec",
+ "typenum",
 ]
 
 [[package]]
