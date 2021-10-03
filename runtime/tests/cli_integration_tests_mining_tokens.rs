@@ -6,7 +6,9 @@ extern crate mining_setting_token as mining_setting_token;
 extern crate mining_eligibility_token as mining_eligibility_token;
 extern crate mining_execution_token as mining_execution_token;
 extern crate mining_rates_token as mining_rates_token;
-extern crate mining_rewards_allowance as mining_rewards_allowance;
+// Note: We are adding tests for mining_rewards_allowance in
+// pallets/mining/rewards-allowance/src/mock.rs and pallets/mining/rewards-allowance/src/tests.rs
+// extern crate mining_rewards_allowance as mining_rewards_allowance;
 extern crate mining_sampling_token as mining_sampling_token;
 extern crate roaming_operators as roaming_operators;
 
@@ -109,10 +111,6 @@ mod tests {
         MiningSamplingTokenSetting,
         Module as MiningSamplingTokenModule,
         Config as MiningSamplingTokenConfig,
-    };
-    use mining_rewards_allowance::{
-        Module as MiningRewardsAllowanceModule,
-        Config as MiningRewardsAllowanceConfig,
     };
     use roaming_operators;
 
@@ -347,10 +345,6 @@ mod tests {
     impl MembershipSupernodesConfig for Test {
         type Event = ();
     }
-    impl MiningRewardsAllowanceConfig for Test {
-        type Event = ();
-        type Currency = Balances;
-    }
 
     pub type MiningSettingTokenTestModule = MiningSettingTokenModule<Test>;
     pub type MiningRatesTokenTestModule = MiningRatesTokenModule<Test>;
@@ -360,7 +354,6 @@ mod tests {
     pub type MiningClaimsTokenTestModule = MiningClaimsTokenModule<Test>;
     pub type MiningExecutionTokenTestModule = MiningExecutionTokenModule<Test>;
     pub type MembershipSupernodesTestModule = MembershipSupernodesModule<Test>;
-    pub type MiningRewardsAllowanceTestModule = MiningRewardsAllowanceModule<Test>;
     type Randomness = pallet_randomness_collective_flip::Pallet<Test>;
     type MembershipSupernodes = membership_supernodes::Module<Test>;
 
