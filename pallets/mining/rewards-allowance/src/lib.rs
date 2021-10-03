@@ -627,11 +627,12 @@ pub mod pallet {
                     }
 
                     // calculate the daily reward for the miner in DHX based on their bonded DHX.
-                    // TODO - it should be a proportion taking other eligible miner's who are eligible for
+                    // it should be a proportion taking other eligible miner's who are eligible for
                     // daily rewards into account since we want to split them fairly.
                     //
                     // assuming min_bonded_dhx_daily is 10u128, and they have that minimum of 10 DHX bonded (10u128) for
                     // the locks_first_amount_as_u128 value, then they are eligible for 1 DHX reward
+                    //
                     // Divide, handling overflow
                     let mut daily_reward_for_miner_as_u128 = 0u128;
                     // note: this rounds down to the nearest integer
@@ -899,8 +900,6 @@ pub mod pallet {
             let mut distribution_multiplier_for_day_fixed128 = FixedU128::from_num(1);
 
             if rewards_aggregated_dhx_daily_as_u128.clone() > rewards_allowance_dhx_daily_u128.clone() {
-                // FIXME - this doesn't work, because if we divide say 5000/5100 then it returns a value less than 1,
-                // but it rounds down to 0 since fractions aren't supported, so we can't use the multiplier
                 // Divide, handling overflow
 
                 // Note: If the rewards_allowance_dhx_daily_u128 is 5000 DHX, its 5000000000000000000000,
@@ -948,13 +947,7 @@ pub mod pallet {
                 let _fraction_distribution_multiplier_for_day_fixed128 =
                     U64F64::from_num(manageable_rewards_allowance_dhx_daily_u128.clone())
                         .checked_div(U64F64::from_num(manageable_rewards_aggregated_dhx_daily_as_u128.clone()));
-                // let _distribution_multiplier_for_day_u128 =
-                //     rewards_allowance_dhx_daily_u128.clone().checked_div(rewards_aggregated_dhx_daily_as_u128.clone());
-
                 let _distribution_multiplier_for_day_fixed128 = _fraction_distribution_multiplier_for_day_fixed128.clone();
-                // // round down to nearest integer (by rounding up then subtracting one)
-                // let _distribution_multiplier_for_day_u128 = _fraction_distribution_multiplier_for_day_u128.floor().to_num::<u128>();
-
                 match _distribution_multiplier_for_day_fixed128 {
                     None => {
                         log::error!("Unable to divide rewards_allowance_dhx_daily_u128 due to StorageOverflow by rewards_aggregated_dhx_daily_as_u128");
@@ -974,8 +967,9 @@ pub mod pallet {
                 log::info!("rewards loop - miner {:#?}", miner);
 
                 // only run the following once per day per miner until rewards_allowance_dhx_for_date is exhausted
-                // but since we're giving each registered miner a proportion of the daily reward allowance and
-                // each proportion is rounded down, it shouldn't become exhausted anyway
+                // but since we're giving each registered miner a proportion of the daily reward allowance
+                // (if their aggregated rewards is above daily allowance) each proportion is rounded down,
+                // it shouldn't become exhausted anyway
                 let is_already_distributed = <RewardsAllowanceDHXForDateDistributed<T>>::get(start_of_requested_date_millis.clone());
                 if is_already_distributed == Some(true) {
                     log::error!("Unable to distribute further rewards allowance today");
@@ -1019,7 +1013,8 @@ pub mod pallet {
                 // Multiply, handling overflow
                 // TODO - probably have to initialise below proportion_of_daily_reward_for_miner_fixed128 to 0u128,
                 // and convert distribution_multiplier_for_day_fixed128 to u64,
-                // and convert daily_reward_for_miner_as_u128 to u64 too, like i did earlier
+                // and convert daily_reward_for_miner_as_u128 to u64 too, like i did earlier.
+                // but it works so this doesn't seem necessary.
                 let proportion_of_daily_reward_for_miner_fixed128;
                 let _proportion_of_daily_reward_for_miner_fixed128 =
                     U64F64::from_num(distribution_multiplier_for_day_fixed128.clone()).checked_mul(U64F64::from_num(manageable_daily_reward_for_miner_as_u128.clone()));
