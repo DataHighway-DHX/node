@@ -134,8 +134,8 @@ fn extract_genesis_wasm(chain_spec: &Box<dyn sc_service::ChainSpec>) -> Result<V
 macro_rules! construct_async_run {
 	(|$components:ident, $cli:ident, $cmd:ident, $config:ident| $( $code:tt )* ) => {{
 		let runner = $cli.create_runner($cmd)?;
-		runner.async_run(|$config| {
-			let $components = new_partial::<
+        runner.async_run(|$config| {
+            let $components = new_partial::<
 				RuntimeApi,
 				DataHighwayRuntimeExecutor,
 				_
@@ -160,22 +160,22 @@ pub fn run() -> Result<()> {
         }
         Some(Subcommand::CheckBlock(cmd)) => {
             construct_async_run!(|components, cli, cmd, config| {
-				Ok(cmd.run(components.client, components.import_queue))
+                Ok(cmd.run(components.client, components.import_queue))
 			})
         }
         Some(Subcommand::ExportBlocks(cmd)) => {
             construct_async_run!(|components, cli, cmd, config| {
-				Ok(cmd.run(components.client, config.database))
+                Ok(cmd.run(components.client, config.database))
 			})
         }
         Some(Subcommand::ExportState(cmd)) => {
             construct_async_run!(|components, cli, cmd, config| {
-				Ok(cmd.run(components.client, config.chain_spec))
+                Ok(cmd.run(components.client, config.chain_spec))
 			})
         }
         Some(Subcommand::ImportBlocks(cmd)) => {
             construct_async_run!(|components, cli, cmd, config| {
-				Ok(cmd.run(components.client, components.import_queue))
+                Ok(cmd.run(components.client, components.import_queue))
 			})
         }
         Some(Subcommand::PurgeChain(cmd)) => {
@@ -281,13 +281,13 @@ pub fn run() -> Result<()> {
                 info!("Parachain Account: {}", parachain_account);
                 info!("Parachain genesis state: {}", genesis_state);
                 info!(
-					"Is collating: {}",
-					if config.role.is_authority() {
-						"yes"
-					} else {
-						"no"
-					}
-				);
+                    "Is collating: {}",
+                    if config.role.is_authority() {
+                        "yes"
+                    } else {
+                        "no"
+                    }
+                );
 
                 crate::service::start_node(config, polkadot_config, id)
                     .await
