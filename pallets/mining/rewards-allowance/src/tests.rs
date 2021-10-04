@@ -25,7 +25,7 @@ fn it_sets_rewards_allowance_with_timestamp() {
         // 27th August 2021 @ 12am is 1630022400000 (start of day)
         Timestamp::set_timestamp(1630049371000u64);
 
-        assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_allowance_dhx_current(
+        assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_allowance_dhx_daily(
             Origin::signed(0),
             5_000u64
         ));
@@ -42,7 +42,7 @@ fn it_sets_rewards_allowance_with_timestamp() {
         ));
 
         // Verify Storage
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_current(), Some(5_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(5_000u128));
 
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(5_000u64));
 
@@ -63,7 +63,7 @@ fn it_sets_rewards_allowance_with_timestamp() {
         ));
 
         // reducing the remaining rewards for a specific date does not change the default rewards allowance
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_current(), Some(5_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(5_000u128));
 
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(4_500u64));
 
