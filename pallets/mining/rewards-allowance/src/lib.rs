@@ -960,6 +960,9 @@ pub mod pallet {
             }
             log::info!("distribution_multiplier_for_day_fixed128 {:#?}", distribution_multiplier_for_day_fixed128);
 
+            // Initialise outside the loop as we need this value after the loop after we finish iterating through all the miners
+            let mut rewards_allowance_dhx_remaining_today_as_u128 = 0u128;
+
             miner_count = 0;
             for (index, miner) in reg_dhx_miners.iter().enumerate() {
                 miner_count += 1;
@@ -995,9 +998,10 @@ pub mod pallet {
                         }
                     }
                 } else {
-                    log::error!("Unable to retrieve reward balance for daily_reward_for_miner");
-                    // Note: it would be an issue if we couldn't do this
-                    return 0;
+                    // If any of the miner's don't have a reward, we won't waste storing that,
+                    // so we want to move to the next miner in the loop
+                    log::error!("Unable to retrieve reward balance for daily_reward_for_miner {:?}", miner.clone());
+                    continue;
                 }
                 log::info!("daily_reward_for_miner_as_u128: {:?}", daily_reward_for_miner_as_u128.clone());
 
@@ -1072,28 +1076,25 @@ pub mod pallet {
                 }
                 log::info!("max_payout_as_u128: {:?}", max_payout_as_u128.clone());
 
-                let existing_allowance_to_try = <RewardsAllowanceDHXForDate<T>>::get(&start_of_requested_date_millis);
-
+                // Store output `rewards_allowance_dhx_remaining_today_as_u128` outside the loop
+                let rewards_allowance_dhx_remaining_today_to_try = <RewardsAllowanceDHXForDate<T>>::get(&start_of_requested_date_millis);
                 // Validate inputs so the daily_rewards is less or equal to the existing_allowance
-                let existing_allowance_as_u128;
-                if let Some(_existing_allowance_to_try) = existing_allowance_to_try.clone() {
-                    let _existing_allowance_as_u128 = Self::convert_balance_to_u128(_existing_allowance_to_try.clone());
-                    match _existing_allowance_as_u128.clone() {
+                if let Some(_rewards_allowance_dhx_remaining_today_to_try) = rewards_allowance_dhx_remaining_today_to_try.clone() {
+                    let _rewards_allowance_dhx_remaining_today_as_u128 = Self::convert_balance_to_u128(_rewards_allowance_dhx_remaining_today_to_try.clone());
+                    match _rewards_allowance_dhx_remaining_today_as_u128.clone() {
                         Err(_e) => {
                             log::error!("Unable to convert balance to u128");
                             return 0;
                         },
                         Ok(x) => {
-                            existing_allowance_as_u128 = x;
+                            rewards_allowance_dhx_remaining_today_as_u128 = x;
                         }
                     }
-                    log::info!("existing_allowance_as_u128: {:?}", existing_allowance_as_u128.clone());
+                    log::info!("rewards_allowance_dhx_remaining_today_as_u128: {:?}", rewards_allowance_dhx_remaining_today_as_u128.clone());
                 } else {
                     log::error!("Unable to retrieve balance from value provided.");
                     return 0;
                 }
-
-                let rewards_allowance_dhx_remaining_today_as_u128 = existing_allowance_as_u128.clone();
 
                 // check if miner's reward is less than or equal to: rewards_allowance_dhx_daily_remaining
                 if restored_proportion_of_daily_reward_for_miner_u128.clone() > 0u128 &&
@@ -1176,31 +1177,31 @@ pub mod pallet {
                 } else {
                     log::error!("Insufficient remaining rewards allowance to pay daily reward to miner");
 
-                    let rewards_allowance_dhx_remaining_today;
-                    let _rewards_allowance_dhx_remaining_today = Self::convert_u128_to_balance(rewards_allowance_dhx_remaining_today_as_u128.clone());
-                    match _rewards_allowance_dhx_remaining_today {
-                        Err(_e) => {
-                            log::error!("Unable to convert u128 to balance for rewards_allowance_dhx_remaining_today");
-                            return 0;
-                        },
-                        Ok(ref x) => {
-                            rewards_allowance_dhx_remaining_today = x;
-                        }
-                    }
-
-                    <RewardsAllowanceDHXForDateDistributed<T>>::insert(
-                        start_of_requested_date_millis.clone(),
-                        true
-                    );
-
-                    Self::deposit_event(Event::DistributedRewardsAllowanceDHXForDate(
-                        start_of_requested_date_millis.clone(),
-                        rewards_allowance_dhx_remaining_today.clone(),
-                    ));
-
-                    return 0;
+                    break;
                 }
             }
+
+            let rewards_allowance_dhx_remaining_today;
+            let _rewards_allowance_dhx_remaining_today = Self::convert_u128_to_balance(rewards_allowance_dhx_remaining_today_as_u128.clone());
+            match _rewards_allowance_dhx_remaining_today {
+                Err(_e) => {
+                    log::error!("Unable to convert u128 to balance for rewards_allowance_dhx_remaining_today");
+                    return 0;
+                },
+                Ok(ref x) => {
+                    rewards_allowance_dhx_remaining_today = x;
+                }
+            }
+
+            <RewardsAllowanceDHXForDateDistributed<T>>::insert(
+                start_of_requested_date_millis.clone(),
+                true
+            );
+
+            Self::deposit_event(Event::DistributedRewardsAllowanceDHXForDate(
+                start_of_requested_date_millis.clone(),
+                rewards_allowance_dhx_remaining_today.clone(),
+            ));
 
             return 0;
         }
