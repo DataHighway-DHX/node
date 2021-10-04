@@ -870,19 +870,20 @@ construct_runtime!(
         TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
 
         // PARACHAIN
-        ParachainSystem: cumulus_pallet_parachain_system::{Pallet, Call, Config, Storage, Inherent, Event<T>, ValidateUnsigned},
-        ParachainInfo: parachain_info::{Pallet, Storage, Config},
+        ParachainSystem: cumulus_pallet_parachain_system::{Pallet, Call, Config, Storage, Inherent, Event<T>, ValidateUnsigned} = 20,
 
-        Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
+        ParachainInfo: parachain_info::{Pallet, Storage, Config} = 21,
+
+        Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>} = 30,
 
         // Consensus
         Aura: pallet_aura::{Pallet, Config<T>},
         AuraExt: cumulus_pallet_aura_ext::{Pallet, Config},
 
-        XcmpQueue: cumulus_pallet_xcmp_queue::{Pallet, Call, Storage, Event<T>},
-        PolkadotXcm: pallet_xcm::{Pallet, Call, Event<T>, Origin},
-        XcmHandler: cumulus_pallet_xcm::{Pallet, Call, Event<T>, Origin},
-        DmpQueue: cumulus_pallet_dmp_queue::{Pallet, Call, Storage, Event<T>},
+        XcmpQueue: cumulus_pallet_xcmp_queue::{Pallet, Call, Storage, Event<T>} = 50,
+        PolkadotXcm: pallet_xcm::{Pallet, Call, Event<T>, Origin} = 51,
+        XcmHandler: cumulus_pallet_xcm::{Pallet, Call, Event<T>, Origin} = 52,
+        DmpQueue: cumulus_pallet_dmp_queue::{Pallet, Call, Storage, Event<T>} = 53,
 
         GeneralCouncil: pallet_collective::<Instance1>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>},
         GeneralCouncilMembership: pallet_membership::<Instance1>::{Pallet, Call, Storage, Event<T>, Config<T>},
