@@ -104,7 +104,7 @@ pub fn development_config(id: ParaId) -> ChainSpec {
         None,
         Some(properties),
         Extensions {
-            relay_chain: "rococo-local".into(),
+            relay_chain: "rococo-dev".into(),
             para_id: id.into(),
         },
     )
