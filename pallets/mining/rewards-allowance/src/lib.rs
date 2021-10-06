@@ -411,27 +411,6 @@ pub mod pallet {
                 return 0;
             };
             let mut miner_count = 0;
-            // TODO - iterate through the registered miners in random order, otherwise the same miners get the rewards each day
-            // and possibly the same miners miss out. if the miners at the start of the list have large rewards they
-            // could possibly exhaust the daily allocation of rewards just by themselves each day
-            //
-            // Kian Enigma - you can't use (arbitrary) randomness in the runtime, that simply does not add
-            // up to how a distributed consensus system works. How can you make sure everyone executes the
-            // same code when there's something random in it.
-            //
-            // TODO - Immanuel John - you can maintain another binding to check whether rewards is shared to that account or not
-
-            // let mut reg_dhx_miners_to_shuffle = reg_dhx_miners.clone();
-            // let test = reg_dhx_miners
-            // 	.as_slice()
-            //     // FIXME - this causes error `duplicate lang item in crate`
-            //     // .choose(&mut rand::thread_rng())
-            // 	.into_iter()
-            // 	.collect::<Vec<_>>();
-
-            // reg_dhx_miners_to_shuffle.shuffle(&mut rand::thread_rng());
-            // log::info!("reg_dhx_miners: {:#?}", &reg_dhx_miners);
-            // log::info!("shuffled_reg_dhx_miners: {:#?}", reg_dhx_miners_to_shuffle.clone());
 
             for (index, miner) in reg_dhx_miners.iter().enumerate() {
                 miner_count += 1;
