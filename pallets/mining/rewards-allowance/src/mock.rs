@@ -61,8 +61,9 @@ pub use module_primitives::{
     },
 	types::{
         // AccountId, // Use override below
-        // Balance, // Use override below
-        // BlockNumber, // Use override below
+        Balance,
+        BlockNumber,
+        Index,
         Moment,
     },
 };
@@ -97,8 +98,6 @@ frame_support::construct_runtime!(
 
 // Override primitives
 pub type AccountId = u128;
-pub type Balance = u64;
-pub type BlockNumber = u64;
 // pub type SysEvent = frame_system::Event<Test>;
 
 pub const MILLISECS_PER_BLOCK: Moment = 4320;
@@ -114,7 +113,7 @@ pub const AYE: Vote = Vote { aye: true, conviction: Conviction::None };
 pub const NAY: Vote = Vote { aye: false, conviction: Conviction::None };
 
 parameter_types! {
-    pub const BlockHashCount: u64 = 250;
+    pub const BlockHashCount: BlockNumber = 250;
     pub BlockWeights: frame_system::limits::BlockWeights =
 			frame_system::limits::BlockWeights::simple_max(2_000_000_000_000);
 }
@@ -125,18 +124,18 @@ impl frame_system::Config for Test {
     type DbWeight = ();
     type Origin = Origin;
     type Call = Call;
-    type Index = u64;
+    type Index = Index;
     type BlockNumber = BlockNumber;
     type Hash = H256;
     type Hashing = BlakeTwo256;
     type AccountId = AccountId; // u64 is not enough to hold bytes used to generate bounty account
     type Lookup = IdentityLookup<Self::AccountId>;
-    type Header = Header;
+    type Header = sp_runtime::generic::Header<u32, sp_runtime::traits::BlakeTwo256>;
     type Event = ();
     type BlockHashCount = ();
     type Version = ();
     type PalletInfo = PalletInfo;
-    type AccountData = pallet_balances::AccountData<u64>;
+    type AccountData = pallet_balances::AccountData<u128>;
     type OnNewAccount = ();
     type OnKilledAccount = ();
     type SystemWeightInfo = ();
@@ -183,21 +182,21 @@ impl pallet_balances::Config for Test {
     type MaxLocks = ();
 	type MaxReserves = ();
     type ReserveIdentifier = [u8; 8];
-    type Balance = u64;
+    type Balance = Balance;
     type DustRemoval = ();
     type Event = ();
     type ExistentialDeposit = ExistentialDeposit;
-    type AccountStore = System;
+    type AccountStore = frame_system::Pallet<Test>;
     type WeightInfo = ();
 }
 parameter_types! {
-    pub const TransactionByteFee: u64 = 1;
+    pub const TransactionByteFee: Balance = 1;
 }
 impl pallet_transaction_payment::Config for Test {
     type FeeMultiplierUpdate = ();
     type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
     type TransactionByteFee = TransactionByteFee;
-    type WeightToFee = IdentityFee<u64>;
+    type WeightToFee = IdentityFee<Balance>;
 }
 
 parameter_types! {
@@ -321,20 +320,20 @@ impl ContainsLengthBound for TenToFourteen {
 
 parameter_types! {
     pub const ProposalBond: Permill = Permill::from_percent(5);
-    pub const ProposalBondMinimum: u64 = 1_000_000_000_000_000_000;
+    pub const ProposalBondMinimum: Balance = 1_000_000_000_000_000_000;
     pub const SpendPeriod: BlockNumber = 1 * DAYS;
     pub const Burn: Permill = Permill::from_percent(0);
     pub const TipCountdown: BlockNumber = 1;
     pub const TipFindersFee: Percent = Percent::from_percent(20);
-    pub const TipReportDepositBase: u64 = 1_000_000_000_000_000_000;
-    pub const DataDepositPerByte: u64 = 1;
-    pub const BountyDepositBase: u64 = 80;
+    pub const TipReportDepositBase: Balance = 1_000_000_000_000_000_000;
+    pub const DataDepositPerByte: Balance = 1;
+    pub const BountyDepositBase: Balance = 80;
     pub const BountyDepositPayoutDelay: u32 = 3;
     pub const TreasuryPalletId: PalletId = PalletId(*b"py/trsry");
     pub const BountyUpdatePeriod: u32 = 20;
     pub const MaximumReasonLength: u32 = 16384;
     pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
-    pub const BountyValueMinimum: u64 = 1;
+    pub const BountyValueMinimum: Balance = 1;
     pub const MaxApprovals: u32 = 100;
 }
 

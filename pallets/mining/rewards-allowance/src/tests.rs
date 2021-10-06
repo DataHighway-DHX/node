@@ -4,6 +4,7 @@ use crate::{BondedDHXForAccountData};
 use codec::Encode;
 use frame_support::{assert_noop, assert_ok,
     weights::{DispatchClass, DispatchInfo, GetDispatchInfo},
+    traits::{OnFinalize, OnInitialize},
 };
 use frame_system::{self, AccountInfo, EventRecord, Phase};
 use pallet_democracy::{self, AccountVote, ReferendumStatus, Tally, VoteThreshold};
@@ -14,6 +15,97 @@ use sp_core::{
 use sp_runtime::{
 	traits::{BlakeTwo256},
 };
+
+
+#[test]
+// ignore this test until the FIXME is resolved
+#[ignore]
+fn it_sets_rewards_allowance_with_genesis_defaults_automatically_in_on_finalize_if_not_already_set_for_today() {
+    new_test_ext().execute_with(|| {
+        assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(1)));
+        assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(2)));
+        assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(3)));
+
+        // 27th August 2021 @ ~7am is 1630049371000
+        // where milliseconds/day         86400000
+        // 27th August 2021 @ 12am is 1630022400000 (start of day)
+        Timestamp::set_timestamp(1630049371000u64);
+
+		MiningRewardsAllowanceTestModule::on_initialize(1);
+
+        // FIXME - why doesn't this work and use the defaults that we have set in the genesis config?
+        // i've had to add a function `set_rewards_allowance_dhx_daily` to set this instead
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(5_000u128));
+    })
+}
+
+#[test]
+// Note: if we remove `cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&`
+// four times from the implementation, then all this happens on the same day so we'd need to use the
+// same timestamp for all the blocks and tests below.
+fn it_distributes_rewards_automatically_in_on_finalize() {
+    new_test_ext().execute_with(|| {
+        assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(1)));
+        assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(2)));
+        assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(3)));
+
+        assert_ok!(MiningRewardsAllowanceTestModule::set_min_bonded_dhx_daily(
+            Origin::signed(1),
+            10_u128,
+        ));
+        assert_ok!(MiningRewardsAllowanceTestModule::set_cooling_off_period_days(
+            Origin::signed(1),
+            1_u32, // debug quickly for testing
+        ));
+        assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_allowance_dhx_daily(
+            Origin::signed(1),
+            5000_u128,
+        ));
+
+        // https://www.epochconverter.com/
+        // 27th August 2021 @ ~7am is 1630049371000
+        // where milliseconds/day         86400000
+        // 27th August 2021 @ 12am is 1630022400000 (start of day)
+        Timestamp::set_timestamp(1630049371000u64);
+		MiningRewardsAllowanceTestModule::on_initialize(1);
+        // System::on_initialize(1);
+        // System::on_finalize(1);
+        // System::set_block_number(1);
+
+        assert_eq!(MiningRewardsAllowanceTestModule::registered_dhx_miners(), Some(vec![1, 2, 3]));
+        assert_eq!(MiningRewardsAllowanceTestModule::min_bonded_dhx_daily(), Some(10));
+        assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days(), Some(1));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(5_000u128));
+        // check that on_initialize has populated this storage value automatically for the start of the current date
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(5_000u128));
+
+        // 28th August 2021 @ ~7am is 1635406274000
+        // 28th August 2021 @ 12am is 1635379200000 (start of day)
+        Timestamp::set_timestamp(1635406274000u64);
+		MiningRewardsAllowanceTestModule::on_initialize(2);
+
+        // still cooling off so no rewards distributed on this date
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1635379200000), Some(5_000u128));
+
+        // 29th August 2021 @ ~7am is 1630220400000
+        // 29th August 2021 @ 12am is 1630195200000 (start of day)
+        Timestamp::set_timestamp(1630195200000u64);
+		MiningRewardsAllowanceTestModule::on_initialize(3);
+
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630195200000), Some(5_000u128));
+
+        // i.e. for example, if locked is 25_133_000_000_000_000_000_000u128, which is 25,133 DHX,
+        // then with 10:1 each of the 3x accounts get 2513.3 DHX, which is ~7538.9 DHX combined
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_aggregated_dhx_for_all_miners_for_date(1630195200000), Some(7_539_900_000_000_000_000_000u128));
+
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 1)), Some(2_513_300_000_000_000_000_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 2)), Some(2_513_300_000_000_000_000_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 3)), Some(2_513_300_000_000_000_000_000u128));
+
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_distributed(1630195200000), Some(true));
+        assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days_remaining(1), Some((1630195200000, 0, 1)));
+    })
+}
 
 #[test]
 fn it_sets_rewards_allowance_with_timestamp() {
@@ -27,12 +119,12 @@ fn it_sets_rewards_allowance_with_timestamp() {
 
         assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_allowance_dhx_daily(
             Origin::signed(0),
-            5_000u64
+            5_000u128
         ));
 
         assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_allowance_dhx_for_date(
             Origin::signed(0),
-            5_000u64,
+            5_000u128,
             1630049371000
         ));
 
@@ -44,14 +136,14 @@ fn it_sets_rewards_allowance_with_timestamp() {
         // Verify Storage
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(5_000u128));
 
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(5_000u64));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(5_000u128));
 
         assert_eq!(
             MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date(1630022400000),
             Some(BondedDHXForAccountData {
-                account_id: 1,
-                bonded_dhx_current: 1_000u64,
-                requestor_account_id: 0,
+                account_id: 1u128,
+                bonded_dhx_current: 1_000u128,
+                requestor_account_id: 0u128,
             })
         );
 
@@ -65,7 +157,7 @@ fn it_sets_rewards_allowance_with_timestamp() {
         // reducing the remaining rewards for a specific date does not change the default rewards allowance
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(5_000u128));
 
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(4_500u64));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(4_500u128));
 
         assert_ok!(MiningRewardsAllowanceTestModule::change_remaining_rewards_allowance_dhx_for_date(
             Origin::signed(0),
@@ -74,7 +166,7 @@ fn it_sets_rewards_allowance_with_timestamp() {
             1
         ));
 
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(6_500u64));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(6_500u128));
     })
 }
 
