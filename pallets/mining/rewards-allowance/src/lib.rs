@@ -642,8 +642,7 @@ pub mod pallet {
                     // Divide, handling overflow
                     let mut daily_reward_for_miner_as_u128 = 0u128;
                     // note: this rounds down to the nearest integer
-                    let _daily_reward_for_miner_as_u128 = 25_133_000_000_000_000_000_000u128.checked_div(10u128);
-                    // let _daily_reward_for_miner_as_u128 = locks_first_amount_as_u128.clone().checked_div(min_bonded_dhx_daily_u128.clone());
+                    let _daily_reward_for_miner_as_u128 = locks_first_amount_as_u128.clone().checked_div(min_bonded_dhx_daily_u128.clone());
                     match _daily_reward_for_miner_as_u128 {
                         None => {
                             log::error!("Unable to divide min_bonded_dhx_daily from locks_first_amount_as_u128 due to StorageOverflow");
