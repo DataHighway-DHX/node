@@ -1,13 +1,13 @@
 use crate::{
     chain_spec,
     cli::{Cli, RelayChainCli, Subcommand},
-    service::{new_partial, DataHighwayRuntimeExecutor}
+    service::{new_partial, DataHighwayParachainRuntimeExecutor}
 };
-use datahighway_runtime::RuntimeApi;
+use datahighway_parachain_runtime::RuntimeApi;
 use codec::Encode;
 use cumulus_client_service::genesis::generate_genesis_block;
 use cumulus_primitives_core::ParaId;
-use datahighway_runtime::Block;
+use datahighway_parachain_runtime::Block;
 use log::info;
 use polkadot_parachain::primitives::AccountIdConversion;
 use sc_cli::{
@@ -82,7 +82,7 @@ impl SubstrateCli for Cli {
     }
 
     fn native_runtime_version(_: &Box<dyn ChainSpec>) -> &'static RuntimeVersion {
-        &datahighway_runtime::VERSION
+        &datahighway_parachain_runtime::VERSION
     }
 }
 
@@ -138,7 +138,7 @@ macro_rules! construct_async_run {
         runner.async_run(|$config| {
             let $components = new_partial::<
 				RuntimeApi,
-				DataHighwayRuntimeExecutor,
+				DataHighwayParachainRuntimeExecutor,
 				_
 			>(
 				&$config,

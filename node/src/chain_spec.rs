@@ -1,5 +1,5 @@
 use cumulus_primitives_core::ParaId;
-use datahighway_runtime::{
+use datahighway_parachain_runtime::{
     AccountId,
     AuraId,
     AuraConfig,
@@ -39,7 +39,7 @@ pub use sp_runtime::{
 };
 
 /// Specialized `ChainSpec` for the normal parachain runtime.
-pub type ChainSpec = sc_service::GenericChainSpec<datahighway_runtime::GenesisConfig, Extensions>;
+pub type ChainSpec = sc_service::GenericChainSpec<datahighway_parachain_runtime::GenesisConfig, Extensions>;
 
 /// Helper function to generate a crypto pair from seed
 pub fn get_from_seed<TPublic: Public>(seed: &str) -> <TPublic::Pair as Pair>::Public {
@@ -200,8 +200,8 @@ const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_
 
 fn mk_genesis(endowed_accounts: Vec<AccountId>, root_key: AccountId, parachain_id: ParaId) -> GenesisConfig {
     GenesisConfig {
-        system: datahighway_runtime::SystemConfig {
-            code: datahighway_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
+        system: datahighway_parachain_runtime::SystemConfig {
+            code: datahighway_parachain_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
             changes_trie_config: Default::default(),
         },
         balances: BalancesConfig {
@@ -222,7 +222,7 @@ fn mk_genesis(endowed_accounts: Vec<AccountId>, root_key: AccountId, parachain_i
         sudo: SudoConfig {
             key: root_key.clone(),
         },
-        parachain_info: datahighway_runtime::ParachainInfoConfig {
+        parachain_info: datahighway_parachain_runtime::ParachainInfoConfig {
             parachain_id,
         },
         aura: Default::default(),
@@ -238,8 +238,8 @@ fn testnet_genesis(
     id: ParaId,
 ) -> GenesisConfig {
     GenesisConfig {
-        system: datahighway_runtime::SystemConfig {
-            code: datahighway_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
+        system: datahighway_parachain_runtime::SystemConfig {
+            code: datahighway_parachain_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
             changes_trie_config: Default::default(),
         },
         balances: BalancesConfig {
@@ -260,7 +260,7 @@ fn testnet_genesis(
             phantom: Default::default(),
         },
         pallet_treasury: Default::default(),
-        parachain_info: datahighway_runtime::ParachainInfoConfig {
+        parachain_info: datahighway_parachain_runtime::ParachainInfoConfig {
             parachain_id: id,
         },
         aura: AuraConfig { authorities: initial_authorities },
@@ -274,13 +274,13 @@ fn dev_genesis(
     initial_authorities: Vec<AuraId>,
     endowed_accounts: Vec<AccountId>,
     id: ParaId,
-) -> datahighway_runtime::GenesisConfig {
-    datahighway_runtime::GenesisConfig {
-        system: datahighway_runtime::SystemConfig {
-            code: datahighway_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
+) -> datahighway_parachain_runtime::GenesisConfig {
+    datahighway_parachain_runtime::GenesisConfig {
+        system: datahighway_parachain_runtime::SystemConfig {
+            code: datahighway_parachain_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
             changes_trie_config: Default::default(),
         },
-        balances: datahighway_runtime::BalancesConfig {
+        balances: datahighway_parachain_runtime::BalancesConfig {
             balances: endowed_accounts.iter().cloned().map(|x|
                 // Insert Public key (hex) of the account without the 0x prefix below
                 if x == UncheckedFrom::unchecked_from(hex!("a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21").into()) {
@@ -291,7 +291,7 @@ fn dev_genesis(
             )
             .collect(),
         },
-        sudo: datahighway_runtime::SudoConfig {
+        sudo: datahighway_parachain_runtime::SudoConfig {
             key: root_key.clone(),
         },
         general_council: Default::default(),
@@ -300,10 +300,10 @@ fn dev_genesis(
             phantom: Default::default(),
         },
         pallet_treasury: Default::default(),
-        parachain_info: datahighway_runtime::ParachainInfoConfig {
+        parachain_info: datahighway_parachain_runtime::ParachainInfoConfig {
             parachain_id: id,
         },
-        aura: datahighway_runtime::AuraConfig { authorities: initial_authorities },
+        aura: datahighway_parachain_runtime::AuraConfig { authorities: initial_authorities },
         aura_ext: Default::default(),
         parachain_system: Default::default(),
     }

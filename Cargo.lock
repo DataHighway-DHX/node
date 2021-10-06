@@ -1721,7 +1721,7 @@ dependencies = [
  "cumulus-client-service",
  "cumulus-primitives-core",
  "cumulus-primitives-parachain-inherent",
- "datahighway-runtime",
+ "datahighway-parachain-runtime",
  "derive_more",
  "frame-benchmarking",
  "frame-benchmarking-cli",
@@ -1773,7 +1773,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "datahighway-runtime"
+name = "datahighway-parachain-runtime"
 version = "1.1.0"
 dependencies = [
  "chrono",

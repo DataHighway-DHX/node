@@ -10,11 +10,11 @@ use cumulus_client_service::{
     StartCollatorParams,
     StartFullNodeParams,
 };
-use datahighway_runtime::{
+use datahighway_parachain_runtime::{
     opaque::{Block, Header},
     RuntimeApi,
 };
-use datahighway_runtime::Hash;
+use datahighway_parachain_runtime::Hash;
 use polkadot_primitives::v0::CollatorPair;
 use sc_executor::native_executor_instance;
 pub use sc_executor::NativeExecutor;
@@ -41,9 +41,9 @@ use sc_network::NetworkService;
 
 // Native executor instance.
 native_executor_instance!(
-    pub DataHighwayRuntimeExecutor,
-    datahighway_runtime::api::dispatch,
-    datahighway_runtime::native_version,
+    pub DataHighwayParachainRuntimeExecutor,
+    datahighway_parachain_runtime::api::dispatch,
+    datahighway_parachain_runtime::native_version,
 );
 
 /// Starts a `ServiceBuilder` for a full service.
@@ -316,14 +316,14 @@ async fn start_node_impl<RuntimeApi, Executor, RB, BIQ, BIC>(
 
 /// Build the import queue for the the parachain runtime.
 pub fn parachain_build_import_queue(
-    client: Arc<TFullClient<Block, RuntimeApi, DataHighwayRuntimeExecutor>>,
+    client: Arc<TFullClient<Block, RuntimeApi, DataHighwayParachainRuntimeExecutor>>,
     config: &Configuration,
     telemetry: Option<TelemetryHandle>,
     task_manager: &TaskManager,
 ) -> Result<
     sc_consensus::DefaultImportQueue<
         Block,
-        TFullClient<Block, RuntimeApi, DataHighwayRuntimeExecutor>,
+        TFullClient<Block, RuntimeApi, DataHighwayParachainRuntimeExecutor>,
     >,
     sc_service::Error,
 > {
@@ -365,8 +365,8 @@ pub async fn start_node(
     parachain_config: Configuration,
     polkadot_config: Configuration,
     id: ParaId,
-) -> sc_service::error::Result<(TaskManager, Arc<TFullClient<Block, RuntimeApi, DataHighwayRuntimeExecutor>>)> {
-    start_node_impl::<RuntimeApi, DataHighwayRuntimeExecutor, _, _, _>(
+) -> sc_service::error::Result<(TaskManager, Arc<TFullClient<Block, RuntimeApi, DataHighwayParachainRuntimeExecutor>>)> {
+    start_node_impl::<RuntimeApi, DataHighwayParachainRuntimeExecutor, _, _, _>(
         parachain_config,
         polkadot_config,
         id,

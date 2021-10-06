@@ -76,7 +76,7 @@ RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/datahighway ... \
 ### Run All Tests
 
 ```bash
-cargo test -p datahighway-runtime &&
+cargo test -p datahighway-parachain-runtime &&
 cargo test -p roaming-operators &&
 cargo test -p roaming-networks &&
 cargo test -p roaming-organizations &&
@@ -107,14 +107,14 @@ cargo test -p mining-speed-boosts-lodgements-hardware-mining
 ### Run Integration Tests Only
 
 ```
-cargo test -p datahighway-runtime
+cargo test -p datahighway-parachain-runtime
 ```
 
 #### Run Specific Integration Tests
 
 Example
 ```
-cargo test -p datahighway-runtime --test cli_integration_tests_mining_tokens
+cargo test -p datahighway-parachain-runtime --test cli_integration_tests_mining_tokens
 ```
 
 ## Continuous Integration <a id="chapter-7a8301"></a>
