@@ -162,7 +162,7 @@ pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
         "datahighway",
         ChainType::Live,
         move || {
-            mk_genesis(
+            spreehafen_testnet_genesis(
                 vec![
                     // Endow this account with the DHX DAO Unlocked Reserves Balance
                     // 5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr
@@ -178,6 +178,7 @@ pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
                     hex!["68bac5586028dd40db59a7becec349b42cd4229f9d3c31875c3eb7a57241cd42"].into(),
                 ],
                 hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
+                vec![],
                 id,
             )
         },
@@ -198,7 +199,12 @@ const INITIAL_BALANCE: u128 = 8_750_000_000_000_000_000_000_u128; // $70M 70_000
 const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_000_000_000_000_u128; // $30M
 // const INITIAL_STAKING: u128 = 1_000_000_000_000_000_000_u128;
 
-fn mk_genesis(endowed_accounts: Vec<AccountId>, root_key: AccountId, parachain_id: ParaId) -> GenesisConfig {
+fn spreehafen_testnet_genesis(
+    endowed_accounts: Vec<AccountId>,
+    root_key: AccountId,
+    initial_authorities: Vec<AuraId>,
+    id: ParaId
+) -> GenesisConfig {
     GenesisConfig {
         system: datahighway_parachain_runtime::SystemConfig {
             code: datahighway_parachain_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
@@ -223,9 +229,9 @@ fn mk_genesis(endowed_accounts: Vec<AccountId>, root_key: AccountId, parachain_i
             key: root_key.clone(),
         },
         parachain_info: datahighway_parachain_runtime::ParachainInfoConfig {
-            parachain_id,
+            parachain_id: id,
         },
-        aura: Default::default(),
+        aura: AuraConfig { authorities: initial_authorities },
         aura_ext: Default::default(),
         parachain_system: Default::default(),
     }
