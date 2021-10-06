@@ -71,11 +71,11 @@ impl SubstrateCli for Cli {
     }
 
     fn support_url() -> String {
-        "https://github.com/substrate-developer-hub/substrate-parachain-template/issues/new".into()
+        "https://github.com/DataHighway-DHX/node/issues/new".into()
     }
 
     fn copyright_start_year() -> i32 {
-        2017
+        2021
     }
 
     fn load_spec(&self, id: &str) -> std::result::Result<Box<dyn sc_service::ChainSpec>, String> {
@@ -108,11 +108,11 @@ impl SubstrateCli for RelayChainCli {
     }
 
     fn support_url() -> String {
-        "https://github.com/substrate-developer-hub/substrate-parachain-template/issues/new".into()
+        "https://github.com/DataHighway-DHX/node/issues/new".into()
     }
 
     fn copyright_start_year() -> i32 {
-        2017
+        2021
     }
 
     fn load_spec(&self, id: &str) -> std::result::Result<Box<dyn sc_service::ChainSpec>, String> {
