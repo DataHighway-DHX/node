@@ -70,19 +70,6 @@ pub mod pallet {
     type BalanceFromBalancePallet<T> = <T as pallet_balances::Config>::Balance;
     type Date = i64;
 
-    #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
-    #[cfg_attr(feature = "std", derive())]
-    pub struct BondedDHXForAccountData<U, V, W> {
-        pub account_id: U,
-        pub bonded_dhx_current: V,
-        pub requestor_account_id: W,
-    }
-
-    type BondedData<T> = BondedDHXForAccountData<
-        <T as frame_system::Config>::AccountId,
-        BalanceOf<T>,
-        <T as frame_system::Config>::AccountId,
-    >;
 
     /// Configure the pallet by specifying the parameters and types on which it depends.
     #[pallet::config]
@@ -107,8 +94,11 @@ pub mod pallet {
     #[pallet::storage]
     #[pallet::getter(fn bonded_dhx_of_account_for_date)]
     pub(super) type BondedDHXForAccountForDate<T: Config> = StorageMap<_, Blake2_128Concat,
-        Date,
-        BondedData<T>
+        (
+            Date,
+            T::AccountId,
+        ),
+        BalanceOf<T>,
     >;
 
     #[pallet::storage]
@@ -279,9 +269,9 @@ pub mod pallet {
         /// \[cooling_off_period_days\]
         SetCoolingOffPeriodDaysStored(u32),
 
-        /// Storage of the bonded DHX of an account on a specific date by a requesting origin account.
-        /// \[date, amount_dhx_bonded, account_dhx_bonded, sender\]
-        SetBondedDHXOfAccountForDateStored(Date, BondedData<T>, T::AccountId, T::AccountId),
+        /// Storage of the bonded DHX of an account on a specific date.
+        /// \[date, amount_dhx_bonded, account_dhx_bonded\]
+        SetBondedDHXOfAccountForDateStored(Date, BalanceOf<T>, T::AccountId),
 
         /// Storage of the default daily reward allowance in DHX by an origin account.
         /// \[amount_dhx, sender\]
@@ -438,8 +428,8 @@ pub mod pallet {
                 // Test with 2x registered miners each with values like `25133000000000000000000u128`, which is over
                 // half of 5000 DHX daily allowance (of 2500 DHX), but in that case we split the rewards
                 // (i.e. 25,133 DHX locked at 10:1 gives 2513 DHX reward)
-                let mut locks_first_amount_as_u128 = 25_133_000_000_000_000_000_000u128;
 
+                let mut locks_first_amount_as_u128 = 25_133_000_000_000_000_000_000u128;
                 let locked_vec = <pallet_balances::Pallet<T>>::locks(miner.clone()).into_inner();
                 if locked_vec.len() != 0 {
                     let locks_first_amount: <T as pallet_balances::Config>::Balance =
@@ -475,6 +465,22 @@ pub mod pallet {
                 //     amount: 9999900000000000000,
                 //     reasons: Reasons::Misc,
                 // },
+
+                let bonded_dhx_current_u128;
+                let _bonded_dhx_current_u128 = Self::set_bonded_dhx_of_account_for_date(
+                    miner.clone(),
+                    locks_first_amount_as_u128.clone()
+                );
+                match _bonded_dhx_current_u128 {
+                    Err(_e) => {
+                        log::error!("Unable to set_bonded_dhx_of_account_for_date");
+                        return 0;
+                    },
+                    Ok(ref x) => {
+                        bonded_dhx_current_u128 = x;
+                    }
+                }
+                log::info!("set_bonded_dhx_of_account_for_date: {:?} {:?}", start_of_requested_date_millis.clone(), bonded_dhx_current_u128.clone());
 
                 // TODO - refactor to use `convert_balance_to_u128` instead of all the following
                 let min_bonded_dhx_daily;
@@ -1281,59 +1287,6 @@ pub mod pallet {
             Ok(())
         }
 
-        // customised by governance at any time. this function allows us to change it each year
-        // https://docs.google.com/spreadsheets/d/1W2AzOH9Cs9oCR8UYfYCbpmd9X7hp-USbYXL7AuwMY_Q/edit#gid=970997021
-        #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
-        pub fn set_bonded_dhx_of_account_for_date(origin: OriginFor<T>, account_id: T::AccountId) -> DispatchResult {
-            let _who = ensure_signed(origin)?;
-
-            // Note: we DO need the following as we're using the current timestamp, rather than a function parameter.
-            let timestamp: <T as pallet_timestamp::Config>::Moment = <pallet_timestamp::Pallet<T>>::get();
-            let requested_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone())?;
-            log::info!("set_bonded_dhx_of_account_for_date - requested_date_as_u64: {:?}", requested_date_as_u64.clone());
-
-            // convert the requested date/time to the start of that day date/time to signify that date for lookup
-            // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
-            let start_of_requested_date_millis = Self::convert_u64_in_milliseconds_to_start_of_date(requested_date_as_u64.clone())?;
-
-            // TODO - fetch from democracy or elections
-            let bonded_dhx_current_u128 = 1000u128;
-
-            let bonded_dhx_current;
-            let _bonded_dhx_current = Self::convert_u128_to_balance(bonded_dhx_current_u128.clone());
-            match _bonded_dhx_current {
-                Err(_e) => {
-                    log::error!("Unable to convert u128 to balance for bonded_dhx_current");
-                    return Err(DispatchError::Other("Unable to convert u128 to balance for bonded_dhx_current"));
-                },
-                Ok(ref x) => {
-                    bonded_dhx_current = x;
-                }
-            }
-
-            let bonded_data: BondedData<T> = BondedDHXForAccountData {
-                account_id: account_id.clone(),
-                bonded_dhx_current: bonded_dhx_current.clone(),
-                requestor_account_id: _who.clone(),
-            };
-
-            // Update storage. Override the default that may have been set in on_initialize
-            <BondedDHXForAccountForDate<T>>::insert(start_of_requested_date_millis.clone(), &bonded_data);
-            log::info!("set_bonded_dhx_of_account_for_date - account_id: {:?}", &account_id);
-            log::info!("set_bonded_dhx_of_account_for_date - bonded_data: {:?}", &bonded_data);
-
-            // Emit an event.
-            Self::deposit_event(Event::SetBondedDHXOfAccountForDateStored(
-                start_of_requested_date_millis.clone(),
-                bonded_data.clone(),
-                account_id.clone(),
-                _who.clone(),
-            ));
-
-            // Return a successful DispatchResultWithPostInfo
-            Ok(())
-        }
-
         // TODO: we need to change this in future so it is only modifiable by governance,
         // rather than just any user
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
@@ -1525,6 +1478,52 @@ pub mod pallet {
             log::info!("blocknumber_u64: {:?}", blocknumber_u64.clone());
 
             return Ok(blocknumber_u64);
+        }
+
+        fn set_bonded_dhx_of_account_for_date(account_id: T::AccountId, bonded_dhx: u128) -> Result<u128, DispatchError> {
+            // Note: we DO need the following as we're using the current timestamp, rather than a function parameter.
+            let timestamp: <T as pallet_timestamp::Config>::Moment = <pallet_timestamp::Pallet<T>>::get();
+            let requested_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone())?;
+            log::info!("set_bonded_dhx_of_account_for_date - requested_date_as_u64: {:?}", requested_date_as_u64.clone());
+
+            // convert the requested date/time to the start of that day date/time to signify that date for lookup
+            // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
+            let start_of_requested_date_millis = Self::convert_u64_in_milliseconds_to_start_of_date(requested_date_as_u64.clone())?;
+
+            let bonded_dhx_current_u128 = bonded_dhx.clone();
+
+            let bonded_dhx_current;
+            let _bonded_dhx_current = Self::convert_u128_to_balance(bonded_dhx_current_u128.clone());
+            match _bonded_dhx_current {
+                Err(_e) => {
+                    log::error!("Unable to convert u128 to balance for bonded_dhx_current");
+                    return Err(DispatchError::Other("Unable to convert u128 to balance for bonded_dhx_current"));
+                },
+                Ok(ref x) => {
+                    bonded_dhx_current = x;
+                }
+            }
+
+            // Update storage. Override the default that may have been set in on_initialize
+            <BondedDHXForAccountForDate<T>>::insert(
+                (
+                    start_of_requested_date_millis.clone(),
+                    account_id.clone(),
+                ),
+                bonded_dhx_current.clone(),
+            );
+            log::info!("set_bonded_dhx_of_account_for_date - account_id: {:?}", &account_id);
+            log::info!("set_bonded_dhx_of_account_for_date - bonded_dhx_current: {:?}", &bonded_dhx_current);
+
+            // Emit an event.
+            Self::deposit_event(Event::SetBondedDHXOfAccountForDateStored(
+                start_of_requested_date_millis.clone(),
+                bonded_dhx_current.clone(),
+                account_id.clone(),
+            ));
+
+            // Return a successful DispatchResultWithPostInfo
+            Ok(bonded_dhx_current_u128.clone())
         }
     }
 }

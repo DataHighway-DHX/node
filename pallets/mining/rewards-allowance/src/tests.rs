@@ -1,6 +1,5 @@
 use super::{Call, Event, *};
 use crate::{mock::*, Error};
-use crate::{BondedDHXForAccountData};
 use codec::Encode;
 use frame_support::{assert_noop, assert_ok,
     weights::{DispatchClass, DispatchInfo, GetDispatchInfo},
@@ -62,37 +61,54 @@ fn it_distributes_rewards_automatically_in_on_finalize() {
             5000_u128,
         ));
 
-        // https://www.epochconverter.com/
-        // 27th August 2021 @ ~7am is 1630049371000
-        // where milliseconds/day         86400000
-        // 27th August 2021 @ 12am is 1630022400000 (start of day)
-        Timestamp::set_timestamp(1630049371000u64);
-		MiningRewardsAllowanceTestModule::on_initialize(1);
-        // System::on_initialize(1);
-        // System::on_finalize(1);
-        // System::set_block_number(1);
-
         assert_eq!(MiningRewardsAllowanceTestModule::registered_dhx_miners(), Some(vec![1, 2, 3]));
         assert_eq!(MiningRewardsAllowanceTestModule::min_bonded_dhx_daily(), Some(10));
         assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days(), Some(1));
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(5_000u128));
-        // check that on_initialize has populated this storage value automatically for the start of the current date
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(5_000u128));
 
+        // since the timestamp is 0 (corresponds to 1970-01-01) at block number #1, we early exit from on_initialize in
+        // that block in the implementation and do not set any storage values associated with the date until block #2.
+        // in the tests we could set the timestamp before we run on_initialize(1), but that wouldn't reflect reality.
+		MiningRewardsAllowanceTestModule::on_initialize(1);
+
+        // 27th August 2021 @ ~7am is 1630049371000
+        // where milliseconds/day         86400000
+        // 27th August 2021 @ 12am is 1630022400000 (start of day)
+        Timestamp::set_timestamp(1630049371000u64);
+		MiningRewardsAllowanceTestModule::on_initialize(2);
+        // System::on_initialize(2);
+        // System::on_finalize(2);
+        // System::set_block_number(2);
+
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(5_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_distributed(1630022400000), Some(false));
+
+        // https://www.epochconverter.com/
         // 28th August 2021 @ ~7am is 1635406274000
+        // where milliseconds/day         86400000
         // 28th August 2021 @ 12am is 1635379200000 (start of day)
         Timestamp::set_timestamp(1635406274000u64);
-		MiningRewardsAllowanceTestModule::on_initialize(2);
+		MiningRewardsAllowanceTestModule::on_initialize(3);
 
+        // check that on_initialize has populated this storage value automatically for the start of the current date
         // still cooling off so no rewards distributed on this date
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1635379200000), Some(5_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_distributed(1635379200000), Some(false));
+
+        assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1635379200000, 1)), Some(25_133_000_000_000_000_000_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1635379200000, 2)), Some(25_133_000_000_000_000_000_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1635379200000, 3)), Some(25_133_000_000_000_000_000_000u128));
 
         // 29th August 2021 @ ~7am is 1630220400000
         // 29th August 2021 @ 12am is 1630195200000 (start of day)
         Timestamp::set_timestamp(1630195200000u64);
-		MiningRewardsAllowanceTestModule::on_initialize(3);
+		MiningRewardsAllowanceTestModule::on_initialize(4);
 
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630195200000), Some(5_000u128));
+
+        assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, 1)), Some(25_133_000_000_000_000_000_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, 2)), Some(25_133_000_000_000_000_000_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, 3)), Some(25_133_000_000_000_000_000_000u128));
 
         // i.e. for example, if locked is 25_133_000_000_000_000_000_000u128, which is 25,133 DHX,
         // then with 10:1 each of the 3x accounts get 2513.3 DHX, which is ~7538.9 DHX combined
@@ -104,6 +120,20 @@ fn it_distributes_rewards_automatically_in_on_finalize() {
 
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_distributed(1630195200000), Some(true));
         assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days_remaining(1), Some((1630195200000, 0, 1)));
+    })
+}
+
+#[test]
+#[ignore]
+fn it_distributes_rewards_automatically_in_on_finalize_for_large_amounts() {
+    new_test_ext().execute_with(|| {
+        // TODO - create a test that instead of using a hard-coded value for `locks_first_amount_as_u128`
+        // that is in the implementation, it instead sets the locked value of each of then using frame_balances
+        // for the 3x miners, since we can then store that with `set_bonded_dhx_of_account_for_date` and
+        // then use that easier for the tests too for trying different values that they have bonded.
+        //
+        // in this test we'll test that it distributes rewards when each of their account balances are very large
+        // (i.e. a third of the total supply) 33_333_333_333_000_000_000_000_000u128
     })
 }
 
@@ -128,24 +158,10 @@ fn it_sets_rewards_allowance_with_timestamp() {
             1630049371000
         ));
 
-        assert_ok!(MiningRewardsAllowanceTestModule::set_bonded_dhx_of_account_for_date(
-            Origin::signed(0),
-            1
-        ));
-
         // Verify Storage
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(5_000u128));
 
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(5_000u128));
-
-        assert_eq!(
-            MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date(1630022400000),
-            Some(BondedDHXForAccountData {
-                account_id: 1u128,
-                bonded_dhx_current: 1_000u128,
-                requestor_account_id: 0u128,
-            })
-        );
 
         assert_ok!(MiningRewardsAllowanceTestModule::change_remaining_rewards_allowance_dhx_for_date(
             Origin::signed(0),
