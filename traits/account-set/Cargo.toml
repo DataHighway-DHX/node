@@ -26,4 +26,4 @@ std = [
 [dependencies.sp-std]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.9"
+branch = "polkadot-v0.9.10"
