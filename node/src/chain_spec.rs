@@ -78,7 +78,7 @@ where
 
 pub fn development_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
-    properties.insert("tokenSymbol".into(), "DHX".into());
+    properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
     ChainSpec::from_genesis(
         // Name
