@@ -188,7 +188,7 @@ pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
         Some(properties),
         Extensions {
             relay_chain: "rococo-chachacha".into(),
-            para_id: 2_u32.into(),
+            para_id: id.into(),
         },
     )
 }
