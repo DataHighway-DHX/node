@@ -65,11 +65,12 @@ pub mod pallet {
         },
     };
 
+    pub const default_bonded_amount: u128 = 25_133_000_000_000_000_000_000u128;
+
     // type BalanceOf<T> = <T as pallet_balances::Config>::Balance;
     type BalanceOf<T> = <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
     type BalanceFromBalancePallet<T> = <T as pallet_balances::Config>::Balance;
     type Date = i64;
-
 
     /// Configure the pallet by specifying the parameters and types on which it depends.
     #[pallet::config]
@@ -429,9 +430,10 @@ pub mod pallet {
                 // half of 5000 DHX daily allowance (of 2500 DHX), but in that case we split the rewards
                 // (i.e. 25,133 DHX locked at 10:1 gives 2513 DHX reward)
 
-                let mut locks_first_amount_as_u128 = 25_133_000_000_000_000_000_000u128;
+                let mut locks_first_amount_as_u128 = default_bonded_amount.clone();
                 let locked_vec = <pallet_balances::Pallet<T>>::locks(miner.clone()).into_inner();
                 if locked_vec.len() != 0 {
+                    // println!("locked_vec: {:?}", locked_vec);
                     let locks_first_amount: <T as pallet_balances::Config>::Balance =
                         <pallet_balances::Pallet<T>>::locks(miner.clone()).into_inner().clone()[0].amount;
 
