@@ -918,6 +918,15 @@ fn testnet_genesis(
             rewards_allowance_dhx_daily: 5_000_000_000_000_000_000_000u128,
             rewards_allowance_dhx_for_date: Default::default(),
             rewards_allowance_dhx_for_date_distributed: Default::default(),
+            rewards_multiplier_paused: false,
+            rewards_multiplier_reset: false,
+            rewards_multiplier_default_ratio: 2u32,
+            rewards_multiplier_next_ratio: 2u32,
+            rewards_multiplier_default_period_days: 30u32,
+            rewards_multiplier_next_period_days: 30u32,
+            rewards_multiplier_current_ratio: 2u32,
+            rewards_multiplier_current_period_days_total: 30u32,
+            rewards_multiplier_current_period_days_remaining: Default::default(),
             registered_dhx_miners: vec![
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 get_account_id_from_seed::<sr25519::Public>("Bob"),
@@ -926,6 +935,7 @@ fn testnet_genesis(
             rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),
             min_bonded_dhx_daily: 10u128,
+            min_bonded_dhx_daily_default: 10u128,
             cooling_off_period_days: 7u32,
             cooling_off_period_days_remaining: vec![
                 (
@@ -1034,6 +1044,15 @@ fn mainnet_genesis(
             rewards_allowance_dhx_daily: 5_000_000_000_000_000_000_000u128,
             rewards_allowance_dhx_for_date: Default::default(),
             rewards_allowance_dhx_for_date_distributed: Default::default(),
+            rewards_multiplier_paused: false,
+            rewards_multiplier_reset: false,
+            rewards_multiplier_default_ratio: 2u32,
+            rewards_multiplier_next_ratio: 2u32,
+            rewards_multiplier_default_period_days: 30u32,
+            rewards_multiplier_next_period_days: 30u32,
+            rewards_multiplier_current_ratio: 2u32,
+            rewards_multiplier_current_period_days_total: 30u32,
+            rewards_multiplier_current_period_days_remaining: Default::default(),
             registered_dhx_miners: vec![
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 get_account_id_from_seed::<sr25519::Public>("Bob"),
@@ -1042,6 +1061,7 @@ fn mainnet_genesis(
             rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),
             min_bonded_dhx_daily: 10u128,
+            min_bonded_dhx_daily_default: 10u128,
             cooling_off_period_days: 7u32,
             cooling_off_period_days_remaining: vec![
                 (
