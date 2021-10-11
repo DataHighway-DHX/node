@@ -76,7 +76,7 @@ where
     AccountPublic::from(get_from_seed::<TPublic>(seed)).into_account()
 }
 
-pub fn development_config(id: ParaId) -> ChainSpec {
+pub fn rococo_development_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -104,13 +104,13 @@ pub fn development_config(id: ParaId) -> ChainSpec {
         None,
         Some(properties),
         Extensions {
-            relay_chain: "rococo-local".into(),
+            relay_chain: "rococo-dev".into(),
             para_id: id.into(),
         },
     )
 }
 
-pub fn local_testnet_config(id: ParaId) -> ChainSpec {
+pub fn rococo_local_testnet_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -152,6 +152,82 @@ pub fn local_testnet_config(id: ParaId) -> ChainSpec {
     )
 }
 
+pub fn chachacha_development_config(id: ParaId) -> ChainSpec {
+    let mut properties = sc_chain_spec::Properties::new();
+    properties.insert("tokenSymbol".into(), "UNIT".into());
+    properties.insert("tokenDecimals".into(), 18.into());
+    ChainSpec::from_genesis(
+        // Name
+        "Development",
+        // ID
+        "dev",
+        ChainType::Local,
+        move || {
+            dev_genesis(
+                get_account_id_from_seed::<sr25519::Public>("Alice"),
+                vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
+                vec![
+                    get_account_id_from_seed::<sr25519::Public>("Alice"),
+                    get_account_id_from_seed::<sr25519::Public>("Bob"),
+                    get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+                ],
+                id,
+            )
+        },
+        vec![],
+        None,
+        None,
+        Some(properties),
+        Extensions {
+            relay_chain: "chachacha-dev".into(),
+            para_id: id.into(),
+        },
+    )
+}
+
+pub fn chachacha_local_testnet_config(id: ParaId) -> ChainSpec {
+    let mut properties = sc_chain_spec::Properties::new();
+    properties.insert("tokenSymbol".into(), "UNIT".into());
+    properties.insert("tokenDecimals".into(), 18.into());
+    ChainSpec::from_genesis(
+        // Name
+        "Local Testnet",
+        // ID
+        "local_testnet",
+        ChainType::Local,
+        move || {
+            dev_genesis(
+                get_account_id_from_seed::<sr25519::Public>("Alice"),
+                vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
+                vec![
+                    get_account_id_from_seed::<sr25519::Public>("Alice"),
+                    get_account_id_from_seed::<sr25519::Public>("Bob"),
+                    get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                    get_account_id_from_seed::<sr25519::Public>("Dave"),
+                    get_account_id_from_seed::<sr25519::Public>("Eve"),
+                    get_account_id_from_seed::<sr25519::Public>("Ferdie"),
+                    get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
+                ],
+                id,
+            )
+        },
+        Vec::new(),
+        None,
+        None,
+        Some(properties),
+        Extensions {
+            relay_chain: "chachacha-local".into(),
+            para_id: id.into(),
+        },
+    )
+}
+
 pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
@@ -187,7 +263,48 @@ pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
         Some("dhx"),
         Some(properties),
         Extensions {
-            relay_chain: "rococo-chachacha".into(),
+            relay_chain: "rococo".into(),
+            para_id: id.into(),
+        },
+    )
+}
+
+pub fn chachacha_parachain_config(id: ParaId) -> ChainSpec {
+    let mut properties = sc_chain_spec::Properties::new();
+    properties.insert("tokenSymbol".into(), "DHX".into());
+    properties.insert("tokenDecimals".into(), 18.into());
+    let boot_nodes = vec![];
+    ChainSpec::from_genesis(
+        "DataHighway Spreehafen Parachain Testnet",
+        "datahighway_spreehafen",
+        ChainType::Live,
+        move || {
+            spreehafen_testnet_genesis(
+                vec![
+                    // Endow this account with the DHX DAO Unlocked Reserves Balance
+                    // 5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr
+                    hex!["6c029e6fc41ec44d420030071f04995bac19e59a0f0a1a610f9f0f6d689e2262"].into(),
+                    // Endow these accounts with a balance so they may bond as authorities
+                    hex!["ca907b74f921b74638eb40c289e9bf1142b0afcdb25e1a50383ab8f9d515da0d"].into(),
+                    hex!["ae69db7838fb139cbf4f93bf877faf5bbef242f3f5aac6eb4f111398e9385e7d"].into(),
+                    hex!["7652b25328d78d264aef01184202c9771b55f5b391359309a2559ef77fbbb33d"].into(),
+                    hex!["eec96d02877a45fa524fcee1c6b7c849cbdc8cee01a95f5db168c427ae766849"].into(),
+                    hex!["f64bae0f8fbe2eb59ff1c0ff760a085f55d69af5909aed280ebda09dc364d443"].into(),
+                    hex!["420a7b4a8c9f2388eded13c17841d2a0e08ea7c87eda84310da54f3ccecd3931"].into(),
+                    hex!["ceecb6cc08c20ff44052ff19952a810d08363aa26ea4fb0a64a62a4630d37f28"].into(),
+                    hex!["68bac5586028dd40db59a7becec349b42cd4229f9d3c31875c3eb7a57241cd42"].into(),
+                ],
+                hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
+                vec![],
+                id,
+            )
+        },
+        boot_nodes,
+        None,
+        Some("dhx"),
+        Some(properties),
+        Extensions {
+            relay_chain: "chachacha".into(),
             para_id: id.into(),
         },
     )

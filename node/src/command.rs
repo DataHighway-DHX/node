@@ -40,10 +40,12 @@ const PARA_ID: u32 = 2000;
 
 fn load_spec(id: &str, para_id: ParaId) -> std::result::Result<Box<dyn sc_service::ChainSpec>, String> {
     Ok(match id {
-        "dev" => Box::new(chain_spec::development_config(para_id)),
-        "" | "local" => Box::new(chain_spec::local_testnet_config(para_id)),
+        "dev" | "rococo-dev"=> Box::new(chain_spec::rococo_development_config(para_id)),
+        "" | "local" | "rococo-local"=> Box::new(chain_spec::rococo_local_testnet_config(para_id)),
+        "chachacha-dev"=> Box::new(chain_spec::chachacha_development_config(para_id)),
+        "chachacha-local"=> Box::new(chain_spec::chachacha_local_testnet_config(para_id)),
         "rococo" => Box::new(chain_spec::rococo_parachain_config(para_id)),
-        "chachacha" => Box::new(chain_spec::rococo_parachain_config(para_id)),
+        "chachacha" => Box::new(chain_spec::chachacha_parachain_config(para_id)),
         path => Box::new(chain_spec::ChainSpec::from_json_file(std::path::PathBuf::from(path))?),
     })
 }
