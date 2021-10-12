@@ -379,6 +379,11 @@ fn distribute_rewards(amount_bonded_each_miner: u128, original_amount_bonded_eac
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 2)), Some(original_amount_bonded_each_miner / 10));
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 3)), Some(original_amount_bonded_each_miner / 10));
 
+    // FIXME - since we're passing values for the test that have been divided by `/ 1_000_000_000_000_000_000`
+    // to make it work, the division in the implementation to calculate `manageable_daily_reward_for_miner_as_u128` which is
+    // `daily_reward_for_miner_as_u128.clone().checked_div(1000000000000000000u128)` ends up being says 5000/1000000000000000000
+    // which is 0, so it doesn't let us distribute rewards and this doesn't work
+    // assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630195200000), Some(2u128));
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining_distributed(1630195200000), Some(true));
     assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days_remaining(1), Some((1630195200000, 0, 1)));
 }
