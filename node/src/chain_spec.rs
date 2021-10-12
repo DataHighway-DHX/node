@@ -121,7 +121,7 @@ pub fn rococo_local_testnet_config(id: ParaId) -> ChainSpec {
         "local_testnet",
         ChainType::Local,
         move || {
-            dev_genesis(
+            testnet_genesis(
                 vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
@@ -197,7 +197,7 @@ pub fn chachacha_local_testnet_config(id: ParaId) -> ChainSpec {
         "local_testnet",
         ChainType::Local,
         move || {
-            dev_genesis(
+            testnet_genesis(
                 vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
@@ -434,7 +434,7 @@ fn dev_genesis(
             )
             .collect(),
         },
-        sudo: datahighway_parachain_runtime::SudoConfig {
+        sudo: SudoConfig {
             key: root_key.clone(),
         },
         general_council: Default::default(),
@@ -446,7 +446,7 @@ fn dev_genesis(
         parachain_info: datahighway_parachain_runtime::ParachainInfoConfig {
             parachain_id: id,
         },
-        aura: datahighway_parachain_runtime::AuraConfig { authorities: initial_authorities },
+        aura: AuraConfig { authorities: initial_authorities },
         aura_ext: Default::default(),
         parachain_system: Default::default(),
     }
