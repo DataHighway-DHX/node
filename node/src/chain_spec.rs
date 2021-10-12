@@ -91,6 +91,7 @@ pub fn rococo_development_config(id: ParaId) -> ChainSpec {
                 vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
+                    hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
                     get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
@@ -125,6 +126,7 @@ pub fn rococo_local_testnet_config(id: ParaId) -> ChainSpec {
                 vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
+                    hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
                     get_account_id_from_seed::<sr25519::Public>("Charlie"),
@@ -167,6 +169,7 @@ pub fn chachacha_development_config(id: ParaId) -> ChainSpec {
                 vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
+                    hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
                     get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
@@ -201,6 +204,7 @@ pub fn chachacha_local_testnet_config(id: ParaId) -> ChainSpec {
                 vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
+                    hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
                     get_account_id_from_seed::<sr25519::Public>("Charlie"),

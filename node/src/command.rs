@@ -35,7 +35,9 @@ use std::{
     io::Write,
     net::SocketAddr,
 };
-
+// 2000 is for cumulus workshop testing on local
+// 2005 is for rococo
+// 2002 is for chachacha
 const PARA_ID: u32 = 2000;
 
 fn load_spec(id: &str, para_id: ParaId) -> std::result::Result<Box<dyn sc_service::ChainSpec>, String> {
