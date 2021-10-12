@@ -520,7 +520,6 @@ pub mod pallet {
                 log::info!("Unable to get rm_current_ratio");
             }
 
-            // let mut min_bonded_dhx_daily_default: u128 = 10_000_000_000_000_000_000_u128; // 10 DHX
             let mut min_bonded_dhx_daily_default: BalanceOf<T> = 10u32.into(); // initialize
             if let Some(_min_bonded_dhx_daily_default) = <MinBondedDHXDailyDefault<T>>::get() {
                 min_bonded_dhx_daily_default = _min_bonded_dhx_daily_default;
@@ -628,24 +627,17 @@ pub mod pallet {
                             // multiply the next ratio by the current min bonded dhx daily to determine the
                             // new min. bonded dhx daily for the next period
 
-                            // let mut min_bonded_dhx_daily_u128 = 10_000_000_000_000_000_000_u128;
-                            let mut min_bonded_dhx_daily: BalanceOf<T> = 10u32.into(); // initialize
-                            if let Some(_min_bonded_dhx_daily) = <MinBondedDHXDaily<T>>::get() {
-                                min_bonded_dhx_daily = _min_bonded_dhx_daily;
-                            } else {
-                                log::error!("Unable to retrieve any min. bonded DHX daily");
-                                return 0;
-                            }
-
-                            let min_bonded_dhx_daily_u128;
-                            let _min_bonded_dhx_daily_u128 = Self::convert_balance_to_u128(min_bonded_dhx_daily.clone());
-                            match _min_bonded_dhx_daily_u128.clone() {
+                            let mut min_bonded_dhx_daily: BalanceOf<T> = 10u32.into();
+                            let mut min_bonded_dhx_daily_u128;
+                            let _min_bonded_dhx_daily = Self::get_min_bonded_dhx_daily();
+                            match _min_bonded_dhx_daily {
                                 Err(_e) => {
-                                    log::error!("Unable to convert balance to u128 for min_bonded_dhx_daily_u128");
+                                    log::error!("Unable to retrieve any min. bonded DHX daily as BalanceOf and u128");
                                     return 0;
                                 },
-                                Ok(x) => {
-                                    min_bonded_dhx_daily_u128 = x;
+                                Ok(ref x) => {
+                                    min_bonded_dhx_daily = x.0;
+                                    min_bonded_dhx_daily_u128 = x.1;
                                 }
                             }
 
@@ -848,24 +840,17 @@ pub mod pallet {
                 }
                 log::info!("set_bonded_dhx_of_account_for_date: {:?} {:?}", start_of_requested_date_millis.clone(), bonded_dhx_current_u128.clone());
 
-                // let mut min_bonded_dhx_daily_u128 = 10_000_000_000_000_000_000_u128;
-                let mut min_bonded_dhx_daily: BalanceOf<T> = 10u32.into(); // initialize
-                if let Some(_min_bonded_dhx_daily) = <MinBondedDHXDaily<T>>::get() {
-                    min_bonded_dhx_daily = _min_bonded_dhx_daily;
-                } else {
-                    log::error!("Unable to retrieve any min. bonded DHX daily");
-                    return 0;
-                }
-
-                let min_bonded_dhx_daily_u128;
-                let _min_bonded_dhx_daily_u128 = Self::convert_balance_to_u128(min_bonded_dhx_daily.clone());
-                match _min_bonded_dhx_daily_u128.clone() {
+                let mut min_bonded_dhx_daily: BalanceOf<T> = 10u32.into();
+                let mut min_bonded_dhx_daily_u128;
+                let _min_bonded_dhx_daily = Self::get_min_bonded_dhx_daily();
+                match _min_bonded_dhx_daily {
                     Err(_e) => {
-                        log::error!("Unable to convert balance to u128 for min_bonded_dhx_daily_u128");
+                        log::error!("Unable to retrieve any min. bonded DHX daily as BalanceOf and u128");
                         return 0;
                     },
-                    Ok(x) => {
-                        min_bonded_dhx_daily_u128 = x;
+                    Ok(ref x) => {
+                        min_bonded_dhx_daily = x.0;
+                        min_bonded_dhx_daily_u128 = x.1;
                     }
                 }
 
@@ -1899,6 +1884,32 @@ pub mod pallet {
 
             // Return a successful DispatchResultWithPostInfo
             Ok(bonded_dhx_current_u128.clone())
+        }
+
+        fn get_min_bonded_dhx_daily() -> Result<(BalanceOf<T>, u128), DispatchError> {
+            let mut min_bonded_dhx_daily: BalanceOf<T> = 10u32.into(); // initialize
+            if let Some(_min_bonded_dhx_daily) = <MinBondedDHXDaily<T>>::get() {
+                min_bonded_dhx_daily = _min_bonded_dhx_daily;
+            } else {
+                log::error!("Unable to retrieve any min. bonded DHX daily");
+                return Err(DispatchError::Other("Unable to retrieve any min. bonded DHX daily"));
+            }
+
+            let min_bonded_dhx_daily_u128;
+            let _min_bonded_dhx_daily_u128 = Self::convert_balance_to_u128(min_bonded_dhx_daily.clone());
+            match _min_bonded_dhx_daily_u128.clone() {
+                Err(_e) => {
+                    log::error!("Unable to convert balance to u128 for min_bonded_dhx_daily_u128");
+                    return Err(DispatchError::Other("Unable to convert balance to u128 for min_bonded_dhx_daily_u128"));
+                },
+                Ok(x) => {
+                    min_bonded_dhx_daily_u128 = x;
+                }
+            }
+            // Return a successful DispatchResultWithPostInfo
+            Ok(
+                (min_bonded_dhx_daily.clone(), min_bonded_dhx_daily_u128.clone())
+            )
         }
     }
 }
