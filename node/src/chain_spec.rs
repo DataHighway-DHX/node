@@ -91,7 +91,7 @@ pub fn rococo_development_config(id: ParaId) -> ChainSpec {
                 vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
-                    hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
+                    hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
                     get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
@@ -126,7 +126,7 @@ pub fn rococo_local_testnet_config(id: ParaId) -> ChainSpec {
                 vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
-                    hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
+                    hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
                     get_account_id_from_seed::<sr25519::Public>("Charlie"),
@@ -169,7 +169,7 @@ pub fn chachacha_development_config(id: ParaId) -> ChainSpec {
                 vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
-                    hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
+                    hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
                     get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
@@ -204,7 +204,7 @@ pub fn chachacha_local_testnet_config(id: ParaId) -> ChainSpec {
                 vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
-                    hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
+                    hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
                     get_account_id_from_seed::<sr25519::Public>("Charlie"),
@@ -258,7 +258,7 @@ pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
                 vec![
                     // Endow this account with the DHX DAO Unlocked Reserves Balance
                     // 5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr
-                    hex!["6c029e6fc41ec44d420030071f04995bac19e59a0f0a1a610f9f0f6d689e2262"].into(),
+                    hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
                     // Endow these accounts with a balance so they may bond as authorities
                     hex!["ca907b74f921b74638eb40c289e9bf1142b0afcdb25e1a50383ab8f9d515da0d"].into(),
                     hex!["ae69db7838fb139cbf4f93bf877faf5bbef242f3f5aac6eb4f111398e9385e7d"].into(),
@@ -309,7 +309,7 @@ pub fn chachacha_parachain_config(id: ParaId) -> ChainSpec {
                 vec![
                     // Endow this account with the DHX DAO Unlocked Reserves Balance
                     // 5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr
-                    hex!["6c029e6fc41ec44d420030071f04995bac19e59a0f0a1a610f9f0f6d689e2262"].into(),
+                    hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
                     // Endow these accounts with a balance so they may bond as authorities
                     hex!["ca907b74f921b74638eb40c289e9bf1142b0afcdb25e1a50383ab8f9d515da0d"].into(),
                     hex!["ae69db7838fb139cbf4f93bf877faf5bbef242f3f5aac6eb4f111398e9385e7d"].into(),
@@ -355,9 +355,21 @@ fn spreehafen_testnet_genesis(
             balances: endowed_accounts
                 .iter()
                 .cloned()
-                .map(|x| (x, INITIAL_BALANCE))
-                .into_iter()
-                .map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE))
+                .map(|x| {
+                    // Insert Public key (hex) of the account without the 0x prefix below
+                    if x == UncheckedFrom::unchecked_from(
+                        hex!("6d6f646c70792f74727372790000000000000000000000000000000000000000").into(),
+                    ) {
+                        // If we use println, then the top of the chain specification file that gets
+                        // generated contains the println, and then we have to remove the println from
+                        // the top of that file to generate the "raw" chain definition
+                        // println!("endowed_account treasury {:?}", x.clone());
+                        return (x, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
+                    } else {
+                        // println!("endowed_account {:?}", x.clone());
+                        return (x, INITIAL_BALANCE);
+                    }
+                })
                 .collect(),
         },
         general_council: Default::default(),
@@ -393,10 +405,22 @@ fn testnet_genesis(
             balances: endowed_accounts
                 .iter()
                 .cloned()
-                .map(|x| (x, INITIAL_BALANCE))
-                .into_iter()
-                .map(|k| (k.0, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE))
-                .collect(),
+                .map(|x| {
+                    // Insert Public key (hex) of the account without the 0x prefix below
+                    if x == UncheckedFrom::unchecked_from(
+                        hex!("a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21").into(),
+                    ) {
+                        // If we use println, then the top of the chain specification file that gets
+                        // generated contains the println, and then we have to remove the println from
+                        // the top of that file to generate the "raw" chain definition
+                        // println!("endowed_account treasury {:?}", x.clone());
+                        return (x, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
+                    } else {
+                        // println!("endowed_account {:?}", x.clone());
+                        return (x, INITIAL_BALANCE);
+                    }
+                })
+            .collect(),
         },
         sudo: SudoConfig {
             key: root_key.clone(),
@@ -427,16 +451,26 @@ fn dev_genesis(
             code: datahighway_parachain_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
             changes_trie_config: Default::default(),
         },
-        balances: datahighway_parachain_runtime::BalancesConfig {
-            balances: endowed_accounts.iter().cloned().map(|x|
-                // Insert Public key (hex) of the account without the 0x prefix below
-                if x == UncheckedFrom::unchecked_from(hex!("a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21").into()) {
-                    (x, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE)
-                } else {
-                    (x, INITIAL_BALANCE)
-                }
-            )
-            .collect(),
+        balances: BalancesConfig {
+            balances: endowed_accounts
+                .iter()
+                .cloned()
+                .map(|x| {
+                    // Insert Public key (hex) of the account without the 0x prefix below
+                    if x == UncheckedFrom::unchecked_from(
+                        hex!("a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21").into(),
+                    ) {
+                        // If we use println, then the top of the chain specification file that gets
+                        // generated contains the println, and then we have to remove the println from
+                        // the top of that file to generate the "raw" chain definition
+                        // println!("endowed_account treasury {:?}", x.clone());
+                        return (x, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
+                    } else {
+                        // println!("endowed_account {:?}", x.clone());
+                        return (x, INITIAL_BALANCE);
+                    }
+                })
+                .collect(),
         },
         sudo: SudoConfig {
             key: root_key.clone(),
