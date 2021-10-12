@@ -103,22 +103,22 @@ pub mod pallet {
     >;
 
     #[pallet::storage]
-    #[pallet::getter(fn rewards_allowance_dhx_for_date)]
-    pub(super) type RewardsAllowanceDHXForDate<T: Config> = StorageMap<_, Blake2_128Concat,
+    #[pallet::getter(fn rewards_allowance_dhx_for_date_remaining)]
+    pub(super) type RewardsAllowanceDHXForDateRemaining<T: Config> = StorageMap<_, Blake2_128Concat,
         Date,
         BalanceOf<T>
     >;
 
     #[pallet::storage]
-    #[pallet::getter(fn rewards_allowance_dhx_for_date_distributed)]
-    pub(super) type RewardsAllowanceDHXForDateDistributed<T: Config> = StorageMap<_, Blake2_128Concat,
+    #[pallet::getter(fn rewards_allowance_dhx_for_date_remaining_distributed)]
+    pub(super) type RewardsAllowanceDHXForDateRemainingDistributed<T: Config> = StorageMap<_, Blake2_128Concat,
         Date,
         bool
     >;
 
     #[pallet::storage]
     #[pallet::getter(fn rewards_allowance_dhx_daily)]
-    pub(super) type RewardsAllowanceDHXDaily<T: Config> = StorageValue<_, u128>;
+    pub(super) type RewardsAllowanceDHXDaily<T: Config> = StorageValue<_, BalanceOf<T>>;
 
     // store for ease of changing by governance
     // global pause
@@ -198,11 +198,11 @@ pub mod pallet {
 
     #[pallet::storage]
     #[pallet::getter(fn min_bonded_dhx_daily)]
-    pub(super) type MinBondedDHXDaily<T: Config> = StorageValue<_, u128>;
+    pub(super) type MinBondedDHXDaily<T: Config> = StorageValue<_, BalanceOf<T>>;
 
     #[pallet::storage]
     #[pallet::getter(fn min_bonded_dhx_daily_default)]
-    pub(super) type MinBondedDHXDailyDefault<T: Config> = StorageValue<_, u128>;
+    pub(super) type MinBondedDHXDailyDefault<T: Config> = StorageValue<_, BalanceOf<T>>;
 
     #[pallet::storage]
     #[pallet::getter(fn cooling_off_period_days)]
@@ -230,9 +230,9 @@ pub mod pallet {
     // The genesis config type.
     #[pallet::genesis_config]
     pub struct GenesisConfig<T: Config> {
-        pub rewards_allowance_dhx_for_date: Vec<(Date, BalanceOf<T>)>,
-        pub rewards_allowance_dhx_for_date_distributed: Vec<(Date, bool)>,
-        pub rewards_allowance_dhx_daily: u128,
+        pub rewards_allowance_dhx_for_date_remaining: Vec<(Date, BalanceOf<T>)>,
+        pub rewards_allowance_dhx_for_date_remaining_distributed: Vec<(Date, bool)>,
+        pub rewards_allowance_dhx_daily: BalanceOf<T>,
         pub rewards_multiplier_paused: bool,
         pub rewards_multiplier_reset: bool,
         pub rewards_multiplier_default_ratio: u32,
@@ -246,8 +246,8 @@ pub mod pallet {
         pub rewards_aggregated_dhx_for_all_miners_for_date: Vec<(Date, BalanceOf<T>)>,
         pub rewards_accumulated_dhx_for_miner_for_date: Vec<((Date, T::AccountId), BalanceOf<T>)>,
         pub registered_dhx_miners: Vec<T::AccountId>,
-        pub min_bonded_dhx_daily: u128,
-        pub min_bonded_dhx_daily_default: u128,
+        pub min_bonded_dhx_daily: BalanceOf<T>,
+        pub min_bonded_dhx_daily_default: BalanceOf<T>,
         pub cooling_off_period_days: u32,
         pub cooling_off_period_days_remaining: Vec<(T::AccountId, (Date, u32, u32))>,
     }
@@ -257,10 +257,10 @@ pub mod pallet {
     impl<T: Config> Default for GenesisConfig<T> {
         fn default() -> Self {
             Self {
-                rewards_allowance_dhx_for_date: Default::default(),
-                rewards_allowance_dhx_for_date_distributed: Default::default(),
+                rewards_allowance_dhx_for_date_remaining: Default::default(),
+                rewards_allowance_dhx_for_date_remaining_distributed: Default::default(),
                 // 5000 UNIT, where UNIT token has 18 decimal places
-                rewards_allowance_dhx_daily: 5_000_000_000_000_000_000_000u128,
+                rewards_allowance_dhx_daily: Default::default(),
                 rewards_multiplier_paused: false,
                 rewards_multiplier_reset: false,
                 rewards_multiplier_default_ratio: 10u32,
@@ -303,11 +303,11 @@ pub mod pallet {
     #[pallet::genesis_build]
     impl<T: Config> GenesisBuild<T> for GenesisConfig<T> {
         fn build(&self) {
-            for (a, b) in &self.rewards_allowance_dhx_for_date {
-                <RewardsAllowanceDHXForDate<T>>::insert(a, b);
+            for (a, b) in &self.rewards_allowance_dhx_for_date_remaining {
+                <RewardsAllowanceDHXForDateRemaining<T>>::insert(a, b);
             }
-            for (a, b) in &self.rewards_allowance_dhx_for_date_distributed {
-                <RewardsAllowanceDHXForDateDistributed<T>>::insert(a, b);
+            for (a, b) in &self.rewards_allowance_dhx_for_date_remaining_distributed {
+                <RewardsAllowanceDHXForDateRemainingDistributed<T>>::insert(a, b);
             }
             <RewardsAllowanceDHXDaily<T>>::put(&self.rewards_allowance_dhx_daily);
             <RewardsMultiplierPaused<T>>::put(&self.rewards_multiplier_paused);
@@ -368,17 +368,13 @@ pub mod pallet {
 
         /// Storage of the default daily reward allowance in DHX by an origin account.
         /// \[amount_dhx, sender\]
-        SetRewardsAllowanceDHXDailyStored(u128, T::AccountId),
-
-        /// Storage of a new reward allowance in DHX for a specific date by an origin account.
-        /// \[date, amount_dhx, sender\]
-        SetRewardsAllowanceDHXForDateStored(Date, BalanceOf<T>, T::AccountId),
+        SetRewardsAllowanceDHXDailyStored(BalanceOf<T>, T::AccountId),
 
         /// Change the stored reward allowance in DHX for a specific date by an origin account, and
         /// where change is 0 for an decrease or any other value like 1 for an increase to the remaining
         /// rewards allowance.
-        /// \[date, reduction_amount_dhx, sender, change\]
-        ChangedRewardsAllowanceDHXForDateStored(Date, BalanceOf<T>, T::AccountId, u8),
+        /// \[date, change_amount_dhx, sender, change\]
+        ChangedRewardsAllowanceDHXForDateRemainingStored(Date, BalanceOf<T>, T::AccountId, u8),
 
         /// Transferred a proportion of the daily DHX rewards allowance to a DHX Miner on a given date
         /// \[date, miner_reward, remaining_rewards_allowance_today, miner_account_id\]
@@ -387,11 +383,15 @@ pub mod pallet {
         /// Exhausted distributing all the daily DHX rewards allowance to DHX Miners on a given date.
         /// Note: There may be some leftover for the day so we record it here
         /// \[date, remaining_rewards_allowance_today\]
-        DistributedRewardsAllowanceDHXForDate(Date, BalanceOf<T>),
+        DistributedRewardsAllowanceDHXForDateRemaining(Date, BalanceOf<T>),
 
         /// Changed the min. bonded DHX daily using a ratio, using either an addition or multiplication operation
         /// \[start_date_period, new_min_dhx_bonded, modified_old_min_dhx_bonded_using_ratio, operation_used, next_period_days\]
         ChangedMinBondedDHXDailyUsingNewRewardsMultiplier(Date, BalanceOf<T>, u32, u8, u32),
+
+        /// Storage of a new reward operation (1u8: addition, 2u8: multiplication) by an origin account.
+        /// \[operation, sender\]
+        SetRewardsMultiplierOperationStored(u8, T::AccountId),
     }
 
     // Errors inform users that something went wrong should be descriptive and have helpful documentation
@@ -451,35 +451,22 @@ pub mod pallet {
             log::info!("start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
 
             // https://substrate.dev/rustdocs/latest/frame_support/storage/trait.StorageMap.html
-            let contains_key = <RewardsAllowanceDHXForDate<T>>::contains_key(&start_of_requested_date_millis);
+            let contains_key = <RewardsAllowanceDHXForDateRemaining<T>>::contains_key(&start_of_requested_date_millis);
             log::info!("contains_key for date: {:?}, {:?}", start_of_requested_date_millis.clone(), contains_key.clone());
 
             // add the start_of_requested_date to storage if it doesn't already exist
             if contains_key == false {
-                let rewards_allowance_dhx_daily_u128;
-                let dhx_to_try = <RewardsAllowanceDHXDaily<T>>::get();
-                if let Some(_rewards_allowance_dhx_daily_u128) = dhx_to_try {
-                    rewards_allowance_dhx_daily_u128 = _rewards_allowance_dhx_daily_u128;
+                let rewards_allowance_dhx_daily;
+                if let Some(_rewards_allowance_dhx_daily) = <RewardsAllowanceDHXDaily<T>>::get() {
+                    rewards_allowance_dhx_daily = _rewards_allowance_dhx_daily;
                 } else {
-                    log::error!("Unable to convert Moment to i64 for requested_date");
+                    log::error!("Unable to get rewards_allowance_dhx_daily");
                     return 0;
                 }
 
-                let rewards_allowance_dhx_daily;
-                let _rewards_allowance_dhx_daily = Self::convert_u128_to_balance(rewards_allowance_dhx_daily_u128.clone());
-                match _rewards_allowance_dhx_daily {
-                    Err(_e) => {
-                        log::error!("Unable to convert u128 to balance for rewards_allowance_dhx_daily");
-                        return 0;
-                    },
-                    Ok(ref x) => {
-                        rewards_allowance_dhx_daily = x;
-                    }
-                }
-
                 // Update storage. Use RewardsAllowanceDHXDaily as fallback incase not previously set prior to block
-                <RewardsAllowanceDHXForDate<T>>::insert(start_of_requested_date_millis.clone(), &rewards_allowance_dhx_daily);
-                <RewardsAllowanceDHXForDateDistributed<T>>::insert(start_of_requested_date_millis.clone(), false);
+                <RewardsAllowanceDHXForDateRemaining<T>>::insert(start_of_requested_date_millis.clone(), &rewards_allowance_dhx_daily);
+                <RewardsAllowanceDHXForDateRemainingDistributed<T>>::insert(start_of_requested_date_millis.clone(), false);
                 log::info!("on_initialize");
                 log::info!("rewards_allowance: {:?}", &rewards_allowance_dhx_daily);
             }
@@ -533,7 +520,8 @@ pub mod pallet {
                 log::info!("Unable to get rm_current_ratio");
             }
 
-            let mut min_bonded_dhx_daily_default: u128 = 10_000_000_000_000_000_000_u128; // 10 DHX
+            // let mut min_bonded_dhx_daily_default: u128 = 10_000_000_000_000_000_000_u128; // 10 DHX
+            let mut min_bonded_dhx_daily_default: BalanceOf<T> = 10u32.into(); // initialize
             if let Some(_min_bonded_dhx_daily_default) = <MinBondedDHXDailyDefault<T>>::get() {
                 min_bonded_dhx_daily_default = _min_bonded_dhx_daily_default;
             } else {
@@ -603,7 +591,6 @@ pub mod pallet {
                     // if the value we stored in RewardsMultiplierCurrentPeriodDaysRemaining to represent the previous day's
                     // date is not the current date (since we don't want it to happen again until the next day)
 
-                    // FIXME - temporary commented this out so all happens on same day for debugging
                     if rm_current_period_days_remaining.1 != start_of_requested_date_millis.clone() {
                         // if there are still days remaining in the countdown
                         if rm_current_period_days_remaining.3 > 0u32 {
@@ -641,12 +628,25 @@ pub mod pallet {
                             // multiply the next ratio by the current min bonded dhx daily to determine the
                             // new min. bonded dhx daily for the next period
 
-                            let mut min_bonded_dhx_daily_u128 = 10_000_000_000_000_000_000_u128;
-                            if let Some(_min_bonded_dhx_daily_u128) = <MinBondedDHXDaily<T>>::get() {
-                                min_bonded_dhx_daily_u128 = _min_bonded_dhx_daily_u128;
+                            // let mut min_bonded_dhx_daily_u128 = 10_000_000_000_000_000_000_u128;
+                            let mut min_bonded_dhx_daily: BalanceOf<T> = 10u32.into(); // initialize
+                            if let Some(_min_bonded_dhx_daily) = <MinBondedDHXDaily<T>>::get() {
+                                min_bonded_dhx_daily = _min_bonded_dhx_daily;
                             } else {
                                 log::error!("Unable to retrieve any min. bonded DHX daily");
                                 return 0;
+                            }
+
+                            let min_bonded_dhx_daily_u128;
+                            let _min_bonded_dhx_daily_u128 = Self::convert_balance_to_u128(min_bonded_dhx_daily.clone());
+                            match _min_bonded_dhx_daily_u128.clone() {
+                                Err(_e) => {
+                                    log::error!("Unable to convert balance to u128 for min_bonded_dhx_daily_u128");
+                                    return 0;
+                                },
+                                Ok(x) => {
+                                    min_bonded_dhx_daily_u128 = x;
+                                }
                             }
 
                             let rewards_multipler_operation;
@@ -701,12 +701,6 @@ pub mod pallet {
                             // round down the fixed point number to the nearest integer of type u128
                             let new_min_bonded_dhx_daily_as_u128: u128 = new_min_bonded_dhx_daily_as_fixed128.floor().to_num::<u128>();
 
-                            <MinBondedDHXDaily<T>>::put(new_min_bonded_dhx_daily_as_u128.clone());
-                            log::info!("New MinBondedDHXDaily {:?} {:?}", start_of_requested_date_millis.clone(), new_min_bonded_dhx_daily_as_u128.clone());
-
-                            // FIXME - can we automatically change the next period days value to (~90 days depending on days in included months 28, 29, 30, or 31)
-                            // depending on the date? and do this from genesis too?
-
                             let new_min_bonded_dhx_daily;
                             let _new_min_bonded_dhx_daily = Self::convert_u128_to_balance(new_min_bonded_dhx_daily_as_u128.clone());
                             match _new_min_bonded_dhx_daily {
@@ -719,6 +713,12 @@ pub mod pallet {
                                 }
                             }
                             log::info!("new_min_bonded_dhx_daily: {:?}", new_min_bonded_dhx_daily.clone());
+
+                            <MinBondedDHXDaily<T>>::put(new_min_bonded_dhx_daily.clone());
+                            log::info!("New MinBondedDHXDaily {:?} {:?}", start_of_requested_date_millis.clone(), new_min_bonded_dhx_daily_as_u128.clone());
+
+                            // FIXME - can we automatically change the next period days value to (~90 days depending on days in included months 28, 29, 30, or 31)
+                            // depending on the date? and do this from genesis too?
 
                             Self::deposit_event(Event::ChangedMinBondedDHXDailyUsingNewRewardsMultiplier(
                                 start_of_requested_date_millis.clone(),
@@ -755,9 +755,8 @@ pub mod pallet {
 
             // we only check accounts that have registered that they want to participate in DHX Mining
             let reg_dhx_miners;
-            let reg_dhx_miners_to_try = <RegisteredDHXMiners<T>>::get();
-            if let Some(_reg_dhx_miners_to_try) = reg_dhx_miners_to_try {
-                reg_dhx_miners = _reg_dhx_miners_to_try;
+            if let Some(_reg_dhx_miners) = <RegisteredDHXMiners<T>>::get() {
+                reg_dhx_miners = _reg_dhx_miners;
             } else {
                 log::error!("Unable to retrieve any registered DHX Miners");
                 return 0;
@@ -849,12 +848,25 @@ pub mod pallet {
                 }
                 log::info!("set_bonded_dhx_of_account_for_date: {:?} {:?}", start_of_requested_date_millis.clone(), bonded_dhx_current_u128.clone());
 
-                let mut min_bonded_dhx_daily_u128 = 10_000_000_000_000_000_000_u128;
-                if let Some(_min_bonded_dhx_daily_u128) = <MinBondedDHXDaily<T>>::get() {
-                    min_bonded_dhx_daily_u128 = _min_bonded_dhx_daily_u128;
+                // let mut min_bonded_dhx_daily_u128 = 10_000_000_000_000_000_000_u128;
+                let mut min_bonded_dhx_daily: BalanceOf<T> = 10u32.into(); // initialize
+                if let Some(_min_bonded_dhx_daily) = <MinBondedDHXDaily<T>>::get() {
+                    min_bonded_dhx_daily = _min_bonded_dhx_daily;
                 } else {
                     log::error!("Unable to retrieve any min. bonded DHX daily");
                     return 0;
+                }
+
+                let min_bonded_dhx_daily_u128;
+                let _min_bonded_dhx_daily_u128 = Self::convert_balance_to_u128(min_bonded_dhx_daily.clone());
+                match _min_bonded_dhx_daily_u128.clone() {
+                    Err(_e) => {
+                        log::error!("Unable to convert balance to u128 for min_bonded_dhx_daily_u128");
+                        return 0;
+                    },
+                    Ok(x) => {
+                        min_bonded_dhx_daily_u128 = x;
+                    }
                 }
 
                 let mut is_bonding_min_dhx = false;
@@ -864,9 +876,8 @@ pub mod pallet {
                 log::info!("is_bonding_min_dhx: {:?} {:?}", is_bonding_min_dhx.clone(), miner.clone());
 
                 let cooling_off_period_days;
-                let cooling_off_period_days_to_try = <CoolingOffPeriodDays<T>>::get();
-                if let Some(_cooling_off_period_days_to_try) = cooling_off_period_days_to_try {
-                    cooling_off_period_days = _cooling_off_period_days_to_try;
+                if let Some(_cooling_off_period_days) = <CoolingOffPeriodDays<T>>::get() {
+                    cooling_off_period_days = _cooling_off_period_days;
                 } else {
                     log::error!("Unable to retrieve cooling off period days");
                     return 0;
@@ -877,15 +888,14 @@ pub mod pallet {
                     7u32,
                     0u32,
                 );
-                let cooling_off_period_days_remaining_to_try = <CoolingOffPeriodDaysRemaining<T>>::get(miner.clone());
-                if let Some(_cooling_off_period_days_remaining_to_try) = cooling_off_period_days_remaining_to_try {
+                if let Some(_cooling_off_period_days_remaining) = <CoolingOffPeriodDaysRemaining<T>>::get(miner.clone()) {
                     // we do not change cooling_off_period_days_remaining.0 to the default value in the chain_spec.rs of 0,
                     // instead we want to use today's date `start_of_requested_date_millis.clone()` by default, as we did above.
-                    if _cooling_off_period_days_remaining_to_try.0 != 0 {
-                        cooling_off_period_days_remaining.0 = _cooling_off_period_days_remaining_to_try.0;
+                    if _cooling_off_period_days_remaining.0 != 0 {
+                        cooling_off_period_days_remaining.0 = _cooling_off_period_days_remaining.0;
                     }
-                    cooling_off_period_days_remaining.1 = _cooling_off_period_days_remaining_to_try.1;
-                    cooling_off_period_days_remaining.2 = _cooling_off_period_days_remaining_to_try.2;
+                    cooling_off_period_days_remaining.1 = _cooling_off_period_days_remaining.1;
+                    cooling_off_period_days_remaining.2 = _cooling_off_period_days_remaining.2;
                 } else {
                     log::info!("Unable to retrieve cooling off period days remaining for given miner, using default {:?}", miner.clone());
                 }
@@ -985,15 +995,6 @@ pub mod pallet {
                         continue;
                     }
 
-                    let rewards_allowance_dhx_daily;
-                    let rewards_allowance_dhx_daily_to_try = <RewardsAllowanceDHXDaily<T>>::get();
-                    if let Some(_rewards_allowance_dhx_daily_to_try) = rewards_allowance_dhx_daily_to_try {
-                        rewards_allowance_dhx_daily = _rewards_allowance_dhx_daily_to_try;
-                    } else {
-                        log::error!("Unable to retrieve rewards_allowance_dhx_daily");
-                        return 0;
-                    }
-
                     // calculate the daily reward for the miner in DHX based on their bonded DHX.
                     // it should be a proportion taking other eligible miner's who are eligible for
                     // daily rewards into account since we want to split them fairly.
@@ -1017,7 +1018,19 @@ pub mod pallet {
                     log::info!("daily_reward_for_miner_as_u128: {:?}", daily_reward_for_miner_as_u128.clone());
                     // println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} daily_reward_for_miner_as_u128: {:#?}", _n, miner_count, start_of_requested_date_millis, daily_reward_for_miner_as_u128);
 
-                    let daily_reward_for_miner;
+                    // if we have a rewards_aggregated_dhx_daily of 25.133 k DHX, then after the above manipulation
+                    // since we're dealing with a mixture of u128 and BalanceOf<T> so the values are more readable in the UI.
+                    // the reward will be represented as 2.5130 f DHX (where f is femto 10^-18, i.e. 0.000_000_000_000_002_513)
+                    // so we need to multiply it by 1_000_000_000_000_000_000 to be represented in DHX instead of femto DHX
+                    // before storing the value. we need to do the same for the rewards accumulated value before it is stored.
+                    // daily_reward_for_miner_as_u128 = daily_reward_for_miner_as_u128;
+                    if let Some(_daily_reward_for_miner_as_u128) = daily_reward_for_miner_as_u128.clone().checked_mul(1_000_000_000_000_000_000u128) {
+                        daily_reward_for_miner_as_u128 = _daily_reward_for_miner_as_u128;
+                    } else {
+                        log::error!("Unable to multiply daily_reward_for_miner_as_u128");
+                    }
+
+                    let mut daily_reward_for_miner;
                     let _daily_reward_for_miner = Self::convert_u128_to_balance(daily_reward_for_miner_as_u128.clone());
                     match _daily_reward_for_miner {
                         Err(_e) => {
@@ -1031,8 +1044,7 @@ pub mod pallet {
                     log::info!("daily_reward_for_miner: {:?}", daily_reward_for_miner.clone());
 
                     let mut rewards_aggregated_dhx_daily: BalanceOf<T> = 0u32.into(); // initialize
-                    let aggregated_to_try = <RewardsAggregatedDHXForAllMinersForDate<T>>::get(&start_of_requested_date_millis);
-                    if let Some(_rewards_aggregated_dhx_daily) = aggregated_to_try {
+                    if let Some(_rewards_aggregated_dhx_daily) = <RewardsAggregatedDHXForAllMinersForDate<T>>::get(&start_of_requested_date_millis) {
                         rewards_aggregated_dhx_daily = _rewards_aggregated_dhx_daily;
                     } else {
                         log::error!("Unable to retrieve balance for rewards_aggregated_dhx_daily");
@@ -1052,7 +1064,7 @@ pub mod pallet {
                     }
 
                     // Add, handling overflow
-                    let new_rewards_aggregated_dhx_daily_as_u128;
+                    let mut new_rewards_aggregated_dhx_daily_as_u128;
                     let _new_rewards_aggregated_dhx_daily_as_u128 =
                         rewards_aggregated_dhx_daily_as_u128.clone().checked_add(daily_reward_for_miner_as_u128.clone());
                     match _new_rewards_aggregated_dhx_daily_as_u128 {
@@ -1197,8 +1209,7 @@ pub mod pallet {
             // fetch accumulated total rewards for all registered miners for the day
             // TODO - we've done this twice, create a function to fetch it
             let mut rewards_aggregated_dhx_daily: BalanceOf<T> = 0u32.into(); // initialize
-            let aggregated_to_try = <RewardsAggregatedDHXForAllMinersForDate<T>>::get(&start_of_requested_date_millis);
-            if let Some(_rewards_aggregated_dhx_daily) = aggregated_to_try {
+            if let Some(_rewards_aggregated_dhx_daily) = <RewardsAggregatedDHXForAllMinersForDate<T>>::get(&start_of_requested_date_millis) {
                 rewards_aggregated_dhx_daily = _rewards_aggregated_dhx_daily;
             } else {
                 log::error!("Unable to retrieve balance for rewards_aggregated_dhx_daily. Cooling off period may not be finished yet");
@@ -1227,30 +1238,29 @@ pub mod pallet {
             log::info!("rewards_aggregated_dhx_daily_as_u128: {:?}", rewards_aggregated_dhx_daily_as_u128.clone());
 
             // TODO - we've done this twice, create a function to fetch it
-            let rewards_allowance_dhx_daily_u128;
-            let dhx_to_try = <RewardsAllowanceDHXDaily<T>>::get();
-            if let Some(_rewards_allowance_dhx_daily_u128) = dhx_to_try {
-                rewards_allowance_dhx_daily_u128 = _rewards_allowance_dhx_daily_u128;
+            let rewards_allowance_dhx_daily;
+            if let Some(_rewards_allowance_dhx_daily) = <RewardsAllowanceDHXDaily<T>>::get() {
+                rewards_allowance_dhx_daily = _rewards_allowance_dhx_daily;
             } else {
-                log::error!("Unable to convert Moment to i64 for requested_date");
+                log::error!("Unable to get rewards_allowance_dhx_daily");
                 return 0;
+            }
+
+            let rewards_allowance_dhx_daily_u128;
+            let _rewards_allowance_dhx_daily_u128 = Self::convert_balance_to_u128(rewards_allowance_dhx_daily.clone());
+            match _rewards_allowance_dhx_daily_u128.clone() {
+                Err(_e) => {
+                    log::error!("Unable to convert balance to u128 for rewards_allowance_dhx_daily_u128");
+                    return 0;
+                },
+                Ok(x) => {
+                    rewards_allowance_dhx_daily_u128 = x;
+                }
             }
 
             if rewards_allowance_dhx_daily_u128 == 0u128 {
                 log::error!("rewards_allowance_dhx_daily must be greater than 0 to distribute rewards");
                 return 0;
-            }
-
-            let rewards_allowance_dhx_daily;
-            let _rewards_allowance_dhx_daily = Self::convert_u128_to_balance(rewards_allowance_dhx_daily_u128.clone());
-            match _rewards_allowance_dhx_daily {
-                Err(_e) => {
-                    log::error!("Unable to convert u128 to balance for rewards_allowance_dhx_daily");
-                    return 0;
-                },
-                Ok(ref x) => {
-                    rewards_allowance_dhx_daily = x;
-                }
             }
 
             // previously when we looped through all the registered dhx miners we calculated the
@@ -1344,11 +1354,11 @@ pub mod pallet {
                 log::info!("rewards loop - miner_count {:#?}", miner_count);
                 log::info!("rewards loop - miner {:#?}", miner);
 
-                // only run the following once per day per miner until rewards_allowance_dhx_for_date is exhausted
+                // only run the following once per day per miner until rewards_allowance_dhx_for_date_remaining is exhausted
                 // but since we're giving each registered miner a proportion of the daily reward allowance
                 // (if their aggregated rewards is above daily allowance) each proportion is rounded down,
                 // it shouldn't become exhausted anyway
-                let is_already_distributed = <RewardsAllowanceDHXForDateDistributed<T>>::get(start_of_requested_date_millis.clone());
+                let is_already_distributed = <RewardsAllowanceDHXForDateRemainingDistributed<T>>::get(start_of_requested_date_millis.clone());
                 if is_already_distributed == Some(true) {
                     log::error!("Unable to distribute further rewards allowance today");
                     return 0;
@@ -1454,10 +1464,9 @@ pub mod pallet {
                 log::info!("max_payout_as_u128: {:?}", max_payout_as_u128.clone());
 
                 // Store output `rewards_allowance_dhx_remaining_today_as_u128` outside the loop
-                let rewards_allowance_dhx_remaining_today_to_try = <RewardsAllowanceDHXForDate<T>>::get(&start_of_requested_date_millis);
                 // Validate inputs so the daily_rewards is less or equal to the existing_allowance
-                if let Some(_rewards_allowance_dhx_remaining_today_to_try) = rewards_allowance_dhx_remaining_today_to_try.clone() {
-                    let _rewards_allowance_dhx_remaining_today_as_u128 = Self::convert_balance_to_u128(_rewards_allowance_dhx_remaining_today_to_try.clone());
+                if let Some(_rewards_allowance_dhx_remaining_today) = <RewardsAllowanceDHXForDateRemaining<T>>::get(&start_of_requested_date_millis) {
+                    let _rewards_allowance_dhx_remaining_today_as_u128 = Self::convert_balance_to_u128(_rewards_allowance_dhx_remaining_today.clone());
                     match _rewards_allowance_dhx_remaining_today_as_u128.clone() {
                         Err(_e) => {
                             log::error!("Unable to convert balance to u128");
@@ -1501,7 +1510,7 @@ pub mod pallet {
 
                     info!("Success paying the reward to the miner: {:?}", restored_proportion_of_daily_reward_for_miner_u128.clone());
 
-                    // TODO - move into function `reduce_remaining_rewards_allowance_dhx_for_date`?
+                    // TODO - move into function `reduce_rewards_allowance_dhx_for_date_remaining`?
 
                     // Subtract, handling overflow
                     let new_rewards_allowance_dhx_remaining_today_as_u128;
@@ -1530,7 +1539,7 @@ pub mod pallet {
                     }
 
                     // Write the new value to storage
-                    <RewardsAllowanceDHXForDate<T>>::insert(
+                    <RewardsAllowanceDHXForDateRemaining<T>>::insert(
                         start_of_requested_date_millis.clone(),
                         new_rewards_allowance_dhx_remaining_today.clone(),
                     );
@@ -1572,14 +1581,14 @@ pub mod pallet {
                 }
             }
 
-            <RewardsAllowanceDHXForDateDistributed<T>>::insert(
+            <RewardsAllowanceDHXForDateRemainingDistributed<T>>::insert(
                 start_of_requested_date_millis.clone(),
                 true
             );
 
             // println!("[distributed] block: {:#?}, miner: {:#?}, date_start: {:#?} ", _n, miner_count, start_of_requested_date_millis);
 
-            Self::deposit_event(Event::DistributedRewardsAllowanceDHXForDate(
+            Self::deposit_event(Event::DistributedRewardsAllowanceDHXForDateRemaining(
                 start_of_requested_date_millis.clone(),
                 rewards_allowance_dhx_remaining_today.clone(),
             ));
@@ -1616,10 +1625,8 @@ pub mod pallet {
         pub fn set_min_bonded_dhx_daily(origin: OriginFor<T>, min_bonded_dhx_daily: BalanceOf<T>) -> DispatchResult {
             let _sender: T::AccountId = ensure_signed(origin)?;
 
-            let min_bonded_dhx_daily_as_u128 = Self::convert_balance_to_u128(min_bonded_dhx_daily.clone())?;
-
-            <MinBondedDHXDaily<T>>::put(&min_bonded_dhx_daily_as_u128.clone());
-            log::info!("set_min_bonded_dhx_daily: {:?}", &min_bonded_dhx_daily_as_u128);
+            <MinBondedDHXDaily<T>>::put(&min_bonded_dhx_daily.clone());
+            log::info!("set_min_bonded_dhx_daily: {:?}", &min_bonded_dhx_daily);
 
             Self::deposit_event(Event::SetMinBondedDHXDailyStored(
                 min_bonded_dhx_daily.clone(),
@@ -1648,16 +1655,13 @@ pub mod pallet {
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
         pub fn set_rewards_allowance_dhx_daily(origin: OriginFor<T>, rewards_allowance: BalanceOf<T>) -> DispatchResult {
             let _who = ensure_signed(origin)?;
-            // TODO - change to match with Ok/Error
-            let rewards_allowance_as_u128 = Self::convert_balance_to_u128(rewards_allowance.clone())?;
-
             // Update storage
-            <RewardsAllowanceDHXDaily<T>>::put(&rewards_allowance_as_u128);
-            log::info!("set_rewards_allowance_dhx_daily - rewards_allowance: {:?}", &rewards_allowance_as_u128);
+            <RewardsAllowanceDHXDaily<T>>::put(&rewards_allowance.clone());
+            log::info!("set_rewards_allowance_dhx_daily - rewards_allowance: {:?}", &rewards_allowance);
 
             // Emit an event.
             Self::deposit_event(Event::SetRewardsAllowanceDHXDailyStored(
-                rewards_allowance_as_u128.clone(),
+                rewards_allowance.clone(),
                 _who.clone()
             ));
 
@@ -1668,7 +1672,7 @@ pub mod pallet {
         // customised by governance at any time. this function allows us to change it each year
         // https://docs.google.com/spreadsheets/d/1W2AzOH9Cs9oCR8UYfYCbpmd9X7hp-USbYXL7AuwMY_Q/edit#gid=970997021
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
-        pub fn set_rewards_allowance_dhx_for_date(origin: OriginFor<T>, rewards_allowance: BalanceOf<T>, timestamp: u64) -> DispatchResult {
+        pub fn set_rewards_allowance_dhx_for_date_remaining(origin: OriginFor<T>, rewards_allowance: BalanceOf<T>, timestamp: u64) -> DispatchResult {
             let _who = ensure_signed(origin)?;
 
             // Note: we do not need the following as we're not using the current timestamp, rather the function parameter.
@@ -1682,14 +1686,15 @@ pub mod pallet {
             let start_of_requested_date_millis = Self::convert_u64_in_milliseconds_to_start_of_date(timestamp.clone())?;
 
             // Update storage. Override the default that may have been set in on_initialize
-            <RewardsAllowanceDHXForDate<T>>::insert(start_of_requested_date_millis.clone(), &rewards_allowance);
-            log::info!("set_rewards_allowance_dhx_for_date - rewards_allowance: {:?}", &rewards_allowance);
+            <RewardsAllowanceDHXForDateRemaining<T>>::insert(start_of_requested_date_millis.clone(), &rewards_allowance);
+            log::info!("set_rewards_allowance_dhx_for_date_remaining - rewards_allowance: {:?}", &rewards_allowance);
 
             // Emit an event.
-            Self::deposit_event(Event::SetRewardsAllowanceDHXForDateStored(
+            Self::deposit_event(Event::ChangedRewardsAllowanceDHXForDateRemainingStored(
                 start_of_requested_date_millis.clone(),
                 rewards_allowance.clone(),
-                _who.clone()
+                _who.clone(),
+                1u8, // increment
             ));
 
             // Return a successful DispatchResultWithPostInfo
@@ -1699,28 +1704,26 @@ pub mod pallet {
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
         // parameter `change: u8` value may be 0 or 1 (or any other value) to represent that we want to make a
         // corresponding decrease or increase to the remaining dhx rewards allowance for a given date.
-        pub fn change_remaining_rewards_allowance_dhx_for_date(origin: OriginFor<T>, daily_rewards: BalanceOf<T>, timestamp: u64, change: u8) -> DispatchResult {
+        pub fn change_rewards_allowance_dhx_for_date_remaining(origin: OriginFor<T>, daily_rewards: BalanceOf<T>, timestamp: u64, change: u8) -> DispatchResult {
             let _who = ensure_signed(origin)?;
 
             let start_of_requested_date_millis = Self::convert_u64_in_milliseconds_to_start_of_date(timestamp.clone())?;
 
             // https://substrate.dev/rustdocs/latest/frame_support/storage/trait.StorageMap.html
-            ensure!(<RewardsAllowanceDHXForDate<T>>::contains_key(&start_of_requested_date_millis), DispatchError::Other("Date key must exist to reduce allowance."));
-
-            let existing_allowance_to_try = <RewardsAllowanceDHXForDate<T>>::get(&start_of_requested_date_millis);
+            ensure!(<RewardsAllowanceDHXForDateRemaining<T>>::contains_key(&start_of_requested_date_millis), DispatchError::Other("Date key must exist to reduce allowance."));
 
             // Validate inputs so the daily_rewards is less or equal to the existing_allowance
             let existing_allowance_as_u128;
-            if let Some(_existing_allowance_to_try) = existing_allowance_to_try.clone() {
-                existing_allowance_as_u128 = Self::convert_balance_to_u128(_existing_allowance_to_try.clone())?;
-                log::info!("change_remaining_rewards_allowance_dhx_for_date - existing_allowance_as_u128: {:?}", existing_allowance_as_u128.clone());
+            if let Some(_existing_allowance) = <RewardsAllowanceDHXForDateRemaining<T>>::get(&start_of_requested_date_millis) {
+                existing_allowance_as_u128 = Self::convert_balance_to_u128(_existing_allowance.clone())?;
+                log::info!("change_rewards_allowance_dhx_for_date_remaining - existing_allowance_as_u128: {:?}", existing_allowance_as_u128.clone());
             } else {
                 return Err(DispatchError::Other("Unable to retrieve balance from value provided"));
             }
 
             let daily_rewards_as_u128;
             daily_rewards_as_u128 = Self::convert_balance_to_u128(daily_rewards.clone())?;
-            log::info!("change_remaining_rewards_allowance_dhx_for_date - daily_rewards_as_u128: {:?}", daily_rewards_as_u128.clone());
+            log::info!("change_rewards_allowance_dhx_for_date_remaining - daily_rewards_as_u128: {:?}", daily_rewards_as_u128.clone());
 
             ensure!(daily_rewards_as_u128 > 0u128, DispatchError::Other("Daily rewards must be greater than zero"));
             ensure!(existing_allowance_as_u128 >= daily_rewards_as_u128, DispatchError::Other("Daily rewards cannot exceed current remaining allowance"));
@@ -1730,16 +1733,16 @@ pub mod pallet {
                 // Decrementing the value will error in the event of underflow.
                 let new_remaining_allowance_as_u128 = existing_allowance_as_u128.checked_sub(daily_rewards_as_u128).ok_or(Error::<T>::StorageUnderflow)?;
                 new_remaining_allowance_as_balance = Self::convert_u128_to_balance(new_remaining_allowance_as_u128.clone())?;
-                log::info!("change_remaining_rewards_allowance_dhx_for_date - Decreasing rewards_allowance_dhx_for_date at Date: {:?}", &start_of_requested_date_millis);
+                log::info!("change_rewards_allowance_dhx_for_date_remaining - Decreasing rewards_allowance_dhx_for_date_remaining at Date: {:?}", &start_of_requested_date_millis);
             } else {
                 // Incrementing the value will error in the event of overflow.
                 let new_remaining_allowance_as_u128 = existing_allowance_as_u128.checked_add(daily_rewards_as_u128).ok_or(Error::<T>::StorageOverflow)?;
                 new_remaining_allowance_as_balance = Self::convert_u128_to_balance(new_remaining_allowance_as_u128.clone())?;
-                log::info!("change_remaining_rewards_allowance_dhx_for_date - Increasing rewards_allowance_dhx_for_date at Date: {:?}", &start_of_requested_date_millis);
+                log::info!("change_rewards_allowance_dhx_for_date_remaining - Increasing rewards_allowance_dhx_for_date_remaining at Date: {:?}", &start_of_requested_date_millis);
             }
 
             // Update storage
-            <RewardsAllowanceDHXForDate<T>>::mutate(
+            <RewardsAllowanceDHXForDateRemaining<T>>::mutate(
                 &start_of_requested_date_millis,
                 |allowance| {
                     if let Some(_allowance) = allowance {
@@ -1749,11 +1752,27 @@ pub mod pallet {
             );
 
             // Emit an event.
-            Self::deposit_event(Event::ChangedRewardsAllowanceDHXForDateStored(
+            Self::deposit_event(Event::ChangedRewardsAllowanceDHXForDateRemainingStored(
                 start_of_requested_date_millis.clone(),
                 new_remaining_allowance_as_balance.clone(),
                 _who.clone(),
                 change.clone(),
+            ));
+
+            // Return a successful DispatchResultWithPostInfo
+            Ok(())
+        }
+
+        #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
+        pub fn set_rewards_multiplier_operation(origin: OriginFor<T>, operation: u8) -> DispatchResult {
+            let _who = ensure_signed(origin)?;
+            <RewardsMultiplierOperation<T>>::put(&operation.clone());
+            log::info!("set_rewards_multiplier_operation - operation: {:?}", &operation);
+
+            // Emit an event.
+            Self::deposit_event(Event::SetRewardsMultiplierOperationStored(
+                operation.clone(),
+                _who.clone()
             ));
 
             // Return a successful DispatchResultWithPostInfo

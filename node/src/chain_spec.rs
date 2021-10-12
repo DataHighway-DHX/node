@@ -920,8 +920,8 @@ fn testnet_genesis(
         },
         mining_rewards_allowance: MiningRewardsAllowanceConfig {
             rewards_allowance_dhx_daily: FIVE_THOUSAND, // 5000 DHX
-            rewards_allowance_dhx_for_date: Default::default(),
-            rewards_allowance_dhx_for_date_distributed: Default::default(),
+            rewards_allowance_dhx_for_date_remaining: Default::default(),
+            rewards_allowance_dhx_for_date_remaining_distributed: Default::default(),
             rewards_multiplier_paused: false,
             rewards_multiplier_reset: false,
             rewards_multiplier_default_ratio: 10u32,
@@ -1047,8 +1047,8 @@ fn mainnet_genesis(
         },
         mining_rewards_allowance: MiningRewardsAllowanceConfig {
             rewards_allowance_dhx_daily: FIVE_THOUSAND, // 5000 DHX
-            rewards_allowance_dhx_for_date: Default::default(),
-            rewards_allowance_dhx_for_date_distributed: Default::default(),
+            rewards_allowance_dhx_for_date_remaining: Default::default(),
+            rewards_allowance_dhx_for_date_remaining_distributed: Default::default(),
             rewards_multiplier_paused: false,
             rewards_multiplier_reset: false,
             rewards_multiplier_default_ratio: 10u32,

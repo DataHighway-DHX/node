@@ -17,7 +17,10 @@ use sp_runtime::{
 	traits::{BlakeTwo256},
 };
 
-const ONE_THIRD_OF_TOTAL_SUPPLY: u128 = 33_333_333_333_000_000_000_000_000u128;
+// BalanceOf
+const default_bonded_amount_as_balance_of: u128 = default_bonded_amount / 1_000_000_000_000_000_000;
+const large_bonded_amount_u128: u128 = 33_333_333_333_000_000_000_000_000u128;
+const large_bonded_amount_as_balance_of: u128 = large_bonded_amount_u128 / 1_000_000_000_000_000_000;
 
 #[test]
 // ignore this test until the FIXME is resolved
@@ -47,7 +50,7 @@ fn it_sets_rewards_allowance_with_genesis_defaults_automatically_in_on_finalize_
 // same timestamp for all the blocks and tests below.
 fn it_distributes_rewards_automatically_in_on_finalize_for_default_amount() {
     new_test_ext().execute_with(|| {
-        distribute_rewards(default_bonded_amount.clone());
+        distribute_rewards(default_bonded_amount_as_balance_of.clone(), default_bonded_amount);
     })
 }
 
@@ -62,7 +65,7 @@ fn it_distributes_rewards_automatically_in_on_finalize_for_large_amount() {
         // in this test we'll test that it distributes rewards when each of their account balances are very large
         // (i.e. a third of the total supply) ONE_THIRD_OF_TOTAL_SUPPLY
 
-        const large_bonded_amount: u128 = ONE_THIRD_OF_TOTAL_SUPPLY;
+        let large_bonded_amount = large_bonded_amount_u128;
         assert_ok!(Balances::set_balance(Origin::root(), 1, large_bonded_amount.clone(), 0));
         assert_ok!(Balances::set_balance(Origin::root(), 2, large_bonded_amount.clone(), 0));
         assert_ok!(Balances::set_balance(Origin::root(), 3, large_bonded_amount.clone(), 0));
@@ -99,7 +102,15 @@ fn it_distributes_rewards_automatically_in_on_finalize_for_large_amount() {
             }
         );
 
-        distribute_rewards(large_bonded_amount.clone());
+        assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_multiplier_operation(
+            Origin::signed(0),
+            2u8,
+        ));
+
+
+        // represent BalanceOf
+        let large_bonded_amount_as_balance_of_var = large_bonded_amount / 1_000_000_000_000_000_000;
+        distribute_rewards(large_bonded_amount_as_balance_of_var, large_bonded_amount_u128);
     })
 }
 
@@ -118,7 +129,7 @@ fn it_sets_rewards_allowance_with_timestamp() {
             5_000u128
         ));
 
-        assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_allowance_dhx_for_date(
+        assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_allowance_dhx_for_date_remaining(
             Origin::signed(0),
             5_000u128,
             1630049371000
@@ -127,9 +138,9 @@ fn it_sets_rewards_allowance_with_timestamp() {
         // Verify Storage
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(5_000u128));
 
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(5_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630022400000), Some(5_000u128));
 
-        assert_ok!(MiningRewardsAllowanceTestModule::change_remaining_rewards_allowance_dhx_for_date(
+        assert_ok!(MiningRewardsAllowanceTestModule::change_rewards_allowance_dhx_for_date_remaining(
             Origin::signed(0),
             500,
             1630049371000,
@@ -139,16 +150,16 @@ fn it_sets_rewards_allowance_with_timestamp() {
         // reducing the remaining rewards for a specific date does not change the default rewards allowance
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(5_000u128));
 
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(4_500u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630022400000), Some(4_500u128));
 
-        assert_ok!(MiningRewardsAllowanceTestModule::change_remaining_rewards_allowance_dhx_for_date(
+        assert_ok!(MiningRewardsAllowanceTestModule::change_rewards_allowance_dhx_for_date_remaining(
             Origin::signed(0),
             2000,
             1630049371000,
             1
         ));
 
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(6_500u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630022400000), Some(6_500u128));
     })
 }
 
@@ -288,7 +299,7 @@ fn setup_preimage() {
     });
 }
 
-fn distribute_rewards(amount_bonded_each_miner: u128) {
+fn distribute_rewards(amount_bonded_each_miner: u128, original_amount_bonded_each_miner: u128) {
     assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(1)));
     assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(2)));
     assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(3)));
@@ -325,8 +336,8 @@ fn distribute_rewards(amount_bonded_each_miner: u128) {
     // System::on_finalize(2);
     // System::set_block_number(2);
 
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630022400000), Some(5_000u128));
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_distributed(1630022400000), Some(false));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630022400000), Some(5_000u128));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining_distributed(1630022400000), Some(false));
 
     // https://www.epochconverter.com/
     // 28th August 2021 @ ~7am is 1635406274000
@@ -337,36 +348,37 @@ fn distribute_rewards(amount_bonded_each_miner: u128) {
 
     // check that on_initialize has populated this storage value automatically for the start of the current date
     // still cooling off so no rewards distributed on this date
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1635379200000), Some(5_000u128));
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_distributed(1635379200000), Some(false));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1635379200000), Some(5_000u128));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining_distributed(1635379200000), Some(false));
 
-    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1635379200000, 1)), Some(amount_bonded_each_miner.clone()));
-    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1635379200000, 2)), Some(amount_bonded_each_miner.clone()));
-    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1635379200000, 3)), Some(amount_bonded_each_miner.clone()));
+    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1635379200000, 1)), Some(original_amount_bonded_each_miner));
+    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1635379200000, 2)), Some(original_amount_bonded_each_miner));
+    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1635379200000, 3)), Some(original_amount_bonded_each_miner));
 
     // 29th August 2021 @ ~7am is 1630220400000
     // 29th August 2021 @ 12am is 1630195200000 (start of day)
     Timestamp::set_timestamp(1630195200000u64);
     MiningRewardsAllowanceTestModule::on_initialize(4);
 
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date(1630195200000), Some(5_000u128));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630195200000), Some(5_000u128));
 
-    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, 1)), Some(amount_bonded_each_miner.clone()));
-    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, 2)), Some(amount_bonded_each_miner.clone()));
-    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, 3)), Some(amount_bonded_each_miner.clone()));
+    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, 1)), Some(original_amount_bonded_each_miner));
+    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, 2)), Some(original_amount_bonded_each_miner));
+    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, 3)), Some(original_amount_bonded_each_miner));
 
-    // i.e. for example, if locked is 25_133_000_000_000_000_000_000u128, which is 25,133 DHX,
+    // i.e. for example, if locked is 25_133_000_000_000_000_000_000u128 (default_bonded_amount), which is 25,133 DHX,
     // then with 10:1 each of the 3x accounts get 2513.3 DHX, which is ~7538.9 DHX combined
-    if amount_bonded_each_miner.clone() == 25_133_000_000_000_000_000_000u128 {
+    // or 33_333_333_333_000_000_000_000_000u128 (large_bonded_amount_u128)
+    if original_amount_bonded_each_miner.clone() == default_bonded_amount {
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_aggregated_dhx_for_all_miners_for_date(1630195200000), Some(7_539_900_000_000_000_000_000u128));
-    } else if amount_bonded_each_miner.clone() == ONE_THIRD_OF_TOTAL_SUPPLY {
+    } else if original_amount_bonded_each_miner.clone() == large_bonded_amount_u128 {
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_aggregated_dhx_for_all_miners_for_date(1630195200000), Some(9_999_999_999_900_000_000_000_000u128));
     }
 
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 1)), Some(amount_bonded_each_miner.clone() / 10));
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 2)), Some(amount_bonded_each_miner.clone() / 10));
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 3)), Some(amount_bonded_each_miner.clone() / 10));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 1)), Some(original_amount_bonded_each_miner / 10));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 2)), Some(original_amount_bonded_each_miner / 10));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 3)), Some(original_amount_bonded_each_miner / 10));
 
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_distributed(1630195200000), Some(true));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining_distributed(1630195200000), Some(true));
     assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days_remaining(1), Some((1630195200000, 0, 1)));
 }
