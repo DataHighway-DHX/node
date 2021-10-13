@@ -1279,9 +1279,6 @@ pub mod pallet {
                 // we could just divide both numbers by 1000000000000000000, so we'd have say 5000 and 1 instead,
                 // since we're just using these values to get a multiplier output.
 
-                println!("000 {:?}", rewards_allowance_dhx_daily_u128);
-                println!("001 {:?}", rewards_aggregated_dhx_daily_as_u128);
-
                 let mut manageable_rewards_allowance_dhx_daily_u128 = 0u128;
                 if let Some(_manageable_rewards_allowance_dhx_daily_u128) =
                     rewards_allowance_dhx_daily_u128.clone().checked_div(1000000000000000000u128) {
@@ -1333,7 +1330,7 @@ pub mod pallet {
                 }
             }
             log::info!("distribution_multiplier_for_day_fixed128 {:#?}", distribution_multiplier_for_day_fixed128);
-            println!("[multiplier] block: {:#?}, miner: {:#?}, date_start: {:#?} distribution_multiplier_for_day_fixed128: {:#?}", _n, miner_count, start_of_requested_date_millis, distribution_multiplier_for_day_fixed128);
+            // println!("[multiplier] block: {:#?}, miner: {:#?}, date_start: {:#?} distribution_multiplier_for_day_fixed128: {:#?}", _n, miner_count, start_of_requested_date_millis, distribution_multiplier_for_day_fixed128);
 
             // Initialise outside the loop as we need this value after the loop after we finish iterating through all the miners
             let mut rewards_allowance_dhx_remaining_today_as_u128 = 0u128;
@@ -1379,7 +1376,6 @@ pub mod pallet {
                     continue;
                 }
                 log::info!("daily_reward_for_miner_as_u128: {:?}", daily_reward_for_miner_as_u128.clone());
-                println!("0 {:?}", daily_reward_for_miner_as_u128);
 
                 let mut manageable_daily_reward_for_miner_as_u128 = 0u128;
                 if let Some(_manageable_daily_reward_for_miner_as_u128) =
@@ -1389,7 +1385,6 @@ pub mod pallet {
                     log::error!("Unable to divide daily_reward_for_miner_as_u128 to make it smaller");
                     return 0;
                 }
-                println!("1 {:?}", manageable_daily_reward_for_miner_as_u128);
 
                 // Multiply, handling overflow
                 // TODO - probably have to initialise below proportion_of_daily_reward_for_miner_fixed128 to 0u128,
@@ -1409,7 +1404,7 @@ pub mod pallet {
                     }
                 }
                 log::info!("proportion_of_daily_reward_for_miner_fixed128: {:?}", proportion_of_daily_reward_for_miner_fixed128.clone());
-                println!("2 {:?}", proportion_of_daily_reward_for_miner_fixed128);
+
                 // round down to nearest integer. we need to round down, because if we round up then if there are
                 // 3x registered miners with 5000 DHX rewards allowance per day then they would each get 1667 rewards,
                 // but there would only be 1666 remaining after the first two, so the last one would miss out.
@@ -1426,7 +1421,7 @@ pub mod pallet {
                     return 0;
                 }
 
-                println!("[rewards] block: {:#?}, miner: {:#?}, date_start: {:#?} restored_proportion_of_daily_reward_for_miner_u128: {:#?}", _n, miner_count, start_of_requested_date_millis, restored_proportion_of_daily_reward_for_miner_u128);
+                // println!("[rewards] block: {:#?}, miner: {:#?}, date_start: {:#?} restored_proportion_of_daily_reward_for_miner_u128: {:#?}", _n, miner_count, start_of_requested_date_millis, restored_proportion_of_daily_reward_for_miner_u128);
 
                 let treasury_account_id: T::AccountId = <pallet_treasury::Pallet<T>>::account_id();
                 let max_payout = pallet_balances::Pallet::<T>::usable_balance(treasury_account_id.clone());
@@ -1474,8 +1469,8 @@ pub mod pallet {
                     return 0;
                 }
 
-                println!("[prepared-for-payment] block: {:#?}, miner: {:#?}, date_start: {:#?} max payout: {:#?}, rewards remaining today {:?}, restored_proportion_of_daily_reward_for_miner_u128 {:?}",
-                    _n, miner_count, start_of_requested_date_millis, max_payout_as_u128, rewards_allowance_dhx_remaining_today_as_u128, restored_proportion_of_daily_reward_for_miner_u128);
+                // println!("[prepared-for-payment] block: {:#?}, miner: {:#?}, date_start: {:#?} max payout: {:#?}, rewards remaining today {:?}, restored_proportion_of_daily_reward_for_miner_u128 {:?}",
+                //     _n, miner_count, start_of_requested_date_millis, max_payout_as_u128, rewards_allowance_dhx_remaining_today_as_u128, restored_proportion_of_daily_reward_for_miner_u128);
 
                 // check if miner's reward is less than or equal to: rewards_allowance_dhx_daily_remaining
                 if restored_proportion_of_daily_reward_for_miner_u128.clone() > 0u128 &&
@@ -1539,7 +1534,7 @@ pub mod pallet {
                         new_rewards_allowance_dhx_remaining_today.clone(),
                     );
 
-                    println!("[paid] block: {:#?}, miner: {:#?}, date_start: {:#?} new_rewards_allowance_dhx_remaining_today: {:#?}", _n, miner_count, start_of_requested_date_millis, new_rewards_allowance_dhx_remaining_today);
+                    // println!("[paid] block: {:#?}, miner: {:#?}, date_start: {:#?} new_rewards_allowance_dhx_remaining_today: {:#?}", _n, miner_count, start_of_requested_date_millis, new_rewards_allowance_dhx_remaining_today);
 
                     // emit event with reward payment history rather than bloating storage
                     Self::deposit_event(Event::TransferredRewardsAllowanceDHXToMinerForDate(
