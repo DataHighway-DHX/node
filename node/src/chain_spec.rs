@@ -256,6 +256,8 @@ pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
 
                 hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
                 vec![
+                    // Endow the Sudo account to cover transaction fees
+                    hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
                     // Endow this account with the DHX DAO Unlocked Reserves Balance
                     // 5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr
                     hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
@@ -307,6 +309,8 @@ pub fn chachacha_parachain_config(id: ParaId) -> ChainSpec {
 
                 hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
                 vec![
+                    // Endow the Sudo account to cover transaction fees
+                    hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
                     // Endow this account with the DHX DAO Unlocked Reserves Balance
                     // 5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr
                     hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
