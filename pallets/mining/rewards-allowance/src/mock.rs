@@ -444,8 +444,8 @@ impl MiningRewardsAllowanceConfig for Test {
 pub type SysEvent = frame_system::Event<Test>;
 pub type DemocracyEvent = pallet_democracy::Event<Test>;
 
-pub const INIT_DAO_BALANCE: u128 = 30_000_000_000_000_000_000_000_000u128;
-pub const TOTAL_SUPPLY: u128 = 100_000_000_000_000_000_000_000_000u128;
+pub const INIT_DAO_BALANCE_DHX: u128 = 30_000_000_000_000_000_000_000_000u128;
+pub const TOTAL_SUPPLY_DHX: u128 = 100_000_000_000_000_000_000_000_000u128;
 pub const TEN_DHX: u128 = 10_000_000_000_000_000_000u128;
 
 // This function basically just builds a genesis storage key/value store according to
@@ -454,11 +454,12 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
     let mut t = frame_system::GenesisConfig::default().build_storage::<Test>().unwrap();
     pallet_balances::GenesisConfig::<Test> {
         balances: vec![
-            (0, INIT_DAO_BALANCE),
+            (0, TEN_DHX),
             (1, TEN_DHX),
             (2, TEN_DHX),
             (3, TEN_DHX),
-            (100, TOTAL_SUPPLY)],
+            (100, TOTAL_SUPPLY_DHX),
+        ],
     }
     .assimilate_storage(&mut t)
     .unwrap();

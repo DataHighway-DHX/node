@@ -1,6 +1,6 @@
-use super::{Call, Event, default_bonded_amount, *};
+use super::{Call, Event, *};
 use crate::{mock::*, Error};
-pub use mock::{INIT_DAO_BALANCE, TOTAL_SUPPLY};
+pub use mock::{INIT_DAO_BALANCE_DHX, TOTAL_SUPPLY_DHX, TEN_DHX};
 use codec::Encode;
 use frame_support::{assert_noop, assert_ok,
     weights::{DispatchClass, DispatchInfo, GetDispatchInfo},
@@ -17,10 +17,12 @@ use sp_runtime::{
 	traits::{BlakeTwo256},
 };
 
-// BalanceOf
-const default_bonded_amount_as_balance_of: u128 = default_bonded_amount / 1_000_000_000_000_000_000;
-const large_bonded_amount_u128: u128 = 33_333_333_333_000_000_000_000_000u128;
-const large_bonded_amount_as_balance_of: u128 = large_bonded_amount_u128 / 1_000_000_000_000_000_000;
+const NORMAL_AMOUNT: u128 = 25_133_000_000_000_000_000_000u128; // 25,133 DHX
+const LARGE_AMOUNT_DHX: u128 = 33_333_333_333_000_000_000_000_000u128; // 33,333,333.333 DHX
+const FIVE_THOUSAND_DHX: u128 = 5_000_000_000_000_000_000_000_u128; // 5000
+const TWO_THOUSAND_DHX: u128 = 2_000_000_000_000_000_000_000_u128; // 2,000
+const FIVE_HUNDRED_DHX: u128 = 500_000_000_000_000_000_000_u128; // 500
+const TWO_DHX: u128 = 2_000_000_000_000_000_000_u128; // 2
 
 #[test]
 // ignore this test until the FIXME is resolved
@@ -40,7 +42,7 @@ fn it_sets_rewards_allowance_with_genesis_defaults_automatically_in_on_finalize_
 
         // FIXME - why doesn't this work and use the defaults that we have set in the genesis config?
         // i've had to add a function `set_rewards_allowance_dhx_daily` to set this instead
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(5_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(FIVE_THOUSAND_DHX));
     })
 }
 
@@ -50,7 +52,9 @@ fn it_sets_rewards_allowance_with_genesis_defaults_automatically_in_on_finalize_
 // same timestamp for all the blocks and tests below.
 fn it_distributes_rewards_automatically_in_on_finalize_for_default_amount() {
     new_test_ext().execute_with(|| {
-        distribute_rewards(default_bonded_amount_as_balance_of.clone(), default_bonded_amount);
+        setup_treasury_balance();
+
+        distribute_rewards(NORMAL_AMOUNT.clone());
     })
 }
 
@@ -63,18 +67,19 @@ fn it_distributes_rewards_automatically_in_on_finalize_for_large_amount() {
         // then use that easier for the tests too for trying different values that they have bonded.
         //
         // in this test we'll test that it distributes rewards when each of their account balances are very large
-        // (i.e. a third of the total supply) ONE_THIRD_OF_TOTAL_SUPPLY
+        // (i.e. a third of the total supply) ONE_THIRD_OF_TOTAL_SUPPLY_DHX
 
-        let large_bonded_amount = large_bonded_amount_u128;
-        assert_ok!(Balances::set_balance(Origin::root(), 1, large_bonded_amount.clone(), 0));
-        assert_ok!(Balances::set_balance(Origin::root(), 2, large_bonded_amount.clone(), 0));
-        assert_ok!(Balances::set_balance(Origin::root(), 3, large_bonded_amount.clone(), 0));
+        assert_ok!(Balances::set_balance(Origin::root(), 1, LARGE_AMOUNT_DHX, 0));
+        assert_ok!(Balances::set_balance(Origin::root(), 2, LARGE_AMOUNT_DHX, 0));
+        assert_ok!(Balances::set_balance(Origin::root(), 3, LARGE_AMOUNT_DHX, 0));
 
-        assert_eq!(Balances::free_balance(&1), large_bonded_amount.clone());
-        assert_eq!(Balances::free_balance(&2), large_bonded_amount.clone());
-        assert_eq!(Balances::free_balance(&3), large_bonded_amount.clone());
+        assert_eq!(Balances::free_balance(&1), LARGE_AMOUNT_DHX);
+        assert_eq!(Balances::free_balance(&2), LARGE_AMOUNT_DHX);
+        assert_eq!(Balances::free_balance(&3), LARGE_AMOUNT_DHX);
 
         assert_eq!(Balances::reserved_balance(&1), 0);
+
+        setup_treasury_balance();
 
         let pre_image_hash = BlakeTwo256::hash(b"test");
         let r = Democracy::inject_referendum(1, pre_image_hash.clone(), VoteThreshold::SuperMajorityApprove, 2);
@@ -97,20 +102,18 @@ fn it_distributes_rewards_automatically_in_on_finalize_for_large_amount() {
         assert_eq!(Balances::locks(1)[0],
             BalanceLock {
                 id: [100, 101, 109, 111, 99, 114, 97, 99],
-                amount: large_bonded_amount.clone(),
+                amount: LARGE_AMOUNT_DHX,
                 reasons: Reasons::Misc
             }
         );
 
+        // FIXME - why do we get the same result when using addition and multiplation?
         assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_multiplier_operation(
             Origin::signed(0),
-            2u8,
+            1u8,
         ));
 
-
-        // represent BalanceOf
-        let large_bonded_amount_as_balance_of_var = large_bonded_amount / 1_000_000_000_000_000_000;
-        distribute_rewards(large_bonded_amount_as_balance_of_var, large_bonded_amount_u128);
+        distribute_rewards(LARGE_AMOUNT_DHX);
     })
 }
 
@@ -126,40 +129,40 @@ fn it_sets_rewards_allowance_with_timestamp() {
 
         assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_allowance_dhx_daily(
             Origin::signed(0),
-            5_000u128
+            FIVE_THOUSAND_DHX
         ));
 
         assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_allowance_dhx_for_date_remaining(
             Origin::signed(0),
-            5_000u128,
+            FIVE_THOUSAND_DHX,
             1630049371000
         ));
 
         // Verify Storage
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(5_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(FIVE_THOUSAND_DHX));
 
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630022400000), Some(5_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630022400000), Some(FIVE_THOUSAND_DHX));
 
         assert_ok!(MiningRewardsAllowanceTestModule::change_rewards_allowance_dhx_for_date_remaining(
             Origin::signed(0),
-            500,
+            FIVE_HUNDRED_DHX,
             1630049371000,
             0
         ));
 
         // reducing the remaining rewards for a specific date does not change the default rewards allowance
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(5_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(FIVE_THOUSAND_DHX));
 
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630022400000), Some(4_500u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630022400000), Some(4_500_000_000_000_000_000_000u128));
 
         assert_ok!(MiningRewardsAllowanceTestModule::change_rewards_allowance_dhx_for_date_remaining(
             Origin::signed(0),
-            2000,
+            TWO_THOUSAND_DHX,
             1630049371000,
             1
         ));
 
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630022400000), Some(6_500u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630022400000), Some(6_500_000_000_000_000_000_000u128));
     })
 }
 
@@ -299,14 +302,14 @@ fn setup_preimage() {
     });
 }
 
-fn distribute_rewards(amount_bonded_each_miner: u128, original_amount_bonded_each_miner: u128) {
+fn distribute_rewards(amount_bonded_each_miner: u128) {
     assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(1)));
     assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(2)));
     assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(3)));
 
     assert_ok!(MiningRewardsAllowanceTestModule::set_min_bonded_dhx_daily(
         Origin::signed(1),
-        10_u128,
+        TEN_DHX,
     ));
     assert_ok!(MiningRewardsAllowanceTestModule::set_cooling_off_period_days(
         Origin::signed(1),
@@ -314,13 +317,13 @@ fn distribute_rewards(amount_bonded_each_miner: u128, original_amount_bonded_eac
     ));
     assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_allowance_dhx_daily(
         Origin::signed(1),
-        5000_u128,
+        FIVE_THOUSAND_DHX,
     ));
 
     assert_eq!(MiningRewardsAllowanceTestModule::registered_dhx_miners(), Some(vec![1, 2, 3]));
-    assert_eq!(MiningRewardsAllowanceTestModule::min_bonded_dhx_daily(), Some(10));
+    assert_eq!(MiningRewardsAllowanceTestModule::min_bonded_dhx_daily(), Some(TEN_DHX));
     assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days(), Some(1));
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(5_000u128));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(FIVE_THOUSAND_DHX));
 
     // since the timestamp is 0 (corresponds to 1970-01-01) at block number #1, we early exit from on_initialize in
     // that block in the implementation and do not set any storage values associated with the date until block #2.
@@ -336,7 +339,7 @@ fn distribute_rewards(amount_bonded_each_miner: u128, original_amount_bonded_eac
     // System::on_finalize(2);
     // System::set_block_number(2);
 
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630022400000), Some(5_000u128));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630022400000), Some(FIVE_THOUSAND_DHX));
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining_distributed(1630022400000), Some(false));
 
     // https://www.epochconverter.com/
@@ -348,42 +351,47 @@ fn distribute_rewards(amount_bonded_each_miner: u128, original_amount_bonded_eac
 
     // check that on_initialize has populated this storage value automatically for the start of the current date
     // still cooling off so no rewards distributed on this date
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1635379200000), Some(5_000u128));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1635379200000), Some(FIVE_THOUSAND_DHX));
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining_distributed(1635379200000), Some(false));
 
-    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1635379200000, 1)), Some(original_amount_bonded_each_miner));
-    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1635379200000, 2)), Some(original_amount_bonded_each_miner));
-    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1635379200000, 3)), Some(original_amount_bonded_each_miner));
+    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1635379200000, 1)), Some(amount_bonded_each_miner));
+    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1635379200000, 2)), Some(amount_bonded_each_miner));
+    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1635379200000, 3)), Some(amount_bonded_each_miner));
 
     // 29th August 2021 @ ~7am is 1630220400000
     // 29th August 2021 @ 12am is 1630195200000 (start of day)
     Timestamp::set_timestamp(1630195200000u64);
     MiningRewardsAllowanceTestModule::on_initialize(4);
 
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630195200000), Some(5_000u128));
+    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, 1)), Some(amount_bonded_each_miner));
+    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, 2)), Some(amount_bonded_each_miner));
+    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, 3)), Some(amount_bonded_each_miner));
 
-    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, 1)), Some(original_amount_bonded_each_miner));
-    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, 2)), Some(original_amount_bonded_each_miner));
-    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, 3)), Some(original_amount_bonded_each_miner));
-
-    // i.e. for example, if locked is 25_133_000_000_000_000_000_000u128 (default_bonded_amount), which is 25,133 DHX,
+    // i.e. for example, if locked is 25_133_000_000_000_000_000_000u128 (NORMAL_AMOUNT), which is 25,133 DHX,
     // then with 10:1 each of the 3x accounts get 2513.3 DHX, which is ~7538.9 DHX combined
-    // or 33_333_333_333_000_000_000_000_000u128 (large_bonded_amount_u128)
-    if original_amount_bonded_each_miner.clone() == default_bonded_amount {
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_aggregated_dhx_for_all_miners_for_date(1630195200000), Some(7_539_900_000_000_000_000_000u128));
-    } else if original_amount_bonded_each_miner.clone() == large_bonded_amount_u128 {
-        assert_eq!(MiningRewardsAllowanceTestModule::rewards_aggregated_dhx_for_all_miners_for_date(1630195200000), Some(9_999_999_999_900_000_000_000_000u128));
+    // or 33_333_333_333_000_000_000_000_000u128 (LARGE_AMOUNT_DHX),
+    // but the results are rounded to the nearest integer so it would be 2513 DHX, not 2513.3 DHX
+    if amount_bonded_each_miner.clone() == NORMAL_AMOUNT {
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_aggregated_dhx_for_all_miners_for_date(1630195200000), Some(7_539_000_000_000_000_000_000u128));
+
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 1)), Some(2_513_000_000_000_000_000_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 2)), Some(2_513_000_000_000_000_000_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 3)), Some(2_513_000_000_000_000_000_000u128));
+    } else if amount_bonded_each_miner.clone() == LARGE_AMOUNT_DHX {
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_aggregated_dhx_for_all_miners_for_date(1630195200000), Some(9_999_999_000_000_000_000_000_000u128));
+
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 1)), Some(3_333_333_000_000_000_000_000_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 2)), Some(3_333_333_000_000_000_000_000_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 3)), Some(3_333_333_000_000_000_000_000_000u128));
     }
 
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 1)), Some(original_amount_bonded_each_miner / 10));
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 2)), Some(original_amount_bonded_each_miner / 10));
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, 3)), Some(original_amount_bonded_each_miner / 10));
-
-    // FIXME - since we're passing values for the test that have been divided by `/ 1_000_000_000_000_000_000`
-    // to make it work, the division in the implementation to calculate `manageable_daily_reward_for_miner_as_u128` which is
-    // `daily_reward_for_miner_as_u128.clone().checked_div(1000000000000000000u128)` ends up being says 5000/1000000000000000000
-    // which is 0, so it doesn't let us distribute rewards and this doesn't work
-    // assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630195200000), Some(2u128));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630195200000), Some(TWO_DHX));
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining_distributed(1630195200000), Some(true));
     assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days_remaining(1), Some((1630195200000, 0, 1)));
+}
+
+fn setup_treasury_balance() {
+    // set the balance of the treasury so it distributes rewards
+    Balances::set_balance(Origin::root(), Treasury::account_id(), INIT_DAO_BALANCE_DHX, 0);
+    assert_eq!(Balances::usable_balance(&Treasury::account_id()), INIT_DAO_BALANCE_DHX);
 }
