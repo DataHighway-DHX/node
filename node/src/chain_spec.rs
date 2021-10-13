@@ -244,16 +244,28 @@ pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
         move || {
             spreehafen_testnet_genesis(
                 vec![
-                    hex!["ca907b74f921b74638eb40c289e9bf1142b0afcdb25e1a50383ab8f9d515da0d"].unchecked_into(),
-                    hex!["ae69db7838fb139cbf4f93bf877faf5bbef242f3f5aac6eb4f111398e9385e7d"].unchecked_into(),
-                    hex!["7652b25328d78d264aef01184202c9771b55f5b391359309a2559ef77fbbb33d"].unchecked_into(),
-                    hex!["eec96d02877a45fa524fcee1c6b7c849cbdc8cee01a95f5db168c427ae766849"].unchecked_into(),
-                    hex!["f64bae0f8fbe2eb59ff1c0ff760a085f55d69af5909aed280ebda09dc364d443"].unchecked_into(),
-                    hex!["420a7b4a8c9f2388eded13c17841d2a0e08ea7c87eda84310da54f3ccecd3931"].unchecked_into(),
-                    hex!["ceecb6cc08c20ff44052ff19952a810d08363aa26ea4fb0a64a62a4630d37f28"].unchecked_into(),
-                    hex!["68bac5586028dd40db59a7becec349b42cd4229f9d3c31875c3eb7a57241cd42"].unchecked_into(),
-                ],
+                    // authority #1
+                    (
+                        //aura
+                        hex!["3aaedf2ef9e32f7e90bf8eb9bf49813188f111cc349807afa67e07cdba9d225d"].unchecked_into()
+                    ),
+                    // authority #2
+                    (
+                        //aura
+                        hex!["c46b84a4af0a79efa0de5194816b19650a24221e858f41d564d4843d2691ad32"].unchecked_into()
+                    ),
+                    // authority #3
+                    (
+                        //aura
+                        hex!["367c0c647c9c417de992cfa762758e237bea5ff61653c69d29bd924ad6c4476e"].unchecked_into()
+                    ),
+                    // authority #4
+                    (
+                        //aura
+                        hex!["9a861c7c72bdf2105766e90376069a4f3237c6722fdcf27ca4bb37d0fc22be5d"].unchecked_into()
+                    )
 
+                ],
                 hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
                 vec![
                     // Endow the Sudo account to cover transaction fees
@@ -297,16 +309,28 @@ pub fn chachacha_parachain_config(id: ParaId) -> ChainSpec {
         move || {
             spreehafen_testnet_genesis(
                 vec![
-                    hex!["ca907b74f921b74638eb40c289e9bf1142b0afcdb25e1a50383ab8f9d515da0d"].unchecked_into(),
-                    hex!["ae69db7838fb139cbf4f93bf877faf5bbef242f3f5aac6eb4f111398e9385e7d"].unchecked_into(),
-                    hex!["7652b25328d78d264aef01184202c9771b55f5b391359309a2559ef77fbbb33d"].unchecked_into(),
-                    hex!["eec96d02877a45fa524fcee1c6b7c849cbdc8cee01a95f5db168c427ae766849"].unchecked_into(),
-                    hex!["f64bae0f8fbe2eb59ff1c0ff760a085f55d69af5909aed280ebda09dc364d443"].unchecked_into(),
-                    hex!["420a7b4a8c9f2388eded13c17841d2a0e08ea7c87eda84310da54f3ccecd3931"].unchecked_into(),
-                    hex!["ceecb6cc08c20ff44052ff19952a810d08363aa26ea4fb0a64a62a4630d37f28"].unchecked_into(),
-                    hex!["68bac5586028dd40db59a7becec349b42cd4229f9d3c31875c3eb7a57241cd42"].unchecked_into(),
-                ],
+                    // authority #1
+                    (
+                        //aura
+                        hex!["3aaedf2ef9e32f7e90bf8eb9bf49813188f111cc349807afa67e07cdba9d225d"].unchecked_into()
+                    ),
+                    // authority #2
+                    (
+                        //aura
+                        hex!["c46b84a4af0a79efa0de5194816b19650a24221e858f41d564d4843d2691ad32"].unchecked_into()
+                    ),
+                    // authority #3
+                    (
+                        //aura
+                        hex!["367c0c647c9c417de992cfa762758e237bea5ff61653c69d29bd924ad6c4476e"].unchecked_into()
+                    ),
+                    // authority #4
+                    (
+                        //aura
+                        hex!["9a861c7c72bdf2105766e90376069a4f3237c6722fdcf27ca4bb37d0fc22be5d"].unchecked_into()
+                    )
 
+                ],
                 hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
                 vec![
                     // Endow the Sudo account to cover transaction fees
@@ -345,7 +369,7 @@ const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_
 // const INITIAL_STAKING: u128 = 1_000_000_000_000_000_000_u128;
 
 fn spreehafen_testnet_genesis(
-    initial_authorities: Vec<AuraId>,
+    initial_authorities: Vec<(AuraId)>,
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     id: ParaId
