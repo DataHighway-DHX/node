@@ -447,6 +447,7 @@ pub type DemocracyEvent = pallet_democracy::Event<Test>;
 pub const INIT_DAO_BALANCE_DHX: u128 = 30_000_000_000_000_000_000_000_000u128;
 pub const TOTAL_SUPPLY_DHX: u128 = 100_000_000_000_000_000_000_000_000u128;
 pub const TEN_DHX: u128 = 10_000_000_000_000_000_000u128;
+pub const FIVE_THOUSAND_DHX: u128 = 5_000_000_000_000_000_000_000_u128; // 5000
 
 // This function basically just builds a genesis storage key/value store according to
 // our desired mockup.

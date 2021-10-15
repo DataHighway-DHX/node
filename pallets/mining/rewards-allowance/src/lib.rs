@@ -69,6 +69,8 @@ pub mod pallet {
     // this is only a default for test purposes and fallback.
     // set this to 0u128 in production
     pub const default_bonded_amount_u128: u128 = 25_133_000_000_000_000_000_000u128;
+    const TEN: u128 = 10_000_000_000_000_000_000_u128; // 10
+    pub const FIVE_THOUSAND_DHX: u128 = 5_000_000_000_000_000_000_000_u128; // 5000
 
     // type BalanceOf<T> = <T as pallet_balances::Config>::Balance;
     type BalanceOf<T> = <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
@@ -137,12 +139,16 @@ pub mod pallet {
     pub(super) type RewardsMultiplierReset<T: Config> = StorageValue<_, bool>;
 
     #[pallet::storage]
-    #[pallet::getter(fn rewards_multiplier_default_ratio)]
-    pub(super) type RewardsMultiplierDefaultRatio<T: Config> = StorageValue<_, u32>;
+    #[pallet::getter(fn rewards_multiplier_default_change)]
+    pub(super) type RewardsMultiplierDefaultChange<T: Config> = StorageValue<_, u32>;
 
     #[pallet::storage]
-    #[pallet::getter(fn rewards_multiplier_next_ratio)]
-    pub(super) type RewardsMultiplierNextRatio<T: Config> = StorageValue<_, u32>;
+    #[pallet::getter(fn rewards_multiplier_current_change)]
+    pub(super) type RewardsMultiplierCurrentChange<T: Config> = StorageValue<_, u32>;
+
+    #[pallet::storage]
+    #[pallet::getter(fn rewards_multiplier_next_change)]
+    pub(super) type RewardsMultiplierNextChange<T: Config> = StorageValue<_, u32>;
 
     #[pallet::storage]
     #[pallet::getter(fn rewards_multiplier_default_period_days)]
@@ -151,10 +157,6 @@ pub mod pallet {
     #[pallet::storage]
     #[pallet::getter(fn rewards_multiplier_next_period_days)]
     pub(super) type RewardsMultiplierNextPeriodDays<T: Config> = StorageValue<_, u32>;
-
-    #[pallet::storage]
-    #[pallet::getter(fn rewards_multiplier_current_ratio)]
-    pub(super) type RewardsMultiplierCurrentRatio<T: Config> = StorageValue<_, u32>;
 
     #[pallet::storage]
     #[pallet::getter(fn rewards_multiplier_current_period_days_total)]
@@ -171,7 +173,7 @@ pub mod pallet {
         ),
     >;
 
-    // set to 1 for addition, or 2 for multiplication by the stored value to change the
+    // set to 1 for addition, to change the
     // min. bonded dhx value after every rewards_multiplier_next_period_days.
     #[pallet::storage]
     #[pallet::getter(fn rewards_multiplier_operation)]
@@ -251,11 +253,11 @@ pub mod pallet {
         pub rewards_allowance_dhx_daily: BalanceOf<T>,
         pub rewards_multiplier_paused: bool,
         pub rewards_multiplier_reset: bool,
-        pub rewards_multiplier_default_ratio: u32,
-        pub rewards_multiplier_next_ratio: u32,
+        pub rewards_multiplier_default_change: u32,
+        pub rewards_multiplier_current_change: u32,
+        pub rewards_multiplier_next_change: u32,
         pub rewards_multiplier_default_period_days: u32,
         pub rewards_multiplier_next_period_days: u32,
-        pub rewards_multiplier_current_ratio: u32,
         pub rewards_multiplier_current_period_days_total: u32,
         pub rewards_multiplier_current_period_days_remaining: (Date, Date, u32, u32),
         pub rewards_multiplier_operation: u8,
@@ -281,13 +283,13 @@ pub mod pallet {
                 rewards_allowance_dhx_daily: Default::default(),
                 rewards_multiplier_paused: false,
                 rewards_multiplier_reset: false,
-                rewards_multiplier_default_ratio: 10u32,
-                rewards_multiplier_next_ratio: 10u32,
+                rewards_multiplier_default_change: 10u32,
+                rewards_multiplier_current_change: 10u32,
+                rewards_multiplier_next_change: 10u32,
                 // FIXME - setup for different amount of days each month and leap years
                 rewards_multiplier_default_period_days: 90u32,
                 // FIXME - setup for different amount of days each month and leap years
                 rewards_multiplier_next_period_days: 90u32,
-                rewards_multiplier_current_ratio: 10u32,
                 // FIXME - setup for different amount of days each month and leap years
                 rewards_multiplier_current_period_days_total: 90u32,
                 rewards_multiplier_current_period_days_remaining: Default::default(),
@@ -332,11 +334,11 @@ pub mod pallet {
             <RewardsAllowanceDHXDaily<T>>::put(&self.rewards_allowance_dhx_daily);
             <RewardsMultiplierPaused<T>>::put(&self.rewards_multiplier_paused);
             <RewardsMultiplierReset<T>>::put(&self.rewards_multiplier_reset);
-            <RewardsMultiplierDefaultRatio<T>>::put(&self.rewards_multiplier_default_ratio);
-            <RewardsMultiplierNextRatio<T>>::put(&self.rewards_multiplier_next_ratio);
+            <RewardsMultiplierDefaultChange<T>>::put(&self.rewards_multiplier_default_change);
+            <RewardsMultiplierCurrentChange<T>>::put(&self.rewards_multiplier_current_change);
+            <RewardsMultiplierNextChange<T>>::put(&self.rewards_multiplier_next_change);
             <RewardsMultiplierDefaultPeriodDays<T>>::put(&self.rewards_multiplier_default_period_days);
             <RewardsMultiplierNextPeriodDays<T>>::put(&self.rewards_multiplier_next_period_days);
-            <RewardsMultiplierCurrentRatio<T>>::put(&self.rewards_multiplier_current_ratio);
             <RewardsMultiplierCurrentPeriodDaysTotal<T>>::put(&self.rewards_multiplier_current_period_days_total);
             <RewardsMultiplierCurrentPeriodDaysRemaining<T>>::put(&self.rewards_multiplier_current_period_days_remaining);
             for (a) in &self.registered_dhx_miners {
@@ -412,13 +414,17 @@ pub mod pallet {
         /// \[date, remaining_rewards_allowance_today\]
         DistributedRewardsAllowanceDHXForDateRemaining(Date, BalanceOf<T>),
 
-        /// Changed the min. bonded DHX daily using a ratio, using either an addition or multiplication operation
+        /// Changed the min. bonded DHX daily using a value, using addition operation
         /// \[start_date_period, new_min_dhx_bonded, modified_old_min_dhx_bonded_using_ratio, operation_used, next_period_days\]
         ChangedMinBondedDHXDailyUsingNewRewardsMultiplier(Date, BalanceOf<T>, u32, u8, u32),
 
-        /// Storage of a new reward operation (1u8: addition, 2u8: multiplication) by an origin account.
+        /// Storage of a new reward operation (1u8: addition) by an origin account.
         /// \[operation, sender\]
         SetRewardsMultiplierOperationStored(u8, T::AccountId),
+
+        /// Storage of a new reward multiplier default period in days (i.e. 90 for 3 months) by an origin account.
+        /// \[days, sender\]
+        SetRewardsMultiplierDefaultPeriodDaysStored(u32, T::AccountId),
     }
 
     // Errors inform users that something went wrong should be descriptive and have helpful documentation
@@ -442,6 +448,20 @@ pub mod pallet {
         // This function must return the weight consumed by `on_initialize` and `on_finalize`.
         // TODO - update with the weight consumed
         fn on_initialize(_n: T::BlockNumber) -> Weight {
+            let block_one = 1u32;
+            let block_one_as_block;
+            if let Some(_block_one) = TryInto::<T::BlockNumber>::try_into(block_one).ok() {
+                block_one_as_block = _block_one;
+            } else {
+                log::error!("Unable to convert u32 to BlockNumber");
+                return 0;
+            }
+
+            // skip block #1 since timestamp is 0 in blocks before block #2
+            if _n == block_one_as_block.clone() {
+                return 0;
+            }
+
             // Anything that needs to be done at the start of the block.
             let timestamp: <T as pallet_timestamp::Config>::Moment = <pallet_timestamp::Pallet<T>>::get();
             log::info!("_n: {:?}", _n.clone());
@@ -458,6 +478,7 @@ pub mod pallet {
                 }
             }
             log::info!("requested_date_as_u64: {:?}", requested_date_as_u64.clone());
+            println!("requested_date_as_u64: {:?}", requested_date_as_u64.clone());
 
             // do not run when block number is 1, which is when timestamp is 0 because this
             // timestamp corresponds to 1970-01-01
@@ -476,14 +497,16 @@ pub mod pallet {
                 }
             }
             log::info!("start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
+            println!("start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
 
             // https://substrate.dev/rustdocs/latest/frame_support/storage/trait.StorageMap.html
             let contains_key = <RewardsAllowanceDHXForDateRemaining<T>>::contains_key(&start_of_requested_date_millis);
             log::info!("contains_key for date: {:?}, {:?}", start_of_requested_date_millis.clone(), contains_key.clone());
 
+            let mut rewards_allowance_dhx_daily: BalanceOf<T> = 5000u32.into(); // initialize;
+
             // add the start_of_requested_date to storage if it doesn't already exist
             if contains_key == false {
-                let rewards_allowance_dhx_daily;
                 if let Some(_rewards_allowance_dhx_daily) = <RewardsAllowanceDHXDaily<T>>::get() {
                     rewards_allowance_dhx_daily = _rewards_allowance_dhx_daily;
                 } else {
@@ -512,11 +535,25 @@ pub mod pallet {
                 log::info!("Unable to get rm_reset");
             }
 
-            let mut rm_default_ratio = 10u32;
-            if let Some(_rm_default_ratio) = <RewardsMultiplierDefaultRatio<T>>::get() {
-                rm_default_ratio = _rm_default_ratio;
+            let mut rm_default_change = 10u32;
+            if let Some(_rm_default_change) = <RewardsMultiplierDefaultChange<T>>::get() {
+                rm_default_change = _rm_default_change;
             } else {
-                log::info!("Unable to get rm_default_ratio");
+                log::info!("Unable to get rm_default_change");
+            }
+
+            let mut rm_current_change = 10u32;
+            if let Some(_rm_current_change) = <RewardsMultiplierCurrentChange<T>>::get() {
+                rm_current_change = _rm_current_change;
+            } else {
+                log::info!("Unable to get rm_current_change");
+            }
+
+            let mut rm_next_change = 10u32;
+            if let Some(_rm_next_change) = <RewardsMultiplierNextChange<T>>::get() {
+                rm_next_change = _rm_next_change;
+            } else {
+                log::info!("Unable to get rm_next_change");
             }
 
             let mut rm_default_period_days = 90u32;
@@ -526,13 +563,6 @@ pub mod pallet {
                 log::info!("Unable to get rm_default_period_days");
             }
 
-            let mut rm_next_ratio = 10u32;
-            if let Some(_rm_next_ratio) = <RewardsMultiplierNextRatio<T>>::get() {
-                rm_next_ratio = _rm_next_ratio;
-            } else {
-                log::info!("Unable to get rm_next_ratio");
-            }
-
             let mut rm_next_period_days = 90u32;
             if let Some(_rm_next_period_days) = <RewardsMultiplierNextPeriodDays<T>>::get() {
                 rm_next_period_days = _rm_next_period_days;
@@ -540,20 +570,20 @@ pub mod pallet {
                 log::info!("Unable to get rm_next_period_days");
             }
 
-            let mut rm_current_ratio = 10u32;
-            if let Some(_rm_current_ratio) = <RewardsMultiplierCurrentRatio<T>>::get() {
-                rm_current_ratio = _rm_current_ratio;
-            } else {
-                log::info!("Unable to get rm_current_ratio");
+            let mut min_bonded_dhx_daily_default: BalanceOf<T> = 10u32.into();
+            let mut min_bonded_dhx_daily_default_u128;
+            let _min_bonded_dhx_daily_default = Self::get_min_bonded_dhx_daily_default();
+            match _min_bonded_dhx_daily_default {
+                Err(_e) => {
+                    log::error!("Unable to retrieve any min. bonded DHX daily default as BalanceOf and u128");
+                    return 0;
+                },
+                Ok(ref x) => {
+                    min_bonded_dhx_daily_default = x.0;
+                    min_bonded_dhx_daily_default_u128 = x.1;
+                }
             }
-
-            let mut min_bonded_dhx_daily_default: BalanceOf<T> = 10u32.into(); // initialize
-            if let Some(_min_bonded_dhx_daily_default) = <MinBondedDHXDailyDefault<T>>::get() {
-                min_bonded_dhx_daily_default = _min_bonded_dhx_daily_default;
-            } else {
-                log::info!("Unable to get min_bonded_dhx_daily_default");
-            }
-            // println!("min_bonded_dhx_daily_default {:?}", min_bonded_dhx_daily_default);
+            println!("min_bonded_dhx_daily_default_u128: {:?}", min_bonded_dhx_daily_default_u128.clone());
 
             let mut min_mpower_daily_default: u128 = 5u128;
             if let Some(_min_mpower_daily_default) = <MinMPowerDailyDefault<T>>::get() {
@@ -577,18 +607,28 @@ pub mod pallet {
 
             log::info!("rm_paused: {:?}", &rm_paused);
             log::info!("rm_reset: {:?}", &rm_reset);
-            log::info!("rm_default_ratio: {:?}", &rm_default_ratio);
+            log::info!("rm_default_change: {:?}", &rm_default_change);
+            log::info!("rm_current_change: {:?}", &rm_current_change);
+            log::info!("rm_next_change: {:?}", &rm_next_change);
             log::info!("rm_default_period_days: {:?}", &rm_default_period_days);
-            log::info!("rm_next_ratio: {:?}", &rm_next_ratio);
             log::info!("rm_next_period_days: {:?}", &rm_next_period_days);
-            log::info!("rm_current_ratio: {:?}", &rm_current_ratio);
             log::info!("rm_current_period_days_remaining: {:?}", &rm_current_period_days_remaining);
 
-            // pause the process of automatically changing to the next period ratio and next period day
+            println!("rm_paused: {:?}", &rm_paused);
+            println!("rm_reset: {:?}", &rm_reset);
+            println!("rm_default_change: {:?}", &rm_default_change);
+            println!("rm_current_change: {:?}", &rm_current_change);
+            println!("rm_next_change: {:?}", &rm_next_change);
+            println!("rm_default_period_days: {:?}", &rm_default_period_days);
+            println!("rm_next_period_days: {:?}", &rm_next_period_days);
+            println!("rm_current_period_days_remaining: {:?}", &rm_current_period_days_remaining);
+
+            // pause the process of automatically changing to the next period change and next period day
             // until unpaused again by governance
             if rm_paused != true {
                 if rm_reset == true {
-                    <RewardsMultiplierNextRatio<T>>::put(rm_default_ratio.clone());
+                    <RewardsMultiplierCurrentChange<T>>::put(rm_default_change.clone());
+                    <RewardsMultiplierNextChange<T>>::put(rm_default_change.clone());
                     <RewardsMultiplierNextPeriodDays<T>>::put(rm_default_period_days.clone());
                     <RewardsMultiplierReset<T>>::put(false);
                     <MinBondedDHXDaily<T>>::put(min_bonded_dhx_daily_default.clone());
@@ -630,7 +670,7 @@ pub mod pallet {
                     if rm_current_period_days_remaining.1 != start_of_requested_date_millis.clone() {
                         // if there are still days remaining in the countdown
                         if rm_current_period_days_remaining.3 > 0u32 {
-                            // println!("[reducing_multiplier_days] block: {:#?}, date_start: {:#?} remain_days: {:#?}", _n, rm_current_period_days_remaining.0, rm_current_period_days_remaining.3);
+                            println!("[reducing_multiplier_days] block: {:#?}, date_start: {:#?} remain_days: {:#?}", _n, rm_current_period_days_remaining.0, rm_current_period_days_remaining.3);
                             let old_rm_current_period_days_remaining = rm_current_period_days_remaining.3.clone();
 
                             // Subtract, handling overflow
@@ -659,9 +699,9 @@ pub mod pallet {
                             log::info!("Reduced RewardsMultiplierCurrentPeriodDaysRemaining {:?} {:?}", start_of_requested_date_millis.clone(), new_rm_current_period_days_remaining.clone());
                         } else {
                             // if no more days remaining
-                            // println!("[reducing_multiplier_days] no more remaining days");
+                            println!("[reducing_multiplier_days] no more remaining days");
 
-                            // multiply the next ratio by the current min bonded dhx daily to determine the
+                            // run an operation with the the next change and the current min bonded dhx daily to determine the
                             // new min. bonded dhx daily for the next period
 
                             let mut min_bonded_dhx_daily: BalanceOf<T> = 10u32.into();
@@ -677,6 +717,7 @@ pub mod pallet {
                                     min_bonded_dhx_daily_u128 = x.1;
                                 }
                             }
+                            println!("min_bonded_dhx_daily_u128: {:?}", min_bonded_dhx_daily_u128.clone());
 
                             let rewards_multipler_operation;
                             if let Some(_rewards_multipler_operation) = <RewardsMultiplierOperation<T>>::get() {
@@ -686,40 +727,54 @@ pub mod pallet {
                                 return 0;
                             }
 
-                            let mut new_min_bonded_dhx_daily_as_fixed128 = FixedU128::from_num(10);
+                            let mut new_min_bonded_dhx_daily_u128 = 0u128; // initialize
+
+                            println!("rewards_multipler_operation: {:?}", rewards_multipler_operation.clone());
+
+                            // prepare for 'add' operation
+
+                            let mut rm_next_change_u128_short = 0u128; // initialize
+                            if let Some(_rm_next_change_u128_short) = TryInto::<u128>::try_into(rm_next_change.clone()).ok() {
+                                rm_next_change_u128_short = _rm_next_change_u128_short;
+                            } else {
+                                log::error!("Unable to convert u32 to u128");
+                                return 0;
+                            }
+
+                            let ONE = 1000000000000000000u128;
+                            let mut rm_next_change_as_fixedu128 = FixedU128::from_num(0);;
+                            let _rm_next_change_as_fixedu128 =
+                                U64F64::from_num(rm_next_change_u128_short.clone()).checked_mul(U64F64::from_num(ONE));
+                            match _rm_next_change_as_fixedu128 {
+                                None => {
+                                    log::error!("Unable to mult rm_next_change by ONE due to StorageOverflow");
+                                    return 0;
+                                },
+                                Some(x) => {
+                                    rm_next_change_as_fixedu128 = x;
+                                }
+                            }
+                            println!("rm_next_change_as_fixedu128: {:?}", rm_next_change_as_fixedu128.clone());
+                            // round down the fixed point number to the nearest integer of type u128
+                            let rm_next_change_u128: u128 = rm_next_change_as_fixedu128.floor().to_num::<u128>();
+                            println!("rm_next_change_u128: {:?}", rm_next_change_as_fixedu128.clone());
 
                             // case of addition
                             if rewards_multipler_operation == 1u8 {
-                                // Addition, handling overflow
+                                // To 'add' rm_next_change u32 to min_bonded_dhx_daily_u128 we first need to convert
+                                // the say 10 u32 value to u128, then multiply it by 1000000000000000000 so
+                                // has same 18 decimal places representation, and only then 'add' it to
+                                // min_bonded_dhx_daily_u128
 
-                                // use fixed point numbers incase result is a fraction
-                                let _new_min_bonded_dhx_daily_as_fixed128 =
-                                    U64F64::from_num(min_bonded_dhx_daily_u128.clone())
-                                        .checked_add(U64F64::from_num(rm_next_ratio.clone()));
-                                match _new_min_bonded_dhx_daily_as_fixed128 {
+                                let _new_min_bonded_dhx_daily_u128 =
+                                    (rm_next_change_u128).checked_add(min_bonded_dhx_daily_u128.clone());
+                                match _new_min_bonded_dhx_daily_u128 {
                                     None => {
-                                        log::error!("Unable to add min_bonded_dhx_daily_u128 with rm_next_ratio due to StorageOverflow");
+                                        log::error!("Unable to add min_bonded_dhx_daily_u128 with rm_next_change_u128 due to StorageOverflow");
                                         return 0;
                                     },
                                     Some(x) => {
-                                        new_min_bonded_dhx_daily_as_fixed128 = x;
-                                    }
-                                }
-                            // case of multiplication
-                            } else if rewards_multipler_operation == 2u8 {
-                                // Multiply, handling overflow
-
-                                // use fixed point numbers incase result is a fraction
-                                let _new_min_bonded_dhx_daily_as_fixed128 =
-                                    U64F64::from_num(min_bonded_dhx_daily_u128.clone())
-                                        .checked_mul(U64F64::from_num(rm_next_ratio.clone()));
-                                match _new_min_bonded_dhx_daily_as_fixed128 {
-                                    None => {
-                                        log::error!("Unable to multiply min_bonded_dhx_daily_u128 with rm_next_ratio due to StorageOverflow");
-                                        return 0;
-                                    },
-                                    Some(x) => {
-                                        new_min_bonded_dhx_daily_as_fixed128 = x;
+                                        new_min_bonded_dhx_daily_u128 = x;
                                     }
                                 }
                             } else {
@@ -727,11 +782,10 @@ pub mod pallet {
                                 return 0;
                             }
 
-                            // round down the fixed point number to the nearest integer of type u128
-                            let new_min_bonded_dhx_daily_as_u128: u128 = new_min_bonded_dhx_daily_as_fixed128.floor().to_num::<u128>();
+                            println!("new_min_bonded_dhx_daily_u128 {:?}", new_min_bonded_dhx_daily_u128);
 
                             let new_min_bonded_dhx_daily;
-                            let _new_min_bonded_dhx_daily = Self::convert_u128_to_balance(new_min_bonded_dhx_daily_as_u128.clone());
+                            let _new_min_bonded_dhx_daily = Self::convert_u128_to_balance(new_min_bonded_dhx_daily_u128.clone());
                             match _new_min_bonded_dhx_daily {
                                 Err(_e) => {
                                     log::error!("Unable to convert u128 to balance for new_min_bonded_dhx_daily");
@@ -742,9 +796,11 @@ pub mod pallet {
                                 }
                             }
                             log::info!("new_min_bonded_dhx_daily: {:?}", new_min_bonded_dhx_daily.clone());
+                            println!("new_min_bonded_dhx_daily: {:?}", new_min_bonded_dhx_daily.clone());
 
                             <MinBondedDHXDaily<T>>::put(new_min_bonded_dhx_daily.clone());
-                            log::info!("New MinBondedDHXDaily {:?} {:?}", start_of_requested_date_millis.clone(), new_min_bonded_dhx_daily_as_u128.clone());
+                            log::info!("New MinBondedDHXDaily {:?} {:?}", start_of_requested_date_millis.clone(), new_min_bonded_dhx_daily_u128.clone());
+                            println!("New MinBondedDHXDaily {:?} {:?}", start_of_requested_date_millis.clone(), new_min_bonded_dhx_daily_u128.clone());
 
                             // FIXME - can we automatically change the next period days value to (~90 days depending on days in included months 28, 29, 30, or 31)
                             // depending on the date? and do this from genesis too?
@@ -752,14 +808,16 @@ pub mod pallet {
                             Self::deposit_event(Event::ChangedMinBondedDHXDailyUsingNewRewardsMultiplier(
                                 start_of_requested_date_millis.clone(),
                                 new_min_bonded_dhx_daily.clone(),
-                                rm_next_ratio.clone(),
+                                rm_next_change.clone(),
                                 rewards_multipler_operation.clone(),
                                 rm_next_period_days.clone(),
                             ));
 
-                            // Set the current ratio (for this next period) to the value that was set as the
-                            // next ratio (perhaps by governance)
-                            <RewardsMultiplierCurrentRatio<T>>::put(rm_next_ratio.clone());
+                            // Set the current change (for this next period) to the value that was set as the
+                            // next change (perhaps by governance)
+                            <RewardsMultiplierCurrentChange<T>>::put(rm_next_change.clone());
+
+                            <RewardsMultiplierNextChange<T>>::put(rm_next_change.clone());
 
                             // Set the current period in days (for this next period) to the value that was set as the
                             // next period days (perhaps by governance)
@@ -777,6 +835,20 @@ pub mod pallet {
                                 ),
                             );
                             log::info!("Restarting RewardsMultiplierCurrentPeriodDaysRemaining {:?} {:?}", start_of_requested_date_millis.clone(), rm_next_period_days.clone());
+
+                            let new_min_bonded_dhx_daily;
+                            let _new_min_bonded_dhx_daily = Self::convert_u128_to_balance(new_min_bonded_dhx_daily_u128.clone());
+                            match _new_min_bonded_dhx_daily {
+                                Err(_e) => {
+                                    log::error!("Unable to convert u128 to balance for new_min_bonded_dhx_daily");
+                                    return 0;
+                                },
+                                Ok(ref x) => {
+                                    new_min_bonded_dhx_daily = x;
+                                }
+                            }
+                            log::info!("new_min_bonded_dhx_daily: {:?}", new_min_bonded_dhx_daily.clone());
+                            println!("new_min_bonded_dhx_daily: {:?}", new_min_bonded_dhx_daily.clone());
                         }
                     }
                 }
@@ -826,7 +898,7 @@ pub mod pallet {
                 let mut locks_first_amount_as_u128 = default_bonded_amount_u128.clone();
                 let locked_vec = <pallet_balances::Pallet<T>>::locks(miner.clone()).into_inner();
                 if locked_vec.len() != 0 {
-                    // println!("locked_vec: {:?}", locked_vec);
+                    println!("locked_vec: {:?}", locked_vec);
                     let locks_first_amount: <T as pallet_balances::Config>::Balance =
                         <pallet_balances::Pallet<T>>::locks(miner.clone()).into_inner().clone()[0].amount;
 
@@ -979,7 +1051,7 @@ pub mod pallet {
                     is_bonding_min_dhx == true &&
                     has_min_mpower_daily == true
                 {
-                    // println!("[reducing_days] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", _n, miner_count, start_of_requested_date_millis, cooling_off_period_days_remaining);
+                    println!("[reducing_days] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", _n, miner_count, start_of_requested_date_millis, cooling_off_period_days_remaining);
                     let old_cooling_off_period_days_remaining = cooling_off_period_days_remaining.1.clone();
 
                     // we cannot do this because of error: cannot use the `?` operator in a method that returns `()`
@@ -1024,7 +1096,7 @@ pub mod pallet {
                     is_bonding_min_dhx == true &&
                     has_min_mpower_daily == true
                 {
-                    // println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", _n, miner_count, start_of_requested_date_millis, cooling_off_period_days_remaining);
+                    println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", _n, miner_count, start_of_requested_date_millis, cooling_off_period_days_remaining);
 
                     // we need to add that they are eligible for rewards on the current date too
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
@@ -1074,7 +1146,7 @@ pub mod pallet {
                         }
                     }
                     log::info!("daily_reward_for_miner_as_u128: {:?}", daily_reward_for_miner_as_u128.clone());
-                    // println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} daily_reward_for_miner_as_u128: {:#?}", _n, miner_count, start_of_requested_date_millis, daily_reward_for_miner_as_u128);
+                    println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} daily_reward_for_miner_as_u128: {:#?}", _n, miner_count, start_of_requested_date_millis, daily_reward_for_miner_as_u128);
 
                     // if we have a rewards_aggregated_dhx_daily of 25.133 k DHX, then after the above manipulation
                     // since we're dealing with a mixture of u128 and BalanceOf<T> so the values are more readable in the UI.
@@ -1108,7 +1180,6 @@ pub mod pallet {
                         log::error!("Unable to retrieve balance for rewards_aggregated_dhx_daily");
                     }
 
-
                     let rewards_aggregated_dhx_daily_as_u128;
                     let _rewards_aggregated_dhx_daily_as_u128 = Self::convert_balance_to_u128(rewards_aggregated_dhx_daily.clone());
                     match _rewards_aggregated_dhx_daily_as_u128.clone() {
@@ -1136,7 +1207,7 @@ pub mod pallet {
                     }
 
                     log::info!("new_rewards_aggregated_dhx_daily_as_u128: {:?}", new_rewards_aggregated_dhx_daily_as_u128.clone());
-                    // println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} new_rewards_aggregated_dhx_daily_as_u128: {:#?}", _n, miner_count, start_of_requested_date_millis, new_rewards_aggregated_dhx_daily_as_u128);
+                    println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} new_rewards_aggregated_dhx_daily_as_u128: {:#?}", _n, miner_count, start_of_requested_date_millis, new_rewards_aggregated_dhx_daily_as_u128);
 
                     let new_rewards_aggregated_dhx_daily;
                     let _new_rewards_aggregated_dhx_daily = Self::convert_u128_to_balance(new_rewards_aggregated_dhx_daily_as_u128.clone());
@@ -1167,6 +1238,15 @@ pub mod pallet {
                         daily_reward_for_miner.clone(),
                     );
                     log::info!("Added RewardsAccumulatedDHXForMinerForDate for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner.clone(), daily_reward_for_miner.clone());
+
+                    println!("date: {:?}, miner_count: {:?}, reg_dhx_miners.len: {:?}", start_of_requested_date_millis.clone(), miner_count.clone(), reg_dhx_miners.len());
+                    // if last miner being iterated then reset for next day
+                    if reg_dhx_miners.len() == miner_count {
+                        println!("date: {:?}, rewards_allowance_dhx_daily: {:?}", start_of_requested_date_millis.clone(), rewards_allowance_dhx_daily.clone());
+
+                        // reset to latest set by governance
+                        <RewardsAllowanceDHXForDateRemaining<T>>::insert(start_of_requested_date_millis.clone(), rewards_allowance_dhx_daily.clone());
+                    };
 
                 // if they stop bonding the min dhx or stop having min. mPower, and
                 // if cooling_off_period_days_remaining.1 is Some(0),
@@ -1235,7 +1315,7 @@ pub mod pallet {
                         ),
                     );
 
-                    // println!("[reduce] block: {:#?}, miner: {:#?}, date_start: {:#?} new_cooling_off_period_days_remaining: {:#?}", _n, miner_count, start_of_requested_date_millis, new_cooling_off_period_days_remaining);
+                    println!("[reduce] block: {:#?}, miner: {:#?}, date_start: {:#?} new_cooling_off_period_days_remaining: {:#?}", _n, miner_count, start_of_requested_date_millis, new_cooling_off_period_days_remaining);
                     log::info!("Unbonded miner. Reducing cooling down period dates remaining {:?} {:?}", miner.clone(), new_cooling_off_period_days_remaining.clone());
 
                 // if cooling_off_period_days_remaining.0 is not the start of the current date
@@ -1265,6 +1345,7 @@ pub mod pallet {
             }
 
             log::info!("Finished initial loop of registered miners");
+            println!("Finished initial loop of registered miners");
 
             // TODO - consider the miner's mPower that we have fetched. it should have been added earlier above
             // to the aggregated (all miners for that day) and accumulated (specific miner for a day) rewards
@@ -1344,7 +1425,7 @@ pub mod pallet {
             // e.g. 2: if miner rewards are 2000 & 2000 DHX respectively, this is less than 5000 DHX daily allowance
             // so we'd just use a multiplier of 1, so they'd receive 2000 & 2000 DHX respectively.
             // https://docs.rs/fixed/0.5.4/fixed/struct.FixedU128.html
-            let mut distribution_multiplier_for_day_fixed128 = FixedU128::from_num(1);
+            let mut distribution_multiplier_for_day_fixed128 = FixedU128::from_num(1); // initialize
 
             if rewards_aggregated_dhx_daily_as_u128.clone() > rewards_allowance_dhx_daily_u128.clone() {
                 // Divide, handling overflow
@@ -1859,6 +1940,22 @@ pub mod pallet {
             // Return a successful DispatchResultWithPostInfo
             Ok(())
         }
+
+        #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
+        pub fn set_rewards_multiplier_default_period_days(origin: OriginFor<T>, days: u32) -> DispatchResult {
+            let _who = ensure_signed(origin)?;
+            <RewardsMultiplierDefaultPeriodDays<T>>::put(&days.clone());
+            log::info!("set_rewards_multiplier_default_period_days - days: {:?}", &days);
+
+            // Emit an event.
+            Self::deposit_event(Event::SetRewardsMultiplierDefaultPeriodDaysStored(
+                days.clone(),
+                _who.clone()
+            ));
+
+            // Return a successful DispatchResultWithPostInfo
+            Ok(())
+        }
     }
 
     // Private functions
@@ -1984,28 +2081,69 @@ pub mod pallet {
 
         fn get_min_bonded_dhx_daily() -> Result<(BalanceOf<T>, u128), DispatchError> {
             let mut min_bonded_dhx_daily: BalanceOf<T> = 10u32.into(); // initialize
+            let mut min_bonded_dhx_daily_u128: u128 = TEN;
             if let Some(_min_bonded_dhx_daily) = <MinBondedDHXDaily<T>>::get() {
                 min_bonded_dhx_daily = _min_bonded_dhx_daily;
-            } else {
-                // TODO - if this fails we could try and fetch the min_bonded_dhx_daily_default instead as a fallback
-                log::error!("Unable to retrieve any min. bonded DHX daily");
-                return Err(DispatchError::Other("Unable to retrieve any min. bonded DHX daily"));
-            }
 
-            let min_bonded_dhx_daily_u128;
-            let _min_bonded_dhx_daily_u128 = Self::convert_balance_to_u128(min_bonded_dhx_daily.clone());
-            match _min_bonded_dhx_daily_u128.clone() {
-                Err(_e) => {
-                    log::error!("Unable to convert balance to u128 for min_bonded_dhx_daily_u128");
-                    return Err(DispatchError::Other("Unable to convert balance to u128 for min_bonded_dhx_daily_u128"));
-                },
-                Ok(x) => {
-                    min_bonded_dhx_daily_u128 = x;
+                let _min_bonded_dhx_daily_u128 = Self::convert_balance_to_u128(min_bonded_dhx_daily.clone());
+                match _min_bonded_dhx_daily_u128.clone() {
+                    Err(_e) => {
+                        log::error!("Unable to convert balance to u128 for min_bonded_dhx_daily_u128");
+                        return Err(DispatchError::Other("Unable to convert balance to u128 for min_bonded_dhx_daily_u128"));
+                    },
+                    Ok(x) => {
+                        min_bonded_dhx_daily_u128 = x;
+                    }
                 }
+            } else {
+                // fetch the min_bonded_dhx_daily_default instead as a fallback
+                log::error!("Unable to retrieve any min. bonded DHX daily");
+
+                let mut min_bonded_dhx_daily_default: BalanceOf<T> = 10u32.into();
+
+                let _min_bonded_dhx_daily_default = Self::get_min_bonded_dhx_daily_default();
+                match _min_bonded_dhx_daily_default {
+                    Err(_e) => {
+                        log::error!("Unable to retrieve any min. bonded DHX daily default as BalanceOf and u128");
+                    },
+                    Ok(ref x) => {
+                        // Set the min. bonded DHX daily to the default value as fallback
+                        min_bonded_dhx_daily = x.0;
+                        min_bonded_dhx_daily_u128 = x.1;
+                    }
+                }
+                println!("Reset to the min. bonded DHX daily default");
             }
             // Return a successful DispatchResultWithPostInfo
             Ok(
                 (min_bonded_dhx_daily.clone(), min_bonded_dhx_daily_u128.clone())
+            )
+        }
+
+        fn get_min_bonded_dhx_daily_default() -> Result<(BalanceOf<T>, u128), DispatchError> {
+            let mut min_bonded_dhx_daily_default: BalanceOf<T> = 10u32.into(); // initialize
+            if let Some(_min_bonded_dhx_daily_default) = <MinBondedDHXDailyDefault<T>>::get() {
+                min_bonded_dhx_daily_default = _min_bonded_dhx_daily_default;
+            } else {
+                // TODO - if this fails we could try and fetch the min_bonded_dhx_daily_default instead as a fallback
+                log::error!("Unable to retrieve any min. bonded DHX daily default");
+                // return Err(DispatchError::Other("Unable to retrieve any min. bonded DHX daily default"));
+            }
+
+            let min_bonded_dhx_daily_default_u128;
+            let _min_bonded_dhx_daily_default_u128 = Self::convert_balance_to_u128(min_bonded_dhx_daily_default.clone());
+            match _min_bonded_dhx_daily_default_u128.clone() {
+                Err(_e) => {
+                    log::error!("Unable to convert balance to u128 for min_bonded_dhx_daily_default_u128");
+                    return Err(DispatchError::Other("Unable to convert balance to u128 for min_bonded_dhx_daily_default_u128"));
+                },
+                Ok(x) => {
+                    min_bonded_dhx_daily_default_u128 = x;
+                }
+            }
+            // Return a successful DispatchResultWithPostInfo
+            Ok(
+                (min_bonded_dhx_daily_default.clone(), min_bonded_dhx_daily_default_u128.clone())
             )
         }
     }
