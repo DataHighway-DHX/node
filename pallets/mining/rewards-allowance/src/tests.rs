@@ -302,6 +302,27 @@ fn setup_preimage() {
     });
 }
 
+#[test]
+fn it_sets_min_mpower_daily() {
+    new_test_ext().execute_with(|| {
+        assert_ok!(MiningRewardsAllowanceTestModule::set_min_mpower_daily(
+            Origin::signed(1),
+            5u128,
+        ));
+    });
+}
+
+#[test]
+#[ignore]
+fn it_allows_us_to_retrieve_genesis_value_for_min_mpower_daily() {
+    new_test_ext().execute_with(|| {
+        // FIXME - why doesn't it set the values we added in the chain_spec.rs at genesis
+        // https://matrix.to/#/!HzySYSaIhtyWrwiwEV:matrix.org/$163424903366086IiiUH:matrix.org?via=matrix.parity.io&via=corepaper.org&via=matrix.org
+        MiningRewardsAllowanceTestModule::on_initialize(1);
+        assert_eq!(MiningRewardsAllowanceTestModule::min_mpower_daily(), Some(5u128));
+    });
+}
+
 fn distribute_rewards(amount_bonded_each_miner: u128) {
     assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(1)));
     assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(2)));

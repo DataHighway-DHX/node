@@ -33,6 +33,7 @@ pub mod pallet {
     use codec::{
         Decode,
         Encode,
+        // MaxEncodedLen,
     };
     use frame_support::{dispatch::DispatchResult, pallet_prelude::*,
         traits::{
@@ -89,6 +90,8 @@ pub mod pallet {
     #[pallet::pallet]
     #[pallet::generate_store(pub(super) trait Store)]
     pub struct Pallet<T>(_);
+    // #[pallet::generate_storage_info]
+    // pub struct Pallet<T>(PhantomData<T>);
 
     // The pallet's runtime storage items.
     // https://substrate.dev/docs/en/knowledgebase/runtime/storage
@@ -207,6 +210,14 @@ pub mod pallet {
     pub(super) type MinBondedDHXDailyDefault<T: Config> = StorageValue<_, BalanceOf<T>>;
 
     #[pallet::storage]
+    #[pallet::getter(fn min_mpower_daily)]
+    pub(super) type MinMPowerDaily<T: Config> = StorageValue<_, u128>;
+
+    #[pallet::storage]
+    #[pallet::getter(fn min_mpower_daily_default)]
+    pub(super) type MinMPowerDailyDefault<T: Config> = StorageValue<_, u128>;
+
+    #[pallet::storage]
     #[pallet::getter(fn cooling_off_period_days)]
     pub(super) type CoolingOffPeriodDays<T: Config> = StorageValue<_, u32>;
 
@@ -220,9 +231,12 @@ pub mod pallet {
             // current date for a miner (i.e. only reduce the days remaining once per day per miner)
             Date,
             u32, // days remaining
-            // 0: unbonded (i.e. never bonded, or finished cool-down period and no longer bonding)
-            // 1: bonded/bonding (i.e. waiting in the cool-down period before start getting rewards or eligible for rewards)
+            // 0:
+            //   unbonded (i.e. never bonded, insufficient bonded, or finished cool-down period and no longer bonding) and
+            //   insufficient mPower (i.e. less than min. mPower)
+            // 1: bonded/bonding/mPower (i.e. waiting in the cool-down period before start getting rewards or eligible for rewards)
             // 2: unbonding (i.e. if they are bonding less than the threshold whilst getting rewards,
+            //   or no longer have the min. mPower, then
             //   this unbonding starts and they must wait until it finishes, which is when this value
             //   would be set to 0u32, before bonding and then waiting for the cool-down period all over again)
             u32,
@@ -250,6 +264,8 @@ pub mod pallet {
         pub registered_dhx_miners: Vec<T::AccountId>,
         pub min_bonded_dhx_daily: BalanceOf<T>,
         pub min_bonded_dhx_daily_default: BalanceOf<T>,
+        pub min_mpower_daily: u128,
+        pub min_mpower_daily_default: u128,
         pub cooling_off_period_days: u32,
         pub cooling_off_period_days_remaining: Vec<(T::AccountId, (Date, u32, u32))>,
     }
@@ -284,6 +300,8 @@ pub mod pallet {
                 ],
                 min_bonded_dhx_daily: Default::default(),
                 min_bonded_dhx_daily_default: Default::default(),
+                min_mpower_daily: 5u128,
+                min_mpower_daily_default: 5u128,
                 cooling_off_period_days: Default::default(),
                 // Note: this doesn't seem to work, even if it's just `vec![Default::default()]` it doesn't use
                 // the defaults in chain_spec.rs, so we set defaults later with `let mut cooling_off_period_days_remaining`
@@ -333,6 +351,8 @@ pub mod pallet {
             }
             <MinBondedDHXDaily<T>>::put(&self.min_bonded_dhx_daily);
             <MinBondedDHXDailyDefault<T>>::put(&self.min_bonded_dhx_daily_default);
+            <MinMPowerDaily<T>>::put(&self.min_mpower_daily);
+            <MinMPowerDailyDefault<T>>::put(&self.min_mpower_daily_default);
             <CoolingOffPeriodDays<T>>::put(&self.cooling_off_period_days);
             for (a, (b, c, d)) in &self.cooling_off_period_days_remaining {
                 <CoolingOffPeriodDaysRemaining<T>>::insert(a, (b, c, d));
@@ -355,10 +375,15 @@ pub mod pallet {
         /// \[sender]
         SetRegisteredDHXMiner(T::AccountId),
 
-        /// Storage of the default minimum DHX that must be bonded by each registered DHX miner each day
+        /// Storage of the minimum DHX that must be bonded by each registered DHX miner each day
         /// to be eligible for rewards
         /// \[amount_dhx, sender\]
         SetMinBondedDHXDailyStored(BalanceOf<T>, T::AccountId),
+
+        /// Storage of the minimum mPower that must be held by each registered DHX miner each day
+        /// to be eligible for rewards
+        /// \[amount_mpower, sender\]
+        SetMinMPowerDailyStored(u128, T::AccountId),
 
         /// Storage of the default cooling off period in days
         /// \[cooling_off_period_days\]
@@ -528,6 +553,15 @@ pub mod pallet {
             } else {
                 log::info!("Unable to get min_bonded_dhx_daily_default");
             }
+            // println!("min_bonded_dhx_daily_default {:?}", min_bonded_dhx_daily_default);
+
+            let mut min_mpower_daily_default: u128 = 5u128;
+            if let Some(_min_mpower_daily_default) = <MinMPowerDailyDefault<T>>::get() {
+                min_mpower_daily_default = _min_mpower_daily_default;
+            } else {
+                log::info!("Unable to get min_mpower_daily_default");
+            }
+            // println!("min_mpower_daily_default {:?}", min_mpower_daily_default);
 
             let mut rm_current_period_days_remaining = (
                 0.into(),
@@ -558,6 +592,7 @@ pub mod pallet {
                     <RewardsMultiplierNextPeriodDays<T>>::put(rm_default_period_days.clone());
                     <RewardsMultiplierReset<T>>::put(false);
                     <MinBondedDHXDaily<T>>::put(min_bonded_dhx_daily_default.clone());
+                    <MinMPowerDaily<T>>::put(min_mpower_daily_default.clone());
                 }
 
                 let block_two = 2u32;
@@ -862,6 +897,33 @@ pub mod pallet {
                 }
                 log::info!("is_bonding_min_dhx: {:?} {:?}", is_bonding_min_dhx.clone(), miner.clone());
 
+                // TODO - move this into off-chain workers function
+                let mut min_mpower_daily_u128: u128 = 5u128;
+                if let Some(_min_mpower_daily_u128) = <MinMPowerDaily<T>>::get() {
+                    min_mpower_daily_u128 = _min_mpower_daily_u128;
+                } else {
+                    log::error!("Unable to retrieve min. mPower daily as u128");
+                }
+                // println!("min_mpower_daily_u128 {:#?}", min_mpower_daily_u128);
+
+                // TODO - move this into off-chain workers function
+                // TODO - fetch the mPower of the miner currently being iterated to check if it's greater than the min.
+                // mPower that is required
+                let mpower_miner_u128: u128 = 5u128;
+                let mut has_min_mpower_daily = false;
+                if mpower_miner_u128 >= min_mpower_daily_u128 {
+                    has_min_mpower_daily = true;
+                }
+                log::info!("has_min_mpower_daily: {:?} {:?}", has_min_mpower_daily.clone(), miner.clone());
+                // println!("has_min_mpower_daily {:#?}", has_min_mpower_daily);
+
+                // TODO - after fetching their mPower from the off-chain workers function where we iterate through
+                // the registered DHX miners too, we need to incorporate it
+                // into the recording the aggregated and accumulated rewards and the distribution of those rewards that
+                // are done in on_initialize.
+                // See Dhx-pop-mining-automatic.md in https://mxc.atlassian.net/browse/MMD-717 that explains off-chain worker
+                // aspects
+
                 let cooling_off_period_days;
                 if let Some(_cooling_off_period_days) = <CoolingOffPeriodDays<T>>::get() {
                     cooling_off_period_days = _cooling_off_period_days;
@@ -887,14 +949,15 @@ pub mod pallet {
                     log::info!("Unable to retrieve cooling off period days remaining for given miner, using default {:?}", miner.clone());
                 }
                 log::info!("cooling_off_period_days_remaining {:?} {:?} {:?}", start_of_requested_date_millis.clone(), cooling_off_period_days_remaining, miner.clone());
-                // if cooling_off_period_days_remaining.2 is 0u32, it means we haven't recognised they that are bonding yet (unbonded),
+                // if cooling_off_period_days_remaining.2 is 0u32, it means we haven't recognised they that have the min. bonded yet (or unbonded),
                 // they aren't currently bonding, they haven't started cooling off to start bonding,
                 // or have already finished cooling down after bonding.
-                // so if we detect they are now bonding above the min. then we should start at max. remaining days
+                // so if we detect they are now bonding above the min. or have above the min. mPower then we should start at max. remaining days
                 // before starting to decrement on subsequent blocks
                 if
                     cooling_off_period_days_remaining.2 == 0u32 &&
-                    is_bonding_min_dhx == true
+                    is_bonding_min_dhx == true &&
+                    has_min_mpower_daily == true
                 {
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
                         miner.clone(),
@@ -906,14 +969,15 @@ pub mod pallet {
                     );
                     log::info!("Added CoolingOffPeriodDaysRemaining for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner.clone(), cooling_off_period_days.clone());
                 // if cooling_off_period_days_remaining.0 is not the start of the current date
-                //   (since if they just started bonding and we just set days remaining to 7, or we already decremented
+                //   (since if they just started with min. bonded dhx and min. mPower and we just set days remaining to 7, or we already decremented
                 //   a miner's days remaining for the current date, then we want to wait until the next day until we
                 //   decrement another day).
                 // if cooling_off_period_days_remaining.1 is Some(above 0), then decrement, but not eligible yet for rewards.
                 } else if
                     cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
                     cooling_off_period_days_remaining.1 > 0u32 &&
-                    is_bonding_min_dhx == true
+                    is_bonding_min_dhx == true &&
+                    has_min_mpower_daily == true
                 {
                     // println!("[reducing_days] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", _n, miner_count, start_of_requested_date_millis, cooling_off_period_days_remaining);
                     let old_cooling_off_period_days_remaining = cooling_off_period_days_remaining.1.clone();
@@ -957,7 +1021,8 @@ pub mod pallet {
                     cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
                     cooling_off_period_days_remaining.1 == 0u32 &&
                     cooling_off_period_days_remaining.2 == 1u32 &&
-                    is_bonding_min_dhx == true
+                    is_bonding_min_dhx == true &&
+                    has_min_mpower_daily == true
                 {
                     // println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", _n, miner_count, start_of_requested_date_millis, cooling_off_period_days_remaining);
 
@@ -981,6 +1046,12 @@ pub mod pallet {
                     ) == true {
                         continue;
                     }
+
+                    // TODO - calculate the daily reward for the miner in DHX based on their mPower
+                    // and add that to the new_rewards_aggregated_dhx_daily_as_u128 (which currently only
+                    // includes the proportion of their reward based on their bonded DHX tokens) of all
+                    // miner's for that day, and also add that to the accumulated rewards for that specific
+                    // miner on that day.
 
                     // calculate the daily reward for the miner in DHX based on their bonded DHX.
                     // it should be a proportion taking other eligible miner's who are eligible for
@@ -1097,15 +1168,15 @@ pub mod pallet {
                     );
                     log::info!("Added RewardsAccumulatedDHXForMinerForDate for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner.clone(), daily_reward_for_miner.clone());
 
-                // if they stop bonding the min dhx, and
+                // if they stop bonding the min dhx or stop having min. mPower, and
                 // if cooling_off_period_days_remaining.1 is Some(0),
                 // and if cooling_off_period_days_remaining.2 is 1 (where they had just been bonding and getting rewards)
-                // so since we detected they are no longer bonding above the min. then we should start at max. remaining days
-                // before starting to decrement on subsequent blocks
+                // so since we detected they are no longer bonding above the min. or have less than min. mPower
+                // then we should start at max. remaining days before starting to decrement on subsequent blocks
                 } else if
                     cooling_off_period_days_remaining.1 == 0u32 &&
                     cooling_off_period_days_remaining.2 == 1u32 &&
-                    is_bonding_min_dhx == false
+                    (is_bonding_min_dhx == false || has_min_mpower_daily == false)
                 {
                     // Write the new value to storage
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
@@ -1120,13 +1191,15 @@ pub mod pallet {
                     log::info!("Unbonding detected for miner. Starting cooling down period {:?} {:?}", miner.clone(), cooling_off_period_days.clone());
 
                 // if cooling_off_period_days_remaining.0 is not the start of the current date
-                //   (since if they just started un-bonding and we just set days remaining to 7, or we already decremented
+                //   (since if they just started un-bonding or just had less than min. mPower
+                //   and we just set days remaining to 7, or we already decremented
                 //   a miner's days remaining for the current date, then we want to wait until the next day until we
                 //   decrement another day).
                 // if cooling_off_period_days_remaining.1 is Some(above 0), then decrement,
                 // but not yet completely unbonded so cannot withdraw yet
-                // note: we don't care if they stop bonding below the min. dhx during the cooling off period,
-                // as the user needs to learn that they should always been bonding the min. to
+                // note: we don't care if they stop bonding below the min. dhx or have less than min. mPower
+                // during the cooling off period,
+                // as the user needs to learn that they should always been bonding the min. and have min. mPower to
                 // maintain rewards, otherwise they have to wait for entire cooling down period and
                 // then the cooling off period again.
                 //
@@ -1158,7 +1231,7 @@ pub mod pallet {
                         (
                             start_of_requested_date_millis.clone(),
                             new_cooling_off_period_days_remaining.clone(),
-                            2u32, // they have unbonded again, waiting to finish cooling down period
+                            2u32, // they have unbonded or have less than min. mPower again, waiting to finish cooling down period
                         ),
                     );
 
@@ -1192,6 +1265,9 @@ pub mod pallet {
             }
 
             log::info!("Finished initial loop of registered miners");
+
+            // TODO - consider the miner's mPower that we have fetched. it should have been added earlier above
+            // to the aggregated (all miners for that day) and accumulated (specific miner for a day) rewards
 
             // fetch accumulated total rewards for all registered miners for the day
             // TODO - we've done this twice, create a function to fetch it
@@ -1627,6 +1703,21 @@ pub mod pallet {
         }
 
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
+        pub fn set_min_mpower_daily(origin: OriginFor<T>, min_mpower_daily: u128) -> DispatchResult {
+            let _sender: T::AccountId = ensure_signed(origin)?;
+
+            <MinMPowerDaily<T>>::put(&min_mpower_daily.clone());
+            log::info!("set_min_mpower_daily: {:?}", &min_mpower_daily);
+
+            Self::deposit_event(Event::SetMinMPowerDailyStored(
+                min_mpower_daily.clone(),
+                _sender.clone(),
+            ));
+
+            Ok(())
+        }
+
+        #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
         pub fn set_cooling_off_period_days(origin: OriginFor<T>, cooling_off_period_days: u32) -> DispatchResult {
             let _sender: T::AccountId = ensure_signed(origin)?;
 
@@ -1896,6 +1987,7 @@ pub mod pallet {
             if let Some(_min_bonded_dhx_daily) = <MinBondedDHXDaily<T>>::get() {
                 min_bonded_dhx_daily = _min_bonded_dhx_daily;
             } else {
+                // TODO - if this fails we could try and fetch the min_bonded_dhx_daily_default instead as a fallback
                 log::error!("Unable to retrieve any min. bonded DHX daily");
                 return Err(DispatchError::Other("Unable to retrieve any min. bonded DHX daily"));
             }

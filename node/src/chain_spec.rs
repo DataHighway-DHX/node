@@ -941,6 +941,8 @@ fn testnet_genesis(
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),
             min_bonded_dhx_daily: TEN, // 10 DHX
             min_bonded_dhx_daily_default: TEN, // 10 DHX
+            min_mpower_daily: 5u128,
+            min_mpower_daily_default: 5u128,
             cooling_off_period_days: 7u32,
             cooling_off_period_days_remaining: vec![
                 (
@@ -1068,6 +1070,8 @@ fn mainnet_genesis(
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),
             min_bonded_dhx_daily: TEN, // 10 DHX
             min_bonded_dhx_daily_default: TEN, // 10 DHX
+            min_mpower_daily: 5u128,
+            min_mpower_daily_default: 5u128,
             cooling_off_period_days: 7u32,
             cooling_off_period_days_remaining: vec![
                 (
