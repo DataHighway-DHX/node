@@ -247,41 +247,41 @@ pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
                     // authority #1
                     (
                         //aura
-                        hex!["3aaedf2ef9e32f7e90bf8eb9bf49813188f111cc349807afa67e07cdba9d225d"].unchecked_into()
+                        hex!["106c208ac262aa3733629ad0860d0dc72d8b9152e1cdcab497949a3f9504517a"].unchecked_into()
                     ),
                     // authority #2
                     (
                         //aura
-                        hex!["c46b84a4af0a79efa0de5194816b19650a24221e858f41d564d4843d2691ad32"].unchecked_into()
+                        hex!["0234df0fce3e763e02b6644e589bd256bbd45121bdf6d98dd1cf1072b6228859"].unchecked_into()
                     ),
                     // authority #3
                     (
                         //aura
-                        hex!["367c0c647c9c417de992cfa762758e237bea5ff61653c69d29bd924ad6c4476e"].unchecked_into()
+                        hex!["02fe175463b5c7c378416e06780f7c60520d4dbcf759a7634a311e562e13a765"].unchecked_into()
                     ),
                     // authority #4
                     (
                         //aura
-                        hex!["9a861c7c72bdf2105766e90376069a4f3237c6722fdcf27ca4bb37d0fc22be5d"].unchecked_into()
+                        hex!["ea239700d67f53d30e39bee0c056f1165a6fb59ad4d5dd495c06d001af366c02"].unchecked_into()
                     )
 
                 ],
-                hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
+                hex!["c8c0ee501c4b115f08f677082b0f2beb59bd18f54f141588792e989bfb54e415"].into(),
                 vec![
                     // Endow the Sudo account to cover transaction fees
-                    hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
+                    hex!["c8c0ee501c4b115f08f677082b0f2beb59bd18f54f141588792e989bfb54e415"].into(),
                     // Endow this account with the DHX DAO Unlocked Reserves Balance
                     // 5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr
                     hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
                     // Endow these accounts with a balance so they may bond as authorities
-                    hex!["ca907b74f921b74638eb40c289e9bf1142b0afcdb25e1a50383ab8f9d515da0d"].into(),
-                    hex!["ae69db7838fb139cbf4f93bf877faf5bbef242f3f5aac6eb4f111398e9385e7d"].into(),
-                    hex!["7652b25328d78d264aef01184202c9771b55f5b391359309a2559ef77fbbb33d"].into(),
-                    hex!["eec96d02877a45fa524fcee1c6b7c849cbdc8cee01a95f5db168c427ae766849"].into(),
-                    hex!["f64bae0f8fbe2eb59ff1c0ff760a085f55d69af5909aed280ebda09dc364d443"].into(),
-                    hex!["420a7b4a8c9f2388eded13c17841d2a0e08ea7c87eda84310da54f3ccecd3931"].into(),
-                    hex!["ceecb6cc08c20ff44052ff19952a810d08363aa26ea4fb0a64a62a4630d37f28"].into(),
-                    hex!["68bac5586028dd40db59a7becec349b42cd4229f9d3c31875c3eb7a57241cd42"].into(),
+                    hex!["b2f1decb9c6a1e6df2cd7e7b73d6c7eada3683d958b2fed451fb045d2f7cdb55"].into(),
+                    hex!["b2347d115c9300a433a59b0ef321430a6d418d0555a6a41dfebe99fb86765110"].into(),
+                    hex!["f4062d6d4ac30ea04659b24994cc0ebf249fed1591e6cf1c25d5f4f78e78bb6b"].into(),
+                    hex!["a0d56496c02c203312ebce4a2804c7e0c31e34f983b9bc037f7c95f34e416613"].into(),
+                    hex!["467da0333f16ce430bfa18fb8c25cfbbc49f35946370989280aaf3142fff7344"].into(),
+                    hex!["ac691d2b336f8347a22eb3831b381e4adac45ab6f0ad85abc1336633313f173d"].into(),
+                    hex!["4cad3775c026114d4a6e965f72caf11c18eb03ea7a3b4c0516f4cb8856b2575f"].into(),
+                    hex!["6cd4eeb38c45a073d3c8e3ddd24e2502707060f33a1d92e082e32c106512500f"].into(),
                 ],
                 id,
             )
@@ -312,41 +312,41 @@ pub fn chachacha_parachain_config(id: ParaId) -> ChainSpec {
                     // authority #1
                     (
                         //aura
-                        hex!["3aaedf2ef9e32f7e90bf8eb9bf49813188f111cc349807afa67e07cdba9d225d"].unchecked_into()
+                        hex!["106c208ac262aa3733629ad0860d0dc72d8b9152e1cdcab497949a3f9504517a"].unchecked_into()
                     ),
                     // authority #2
                     (
                         //aura
-                        hex!["c46b84a4af0a79efa0de5194816b19650a24221e858f41d564d4843d2691ad32"].unchecked_into()
+                        hex!["0234df0fce3e763e02b6644e589bd256bbd45121bdf6d98dd1cf1072b6228859"].unchecked_into()
                     ),
                     // authority #3
                     (
                         //aura
-                        hex!["367c0c647c9c417de992cfa762758e237bea5ff61653c69d29bd924ad6c4476e"].unchecked_into()
+                        hex!["02fe175463b5c7c378416e06780f7c60520d4dbcf759a7634a311e562e13a765"].unchecked_into()
                     ),
                     // authority #4
                     (
                         //aura
-                        hex!["9a861c7c72bdf2105766e90376069a4f3237c6722fdcf27ca4bb37d0fc22be5d"].unchecked_into()
+                        hex!["ea239700d67f53d30e39bee0c056f1165a6fb59ad4d5dd495c06d001af366c02"].unchecked_into()
                     )
 
                 ],
-                hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
+                hex!["c8c0ee501c4b115f08f677082b0f2beb59bd18f54f141588792e989bfb54e415"].into(),
                 vec![
                     // Endow the Sudo account to cover transaction fees
-                    hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
+                    hex!["c8c0ee501c4b115f08f677082b0f2beb59bd18f54f141588792e989bfb54e415"].into(),
                     // Endow this account with the DHX DAO Unlocked Reserves Balance
                     // 5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr
                     hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
                     // Endow these accounts with a balance so they may bond as authorities
-                    hex!["ca907b74f921b74638eb40c289e9bf1142b0afcdb25e1a50383ab8f9d515da0d"].into(),
-                    hex!["ae69db7838fb139cbf4f93bf877faf5bbef242f3f5aac6eb4f111398e9385e7d"].into(),
-                    hex!["7652b25328d78d264aef01184202c9771b55f5b391359309a2559ef77fbbb33d"].into(),
-                    hex!["eec96d02877a45fa524fcee1c6b7c849cbdc8cee01a95f5db168c427ae766849"].into(),
-                    hex!["f64bae0f8fbe2eb59ff1c0ff760a085f55d69af5909aed280ebda09dc364d443"].into(),
-                    hex!["420a7b4a8c9f2388eded13c17841d2a0e08ea7c87eda84310da54f3ccecd3931"].into(),
-                    hex!["ceecb6cc08c20ff44052ff19952a810d08363aa26ea4fb0a64a62a4630d37f28"].into(),
-                    hex!["68bac5586028dd40db59a7becec349b42cd4229f9d3c31875c3eb7a57241cd42"].into(),
+                    hex!["b2f1decb9c6a1e6df2cd7e7b73d6c7eada3683d958b2fed451fb045d2f7cdb55"].into(),
+                    hex!["b2347d115c9300a433a59b0ef321430a6d418d0555a6a41dfebe99fb86765110"].into(),
+                    hex!["f4062d6d4ac30ea04659b24994cc0ebf249fed1591e6cf1c25d5f4f78e78bb6b"].into(),
+                    hex!["a0d56496c02c203312ebce4a2804c7e0c31e34f983b9bc037f7c95f34e416613"].into(),
+                    hex!["467da0333f16ce430bfa18fb8c25cfbbc49f35946370989280aaf3142fff7344"].into(),
+                    hex!["ac691d2b336f8347a22eb3831b381e4adac45ab6f0ad85abc1336633313f173d"].into(),
+                    hex!["4cad3775c026114d4a6e965f72caf11c18eb03ea7a3b4c0516f4cb8856b2575f"].into(),
+                    hex!["6cd4eeb38c45a073d3c8e3ddd24e2502707060f33a1d92e082e32c106512500f"].into(),
                 ],
                 id,
             )
