@@ -398,32 +398,7 @@ fn distribute_rewards(amount_bonded_each_miner: u128) {
     // assert_eq!(MiningRewardsAllowanceTestModule::rewards_aggregated_dhx_for_all_miners_for_date(1630281600000), Some(0u128));
     // assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630281600000, 1)), Some(0u128));
 
-    // 31th August 2021 @ ~7am is 1630393200000
-    // 31th August 2021 @ 12am is 1630368000000 (start of day)
-    Timestamp::set_timestamp(1630393200000u64);
-    MiningRewardsAllowanceTestModule::on_initialize(6);
-    // cooling off period doesn't change again unless they unbond
-    assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days_remaining(1), Some((1630368000000, 0, 1)));
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1630281600000, 1630368000000, 2u32, 1u32)));
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_change(), Some(10u32));
-
-    // 1st Sept 2021 @ ~7am is 1630479600000
-    // 1st Sept 2021 @ 12am is 1630454400000 (start of day)
-    Timestamp::set_timestamp(1630479600000u64);
-    MiningRewardsAllowanceTestModule::on_initialize(7);
-    assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days_remaining(1), Some((1630454400000, 0, 1)));
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1630281600000, 1630454400000, 2u32, 0u32)));
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_change(), Some(10u32));
-
-    // 2nd Sept 2021 @ ~7am is 1630566000000
-    // 2nd Sept 2021 @ 12am is 1630540800000 (start of day)
-    Timestamp::set_timestamp(1630566000000u64);
-    MiningRewardsAllowanceTestModule::on_initialize(7);
-    assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days_remaining(1), Some((1630540800000, 0, 1)));
-    // start of new multiplier period
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1630540800000, 1630540800000, 2u32, 2u32)));
-    // check that the min_bonded_dhx_daily doubled after 3 months (we're only doing it after 2 days in the tests though) from 20 DHX to 30 DHX
-    assert_eq!(MiningRewardsAllowanceTestModule::min_bonded_dhx_daily(), Some(THIRTY_DHX));
+    check_rewards_double_each_multiplier_period();
 }
 
 fn setup_bonding(amount_bonded_each_miner: u128, min_bonding_dhx_daily: u128) {
@@ -501,4 +476,33 @@ fn setup_treasury_balance() {
     // set the balance of the treasury so it distributes rewards
     Balances::set_balance(Origin::root(), Treasury::account_id(), INIT_DAO_BALANCE_DHX, 0);
     assert_eq!(Balances::usable_balance(&Treasury::account_id()), INIT_DAO_BALANCE_DHX);
+}
+
+fn check_rewards_double_each_multiplier_period() {
+    // 31th August 2021 @ ~7am is 1630393200000
+    // 31th August 2021 @ 12am is 1630368000000 (start of day)
+    Timestamp::set_timestamp(1630393200000u64);
+    MiningRewardsAllowanceTestModule::on_initialize(6);
+    // cooling off period doesn't change again unless they unbond
+    assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days_remaining(1), Some((1630368000000, 0, 1)));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1630281600000, 1630368000000, 2u32, 1u32)));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_change(), Some(10u32));
+
+    // 1st Sept 2021 @ ~7am is 1630479600000
+    // 1st Sept 2021 @ 12am is 1630454400000 (start of day)
+    Timestamp::set_timestamp(1630479600000u64);
+    MiningRewardsAllowanceTestModule::on_initialize(7);
+    assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days_remaining(1), Some((1630454400000, 0, 1)));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1630281600000, 1630454400000, 2u32, 0u32)));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_change(), Some(10u32));
+
+    // 2nd Sept 2021 @ ~7am is 1630566000000
+    // 2nd Sept 2021 @ 12am is 1630540800000 (start of day)
+    Timestamp::set_timestamp(1630566000000u64);
+    MiningRewardsAllowanceTestModule::on_initialize(7);
+    assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days_remaining(1), Some((1630540800000, 0, 1)));
+    // start of new multiplier period
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1630540800000, 1630540800000, 2u32, 2u32)));
+    // check that the min_bonded_dhx_daily doubled after 3 months (we're only doing it after 2 days in the tests though) from 20 DHX to 30 DHX
+    assert_eq!(MiningRewardsAllowanceTestModule::min_bonded_dhx_daily(), Some(THIRTY_DHX));
 }
