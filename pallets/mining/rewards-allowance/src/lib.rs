@@ -39,7 +39,6 @@ pub mod pallet {
         traits::{
             Currency,
             ExistenceRequirement,
-            GenesisBuild,
         },
     };
     use frame_system::pallet_prelude::*;
@@ -479,7 +478,7 @@ pub mod pallet {
                 }
             }
             log::info!("requested_date_as_u64: {:?}", requested_date_as_u64.clone());
-            println!("requested_date_as_u64: {:?}", requested_date_as_u64.clone());
+            // println!("requested_date_as_u64: {:?}", requested_date_as_u64.clone());
 
             // do not run when block number is 1, which is when timestamp is 0 because this
             // timestamp corresponds to 1970-01-01
@@ -498,7 +497,7 @@ pub mod pallet {
                 }
             }
             log::info!("start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
-            println!("start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
+            // println!("start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
 
             // https://substrate.dev/rustdocs/latest/frame_support/storage/trait.StorageMap.html
             let contains_key = <RewardsAllowanceDHXForDateRemaining<T>>::contains_key(&start_of_requested_date_millis);
@@ -584,7 +583,7 @@ pub mod pallet {
                     min_bonded_dhx_daily_default_u128 = x.1;
                 }
             }
-            println!("min_bonded_dhx_daily_default_u128: {:?}", min_bonded_dhx_daily_default_u128.clone());
+            // println!("min_bonded_dhx_daily_default_u128: {:?}", min_bonded_dhx_daily_default_u128.clone());
 
             let mut min_mpower_daily_default: u128 = 5u128;
             if let Some(_min_mpower_daily_default) = <MinMPowerDailyDefault<T>>::get() {
@@ -615,14 +614,14 @@ pub mod pallet {
             log::info!("rm_next_period_days: {:?}", &rm_next_period_days);
             log::info!("rm_current_period_days_remaining: {:?}", &rm_current_period_days_remaining);
 
-            println!("rm_paused: {:?}", &rm_paused);
-            println!("rm_reset: {:?}", &rm_reset);
-            println!("rm_default_change: {:?}", &rm_default_change);
-            println!("rm_current_change: {:?}", &rm_current_change);
-            println!("rm_next_change: {:?}", &rm_next_change);
-            println!("rm_default_period_days: {:?}", &rm_default_period_days);
-            println!("rm_next_period_days: {:?}", &rm_next_period_days);
-            println!("rm_current_period_days_remaining: {:?}", &rm_current_period_days_remaining);
+            // println!("rm_paused: {:?}", &rm_paused);
+            // println!("rm_reset: {:?}", &rm_reset);
+            // println!("rm_default_change: {:?}", &rm_default_change);
+            // println!("rm_current_change: {:?}", &rm_current_change);
+            // println!("rm_next_change: {:?}", &rm_next_change);
+            // println!("rm_default_period_days: {:?}", &rm_default_period_days);
+            // println!("rm_next_period_days: {:?}", &rm_next_period_days);
+            // println!("rm_current_period_days_remaining: {:?}", &rm_current_period_days_remaining);
 
             // pause the process of automatically changing to the next period change and next period day
             // until unpaused again by governance
@@ -671,7 +670,7 @@ pub mod pallet {
                     if rm_current_period_days_remaining.1 != start_of_requested_date_millis.clone() {
                         // if there are still days remaining in the countdown
                         if rm_current_period_days_remaining.3 > 0u32 {
-                            println!("[reducing_multiplier_days] block: {:#?}, date_start: {:#?} remain_days: {:#?}", _n, rm_current_period_days_remaining.0, rm_current_period_days_remaining.3);
+                            // println!("[reducing_multiplier_days] block: {:#?}, date_start: {:#?} remain_days: {:#?}", _n, rm_current_period_days_remaining.0, rm_current_period_days_remaining.3);
                             let old_rm_current_period_days_remaining = rm_current_period_days_remaining.3.clone();
 
                             // Subtract, handling overflow
@@ -700,7 +699,7 @@ pub mod pallet {
                             log::info!("Reduced RewardsMultiplierCurrentPeriodDaysRemaining {:?} {:?}", start_of_requested_date_millis.clone(), new_rm_current_period_days_remaining.clone());
                         } else {
                             // if no more days remaining
-                            println!("[reducing_multiplier_days] no more remaining days");
+                            // println!("[reducing_multiplier_days] no more remaining days");
 
                             // run an operation with the the next change and the current min bonded dhx daily to determine the
                             // new min. bonded dhx daily for the next period
@@ -718,7 +717,7 @@ pub mod pallet {
                                     min_bonded_dhx_daily_u128 = x.1;
                                 }
                             }
-                            println!("min_bonded_dhx_daily_u128: {:?}", min_bonded_dhx_daily_u128.clone());
+                            // println!("min_bonded_dhx_daily_u128: {:?}", min_bonded_dhx_daily_u128.clone());
 
                             let rewards_multipler_operation;
                             if let Some(_rewards_multipler_operation) = <RewardsMultiplierOperation<T>>::get() {
@@ -730,7 +729,7 @@ pub mod pallet {
 
                             let mut new_min_bonded_dhx_daily_u128 = 0u128; // initialize
 
-                            println!("rewards_multipler_operation: {:?}", rewards_multipler_operation.clone());
+                            // println!("rewards_multipler_operation: {:?}", rewards_multipler_operation.clone());
 
                             // prepare for 'add' operation
 
@@ -755,10 +754,10 @@ pub mod pallet {
                                     rm_next_change_as_fixedu128 = x;
                                 }
                             }
-                            println!("rm_next_change_as_fixedu128: {:?}", rm_next_change_as_fixedu128.clone());
+                            // println!("rm_next_change_as_fixedu128: {:?}", rm_next_change_as_fixedu128.clone());
                             // round down the fixed point number to the nearest integer of type u128
                             let rm_next_change_u128: u128 = rm_next_change_as_fixedu128.floor().to_num::<u128>();
-                            println!("rm_next_change_u128: {:?}", rm_next_change_as_fixedu128.clone());
+                            // println!("rm_next_change_u128: {:?}", rm_next_change_as_fixedu128.clone());
 
                             // case of addition
                             if rewards_multipler_operation == 1u8 {
@@ -783,7 +782,7 @@ pub mod pallet {
                                 return 0;
                             }
 
-                            println!("new_min_bonded_dhx_daily_u128 {:?}", new_min_bonded_dhx_daily_u128);
+                            // println!("new_min_bonded_dhx_daily_u128 {:?}", new_min_bonded_dhx_daily_u128);
 
                             let new_min_bonded_dhx_daily;
                             let _new_min_bonded_dhx_daily = Self::convert_u128_to_balance(new_min_bonded_dhx_daily_u128.clone());
@@ -797,11 +796,11 @@ pub mod pallet {
                                 }
                             }
                             log::info!("new_min_bonded_dhx_daily: {:?}", new_min_bonded_dhx_daily.clone());
-                            println!("new_min_bonded_dhx_daily: {:?}", new_min_bonded_dhx_daily.clone());
+                            // println!("new_min_bonded_dhx_daily: {:?}", new_min_bonded_dhx_daily.clone());
 
                             <MinBondedDHXDaily<T>>::put(new_min_bonded_dhx_daily.clone());
                             log::info!("New MinBondedDHXDaily {:?} {:?}", start_of_requested_date_millis.clone(), new_min_bonded_dhx_daily_u128.clone());
-                            println!("New MinBondedDHXDaily {:?} {:?}", start_of_requested_date_millis.clone(), new_min_bonded_dhx_daily_u128.clone());
+                            // println!("New MinBondedDHXDaily {:?} {:?}", start_of_requested_date_millis.clone(), new_min_bonded_dhx_daily_u128.clone());
 
                             // FIXME - can we automatically change the next period days value to (~90 days depending on days in included months 28, 29, 30, or 31)
                             // depending on the date? and do this from genesis too?
@@ -849,7 +848,7 @@ pub mod pallet {
                                 }
                             }
                             log::info!("new_min_bonded_dhx_daily: {:?}", new_min_bonded_dhx_daily.clone());
-                            println!("new_min_bonded_dhx_daily: {:?}", new_min_bonded_dhx_daily.clone());
+                            // println!("new_min_bonded_dhx_daily: {:?}", new_min_bonded_dhx_daily.clone());
                         }
                     }
                 }
@@ -899,7 +898,7 @@ pub mod pallet {
                 let mut locks_first_amount_as_u128 = default_bonded_amount_u128.clone();
                 let locked_vec = <pallet_balances::Pallet<T>>::locks(miner.clone()).into_inner();
                 if locked_vec.len() != 0 {
-                    println!("locked_vec: {:?}", locked_vec);
+                    // println!("locked_vec: {:?}", locked_vec);
                     let locks_first_amount: <T as pallet_balances::Config>::Balance =
                         <pallet_balances::Pallet<T>>::locks(miner.clone()).into_inner().clone()[0].amount;
 
@@ -1052,7 +1051,7 @@ pub mod pallet {
                     is_bonding_min_dhx == true &&
                     has_min_mpower_daily == true
                 {
-                    println!("[reducing_days] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", _n, miner_count, start_of_requested_date_millis, cooling_off_period_days_remaining);
+                    // println!("[reducing_days] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", _n, miner_count, start_of_requested_date_millis, cooling_off_period_days_remaining);
                     let old_cooling_off_period_days_remaining = cooling_off_period_days_remaining.1.clone();
 
                     // we cannot do this because of error: cannot use the `?` operator in a method that returns `()`
@@ -1097,7 +1096,7 @@ pub mod pallet {
                     is_bonding_min_dhx == true &&
                     has_min_mpower_daily == true
                 {
-                    println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", _n, miner_count, start_of_requested_date_millis, cooling_off_period_days_remaining);
+                    // println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", _n, miner_count, start_of_requested_date_millis, cooling_off_period_days_remaining);
 
                     // we need to add that they are eligible for rewards on the current date too
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
@@ -1147,7 +1146,7 @@ pub mod pallet {
                         }
                     }
                     log::info!("daily_reward_for_miner_as_u128: {:?}", daily_reward_for_miner_as_u128.clone());
-                    println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} daily_reward_for_miner_as_u128: {:#?}", _n, miner_count, start_of_requested_date_millis, daily_reward_for_miner_as_u128);
+                    // println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} daily_reward_for_miner_as_u128: {:#?}", _n, miner_count, start_of_requested_date_millis, daily_reward_for_miner_as_u128);
 
                     // if we have a rewards_aggregated_dhx_daily of 25.133 k DHX, then after the above manipulation
                     // since we're dealing with a mixture of u128 and BalanceOf<T> so the values are more readable in the UI.
@@ -1208,7 +1207,7 @@ pub mod pallet {
                     }
 
                     log::info!("new_rewards_aggregated_dhx_daily_as_u128: {:?}", new_rewards_aggregated_dhx_daily_as_u128.clone());
-                    println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} new_rewards_aggregated_dhx_daily_as_u128: {:#?}", _n, miner_count, start_of_requested_date_millis, new_rewards_aggregated_dhx_daily_as_u128);
+                    // println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} new_rewards_aggregated_dhx_daily_as_u128: {:#?}", _n, miner_count, start_of_requested_date_millis, new_rewards_aggregated_dhx_daily_as_u128);
 
                     let new_rewards_aggregated_dhx_daily;
                     let _new_rewards_aggregated_dhx_daily = Self::convert_u128_to_balance(new_rewards_aggregated_dhx_daily_as_u128.clone());
@@ -1240,10 +1239,10 @@ pub mod pallet {
                     );
                     log::info!("Added RewardsAccumulatedDHXForMinerForDate for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner.clone(), daily_reward_for_miner.clone());
 
-                    println!("date: {:?}, miner_count: {:?}, reg_dhx_miners.len: {:?}", start_of_requested_date_millis.clone(), miner_count.clone(), reg_dhx_miners.len());
+                    // println!("date: {:?}, miner_count: {:?}, reg_dhx_miners.len: {:?}", start_of_requested_date_millis.clone(), miner_count.clone(), reg_dhx_miners.len());
                     // if last miner being iterated then reset for next day
                     if reg_dhx_miners.len() == miner_count {
-                        println!("date: {:?}, rewards_allowance_dhx_daily: {:?}", start_of_requested_date_millis.clone(), rewards_allowance_dhx_daily.clone());
+                        // println!("date: {:?}, rewards_allowance_dhx_daily: {:?}", start_of_requested_date_millis.clone(), rewards_allowance_dhx_daily.clone());
 
                         // reset to latest set by governance
                         <RewardsAllowanceDHXForDateRemaining<T>>::insert(start_of_requested_date_millis.clone(), rewards_allowance_dhx_daily.clone());
@@ -1316,7 +1315,7 @@ pub mod pallet {
                         ),
                     );
 
-                    println!("[reduce] block: {:#?}, miner: {:#?}, date_start: {:#?} new_cooling_off_period_days_remaining: {:#?}", _n, miner_count, start_of_requested_date_millis, new_cooling_off_period_days_remaining);
+                    // println!("[reduce] block: {:#?}, miner: {:#?}, date_start: {:#?} new_cooling_off_period_days_remaining: {:#?}", _n, miner_count, start_of_requested_date_millis, new_cooling_off_period_days_remaining);
                     log::info!("Unbonded miner. Reducing cooling down period dates remaining {:?} {:?}", miner.clone(), new_cooling_off_period_days_remaining.clone());
 
                 // if cooling_off_period_days_remaining.0 is not the start of the current date
@@ -1346,7 +1345,7 @@ pub mod pallet {
             }
 
             log::info!("Finished initial loop of registered miners");
-            println!("Finished initial loop of registered miners");
+            // println!("Finished initial loop of registered miners");
 
             // TODO - consider the miner's mPower that we have fetched. it should have been added earlier above
             // to the aggregated (all miners for that day) and accumulated (specific miner for a day) rewards
@@ -2113,7 +2112,7 @@ pub mod pallet {
                         min_bonded_dhx_daily_u128 = x.1;
                     }
                 }
-                println!("Reset to the min. bonded DHX daily default");
+                // println!("Reset to the min. bonded DHX daily default");
             }
             // Return a successful DispatchResultWithPostInfo
             Ok(
