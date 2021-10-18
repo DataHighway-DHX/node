@@ -425,6 +425,10 @@ pub mod pallet {
         /// Storage of a new reward multiplier default period in days (i.e. 90 for 3 months) by an origin account.
         /// \[days, sender\]
         SetRewardsMultiplierDefaultPeriodDaysStored(u32, T::AccountId),
+
+        /// Storage of a new reward multiplier next period in days (i.e. 90 for 3 months) by an origin account.
+        /// \[days, sender\]
+        SetRewardsMultiplierNextPeriodDaysStored(u32, T::AccountId),
     }
 
     // Errors inform users that something went wrong should be descriptive and have helpful documentation
@@ -1949,6 +1953,22 @@ pub mod pallet {
 
             // Emit an event.
             Self::deposit_event(Event::SetRewardsMultiplierDefaultPeriodDaysStored(
+                days.clone(),
+                _who.clone()
+            ));
+
+            // Return a successful DispatchResultWithPostInfo
+            Ok(())
+        }
+
+        #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
+        pub fn set_rewards_multiplier_next_period_days(origin: OriginFor<T>, days: u32) -> DispatchResult {
+            let _who = ensure_signed(origin)?;
+            <RewardsMultiplierNextPeriodDays<T>>::put(&days.clone());
+            log::info!("set_rewards_multiplier_next_period_days - days: {:?}", &days);
+
+            // Emit an event.
+            Self::deposit_event(Event::SetRewardsMultiplierNextPeriodDaysStored(
                 days.clone(),
                 _who.clone()
             ));

@@ -375,9 +375,9 @@ fn distribute_rewards(amount_bonded_each_miner: u128) {
     // the change between each multiplier period is 10 unless a user sets it to a different value
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_change(), Some(10u32));
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_next_change(), Some(10u32));
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_next_period_days(), Some(90u32));
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_total(), Some(90u32));
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1630281600000, 1630281600000, 90u32, 90u32)));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_next_period_days(), Some(2u32));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_total(), Some(2u32));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1630281600000, 1630281600000, 2u32, 2u32)));
     // Note - why is this 2u128 instead of reset back to say 5000u128 DHX (unless set do different value??
     // this should be reset after rewards aggregated/accumulated each day
     // since distribution/claiming may not be done by a user each day
@@ -451,7 +451,14 @@ fn setup_multiplier() {
         1u8,
     ));
 
+    // in the tests we want the period between each 10:1, 20:1 cycle to be just 2 days instead of 90 days
+    // since we don't want to wait so long to check that it changes each cycle in the tests
     assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_multiplier_default_period_days(
+        Origin::signed(0),
+        2u32,
+    ));
+
+    assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_multiplier_next_period_days(
         Origin::signed(0),
         2u32,
     ));
