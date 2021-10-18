@@ -39,7 +39,8 @@ pub mod pallet {
         traits::{
             Currency,
             ExistenceRequirement,
-        }
+            GenesisBuild,
+        },
     };
     use frame_system::pallet_prelude::*;
     use sp_std::{
@@ -742,7 +743,7 @@ pub mod pallet {
                             }
 
                             let ONE = 1000000000000000000u128;
-                            let mut rm_next_change_as_fixedu128 = FixedU128::from_num(0);;
+                            let mut rm_next_change_as_fixedu128 = FixedU128::from_num(0);
                             let _rm_next_change_as_fixedu128 =
                                 U64F64::from_num(rm_next_change_u128_short.clone()).checked_mul(U64F64::from_num(ONE));
                             match _rm_next_change_as_fixedu128 {

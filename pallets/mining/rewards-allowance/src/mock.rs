@@ -7,6 +7,7 @@ use frame_support::{
     parameter_types,
     traits::{
         ContainsLengthBound,
+        GenesisBuild,
         LockIdentifier,
         SortedMembers,
     },
@@ -67,6 +68,7 @@ pub use module_primitives::{
         Moment,
     },
 };
+// use super::*;
 
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 type Block = frame_system::mocking::MockBlock<Test>;
@@ -453,18 +455,69 @@ pub const FIVE_THOUSAND_DHX: u128 = 5_000_000_000_000_000_000_000_u128; // 5000
 // our desired mockup.
 pub fn new_test_ext() -> sp_io::TestExternalities {
     let mut t = frame_system::GenesisConfig::default().build_storage::<Test>().unwrap();
-    pallet_balances::GenesisConfig::<Test> {
-        balances: vec![
-            (0, TEN_DHX),
-            (1, TEN_DHX),
-            (2, TEN_DHX),
-            (3, TEN_DHX),
-            (100, TOTAL_SUPPLY_DHX),
-        ],
-    }
-    .assimilate_storage(&mut t)
-    .unwrap();
-    let mut ext = sp_io::TestExternalities::new(t);
-    ext.execute_with(|| System::set_block_number(1));
-    ext
+
+    // note: this approach is necessary to be able to mock the values in the chain specification.
+    // for each of the pallets used.
+    // see https://github.com/kaichaosun/substrate-node-template/commit/f83493c8a24b5b470d039ceeaf2cde949859855a
+	GenesisBuild::<Test>::assimilate_storage(
+		&pallet_balances::GenesisConfig {
+            balances: vec![
+                (0, TEN_DHX),
+                (1, TEN_DHX),
+                (2, TEN_DHX),
+                (3, TEN_DHX),
+                (100, TOTAL_SUPPLY_DHX),
+            ],
+        },
+		&mut t
+	)
+	.unwrap();
+
+	GenesisBuild::<Test>::assimilate_storage(
+		&mining_rewards_allowance::GenesisConfig {
+            rewards_allowance_dhx_daily: FIVE_THOUSAND_DHX, // 5000 DHX
+            rewards_allowance_dhx_for_date_remaining: Default::default(),
+            rewards_allowance_dhx_for_date_remaining_distributed: Default::default(),
+            rewards_multiplier_paused: false,
+            rewards_multiplier_reset: false,
+            rewards_multiplier_default_change: 10u32,
+            rewards_multiplier_next_change: 10u32,
+            rewards_multiplier_default_period_days: 90u32,
+            rewards_multiplier_next_period_days: 90u32,
+            rewards_multiplier_current_change: 10u32,
+            rewards_multiplier_current_period_days_total: 90u32,
+            rewards_multiplier_current_period_days_remaining: Default::default(),
+            rewards_multiplier_operation: 1u8,
+            // Note: i'm not sure how to mock Alice, Bob, Charlie, just set in implementation at genesis
+            // registered_dhx_miners: vec![
+            //     get_account_id_from_seed::<sr25519::Public>("Alice"),
+            //     get_account_id_from_seed::<sr25519::Public>("Bob"),
+            //     get_account_id_from_seed::<sr25519::Public>("Charlie"),
+            // ],
+            registered_dhx_miners: Default::default(),
+            rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
+            rewards_accumulated_dhx_for_miner_for_date: Default::default(),
+            min_bonded_dhx_daily: TEN_DHX, // 10 DHX
+            min_bonded_dhx_daily_default: TEN_DHX, // 10 DHX
+            min_mpower_daily: 5u128,
+            min_mpower_daily_default: 5u128,
+            cooling_off_period_days: 7u32,
+            // Note: i'm not sure how to mock Alice, just set in implementation at genesis
+            // cooling_off_period_days_remaining: vec![
+            //     (
+            //         get_account_id_from_seed::<sr25519::Public>("Alice"),
+            //         (
+            //             0,
+            //             7u32,
+            //             0u32,
+            //         ),
+            //     ),
+            // ],
+            cooling_off_period_days_remaining: Default::default(),
+        },
+		&mut t
+	)
+	.unwrap();
+
+    t.into()
 }
