@@ -1630,8 +1630,7 @@ pub mod pallet {
                     return 0;
                 }
 
-                // println!("[prepared-for-payment] block: {:#?}, miner: {:#?}, date_start: {:#?} max payout: {:#?}, rewards remaining today {:?}, restored_proportion_of_daily_reward_for_miner_u128 {:?}",
-                //     _n, miner_count, start_of_requested_date_millis, max_payout_as_u128, rewards_allowance_dhx_remaining_today_as_u128, restored_proportion_of_daily_reward_for_miner_u128);
+                // println!("[prepared-for-payment] block: {:#?}, miner: {:#?}, date_start: {:#?} max payout: {:#?}, rewards remaining today {:?}, restored_proportion_of_daily_reward_for_miner_u128 {:?}", _n, miner_count, start_of_requested_date_millis, max_payout_as_u128, rewards_allowance_dhx_remaining_today_as_u128, restored_proportion_of_daily_reward_for_miner_u128);
 
                 // check if miner's reward is less than or equal to: rewards_allowance_dhx_daily_remaining
                 if restored_proportion_of_daily_reward_for_miner_u128.clone() > 0u128 &&
