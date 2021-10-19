@@ -339,24 +339,8 @@ fn setup_bonding(amount_bonded_each_miner: u128, min_bonding_dhx_daily: u128) ->
     let pre_image_hash = BlakeTwo256::hash(b"test");
     // params: end block, proposal hash, threshold, delay
     let r = Democracy::inject_referendum(1, pre_image_hash.clone(), VoteThreshold::SuperMajorityApprove, 2);
-    // lock the whole balance of account 1, 2, and 3 in voting
-    let v1a1 = AccountVote::Standard { vote: AYE, balance: Balances::free_balance(1) };
-    let v1a2 = AccountVote::Standard { vote: AYE, balance: Balances::free_balance(2) };
-    let v1a3 = AccountVote::Standard { vote: AYE, balance: Balances::free_balance(3) };
-    // vote on referenda using time-lock voting with a conviction to scale the vote power
-    // note: second parameter is the referendum index being voted on
-    assert_ok!(Democracy::vote(Origin::signed(1), r, v1a1));
-    assert_ok!(Democracy::vote(Origin::signed(2), r, v1a2));
-    assert_ok!(Democracy::vote(Origin::signed(3), r, v1a3));
 
-    // // assert_eq!(tally(r), Tally { ayes: 0, nays: 0, turnout: 0 });
-    assert_eq!(Balances::locks(1)[0],
-        BalanceLock {
-            id: [100, 101, 109, 111, 99, 114, 97, 99],
-            amount: amount_bonded_each_miner,
-            reasons: Reasons::Misc
-        }
-    );
+    bond_each_miner_by_voting_for_referendum(amount_bonded_each_miner, r);
 
     return r;
 }
@@ -384,6 +368,63 @@ fn setup_treasury_balance() {
     // set the balance of the treasury so it distributes rewards
     Balances::set_balance(Origin::root(), Treasury::account_id(), INIT_DAO_BALANCE_DHX, 0);
     assert_eq!(Balances::usable_balance(&Treasury::account_id()), INIT_DAO_BALANCE_DHX);
+}
+
+fn bond_each_miner_by_voting_for_referendum(amount_bonded_each_miner: u128, referendum_index: u32) {
+    // we're actually bonding with their entire account balance
+    let b1 = Balances::free_balance(&1);
+    let b2 = Balances::free_balance(&2);
+    let b3 = Balances::free_balance(&3);
+
+    // lock the whole balance of account 1, 2, and 3 in voting
+    let v1a1 = AccountVote::Standard { vote: AYE, balance: b1.clone() };
+    let v1a2 = AccountVote::Standard { vote: AYE, balance: b2.clone() };
+    let v1a3 = AccountVote::Standard { vote: AYE, balance: b3.clone() };
+    // vote on referenda using time-lock voting with a conviction to scale the vote power
+    // note: second parameter is the referendum index being voted on
+    assert_ok!(Democracy::vote(Origin::signed(1), referendum_index, v1a1));
+    assert_ok!(Democracy::vote(Origin::signed(2), referendum_index, v1a2));
+    assert_ok!(Democracy::vote(Origin::signed(3), referendum_index, v1a3));
+
+    assert_eq!(Balances::locks(1)[0],
+        BalanceLock {
+            id: [100, 101, 109, 111, 99, 114, 97, 99],
+            amount: b1.clone(),
+            reasons: Reasons::Misc
+        }
+    );
+    assert_eq!(Balances::locks(2)[0],
+        BalanceLock {
+            id: [100, 101, 109, 111, 99, 114, 97, 99],
+            amount: b2.clone(),
+            reasons: Reasons::Misc
+        }
+    );
+    assert_eq!(Balances::locks(3)[0],
+        BalanceLock {
+            id: [100, 101, 109, 111, 99, 114, 97, 99],
+            amount: b3.clone(),
+            reasons: Reasons::Misc
+        }
+    );
+}
+
+fn unbond_each_miner_by_removing_their_referendum_vote(referendum_index: u32) {
+        // remove the votes and then unlock for each account
+    // note: `remove_vote` must be done before `unlock`
+    assert_ok!(Democracy::remove_vote(Origin::signed(1), referendum_index));
+    assert_ok!(Democracy::remove_vote(Origin::signed(2), referendum_index));
+    assert_ok!(Democracy::remove_vote(Origin::signed(3), referendum_index));
+    // we removed their votes
+    assert_eq!(Democracy::referendum_status(referendum_index).unwrap().tally, Tally { ayes: 0, nays: 0, turnout: 0 });
+    assert_ok!(Democracy::unlock(Origin::signed(1), 1));
+    assert_ok!(Democracy::unlock(Origin::signed(2), 2));
+    assert_ok!(Democracy::unlock(Origin::signed(3), 3));
+
+    // check that all accounts are unlocked
+    assert_eq!(Balances::locks(1), vec![]);
+    assert_eq!(Balances::locks(2), vec![]);
+    assert_eq!(Balances::locks(3), vec![]);
 }
 
 fn check_eligible_for_rewards_after_cooling_off_period_if_suffient_bonded(amount_bonded_each_miner: u128) {
@@ -528,21 +569,7 @@ fn check_ineligible_for_rewards_and_cooling_down_period_starts_if_insufficient_b
     // check that the referendum that we created earlier still exists
     assert_eq!(Democracy::referendum_count(), 1, "referenda not created");
 
-    // remove the votes and then unlock for each account
-    // note: `remove_vote` must be done before `unlock`
-    assert_ok!(Democracy::remove_vote(Origin::signed(1), referendum_index));
-    assert_ok!(Democracy::remove_vote(Origin::signed(2), referendum_index));
-    assert_ok!(Democracy::remove_vote(Origin::signed(3), referendum_index));
-    // we removed their votes
-    assert_eq!(Democracy::referendum_status(referendum_index).unwrap().tally, Tally { ayes: 0, nays: 0, turnout: 0 });
-    assert_ok!(Democracy::unlock(Origin::signed(1), 1));
-    assert_ok!(Democracy::unlock(Origin::signed(2), 2));
-    assert_ok!(Democracy::unlock(Origin::signed(3), 3));
-
-    // check that all accounts are unlocked
-    assert_eq!(Balances::locks(1), vec![]);
-    assert_eq!(Balances::locks(2), vec![]);
-    assert_eq!(Balances::locks(3), vec![]);
+    unbond_each_miner_by_removing_their_referendum_vote(referendum_index.clone());
 
     // now wait for the next day when we iterate through the miner accounts and they should have no locks
     // 4th Sept 2021 @ ~7am is 1630738800000
@@ -581,4 +608,21 @@ fn check_ineligible_for_rewards_and_cooling_down_period_starts_if_insufficient_b
 
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630713600000), Some(FIVE_THOUSAND_DHX));
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining_distributed(1630713600000), Some(false));
+
+    check_cooling_off_period_starts_again_if_sufficient_bonded_again(amount_bonded_each_miner.clone(), referendum_index.clone());
+}
+
+fn check_cooling_off_period_starts_again_if_sufficient_bonded_again(amount_bonded_each_miner: u128, referendum_index: u32) {
+
+    bond_each_miner_by_voting_for_referendum(amount_bonded_each_miner, referendum_index);
+
+    // now wait for the next day when we iterate through the miner accounts and they should have no locks
+    // 5th Sept 2021 @ ~7am is 1630825200000
+    // 5th Sept 2021 @ 12am is 1630800000000 (start of day)
+    Timestamp::set_timestamp(1630825200000u64);
+    MiningRewardsAllowanceTestModule::on_initialize(10);
+
+    // params: start of date, days remaining, bonding status
+    // note: since they have the min. DHX bonded again their bonding status changes to `1`, which is bonding
+    assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days_remaining(1), Some((1630800000000, 0, 1)));
 }
