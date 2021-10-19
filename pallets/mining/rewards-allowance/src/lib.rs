@@ -110,6 +110,16 @@ pub mod pallet {
     >;
 
     #[pallet::storage]
+    #[pallet::getter(fn mpower_of_account_for_date)]
+    pub(super) type MPowerForAccountForDate<T: Config> = StorageMap<_, Blake2_128Concat,
+        (
+            Date,
+            T::AccountId,
+        ),
+        u128,
+    >;
+
+    #[pallet::storage]
     #[pallet::getter(fn rewards_allowance_dhx_for_date_remaining)]
     pub(super) type RewardsAllowanceDHXForDateRemaining<T: Config> = StorageMap<_, Blake2_128Concat,
         Date,
@@ -394,6 +404,10 @@ pub mod pallet {
         /// Storage of the bonded DHX of an account on a specific date.
         /// \[date, amount_dhx_bonded, account_dhx_bonded\]
         SetBondedDHXOfAccountForDateStored(Date, BalanceOf<T>, T::AccountId),
+
+        /// Storage of the mPower of an account on a specific date.
+        /// \[date, amount_mpower, account\]
+        SetMPowerOfAccountForDateStored(Date, u128, T::AccountId),
 
         /// Storage of the default daily reward allowance in DHX by an origin account.
         /// \[amount_dhx, sender\]
@@ -985,12 +999,26 @@ pub mod pallet {
                 }
                 // println!("min_mpower_daily_u128 {:#?}", min_mpower_daily_u128);
 
-                // TODO - move this into off-chain workers function
+                // TODO - integrate this with functionality of off-chain workers function where we
+                // fetch the mpower from off-chain and store it with `set_mpower_of_account_for_date`
                 // TODO - fetch the mPower of the miner currently being iterated to check if it's greater than the min.
                 // mPower that is required
-                let mpower_miner_u128: u128 = 5u128;
+                let mut mpower_current_u128: u128 = 0u128;
+                let _mpower_current_u128 = <MPowerForAccountForDate<T>>::get((start_of_requested_date_millis.clone(), miner.clone()));
+                match _mpower_current_u128 {
+                    None => {
+                        log::error!("Unable to get_mpower_of_account_for_date {:?}", start_of_requested_date_millis.clone());
+                        println!("Unable to get_mpower_of_account_for_date {:?}", start_of_requested_date_millis.clone());
+                    },
+                    Some(x) => {
+                        mpower_current_u128 = x;
+                    }
+                }
+                log::info!("mpower_current_u128 {:#?}, {:?}", mpower_current_u128, start_of_requested_date_millis.clone());
+                // println!("mpower_current_u128 {:#?}, {:?}", mpower_current_u128, start_of_requested_date_millis.clone());
+
                 let mut has_min_mpower_daily = false;
-                if mpower_miner_u128 >= min_mpower_daily_u128 {
+                if mpower_current_u128 >= min_mpower_daily_u128 {
                     has_min_mpower_daily = true;
                 }
                 log::info!("has_min_mpower_daily: {:?} {:?}", has_min_mpower_daily.clone(), miner.clone());
@@ -1995,13 +2023,25 @@ pub mod pallet {
 
         fn convert_u64_in_milliseconds_to_start_of_date(date_as_u64_millis: u64) -> Result<Date, DispatchError> {
             let date_as_u64_secs = date_as_u64_millis.clone() / 1000u64;
+            log::info!("convert_u64_in_milliseconds_to_start_of_date - date_as_u64_secs: {:?}", date_as_u64_secs.clone());
             // https://docs.rs/chrono/0.4.6/chrono/naive/struct.NaiveDateTime.html#method.from_timestamp
             let date = NaiveDateTime::from_timestamp(i64::try_from(date_as_u64_secs).unwrap(), 0).date();
-            log::info!("convert_u64_in_milliseconds_to_start_of_date - date_as_u64_secs: {:?}", date_as_u64_secs.clone());
 
             let date_start_millis = date.and_hms(0, 0, 0).timestamp() * 1000;
             log::info!("convert_u64_in_milliseconds_to_start_of_date - date_start_millis: {:?}", date_start_millis.clone());
             log::info!("convert_u64_in_milliseconds_to_start_of_date - Timestamp requested Date: {:?}", date);
+            return Ok(date_start_millis);
+        }
+
+        fn convert_i64_in_milliseconds_to_start_of_date(date_as_i64_millis: i64) -> Result<Date, DispatchError> {
+            let date_as_i64_secs = date_as_i64_millis.clone() / 1000i64;
+            log::info!("convert_i64_in_milliseconds_to_start_of_date - date_as_i64_secs: {:?}", date_as_i64_secs.clone());
+            // https://docs.rs/chrono/0.4.6/chrono/naive/struct.NaiveDateTime.html#method.from_timestamp
+            let date = NaiveDateTime::from_timestamp(i64::try_from(date_as_i64_secs).unwrap(), 0).date();
+
+            let date_start_millis = date.and_hms(0, 0, 0).timestamp() * 1000;
+            log::info!("convert_i64_in_milliseconds_to_start_of_date - date_start_millis: {:?}", date_start_millis.clone());
+            log::info!("convert_i64_in_milliseconds_to_start_of_date - Timestamp requested Date: {:?}", date);
             return Ok(date_start_millis);
         }
 
@@ -2099,6 +2139,42 @@ pub mod pallet {
 
             // Return a successful DispatchResultWithPostInfo
             Ok(bonded_dhx_current_u128.clone())
+        }
+
+        // we need to set the mPower for the next start date so it's available from off-chain in time
+        pub fn set_mpower_of_account_for_date(account_id: T::AccountId, mpower: u128, next_start_date: Date) -> Result<u128, DispatchError> {
+            // // Note: we DO need the following as we're using the current timestamp, rather than a function parameter.
+            // let timestamp: <T as pallet_timestamp::Config>::Moment = <pallet_timestamp::Pallet<T>>::get();
+            // let requested_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone())?;
+            // log::info!("set_mpower_of_account_for_date - requested_date_as_u64: {:?}", requested_date_as_u64.clone());
+
+            // convert the requested date/time to the start of that day date/time to signify that date for lookup
+            // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
+            let start_of_next_start_date_millis = Self::convert_i64_in_milliseconds_to_start_of_date(next_start_date.clone())?;
+
+            let mpower_current_u128 = mpower.clone();
+
+            // Update storage. Override the default that may have been set in on_initialize
+            <MPowerForAccountForDate<T>>::insert(
+                (
+                    start_of_next_start_date_millis.clone(),
+                    account_id.clone(),
+                ),
+                mpower_current_u128.clone(),
+            );
+            log::info!("set_mpower_of_account_for_date - start_of_next_start_date_millis: {:?}", &start_of_next_start_date_millis);
+            log::info!("set_mpower_of_account_for_date - account_id: {:?}", &account_id);
+            log::info!("set_mpower_of_account_for_date - mpower_current: {:?}", &mpower_current_u128);
+
+            // Emit an event.
+            Self::deposit_event(Event::SetMPowerOfAccountForDateStored(
+                start_of_next_start_date_millis.clone(),
+                mpower_current_u128.clone(),
+                account_id.clone(),
+            ));
+
+            // Return a successful DispatchResultWithPostInfo
+            Ok(mpower_current_u128.clone())
         }
 
         fn get_min_bonded_dhx_daily() -> Result<(BalanceOf<T>, u128), DispatchError> {
