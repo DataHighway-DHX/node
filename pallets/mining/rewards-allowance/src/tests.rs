@@ -711,4 +711,69 @@ fn check_ineligible_for_rewards_and_cooling_down_period_starts_if_insufficient_m
     // params: start of date, days remaining, bonding status
     // note: since they don't have min. mPower their bonding status changes to `2`, which is unbonding
     assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days_remaining(1), Some((1630972800000, 0, 2)));
+
+    check_cooling_off_period_starts_again_if_sufficient_mpower_again(amount_bonded_each_miner.clone(), amount_mpower_each_miner.clone(), referendum_index.clone());
+}
+
+fn check_cooling_off_period_starts_again_if_sufficient_mpower_again(amount_bonded_each_miner: u128, amount_mpower_each_miner: u128, referendum_index: u32) {
+    // reset mpower to what it was
+    change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1631059200000i64);
+
+    // 8th Sept 2021 @ ~7am is 1631084400000
+    // 8th Sept 2021 @ 12am is 1631059200000 (start of day)
+    Timestamp::set_timestamp(1631084400000u64);
+    MiningRewardsAllowanceTestModule::on_initialize(13);
+
+    // params: start of date, days remaining, bonding status
+    // note: they have min. mPower again so their bonding status changes to `0`, which is unbonded
+    assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days_remaining(1), Some((1631059200000, 0, 0)));
+
+    // use original mpower
+    change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1631145600000i64);
+
+    // 9th Sept 2021 @ ~7am is 1631170800000
+    // 9th Sept 2021 @ 12am is 1631145600000 (start of day)
+    Timestamp::set_timestamp(1631170800000u64);
+    MiningRewardsAllowanceTestModule::on_initialize(14);
+
+    // params: start of date, days remaining, bonding status
+    // note: they have min. mPower again so their bonding status changes to `1`, which means they are bonded again
+    assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days_remaining(1), Some((1631145600000, 1, 1)));
+
+    // params: total days, days remaining
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1631059200000, 1631145600000, 2u32, 1u32)));
+
+    // we're up to 50:1 now
+    assert_eq!(MiningRewardsAllowanceTestModule::min_bonded_dhx_daily(), Some(50_000_000_000_000_000_000_u128));
+
+    check_pause_rewards_multiplier_works(amount_bonded_each_miner.clone(), amount_mpower_each_miner.clone(), referendum_index.clone());
+}
+
+fn check_pause_rewards_multiplier_works(amount_bonded_each_miner: u128, amount_mpower_each_miner: u128, referendum_index: u32) {
+    // we want to check if pausing will prevent it from changing from 50:1 to 60:1 when the rewards multiplier for current period in days remaining ends
+
+    assert_ok!(MiningRewardsAllowanceTestModule::change_rewards_multiplier_paused_status(true));
+
+    // use original mpower
+    change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1631232000000i64);
+
+    // 10th Sept 2021 @ ~7am is 1631257200000
+    // 10th Sept 2021 @ 12am is 1631232000000 (start of day)
+    Timestamp::set_timestamp(1631257200000u64);
+    MiningRewardsAllowanceTestModule::on_initialize(15);
+
+    // use original mpower
+    change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1631318400000i64);
+
+    // 11th Sept 2021 @ ~7am is 1631343600000
+    // 11th Sept 2021 @ 12am is 1631318400000 (start of day)
+    Timestamp::set_timestamp(1631343600000u64);
+    MiningRewardsAllowanceTestModule::on_initialize(16);
+
+    // params: total days, days remaining
+    // assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1631318400000, 1631318400000, 2u32, 2u32)));
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1631059200000, 1631145600000, 2u32, 1u32)));
+
+    // we've paused it, so it should still be 50:10 (if we didn't pause it, it would have increased to 60:1 since we were at end of a reward multiplier period)
+    assert_eq!(MiningRewardsAllowanceTestModule::min_bonded_dhx_daily(), Some(50_000_000_000_000_000_000_u128));
 }

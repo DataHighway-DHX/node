@@ -443,6 +443,14 @@ pub mod pallet {
         /// Storage of a new reward multiplier next period in days (i.e. 90 for 3 months) by an origin account.
         /// \[days, sender\]
         SetRewardsMultiplierNextPeriodDaysStored(u32, T::AccountId),
+
+        /// Storage of new rewards multiplier paused status
+        /// \[new_status]
+        ChangeRewardsMultiplierPausedStatusStored(bool),
+
+        /// Storage of new rewards multiplier reset status
+        /// \[new_status]
+        ChangeRewardsMultiplierResetStatusStored(bool),
     }
 
     // Errors inform users that something went wrong should be descriptive and have helpful documentation
@@ -2243,6 +2251,32 @@ pub mod pallet {
             Ok(
                 (min_bonded_dhx_daily_default.clone(), min_bonded_dhx_daily_default_u128.clone())
             )
+        }
+
+        pub fn change_rewards_multiplier_paused_status(new_status: bool) -> Result<bool, DispatchError> {
+
+            <RewardsMultiplierPaused<T>>::put(new_status.clone());
+
+            // Emit an event.
+            Self::deposit_event(Event::ChangeRewardsMultiplierPausedStatusStored(
+                new_status.clone(),
+            ));
+
+            // Return a successful DispatchResultWithPostInfo
+            Ok(new_status.clone())
+        }
+
+        pub fn change_rewards_multiplier_reset_status(new_status: bool) -> Result<bool, DispatchError> {
+
+            <RewardsMultiplierReset<T>>::put(new_status.clone());
+
+            // Emit an event.
+            Self::deposit_event(Event::ChangeRewardsMultiplierResetStatusStored(
+                new_status.clone(),
+            ));
+
+            // Return a successful DispatchResultWithPostInfo
+            Ok(new_status.clone())
         }
     }
 }
