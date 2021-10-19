@@ -899,7 +899,8 @@ pub mod pallet {
                 // half of 5000 DHX daily allowance (of 2500 DHX), but in that case we split the rewards
                 // (i.e. 25,133 DHX locked at 10:1 gives 2513 DHX reward)
 
-                let mut locks_first_amount_as_u128 = default_bonded_amount_u128.clone();
+                // initialise so they have no locks and are ineligible for rewards
+                let mut locks_first_amount_as_u128 = 0u128.clone();
                 let locked_vec = <pallet_balances::Pallet<T>>::locks(miner.clone()).into_inner();
                 if locked_vec.len() != 0 {
                     // println!("locked_vec: {:?}", locked_vec);
@@ -916,8 +917,9 @@ pub mod pallet {
                             locks_first_amount_as_u128 = x;
                         }
                     }
-                    log::info!("locks_first_amount_as_u128: {:?}", locks_first_amount_as_u128.clone());
                 }
+                log::info!("locks_first_amount_as_u128: {:?}", locks_first_amount_as_u128.clone());
+                // println!("locks_first_amount_as_u128 {:#?}", locks_first_amount_as_u128);
 
                 // Example output below of vote with 9.9999 tokens on a referendum associated with a proposal
                 // that was seconded
@@ -951,7 +953,6 @@ pub mod pallet {
                         bonded_dhx_current_u128 = x;
                     }
                 }
-                log::info!("set_bonded_dhx_of_account_for_date: {:?} {:?}", start_of_requested_date_millis.clone(), bonded_dhx_current_u128.clone());
 
                 let mut min_bonded_dhx_daily: BalanceOf<T> = 10u32.into();
                 let mut min_bonded_dhx_daily_u128;
@@ -972,6 +973,8 @@ pub mod pallet {
                     is_bonding_min_dhx = true;
                 }
                 log::info!("is_bonding_min_dhx: {:?} {:?}", is_bonding_min_dhx.clone(), miner.clone());
+                // println!("is_bonding_min_dhx {:#?}", is_bonding_min_dhx);
+                // println!("min_bonded_dhx_daily_u128 {:#?}", min_bonded_dhx_daily_u128);
 
                 // TODO - move this into off-chain workers function
                 let mut min_mpower_daily_u128: u128 = 5u128;
