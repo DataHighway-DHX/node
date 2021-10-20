@@ -746,10 +746,10 @@ fn check_cooling_off_period_starts_again_if_sufficient_mpower_again(amount_bonde
     // we're up to 50:1 now
     assert_eq!(MiningRewardsAllowanceTestModule::min_bonded_dhx_daily(), Some(50_000_000_000_000_000_000_u128));
 
-    check_pause_rewards_multiplier_works(amount_bonded_each_miner.clone(), amount_mpower_each_miner.clone(), referendum_index.clone());
+    check_pause_and_reset_rewards_multiplier_works(amount_bonded_each_miner.clone(), amount_mpower_each_miner.clone(), referendum_index.clone());
 }
 
-fn check_pause_rewards_multiplier_works(amount_bonded_each_miner: u128, amount_mpower_each_miner: u128, referendum_index: u32) {
+fn check_pause_and_reset_rewards_multiplier_works(amount_bonded_each_miner: u128, amount_mpower_each_miner: u128, referendum_index: u32) {
     // we want to check if pausing will prevent it from changing from 50:1 to 60:1 when the rewards multiplier for current period in days remaining ends
 
     assert_ok!(MiningRewardsAllowanceTestModule::change_rewards_multiplier_paused_status(true));
@@ -776,4 +776,24 @@ fn check_pause_rewards_multiplier_works(amount_bonded_each_miner: u128, amount_m
 
     // we've paused it, so it should still be 50:10 (if we didn't pause it, it would have increased to 60:1 since we were at end of a reward multiplier period)
     assert_eq!(MiningRewardsAllowanceTestModule::min_bonded_dhx_daily(), Some(50_000_000_000_000_000_000_u128));
+
+    // unpause again
+    assert_ok!(MiningRewardsAllowanceTestModule::change_rewards_multiplier_paused_status(false));
+
+    // reset - reset to change back to 10:1 instead of 50:1
+    assert_ok!(MiningRewardsAllowanceTestModule::change_rewards_multiplier_reset_status(true));
+
+    // use original mpower
+    change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1631404800000i64);
+
+    // 12th Sept 2021 @ ~7am is 1631430000000
+    // 12th Sept 2021 @ 12am is 1631404800000 (start of day)
+    Timestamp::set_timestamp(1631430000000u64);
+    MiningRewardsAllowanceTestModule::on_initialize(17);
+
+    // this starts reducing again since we unpaused it
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1631059200000, 1631404800000, 2u32, 0u32)));
+
+    // check that reset worked
+    assert_eq!(MiningRewardsAllowanceTestModule::min_bonded_dhx_daily(), Some(TEN_DHX));
 }
