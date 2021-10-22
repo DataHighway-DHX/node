@@ -1,8 +1,55 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-/// Edit this file to define custom logic or remove it if it is not needed.
-/// Learn more about FRAME and the core library of Substrate FRAME pallets:
-/// <https://substrate.dev/docs/en/knowledgebase/runtime/frame>
+use log::{warn, info};
+use chrono::{
+    NaiveDateTime,
+};
+use rand::{seq::SliceRandom, Rng};
+use substrate_fixed::{
+    types::{
+        extra::U3,
+        U16F16,
+        U32F32,
+        U64F64,
+    },
+    FixedU128,
+};
+use codec::{
+    Decode,
+    Encode,
+    // MaxEncodedLen,
+};
+use frame_support::{
+    dispatch::DispatchResult,
+    traits::{
+        Currency,
+        ExistenceRequirement,
+    },
+};
+use sp_std::{
+    convert::{
+        TryFrom,
+        TryInto,
+    },
+    prelude::*, // Imports Vec
+};
+use sp_core::{
+    sr25519,
+};
+use sp_runtime::traits::{
+    IdentifyAccount,
+    One,
+    Verify,
+};
+use pallet_balances::{BalanceLock};
+use module_primitives::{
+    types::{
+        AccountId,
+        Balance,
+        Signature,
+    },
+};
+
 pub use pallet::*;
 
 #[cfg(test)]
@@ -16,55 +63,9 @@ mod tests;
 
 #[frame_support::pallet]
 pub mod pallet {
-    use log::{warn, info};
-    use chrono::{
-        NaiveDateTime,
-    };
-    use rand::{seq::SliceRandom, Rng};
-    use substrate_fixed::{
-        types::{
-            extra::U3,
-            U16F16,
-            U32F32,
-            U64F64,
-        },
-        FixedU128,
-    };
-    use codec::{
-        Decode,
-        Encode,
-        // MaxEncodedLen,
-    };
-    use frame_support::{dispatch::DispatchResult, pallet_prelude::*,
-        traits::{
-            Currency,
-            ExistenceRequirement,
-        },
-    };
+    use super::*;
+    use frame_support::pallet_prelude::*;
     use frame_system::pallet_prelude::*;
-    use sp_std::{
-        convert::{
-            TryFrom,
-            TryInto,
-        },
-        prelude::*, // Imports Vec
-    };
-    use sp_core::{
-        sr25519,
-    };
-    use sp_runtime::traits::{
-        IdentifyAccount,
-        One,
-        Verify,
-    };
-    use pallet_balances::{BalanceLock};
-    use module_primitives::{
-        types::{
-            AccountId,
-            Balance,
-            Signature,
-        },
-    };
 
     // this is only a default for test purposes and fallback.
     // set this to 0u128 in production
