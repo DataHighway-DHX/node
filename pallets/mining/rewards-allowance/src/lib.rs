@@ -1016,7 +1016,7 @@ pub mod pallet {
                 match _mpower_current_u128 {
                     None => {
                         log::error!("Unable to get_mpower_of_account_for_date {:?}", start_of_requested_date_millis.clone());
-                        println!("Unable to get_mpower_of_account_for_date {:?}", start_of_requested_date_millis.clone());
+                        // println!("Unable to get_mpower_of_account_for_date {:?}", start_of_requested_date_millis.clone());
                     },
                     Some(x) => {
                         mpower_current_u128 = x;
