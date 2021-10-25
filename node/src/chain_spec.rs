@@ -524,7 +524,7 @@ pub fn westend_parachain_config(id: ParaId) -> ChainSpec {
     properties.insert("tokenDecimals".into(), 18.into());
     let boot_nodes = vec![];
     ChainSpec::from_genesis(
-        "DataHighway Baikal Parachain Testnet",
+        "DataHighway Baikal Westend Parachain Testnet",
         "datahighway_baikal",
         ChainType::Live,
         move || {
