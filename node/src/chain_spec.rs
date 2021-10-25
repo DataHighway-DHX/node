@@ -370,7 +370,7 @@ pub fn westend_development_config(id: ParaId) -> ChainSpec {
         // Name
         "DataHighway Westend Development Testnet",
         // ID
-        "dev",
+        "datahighway-westend-dev",
         ChainType::Development,
         move || {
             dev_genesis(
