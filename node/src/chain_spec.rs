@@ -303,7 +303,7 @@ pub fn chachacha_parachain_config(id: ParaId) -> ChainSpec {
     properties.insert("tokenDecimals".into(), 18.into());
     let boot_nodes = vec![];
     ChainSpec::from_genesis(
-        "DataHighway Spreehafen Parachain Testnet",
+        "DataHighway Spreehafen ChaChaCha Parachain Testnet",
         "datahighway_spreehafen",
         ChainType::Live,
         move || {
