@@ -590,7 +590,7 @@ pub fn polkadot_parachain_config(id: ParaId) -> ChainSpec {
     let boot_nodes = vec![];
     ChainSpec::from_genesis(
         "DataHighway Tanganika Polkadot Parachain",
-        "datahighway_tanganika",
+        "datahighway-tanganika-polkadot-parachain",
         ChainType::Live,
         move || {
             tanganika_testnet_genesis(
