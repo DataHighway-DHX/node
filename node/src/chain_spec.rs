@@ -403,7 +403,7 @@ pub fn westend_local_testnet_config(id: ParaId) -> ChainSpec {
     properties.insert("tokenDecimals".into(), 18.into());
     ChainSpec::from_genesis(
         // Name
-        "Local Testnet",
+        "DataHighway Westend Local Testnet",
         // ID
         "datahighway-westend-local",
         ChainType::Local,
