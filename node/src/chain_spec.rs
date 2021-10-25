@@ -405,7 +405,7 @@ pub fn westend_local_testnet_config(id: ParaId) -> ChainSpec {
         // Name
         "Local Testnet",
         // ID
-        "local_testnet",
+        "datahighway-westend-local",
         ChainType::Local,
         move || {
             testnet_genesis(
