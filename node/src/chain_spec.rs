@@ -589,7 +589,7 @@ pub fn polkadot_parachain_config(id: ParaId) -> ChainSpec {
     properties.insert("tokenDecimals".into(), 18.into());
     let boot_nodes = vec![];
     ChainSpec::from_genesis(
-        "DataHighway Tanganika Parachain Testnet",
+        "DataHighway Tanganika Polkadot Parachain",
         "datahighway_tanganika",
         ChainType::Live,
         move || {
