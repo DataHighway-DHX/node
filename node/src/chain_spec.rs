@@ -368,7 +368,7 @@ pub fn westend_development_config(id: ParaId) -> ChainSpec {
     properties.insert("tokenDecimals".into(), 18.into());
     ChainSpec::from_genesis(
         // Name
-        "Development",
+        "DataHighway Westend Development Testnet",
         // ID
         "dev",
         ChainType::Development,
