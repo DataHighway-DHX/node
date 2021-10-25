@@ -446,7 +446,7 @@ pub fn polkadot_development_config(id: ParaId) -> ChainSpec {
     properties.insert("tokenDecimals".into(), 18.into());
     ChainSpec::from_genesis(
         // Name
-        "Development",
+        "DataHighway Polkadot Development Testnet",
         // ID
         "dev",
         ChainType::Development,
