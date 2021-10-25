@@ -483,7 +483,7 @@ pub fn polkadot_local_testnet_config(id: ParaId) -> ChainSpec {
         // Name
         "Local Testnet",
         // ID
-        "local_testnet",
+        "datahighway-polkadot-local",
         ChainType::Local,
         move || {
             testnet_genesis(
