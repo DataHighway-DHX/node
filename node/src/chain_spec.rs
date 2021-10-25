@@ -525,7 +525,7 @@ pub fn westend_parachain_config(id: ParaId) -> ChainSpec {
     let boot_nodes = vec![];
     ChainSpec::from_genesis(
         "DataHighway Baikal Westend Parachain Testnet",
-        "datahighway_baikal",
+        "datahighway-baikal-westend-parachain-testnet",
         ChainType::Live,
         move || {
             baikal_testnet_genesis(
