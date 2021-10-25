@@ -448,7 +448,7 @@ pub fn polkadot_development_config(id: ParaId) -> ChainSpec {
         // Name
         "DataHighway Polkadot Development Testnet",
         // ID
-        "dev",
+        "datahighway-polkadot-dev",
         ChainType::Development,
         move || {
             dev_genesis(
