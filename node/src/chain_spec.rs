@@ -577,7 +577,7 @@ pub fn westend_parachain_config(id: ParaId) -> ChainSpec {
         Some("dhx"),
         Some(properties),
         Extensions {
-            relay_chain: "chachacha".into(),
+            relay_chain: "westend".into(),
             para_id: id.into(),
         },
     )
@@ -642,7 +642,7 @@ pub fn polkadot_parachain_config(id: ParaId) -> ChainSpec {
         Some("dhx"),
         Some(properties),
         Extensions {
-            relay_chain: "chachacha".into(),
+            relay_chain: "polkadot".into(),
             para_id: id.into(),
         },
     )
