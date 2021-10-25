@@ -481,7 +481,7 @@ pub fn polkadot_local_testnet_config(id: ParaId) -> ChainSpec {
     properties.insert("tokenDecimals".into(), 18.into());
     ChainSpec::from_genesis(
         // Name
-        "Local Testnet",
+        "DataHighway Polkadot Local Testnet",
         // ID
         "datahighway-polkadot-local",
         ChainType::Local,
