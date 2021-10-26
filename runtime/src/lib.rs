@@ -7,6 +7,11 @@ use codec::{
     Decode,
     Encode,
 };
+use mining_rewards_allowance::{
+    crypto::{
+        TestAuthId,
+    },
+};
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use pallet_grandpa::{
     fg_primitives,
@@ -1146,9 +1151,32 @@ impl mining_execution_token::Config for Runtime {
     type MiningExecutionTokenIndex = u64;
 }
 
+// pub const TEST_KEY_TYPE_ID: KeyTypeId = KeyTypeId(*b"test");
+
+// pub mod sr25519 {
+// 	mod app_sr25519 {
+// 		use super::super::TEST_KEY_TYPE_ID;
+// 		use app_crypto::{app_crypto, sr25519};
+// 		app_crypto!(sr25519, TEST_KEY_TYPE_ID);
+// 	}
+
+// 	pub type AuthorityId = app_sr25519::Public;
+// }
+
+parameter_types! {
+	pub const GracePeriod: BlockNumber = 1 * MINUTES;
+	pub const UnsignedInterval: BlockNumber = 1 * MINUTES;
+    pub const UnsignedPriority: BlockNumber = 1 * MINUTES;
+}
+
 impl mining_rewards_allowance::Config for Runtime {
-    type Event = Event;
+    type AuthorityId = TestAuthId;
+    type Call = Call;
     type Currency = Balances;
+    type Event = Event;
+    type GracePeriod = GracePeriod;
+    type UnsignedInterval = UnsignedInterval;
+    type UnsignedPriority = UnsignedPriority;
 }
 
 impl exchange_rate::Config for Runtime {
