@@ -160,7 +160,7 @@ pub fn chachacha_development_config(id: ParaId) -> ChainSpec {
     properties.insert("tokenDecimals".into(), 18.into());
     ChainSpec::from_genesis(
         // Name
-        "Development",
+        "DataHighway ChaChaCha Development Testnet",
         // ID
         "dev",
         ChainType::Development,
