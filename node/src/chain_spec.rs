@@ -84,7 +84,7 @@ pub fn rococo_development_config(id: ParaId) -> ChainSpec {
         // Name
         "DataHighway Rococo Development Testnet",
         // ID
-        "dev",
+        "datahighway-rococo-dev",
         ChainType::Development,
         move || {
             dev_genesis(
