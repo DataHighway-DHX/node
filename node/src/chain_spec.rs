@@ -162,7 +162,7 @@ pub fn chachacha_development_config(id: ParaId) -> ChainSpec {
         // Name
         "DataHighway ChaChaCha Development Testnet",
         // ID
-        "dev",
+        "datahighway-chachacha-dev",
         ChainType::Development,
         move || {
             dev_genesis(
