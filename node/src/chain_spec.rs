@@ -304,7 +304,7 @@ pub fn chachacha_parachain_config(id: ParaId) -> ChainSpec {
     let boot_nodes = vec![];
     ChainSpec::from_genesis(
         "DataHighway Spreehafen ChaChaCha Parachain Testnet",
-        "datahighway_spreehafen",
+        "datahighway-spreehafen-chachacha-parachain-testnet",
         ChainType::Live,
         move || {
             spreehafen_testnet_genesis(
