@@ -35,6 +35,8 @@ use std::{
     io::Write,
     net::SocketAddr,
 };
+
+// Default parachain-id CLI option value where:
 // 2000 is for cumulus workshop testing on local
 // 2005 is for rococo
 // 2002 is for chachacha
