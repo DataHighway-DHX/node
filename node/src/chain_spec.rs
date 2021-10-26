@@ -239,7 +239,7 @@ pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
     let boot_nodes = vec![];
     ChainSpec::from_genesis(
         "DataHighway Spreehafen Rococo Parachain Testnet",
-        "datahighway_spreehafen",
+        "datahighway-spreehafen-rococo-parachain-testnet",
         ChainType::Live,
         move || {
             spreehafen_testnet_genesis(
