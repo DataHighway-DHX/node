@@ -76,7 +76,7 @@ where
     AccountPublic::from(get_from_seed::<TPublic>(seed)).into_account()
 }
 
-pub fn rococo_development_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_rococo_development_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -111,7 +111,7 @@ pub fn rococo_development_config(id: ParaId) -> ChainSpec {
     )
 }
 
-pub fn rococo_local_testnet_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_rococo_local_testnet_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -154,7 +154,7 @@ pub fn rococo_local_testnet_config(id: ParaId) -> ChainSpec {
     )
 }
 
-pub fn chachacha_development_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_chachacha_development_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -189,7 +189,7 @@ pub fn chachacha_development_config(id: ParaId) -> ChainSpec {
     )
 }
 
-pub fn chachacha_local_testnet_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_chachacha_local_testnet_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -232,7 +232,7 @@ pub fn chachacha_local_testnet_config(id: ParaId) -> ChainSpec {
     )
 }
 
-pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_rococo_parachain_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -297,7 +297,7 @@ pub fn rococo_parachain_config(id: ParaId) -> ChainSpec {
     )
 }
 
-pub fn chachacha_parachain_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_chachacha_parachain_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -362,7 +362,7 @@ pub fn chachacha_parachain_config(id: ParaId) -> ChainSpec {
     )
 }
 
-pub fn westend_development_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_westend_development_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -397,7 +397,7 @@ pub fn westend_development_config(id: ParaId) -> ChainSpec {
     )
 }
 
-pub fn westend_local_testnet_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_westend_local_testnet_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -440,7 +440,7 @@ pub fn westend_local_testnet_config(id: ParaId) -> ChainSpec {
     )
 }
 
-pub fn polkadot_development_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_polkadot_development_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -475,7 +475,7 @@ pub fn polkadot_development_config(id: ParaId) -> ChainSpec {
     )
 }
 
-pub fn polkadot_local_testnet_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_polkadot_local_testnet_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -518,7 +518,7 @@ pub fn polkadot_local_testnet_config(id: ParaId) -> ChainSpec {
     )
 }
 
-pub fn westend_parachain_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_westend_parachain_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -583,7 +583,7 @@ pub fn westend_parachain_config(id: ParaId) -> ChainSpec {
     )
 }
 
-pub fn polkadot_parachain_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_polkadot_parachain_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
     properties.insert("tokenDecimals".into(), 18.into());
