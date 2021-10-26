@@ -117,9 +117,9 @@ pub fn rococo_local_testnet_config(id: ParaId) -> ChainSpec {
     properties.insert("tokenDecimals".into(), 18.into());
     ChainSpec::from_genesis(
         // Name
-        "Local Testnet",
+        "DataHighway Rococo Local Testnet",
         // ID
-        "local_testnet",
+        "datahighway-rococo-local",
         ChainType::Local,
         move || {
             testnet_genesis(
@@ -195,9 +195,9 @@ pub fn chachacha_local_testnet_config(id: ParaId) -> ChainSpec {
     properties.insert("tokenDecimals".into(), 18.into());
     ChainSpec::from_genesis(
         // Name
-        "Local Testnet",
+        "DataHighway ChaChaCha Local Testnet",
         // ID
-        "local_testnet",
+        "datahighway-chachacha-local",
         ChainType::Local,
         move || {
             testnet_genesis(
