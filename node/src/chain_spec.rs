@@ -274,14 +274,30 @@ pub fn datahighway_rococo_parachain_config(id: ParaId) -> ChainSpec {
                     // 5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr
                     hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
                     // Endow these accounts with a balance so they may bond as authorities
+                    // authority #1 stash
                     hex!["b2f1decb9c6a1e6df2cd7e7b73d6c7eada3683d958b2fed451fb045d2f7cdb55"].into(),
-                    hex!["b2347d115c9300a433a59b0ef321430a6d418d0555a6a41dfebe99fb86765110"].into(),
-                    hex!["f4062d6d4ac30ea04659b24994cc0ebf249fed1591e6cf1c25d5f4f78e78bb6b"].into(),
-                    hex!["a0d56496c02c203312ebce4a2804c7e0c31e34f983b9bc037f7c95f34e416613"].into(),
+                    // authority #1 controller
                     hex!["467da0333f16ce430bfa18fb8c25cfbbc49f35946370989280aaf3142fff7344"].into(),
+                    // authority #1 aura
+                    hex!["106c208ac262aa3733629ad0860d0dc72d8b9152e1cdcab497949a3f9504517a"].into(),
+                    // authority #2 stash
+                    hex!["b2347d115c9300a433a59b0ef321430a6d418d0555a6a41dfebe99fb86765110"].into(),
+                    // authority #2 controller
                     hex!["ac691d2b336f8347a22eb3831b381e4adac45ab6f0ad85abc1336633313f173d"].into(),
+                    // authority #2 aura
+                    hex!["0234df0fce3e763e02b6644e589bd256bbd45121bdf6d98dd1cf1072b6228859"].into(),
+                    // authority #3 stash
+                    hex!["f4062d6d4ac30ea04659b24994cc0ebf249fed1591e6cf1c25d5f4f78e78bb6b"].into(),
+                    // authority #3 controller
                     hex!["4cad3775c026114d4a6e965f72caf11c18eb03ea7a3b4c0516f4cb8856b2575f"].into(),
+                    // authority #3 aura
+                    hex!["02fe175463b5c7c378416e06780f7c60520d4dbcf759a7634a311e562e13a765"].into(),
+                    // authority #4 stash
+                    hex!["a0d56496c02c203312ebce4a2804c7e0c31e34f983b9bc037f7c95f34e416613"].into(),
+                    // authority #4 controller
                     hex!["6cd4eeb38c45a073d3c8e3ddd24e2502707060f33a1d92e082e32c106512500f"].into(),
+                    // authority #4 aura
+                    hex!["ea239700d67f53d30e39bee0c056f1165a6fb59ad4d5dd495c06d001af366c02"].into(),
                 ],
                 id,
             )
@@ -339,14 +355,30 @@ pub fn datahighway_chachacha_parachain_config(id: ParaId) -> ChainSpec {
                     // 5EWKojw2i3uoqfWx1dEgVjBsvK5xuTr5G3NjXYh47H6ycBWr
                     hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
                     // Endow these accounts with a balance so they may bond as authorities
+                    // authority #1 stash
                     hex!["b2f1decb9c6a1e6df2cd7e7b73d6c7eada3683d958b2fed451fb045d2f7cdb55"].into(),
-                    hex!["b2347d115c9300a433a59b0ef321430a6d418d0555a6a41dfebe99fb86765110"].into(),
-                    hex!["f4062d6d4ac30ea04659b24994cc0ebf249fed1591e6cf1c25d5f4f78e78bb6b"].into(),
-                    hex!["a0d56496c02c203312ebce4a2804c7e0c31e34f983b9bc037f7c95f34e416613"].into(),
+                    // authority #1 controller
                     hex!["467da0333f16ce430bfa18fb8c25cfbbc49f35946370989280aaf3142fff7344"].into(),
+                    // authority #1 aura
+                    hex!["106c208ac262aa3733629ad0860d0dc72d8b9152e1cdcab497949a3f9504517a"].into(),
+                    // authority #2 stash
+                    hex!["b2347d115c9300a433a59b0ef321430a6d418d0555a6a41dfebe99fb86765110"].into(),
+                    // authority #2 controller
                     hex!["ac691d2b336f8347a22eb3831b381e4adac45ab6f0ad85abc1336633313f173d"].into(),
+                    // authority #2 aura
+                    hex!["0234df0fce3e763e02b6644e589bd256bbd45121bdf6d98dd1cf1072b6228859"].into(),
+                    // authority #3 stash
+                    hex!["f4062d6d4ac30ea04659b24994cc0ebf249fed1591e6cf1c25d5f4f78e78bb6b"].into(),
+                    // authority #3 controller
                     hex!["4cad3775c026114d4a6e965f72caf11c18eb03ea7a3b4c0516f4cb8856b2575f"].into(),
+                    // authority #3 aura
+                    hex!["02fe175463b5c7c378416e06780f7c60520d4dbcf759a7634a311e562e13a765"].into(),
+                    // authority #4 stash
+                    hex!["a0d56496c02c203312ebce4a2804c7e0c31e34f983b9bc037f7c95f34e416613"].into(),
+                    // authority #4 controller
                     hex!["6cd4eeb38c45a073d3c8e3ddd24e2502707060f33a1d92e082e32c106512500f"].into(),
+                    // authority #4 aura
+                    hex!["ea239700d67f53d30e39bee0c056f1165a6fb59ad4d5dd495c06d001af366c02"].into(),
                 ],
                 id,
             )
