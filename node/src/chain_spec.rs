@@ -552,7 +552,7 @@ pub fn datahighway_polkadot_local_testnet_config(id: ParaId) -> ChainSpec {
 
 pub fn datahighway_westend_parachain_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
-    properties.insert("tokenSymbol".into(), "DHX".into());
+    properties.insert("tokenSymbol".into(), "BKL".into());
     properties.insert("tokenDecimals".into(), 18.into());
     let boot_nodes = vec![];
     ChainSpec::from_genesis(
