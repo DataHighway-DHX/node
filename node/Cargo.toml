@@ -1,242 +1,220 @@
 [dependencies]
-derive_more = '0.15.0'
-log = "0.4.13"
+derive_more = '0.99.2'
+log = '0.4.14'
 codec = { package = 'parity-scale-codec', version = '2.0.0' }
 structopt = "0.3.8"
-serde_json = '1.0.47'
-serde = { version = "1.0.101", features = ["derive"] }
-hex-literal = "0.2.1"
+serde = { version = "1.0.119", features = ["derive"] }
+hex-literal = "0.3.1"
 # RPC related dependencies
 jsonrpc-core = "15.1.0"
 
 [dependencies.frame-benchmarking]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.frame-benchmarking-cli]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
-[dependencies.datahighway-runtime]
+[dependencies.datahighway-parachain-runtime]
 path = '../runtime'
 version = '1.1.0'
 
 [dependencies.pallet-transaction-payment-rpc]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
+
+[dependencies.substrate-prometheus-endpoint]
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sc-basic-authorship]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '0.9.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sc-chain-spec]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sc-cli]
 features = ['wasmtime']
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '0.9.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sc-client-api]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sc-consensus]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '0.9.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sc-executor]
 features = ['wasmtime']
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '0.9.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
+
+[dependencies.sc-network]
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sc-keystore]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sc-rpc]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sc-rpc-api]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '0.9.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sc-service]
 features = ['wasmtime']
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '0.9.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sc-transaction-pool]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sc-tracing]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sp-api]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sp-block-builder]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sp-blockchain]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sp-consensus]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '0.9.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
+
+[dependencies.sp-consensus-aura]
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sp-core]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sp-inherents]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
+
+[dependencies.sp-keystore]
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
+
+
+[dependencies.sp-offchain]
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sp-runtime]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
+
+[dependencies.sp-session]
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sp-timestamp]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sp-transaction-pool]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sp-trie]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.substrate-frame-rpc-system]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [build-dependencies.substrate-build-script-utils]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 # Cumulus dependencies
-[dependencies.cumulus-client-consensus-relay-chain]
+[dependencies.cumulus-client-consensus-aura]
 git = 'https://github.com/paritytech/cumulus.git'
-branch = "rococo-v1"
+branch = "polkadot-v0.9.10"
+
+[dependencies.cumulus-client-consensus-common]
+git = 'https://github.com/paritytech/cumulus.git'
+branch = "polkadot-v0.9.10"
 
 [dependencies.cumulus-client-collator]
 git = 'https://github.com/paritytech/cumulus.git'
-branch = "rococo-v1"
+branch = "polkadot-v0.9.10"
+
+[dependencies.cumulus-client-cli]
+git = 'https://github.com/paritytech/cumulus.git'
+branch = "polkadot-v0.9.10"
 
 [dependencies.cumulus-client-network]
 git = 'https://github.com/paritytech/cumulus.git'
-branch = "rococo-v1"
+branch = "polkadot-v0.9.10"
 
 [dependencies.cumulus-primitives-core]
 git = 'https://github.com/paritytech/cumulus.git'
-branch = "rococo-v1"
+branch = "polkadot-v0.9.10"
 
 [dependencies.cumulus-client-service]
 git = 'https://github.com/paritytech/cumulus.git'
-branch = "rococo-v1"
+branch = "polkadot-v0.9.10"
+
+[dependencies.cumulus-primitives-parachain-inherent]
+git = 'https://github.com/paritytech/cumulus.git'
+branch = "polkadot-v0.9.10"
 
 # Polkadot dependencies
 [dependencies.polkadot-primitives]
 git = "https://github.com/paritytech/polkadot"
-branch = "rococo-v1"
+branch = "release-v0.9.10"
 
 [dependencies.polkadot-service]
 git = "https://github.com/paritytech/polkadot"
-branch = "rococo-v1"
+branch = "release-v0.9.10"
 
 [dependencies.polkadot-cli]
 git = "https://github.com/paritytech/polkadot"
-branch = "rococo-v1"
+branch = "release-v0.9.10"
 
 [dependencies.polkadot-test-service]
 git = "https://github.com/paritytech/polkadot"
-branch = "rococo-v1"
+branch = "release-v0.9.10"
 
 [dependencies.polkadot-parachain]
 git = "https://github.com/paritytech/polkadot"
-branch = "rococo-v1"
+branch = "release-v0.9.10"
 
 [dependencies.sc-consensus-epochs]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '0.9.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sc-consensus-aura]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '0.9.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 # #
 
-
-
-[dependencies.sc-finality-grandpa]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '0.9.0'
-
-[dependencies.sp-finality-grandpa]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
-
-
-[dependencies.sp-consensus-babe]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '0.9.0'
-
-[dependencies.sc-consensus-babe]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '0.9.0'
-
-[dependencies.sc-consensus-babe-rpc]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '0.9.0'
-
 [dependencies.sc-telemetry]
-git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+git = 'https://github.com/paritytech/substrate'
+branch = "polkadot-v0.9.10"
 
 [[bin]]
 name = 'datahighway-collator'
@@ -255,4 +233,4 @@ targets = ['x86_64-unknown-linux-gnu']
 
 [features]
 default = []
-runtime-benchmarks = ['datahighway-runtime/runtime-benchmarks']
+runtime-benchmarks = ['datahighway-parachain-runtime/runtime-benchmarks']

@@ -1,7 +1,8 @@
 {
   "Keys": "SessionKeys2",
-  "Address": "AccountId", 
-  "LookupSource": "AccountId", 
+  "AccountInfo": "AccountInfoWithTripleRefCount",
+  "Address": "AccountId",
+  "LookupSource": "AccountId",
   "RoamingOperator": "[u8; 16]",
   "RoamingOperatorIndex": "u64",
   "RoamingNetwork": "[u8; 16]",
@@ -24,7 +25,7 @@
   "RoamingAccountingPolicyType": "Text",
   "RoamingAccountingPolicyUplinkFeeFactor": "u32",
   "RoamingAccountingPolicyDownlinkFeeFactor": "u32",
-  "RoamingAccountingPolicyConfig": {
+  "RoamingAccountingPolicySetting": {
     "policy_type": "Text",
     "subscription_fee": "Balance",
     "uplink_fee_factor": "u32",
@@ -34,7 +35,7 @@
   "RoamingAgreementPolicyIndex": "u64",
   "RoamingAgreementPolicyActivationType": "Text",
   "RoamingAgreementPolicyExpiry": "Moment",
-  "RoamingAgreementPolicyConfig": {
+  "RoamingAgreementPolicySetting": {
     "policy_activation_type": "Text",
     "policy_expiry": "u64"
   },
@@ -46,7 +47,7 @@
 	"RoamingDeviceProfileDevEUI": "Text",
 	"RoamingDeviceProfileJoinEUI": "Text",
 	"RoamingDeviceProfileVendorID": "Text",
-  "RoamingDeviceProfileConfig": {
+  "RoamingDeviceProfileSetting": {
     "device_profile_devaddr": "Text",
     "device_profile_deveui": "Text",
     "device_profile_joineui": "Text",
@@ -69,7 +70,7 @@
   "RoamingBillingPolicyIndex": "u64",
   "RoamingBillingPolicyNextBillingAt": "Moment",
   "RoamingBillingPolicyFrequencyInDays": "u64",
-  "RoamingBillingPolicyConfig": {
+  "RoamingBillingPolicySetting": {
     "policy_next_billing_at": "Moment",
     "policy_frequency_in_days": "u64"
   },
@@ -77,7 +78,7 @@
   "RoamingChargingPolicyIndex": "u64",
   "RoamingChargingPolicyNextChargingAt": "Moment",
   "RoamingChargingPolicyDelayAfterBillingInDays": "u64",
-  "RoamingChargingPolicyConfig": {
+  "RoamingChargingPolicySetting": {
     "policy_next_charging_at": "Moment",
     "policy_delay_after_billing_in_days": "u64"
   },

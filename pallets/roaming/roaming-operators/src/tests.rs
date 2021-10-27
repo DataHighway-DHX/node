@@ -24,7 +24,7 @@ fn basic_setup_works() {
 fn create_works() {
     new_test_ext().execute_with(|| {
         // Call Functions
-        assert_ok!(RoamingOperatorModule::create(Origin::signed(1)));
+        assert_ok!(RoamingOperatorModule::create(Origin::signed(1u64.into())));
         // Verify Storage
         assert_eq!(RoamingOperatorModule::roaming_operators_count(), 1);
         assert!(RoamingOperatorModule::roaming_operator(0).is_some());

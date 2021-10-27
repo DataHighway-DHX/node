@@ -8,8 +8,7 @@ edition = "2018"
 [dependencies.sp-std]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+branch = "polkadot-v0.9.10"
 
 [features]
 default = ['std']

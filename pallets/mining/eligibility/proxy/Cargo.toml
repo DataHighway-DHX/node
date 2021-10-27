@@ -38,68 +38,57 @@ module-primitives = { version = '3.0.0', default-features = false, path = '../..
 [dependencies.frame-support]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+branch = "polkadot-v0.9.10"
 
 
 [dependencies.frame-system]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+branch = "polkadot-v0.9.10"
 
 [dependencies.pallet-balances]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+branch = "polkadot-v0.9.10"
 
 [dependencies.pallet-randomness-collective-flip]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+branch = "polkadot-v0.9.10"
 
 [dependencies.pallet-timestamp]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+branch = "polkadot-v0.9.10"
 
 [dependencies.pallet-transaction-payment]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+branch = "polkadot-v0.9.10"
 
 [dependencies.pallet-treasury]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sp-std]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sp-core]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sp-io]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+branch = "polkadot-v0.9.10"
 
 [dependencies.sp-runtime]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "rococo-v1"
-version = '3.0.0'
+branch = "polkadot-v0.9.10"
 
 [dev-dependencies]
