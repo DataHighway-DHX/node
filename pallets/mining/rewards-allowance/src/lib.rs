@@ -46,8 +46,7 @@ use frame_support::{
 use frame_system::{
 	self as system,
 	offchain::{
-		AppCrypto, CreateSignedTransaction, SendSignedTransaction, SendUnsignedTransaction,
-		SignedPayload, Signer, SigningTypes, SubmitTransaction,
+		AppCrypto, CreateSignedTransaction, SendUnsignedTransaction, Signer, SubmitTransaction,
 	},
 };
 use lite_json::json::JsonValue;
@@ -176,8 +175,6 @@ pub mod pallet {
         + pallet_balances::Config
         + pallet_timestamp::Config
         + pallet_treasury::Config {
-		/// The identifier type for an offchain worker.
-		type AuthorityId: AppCrypto<Self::Public, Self::Signature>;
 
         /// Because this pallet emits events, it depends on the runtime's definition of an event.
         type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
@@ -213,23 +210,23 @@ pub mod pallet {
     }
 
     /// Payload used to hold mPower data required to submit a transaction.
-    #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug)]
-    pub struct MPowerPayload<Public, BlockNumber> {
-        block_number: BlockNumber,
-        mpower: u32,
-        public: Public,
+    #[cfg_attr(feature = "std", derive(Debug))]
+    #[derive(Encode, Decode, Default, Clone, PartialEq, Eq)]
+    pub struct MPowerPayload<U, V, W, X> {
+        pub account_id_registered_dhx_miner: U,
+        pub mpower_registered_dhx_miner: V,
+        pub received_at_date: W,
+        pub received_at_block_number: X,
     }
 
-    impl<T: SigningTypes> SignedPayload<T> for MPowerPayload<T::Public, T::BlockNumber> {
-        fn public(&self) -> T::Public {
-            self.public.clone()
-        }
-    }
+    type MPowerPayloadData<T> = MPowerPayload<
+        <T as frame_system::Config>::AccountId,
+        u128,
+        Date,
+        <T as frame_system::Config>::BlockNumber,
+    >;
 
     enum TransactionType {
-        Signed,
-        UnsignedForAny,
-        UnsignedForAll,
         Raw,
         None,
     }
@@ -252,16 +249,6 @@ pub mod pallet {
             T::AccountId,
         ),
         BalanceOf<T>,
-    >;
-
-    #[pallet::storage]
-    #[pallet::getter(fn mpower_of_account_for_date)]
-    pub(super) type MPowerForAccountForDate<T: Config> = StorageMap<_, Blake2_128Concat,
-        (
-            Date,
-            T::AccountId,
-        ),
-        u128,
     >;
 
     #[pallet::storage]
@@ -402,10 +389,20 @@ pub mod pallet {
 
     // Offchain workers
 
-	/// Recently submitted mPower data.
-	#[pallet::storage]
-	#[pallet::getter(fn mpower)]
-	pub(super) type MPowerData<T: Config> = StorageValue<_, Vec<u32>, ValueQuery>;
+    /// Recently submitted mPower data.
+    #[pallet::storage]
+    #[pallet::getter(fn mpower_of_account_for_date)]
+    pub(super) type MPowerForAccountForDate<T: Config> = StorageMap<_, Blake2_128Concat,
+        (
+            Date, // converted to start of date
+            T::AccountId,
+        ),
+        (
+            u128, // mPower
+            Date, // date received using off-chain workers
+            T::BlockNumber, // block receive dusing off-chain workers
+        ),
+    >;
 
 	/// Defines the block when next unsigned transaction will be accepted.
 	///
@@ -540,7 +537,8 @@ pub mod pallet {
         T::AccountId = "AccountId",
         BondedData<T> = "BondedData",
         BalanceOf<T> = "BalanceOf",
-        T::AccountId = "Date"
+        T::AccountId = "Date",
+        T::BlockNumber = "BlockNumber",
     )]
     #[pallet::generate_deposit(pub(super) fn deposit_event)]
     pub enum Event<T: Config> {
@@ -568,7 +566,7 @@ pub mod pallet {
 
         /// Storage of the mPower of an account on a specific date.
         /// \[date, amount_mpower, account\]
-        SetMPowerOfAccountForDateStored(Date, u128, T::AccountId),
+        SetMPowerOfAccountForDateStored(Date, T::AccountId, u128, Date, T::BlockNumber),
 
         /// Storage of the default daily reward allowance in DHX by an origin account.
         /// \[amount_dhx, sender\]
@@ -616,8 +614,8 @@ pub mod pallet {
         // Off-chain workers
 
 		/// Event generated when new mPower data is accepted to contribute to the rewards allowance.
-		/// \[mpower, who\]
-		NewMPower(u32, T::AccountId),
+		/// \[start_date_received, registered_dhx_miner_account_id, mpower, date_received_offchain, block_received_offchain\]
+		NewMPowerForAccountForDate(Date, T::AccountId, u128, Date, T::BlockNumber),
     }
 
     // Errors inform users that something went wrong should be descriptive and have helpful documentation
@@ -659,19 +657,12 @@ pub mod pallet {
 
 			// Call a helper function that reads storage entries of the current state average_mpower
             // and performs a calculation.
-			let average_mpower: Option<u32> = Self::average_mpower();
+			let average_mpower: Option<u128> = Self::average_mpower();
 			log::debug!("offchain_workers average_mpower: {:?}", average_mpower);
 
-			// For this example we are going to send both signed and unsigned transactions
-			// depending on the block number.
-			// Usually it's enough to choose one or the other.
+			// We are going to send unsigned transactions
 			let should_send = Self::choose_transaction_type(block_number);
 			let res = match should_send {
-				TransactionType::Signed => Self::fetch_mpower_and_send_signed(),
-				TransactionType::UnsignedForAny =>
-					Self::fetch_mpower_and_send_unsigned_for_any_account(block_number),
-				TransactionType::UnsignedForAll =>
-					Self::fetch_mpower_and_send_unsigned_for_all_accounts(block_number),
 				TransactionType::Raw => Self::fetch_mpower_and_send_raw_unsigned(block_number),
 				TransactionType::None => Ok(()),
 			};
@@ -1224,8 +1215,14 @@ pub mod pallet {
                 // TODO - fetch the mPower of the miner currently being iterated to check if it's greater than the min.
                 // mPower that is required
                 let mut mpower_current_u128: u128 = 0u128;
-                let _mpower_current_u128 = <MPowerForAccountForDate<T>>::get((start_of_requested_date_millis.clone(), miner.clone()));
-                match _mpower_current_u128 {
+                // let _mpower_current_u128 = <MPowerForAccountForDate<T>>::get((start_of_requested_date_millis.clone(), miner.clone()));
+                // FIXME - this is temporary
+                let _mpower_data = (
+                    Some(0u128),
+                    start_of_requested_date_millis.clone(),
+                    1u64,
+                );
+                match _mpower_data.0 {
                     None => {
                         log::error!("Unable to get_mpower_of_account_for_date {:?}", start_of_requested_date_millis.clone());
                         // println!("Unable to get_mpower_of_account_for_date {:?}", start_of_requested_date_millis.clone());
@@ -2229,75 +2226,37 @@ pub mod pallet {
 
         // Off-chain workers
 
-		/// Submit new mPower data.
-		///
-		/// This method is a public function of the module and can be called from within
-		/// a transaction. It stores fetched mPower data associated with registered DHX miners
-        /// under a key that represents the associated date that it relates to.
-		/// In our example the `offchain worker` will create, sign & submit a transaction that
-		/// calls this function passing the mPower data.
-		///
-		/// The transaction needs to be signed (see `ensure_signed`) check, so that the caller
-		/// pays a fee to execute it.
-		/// This makes sure that it's not easy (or rather cheap) to attack the chain by submitting
-		/// excessive transactions, but note that it doesn't ensure the mPower oracle is actually
-		/// working and receives (and provides) meaningful data.
+        /// Submit new mPower data on-chain via unsigned transaction.
+        ///
+        /// Works exactly like the `submit_mpower` function, but since we allow sending the
+        /// transaction without a signature, and hence without paying any fees,
+        /// we need a way to make sure that only some transactions are accepted.
+        /// This function can be called only once every `T::UnsignedInterval` blocks.
+        /// Transactions that call that function are de-duplicated on the pool level
+        /// via `validate_unsigned` implementation and also are rendered invalid if
+        /// the function has already been called in current "session".
         ///
         /// TODO - verify the provided mPower to check that it is meaningful data
         /// TODO - replace u32 with data structured that contains the account id of each
         /// registered DHX miner and their mPower data for a date
-		/// TODO - specify `weight` for unsigned calls as well, because even though
-		/// they don't charge fees, we still don't want a single block to contain unlimited
-		/// number of such transactions.
-		#[pallet::weight(0)]
-		pub fn submit_mpower(origin: OriginFor<T>, mpower: u32) -> DispatchResultWithPostInfo {
-			// Retrieve sender of the transaction.
-			let who = ensure_signed(origin)?;
-			// Add mpower on-chain.
-			Self::add_mpower(who, mpower);
-			Ok(().into())
-		}
-
-		/// Submit new mPower data on-chain via unsigned transaction.
-		///
-		/// Works exactly like the `submit_mpower` function, but since we allow sending the
-		/// transaction without a signature, and hence without paying any fees,
-		/// we need a way to make sure that only some transactions are accepted.
-		/// This function can be called only once every `T::UnsignedInterval` blocks.
-		/// Transactions that call that function are de-duplicated on the pool level
-		/// via `validate_unsigned` implementation and also are rendered invalid if
-		/// the function has already been called in current "session".
-		#[pallet::weight(0)]
-		pub fn submit_mpower_unsigned(
-			origin: OriginFor<T>,
-			_block_number: T::BlockNumber,
-			mpower: u32,
-		) -> DispatchResultWithPostInfo {
-			// This ensures that the function can only be called via unsigned transaction.
-			ensure_none(origin)?;
-			// Add the mpower on-chain, but mark it as coming from an empty address.
-			Self::add_mpower(Default::default(), mpower);
-			// now increment the block number at which we expect next unsigned transaction.
-			let current_block = <system::Pallet<T>>::block_number();
-			<NextUnsignedAt<T>>::put(current_block + T::UnsignedInterval::get());
-			Ok(().into())
-		}
-
-		#[pallet::weight(0)]
-		pub fn submit_mpower_unsigned_with_signed_payload(
-			origin: OriginFor<T>,
-			mpower_payload: MPowerPayload<T::Public, T::BlockNumber>,
-			_signature: T::Signature,
-		) -> DispatchResultWithPostInfo {
-			// This ensures that the function can only be called via unsigned transaction.
-			ensure_none(origin)?;
-			// Add the mPower on-chain, but mark it as coming from an empty address.
-			Self::add_mpower(Default::default(), mpower_payload.mpower);
-			// now increment the block number at which we expect next unsigned transaction.
-			let current_block = <system::Pallet<T>>::block_number();
-			<NextUnsignedAt<T>>::put(current_block + T::UnsignedInterval::get());
-			Ok(().into())
-		}
+        /// TODO - specify `weight` for unsigned calls as well, because even though
+        /// they don't charge fees, we still don't want a single block to contain unlimited
+        /// number of such transactions.
+        #[pallet::weight(0)]
+        pub fn submit_mpower_unsigned(
+            origin: OriginFor<T>,
+            _block_number: T::BlockNumber,
+            mpower_payload: MPowerPayloadData<T>,
+        ) -> DispatchResultWithPostInfo {
+            // This ensures that the function can only be called via unsigned transaction.
+            ensure_none(origin)?;
+            // Add the mpower on-chain, but mark it as coming from an empty address.
+            Self::add_mpower(Default::default(), mpower_payload.clone());
+            // now increment the block number at which we expect next unsigned transaction.
+            let current_block = <system::Pallet<T>>::block_number();
+            <NextUnsignedAt<T>>::put(current_block + T::UnsignedInterval::get());
+            Ok(().into())
+        }
     }
 
 	#[pallet::validate_unsigned]
@@ -2310,18 +2269,8 @@ pub mod pallet {
 		/// here we make sure that some particular calls (the ones produced by offchain worker)
 		/// are being whitelisted and marked as valid.
 		fn validate_unsigned(_source: TransactionSource, call: &Self::Call) -> TransactionValidity {
-			// Firstly let's check that we call the right function.
-			if let Call::submit_mpower_unsigned_with_signed_payload(ref payload, ref signature) =
-				call
-			{
-				let signature_valid =
-					SignedPayload::<T>::verify::<T::AuthorityId>(payload, signature.clone());
-				if !signature_valid {
-					return InvalidTransaction::BadProof.into()
-				}
-				Self::validate_transaction_parameters(&payload.block_number, &payload.mpower)
-			} else if let Call::submit_mpower_unsigned(block_number, new_mpower) = call {
-				Self::validate_transaction_parameters(block_number, new_mpower)
+            if let Call::submit_mpower_unsigned(block_number, new_mpower_data) = call {
+				Self::validate_transaction_parameters(block_number, new_mpower_data)
 			} else {
 				InvalidTransaction::Call.into()
 			}
@@ -2462,7 +2411,7 @@ pub mod pallet {
         }
 
         // we need to set the mPower for the next start date so it's available from off-chain in time
-        pub fn set_mpower_of_account_for_date(account_id: T::AccountId, mpower: u128, next_start_date: Date) -> Result<u128, DispatchError> {
+        pub fn set_mpower_of_account_for_date(account_id: T::AccountId, mpower: u128, next_start_date: Date, received_at_date: Date, received_at_block_number: T::BlockNumber) -> Result<u128, DispatchError> {
             // // Note: we DO need the following as we're using the current timestamp, rather than a function parameter.
             // let timestamp: <T as pallet_timestamp::Config>::Moment = <pallet_timestamp::Pallet<T>>::get();
             // let requested_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone())?;
@@ -2480,8 +2429,13 @@ pub mod pallet {
                     start_of_next_start_date_millis.clone(),
                     account_id.clone(),
                 ),
-                mpower_current_u128.clone(),
+                (
+                    mpower_current_u128.clone(),
+                    received_at_date.clone(),
+                    received_at_block_number.clone(),
+                ),
             );
+
             log::info!("set_mpower_of_account_for_date - start_of_next_start_date_millis: {:?}", &start_of_next_start_date_millis);
             log::info!("set_mpower_of_account_for_date - account_id: {:?}", &account_id);
             log::info!("set_mpower_of_account_for_date - mpower_current: {:?}", &mpower_current_u128);
@@ -2489,8 +2443,10 @@ pub mod pallet {
             // Emit an event.
             Self::deposit_event(Event::SetMPowerOfAccountForDateStored(
                 start_of_next_start_date_millis.clone(),
-                mpower_current_u128.clone(),
                 account_id.clone(),
+                mpower_current_u128.clone(),
+                received_at_date.clone(),
+                received_at_block_number.clone(),
             ));
 
             // Return a successful DispatchResultWithPostInfo
@@ -2637,24 +2593,7 @@ pub mod pallet {
             match res {
                 // The value has been set correctly, which means we can safely send a transaction now.
                 Ok(block_number) => {
-                    // Depending if the block is even or odd we will send a `Signed` or `Unsigned`
-                    // transaction.
-                    // Note that this logic doesn't really guarantee that the transactions will be sent
-                    // in an alternating fashion (i.e. fairly distributed). Depending on the execution
-                    // order and lock acquisition, we may end up for instance sending two `Signed`
-                    // transactions in a row. If a strict order is desired, it's better to use
-                    // the storage entry for that. (for instance store both block number and a flag
-                    // indicating the type of next transaction to send).
-                    let transaction_type = block_number % 3u32.into();
-                    if transaction_type == Zero::zero() {
-                        TransactionType::Signed
-                    } else if transaction_type == T::BlockNumber::from(1u32) {
-                        TransactionType::UnsignedForAny
-                    } else if transaction_type == T::BlockNumber::from(2u32) {
-                        TransactionType::UnsignedForAll
-                    } else {
-                        TransactionType::Raw
-                    }
+                    TransactionType::Raw
                 },
                 // We are in the grace period, we should not send a transaction this time.
                 Err(MutateStorageError::ValueFunctionFailed(RECENTLY_SENT)) => TransactionType::None,
@@ -2665,39 +2604,6 @@ pub mod pallet {
                 // already did.
                 Err(MutateStorageError::ConcurrentModification(_)) => TransactionType::None,
             }
-        }
-
-        /// A helper function to fetch the mpower and send signed transaction.
-        fn fetch_mpower_and_send_signed() -> Result<(), &'static str> {
-            let signer = Signer::<T, T::AuthorityId>::all_accounts();
-            if !signer.can_sign() {
-                return Err(
-                    "No local accounts available. Consider adding one via `author_insertKey` RPC.",
-                )?
-            }
-            // Make an external HTTP request to fetch the current mpower data.
-            // Note this call will block until response is received.
-            let mpower = Self::fetch_mpower().map_err(|_| "Failed to fetch mpower")?;
-
-            // Using `send_signed_transaction` associated type we create and submit a transaction
-            // representing the call, we've just created.
-            // Submit signed will return a vector of results for all accounts that were found in the
-            // local keystore with expected `KEY_TYPE`.
-            let results = signer.send_signed_transaction(|_account| {
-                // Received mpower is wrapped into a call to `submit_mpower` public function of this
-                // pallet. This means that the transaction, when executed, will simply call that
-                // function passing `mpower` as an argument.
-                Call::submit_mpower(mpower)
-            });
-
-            for (acc, res) in &results {
-                match res {
-                    Ok(()) => log::info!("[{:?}] Submitted mpower of {} cents", acc.id, mpower),
-                    Err(e) => log::error!("[{:?}] Failed to submit transaction: {:?}", acc.id, e),
-                }
-            }
-
-            Ok(())
         }
 
         /// A helper function to fetch the mpower and send a raw unsigned transaction.
@@ -2711,12 +2617,12 @@ pub mod pallet {
 
             // Make an external HTTP request to fetch the current mpower.
             // Note this call will block until response is received.
-            let mpower = Self::fetch_mpower().map_err(|_| "Failed to fetch mpower data")?;
+            let mpower_data: MPowerPayloadData<T> = Self::fetch_mpower(block_number.clone()).map_err(|_| "Failed to fetch mpower data")?;
 
             // Received mpower data is wrapped into a call to `submit_mpower_unsigned` public function of this
             // pallet. This means that the transaction, when executed, will simply call that function
-            // passing `mpower` as an argument.
-            let call = Call::submit_mpower_unsigned(block_number, mpower);
+            // passing `mpower_data` as an argument.
+            let call = Call::submit_mpower_unsigned(block_number, mpower_data);
 
             // Now let's create a transaction out of this call and submit it to the pool.
             // Here we showcase two ways to send an unsigned transaction / unsigned payload (raw)
@@ -2732,68 +2638,8 @@ pub mod pallet {
             Ok(())
         }
 
-        /// A helper function to fetch the mpower, sign payload and send an unsigned transaction
-        fn fetch_mpower_and_send_unsigned_for_any_account(
-            block_number: T::BlockNumber,
-        ) -> Result<(), &'static str> {
-            // Make sure we don't fetch the mpower if unsigned transaction is going to be rejected anyway.
-            let next_unsigned_at = <NextUnsignedAt<T>>::get();
-            if next_unsigned_at > block_number {
-                return Err("Too early to send unsigned transaction")
-            }
-
-            // Make an external HTTP request to fetch the current mpower data.
-            // Note this call will block until response is received.
-            let mpower = Self::fetch_mpower().map_err(|_| "Failed to fetch mpower data")?;
-
-            // -- Sign using any account
-            let (_, result) = Signer::<T, T::AuthorityId>::any_account()
-                .send_unsigned_transaction(
-                    |account| MPowerPayload { mpower, block_number, public: account.public.clone() },
-                    |payload, signature| {
-                        Call::submit_mpower_unsigned_with_signed_payload(payload, signature)
-                    },
-                )
-                .ok_or("No local accounts accounts available.")?;
-            result.map_err(|()| "Unable to submit transaction")?;
-
-            Ok(())
-        }
-
-        /// A helper function to fetch the mpower, sign payload and send an unsigned transaction
-        fn fetch_mpower_and_send_unsigned_for_all_accounts(
-            block_number: T::BlockNumber,
-        ) -> Result<(), &'static str> {
-            // Make sure we don't fetch the mpower if unsigned transaction is going to be rejected anyway.
-            let next_unsigned_at = <NextUnsignedAt<T>>::get();
-            if next_unsigned_at > block_number {
-                return Err("Too early to send unsigned transaction")
-            }
-
-            // Make an external HTTP request to fetch the current mpower data.
-            // Note this call will block until response is received.
-            let mpower = Self::fetch_mpower().map_err(|_| "Failed to fetch mpower")?;
-
-            // Sign using all accounts
-            // TODO - why would we need to sign using all accounts?
-            let transaction_results = Signer::<T, T::AuthorityId>::all_accounts()
-                .send_unsigned_transaction(
-                    |account| MPowerPayload { mpower, block_number, public: account.public.clone() },
-                    |payload, signature| {
-                        Call::submit_mpower_unsigned_with_signed_payload(payload, signature)
-                    },
-                );
-            for (_account_id, result) in transaction_results.into_iter() {
-                if result.is_err() {
-                    return Err("Unable to submit transaction")
-                }
-            }
-
-            Ok(())
-        }
-
         /// Fetch current mPower and return the result.
-        fn fetch_mpower() -> Result<u32, http::Error> {
+        fn fetch_mpower(block_number: T::BlockNumber) -> Result<MPowerPayloadData<T>, http::Error> {
             // We want to keep the offchain worker execution time reasonable, so we set a hard-coded
             // deadline to 2s to complete the external call.
             // You can also wait idefinitely for the response, however you may still get a timeout
@@ -2835,84 +2681,124 @@ pub mod pallet {
                 http::Error::Unknown
             })?;
 
-            let mpower = match Self::parse_mpower(body_str) {
-                Some(mpower) => Ok(mpower),
+            log::info!("Received HTTP Body: {}", body_str.clone());
+
+            // FIXME - do we need this?
+            let mpower_data = match Self::parse_mpower_data(body_str, block_number.clone()) {
+                Some(mpower_data) => Ok(mpower_data),
                 None => {
                     log::warn!("Unable to extract mpower from the response: {:?}", body_str);
                     Err(http::Error::Unknown)
                 },
             }?;
 
-            log::warn!("Got mpower: {:?}", mpower);
+            log::info!("Parsed mpower_data: {:?}", body_str);
 
-            Ok(mpower)
+            Ok(mpower_data)
         }
 
         /// Parse the mPower from the given JSON string using `lite-json`.
         ///
-        /// Returns `None` when parsing failed or `Some(mPower)` when parsing is successful.
-        fn parse_mpower(mpower_str: &str) -> Option<u32> {
-            let val = lite_json::parse_json(mpower_str);
+        /// Returns `None` when parsing failed or `Some(mpower_data)` when parsing is successful.
+        fn parse_mpower_data(mpower_data_str: &str, block_number: T::BlockNumber) -> Option<MPowerPayloadData<T>> {
+            let val = lite_json::parse_json(mpower_data_str);
 
+            let timestamp = <pallet_timestamp::Pallet<T>>::get();
+            let received_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone()).ok()?;
+            log::info!("received_date_as_u64: {:?}", received_date_as_u64.clone());
             // TODO - parse for mPower data and replace hard-coded response with output
+            let received_date_as_millis = Self::convert_u64_in_milliseconds_to_start_of_date(received_date_as_u64.clone()).ok()?;
 
-            // let mpower = match val.ok()? {
-            //     JsonValue::Object(obj) => {
-            //         let (_, v) = obj.into_iter().find(|(k, _)| k.iter().copied().eq("USD".chars()))?;
-            //         match v {
-            //             JsonValue::Number(number) => number,
-            //             _ => return None,
-            //         }
-            //     },
-            //     _ => return None,
-            // };
+            let mpower_parsed = match val.ok()? {
+                JsonValue::Object(obj) => {
+                    // let (_, v) = obj.into_iter().find(|(k, _)| k.iter().copied().eq("USD".chars()))?;
+                    // match v {
+                    //     JsonValue::Number(number) => number,
+                    //     _ => return None,
+                    // };
 
-            // let exp = mpower.fraction_length.checked_sub(2).unwrap_or(0);
-            // Some(mpower.integer as u32 * 100 + (mpower.fraction / 10_u64.pow(exp)) as u32)
-            Some(0u32)
+                    // FIXME - this is all hard-coded temporary
+                    let mpower_data: MPowerPayloadData<T> = MPowerPayload {
+                        // account_id_registered_dhx_miner: mpower_data_str.account_id.clone(), // FIXME
+                        // mpower_registered_dhx_miner: mpower_data_str.mpower.clone(), // FIXME
+                        // it's not supposed to be from the treasury, but just using treasury account for demo
+                        account_id_registered_dhx_miner: <pallet_treasury::Module<T>>::account_id(), // FIXME
+                        mpower_registered_dhx_miner: 0u128, // FIXME
+                        received_at_date: received_date_as_millis.clone(),
+                        received_at_block_number: block_number.clone(),
+                    };
+                    return Some(mpower_data);
+                },
+                _ => return None,
+            };
+
+            Some(mpower_parsed)
         }
 
         /// Add new mPower on-chain.
-        fn add_mpower(who: T::AccountId, mpower: u32) {
-            log::info!("Adding mPower to storage: {}", mpower);
+        fn add_mpower(who: T::AccountId, mpower_data: MPowerPayloadData<T>) -> Option<MPowerPayloadData<T>> {
+            log::info!("Adding mPower to storage");
 
-            // TODO - add mPower data to storage
+            let timestamp = <pallet_timestamp::Pallet<T>>::get();
+            let received_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone()).ok()?;
+            log::info!("received_date_as_u64: {:?}", received_date_as_u64.clone());
+            // convert the received date/time to the start of that day date/time to signify that date for lookup
+            // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
+            let start_of_received_date_millis = Self::convert_u64_in_milliseconds_to_start_of_date(received_date_as_u64.clone()).ok()?;
+            log::info!("start_of_received_date_millis: {:?}", start_of_received_date_millis.clone());
 
-            // <MPowerData<T>>::mutate(|mpowers| {
-            //     const MAX_LEN: usize = 64;
-
-            //     if mpowers.len() < MAX_LEN {
-            //         mpowers.push(mpower);
-            //     } else {
-            //         mpowers[mpower as usize % MAX_LEN] = mpower;
-            //     }
-            // });
+            <MPowerForAccountForDate<T>>::insert(
+                (
+                    start_of_received_date_millis.clone(),
+                    mpower_data.account_id_registered_dhx_miner.clone(),
+                ),
+                (
+                    mpower_data.mpower_registered_dhx_miner.clone(),
+                    mpower_data.received_at_date.clone(),
+                    mpower_data.received_at_block_number.clone(),
+                ),
+            );
+            log::info!("Added MPowerForAccountForDate {:?} {:?} {:?} {:?} {:?}",
+                start_of_received_date_millis.clone(),
+                mpower_data.account_id_registered_dhx_miner.clone(),
+                mpower_data.mpower_registered_dhx_miner.clone(),
+                mpower_data.received_at_date.clone(),
+                mpower_data.received_at_block_number.clone(),
+            );
 
             // let average = Self::average_mpower()
             //     .expect("The average is not empty, because it was just mutated; qed");
             // log::info!("Current average mpower is: {}", average);
             // here we are raising the NewPrice event
 
-            Self::deposit_event(Event::NewMPower(mpower, who));
+            Self::deposit_event(Event::NewMPowerForAccountForDate(
+                start_of_received_date_millis.clone(),
+                mpower_data.account_id_registered_dhx_miner.clone(),
+                mpower_data.mpower_registered_dhx_miner.clone(),
+                mpower_data.received_at_date.clone(),
+                mpower_data.received_at_block_number.clone(),
+            ));
+
+            Some(mpower_data.clone())
         }
 
         /// Calculation based on mPower.
-        fn average_mpower() -> Option<u32> {
-            let mpowers = <MPowerData<T>>::get();
+        fn average_mpower() -> Option<u128> {
+            // let mpowers = <MPowerForAccountForDate<T>>::get();
 
             // TODO - implement what we need and replace hard-coded response with output
 
             // if mpowers.is_empty() {
             //     None
             // } else {
-            //     Some(mpowers.iter().fold(0_u32, |a, b| a.saturating_add(*b)) / mpowers.len() as u32)
+            //     Some(mpowers.iter().fold(0_u128, |a, b| a.saturating_add(*b)) / mpowers.len() as u128)
             // }
             None
         }
 
         fn validate_transaction_parameters(
             block_number: &T::BlockNumber,
-            new_mpower: &u32,
+            new_mpower_data: &MPowerPayloadData<T>,
         ) -> TransactionValidity {
             // Now let's check if the transaction has any chance to succeed.
             let next_unsigned_at = <NextUnsignedAt<T>>::get();
@@ -2925,41 +2811,51 @@ pub mod pallet {
                 return InvalidTransaction::Future.into()
             }
 
-            // We prioritize transactions that are more far away from current average.
-            //
-            // Note this doesn't make much sense when building an actual oracle, but this example
-            // is here mostly to show off offchain workers capabilities, not about building an
-            // oracle.
-            let avg_mpower = Self::average_mpower()
-                .map(|mpower| if &mpower > new_mpower { mpower - new_mpower } else { new_mpower - mpower })
-                .unwrap_or(0);
+
+            // // We prioritize transactions that are more far away from current average.
+            // //
+            // // Note this doesn't make much sense when building an actual oracle, but this example
+            // // is here mostly to show off offchain workers capabilities, not about building an
+            // // oracle.
+            // let avg_mpower = Self::average_mpower()
+            //     .map(|mpower| if &mpower > new_mpower { mpower - new_mpower } else { new_mpower - mpower })
+            //     .unwrap_or(0);
+
+            // FIXME
 
             ValidTransaction::with_tag_prefix("MPowerOffchainWorker")
-                // We set base priority to 2**20 and hope it's included before any other
-                // transactions in the pool. Next we tweak the priority depending on how much
-                // it differs from the current average. (the more it differs the more priority it
-                // has).
-                .priority(T::UnsignedPriority::get().saturating_add(avg_mpower as _))
-                // This transaction does not require anything else to go before into the pool.
-                // In theory we could require `previous_unsigned_at` transaction to go first,
-                // but it's not necessary in our case.
-                //.and_requires()
-                // We set the `provides` tag to be the same as `next_unsigned_at`. This makes
-                // sure only one transaction produced after `next_unsigned_at` will ever
-                // get to the transaction pool and will end up in the block.
-                // We can still have multiple transactions compete for the same "spot",
-                // and the one with higher priority will replace other one in the pool.
+                .priority(1)
                 .and_provides(next_unsigned_at)
-                // The transaction is only valid for next 5 blocks. After that it's
-                // going to be revalidated by the pool.
                 .longevity(5)
-                // It's fine to propagate that transaction to other peers, which means it can be
-                // created even by nodes that don't produce blocks.
-                // Note that sometimes it's better to keep it for yourself (if you are the block
-                // producer), since for instance in some schemes others may copy your solution and
-                // claim a reward.
                 .propagate(true)
                 .build()
+
+            // ValidTransaction::with_tag_prefix("MPowerOffchainWorker")
+            //     // We set base priority to 2**20 and hope it's included before any other
+            //     // transactions in the pool. Next we tweak the priority depending on how much
+            //     // it differs from the current average. (the more it differs the more priority it
+            //     // has).
+            //     .priority(T::UnsignedPriority::get().saturating_add(avg_mpower as _))
+            //     // This transaction does not require anything else to go before into the pool.
+            //     // In theory we could require `previous_unsigned_at` transaction to go first,
+            //     // but it's not necessary in our case.
+            //     //.and_requires()
+            //     // We set the `provides` tag to be the same as `next_unsigned_at`. This makes
+            //     // sure only one transaction produced after `next_unsigned_at` will ever
+            //     // get to the transaction pool and will end up in the block.
+            //     // We can still have multiple transactions compete for the same "spot",
+            //     // and the one with higher priority will replace other one in the pool.
+            //     .and_provides(next_unsigned_at)
+            //     // The transaction is only valid for next 5 blocks. After that it's
+            //     // going to be revalidated by the pool.
+            //     .longevity(5)
+            //     // It's fine to propagate that transaction to other peers, which means it can be
+            //     // created even by nodes that don't produce blocks.
+            //     // Note that sometimes it's better to keep it for yourself (if you are the block
+            //     // producer), since for instance in some schemes others may copy your solution and
+            //     // claim a reward.
+            //     .propagate(true)
+            //     .build()
         }
     }
 }

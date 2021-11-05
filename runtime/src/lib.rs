@@ -1170,7 +1170,6 @@ parameter_types! {
 }
 
 impl mining_rewards_allowance::Config for Runtime {
-    type AuthorityId = TestAuthId;
     type Call = Call;
     type Currency = Balances;
     type Event = Event;
@@ -1250,7 +1249,7 @@ construct_runtime!(
         MiningSettingHardware: mining_setting_hardware::{Pallet, Call, Storage, Event<T>},
         MiningRatesToken: mining_rates_token::{Pallet, Call, Storage, Event<T>},
         MiningRatesHardware: mining_rates_hardware::{Pallet, Call, Storage, Event<T>},
-        MiningRewardsAllowance: mining_rewards_allowance::{Pallet, Call, Storage, Config<T>, Event<T>},
+        MiningRewardsAllowance: mining_rewards_allowance::{Pallet, Call, Storage, Config<T>, Event<T>, ValidateUnsigned},
         MiningSamplingToken: mining_sampling_token::{Pallet, Call, Storage, Event<T>},
         MiningSamplingHardware: mining_sampling_hardware::{Pallet, Call, Storage, Event<T>},
         MiningEligibilityToken: mining_eligibility_token::{Pallet, Call, Storage, Event<T>},
