@@ -12,6 +12,7 @@ default = ['std']
 std = [
     'chrono/std',
     'log/std',
+    'serde_json/std',
     'serde/std',
     'rand/std',
     'substrate-fixed/std',
@@ -46,6 +47,7 @@ static_assertions = '1.1.0'
 chrono = { version = '0.4.19', default_features = false }
 lite-json = { version = "0.1", default-features = false }
 log = { version = '0.4.14', default-features = false }
+serde_json = '1.0.41'
 serde = { version = '1.0.126', features = ['derive'] }
 rand = { version = '0.8.4', default-features = false }
 substrate-fixed = { git = "https://github.com/encointer/substrate-fixed", version = '0.5.6' }

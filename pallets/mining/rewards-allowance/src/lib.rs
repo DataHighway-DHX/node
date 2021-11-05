@@ -49,7 +49,8 @@ use frame_system::{
 		AppCrypto, CreateSignedTransaction, SendUnsignedTransaction, Signer, SubmitTransaction,
 	},
 };
-use lite_json::json::JsonValue;
+// use lite_json::json::JsonValue;
+use serde::{Deserialize, Serialize};
 use log::{warn, info};
 use module_primitives::{
     types::{
@@ -209,6 +210,17 @@ pub mod pallet {
 		type UnsignedPriority: Get<TransactionPriority>;
     }
 
+    #[derive(Debug, Serialize, Deserialize)]
+    struct MPowerAccountData<U, V> {
+        acct_id: U,
+        mpower: V,
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    struct MPowerJSONResponseData<U, V> {
+        data: Vec<MPowerAccountData<U, V>>,
+    }
+
     /// Payload used to hold mPower data required to submit a transaction.
     #[cfg_attr(feature = "std", derive(Debug))]
     #[derive(Encode, Decode, Default, Clone, PartialEq, Eq)]
@@ -224,6 +236,12 @@ pub mod pallet {
         u128,
         Date,
         <T as frame_system::Config>::BlockNumber,
+    >;
+
+    // FIXME - change these to the types we really want
+    type MPowerAccountDataType<T> = MPowerAccountData<
+        <T as frame_system::Config>::AccountId,
+        u128,
     >;
 
     enum TransactionType {
@@ -2246,12 +2264,12 @@ pub mod pallet {
         pub fn submit_mpower_unsigned(
             origin: OriginFor<T>,
             _block_number: T::BlockNumber,
-            mpower_payload: MPowerPayloadData<T>,
+            mpower_payload_vec: Vec<MPowerPayloadData<T>>,
         ) -> DispatchResultWithPostInfo {
             // This ensures that the function can only be called via unsigned transaction.
             ensure_none(origin)?;
-            // Add the mpower on-chain, but mark it as coming from an empty address.
-            Self::add_mpower(Default::default(), mpower_payload.clone());
+            // Add the mpower vec on-chain, but mark it as coming from an empty address.
+            Self::add_mpower(Default::default(), mpower_payload_vec.clone());
             // now increment the block number at which we expect next unsigned transaction.
             let current_block = <system::Pallet<T>>::block_number();
             <NextUnsignedAt<T>>::put(current_block + T::UnsignedInterval::get());
@@ -2269,8 +2287,8 @@ pub mod pallet {
 		/// here we make sure that some particular calls (the ones produced by offchain worker)
 		/// are being whitelisted and marked as valid.
 		fn validate_unsigned(_source: TransactionSource, call: &Self::Call) -> TransactionValidity {
-            if let Call::submit_mpower_unsigned(block_number, new_mpower_data) = call {
-				Self::validate_transaction_parameters(block_number, new_mpower_data)
+            if let Call::submit_mpower_unsigned(block_number, new_mpower_data_vec) = call {
+				Self::validate_transaction_parameters(block_number, new_mpower_data_vec)
 			} else {
 				InvalidTransaction::Call.into()
 			}
@@ -2410,6 +2428,7 @@ pub mod pallet {
             Ok(bonded_dhx_current_u128.clone())
         }
 
+        // FIXME - we're using `next_start_date`, but in off-chain workers we'll try doing it all on the same date we received it
         // we need to set the mPower for the next start date so it's available from off-chain in time
         pub fn set_mpower_of_account_for_date(account_id: T::AccountId, mpower: u128, next_start_date: Date, received_at_date: Date, received_at_block_number: T::BlockNumber) -> Result<u128, DispatchError> {
             // // Note: we DO need the following as we're using the current timestamp, rather than a function parameter.
@@ -2617,12 +2636,12 @@ pub mod pallet {
 
             // Make an external HTTP request to fetch the current mpower.
             // Note this call will block until response is received.
-            let mpower_data: MPowerPayloadData<T> = Self::fetch_mpower(block_number.clone()).map_err(|_| "Failed to fetch mpower data")?;
+            let mpower_data_vec: Vec<MPowerPayloadData<T>> = Self::fetch_mpower(block_number.clone()).map_err(|_| "Failed to fetch mpower data vec")?;
 
             // Received mpower data is wrapped into a call to `submit_mpower_unsigned` public function of this
             // pallet. This means that the transaction, when executed, will simply call that function
-            // passing `mpower_data` as an argument.
-            let call = Call::submit_mpower_unsigned(block_number, mpower_data);
+            // passing `mpower_data_vec` as an argument.
+            let call = Call::submit_mpower_unsigned(block_number, mpower_data_vec);
 
             // Now let's create a transaction out of this call and submit it to the pool.
             // Here we showcase two ways to send an unsigned transaction / unsigned payload (raw)
@@ -2639,7 +2658,7 @@ pub mod pallet {
         }
 
         /// Fetch current mPower and return the result.
-        fn fetch_mpower(block_number: T::BlockNumber) -> Result<MPowerPayloadData<T>, http::Error> {
+        fn fetch_mpower(block_number: T::BlockNumber) -> Result<Vec<MPowerPayloadData<T>>, http::Error> {
             // We want to keep the offchain worker execution time reasonable, so we set a hard-coded
             // deadline to 2s to complete the external call.
             // You can also wait idefinitely for the response, however you may still get a timeout
@@ -2683,25 +2702,34 @@ pub mod pallet {
 
             log::info!("Received HTTP Body: {}", body_str.clone());
 
-            // FIXME - do we need this?
-            let mpower_data = match Self::parse_mpower_data(body_str, block_number.clone()) {
-                Some(mpower_data) => Ok(mpower_data),
+            let mpower_data = r#"{
+                "data": [
+                    { "acct_id": "50000000000000001", "mpower": "1" },
+                    { "acct_id": "50000000000000001", "mpower": "1" }
+                ]
+            }"#;
+
+            let mpower_data_vec = match Self::parse_mpower_data(mpower_data, block_number.clone()) {
+                Some(data) => Ok(data),
                 None => {
-                    log::warn!("Unable to extract mpower from the response: {:?}", body_str);
+                    log::warn!("Unable to extract mpower data from the response: {:?}", body_str);
                     Err(http::Error::Unknown)
                 },
             }?;
 
-            log::info!("Parsed mpower_data: {:?}", body_str);
+            // log::info!("Parsed mpower_data_vec: {:?}", mpower_data_vec);
 
-            Ok(mpower_data)
+            Ok(mpower_data_vec)
         }
 
         /// Parse the mPower from the given JSON string using `lite-json`.
         ///
         /// Returns `None` when parsing failed or `Some(mpower_data)` when parsing is successful.
-        fn parse_mpower_data(mpower_data_str: &str, block_number: T::BlockNumber) -> Option<MPowerPayloadData<T>> {
-            let val = lite_json::parse_json(mpower_data_str);
+        fn parse_mpower_data(mpower_data_str: &str, block_number: T::BlockNumber) -> Option<Vec<MPowerPayloadData<T>>> {
+            // checking it works:
+            // https://play.rust-lang.org/?version=nightly&mode=debug&edition=2021&gist=09eee43b3354f2a798ca4394838fdef7
+
+            // let val = lite_json::parse_json(mpower_data_str);
 
             let timestamp = <pallet_timestamp::Pallet<T>>::get();
             let received_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone()).ok()?;
@@ -2709,34 +2737,59 @@ pub mod pallet {
             // TODO - parse for mPower data and replace hard-coded response with output
             let received_date_as_millis = Self::convert_u64_in_milliseconds_to_start_of_date(received_date_as_u64.clone()).ok()?;
 
-            let mpower_parsed = match val.ok()? {
-                JsonValue::Object(obj) => {
-                    // let (_, v) = obj.into_iter().find(|(k, _)| k.iter().copied().eq("USD".chars()))?;
-                    // match v {
-                    //     JsonValue::Number(number) => number,
-                    //     _ => return None,
-                    // };
-
-                    // FIXME - this is all hard-coded temporary
-                    let mpower_data: MPowerPayloadData<T> = MPowerPayload {
-                        // account_id_registered_dhx_miner: mpower_data_str.account_id.clone(), // FIXME
-                        // mpower_registered_dhx_miner: mpower_data_str.mpower.clone(), // FIXME
-                        // it's not supposed to be from the treasury, but just using treasury account for demo
-                        account_id_registered_dhx_miner: <pallet_treasury::Module<T>>::account_id(), // FIXME
-                        mpower_registered_dhx_miner: 0u128, // FIXME
-                        received_at_date: received_date_as_millis.clone(),
-                        received_at_block_number: block_number.clone(),
-                    };
-                    return Some(mpower_data);
+            let mpower_json_data: MPowerJSONResponseData<T::AccountId, u128> = match serde_json::from_str(mpower_data_str) {
+                Err(e) => {
+                    println!("Couldn't parse JSON :( {:?}", e);
+                    return None;
                 },
-                _ => return None,
+                Ok(data) => data,
             };
 
-            Some(mpower_parsed)
+            log::info!("mpower_json_data{:?}", mpower_json_data);
+
+            let mut mpower_data_vec: Vec<MPowerPayloadData<T>> = vec![];
+            for (i, v) in mpower_json_data.data.into_iter().enumerate() {
+                println!("i v {:?} {:?}", i, v);
+                let mpower_data_elem: MPowerPayloadData<T> = MPowerPayload {
+                    account_id_registered_dhx_miner: v.acct_id.clone(),
+                    mpower_registered_dhx_miner: v.mpower.clone(),
+                    received_at_date: received_date_as_millis.clone(),
+                    received_at_block_number: block_number.clone(),
+                };
+
+                mpower_data_vec.push(mpower_data_elem);
+            }
+
+            // log::info!("mpower_data_vec{:?}", mpower_data_vec);
+
+            // let mpower_parsed = match val.ok()? {
+            //     JsonValue::Object(obj) => {
+            //         // let (_, v) = obj.into_iter().find(|(k, _)| k.iter().copied().eq("USD".chars()))?;
+            //         // match v {
+            //         //     JsonValue::Number(number) => number,
+            //         //     _ => return None,
+            //         // };
+
+            //         // FIXME - this is all hard-coded temporary
+            //         let mpower_data: MPowerPayloadData<T> = MPowerPayload {
+            //             // account_id_registered_dhx_miner: mpower_data_str.account_id.clone(), // FIXME
+            //             // mpower_registered_dhx_miner: mpower_data_str.mpower.clone(), // FIXME
+            //             // it's not supposed to be from the treasury, but just using treasury account for demo
+            //             account_id_registered_dhx_miner: <pallet_treasury::Module<T>>::account_id(), // FIXME
+            //             mpower_registered_dhx_miner: 0u128, // FIXME
+            //             received_at_date: received_date_as_millis.clone(),
+            //             received_at_block_number: block_number.clone(),
+            //         };
+            //         return Some(mpower_data);
+            //     },
+            //     _ => return None,
+            // };
+
+            Some(mpower_data_vec)
         }
 
         /// Add new mPower on-chain.
-        fn add_mpower(who: T::AccountId, mpower_data: MPowerPayloadData<T>) -> Option<MPowerPayloadData<T>> {
+        fn add_mpower(who: T::AccountId, mpower_data_vec: Vec<MPowerPayloadData<T>>) -> Option<Vec<MPowerPayloadData<T>>> {
             log::info!("Adding mPower to storage");
 
             let timestamp = <pallet_timestamp::Pallet<T>>::get();
@@ -2747,39 +2800,41 @@ pub mod pallet {
             let start_of_received_date_millis = Self::convert_u64_in_milliseconds_to_start_of_date(received_date_as_u64.clone()).ok()?;
             log::info!("start_of_received_date_millis: {:?}", start_of_received_date_millis.clone());
 
-            <MPowerForAccountForDate<T>>::insert(
-                (
+            for (index, mpower_data_item) in mpower_data_vec.iter().enumerate() {
+                <MPowerForAccountForDate<T>>::insert(
+                    (
+                        start_of_received_date_millis.clone(),
+                        mpower_data_item.account_id_registered_dhx_miner.clone(),
+                    ),
+                    (
+                        mpower_data_item.mpower_registered_dhx_miner.clone(),
+                        mpower_data_item.received_at_date.clone(),
+                        mpower_data_item.received_at_block_number.clone(),
+                    ),
+                );
+                log::info!("Added MPowerForAccountForDate {:?} {:?} {:?} {:?} {:?}",
                     start_of_received_date_millis.clone(),
-                    mpower_data.account_id_registered_dhx_miner.clone(),
-                ),
-                (
-                    mpower_data.mpower_registered_dhx_miner.clone(),
-                    mpower_data.received_at_date.clone(),
-                    mpower_data.received_at_block_number.clone(),
-                ),
-            );
-            log::info!("Added MPowerForAccountForDate {:?} {:?} {:?} {:?} {:?}",
-                start_of_received_date_millis.clone(),
-                mpower_data.account_id_registered_dhx_miner.clone(),
-                mpower_data.mpower_registered_dhx_miner.clone(),
-                mpower_data.received_at_date.clone(),
-                mpower_data.received_at_block_number.clone(),
-            );
+                    mpower_data_item.account_id_registered_dhx_miner.clone(),
+                    mpower_data_item.mpower_registered_dhx_miner.clone(),
+                    mpower_data_item.received_at_date.clone(),
+                    mpower_data_item.received_at_block_number.clone(),
+                );
 
-            // let average = Self::average_mpower()
-            //     .expect("The average is not empty, because it was just mutated; qed");
-            // log::info!("Current average mpower is: {}", average);
-            // here we are raising the NewPrice event
+                // let average = Self::average_mpower()
+                //     .expect("The average is not empty, because it was just mutated; qed");
+                // log::info!("Current average mpower is: {}", average);
+                // here we are raising the NewPrice event
 
-            Self::deposit_event(Event::NewMPowerForAccountForDate(
-                start_of_received_date_millis.clone(),
-                mpower_data.account_id_registered_dhx_miner.clone(),
-                mpower_data.mpower_registered_dhx_miner.clone(),
-                mpower_data.received_at_date.clone(),
-                mpower_data.received_at_block_number.clone(),
-            ));
+                Self::deposit_event(Event::NewMPowerForAccountForDate(
+                    start_of_received_date_millis.clone(),
+                    mpower_data_item.account_id_registered_dhx_miner.clone(),
+                    mpower_data_item.mpower_registered_dhx_miner.clone(),
+                    mpower_data_item.received_at_date.clone(),
+                    mpower_data_item.received_at_block_number.clone(),
+                ));
+            }
 
-            Some(mpower_data.clone())
+            Some(mpower_data_vec.clone())
         }
 
         /// Calculation based on mPower.
@@ -2798,7 +2853,7 @@ pub mod pallet {
 
         fn validate_transaction_parameters(
             block_number: &T::BlockNumber,
-            new_mpower_data: &MPowerPayloadData<T>,
+            new_mpower_data: &Vec<MPowerPayloadData<T>>,
         ) -> TransactionValidity {
             // Now let's check if the transaction has any chance to succeed.
             let next_unsigned_at = <NextUnsignedAt<T>>::get();
@@ -2810,7 +2865,6 @@ pub mod pallet {
             if &current_block < block_number {
                 return InvalidTransaction::Future.into()
             }
-
 
             // // We prioritize transactions that are more far away from current average.
             // //
