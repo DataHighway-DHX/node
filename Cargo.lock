@@ -3737,8 +3737,6 @@ dependencies = [
  "pallet-treasury",
  "parity-scale-codec",
  "rand 0.8.4",
- "serde",
- "serde_json",
  "sp-consensus-aura",
  "sp-core",
  "sp-io",

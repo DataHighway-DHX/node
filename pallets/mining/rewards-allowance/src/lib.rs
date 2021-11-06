@@ -49,8 +49,8 @@ use frame_system::{
 		AppCrypto, CreateSignedTransaction, SendUnsignedTransaction, Signer, SubmitTransaction,
 	},
 };
-// use lite_json::json::JsonValue;
-use serde::{Deserialize, Serialize};
+// use serde::{Deserialize, Serialize};
+use lite_json::json::JsonValue;
 use log::{warn, info};
 use module_primitives::{
     types::{
@@ -85,8 +85,8 @@ use sp_std::{
         TryFrom,
         TryInto,
     },
-    vec::Vec,
-    // prelude::*, // Imports Vec
+    // vec::Vec,
+    prelude::*, // Imports Vec
 };
 use substrate_fixed::{
     types::{
@@ -210,13 +210,13 @@ pub mod pallet {
 		type UnsignedPriority: Get<TransactionPriority>;
     }
 
-    #[derive(Debug, Serialize, Deserialize)]
+    #[derive(Debug)]
     struct MPowerAccountData<U, V> {
         acct_id: U,
         mpower: V,
     }
 
-    #[derive(Debug, Serialize, Deserialize)]
+    #[derive(Debug)]
     struct MPowerJSONResponseData<U, V> {
         data: Vec<MPowerAccountData<U, V>>,
     }
@@ -2705,7 +2705,7 @@ pub mod pallet {
             let mpower_data = r#"{
                 "data": [
                     { "acct_id": "50000000000000001", "mpower": "1" },
-                    { "acct_id": "50000000000000001", "mpower": "1" }
+                    { "acct_id": "50000000000000002", "mpower": "1" }
                 ]
             }"#;
 
@@ -2726,10 +2726,8 @@ pub mod pallet {
         ///
         /// Returns `None` when parsing failed or `Some(mpower_data)` when parsing is successful.
         fn parse_mpower_data(mpower_data_str: &str, block_number: T::BlockNumber) -> Option<Vec<MPowerPayloadData<T>>> {
-            // checking it works:
+            // checking it works using serde_json, but cannot use in substrate as it uses std:
             // https://play.rust-lang.org/?version=nightly&mode=debug&edition=2021&gist=09eee43b3354f2a798ca4394838fdef7
-
-            // let val = lite_json::parse_json(mpower_data_str);
 
             let timestamp = <pallet_timestamp::Pallet<T>>::get();
             let received_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone()).ok()?;
@@ -2737,22 +2735,35 @@ pub mod pallet {
             // TODO - parse for mPower data and replace hard-coded response with output
             let received_date_as_millis = Self::convert_u64_in_milliseconds_to_start_of_date(received_date_as_u64.clone()).ok()?;
 
-            let mpower_json_data: MPowerJSONResponseData<T::AccountId, u128> = match serde_json::from_str(mpower_data_str) {
-                Err(e) => {
-                    println!("Couldn't parse JSON :( {:?}", e);
-                    return None;
-                },
-                Ok(data) => data,
-            };
+            let mpower_json_data = lite_json::parse_json(mpower_data_str);
 
-            log::info!("mpower_json_data{:?}", mpower_json_data);
+            // let mpower_json_data: MPowerJSONResponseData<T::AccountId, u128> = match serde_json::from_str(mpower_data_str) {
+            //     Err(e) => {
+            //         println!("Couldn't parse JSON :( {:?}", e);
+            //         return None;
+            //     },
+            //     Ok(data) => data,
+            // };
+            // log::info!("mpower_json_data{:?}", mpower_json_data);
 
             let mut mpower_data_vec: Vec<MPowerPayloadData<T>> = vec![];
-            for (i, v) in mpower_json_data.data.into_iter().enumerate() {
-                println!("i v {:?} {:?}", i, v);
+            let mpower_array = match mpower_json_data.ok()? {
+                JsonValue::Object(obj) => {
+                    let (_, v) = obj.into_iter().find(|(k, _)| k.iter().copied().eq("data".chars()))?;
+                    match v {
+                        JsonValue::Array(vec) => vec,
+                        _ => return None,
+                    };
+                },
+                _ => return None,
+            };
+
+            for (i, obj) in mpower_array.into_iter().enumerate() {
+                println!("mpower_array obj {:?} {:?}", i, obj);
+
                 let mpower_data_elem: MPowerPayloadData<T> = MPowerPayload {
-                    account_id_registered_dhx_miner: v.acct_id.clone(),
-                    mpower_registered_dhx_miner: v.mpower.clone(),
+                    account_id_registered_dhx_miner: obj.acct_id.clone(),
+                    mpower_registered_dhx_miner: obj.mpower.clone(),
                     received_at_date: received_date_as_millis.clone(),
                     received_at_block_number: block_number.clone(),
                 };
@@ -2761,29 +2772,6 @@ pub mod pallet {
             }
 
             // log::info!("mpower_data_vec{:?}", mpower_data_vec);
-
-            // let mpower_parsed = match val.ok()? {
-            //     JsonValue::Object(obj) => {
-            //         // let (_, v) = obj.into_iter().find(|(k, _)| k.iter().copied().eq("USD".chars()))?;
-            //         // match v {
-            //         //     JsonValue::Number(number) => number,
-            //         //     _ => return None,
-            //         // };
-
-            //         // FIXME - this is all hard-coded temporary
-            //         let mpower_data: MPowerPayloadData<T> = MPowerPayload {
-            //             // account_id_registered_dhx_miner: mpower_data_str.account_id.clone(), // FIXME
-            //             // mpower_registered_dhx_miner: mpower_data_str.mpower.clone(), // FIXME
-            //             // it's not supposed to be from the treasury, but just using treasury account for demo
-            //             account_id_registered_dhx_miner: <pallet_treasury::Module<T>>::account_id(), // FIXME
-            //             mpower_registered_dhx_miner: 0u128, // FIXME
-            //             received_at_date: received_date_as_millis.clone(),
-            //             received_at_block_number: block_number.clone(),
-            //         };
-            //         return Some(mpower_data);
-            //     },
-            //     _ => return None,
-            // };
 
             Some(mpower_data_vec)
         }
