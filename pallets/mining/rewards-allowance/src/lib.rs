@@ -49,6 +49,7 @@ use frame_system::{
 		AppCrypto, CreateSignedTransaction, SendUnsignedTransaction, Signer, SubmitTransaction,
 	},
 };
+use hex_literal::hex;
 // use serde::{Deserialize, Serialize};
 use lite_json::json::JsonValue;
 use log::{warn, info};
@@ -62,7 +63,7 @@ use module_primitives::{
 use pallet_balances::{BalanceLock};
 use rand::{seq::SliceRandom, Rng};
 use sp_core::{
-    crypto::KeyTypeId,
+    crypto::{KeyTypeId, Public},
     sr25519,
 };
 use sp_runtime::{
@@ -95,6 +96,7 @@ use substrate_fixed::{
         U32F32,
         U64F64,
     },
+    FixedU32,
     FixedU128,
 };
 
@@ -2702,10 +2704,11 @@ pub mod pallet {
 
             log::info!("Received HTTP Body: {}", body_str.clone());
 
+            // Alice public key 0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
             let mpower_data = r#"{
                 "data": [
-                    { "acct_id": "50000000000000001", "mpower": "1" },
-                    { "acct_id": "50000000000000002", "mpower": "1" }
+                    { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": 1 },
+                    { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": 2 }
                 ]
             }"#;
 
@@ -2759,19 +2762,58 @@ pub mod pallet {
             };
 
             for (i, obj) in mpower_array.into_iter().enumerate() {
-                println!("mpower_array obj {:?} {:?}", i, obj);
+                let obj_acct_id = match obj.clone() {
+                    JsonValue::Object(obj_data) => {
+                        let (_, v) = obj_data.into_iter().find(|(k, _)| k.iter().copied().eq("acct_id".chars()))?;
+                        match v {
+                            JsonValue::String(val) => val,
+                            _ => return None,
+                        }
+                    },
+                    _ => return None,
+                };
+
+                // let obj_mpower: u32 = match obj.clone() {
+                //     JsonValue::Object(obj_data) => {
+                //         let (_, v) = obj_data.into_iter().find(|(k, _)| k.iter().copied().eq("mpower".chars()))?;
+                //         match v {
+                //             JsonValue::Number(val) => val.into(),
+                //             _ => return None,
+                //         }
+                //     },
+                //     _ => return None,
+                // };
+
+                // Convert from `Vec<char>` to `Vec<u8>` since we do not use String in the runtime
+                // e.g. converts from `['1', '2', '3']` to `123`
+                let obj_acct_id_str: Vec<u8> = obj_acct_id.iter().map(|c| *c as u8).collect::<Vec<_>>();
+                // let obj_mpower_str: u32 = obj_mpower.iter().map(|c| *c as u32).collect::<u32>();
+
+                // FIXME - this outputs the following but needs to be in correct format to insert into storage
+                // Vec<char>: ['5', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'] ['1']
+                // Vec<u8>:   [ 53,  48,  48,  48,  48,  48,  48,  48,  48,  48,  48,  48,  48,  48,  48,  48,  49] [49]
+
+                log::info!("mpower_array obj acct_id {:?} {:?}", i, obj_acct_id_str.clone());
+                // log::info!("mpower_array obj mpower {:?} {:?}", i, obj_mpower_str.clone());
+
+                // // Alice public key 0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
+                // let alice_public_key_hex: T::AccountId = hex!["d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d"].into_account();
+                // // where <T as frame_system::Config>::AccountId: From<[u8; 32]>
+                // let mpower_as_u128: u128 = obj_mpower.clone().parse().unwrap(); // convert from string to number
 
                 let mpower_data_elem: MPowerPayloadData<T> = MPowerPayload {
-                    account_id_registered_dhx_miner: obj.acct_id.clone(),
-                    mpower_registered_dhx_miner: obj.mpower.clone(),
+                    account_id_registered_dhx_miner: obj_acct_id_str.clone(), // alice_public_key_hex.clone(), //acct_id_as_acct_id.clone(),
+                    // FIXME - do not hardcode
+                    mpower_registered_dhx_miner: 0u128, // mpower_as_u128.clone(),
                     received_at_date: received_date_as_millis.clone(),
                     received_at_block_number: block_number.clone(),
                 };
 
                 mpower_data_vec.push(mpower_data_elem);
+
             }
 
-            // log::info!("mpower_data_vec{:?}", mpower_data_vec);
+            // log::info!("mpower_data_vec {:?}", mpower_data_vec);
 
             Some(mpower_data_vec)
         }

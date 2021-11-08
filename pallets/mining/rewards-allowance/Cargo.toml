@@ -44,6 +44,7 @@ std = [
 [dependencies]
 static_assertions = '1.1.0'
 chrono = { version = '0.4.19', default_features = false }
+hex-literal = { version = '0.3.1', default_features = false }
 lite-json = { version = "0.1", default-features = false }
 log = { version = '0.4.14', default-features = false }
 # serde = { version = '1.0.126', default-features = false, features = ['derive'] }
