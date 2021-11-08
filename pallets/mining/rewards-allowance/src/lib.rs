@@ -2753,7 +2753,7 @@ pub mod pallet {
                     match v {
                         JsonValue::Array(vec) => vec,
                         _ => return None,
-                    };
+                    }
                 },
                 _ => return None,
             };
