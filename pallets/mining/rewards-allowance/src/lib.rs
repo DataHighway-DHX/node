@@ -49,7 +49,10 @@ use frame_system::{
 		AppCrypto, CreateSignedTransaction, SendUnsignedTransaction, Signer, SubmitTransaction,
 	},
 };
-use hex_literal::hex;
+use hex;                // to use hex::encode("...");
+use hex_literal::{      // to use hex!("...");
+    hex as write_hex,
+};
 // use serde::{Deserialize, Serialize};
 use lite_json::json::JsonValue;
 use log::{warn, info};
@@ -234,7 +237,7 @@ pub mod pallet {
     }
 
     type MPowerPayloadData<T> = MPowerPayload<
-        <T as frame_system::Config>::AccountId,
+        Vec<u8>, // <T as frame_system::Config>::AccountId,
         u128,
         Date,
         <T as frame_system::Config>::BlockNumber,
@@ -415,7 +418,7 @@ pub mod pallet {
     pub(super) type MPowerForAccountForDate<T: Config> = StorageMap<_, Blake2_128Concat,
         (
             Date, // converted to start of date
-            T::AccountId,
+            Vec<u8>, // T::AccountId,
         ),
         (
             u128, // mPower
@@ -586,7 +589,8 @@ pub mod pallet {
 
         /// Storage of the mPower of an account on a specific date.
         /// \[date, amount_mpower, account\]
-        SetMPowerOfAccountForDateStored(Date, T::AccountId, u128, Date, T::BlockNumber),
+        SetMPowerOfAccountForDateStored(Date, Vec<u8>, u128, Date, T::BlockNumber),
+        // SetMPowerOfAccountForDateStored(Date, T::AccountId, u128, Date, T::BlockNumber),
 
         /// Storage of the default daily reward allowance in DHX by an origin account.
         /// \[amount_dhx, sender\]
@@ -635,7 +639,8 @@ pub mod pallet {
 
 		/// Event generated when new mPower data is accepted to contribute to the rewards allowance.
 		/// \[start_date_received, registered_dhx_miner_account_id, mpower, date_received_offchain, block_received_offchain\]
-		NewMPowerForAccountForDate(Date, T::AccountId, u128, Date, T::BlockNumber),
+		NewMPowerForAccountForDate(Date, Vec<u8>, u128, Date, T::BlockNumber),
+        // NewMPowerForAccountForDate(Date, T::AccountId, u128, Date, T::BlockNumber),
     }
 
     // Errors inform users that something went wrong should be descriptive and have helpful documentation
@@ -2432,7 +2437,8 @@ pub mod pallet {
 
         // FIXME - we're using `next_start_date`, but in off-chain workers we'll try doing it all on the same date we received it
         // we need to set the mPower for the next start date so it's available from off-chain in time
-        pub fn set_mpower_of_account_for_date(account_id: T::AccountId, mpower: u128, next_start_date: Date, received_at_date: Date, received_at_block_number: T::BlockNumber) -> Result<u128, DispatchError> {
+        pub fn set_mpower_of_account_for_date(account_id: Vec<u8>, mpower: u128, next_start_date: Date, received_at_date: Date, received_at_block_number: T::BlockNumber) -> Result<u128, DispatchError> {
+        // pub fn set_mpower_of_account_for_date(account_id: T::AccountId, mpower: u128, next_start_date: Date, received_at_date: Date, received_at_block_number: T::BlockNumber) -> Result<u128, DispatchError> {
             // // Note: we DO need the following as we're using the current timestamp, rather than a function parameter.
             // let timestamp: <T as pallet_timestamp::Config>::Moment = <pallet_timestamp::Pallet<T>>::get();
             // let requested_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone())?;
@@ -2704,11 +2710,12 @@ pub mod pallet {
 
             log::info!("Received HTTP Body: {}", body_str.clone());
 
+            // FIXME - replace the below hard-coded example in future with use of the response body
             // Alice public key 0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
             let mpower_data = r#"{
                 "data": [
-                    { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": 1 },
-                    { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": 2 }
+                    { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": "1" },
+                    { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": "2" }
                 ]
             }"#;
 
@@ -2786,23 +2793,38 @@ pub mod pallet {
 
                 // Convert from `Vec<char>` to `Vec<u8>` since we do not use String in the runtime
                 // e.g. converts from `['1', '2', '3']` to `123`
-                let obj_acct_id_str: Vec<u8> = obj_acct_id.iter().map(|c| *c as u8).collect::<Vec<_>>();
+                let obj_acct_id_str_hex: Vec<u8> = obj_acct_id.iter().map(|c| *c as u8).collect::<Vec<_>>();
                 // let obj_mpower_str: u32 = obj_mpower.iter().map(|c| *c as u32).collect::<u32>();
 
-                // FIXME - this outputs the following but needs to be in correct format to insert into storage
-                // Vec<char>: ['5', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'] ['1']
-                // Vec<u8>:   [ 53,  48,  48,  48,  48,  48,  48,  48,  48,  48,  48,  48,  48,  48,  48,  48,  49] [49]
+                // Decode from hex ascii format 
+                let obj_acct_id_str = hex::decode(obj_acct_id_str_hex.clone()).ok()?;
+                log::info!("Decoded acct_id i public key hex as Vec<u8> {:?} {:?}", i, obj_acct_id_str.clone());
 
-                log::info!("mpower_array obj acct_id {:?} {:?}", i, obj_acct_id_str.clone());
                 // log::info!("mpower_array obj mpower {:?} {:?}", i, obj_mpower_str.clone());
 
-                // // Alice public key 0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
-                // let alice_public_key_hex: T::AccountId = hex!["d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d"].into_account();
-                // // where <T as frame_system::Config>::AccountId: From<[u8; 32]>
+                // Example only:
+                // Alice public key 0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
+                //
+                // Note: do not do `hex!["..."].encode(), since that will just encoding a vec,
+                // which will include a length prefix, but we don't want that.
+                // let example_acct_id_str: Vec<u8> = write_hex!["d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d"].into();
+                // log::info!("example_acct_id_str {:?}", example_acct_id_str);
+
                 // let mpower_as_u128: u128 = obj_mpower.clone().parse().unwrap(); // convert from string to number
 
+                // Example of how to access the Vec<u8> string representation of the account's public key hex
+                // let reg_dhx_miners;
+                // if let Some(_reg_dhx_miners) = <RegisteredDHXMiners<T>>::get() {
+                //     reg_dhx_miners = _reg_dhx_miners;
+                // } else {
+                //     log::error!("Unable to retrieve any registered DHX Miners");
+                //     return None;
+                // }
+                // let first_reg_dhx_miner = &reg_dhx_miners[0];
+                // log::info!("first_reg_dhx_miner {:?}", first_reg_dhx_miner.encode());
+
                 let mpower_data_elem: MPowerPayloadData<T> = MPowerPayload {
-                    account_id_registered_dhx_miner: obj_acct_id_str.clone(), // alice_public_key_hex.clone(), //acct_id_as_acct_id.clone(),
+                    account_id_registered_dhx_miner: obj_acct_id_str.clone(),
                     // FIXME - do not hardcode
                     mpower_registered_dhx_miner: 0u128, // mpower_as_u128.clone(),
                     received_at_date: received_date_as_millis.clone(),

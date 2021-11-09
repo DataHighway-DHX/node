@@ -3719,6 +3719,7 @@ dependencies = [
  "chrono",
  "frame-support",
  "frame-system",
+ "hex",
  "hex-literal",
  "lite-json",
  "log",
