@@ -28,6 +28,7 @@
 //!
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use core::str;
 use chrono::{
     NaiveDateTime,
 };
@@ -2389,6 +2390,76 @@ pub mod pallet {
             return Ok(blocknumber_u64);
         }
 
+        // fn convert_vec_u8_to_u128(data: &[u8]) -> Result<u128, DispatchError> {
+        //     Ok(core::str::from_utf8(data)?.parse()?)
+        // }
+
+        // Convert a Vec<u8> that we received from an API endpoint that represents the mPower
+        // associated with an account id into a u128 value.
+        // ascii table: https://aws1.discourse-cdn.com/business5/uploads/rust_lang/original/3X/9/0/909baa7e3d9569489b07c791ca76f2223bd7bac2.webp
+        fn convert_vec_u8_to_u128(data: &[u8]) -> Result<u128, DispatchError> {
+            let mut out = 0u128;
+            let mut multiplier = 1;
+        
+            for &val in data.iter().rev() {
+                // log::info!("{:?}", val);
+        
+                let mut digit = 0u128;
+                match val {
+                    48u8 => {
+                        digit = 0u128;
+                    },
+                    49u8 => {
+                        digit = 1u128;
+                    },
+                    50u8 => {
+                        digit = 2u128;
+                    },
+                    51u8 => {
+                        digit = 3u128;
+                    },
+                    52u8 => {
+                        digit = 4u128;
+                    },
+                    53u8 => {
+                        digit = 5u128;
+                    },
+                    54u8 => {
+                        digit = 6u128;
+                    },
+                    55u8 => {
+                        digit = 7u128;
+                    },
+                    56u8 => {
+                        digit = 8u128;
+                    },
+                    57u8 => {
+                        digit = 9u128;
+                    },
+                    _ => {
+                        log::error!("Non-digit ASCII char in input");
+                        return Err(DispatchError::Other("Non-digit ASCII char in input"));
+                    },
+                }
+                log::info!("digit {:?}", digit);
+                if digit != 0u128 && out != 0u128 {
+                    multiplier *= 10;
+                } else if digit != 0u128 && out == 0u128 {
+                    multiplier *= 1;
+                } else if digit == 0u128 && out != 0u128 {
+                    multiplier *= 10;
+                } else if digit == 0u128 && out == 0u128 {
+                    multiplier *= 10;
+                }
+                
+                log::info!("multiplier {:?}", multiplier);
+                out += multiplier * digit;
+                log::info!("out {:?}", out);
+            }
+        
+            Ok(out)
+        }
+
         fn set_bonded_dhx_of_account_for_date(account_id: T::AccountId, bonded_dhx: u128) -> Result<u128, DispatchError> {
             // Note: we DO need the following as we're using the current timestamp, rather than a function parameter.
             let timestamp: <T as pallet_timestamp::Config>::Moment = <pallet_timestamp::Pallet<T>>::get();
@@ -2714,8 +2785,8 @@ pub mod pallet {
             // Alice public key 0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
             let mpower_data = r#"{
                 "data": [
-                    { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": "1" },
-                    { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": "2" }
+                    { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": "11" },
+                    { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": "12" }
                 ]
             }"#;
 
@@ -2780,27 +2851,40 @@ pub mod pallet {
                     _ => return None,
                 };
 
-                // let obj_mpower: u32 = match obj.clone() {
-                //     JsonValue::Object(obj_data) => {
-                //         let (_, v) = obj_data.into_iter().find(|(k, _)| k.iter().copied().eq("mpower".chars()))?;
-                //         match v {
-                //             JsonValue::Number(val) => val.into(),
-                //             _ => return None,
-                //         }
-                //     },
-                //     _ => return None,
-                // };
+                let obj_mpower = match obj.clone() {
+                    JsonValue::Object(obj_data) => {
+                        let (_, v) = obj_data.into_iter().find(|(k, _)| k.iter().copied().eq("mpower".chars()))?;
+                        match v {
+                            JsonValue::String(val) => val,
+                            _ => return None,
+                        }
+                    },
+                    _ => return None,
+                };
+
+                log::info!("obj_mpower char {:?} {:?}", i, obj_mpower.clone());
 
                 // Convert from `Vec<char>` to `Vec<u8>` since we do not use String in the runtime
                 // e.g. converts from `['1', '2', '3']` to `123`
                 let obj_acct_id_str_hex: Vec<u8> = obj_acct_id.iter().map(|c| *c as u8).collect::<Vec<_>>();
-                // let obj_mpower_str: u32 = obj_mpower.iter().map(|c| *c as u32).collect::<u32>();
+                let obj_mpower_str_hex: Vec<u8> = obj_mpower.iter().map(|c| *c as u8).collect::<Vec<_>>();
+                log::info!("obj_mpower_str_hex {:?} {:?}", i, obj_mpower_str_hex.clone());
 
                 // Decode from hex ascii format 
                 let obj_acct_id_str = hex::decode(obj_acct_id_str_hex.clone()).ok()?;
                 log::info!("Decoded acct_id i public key hex as Vec<u8> {:?} {:?}", i, obj_acct_id_str.clone());
 
-                // log::info!("mpower_array obj mpower {:?} {:?}", i, obj_mpower_str.clone());
+                let mpower_u128 = Self::convert_vec_u8_to_u128(&obj_mpower_str_hex).ok()?;
+                log::info!("mpower_u128 {:?} {:?}", i, mpower_u128.clone());
+
+                // let mut obj_mpower_as_u128 = 0u128; // initialize
+                // if let Some(_obj_mpower_as_u128) = TryInto::<u128>::try_into(obj_mpower_str.clone()).ok() {
+                //     obj_mpower_as_u128 = _obj_mpower_as_u128;
+                // } else {
+                //     log::error!("Unable to convert Vec<u8> into u128");
+                //     return None;
+                // }
+                // log::info!("obj_mpower_as_u128 {:?} {:?}", i, obj_mpower_as_u128.clone());
 
                 // Example only:
                 // Alice public key 0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
@@ -2825,8 +2909,7 @@ pub mod pallet {
 
                 let mpower_data_elem: MPowerPayloadData<T> = MPowerPayload {
                     account_id_registered_dhx_miner: obj_acct_id_str.clone(),
-                    // FIXME - do not hardcode
-                    mpower_registered_dhx_miner: 0u128, // mpower_as_u128.clone(),
+                    mpower_registered_dhx_miner: mpower_u128.clone(),
                     received_at_date: received_date_as_millis.clone(),
                     received_at_block_number: block_number.clone(),
                 };

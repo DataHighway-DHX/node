@@ -24,6 +24,7 @@ use frame_system::{
 use pallet_democracy::{self, Conviction, Vote};
 use sp_core::{
     H256,
+    sr25519::Signature,
     u32_trait::{
         _1,
         _2,
@@ -37,10 +38,13 @@ use codec::{
 };
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_runtime::{
-    testing::Header,
+    testing::{Header, TestXt},
     traits::{
         BlakeTwo256,
+        Extrinsic as ExtrinsicT,
+        IdentifyAccount,
         IdentityLookup,
+        Verify,
     },
     Perbill,
     Percent,
@@ -438,9 +442,49 @@ impl pallet_democracy::Config for Test {
     type MaxProposals = MaxProposals;
 }
 
+type Extrinsic = TestXt<Call, ()>;
+// type AccountId = <<Signature as Verify>::Signer as IdentifyAccount>::AccountId;
+
+impl frame_system::offchain::SigningTypes for Test {
+	type Public = <Signature as Verify>::Signer;
+	type Signature = Signature;
+}
+
+impl<LocalCall> frame_system::offchain::SendTransactionTypes<LocalCall> for Test
+where
+	Call: From<LocalCall>,
+{
+	type OverarchingCall = Call;
+	type Extrinsic = Extrinsic;
+}
+
+impl<LocalCall> frame_system::offchain::CreateSignedTransaction<LocalCall> for Test
+where
+	Call: From<LocalCall>,
+{
+	fn create_transaction<C: frame_system::offchain::AppCrypto<Self::Public, Self::Signature>>(
+		call: Call,
+		_public: <Signature as Verify>::Signer,
+		_account: AccountId,
+		nonce: u64,
+	) -> Option<(Call, <Extrinsic as ExtrinsicT>::SignaturePayload)> {
+		Some((call, (nonce, ())))
+	}
+}
+
+parameter_types! {
+	pub const GracePeriod: BlockNumber = 1 * MINUTES;
+	pub const UnsignedInterval: BlockNumber = 1 * MINUTES;
+    pub const UnsignedPriority: BlockNumber = 1 * MINUTES;
+}
+
 impl MiningRewardsAllowanceConfig for Test {
-    type Event = ();
+    type Call = Call;
     type Currency = Balances;
+    type Event = ();
+    type GracePeriod = GracePeriod;
+    type UnsignedInterval = UnsignedInterval;
+    type UnsignedPriority = UnsignedPriority;
 }
 
 pub type SysEvent = frame_system::Event<Test>;

@@ -292,6 +292,15 @@ fn it_allows_us_to_retrieve_genesis_value_for_min_mpower_daily() {
     });
 }
 
+#[test]
+fn it_converts_vec_u8_to_u128() {
+    new_test_ext().execute_with(|| {
+        // my snippet: https://play.rust-lang.org/?version=nightly&mode=debug&edition=2021&gist=69915086c8faa9de69301ee86e914bed
+        let hex_literal = vec![48, 51, 48, 48, 49, 50, 48, 51, 57, 48, 48];
+        assert_eq!(MiningRewardsAllowanceTestModule::convert_vec_u8_to_u128(&hex_literal), 3001203900u128);
+    });
+}
+
 fn distribute_rewards(amount_bonded_each_miner: u128, amount_mpower_each_miner: u128, referendum_index: u32) {
     assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(1)));
     assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(2)));
