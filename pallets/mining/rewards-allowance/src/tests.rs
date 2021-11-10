@@ -297,7 +297,7 @@ fn it_converts_vec_u8_to_u128() {
     new_test_ext().execute_with(|| {
         // my snippet: https://play.rust-lang.org/?version=nightly&mode=debug&edition=2021&gist=69915086c8faa9de69301ee86e914bed
         let hex_literal = vec![48, 51, 48, 48, 49, 50, 48, 51, 57, 48, 48];
-        assert_eq!(MiningRewardsAllowanceTestModule::convert_vec_u8_to_u128(&hex_literal), 3001203900u128);
+        assert_eq!(MiningRewardsAllowanceTestModule::convert_vec_u8_to_u128(&hex_literal), Ok(3001203900u128));
     });
 }
 
@@ -340,19 +340,23 @@ fn setup_min_mpower_daily(min_mpower_daily: u128) {
 
 // we have to get their mpower the day before we check if they are eligible incase there are delays in getting the off-chain data
 fn change_mpower_for_each_miner(amount_mpower_each_miner: u128, next_start_date: i64) {
-    assert_ok!(MiningRewardsAllowanceTestModule::set_mpower_of_account_for_date(1, amount_mpower_each_miner.clone(), next_start_date));
-    assert_ok!(MiningRewardsAllowanceTestModule::set_mpower_of_account_for_date(2, amount_mpower_each_miner.clone(), next_start_date));
-    assert_ok!(MiningRewardsAllowanceTestModule::set_mpower_of_account_for_date(3, amount_mpower_each_miner.clone(), next_start_date));
+    let account_1_public_key = vec![1];
+    let account_2_public_key = vec![2];
+    let account_3_public_key = vec![3];
+    // https://aws1.discourse-cdn.com/business5/uploads/rust_lang/original/3X/9/0/909baa7e3d9569489b07c791ca76f2223bd7bac2.webp
+    assert_ok!(MiningRewardsAllowanceTestModule::set_mpower_of_account_for_date(account_1_public_key, amount_mpower_each_miner.clone(), next_start_date));
+    assert_ok!(MiningRewardsAllowanceTestModule::set_mpower_of_account_for_date(account_2_public_key, amount_mpower_each_miner.clone(), next_start_date));
+    assert_ok!(MiningRewardsAllowanceTestModule::set_mpower_of_account_for_date(account_3_public_key, amount_mpower_each_miner.clone(), next_start_date));
     assert_eq!(
-        MiningRewardsAllowanceTestModule::mpower_of_account_for_date((next_start_date, 1)),
+        MiningRewardsAllowanceTestModule::mpower_of_account_for_date((next_start_date, account_1_public_key)),
         Some(amount_mpower_each_miner.clone())
     );
     assert_eq!(
-        MiningRewardsAllowanceTestModule::mpower_of_account_for_date((next_start_date, 2)),
+        MiningRewardsAllowanceTestModule::mpower_of_account_for_date((next_start_date, account_2_public_key)),
         Some(amount_mpower_each_miner.clone())
     );
     assert_eq!(
-        MiningRewardsAllowanceTestModule::mpower_of_account_for_date((next_start_date, 3)),
+        MiningRewardsAllowanceTestModule::mpower_of_account_for_date((next_start_date, account_3_public_key)),
         Some(amount_mpower_each_miner.clone())
     );
 }

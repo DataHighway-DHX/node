@@ -447,6 +447,7 @@ type Extrinsic = TestXt<Call, ()>;
 
 impl frame_system::offchain::SigningTypes for Test {
 	type Public = <Signature as Verify>::Signer;
+    // type Public = u128;
 	type Signature = Signature;
 }
 
@@ -465,10 +466,11 @@ where
 	fn create_transaction<C: frame_system::offchain::AppCrypto<Self::Public, Self::Signature>>(
 		call: Call,
 		_public: <Signature as Verify>::Signer,
+        // _public: u128,
 		_account: AccountId,
-		nonce: u64,
+		nonce: Index,
 	) -> Option<(Call, <Extrinsic as ExtrinsicT>::SignaturePayload)> {
-		Some((call, (nonce, ())))
+		Some((call, (nonce.into(), ())))
 	}
 }
 

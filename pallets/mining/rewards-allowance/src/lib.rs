@@ -421,11 +421,7 @@ pub mod pallet {
             Date, // converted to start of date
             Vec<u8>, // T::AccountId,
         ),
-        (
-            u128, // mPower
-            Date, // date received using off-chain workers
-            T::BlockNumber, // block receive dusing off-chain workers
-        ),
+        u128, // mPower
     >;
 
 	/// Defines the block when next unsigned transaction will be accepted.
@@ -590,8 +586,7 @@ pub mod pallet {
 
         /// Storage of the mPower of an account on a specific date.
         /// \[date, amount_mpower, account\]
-        SetMPowerOfAccountForDateStored(Date, Vec<u8>, u128, Date, T::BlockNumber),
-        // SetMPowerOfAccountForDateStored(Date, T::AccountId, u128, Date, T::BlockNumber),
+        SetMPowerOfAccountForDateStored(Date, Vec<u8>, u128),
 
         /// Storage of the default daily reward allowance in DHX by an origin account.
         /// \[amount_dhx, sender\]
@@ -639,9 +634,9 @@ pub mod pallet {
         // Off-chain workers
 
 		/// Event generated when new mPower data is accepted to contribute to the rewards allowance.
-		/// \[start_date_received, registered_dhx_miner_account_id, mpower, date_received_offchain, block_received_offchain\]
-		NewMPowerForAccountForDate(Date, Vec<u8>, u128, Date, T::BlockNumber),
-        // NewMPowerForAccountForDate(Date, T::AccountId, u128, Date, T::BlockNumber),
+		/// \[start_date_received, registered_dhx_miner_account_id, mpower\]
+		NewMPowerForAccountForDate(Date, Vec<u8>, u128),
+        // NewMPowerForAccountForDate(Date, T::AccountId, u128),
     }
 
     // Errors inform users that something went wrong should be descriptive and have helpful documentation
@@ -2397,7 +2392,7 @@ pub mod pallet {
         // Convert a Vec<u8> that we received from an API endpoint that represents the mPower
         // associated with an account id into a u128 value.
         // ascii table: https://aws1.discourse-cdn.com/business5/uploads/rust_lang/original/3X/9/0/909baa7e3d9569489b07c791ca76f2223bd7bac2.webp
-        fn convert_vec_u8_to_u128(data: &[u8]) -> Result<u128, DispatchError> {
+        pub fn convert_vec_u8_to_u128(data: &[u8]) -> Result<u128, DispatchError> {
             let mut out = 0u128;
             let mut multiplier = 1;
         
@@ -2508,8 +2503,8 @@ pub mod pallet {
 
         // FIXME - we're using `next_start_date`, but in off-chain workers we'll try doing it all on the same date we received it
         // we need to set the mPower for the next start date so it's available from off-chain in time
-        pub fn set_mpower_of_account_for_date(account_id: Vec<u8>, mpower: u128, next_start_date: Date, received_at_date: Date, received_at_block_number: T::BlockNumber) -> Result<u128, DispatchError> {
-        // pub fn set_mpower_of_account_for_date(account_id: T::AccountId, mpower: u128, next_start_date: Date, received_at_date: Date, received_at_block_number: T::BlockNumber) -> Result<u128, DispatchError> {
+        pub fn set_mpower_of_account_for_date(account_id: Vec<u8>, mpower: u128, next_start_date: Date) -> Result<u128, DispatchError> {
+        // pub fn set_mpower_of_account_for_date(account_id: T::AccountId, mpower: u128, next_start_date: Date) -> Result<u128, DispatchError> {
             // // Note: we DO need the following as we're using the current timestamp, rather than a function parameter.
             // let timestamp: <T as pallet_timestamp::Config>::Moment = <pallet_timestamp::Pallet<T>>::get();
             // let requested_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone())?;
@@ -2527,11 +2522,7 @@ pub mod pallet {
                     start_of_next_start_date_millis.clone(),
                     account_id.clone(),
                 ),
-                (
-                    mpower_current_u128.clone(),
-                    received_at_date.clone(),
-                    received_at_block_number.clone(),
-                ),
+                mpower_current_u128.clone(),
             );
 
             log::info!("set_mpower_of_account_for_date - start_of_next_start_date_millis: {:?}", &start_of_next_start_date_millis);
@@ -2543,8 +2534,6 @@ pub mod pallet {
                 start_of_next_start_date_millis.clone(),
                 account_id.clone(),
                 mpower_current_u128.clone(),
-                received_at_date.clone(),
-                received_at_block_number.clone(),
             ));
 
             // Return a successful DispatchResultWithPostInfo
@@ -2941,18 +2930,12 @@ pub mod pallet {
                         start_of_received_date_millis.clone(),
                         mpower_data_item.account_id_registered_dhx_miner.clone(),
                     ),
-                    (
-                        mpower_data_item.mpower_registered_dhx_miner.clone(),
-                        mpower_data_item.received_at_date.clone(),
-                        mpower_data_item.received_at_block_number.clone(),
-                    ),
+                    mpower_data_item.mpower_registered_dhx_miner.clone(),
                 );
-                log::info!("Added MPowerForAccountForDate {:?} {:?} {:?} {:?} {:?}",
+                log::info!("Added MPowerForAccountForDate {:?} {:?} {:?}",
                     start_of_received_date_millis.clone(),
                     mpower_data_item.account_id_registered_dhx_miner.clone(),
                     mpower_data_item.mpower_registered_dhx_miner.clone(),
-                    mpower_data_item.received_at_date.clone(),
-                    mpower_data_item.received_at_block_number.clone(),
                 );
 
                 // let average = Self::average_mpower()
@@ -2964,8 +2947,6 @@ pub mod pallet {
                     start_of_received_date_millis.clone(),
                     mpower_data_item.account_id_registered_dhx_miner.clone(),
                     mpower_data_item.mpower_registered_dhx_miner.clone(),
-                    mpower_data_item.received_at_date.clone(),
-                    mpower_data_item.received_at_block_number.clone(),
                 ));
             }
 
