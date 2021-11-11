@@ -72,7 +72,7 @@ impl SubstrateCli for Cli {
     fn description() -> String {
         format!(
             "DataHighway Collator\n\nThe command-line arguments provided first will be passed to the parachain node, \
-             while the arguments provided after -- will be passed to the relaychain node.\n\n{} [parachain-args] -- \
+             while the arguments provided after -- will be passed to the relay chain node.\n\n{} [parachain-args] -- \
              [relaychain-args]",
             Self::executable_name()
         )
@@ -110,8 +110,8 @@ impl SubstrateCli for RelayChainCli {
 
     fn description() -> String {
         "DataHighway Collator\n\nThe command-line arguments provided first will be passed to the parachain node, while \
-         the arguments provided after -- will be passed to the relaychain node.\n\nrococo-collator [parachain-args] -- \
-         [relaychain-args]"
+         the arguments provided after -- will be passed to the relay chain node.\n\nrococo-collator [parachain-args] -- \
+         [relay_chain-args]"
             .into()
     }
 
@@ -128,7 +128,7 @@ impl SubstrateCli for RelayChainCli {
     }
 
     fn load_spec(&self, id: &str) -> std::result::Result<Box<dyn sc_service::ChainSpec>, String> {
-        polkadot_cli::Cli::from_iter([RelayChainCli::executable_name().to_string()].iter()).load_spec(id)
+        polkadot_cli::Cli::from_iter([RelayChainCli::executable_name()].iter()).load_spec(id)
     }
 
     fn native_runtime_version(chain_spec: &Box<dyn ChainSpec>) -> &'static RuntimeVersion {
@@ -136,6 +136,7 @@ impl SubstrateCli for RelayChainCli {
     }
 }
 
+#[allow(clippy::borrowed_box)]
 fn extract_genesis_wasm(chain_spec: &Box<dyn sc_service::ChainSpec>) -> Result<Vec<u8>> {
     let mut storage = chain_spec.build_storage()?;
 
@@ -198,24 +199,24 @@ pub fn run() -> Result<()> {
             runner.sync_run(|config| {
                 let polkadot_cli = RelayChainCli::new(
                     &config,
-                    [RelayChainCli::executable_name().to_string()]
-                        .iter()
-                        .chain(cli.relaychain_args.iter()),
+                    [RelayChainCli::executable_name()].iter().chain(cli.relaychain_args.iter()),
                 );
 
                 let polkadot_config = SubstrateCli::create_configuration(
                     &polkadot_cli,
                     &polkadot_cli,
-                    config.task_executor.clone(),
+                    config.tokio_handle.clone(),
                 )
                     .map_err(|err| format!("Relay chain argument error: {}", err))?;
 
                 cmd.run(config, polkadot_config)
             })
         }
-        Some(Subcommand::Revert(cmd)) => construct_async_run!(|components, cli, cmd, config| {
-			Ok(cmd.run(components.client, components.backend))
-		}),
+        Some(Subcommand::Revert(cmd)) => {
+            construct_async_run!(|components, cli, cmd, config| {
+				Ok(cmd.run(components.client, components.backend))
+			})
+        },
         Some(Subcommand::ExportGenesisState(params)) => {
             let mut builder = sc_cli::LoggerBuilder::new("");
             builder.with_profiling(sc_tracing::TracingReceiver::Log, "");
@@ -269,9 +270,7 @@ pub fn run() -> Result<()> {
 
                 let polkadot_cli = RelayChainCli::new(
                     &config,
-                    [RelayChainCli::executable_name().to_string()]
-                        .iter()
-                        .chain(cli.relaychain_args.iter()),
+                    [RelayChainCli::executable_name()].iter().chain(cli.relaychain_args.iter()),
                 );
 
                 let id = ParaId::from(cli.run.parachain_id.or(para_id).unwrap_or(PARA_ID));
@@ -283,11 +282,11 @@ pub fn run() -> Result<()> {
                     generate_genesis_block(&config.chain_spec).map_err(|e| format!("{:?}", e))?;
                 let genesis_state = format!("0x{:?}", HexDisplay::from(&block.header().encode()));
 
-                let task_executor = config.task_executor.clone();
+                let tokio_handle = config.tokio_handle.clone();
                 let polkadot_config = SubstrateCli::create_configuration(
                     &polkadot_cli,
                     &polkadot_cli,
-                    task_executor,
+                    tokio_handle,
                 )
                     .map_err(|err| format!("Relay chain argument error: {}", err))?;
 
@@ -303,7 +302,7 @@ pub fn run() -> Result<()> {
                     }
                 );
 
-                crate::service::start_node(config, polkadot_config, id)
+                crate::service::start_parachain_node(config, polkadot_config, id)
                     .await
                     .map(|r| r.0)
                     .map_err(Into::into)
@@ -403,10 +402,6 @@ impl CliConfiguration<Self> for RelayChainCli {
 
     fn rpc_cors(&self, is_dev: bool) -> Result<Option<Vec<String>>> {
         self.base.base.rpc_cors(is_dev)
-    }
-
-    fn telemetry_external_transport(&self) -> Result<Option<sc_service::config::ExtTransport>> {
-        self.base.base.telemetry_external_transport()
     }
 
     fn default_heap_pages(&self) -> Result<Option<u64>> {

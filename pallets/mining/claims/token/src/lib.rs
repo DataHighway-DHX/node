@@ -35,6 +35,7 @@ use mining_setting_token;
 use mining_eligibility_token;
 use mining_rates_token;
 use mining_sampling_token;
+use scale_info::TypeInfo;
 
 #[cfg(test)]
 mod mock;
@@ -59,12 +60,12 @@ pub trait Config:
 // type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
 // frame_system::Config>::AccountId>>::Balance;
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct MiningClaimsToken(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo)]
 pub struct MiningClaimsTokenClaimResult<U, V> {
     pub token_claim_amount: U,
     pub token_claim_block_redeemed: V,

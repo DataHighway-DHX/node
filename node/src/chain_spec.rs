@@ -4,10 +4,13 @@ use datahighway_parachain_runtime::{
     AuraId,
     AuraConfig,
     BalancesConfig,
+    CollatorSelectionConfig,
     GeneralCouncilMembershipConfig,
     GenesisConfig,
+    SessionConfig,
     Signature,
     SudoConfig,
+    EXISTENTIAL_DEPOSIT,
 };
 use hex_literal::hex;
 use sc_chain_spec::{
@@ -42,7 +45,7 @@ pub use sp_runtime::{
 pub type ChainSpec = sc_service::GenericChainSpec<datahighway_parachain_runtime::GenesisConfig, Extensions>;
 
 /// Helper function to generate a crypto pair from seed
-pub fn get_from_seed<TPublic: Public>(seed: &str) -> <TPublic::Pair as Pair>::Public {
+pub fn get_public_from_seed<TPublic: Public>(seed: &str) -> <TPublic::Pair as Pair>::Public {
     TPublic::Pair::from_string(&format!("//{}", seed), None).expect("static values are valid; qed").public()
 }
 
@@ -65,6 +68,13 @@ impl Extensions {
 
 type AccountPublic = <Signature as Verify>::Signer;
 
+/// Generate collator keys from seed.
+///
+/// This function's return type must always match the session keys of the chain in tuple format.
+pub fn get_collator_keys_from_seed(seed: &str) -> AuraId {
+    get_public_from_seed::<AuraId>(seed)
+}
+
 // Note this is the URL for the telemetry server
 const POLKADOT_STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
 
@@ -73,13 +83,21 @@ pub fn get_account_id_from_seed<TPublic: Public>(seed: &str) -> AccountId
 where
     AccountPublic: From<<TPublic::Pair as Pair>::Public>,
 {
-    AccountPublic::from(get_from_seed::<TPublic>(seed)).into_account()
+    AccountPublic::from(get_public_from_seed::<TPublic>(seed)).into_account()
+}
+
+/// Generate the session keys from individual elements.
+///
+/// The input must be a tuple of individual keys (a single arg for now since we have just one key).
+pub fn datahighway_session_keys(keys: AuraId) -> datahighway_parachain_runtime::SessionKeys {
+    datahighway_parachain_runtime::SessionKeys { aura: keys }
 }
 
 pub fn datahighway_rococo_development_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
+    properties.insert("ss58Format".into(), 33.into());
     ChainSpec::from_genesis(
         // Name
         "DataHighway Rococo Development Testnet",
@@ -88,42 +106,16 @@ pub fn datahighway_rococo_development_config(id: ParaId) -> ChainSpec {
         ChainType::Development,
         move || {
             dev_genesis(
-                vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
-                get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
-                    hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
-                    get_account_id_from_seed::<sr25519::Public>("Alice"),
-                    get_account_id_from_seed::<sr25519::Public>("Bob"),
-                    get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
-                    get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+                    (
+                        get_account_id_from_seed::<sr25519::Public>("Alice"),
+                        get_collator_keys_from_seed("Alice"),
+                    ),
+                    (
+                        get_account_id_from_seed::<sr25519::Public>("Bob"),
+                        get_collator_keys_from_seed("Bob"),
+                    ),
                 ],
-                id,
-            )
-        },
-        vec![],
-        None,
-        None,
-        Some(properties),
-        Extensions {
-            relay_chain: "rococo-dev".into(),
-            para_id: id.into(),
-        },
-    )
-}
-
-pub fn datahighway_rococo_local_testnet_config(id: ParaId) -> ChainSpec {
-    let mut properties = sc_chain_spec::Properties::new();
-    properties.insert("tokenSymbol".into(), "UNIT".into());
-    properties.insert("tokenDecimals".into(), 18.into());
-    ChainSpec::from_genesis(
-        // Name
-        "DataHighway Rococo Local Testnet",
-        // ID
-        "datahighway-rococo-local",
-        ChainType::Local,
-        move || {
-            testnet_genesis(
-                vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
                     hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
@@ -143,7 +135,62 @@ pub fn datahighway_rococo_local_testnet_config(id: ParaId) -> ChainSpec {
                 id,
             )
         },
+        vec![],
+        None,
+        None,
+        Some(properties),
+        Extensions {
+            relay_chain: "rococo-dev".into(),
+            para_id: id.into(),
+        },
+    )
+}
+
+pub fn datahighway_rococo_local_testnet_config(id: ParaId) -> ChainSpec {
+    let mut properties = sc_chain_spec::Properties::new();
+    properties.insert("tokenSymbol".into(), "UNIT".into());
+    properties.insert("tokenDecimals".into(), 18.into());
+    properties.insert("ss58Format".into(), 33.into());
+    ChainSpec::from_genesis(
+        // Name
+        "DataHighway Rococo Local Testnet",
+        // ID
+        "datahighway-rococo-local",
+        ChainType::Local,
+        move || {
+            testnet_genesis(
+                vec![
+                    (
+                        get_account_id_from_seed::<sr25519::Public>("Alice"),
+                        get_collator_keys_from_seed("Alice"),
+                    ),
+                    (
+                        get_account_id_from_seed::<sr25519::Public>("Bob"),
+                        get_collator_keys_from_seed("Bob"),
+                    ),
+                ],
+                get_account_id_from_seed::<sr25519::Public>("Alice"),
+                vec![
+                    hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
+                    get_account_id_from_seed::<sr25519::Public>("Alice"),
+                    get_account_id_from_seed::<sr25519::Public>("Bob"),
+                    get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                    get_account_id_from_seed::<sr25519::Public>("Dave"),
+                    get_account_id_from_seed::<sr25519::Public>("Eve"),
+                    get_account_id_from_seed::<sr25519::Public>("Ferdie"),
+                    get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
+                ],
+                id,
+            )
+        },
+        // Bootnodes
         Vec::new(),
+        // Telemetry
         None,
         None,
         Some(properties),
@@ -158,6 +205,7 @@ pub fn datahighway_chachacha_development_config(id: ParaId) -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
+    properties.insert("ss58Format".into(), 33.into());
     ChainSpec::from_genesis(
         // Name
         "DataHighway ChaChaCha Development Testnet",
@@ -166,14 +214,31 @@ pub fn datahighway_chachacha_development_config(id: ParaId) -> ChainSpec {
         ChainType::Development,
         move || {
             dev_genesis(
-                vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
+                vec![
+                    (
+                        get_account_id_from_seed::<sr25519::Public>("Alice"),
+                        get_collator_keys_from_seed("Alice"),
+                    ),
+                    (
+                        get_account_id_from_seed::<sr25519::Public>("Bob"),
+                        get_collator_keys_from_seed("Bob"),
+                    ),
+                ],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
                     hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
+                    get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                    get_account_id_from_seed::<sr25519::Public>("Dave"),
+                    get_account_id_from_seed::<sr25519::Public>("Eve"),
+                    get_account_id_from_seed::<sr25519::Public>("Ferdie"),
                     get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
                     get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                 ],
                 id,
             )
@@ -201,7 +266,16 @@ pub fn datahighway_chachacha_local_testnet_config(id: ParaId) -> ChainSpec {
         ChainType::Local,
         move || {
             testnet_genesis(
-                vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
+                vec![
+                    (
+                        get_account_id_from_seed::<sr25519::Public>("Alice"),
+                        get_collator_keys_from_seed("Alice"),
+                    ),
+                    (
+                        get_account_id_from_seed::<sr25519::Public>("Bob"),
+                        get_collator_keys_from_seed("Bob"),
+                    ),
+                ],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
                     hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
@@ -246,21 +320,29 @@ pub fn datahighway_rococo_parachain_config(id: ParaId) -> ChainSpec {
                 vec![
                     // authority #1
                     (
+                        // account id
+                        hex!["106c208ac262aa3733629ad0860d0dc72d8b9152e1cdcab497949a3f9504517a"].into(),
                         // aura
                         hex!["106c208ac262aa3733629ad0860d0dc72d8b9152e1cdcab497949a3f9504517a"].unchecked_into()
                     ),
                     // authority #2
                     (
+                        // account id
+                        hex!["0234df0fce3e763e02b6644e589bd256bbd45121bdf6d98dd1cf1072b6228859"].into(),
                         // aura
                         hex!["0234df0fce3e763e02b6644e589bd256bbd45121bdf6d98dd1cf1072b6228859"].unchecked_into()
                     ),
                     // authority #3
                     (
+                        // account id
+                        hex!["02fe175463b5c7c378416e06780f7c60520d4dbcf759a7634a311e562e13a765"].into(),
                         // aura
                         hex!["02fe175463b5c7c378416e06780f7c60520d4dbcf759a7634a311e562e13a765"].unchecked_into()
                     ),
                     // authority #4
                     (
+                        // account id
+                        hex!["ea239700d67f53d30e39bee0c056f1165a6fb59ad4d5dd495c06d001af366c02"].into(),
                         // aura
                         hex!["ea239700d67f53d30e39bee0c056f1165a6fb59ad4d5dd495c06d001af366c02"].unchecked_into()
                     )
@@ -327,21 +409,29 @@ pub fn datahighway_chachacha_parachain_config(id: ParaId) -> ChainSpec {
                 vec![
                     // authority #1
                     (
+                        // account id
+                        hex!["106c208ac262aa3733629ad0860d0dc72d8b9152e1cdcab497949a3f9504517a"].into(),
                         // aura
                         hex!["106c208ac262aa3733629ad0860d0dc72d8b9152e1cdcab497949a3f9504517a"].unchecked_into()
                     ),
                     // authority #2
                     (
+                        // account id
+                        hex!["0234df0fce3e763e02b6644e589bd256bbd45121bdf6d98dd1cf1072b6228859"].into(),
                         // aura
                         hex!["0234df0fce3e763e02b6644e589bd256bbd45121bdf6d98dd1cf1072b6228859"].unchecked_into()
                     ),
                     // authority #3
                     (
+                        // account id
+                        hex!["02fe175463b5c7c378416e06780f7c60520d4dbcf759a7634a311e562e13a765"].into(),
                         // aura
                         hex!["02fe175463b5c7c378416e06780f7c60520d4dbcf759a7634a311e562e13a765"].unchecked_into()
                     ),
                     // authority #4
                     (
+                        // account id
+                        hex!["ea239700d67f53d30e39bee0c056f1165a6fb59ad4d5dd495c06d001af366c02"].into(),
                         // aura
                         hex!["ea239700d67f53d30e39bee0c056f1165a6fb59ad4d5dd495c06d001af366c02"].unchecked_into()
                     )
@@ -406,14 +496,31 @@ pub fn datahighway_westend_development_config(id: ParaId) -> ChainSpec {
         ChainType::Development,
         move || {
             dev_genesis(
-                vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
+                vec![
+                    (
+                        get_account_id_from_seed::<sr25519::Public>("Alice"),
+                        get_collator_keys_from_seed("Alice"),
+                    ),
+                    (
+                        get_account_id_from_seed::<sr25519::Public>("Bob"),
+                        get_collator_keys_from_seed("Bob"),
+                    ),
+                ],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
                     hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
+                    get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                    get_account_id_from_seed::<sr25519::Public>("Dave"),
+                    get_account_id_from_seed::<sr25519::Public>("Eve"),
+                    get_account_id_from_seed::<sr25519::Public>("Ferdie"),
                     get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
                     get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                 ],
                 id,
             )
@@ -441,7 +548,16 @@ pub fn datahighway_westend_local_testnet_config(id: ParaId) -> ChainSpec {
         ChainType::Local,
         move || {
             testnet_genesis(
-                vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
+                vec![
+                    (
+                        get_account_id_from_seed::<sr25519::Public>("Alice"),
+                        get_collator_keys_from_seed("Alice"),
+                    ),
+                    (
+                        get_account_id_from_seed::<sr25519::Public>("Bob"),
+                        get_collator_keys_from_seed("Bob"),
+                    ),
+                ],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
                     hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
@@ -484,14 +600,31 @@ pub fn datahighway_polkadot_development_config(id: ParaId) -> ChainSpec {
         ChainType::Development,
         move || {
             dev_genesis(
-                vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
+                vec![
+                    (
+                        get_account_id_from_seed::<sr25519::Public>("Alice"),
+                        get_collator_keys_from_seed("Alice"),
+                    ),
+                    (
+                        get_account_id_from_seed::<sr25519::Public>("Bob"),
+                        get_collator_keys_from_seed("Bob"),
+                    ),
+                ],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
                     hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
+                    get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                    get_account_id_from_seed::<sr25519::Public>("Dave"),
+                    get_account_id_from_seed::<sr25519::Public>("Eve"),
+                    get_account_id_from_seed::<sr25519::Public>("Ferdie"),
                     get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
                     get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
+                    get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                 ],
                 id,
             )
@@ -519,7 +652,16 @@ pub fn datahighway_polkadot_local_testnet_config(id: ParaId) -> ChainSpec {
         ChainType::Local,
         move || {
             testnet_genesis(
-                vec![get_from_seed::<AuraId>("Alice"), get_from_seed::<AuraId>("Bob")],
+                vec![
+                    (
+                        get_account_id_from_seed::<sr25519::Public>("Alice"),
+                        get_collator_keys_from_seed("Alice"),
+                    ),
+                    (
+                        get_account_id_from_seed::<sr25519::Public>("Bob"),
+                        get_collator_keys_from_seed("Bob"),
+                    ),
+                ],
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 vec![
                     hex!["a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21"].into(),
@@ -564,21 +706,29 @@ pub fn datahighway_westend_parachain_config(id: ParaId) -> ChainSpec {
                 vec![
                     // authority #1
                     (
+                        //account
+                        hex!["2628f7a7bb067a23daa14b1aa9f10ff44545d37907f2d5cefee905236944060a"].into(),
                         // aura
                         hex!["2628f7a7bb067a23daa14b1aa9f10ff44545d37907f2d5cefee905236944060a"].unchecked_into()
                     ),
                     // authority #2
                     (
+                        //account
+                        hex!["709f96ae975cd0cfafd98fb241810a2870d58fcfdbb1ee6892a8740525f4d871"].into(),
                         // aura
                         hex!["709f96ae975cd0cfafd98fb241810a2870d58fcfdbb1ee6892a8740525f4d871"].unchecked_into()
                     ),
                     // authority #3
                     (
+                        //account
+                        hex!["ce7f04896b8d13da7a4f3f0a49bf6c1d77076043a1184a993ce75d96f6e0ee56"].into(),
                         // aura
                         hex!["ce7f04896b8d13da7a4f3f0a49bf6c1d77076043a1184a993ce75d96f6e0ee56"].unchecked_into()
                     ),
                     // authority #4
                     (
+                        //account
+                        hex!["c27631914b41a8f58e24277158817d064a4144df430dd2cf7baeaa17414deb3e"].into(),
                         // aura
                         hex!["c27631914b41a8f58e24277158817d064a4144df430dd2cf7baeaa17414deb3e"].unchecked_into()
                     )
@@ -645,21 +795,29 @@ pub fn datahighway_polkadot_parachain_config(id: ParaId) -> ChainSpec {
                 vec![
                     // authority #1
                     (
+                        // account
+                        hex!["a8694c0c9e315e020844944ac76712c84f84a00007016e61c7e2f83fc56c5b3f"].into(),
                         // aura
                         hex!["a8694c0c9e315e020844944ac76712c84f84a00007016e61c7e2f83fc56c5b3f"].unchecked_into()
                     ),
                     // authority #2
                     (
+                        // account
+                        hex!["a8db9194388b3c038b126a5e2520515be2e989e3f380ce2cb5cf29d5a26c0522"].into(),
                         // aura
                         hex!["a8db9194388b3c038b126a5e2520515be2e989e3f380ce2cb5cf29d5a26c0522"].unchecked_into()
                     ),
                     // authority #3
                     (
+                        // account
+                        hex!["b8212af17ba93d9175748469afa0a74357712ff4571a36d347df58cf3821cd3d"].into(),
                         // aura
                         hex!["b8212af17ba93d9175748469afa0a74357712ff4571a36d347df58cf3821cd3d"].unchecked_into()
                     ),
                     // authority #4
                     (
+                        // account
+                        hex!["10a3d6854dc35e4b3fd77af4beda98f79dbe9edf5c29c14c8d57bec4bd733c0f"].into(),
                         // aura
                         hex!["10a3d6854dc35e4b3fd77af4beda98f79dbe9edf5c29c14c8d57bec4bd733c0f"].unchecked_into()
                     )
@@ -719,7 +877,7 @@ const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_
 // const INITIAL_STAKING: u128 = 1_000_000_000_000_000_000_u128;
 
 fn spreehafen_testnet_genesis(
-    initial_authorities: Vec<(AuraId)>,
+    invulnerables: Vec<(AccountId, AuraId)>,
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     id: ParaId
@@ -762,14 +920,33 @@ fn spreehafen_testnet_genesis(
         parachain_info: datahighway_parachain_runtime::ParachainInfoConfig {
             parachain_id: id,
         },
-        aura: AuraConfig { authorities: initial_authorities },
+        collator_selection: CollatorSelectionConfig {
+            invulnerables: invulnerables.iter().cloned().map(|(acc, _)| acc).collect(),
+            candidacy_bond: EXISTENTIAL_DEPOSIT * 16,
+            ..Default::default()
+        },
+        session: SessionConfig {
+            keys: invulnerables
+                .into_iter()
+                .map(|(acc, aura)| {
+                    (
+                        acc.clone(),                 // account id
+                        acc,                         // validator id
+                        datahighway_session_keys(aura), // session keys
+                    )
+                })
+                .collect(),
+        },
+        // no need to pass anything to aura, in fact it will panic if we do. Session will take care
+        // of this.
+        aura: Default::default(),
         aura_ext: Default::default(),
         parachain_system: Default::default(),
     }
 }
 
 fn testnet_genesis(
-    initial_authorities: Vec<AuraId>,
+    invulnerables: Vec<(AccountId, AuraId)>,
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     id: ParaId,
@@ -812,14 +989,33 @@ fn testnet_genesis(
         parachain_info: datahighway_parachain_runtime::ParachainInfoConfig {
             parachain_id: id,
         },
-        aura: AuraConfig { authorities: initial_authorities },
+        collator_selection: CollatorSelectionConfig {
+            invulnerables: invulnerables.iter().cloned().map(|(acc, _)| acc).collect(),
+            candidacy_bond: EXISTENTIAL_DEPOSIT * 16,
+            ..Default::default()
+        },
+        session: SessionConfig {
+            keys: invulnerables
+                .into_iter()
+                .map(|(acc, aura)| {
+                    (
+                        acc.clone(),                 // account id
+                        acc,                         // validator id
+                        datahighway_session_keys(aura), // session keys
+                    )
+                })
+                .collect(),
+        },
+        // no need to pass anything to aura, in fact it will panic if we do. Session will take care
+        // of this.
+        aura: Default::default(),
         aura_ext: Default::default(),
         parachain_system: Default::default(),
     }
 }
 
 fn dev_genesis(
-    initial_authorities: Vec<AuraId>,
+    invulnerables: Vec<(AccountId, AuraId)>,
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     id: ParaId,
@@ -862,14 +1058,33 @@ fn dev_genesis(
         parachain_info: datahighway_parachain_runtime::ParachainInfoConfig {
             parachain_id: id,
         },
-        aura: AuraConfig { authorities: initial_authorities },
+        collator_selection: CollatorSelectionConfig {
+            invulnerables: invulnerables.iter().cloned().map(|(acc, _)| acc).collect(),
+            candidacy_bond: EXISTENTIAL_DEPOSIT * 16,
+            ..Default::default()
+        },
+        session: SessionConfig {
+            keys: invulnerables
+                .into_iter()
+                .map(|(acc, aura)| {
+                    (
+                        acc.clone(),                 // account id
+                        acc,                         // validator id
+                        datahighway_session_keys(aura), // session keys
+                    )
+                })
+                .collect(),
+        },
+        // no need to pass anything to aura, in fact it will panic if we do. Session will take care
+        // of this.
+        aura: Default::default(),
         aura_ext: Default::default(),
         parachain_system: Default::default(),
     }
 }
 
 fn baikal_testnet_genesis(
-    initial_authorities: Vec<(AuraId)>,
+    invulnerables: Vec<(AccountId, AuraId)>,
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     id: ParaId
@@ -912,14 +1127,33 @@ fn baikal_testnet_genesis(
         parachain_info: datahighway_parachain_runtime::ParachainInfoConfig {
             parachain_id: id,
         },
-        aura: AuraConfig { authorities: initial_authorities },
+        collator_selection: CollatorSelectionConfig {
+            invulnerables: invulnerables.iter().cloned().map(|(acc, _)| acc).collect(),
+            candidacy_bond: EXISTENTIAL_DEPOSIT * 16,
+            ..Default::default()
+        },
+        session: SessionConfig {
+            keys: invulnerables
+                .into_iter()
+                .map(|(acc, aura)| {
+                    (
+                        acc.clone(),                 // account id
+                        acc,                         // validator id
+                        datahighway_session_keys(aura), // session keys
+                    )
+                })
+                .collect(),
+        },
+        // no need to pass anything to aura, in fact it will panic if we do. Session will take care
+        // of this.
+        aura: Default::default(),
         aura_ext: Default::default(),
         parachain_system: Default::default(),
     }
 }
 
 fn tanganika_testnet_genesis(
-    initial_authorities: Vec<(AuraId)>,
+    invulnerables: Vec<(AccountId, AuraId)>,
     root_key: AccountId,
     endowed_accounts: Vec<AccountId>,
     id: ParaId
@@ -962,7 +1196,26 @@ fn tanganika_testnet_genesis(
         parachain_info: datahighway_parachain_runtime::ParachainInfoConfig {
             parachain_id: id,
         },
-        aura: AuraConfig { authorities: initial_authorities },
+        collator_selection: CollatorSelectionConfig {
+            invulnerables: invulnerables.iter().cloned().map(|(acc, _)| acc).collect(),
+            candidacy_bond: EXISTENTIAL_DEPOSIT * 16,
+            ..Default::default()
+        },
+        session: SessionConfig {
+            keys: invulnerables
+                .into_iter()
+                .map(|(acc, aura)| {
+                    (
+                        acc.clone(),                 // account id
+                        acc,                         // validator id
+                        datahighway_session_keys(aura), // session keys
+                    )
+                })
+                .collect(),
+        },
+        // no need to pass anything to aura, in fact it will panic if we do. Session will take care
+        // of this.
+        aura: Default::default(),
         aura_ext: Default::default(),
         parachain_system: Default::default(),
     }

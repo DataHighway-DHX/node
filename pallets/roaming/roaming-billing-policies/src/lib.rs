@@ -28,6 +28,7 @@ use sp_runtime::{
     DispatchError,
 };
 use sp_std::prelude::*; // Imports Vec
+use scale_info::TypeInfo;
 #[macro_use]
 extern crate alloc; // Required to use Vec
 
@@ -43,12 +44,12 @@ pub trait Config: frame_system::Config + roaming_operators::Config + roaming_net
     type RoamingBillingPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct RoamingBillingPolicy(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo)]
 // Generic type parameters - Balance
 pub struct RoamingBillingPolicySetting<U, V> {
     pub policy_next_billing_at_block: U,

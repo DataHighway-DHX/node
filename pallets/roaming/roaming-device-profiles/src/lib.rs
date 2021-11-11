@@ -28,6 +28,7 @@ use sp_runtime::{
     DispatchError,
 };
 use sp_std::prelude::*; // Imports Vec
+use scale_info::TypeInfo;
 
 #[cfg(test)]
 mod mock;
@@ -45,12 +46,12 @@ pub trait Config: frame_system::Config + roaming_operators::Config + roaming_dev
     type RoamingDeviceProfileVendorID: Parameter + Member + Default;
 }
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct RoamingDeviceProfile(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo)]
 // Generic type parameters - Balance
 pub struct RoamingDeviceProfileSetting<U, V, W, X> {
     pub device_profile_devaddr: U,

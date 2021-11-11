@@ -25,9 +25,11 @@ std = [
 
     'account-set/std',
     'membership-supernodes/std',
+    'scale-info/std',
 ]
 
 [dependencies]
+scale-info = { version = "1.0.0", default-features = false, features = ["derive"] }
 codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
 safe-mix = { version = '1.0.0', default-features = false }
 chrono = { version = '0.4.19', default_features = false }
@@ -38,57 +40,57 @@ module-primitives = { version = '3.0.0', default-features = false, path = '../..
 [dependencies.frame-support]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 
 [dependencies.frame-system]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.pallet-balances]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.pallet-randomness-collective-flip]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.pallet-timestamp]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.pallet-transaction-payment]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.pallet-treasury]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.sp-std]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.sp-core]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.sp-io]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.sp-runtime]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dev-dependencies]

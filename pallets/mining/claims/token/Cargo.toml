@@ -25,9 +25,11 @@ std = [
     'mining-rates-token/std',
     'mining-sampling-token/std',
     'serde',
+    'scale-info/std',
 ]
 
 [dependencies]
+scale-info = { version = "1.0.0", default-features = false, features = ["derive"] }
 codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
 safe-mix = { version = '1.0.0', default-features = false }
 roaming-operators = { default-features = false, package = 'roaming-operators', path = '../../../roaming/roaming-operators' }
@@ -40,46 +42,46 @@ mining-sampling-token = { default-features = false, package = 'mining-sampling-t
 [dependencies.pallet-balances]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.pallet-randomness-collective-flip]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.pallet-transaction-payment]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.frame-support]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.frame-system]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.sp-std]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.sp-core]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.sp-io]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dependencies.sp-runtime]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.11"
 
 [dev-dependencies]

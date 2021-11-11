@@ -28,6 +28,7 @@ use sp_runtime::{
     DispatchError,
 };
 use sp_std::prelude::*; // Imports Vec
+use scale_info::TypeInfo;
 #[macro_use]
 extern crate alloc; // Required to use Vec
 
@@ -46,11 +47,11 @@ pub trait Config:
     type RoamingAgreementPolicyActivationType: Parameter + Member + Default;
 }
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct RoamingAgreementPolicy(pub [u8; 16]);
 
-#[derive(Encode, Debug, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Debug, Decode, Default, Clone, PartialEq, TypeInfo)]
 // Generic type parameters - Balance
 pub struct RoamingAgreementPolicySetting<U, V> {
     pub policy_activation_type: U, // "passive" or "handover"
