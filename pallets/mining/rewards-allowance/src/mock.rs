@@ -10,6 +10,7 @@ use frame_support::{
         GenesisBuild,
         LockIdentifier,
         SortedMembers,
+        StorageMapShim,
     },
     weights::{
         IdentityFee,
@@ -38,7 +39,7 @@ use codec::{
 };
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_runtime::{
-    testing::{Header, TestXt},
+    testing::{Header, TestSignature, TestXt, UintAuthorityId},
     traits::{
         BlakeTwo256,
         Extrinsic as ExtrinsicT,
@@ -103,7 +104,7 @@ frame_support::construct_runtime!(
 );
 
 // Override primitives
-pub type AccountId = u128;
+pub type AccountId = u64;
 // pub type SysEvent = frame_system::Event<Test>;
 
 pub const MILLISECS_PER_BLOCK: Moment = 4320;
@@ -141,7 +142,7 @@ impl frame_system::Config for Test {
     type BlockHashCount = ();
     type Version = ();
     type PalletInfo = PalletInfo;
-    type AccountData = pallet_balances::AccountData<u128>;
+    type AccountData = pallet_balances::AccountData<u64>;
     type OnNewAccount = ();
     type OnKilledAccount = ();
     type SystemWeightInfo = ();
@@ -161,7 +162,7 @@ impl pallet_scheduler::Config for Test {
     type PalletsOrigin = OriginCaller;
     type Call = Call;
     type MaximumWeight = MaximumSchedulerWeight;
-    type ScheduleOrigin = EnsureRoot<u128>;
+    type ScheduleOrigin = EnsureRoot<u64>;
     type MaxScheduledPerBlock = MaxScheduledPerBlock;
     type WeightInfo = ();
 }
@@ -192,7 +193,8 @@ impl pallet_balances::Config for Test {
     type DustRemoval = ();
     type Event = ();
     type ExistentialDeposit = ExistentialDeposit;
-    type AccountStore = frame_system::Pallet<Test>;
+    type AccountStore = StorageMapShim<pallet_balances::Account<Test>, frame_system::Provider<Test>, u64, pallet_balances::AccountData<u128>>;
+    // type AccountStore = frame_system::Pallet<Test>;
     type WeightInfo = ();
 }
 parameter_types! {
@@ -297,16 +299,16 @@ impl pallet_membership::Config<pallet_membership::Instance1> for Test {
 }
 
 thread_local! {
-    static TEN_TO_FOURTEEN: RefCell<Vec<u128>> = RefCell::new(vec![10,11,12,13,14]);
+    static TEN_TO_FOURTEEN: RefCell<Vec<u64>> = RefCell::new(vec![10,11,12,13,14]);
 }
 pub struct TenToFourteen;
-impl SortedMembers<u128> for TenToFourteen {
-    fn sorted_members() -> Vec<u128> {
+impl SortedMembers<u64> for TenToFourteen {
+    fn sorted_members() -> Vec<u64> {
         TEN_TO_FOURTEEN.with(|v| v.borrow().clone())
     }
 
     #[cfg(feature = "runtime-benchmarks")]
-    fn add(new: &u128) {
+    fn add(new: &u64) {
         TEN_TO_FOURTEEN.with(|v| {
             let mut members = v.borrow_mut();
             members.push(*new);
@@ -346,8 +348,8 @@ parameter_types! {
 impl pallet_treasury::Config for Test {
     type PalletId = TreasuryPalletId;
     type Currency = Balances;
-    type ApproveOrigin = EnsureRoot<u128>;
-    type RejectOrigin = EnsureRoot<u128>;
+    type ApproveOrigin = EnsureRoot<u64>;
+    type RejectOrigin = EnsureRoot<u64>;
     type Event = ();
     type OnSlash = ();
     type ProposalBond = ProposalBond;
@@ -446,9 +448,9 @@ type Extrinsic = TestXt<Call, ()>;
 // type AccountId = <<Signature as Verify>::Signer as IdentifyAccount>::AccountId;
 
 impl frame_system::offchain::SigningTypes for Test {
-	type Public = <Signature as Verify>::Signer;
-    // type Public = u128;
-	type Signature = Signature;
+	type Public = UintAuthorityId; // <Signature as Verify>::Signer;
+    // type Public = u64;
+	type Signature = TestSignature; // Signature;
 }
 
 impl<LocalCall> frame_system::offchain::SendTransactionTypes<LocalCall> for Test
@@ -465,8 +467,9 @@ where
 {
 	fn create_transaction<C: frame_system::offchain::AppCrypto<Self::Public, Self::Signature>>(
 		call: Call,
-		_public: <Signature as Verify>::Signer,
-        // _public: u128,
+		_public: UintAuthorityId,
+        // _public: <Signature as Verify>::Signer,
+        // _public: u64,
 		_account: AccountId,
 		nonce: Index,
 	) -> Option<(Call, <Extrinsic as ExtrinsicT>::SignaturePayload)> {

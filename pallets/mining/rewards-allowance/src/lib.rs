@@ -2395,10 +2395,10 @@ pub mod pallet {
         pub fn convert_vec_u8_to_u128(data: &[u8]) -> Result<u128, DispatchError> {
             let mut out = 0u128;
             let mut multiplier = 1;
-        
+
             for &val in data.iter().rev() {
                 // log::info!("{:?}", val);
-        
+
                 let mut digit = 0u128;
                 match val {
                     48u8 => {
@@ -2446,12 +2446,12 @@ pub mod pallet {
                 } else if digit == 0u128 && out == 0u128 {
                     multiplier *= 10;
                 }
-                
+
                 log::info!("multiplier {:?}", multiplier);
                 out += multiplier * digit;
                 log::info!("out {:?}", out);
             }
-        
+
             Ok(out)
         }
 
@@ -2859,7 +2859,7 @@ pub mod pallet {
                 let obj_mpower_str_hex: Vec<u8> = obj_mpower.iter().map(|c| *c as u8).collect::<Vec<_>>();
                 log::info!("obj_mpower_str_hex {:?} {:?}", i, obj_mpower_str_hex.clone());
 
-                // Decode from hex ascii format 
+                // Decode from hex ascii format
                 let obj_acct_id_str = hex::decode(obj_acct_id_str_hex.clone()).ok()?;
                 log::info!("Decoded acct_id i public key hex as Vec<u8> {:?} {:?}", i, obj_acct_id_str.clone());
 
