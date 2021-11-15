@@ -584,10 +584,6 @@ pub mod pallet {
         /// \[date, amount_dhx_bonded, account_dhx_bonded\]
         SetBondedDHXOfAccountForDateStored(Date, BalanceOf<T>, T::AccountId),
 
-        /// Storage of the mPower of an account on a specific date.
-        /// \[date, amount_mpower, account\]
-        SetMPowerOfAccountForDateStored(Date, Vec<u8>, u128),
-
         /// Storage of the default daily reward allowance in DHX by an origin account.
         /// \[amount_dhx, sender\]
         SetRewardsAllowanceDHXDailyStored(BalanceOf<T>, T::AccountId),
@@ -634,7 +630,7 @@ pub mod pallet {
         // Off-chain workers
 
 		/// Event generated when new mPower data is accepted to contribute to the rewards allowance.
-		/// \[start_date_received, registered_dhx_miner_account_id, mpower\]
+		/// \[start_date_requested, registered_dhx_miner_account_id, mpower\]
 		NewMPowerForAccountForDate(Date, Vec<u8>, u128),
         // NewMPowerForAccountForDate(Date, T::AccountId, u128),
     }
@@ -1085,6 +1081,48 @@ pub mod pallet {
                 return;
             };
 
+            // TODO - fetch the mpower from off-chain and store it with `set_mpower_of_account_for_date`
+            // but only for the reg_dhx_miners
+            // so we can iterate through the miners and retrieve the mPower of each miner for the current date with
+            // `MPowerForAccountForDate`
+            // and check if mPower for current miner being iterated is greather than the min. mPower that is required.
+
+			// after fetching the mpower values store by sending an unsigned transactions
+			let should_send = Self::choose_transaction_type(block_number.clone());
+			let mut res;
+            let mut mpower_data_vec = vec![];
+            match should_send {
+				TransactionType::Raw => {
+                    let _mpower_res = Self::fetch_mpower_process(block_number.clone(), start_of_requested_date_millis.clone());
+                    match _mpower_res.clone() {
+                        Err(e) => {
+                            log::error!("offchain_workers error fetching mpower: {}", e);
+                            return;
+                        },
+                        Ok(x) => {
+                            mpower_data_vec = x;
+                        }
+                    }
+                },
+				TransactionType::None => {
+                    log::error!("offchain_workers error unknown transaction type");
+                    return;
+                },
+			};
+
+            // TODO - remove all the fetched accounts from vector that aren't in the list of
+            // reg_dhx_miners, since we add the list of registered dhx miners from a signed account to
+            // and use it incase the API endpoint is compromised by hackers and fake accounts and mpower data are provided
+
+            // TODO - change reg_dhx_miners functionality so it may be stored via an extrinsic function
+            // and voted on by governance, and so it just includes a list of account addresses that we check against.
+            // if the list needs to be changed then just call it and add all of them again once approved.
+
+            res = Self::store_mpower_raw_unsigned(block_number.clone(), start_of_requested_date_millis.clone(), mpower_data_vec.clone());
+			if let Err(e) = res {
+				log::error!("offchain_workers error storing mpower: {}", e);
+			}
+
             let mut miner_count = 0;
 
             for (index, miner) in reg_dhx_miners.iter().enumerate() {
@@ -1200,27 +1238,26 @@ pub mod pallet {
                 }
                 // println!("min_mpower_daily_u128 {:#?}", min_mpower_daily_u128);
 
-                // TODO - integrate this with functionality of off-chain workers function where we
-                // fetch the mpower from off-chain and store it with `set_mpower_of_account_for_date`
                 // TODO - fetch the mPower of the miner currently being iterated to check if it's greater than the min.
                 // mPower that is required
                 let mut mpower_current_u128: u128 = 0u128;
-                // let _mpower_current_u128 = <MPowerForAccountForDate<T>>::get((start_of_requested_date_millis.clone(), miner.clone()));
-                // FIXME - this is temporary
-                let _mpower_data = (
-                    Some(0u128),
-                    start_of_requested_date_millis.clone(),
-                    1u64,
-                );
-                match _mpower_data.0 {
-                    None => {
-                        log::error!("Unable to get_mpower_of_account_for_date {:?}", start_of_requested_date_millis.clone());
-                        // println!("Unable to get_mpower_of_account_for_date {:?}", start_of_requested_date_millis.clone());
-                    },
-                    Some(x) => {
-                        mpower_current_u128 = x;
-                    }
-                }
+
+                let _mpower_current_u128 = <MPowerForAccountForDate<T>>::get((start_of_requested_date_millis.clone(), miner.clone()));
+                // // FIXME - this is temporary
+                // let _mpower_data = (
+                //     Some(0u128),
+                //     start_of_requested_date_millis.clone(),
+                //     1u64,
+                // );
+                // match _mpower_data.0 {
+                //     None => {
+                //         log::error!("Unable to get_mpower_of_account_for_date {:?}", start_of_requested_date_millis.clone());
+                //         // println!("Unable to get_mpower_of_account_for_date {:?}", start_of_requested_date_millis.clone());
+                //     },
+                //     Some(x) => {
+                //         mpower_current_u128 = x;
+                //     }
+                // }
                 log::info!("mpower_current_u128 {:#?}, {:?}", mpower_current_u128, start_of_requested_date_millis.clone());
                 // println!("mpower_current_u128 {:#?}, {:?}", mpower_current_u128, start_of_requested_date_millis.clone());
 
@@ -1588,16 +1625,6 @@ pub mod pallet {
 
             log::info!("Finished initial loop of registered miners");
             println!("Finished initial loop of registered miners");
-
-			// We are going to send unsigned transactions
-			let should_send = Self::choose_transaction_type(block_number);
-			let res = match should_send {
-				TransactionType::Raw => Self::fetch_mpower_and_send_raw_unsigned(block_number),
-				TransactionType::None => Ok(()),
-			};
-			if let Err(e) = res {
-				log::error!("offchain_workers error: {}", e);
-			}
 		}
 
         // `on_initialize` is executed at the beginning of the block before any extrinsic are
@@ -2262,12 +2289,13 @@ pub mod pallet {
         pub fn submit_mpower_unsigned(
             origin: OriginFor<T>,
             _block_number: T::BlockNumber,
+            start_of_requested_date_millis: Date,
             mpower_payload_vec: Vec<MPowerPayloadData<T>>,
         ) -> DispatchResultWithPostInfo {
             // This ensures that the function can only be called via unsigned transaction.
             ensure_none(origin)?;
             // Add the mpower vec on-chain, but mark it as coming from an empty address.
-            Self::add_mpower(Default::default(), mpower_payload_vec.clone());
+            Self::add_mpower(Default::default(), start_of_requested_date_millis.clone(), mpower_payload_vec.clone());
             // now increment the block number at which we expect next unsigned transaction.
             let current_block = <system::Pallet<T>>::block_number();
             <NextUnsignedAt<T>>::put(current_block + T::UnsignedInterval::get());
@@ -2285,8 +2313,8 @@ pub mod pallet {
 		/// here we make sure that some particular calls (the ones produced by offchain worker)
 		/// are being whitelisted and marked as valid.
 		fn validate_unsigned(_source: TransactionSource, call: &Self::Call) -> TransactionValidity {
-            if let Call::submit_mpower_unsigned(block_number, new_mpower_data_vec) = call {
-				Self::validate_transaction_parameters(block_number, new_mpower_data_vec)
+            if let Call::submit_mpower_unsigned(block_number, start_of_requested_date_millis, new_mpower_data_vec) = call {
+				Self::validate_transaction_parameters(block_number, start_of_requested_date_millis, new_mpower_data_vec)
 			} else {
 				InvalidTransaction::Call.into()
 			}
@@ -2530,37 +2558,30 @@ pub mod pallet {
             Ok(bonded_dhx_current_u128.clone())
         }
 
-        // FIXME - we're using `next_start_date`, but in off-chain workers we'll try doing it all on the same date we received it
-        // we need to set the mPower for the next start date so it's available from off-chain in time
-        pub fn set_mpower_of_account_for_date(account_id: Vec<u8>, mpower: u128, next_start_date: Date) -> Result<u128, DispatchError> {
-        // pub fn set_mpower_of_account_for_date(account_id: T::AccountId, mpower: u128, next_start_date: Date) -> Result<u128, DispatchError> {
-            // // Note: we DO need the following as we're using the current timestamp, rather than a function parameter.
-            // let timestamp: <T as pallet_timestamp::Config>::Moment = <pallet_timestamp::Pallet<T>>::get();
-            // let requested_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone())?;
-            // log::info!("set_mpower_of_account_for_date - requested_date_as_u64: {:?}", requested_date_as_u64.clone());
-
-            // convert the requested date/time to the start of that day date/time to signify that date for lookup
-            // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
-            let start_of_next_start_date_millis = Self::convert_i64_in_milliseconds_to_start_of_date(next_start_date.clone())?;
-
+        // TODO - this is an internal function, do we want to create an extrinsic too that
+        // governance may choose to call to set the mpower of an account for a date if it needs to be corrected in future
+        // before they claim?
+        pub fn set_mpower_of_account_for_date(account_id: Vec<u8>, start_of_requested_date_millis: Date, mpower: u128) -> Result<u128, DispatchError> {
             let mpower_current_u128 = mpower.clone();
 
             // Update storage. Override the default that may have been set in on_initialize
             <MPowerForAccountForDate<T>>::insert(
                 (
-                    start_of_next_start_date_millis.clone(),
+                    start_of_requested_date_millis.clone(),
                     account_id.clone(),
                 ),
                 mpower_current_u128.clone(),
             );
 
-            log::info!("set_mpower_of_account_for_date - start_of_next_start_date_millis: {:?}", &start_of_next_start_date_millis);
-            log::info!("set_mpower_of_account_for_date - account_id: {:?}", &account_id);
-            log::info!("set_mpower_of_account_for_date - mpower_current: {:?}", &mpower_current_u128);
+            log::info!("Added MPowerForAccountForDate {:?} {:?} {:?}",
+                start_of_requested_date_millis.clone(),
+                account_id.clone(),
+                mpower_current_u128.clone(),
+            );
 
             // Emit an event.
-            Self::deposit_event(Event::SetMPowerOfAccountForDateStored(
-                start_of_next_start_date_millis.clone(),
+            Self::deposit_event(Event::NewMPowerForAccountForDate(
+                start_of_requested_date_millis.clone(),
                 account_id.clone(),
                 mpower_current_u128.clone(),
             ));
@@ -2722,8 +2743,8 @@ pub mod pallet {
             }
         }
 
-        /// A helper function to fetch the mpower and send a raw unsigned transaction.
-        fn fetch_mpower_and_send_raw_unsigned(block_number: T::BlockNumber) -> Result<(), &'static str> {
+        /// A helper function to fetch the mpower
+        fn fetch_mpower_process(block_number: T::BlockNumber, start_of_requested_date_millis: Date) -> Result<Vec<MPowerPayloadData<T>>, &'static str> {
             // Make sure we don't fetch the mpower if unsigned transaction is going to be rejected
             // anyway.
             let next_unsigned_at = <NextUnsignedAt<T>>::get();
@@ -2733,12 +2754,17 @@ pub mod pallet {
 
             // Make an external HTTP request to fetch the current mpower.
             // Note this call will block until response is received.
-            let mpower_data_vec: Vec<MPowerPayloadData<T>> = Self::fetch_mpower(block_number.clone()).map_err(|_| "Failed to fetch mpower data vec")?;
+            let mpower_data_vec: Vec<MPowerPayloadData<T>> = Self::fetch_mpower(block_number.clone(), start_of_requested_date_millis.clone()).map_err(|_| "Failed to fetch mpower data vec")?;
 
+            Ok(mpower_data_vec.clone())
+        }
+
+        /// A helper function to send a raw unsigned transaction to store the mpower data.
+        fn store_mpower_raw_unsigned(block_number: T::BlockNumber, start_of_requested_date_millis: Date, mpower_data_vec: Vec<MPowerPayloadData<T>>) -> Result<(), &'static str> {
             // Received mpower data is wrapped into a call to `submit_mpower_unsigned` public function of this
             // pallet. This means that the transaction, when executed, will simply call that function
             // passing `mpower_data_vec` as an argument.
-            let call = Call::submit_mpower_unsigned(block_number, mpower_data_vec);
+            let call = Call::submit_mpower_unsigned(block_number.clone(), start_of_requested_date_millis.clone(), mpower_data_vec.clone());
 
             // Now let's create a transaction out of this call and submit it to the pool.
             // Here we showcase two ways to send an unsigned transaction / unsigned payload (raw)
@@ -2755,7 +2781,7 @@ pub mod pallet {
         }
 
         /// Fetch current mPower and return the result.
-        fn fetch_mpower(block_number: T::BlockNumber) -> Result<Vec<MPowerPayloadData<T>>, http::Error> {
+        fn fetch_mpower(block_number: T::BlockNumber, start_of_requested_date_millis: Date) -> Result<Vec<MPowerPayloadData<T>>, http::Error> {
             // We want to keep the offchain worker execution time reasonable, so we set a hard-coded
             // deadline to 2s to complete the external call.
             // You can also wait idefinitely for the response, however you may still get a timeout
@@ -2766,8 +2792,13 @@ pub mod pallet {
             // you can find in `sp_io`. The API is trying to be similar to `reqwest`, but
             // since we are running in a custom WASM execution environment we can't simply
             // import the library here.
+
+            // Example from Substrate
+            // let request =
+            //     http::Request::get("https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD");
+            // Example of request we may use
             let request =
-                http::Request::get("https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD");
+                http::Request::get("https://api.datahighway.com/price?start_of_requested_date_millis=BTC");
             // We set the deadline for sending of the request, note that awaiting response can
             // have a separate deadline. Next we send the request, before that it's also possible
             // to alter request headers or stream body content in case of non-GET requests.
@@ -2805,7 +2836,8 @@ pub mod pallet {
                 "data": [
                     { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": "11" },
                     { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": "12" }
-                ]
+                ],
+                "start_of_requested_date_millis": "1630195200000",
             }"#;
 
             let mpower_data_vec = match Self::parse_mpower_data(mpower_data, block_number.clone()) {
@@ -2942,41 +2974,17 @@ pub mod pallet {
         }
 
         /// Add new mPower on-chain.
-        fn add_mpower(who: T::AccountId, mpower_data_vec: Vec<MPowerPayloadData<T>>) -> Option<Vec<MPowerPayloadData<T>>> {
-            log::info!("Adding mPower to storage");
+        fn add_mpower(account_id: T::AccountId, start_of_requested_date_millis: Date, mpower_data_vec: Vec<MPowerPayloadData<T>>) -> Option<Vec<MPowerPayloadData<T>>> {
+            log::info!("Adding mPower to storage for date: {:?}", start_of_requested_date_millis.clone());
 
-            let timestamp = <pallet_timestamp::Pallet<T>>::get();
-            let received_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone()).ok()?;
-            log::info!("received_date_as_u64: {:?}", received_date_as_u64.clone());
-            // convert the received date/time to the start of that day date/time to signify that date for lookup
-            // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
-            let start_of_received_date_millis = Self::convert_u64_in_milliseconds_to_start_of_date(received_date_as_u64.clone()).ok()?;
-            log::info!("start_of_received_date_millis: {:?}", start_of_received_date_millis.clone());
+            // TODO - convert AccountId into Vec<u8>
 
             for (index, mpower_data_item) in mpower_data_vec.iter().enumerate() {
-                <MPowerForAccountForDate<T>>::insert(
-                    (
-                        start_of_received_date_millis.clone(),
-                        mpower_data_item.account_id_registered_dhx_miner.clone(),
-                    ),
+                Self::set_mpower_of_account_for_date(
+                    account_id.to_public_key().clone(),
+                    start_of_requested_date_millis.clone(),
                     mpower_data_item.mpower_registered_dhx_miner.clone(),
                 );
-                log::info!("Added MPowerForAccountForDate {:?} {:?} {:?}",
-                    start_of_received_date_millis.clone(),
-                    mpower_data_item.account_id_registered_dhx_miner.clone(),
-                    mpower_data_item.mpower_registered_dhx_miner.clone(),
-                );
-
-                // let average = Self::average_mpower()
-                //     .expect("The average is not empty, because it was just mutated; qed");
-                // log::info!("Current average mpower is: {}", average);
-                // here we are raising the NewPrice event
-
-                Self::deposit_event(Event::NewMPowerForAccountForDate(
-                    start_of_received_date_millis.clone(),
-                    mpower_data_item.account_id_registered_dhx_miner.clone(),
-                    mpower_data_item.mpower_registered_dhx_miner.clone(),
-                ));
             }
 
             Some(mpower_data_vec.clone())
@@ -2998,6 +3006,7 @@ pub mod pallet {
 
         fn validate_transaction_parameters(
             block_number: &T::BlockNumber,
+            start_of_requested_date_millis: &Date,
             new_mpower_data: &Vec<MPowerPayloadData<T>>,
         ) -> TransactionValidity {
             // Now let's check if the transaction has any chance to succeed.
