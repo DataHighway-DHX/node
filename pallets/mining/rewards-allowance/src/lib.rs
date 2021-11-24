@@ -1241,8 +1241,9 @@ pub mod pallet {
                 // TODO - fetch the mPower of the miner currently being iterated to check if it's greater than the min.
                 // mPower that is required
                 let mut mpower_current_u128: u128 = 0u128;
-
-                let _mpower_current_u128 = <MPowerForAccountForDate<T>>::get((start_of_requested_date_millis.clone(), miner.clone()));
+                let miner_public_key = miner.clone().encode();
+                log::info!("Public key {:?}", miner_public_key);
+                let _mpower_current_u128 = <MPowerForAccountForDate<T>>::get((start_of_requested_date_millis.clone(), miner_public_key.clone()));
                 // // FIXME - this is temporary
                 // let _mpower_data = (
                 //     Some(0u128),
@@ -1624,7 +1625,7 @@ pub mod pallet {
             }
 
             log::info!("Finished initial loop of registered miners");
-            println!("Finished initial loop of registered miners");
+            // println!("Finished initial loop of registered miners");
 		}
 
         // `on_initialize` is executed at the beginning of the block before any extrinsic are
@@ -2794,11 +2795,11 @@ pub mod pallet {
             // import the library here.
 
             // Example from Substrate
-            // let request =
-            //     http::Request::get("https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD");
-            // Example of request we may use
             let request =
-                http::Request::get("https://api.datahighway.com/price?start_of_requested_date_millis=BTC");
+                http::Request::get("https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD");
+            // Example of request we may use
+            // let request =
+            //     http::Request::get("https://api.datahighway.com/price?start_of_requested_date_millis=BTC");
             // We set the deadline for sending of the request, note that awaiting response can
             // have a separate deadline. Next we send the request, before that it's also possible
             // to alter request headers or stream body content in case of non-GET requests.
@@ -2834,10 +2835,9 @@ pub mod pallet {
             // Alice public key 0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
             let mpower_data = r#"{
                 "data": [
-                    { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": "11" },
-                    { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": "12" }
-                ],
-                "start_of_requested_date_millis": "1630195200000",
+                    { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": "11", "start_of_requested_date_millis": "1630195200000" },
+                    { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": "12", "start_of_requested_date_millis": "1630195200000" }
+                ]
             }"#;
 
             let mpower_data_vec = match Self::parse_mpower_data(mpower_data, block_number.clone()) {
@@ -2977,11 +2977,10 @@ pub mod pallet {
         fn add_mpower(account_id: T::AccountId, start_of_requested_date_millis: Date, mpower_data_vec: Vec<MPowerPayloadData<T>>) -> Option<Vec<MPowerPayloadData<T>>> {
             log::info!("Adding mPower to storage for date: {:?}", start_of_requested_date_millis.clone());
 
-            // TODO - convert AccountId into Vec<u8>
-
             for (index, mpower_data_item) in mpower_data_vec.iter().enumerate() {
                 Self::set_mpower_of_account_for_date(
-                    account_id.to_public_key().clone(),
+                    // convert AccountId into Vec<u8>. This is [0, 0, ... 0] since its an unsigned transaction
+                    account_id.clone().encode(),
                     start_of_requested_date_millis.clone(),
                     mpower_data_item.mpower_registered_dhx_miner.clone(),
                 );
