@@ -28,6 +28,11 @@
 //!
 #![cfg_attr(not(feature = "std"), no_std)]
 
+// We need this to allow use of `format!` in a no_std environment
+#![crate_type = "dylib"]
+#[macro_use]
+extern crate alloc;
+
 use core::str;
 use chrono::{
     NaiveDateTime,
@@ -2795,11 +2800,16 @@ pub mod pallet {
             // import the library here.
 
             // Example from Substrate
-            let request =
-                http::Request::get("https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD");
-            // Example of request we may use
             // let request =
-            //     http::Request::get("https://api.datahighway.com/price?start_of_requested_date_millis=BTC");
+            //     http::Request::get("https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD");
+
+            // Example of request we may use
+            // let start_of_requested_date_millis = 1630195200000i64;
+            // let url = format!("https://api.datahighway.com/data/mpower-for-date?start_of_requested_date_millis={}", start_of_requested_date_millis);
+            // log::info!("Request URL: {}", url.clone());
+            // let request =
+            //     http::Request::get(&url);
+
             // We set the deadline for sending of the request, note that awaiting response can
             // have a separate deadline. Next we send the request, before that it's also possible
             // to alter request headers or stream body content in case of non-GET requests.
