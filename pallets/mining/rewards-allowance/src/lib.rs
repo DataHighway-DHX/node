@@ -572,13 +572,13 @@ pub mod pallet {
 
         /// Storage of the minimum DHX that must be bonded by each registered DHX miner each day
         /// to be eligible for rewards
-        /// \[amount_dhx, sender\]
-        SetMinBondedDHXDailyStored(BalanceOf<T>, T::AccountId),
+        /// \[amount_dhx\]
+        SetMinBondedDHXDailyStored(BalanceOf<T>),
 
         /// Storage of the minimum mPower that must be held by each registered DHX miner each day
         /// to be eligible for rewards
-        /// \[amount_mpower, sender\]
-        SetMinMPowerDailyStored(u128, T::AccountId),
+        /// \[amount_mpower\]
+        SetMinMPowerDailyStored(u128),
 
         /// Storage of the default cooling off period in days
         /// \[cooling_off_period_days\]
@@ -589,14 +589,14 @@ pub mod pallet {
         SetBondedDHXOfAccountForDateStored(Date, BalanceOf<T>, T::AccountId),
 
         /// Storage of the default daily reward allowance in DHX by an origin account.
-        /// \[amount_dhx, sender\]
-        SetRewardsAllowanceDHXDailyStored(BalanceOf<T>, T::AccountId),
+        /// \[amount_dhx\]
+        SetRewardsAllowanceDHXDailyStored(BalanceOf<T>),
 
         /// Change the stored reward allowance in DHX for a specific date by an origin account, and
         /// where change is 0 for an decrease or any other value like 1 for an increase to the remaining
         /// rewards allowance.
-        /// \[date, change_amount_dhx, sender, change\]
-        ChangedRewardsAllowanceDHXForDateRemainingStored(Date, BalanceOf<T>, T::AccountId, u8),
+        /// \[date, change_amount_dhx, change\]
+        ChangedRewardsAllowanceDHXForDateRemainingStored(Date, BalanceOf<T>, u8),
 
         /// Transferred a proportion of the daily DHX rewards allowance to a DHX Miner on a given date
         /// \[date, miner_reward, remaining_rewards_allowance_today, miner_account_id\]
@@ -612,16 +612,16 @@ pub mod pallet {
         ChangedMinBondedDHXDailyUsingNewRewardsMultiplier(Date, BalanceOf<T>, u32, u8, u32),
 
         /// Storage of a new reward operation (1u8: addition) by an origin account.
-        /// \[operation, sender\]
-        SetRewardsMultiplierOperationStored(u8, T::AccountId),
+        /// \[operation\]
+        SetRewardsMultiplierOperationStored(u8),
 
         /// Storage of a new reward multiplier default period in days (i.e. 90 for 3 months) by an origin account.
-        /// \[days, sender\]
-        SetRewardsMultiplierDefaultPeriodDaysStored(u32, T::AccountId),
+        /// \[days\]
+        SetRewardsMultiplierDefaultPeriodDaysStored(u32),
 
         /// Storage of a new reward multiplier next period in days (i.e. 90 for 3 months) by an origin account.
-        /// \[days, sender\]
-        SetRewardsMultiplierNextPeriodDaysStored(u32, T::AccountId),
+        /// \[days\]
+        SetRewardsMultiplierNextPeriodDaysStored(u32),
 
         /// Storage of new rewards multiplier paused status
         /// \[new_status]
@@ -2067,39 +2067,40 @@ pub mod pallet {
             Ok(())
         }
 
+        // only modifiable by governance as root rather than just any user
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
         pub fn set_min_bonded_dhx_daily(origin: OriginFor<T>, min_bonded_dhx_daily: BalanceOf<T>) -> DispatchResult {
-            let _sender: T::AccountId = ensure_signed(origin)?;
+            let _sender = ensure_root(origin)?;
 
             <MinBondedDHXDaily<T>>::put(&min_bonded_dhx_daily.clone());
             log::info!("set_min_bonded_dhx_daily: {:?}", &min_bonded_dhx_daily);
 
             Self::deposit_event(Event::SetMinBondedDHXDailyStored(
                 min_bonded_dhx_daily.clone(),
-                _sender.clone(),
             ));
 
             Ok(())
         }
 
+        // only modifiable by governance as root rather than just any user
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
         pub fn set_min_mpower_daily(origin: OriginFor<T>, min_mpower_daily: u128) -> DispatchResult {
-            let _sender: T::AccountId = ensure_signed(origin)?;
+            let _sender = ensure_root(origin)?;
 
             <MinMPowerDaily<T>>::put(&min_mpower_daily.clone());
             log::info!("set_min_mpower_daily: {:?}", &min_mpower_daily);
 
             Self::deposit_event(Event::SetMinMPowerDailyStored(
                 min_mpower_daily.clone(),
-                _sender.clone(),
             ));
 
             Ok(())
         }
 
+        // only modifiable by governance as root rather than just any user
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
         pub fn set_cooling_off_period_days(origin: OriginFor<T>, cooling_off_period_days: u32) -> DispatchResult {
-            let _sender: T::AccountId = ensure_signed(origin)?;
+            let _sender = ensure_root(origin)?;
 
             <CoolingOffPeriodDays<T>>::put(&cooling_off_period_days.clone());
             log::info!("cooling_off_period_days: {:?}", &cooling_off_period_days);
@@ -2111,11 +2112,10 @@ pub mod pallet {
             Ok(())
         }
 
-        // TODO: we need to change this in future so it is only modifiable by governance,
-        // rather than just any user
+        // only modifiable by governance as root rather than just any user
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
         pub fn set_rewards_allowance_dhx_daily(origin: OriginFor<T>, rewards_allowance: BalanceOf<T>) -> DispatchResult {
-            let _who = ensure_signed(origin)?;
+            let _who = ensure_root(origin)?;
             // Update storage
             <RewardsAllowanceDHXDaily<T>>::put(&rewards_allowance.clone());
             log::info!("set_rewards_allowance_dhx_daily - rewards_allowance: {:?}", &rewards_allowance);
@@ -2123,7 +2123,6 @@ pub mod pallet {
             // Emit an event.
             Self::deposit_event(Event::SetRewardsAllowanceDHXDailyStored(
                 rewards_allowance.clone(),
-                _who.clone()
             ));
 
             // Return a successful DispatchResultWithPostInfo
@@ -2134,7 +2133,7 @@ pub mod pallet {
         // https://docs.google.com/spreadsheets/d/1W2AzOH9Cs9oCR8UYfYCbpmd9X7hp-USbYXL7AuwMY_Q/edit#gid=970997021
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
         pub fn set_rewards_allowance_dhx_for_date_remaining(origin: OriginFor<T>, rewards_allowance: BalanceOf<T>, timestamp: u64) -> DispatchResult {
-            let _who = ensure_signed(origin)?;
+            let _who = ensure_root(origin)?;
 
             // Note: we do not need the following as we're not using the current timestamp, rather the function parameter.
             // let current_date = <pallet_timestamp::Pallet<T>>::get();
@@ -2154,7 +2153,6 @@ pub mod pallet {
             Self::deposit_event(Event::ChangedRewardsAllowanceDHXForDateRemainingStored(
                 start_of_requested_date_millis.clone(),
                 rewards_allowance.clone(),
-                _who.clone(),
                 1u8, // increment
             ));
 
@@ -2163,10 +2161,11 @@ pub mod pallet {
         }
 
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
+        // only modifiable by governance as root rather than just any user
         // parameter `change: u8` value may be 0 or 1 (or any other value) to represent that we want to make a
         // corresponding decrease or increase to the remaining dhx rewards allowance for a given date.
         pub fn change_rewards_allowance_dhx_for_date_remaining(origin: OriginFor<T>, daily_rewards: BalanceOf<T>, timestamp: u64, change: u8) -> DispatchResult {
-            let _who = ensure_signed(origin)?;
+            let _who = ensure_root(origin)?;
 
             let start_of_requested_date_millis = Self::convert_u64_in_milliseconds_to_start_of_date(timestamp.clone())?;
 
@@ -2216,7 +2215,6 @@ pub mod pallet {
             Self::deposit_event(Event::ChangedRewardsAllowanceDHXForDateRemainingStored(
                 start_of_requested_date_millis.clone(),
                 new_remaining_allowance_as_balance.clone(),
-                _who.clone(),
                 change.clone(),
             ));
 
@@ -2224,49 +2222,73 @@ pub mod pallet {
             Ok(())
         }
 
+        // only modifiable by governance as root rather than just any user
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
         pub fn set_rewards_multiplier_operation(origin: OriginFor<T>, operation: u8) -> DispatchResult {
-            let _who = ensure_signed(origin)?;
+            let _who = ensure_root(origin)?;
             <RewardsMultiplierOperation<T>>::put(&operation.clone());
             log::info!("set_rewards_multiplier_operation - operation: {:?}", &operation);
 
             // Emit an event.
             Self::deposit_event(Event::SetRewardsMultiplierOperationStored(
                 operation.clone(),
-                _who.clone()
             ));
 
             // Return a successful DispatchResultWithPostInfo
             Ok(())
         }
 
+        // only modifiable by governance as root rather than just any user
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
         pub fn set_rewards_multiplier_default_period_days(origin: OriginFor<T>, days: u32) -> DispatchResult {
-            let _who = ensure_signed(origin)?;
+            let _who = ensure_root(origin)?;
             <RewardsMultiplierDefaultPeriodDays<T>>::put(&days.clone());
             log::info!("set_rewards_multiplier_default_period_days - days: {:?}", &days);
 
             // Emit an event.
             Self::deposit_event(Event::SetRewardsMultiplierDefaultPeriodDaysStored(
                 days.clone(),
-                _who.clone()
             ));
 
             // Return a successful DispatchResultWithPostInfo
             Ok(())
         }
 
+        // only modifiable by governance as root rather than just any user
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
         pub fn set_rewards_multiplier_next_period_days(origin: OriginFor<T>, days: u32) -> DispatchResult {
-            let _who = ensure_signed(origin)?;
+            let _who = ensure_root(origin)?;
             <RewardsMultiplierNextPeriodDays<T>>::put(&days.clone());
             log::info!("set_rewards_multiplier_next_period_days - days: {:?}", &days);
 
             // Emit an event.
             Self::deposit_event(Event::SetRewardsMultiplierNextPeriodDaysStored(
                 days.clone(),
-                _who.clone()
             ));
+
+            // Return a successful DispatchResultWithPostInfo
+            Ok(())
+        }
+
+        // extrinsic that governance may choose to call to set the mpower of an account for a date
+        // if it needs to be corrected in future before they claim
+        #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
+        pub fn change_mpower_of_account_for_date(origin: OriginFor<T>, account_id: Vec<u8>, start_of_requested_date_millis: Date, mpower: u128) -> DispatchResult {
+            let _who = ensure_root(origin)?;
+
+            let mpower_current_u128 = mpower.clone();
+
+            log::info!("change_mpower_of_account_for_date {:?} {:?} {:?}",
+                account_id.clone(),
+                start_of_requested_date_millis.clone(),
+                mpower_current_u128.clone(),
+            );
+
+            Self::set_mpower_of_account_for_date(
+                account_id.clone(),
+                start_of_requested_date_millis.clone(),
+                mpower_current_u128.clone(),
+            );
 
             // Return a successful DispatchResultWithPostInfo
             Ok(())
@@ -2561,9 +2583,6 @@ pub mod pallet {
             Ok(bonded_dhx_current_u128.clone())
         }
 
-        // TODO - this is an internal function, do we want to create an extrinsic too that
-        // governance may choose to call to set the mpower of an account for a date if it needs to be corrected in future
-        // before they claim?
         pub fn set_mpower_of_account_for_date(account_id: Vec<u8>, start_of_requested_date_millis: Date, mpower: u128) -> Result<u128, DispatchError> {
             let mpower_current_u128 = mpower.clone();
 
