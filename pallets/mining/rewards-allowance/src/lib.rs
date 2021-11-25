@@ -249,11 +249,10 @@ pub mod pallet {
         <T as frame_system::Config>::BlockNumber,
     >;
 
-    // FIXME - change these to the types we really want
-    type MPowerAccountDataType<T> = MPowerAccountData<
-        <T as frame_system::Config>::AccountId,
-        u128,
-    >;
+    // type MPowerAccountDataType<T> = MPowerAccountData<
+    //     <T as frame_system::Config>::AccountId,
+    //     u128,
+    // >;
 
     enum TransactionType {
         Raw,
@@ -275,7 +274,7 @@ pub mod pallet {
     pub(super) type BondedDHXForAccountForDate<T: Config> = StorageMap<_, Blake2_128Concat,
         (
             Date,
-            T::AccountId,
+            Vec<u8>, // public key of AccountId
         ),
         BalanceOf<T>,
     >;
@@ -362,7 +361,7 @@ pub mod pallet {
     pub(super) type RewardsAccumulatedDHXForMinerForDate<T: Config> = StorageMap<_, Blake2_128Concat,
         (
             Date,
-            T::AccountId,
+            Vec<u8>,
         ),
         BalanceOf<T>,
     >;
@@ -397,7 +396,7 @@ pub mod pallet {
     #[pallet::storage]
     #[pallet::getter(fn cooling_off_period_days_remaining)]
     pub(super) type CoolingOffPeriodDaysRemaining<T: Config> = StorageMap<_, Blake2_128Concat,
-        T::AccountId,
+        Vec<u8>, // public key of AccountId
         (
             // date when cooling off period started for a given miner, or the date when we last reduced their cooling off period.
             // we do not reduce their cooling off period days remaining if we've already set this to a date that is the
@@ -455,14 +454,14 @@ pub mod pallet {
         pub rewards_multiplier_current_period_days_remaining: (Date, Date, u32, u32),
         pub rewards_multiplier_operation: u8,
         pub rewards_aggregated_dhx_for_all_miners_for_date: Vec<(Date, BalanceOf<T>)>,
-        pub rewards_accumulated_dhx_for_miner_for_date: Vec<((Date, T::AccountId), BalanceOf<T>)>,
+        pub rewards_accumulated_dhx_for_miner_for_date: Vec<((Date, Vec<u8>), BalanceOf<T>)>,
         pub registered_dhx_miners: Vec<T::AccountId>,
         pub min_bonded_dhx_daily: BalanceOf<T>,
         pub min_bonded_dhx_daily_default: BalanceOf<T>,
         pub min_mpower_daily: u128,
         pub min_mpower_daily_default: u128,
         pub cooling_off_period_days: u32,
-        pub cooling_off_period_days_remaining: Vec<(T::AccountId, (Date, u32, u32))>,
+        pub cooling_off_period_days_remaining: Vec<(Vec<u8>, (Date, u32, u32))>,
     }
 
     // The default value for the genesis config type.
@@ -636,8 +635,7 @@ pub mod pallet {
 
 		/// Event generated when new mPower data is accepted to contribute to the rewards allowance.
 		/// \[start_date_requested, registered_dhx_miner_account_id, mpower\]
-		NewMPowerForAccountForDate(Date, Vec<u8>, u128),
-        // NewMPowerForAccountForDate(Date, T::AccountId, u128),
+        NewMPowerForAccountForDate(Date, Vec<u8>, u128),
     }
 
     // Errors inform users that something went wrong should be descriptive and have helpful documentation
@@ -1197,6 +1195,9 @@ pub mod pallet {
                 //     reasons: Reasons::Misc,
                 // },
 
+                let miner_public_key = miner.clone().encode();
+                log::info!("Public key {:?}", miner_public_key);
+
                 let bonded_dhx_current_u128;
                 let _bonded_dhx_current_u128 = Self::set_bonded_dhx_of_account_for_date(
                     miner.clone(),
@@ -1246,8 +1247,6 @@ pub mod pallet {
                 // TODO - fetch the mPower of the miner currently being iterated to check if it's greater than the min.
                 // mPower that is required
                 let mut mpower_current_u128: u128 = 0u128;
-                let miner_public_key = miner.clone().encode();
-                log::info!("Public key {:?}", miner_public_key);
                 let _mpower_current_u128 = <MPowerForAccountForDate<T>>::get((start_of_requested_date_millis.clone(), miner_public_key.clone()));
                 // // FIXME - this is temporary
                 // let _mpower_data = (
@@ -1294,7 +1293,7 @@ pub mod pallet {
                     7u32,
                     0u32,
                 );
-                if let Some(_cooling_off_period_days_remaining) = <CoolingOffPeriodDaysRemaining<T>>::get(miner.clone()) {
+                if let Some(_cooling_off_period_days_remaining) = <CoolingOffPeriodDaysRemaining<T>>::get(miner_public_key.clone()) {
                     // we do not change cooling_off_period_days_remaining.0 to the default value in the chain_spec.rs of 0,
                     // instead we want to use today's date `start_of_requested_date_millis.clone()` by default, as we did above.
                     if _cooling_off_period_days_remaining.0 != 0 {
@@ -1303,7 +1302,7 @@ pub mod pallet {
                     cooling_off_period_days_remaining.1 = _cooling_off_period_days_remaining.1;
                     cooling_off_period_days_remaining.2 = _cooling_off_period_days_remaining.2;
                 } else {
-                    log::info!("Unable to retrieve cooling off period days remaining for given miner, using default {:?}", miner.clone());
+                    log::info!("Unable to retrieve cooling off period days remaining for given miner, using default {:?}, {:?}", miner.clone(), miner_public_key.clone());
                 }
                 log::info!("cooling_off_period_days_remaining {:?} {:?} {:?}", start_of_requested_date_millis.clone(), cooling_off_period_days_remaining, miner.clone());
                 // if cooling_off_period_days_remaining.2 is 0u32, it means we haven't recognised they that have the min. bonded yet (or unbonded),
@@ -1317,7 +1316,7 @@ pub mod pallet {
                     has_min_mpower_daily == true
                 {
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
-                        miner.clone(),
+                        miner_public_key.clone(),
                         (
                             start_of_requested_date_millis.clone(),
                             cooling_off_period_days.clone(),
@@ -1359,7 +1358,7 @@ pub mod pallet {
 
                     // Write the new value to storage
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
-                        miner.clone(),
+                        miner_public_key.clone(),
                         (
                             start_of_requested_date_millis.clone(),
                             new_cooling_off_period_days_remaining.clone(),
@@ -1385,7 +1384,7 @@ pub mod pallet {
 
                     // we need to add that they are eligible for rewards on the current date too
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
-                        miner.clone(),
+                        miner_public_key.clone(),
                         (
                             start_of_requested_date_millis.clone(),
                             0u32,
@@ -1398,7 +1397,7 @@ pub mod pallet {
                     if <RewardsAccumulatedDHXForMinerForDate<T>>::contains_key(
                         (
                             start_of_requested_date_millis.clone(),
-                            miner.clone(),
+                            miner_public_key.clone(),
                         )
                     ) == true {
                         continue;
@@ -1518,7 +1517,7 @@ pub mod pallet {
                     <RewardsAccumulatedDHXForMinerForDate<T>>::insert(
                         (
                             start_of_requested_date_millis.clone(),
-                            miner.clone(),
+                            miner_public_key.clone(),
                         ),
                         daily_reward_for_miner.clone(),
                     );
@@ -1545,7 +1544,7 @@ pub mod pallet {
                 {
                     // Write the new value to storage
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
-                        miner.clone(),
+                        miner_public_key.clone(),
                         (
                             start_of_requested_date_millis.clone(),
                             cooling_off_period_days.clone(),
@@ -1592,7 +1591,7 @@ pub mod pallet {
 
                     // Write the new value to storage
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
-                        miner.clone(),
+                        miner_public_key.clone(),
                         (
                             start_of_requested_date_millis.clone(),
                             new_cooling_off_period_days_remaining.clone(),
@@ -1617,7 +1616,7 @@ pub mod pallet {
                 {
                     // Write the new value to storage
                     <CoolingOffPeriodDaysRemaining<T>>::insert(
-                        miner.clone(),
+                        miner_public_key.clone(),
                         (
                             start_of_requested_date_millis.clone(),
                             0u32,
@@ -1813,7 +1812,7 @@ pub mod pallet {
             //     let daily_reward_for_miner_to_try = <RewardsAccumulatedDHXForMinerForDate<T>>::get(
             //         (
             //             start_of_requested_date_millis.clone(),
-            //             miner.clone(),
+            //             miner_public_key.clone(),
             //         ),
             //     );
             //     if let Some(_daily_reward_for_miner_to_try) = daily_reward_for_miner_to_try.clone() {
@@ -2499,7 +2498,7 @@ pub mod pallet {
                         return Err(DispatchError::Other("Non-digit ASCII char in input"));
                     },
                 }
-                log::info!("digit {:?}", digit);
+
                 if digit != 0u128 && out != 0u128 {
                     multiplier *= 10;
                 } else if digit != 0u128 && out == 0u128 {
@@ -2510,9 +2509,7 @@ pub mod pallet {
                     multiplier *= 10;
                 }
 
-                log::info!("multiplier {:?}", multiplier);
                 out += multiplier * digit;
-                log::info!("out {:?}", out);
             }
 
             Ok(out)
@@ -2546,7 +2543,7 @@ pub mod pallet {
             <BondedDHXForAccountForDate<T>>::insert(
                 (
                     start_of_requested_date_millis.clone(),
-                    account_id.clone(),
+                    account_id.clone().encode(),
                 ),
                 bonded_dhx_current.clone(),
             );
@@ -2569,6 +2566,9 @@ pub mod pallet {
         // before they claim?
         pub fn set_mpower_of_account_for_date(account_id: Vec<u8>, start_of_requested_date_millis: Date, mpower: u128) -> Result<u128, DispatchError> {
             let mpower_current_u128 = mpower.clone();
+
+            // TODO - use .get to check if the new mpower value differs from the value that is already in storage
+            // for the given key, and only insert if it is different
 
             // Update storage. Override the default that may have been set in on_initialize
             <MPowerForAccountForDate<T>>::insert(
@@ -2800,8 +2800,8 @@ pub mod pallet {
             // import the library here.
 
             // Example from Substrate
-            // let request =
-            //     http::Request::get("https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD");
+            let request =
+                http::Request::get("https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD");
 
             // Example of request we may use
             // let start_of_requested_date_millis = 1630195200000i64;
@@ -2843,10 +2843,11 @@ pub mod pallet {
 
             // FIXME - replace the below hard-coded example in future with use of the response body
             // Alice public key 0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
+            // Bob public key 0x8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48
             let mpower_data = r#"{
                 "data": [
                     { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": "11", "start_of_requested_date_millis": "1630195200000" },
-                    { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": "12", "start_of_requested_date_millis": "1630195200000" }
+                    { "acct_id": "8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48", "mpower": "12", "start_of_requested_date_millis": "1630195200000" }
                 ]
             }"#;
 
@@ -2975,7 +2976,6 @@ pub mod pallet {
                 };
 
                 mpower_data_vec.push(mpower_data_elem);
-
             }
 
             // log::info!("mpower_data_vec {:?}", mpower_data_vec);
@@ -2985,12 +2985,12 @@ pub mod pallet {
 
         /// Add new mPower on-chain.
         fn add_mpower(account_id: T::AccountId, start_of_requested_date_millis: Date, mpower_data_vec: Vec<MPowerPayloadData<T>>) -> Option<Vec<MPowerPayloadData<T>>> {
+            // note: AccountId as Vec<u8> is [0, 0, ... 0] since its an unsigned transaction
             log::info!("Adding mPower to storage for date: {:?}", start_of_requested_date_millis.clone());
 
             for (index, mpower_data_item) in mpower_data_vec.iter().enumerate() {
                 Self::set_mpower_of_account_for_date(
-                    // convert AccountId into Vec<u8>. This is [0, 0, ... 0] since its an unsigned transaction
-                    account_id.clone().encode(),
+                    mpower_data_item.account_id_registered_dhx_miner.clone(),
                     start_of_requested_date_millis.clone(),
                     mpower_data_item.mpower_registered_dhx_miner.clone(),
                 );

@@ -935,7 +935,7 @@ fn testnet_genesis(
             registered_dhx_miners: vec![
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 get_account_id_from_seed::<sr25519::Public>("Bob"),
-                get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                // get_account_id_from_seed::<sr25519::Public>("Charlie"),
             ],
             rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),
@@ -946,7 +946,18 @@ fn testnet_genesis(
             cooling_off_period_days: 7u32,
             cooling_off_period_days_remaining: vec![
                 (
-                    get_account_id_from_seed::<sr25519::Public>("Alice"),
+                    // get_account_id_from_seed::<sr25519::Public>("Alice").encode(),
+                    // Alice
+                    vec![212, 53, 147, 199, 21, 253, 211, 28, 97, 20, 26, 189, 4, 169, 159, 214, 130, 44, 133, 88, 133, 76, 205, 227, 154, 86, 132, 231, 165, 109, 162, 125],
+                    (
+                        0,
+                        7u32,
+                        0u32,
+                    ),
+                ),
+                (
+                    // Bob
+                    vec![142, 175, 4, 21, 22, 135, 115, 99, 38, 201, 254, 161, 126, 37, 252, 82, 135, 97, 54, 147, 201, 18, 144, 156, 178, 38, 170, 71, 148, 242, 106, 72],
                     (
                         0,
                         7u32,
@@ -1064,7 +1075,7 @@ fn mainnet_genesis(
             registered_dhx_miners: vec![
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 get_account_id_from_seed::<sr25519::Public>("Bob"),
-                get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                // get_account_id_from_seed::<sr25519::Public>("Charlie"),
             ],
             rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),
@@ -1075,7 +1086,18 @@ fn mainnet_genesis(
             cooling_off_period_days: 7u32,
             cooling_off_period_days_remaining: vec![
                 (
-                    get_account_id_from_seed::<sr25519::Public>("Alice"),
+                    // get_account_id_from_seed::<sr25519::Public>("Alice").encode(),
+                    // Alice
+                    vec![212, 53, 147, 199, 21, 253, 211, 28, 97, 20, 26, 189, 4, 169, 159, 214, 130, 44, 133, 88, 133, 76, 205, 227, 154, 86, 132, 231, 165, 109, 162, 125],
+                    (
+                        0,
+                        7u32,
+                        0u32,
+                    ),
+                ),
+                (
+                    // Bob
+                    vec![142, 175, 4, 21, 22, 135, 115, 99, 38, 201, 254, 161, 126, 37, 252, 82, 135, 97, 54, 147, 201, 18, 144, 156, 178, 38, 170, 71, 148, 242, 106, 72],
                     (
                         0,
                         7u32,

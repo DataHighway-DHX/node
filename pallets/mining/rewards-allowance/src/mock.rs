@@ -113,6 +113,7 @@ pub const CENTS: Balance = 1_000 * MILLICENTS; // assume this is worth about a c
 pub const DOLLARS: Balance = 100 * CENTS;
 pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
 pub const HOURS: BlockNumber = MINUTES * 60;
+pub const SECONDS: BlockNumber = MINUTES / 60;
 pub const DAYS: BlockNumber = HOURS * 24;
 
 // from Substrate pallet_democracy tests
@@ -478,9 +479,9 @@ where
 }
 
 parameter_types! {
-	pub const GracePeriod: BlockNumber = 1 * MINUTES;
-	pub const UnsignedInterval: BlockNumber = 1 * MINUTES;
-    pub const UnsignedPriority: BlockNumber = 1 * MINUTES;
+    pub const GracePeriod: BlockNumber = 10 * SECONDS; // 1 * MINUTES;
+    pub const UnsignedInterval: BlockNumber = 10 * SECONDS; // 1 * MINUTES;
+    pub const UnsignedPriority: BlockNumber = 10 * SECONDS; // 1 * MINUTES;
 }
 
 impl MiningRewardsAllowanceConfig for Test {

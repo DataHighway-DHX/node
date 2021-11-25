@@ -188,6 +188,7 @@ pub use module_primitives::{
         MILLISECS_PER_BLOCK,
         MINUTES,
         PRIMARY_PROBABILITY,
+        SECONDS,
         SLOT_DURATION,
     },
 	types::*,
@@ -1164,9 +1165,13 @@ impl mining_execution_token::Config for Runtime {
 // }
 
 parameter_types! {
-	pub const GracePeriod: BlockNumber = 1 * MINUTES;
-	pub const UnsignedInterval: BlockNumber = 1 * MINUTES;
-    pub const UnsignedPriority: BlockNumber = 1 * MINUTES;
+    // Note: if this is set to a longer period of 1 * MINUTE
+    // then it will cause an error in the logs:
+    // `offchain_workers error fetching mpower: Too early to send unsigned transaction ` or
+    // `offchain_workers error unknown transaction type`
+    pub const GracePeriod: BlockNumber = 10 * SECONDS; // 1 * MINUTES;
+    pub const UnsignedInterval: BlockNumber = 10 * SECONDS; // 1 * MINUTES;
+    pub const UnsignedPriority: BlockNumber = 10 * SECONDS; // 1 * MINUTES;
 }
 
 impl mining_rewards_allowance::Config for Runtime {
