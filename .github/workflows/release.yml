@@ -33,11 +33,11 @@ jobs:
       - name: Upload binary
         uses: actions/upload-artifact@v1
         with:
-          name: binary
+          name: datahighway
           path: target/release/datahighway
           
       - name: Upload runtime wasm
         uses: actions/upload-artifact@v1
         with:
-          name: runtime wasm
+          name: datahighway_runtime.compact.wasm
           path: target/release/wbuild/datahighway-runtime/datahighway_runtime.compact.wasm
