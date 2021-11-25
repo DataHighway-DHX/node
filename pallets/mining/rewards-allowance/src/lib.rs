@@ -2586,8 +2586,22 @@ pub mod pallet {
         pub fn set_mpower_of_account_for_date(account_id: Vec<u8>, start_of_requested_date_millis: Date, mpower: u128) -> Result<u128, DispatchError> {
             let mpower_current_u128 = mpower.clone();
 
-            // TODO - use .get to check if the new mpower value differs from the value that is already in storage
+            // check if the new mpower value differs from the value that is already in storage
             // for the given key, and only insert if it is different
+            let mpower_for_account_for_date = <MPowerForAccountForDate<T>>::get(
+                (
+                    start_of_requested_date_millis.clone(),
+                    account_id.clone(),
+                )
+            );
+            match mpower_for_account_for_date {
+                None => {
+                },
+                Some(x) => {
+                    log::warn!("Existing storage value of mPower for account for date of data retrieved from API");
+                    return Err(DispatchError::Other("Existing storage value of mPower for account for date of data retrieved from API"));
+                }
+            }
 
             // Update storage. Override the default that may have been set in on_initialize
             <MPowerForAccountForDate<T>>::insert(
@@ -3005,7 +3019,7 @@ pub mod pallet {
         /// Add new mPower on-chain.
         fn add_mpower(account_id: T::AccountId, start_of_requested_date_millis: Date, mpower_data_vec: Vec<MPowerPayloadData<T>>) -> Option<Vec<MPowerPayloadData<T>>> {
             // note: AccountId as Vec<u8> is [0, 0, ... 0] since its an unsigned transaction
-            log::info!("Adding mPower to storage for date: {:?}", start_of_requested_date_millis.clone());
+            log::info!("Processing mPower for account for date into storage: {:?}", start_of_requested_date_millis.clone());
 
             for (index, mpower_data_item) in mpower_data_vec.iter().enumerate() {
                 Self::set_mpower_of_account_for_date(
