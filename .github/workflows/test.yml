@@ -22,12 +22,14 @@ jobs:
         with:
           profile: minimal
           toolchain: nightly
+          override: true
 
       - name: Initialize WASM build environment
         run: |
           rustup update stable
           rustup toolchain install nightly-2021-08-31
           rustup default nightly-2021-08-31
+          rustup override set nightly-2021-08-31
           rustup target add wasm32-unknown-unknown --toolchain nightly-2021-08-31
 
       - name: Run cargo check
@@ -52,12 +54,14 @@ jobs:
         with:
           profile: minimal
           toolchain: nightly
+          override: true
 
       - name: Initialize WASM build environment
         run: |
           rustup update stable
           rustup toolchain install nightly-2021-08-31
           rustup default nightly-2021-08-31
+          rustup override set nightly-2021-08-31
           rustup target add wasm32-unknown-unknown --toolchain nightly-2021-08-31
 
       # Runs integration tests in the runtime/tests folder
@@ -87,6 +91,7 @@ jobs:
           cargo +nightly-2021-08-31 test -p mining-setting-hardware &&
           cargo +nightly-2021-08-31 test -p mining-rates-token &&
           cargo +nightly-2021-08-31 test -p mining-rates-hardware &&
+          cargo +nightly-2021-08-31 test -p mining-rewards-allowance &&
           cargo +nightly-2021-08-31 test -p mining-sampling-token &&
           cargo +nightly-2021-08-31 test -p mining-sampling-hardware &&
           cargo +nightly-2021-08-31 test -p mining-eligibility-token &&

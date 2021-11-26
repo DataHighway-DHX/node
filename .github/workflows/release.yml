@@ -27,6 +27,7 @@ jobs:
           rustup update stable
           rustup toolchain install nightly-2021-08-31
           rustup default nightly-2021-08-31
+          rustup override set nightly-2021-08-31
           rustup target add wasm32-unknown-unknown --toolchain nightly-2021-08-31
           cargo build --release
 

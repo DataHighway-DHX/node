@@ -6,6 +6,9 @@ extern crate mining_setting_token as mining_setting_token;
 extern crate mining_eligibility_token as mining_eligibility_token;
 extern crate mining_execution_token as mining_execution_token;
 extern crate mining_rates_token as mining_rates_token;
+// Note: We are adding tests for mining_rewards_allowance in
+// pallets/mining/rewards-allowance/src/mock.rs and pallets/mining/rewards-allowance/src/tests.rs
+// extern crate mining_rewards_allowance as mining_rewards_allowance;
 extern crate mining_sampling_token as mining_sampling_token;
 extern crate roaming_operators as roaming_operators;
 

@@ -349,7 +349,7 @@ cargo +nightly-2021-08-31-aarch64-apple-darwin fmt --all -- --check
     * Ans: Because there is a type mismatch, perhaps the first variable requires a `Balance` instead of `u32` in custom_types.json or similar.
 
 * Question: How to debug when running tests?
-    * Ans: Run tests with this `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug` in front, i.e. `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug cargo +nightly-2021-08-31 test -p datahighway-runtime`, and use `println!` where you want to log the output (i.e. `println!("claim duration {:#?}", claim_duration);`), as `debug::info!` not work in tests. Try using `info!` (have not tried yet)
+    * Ans: Run tests with this `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug` in front and `-- --nocapture` at the end, i.e. `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug cargo +nightly-2021-08-31 test -p datahighway-runtime -- --nocapture`, and use `println!` in the implementation where you want to log the output (i.e. `println!("claim duration {:#?}", claim_duration);`), as `debug::info!` not work in tests. It is important that you do a find/replace to comment out all those `println!` statements before you build your code with `cargo build`, otherwise it will give an error message `duplicate lang item in crate`.
 
 * Question: Why can't I connect my node to telemetry?
     * Ans: Try use these flags when running your node `--telemetry-url 'wss://telemetry.polkadot.io/submit/ 0' --unsafe-ws-external --unsafe-rpc-external --rpc-cors=all --rpc-methods=Unsafe`
