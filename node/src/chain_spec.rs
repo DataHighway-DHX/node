@@ -933,9 +933,13 @@ fn testnet_genesis(
             rewards_multiplier_current_period_days_remaining: Default::default(),
             rewards_multiplier_operation: 1u8,
             registered_dhx_miners: vec![
-                get_account_id_from_seed::<sr25519::Public>("Alice"),
-                get_account_id_from_seed::<sr25519::Public>("Bob"),
+                // get_account_id_from_seed::<sr25519::Public>("Alice"),
+                // get_account_id_from_seed::<sr25519::Public>("Bob"),
                 // get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                // Alice
+                vec![212, 53, 147, 199, 21, 253, 211, 28, 97, 20, 26, 189, 4, 169, 159, 214, 130, 44, 133, 88, 133, 76, 205, 227, 154, 86, 132, 231, 165, 109, 162, 125],
+                // Bob
+                vec![142, 175, 4, 21, 22, 135, 115, 99, 38, 201, 254, 161, 126, 37, 252, 82, 135, 97, 54, 147, 201, 18, 144, 156, 178, 38, 170, 71, 148, 242, 106, 72],
             ],
             rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),
@@ -1073,9 +1077,13 @@ fn mainnet_genesis(
             rewards_multiplier_current_period_days_remaining: Default::default(),
             rewards_multiplier_operation: 1u8,
             registered_dhx_miners: vec![
-                get_account_id_from_seed::<sr25519::Public>("Alice"),
-                get_account_id_from_seed::<sr25519::Public>("Bob"),
+                // get_account_id_from_seed::<sr25519::Public>("Alice"),
+                // get_account_id_from_seed::<sr25519::Public>("Bob"),
                 // get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                // Alice
+                vec![212, 53, 147, 199, 21, 253, 211, 28, 97, 20, 26, 189, 4, 169, 159, 214, 130, 44, 133, 88, 133, 76, 205, 227, 154, 86, 132, 231, 165, 109, 162, 125],
+                // Bob
+                vec![142, 175, 4, 21, 22, 135, 115, 99, 38, 201, 254, 161, 126, 37, 252, 82, 135, 97, 54, 147, 201, 18, 144, 156, 178, 38, 170, 71, 148, 242, 106, 72],
             ],
             rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),

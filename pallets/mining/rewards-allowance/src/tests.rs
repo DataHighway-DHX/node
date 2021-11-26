@@ -30,9 +30,14 @@ const TWO_DHX: u128 = 2_000_000_000_000_000_000_u128; // 2
 #[ignore]
 fn it_sets_rewards_allowance_with_genesis_defaults_automatically_in_on_finalize_if_not_already_set_for_today() {
     new_test_ext().execute_with(|| {
-        assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(1)));
-        assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(2)));
-        assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(3)));
+        assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miners(
+            Origin::root(),
+            vec![
+                vec![1],
+                vec![2],
+                vec![3],
+            ]
+        ));
 
         // 27th August 2021 @ ~7am is 1630049371000
         // where milliseconds/day         86400000
@@ -302,9 +307,14 @@ fn it_converts_vec_u8_to_u128() {
 }
 
 fn distribute_rewards(amount_bonded_each_miner: u128, amount_mpower_each_miner: u128, referendum_index: u32) {
-    assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(1)));
-    assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(2)));
-    assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miner(Origin::signed(3)));
+    assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miners(
+        Origin::root(),
+        vec![
+            vec![1],
+            vec![2],
+            vec![3],
+        ]
+    ));
 
     assert_ok!(MiningRewardsAllowanceTestModule::set_cooling_off_period_days(
         Origin::root(),
