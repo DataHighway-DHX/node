@@ -1134,7 +1134,7 @@ pub mod pallet {
             for (index, miner_public_key) in reg_dhx_miners.iter().enumerate() {
                 miner_count += 1;
                 log::info!("miner_count {:#?}", miner_count);
-                log::info!("miner_public_key {:#?}", miner_public_key);
+                log::info!("miner_public_key {:?}", miner_public_key);
                 // let locks_until_block_for_account = <pallet_balances::Pallet<T>>::locks(miner_public_key.clone());
                 // // NOTE - I fixed the following error by using `.into_inner()` after asking the community here and getting a
                 // // response in Substrate Builders weekly meeting https://matrix.to/#/!HzySYSaIhtyWrwiwEV:matrix.org/$163243681163543vyfkW:matrix.org?via=matrix.parity.io&via=matrix.org&via=corepaper.org
@@ -1162,16 +1162,8 @@ pub mod pallet {
                 let mut locks_first_amount_as_u128 = 0u128.clone();
                 let miner_account_id: T::AccountId;
 
-                let miner_public_key_u8: &[u8];
-                if let Some(_miner_public_key_u8) =
-                    TryInto::<&[u8]>::try_into(miner_public_key.clone()).ok() {
-                        miner_public_key_u8 = _miner_public_key_u8;
-                } else {
-                    log::error!("Unable to convert Vec<u8> to [u8] for miner_public_key");
-                    return;
-                }
-
-                let _miner_account_id = Decode::decode(&mut miner_public_key_u8.clone());
+                // convert type public key Vec<u8> to type T::AccountId
+                let _miner_account_id = Decode::decode(&mut miner_public_key.as_slice().clone());
                 match _miner_account_id.clone() {
                     Err(_e) => {
                         log::error!("Unable to decode miner_public_key");
@@ -2082,7 +2074,7 @@ pub mod pallet {
         pub fn set_registered_dhx_miners(origin: OriginFor<T>, register_dhx_miners: Vec<Vec<u8>>) -> DispatchResult {
             let _sender = ensure_root(origin)?;
 
-            for &miner_public_key in register_dhx_miners.iter().rev() {
+            for miner_public_key in register_dhx_miners.iter().rev() {
                 // log::info!("{:?}", miner);
 
                 <RegisteredDHXMiners<T>>::append(miner_public_key.clone());

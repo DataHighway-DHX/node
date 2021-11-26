@@ -32,11 +32,7 @@ fn it_sets_rewards_allowance_with_genesis_defaults_automatically_in_on_finalize_
     new_test_ext().execute_with(|| {
         assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miners(
             Origin::root(),
-            vec![
-                vec![1],
-                vec![2],
-                vec![3],
-            ]
+            vec![vec![3], vec![2], vec![1]],
         ));
 
         // 27th August 2021 @ ~7am is 1630049371000
@@ -155,7 +151,7 @@ fn setup_preimage() {
         let encoded_proposal_preimage = vec![0; 500];
         match Democracy::note_preimage(Origin::signed(1), encoded_proposal_preimage.clone()) {
             Ok(_) => (),
-            Err(x) if x == Error::<Test>::DuplicatePreimage.into() => (),
+            // Err(x) if x == Error::<Test>::DuplicatePreimage.into() => (),
             Err(x) => panic!("Democracy::note_preimage error {:?}", x),
         }
         System::set_block_number(1);
@@ -309,11 +305,7 @@ fn it_converts_vec_u8_to_u128() {
 fn distribute_rewards(amount_bonded_each_miner: u128, amount_mpower_each_miner: u128, referendum_index: u32) {
     assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miners(
         Origin::root(),
-        vec![
-            vec![1],
-            vec![2],
-            vec![3],
-        ]
+        vec![vec![3], vec![2], vec![1]],
     ));
 
     assert_ok!(MiningRewardsAllowanceTestModule::set_cooling_off_period_days(
@@ -325,7 +317,7 @@ fn distribute_rewards(amount_bonded_each_miner: u128, amount_mpower_each_miner: 
         FIVE_THOUSAND_DHX,
     ));
 
-    assert_eq!(MiningRewardsAllowanceTestModule::registered_dhx_miners(), Some(vec![1, 2, 3]));
+    assert_eq!(MiningRewardsAllowanceTestModule::registered_dhx_miners(), Some(vec![vec![1], vec![2], vec![3]]));
     assert_eq!(MiningRewardsAllowanceTestModule::cooling_off_period_days(), Some(1));
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(FIVE_THOUSAND_DHX));
 
