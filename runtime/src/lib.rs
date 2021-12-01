@@ -26,6 +26,7 @@ use sp_runtime::{
     generic,
     impl_opaque_keys,
     traits::{
+        AccountIdLookup,
         BlakeTwo256,
         Block as BlockT,
         IdentityLookup,
@@ -106,6 +107,7 @@ pub use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{
+    MultiAddress,
     Perbill,
     Percent,
     Permill,
@@ -285,7 +287,7 @@ impl frame_system::Config for Runtime {
     /// The index type for storing how many extrinsics an account has signed.
     type Index = Index;
     /// The lookup mechanism to get account ID from whatever is passed in dispatchers.
-    type Lookup = IdentityLookup<AccountId>;
+    type Lookup = AccountIdLookup<AccountId, ()>;
     /// The maximum weight that a single extrinsic of `Normal` dispatch class can have,
     /// idependent of the logic of that extrinsics. (Roughly max block weight - average on
     /// initialize cost).
@@ -1054,7 +1056,7 @@ construct_runtime!(
 );
 
 /// The address format for describing accounts.
-pub type Address = AccountId;
+pub type Address = MultiAddress<AccountId, ()>;
 /// Block header type as expected by this runtime.
 pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
 /// Block type as expected by this runtime.
