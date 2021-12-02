@@ -528,6 +528,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
             rewards_allowance_dhx_daily: FIVE_THOUSAND_DHX, // 5000 DHX
             rewards_allowance_dhx_for_date_remaining: Default::default(),
             rewards_allowance_dhx_for_date_remaining_distributed: Default::default(),
+            rewards_allowance_dhx_for_miner_for_date_remaining_distributed: Default::default(),
             rewards_multiplier_paused: false,
             rewards_multiplier_reset: false,
             rewards_multiplier_default_change: 10u32,
@@ -545,6 +546,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
             //     get_account_id_from_seed::<sr25519::Public>("Charlie"),
             // ],
             registered_dhx_miners: Default::default(),
+            rewards_eligible_miners_for_date: Default::default(),
             rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),
             min_bonded_dhx_daily: TEN_DHX, // 10 DHX

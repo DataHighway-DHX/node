@@ -922,6 +922,7 @@ fn testnet_genesis(
             rewards_allowance_dhx_daily: FIVE_THOUSAND, // 5000 DHX
             rewards_allowance_dhx_for_date_remaining: Default::default(),
             rewards_allowance_dhx_for_date_remaining_distributed: Default::default(),
+            rewards_allowance_dhx_for_miner_for_date_remaining_distributed: Default::default(),
             rewards_multiplier_paused: false,
             rewards_multiplier_reset: false,
             rewards_multiplier_default_change: 10u32,
@@ -941,6 +942,7 @@ fn testnet_genesis(
                 // Bob
                 vec![142, 175, 4, 21, 22, 135, 115, 99, 38, 201, 254, 161, 126, 37, 252, 82, 135, 97, 54, 147, 201, 18, 144, 156, 178, 38, 170, 71, 148, 242, 106, 72],
             ],
+            rewards_eligible_miners_for_date: Default::default(),
             rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),
             min_bonded_dhx_daily: TEN, // 10 DHX
@@ -1067,6 +1069,7 @@ fn mainnet_genesis(
             rewards_allowance_dhx_daily: FIVE_THOUSAND, // 5000 DHX
             rewards_allowance_dhx_for_date_remaining: Default::default(),
             rewards_allowance_dhx_for_date_remaining_distributed: Default::default(),
+            rewards_allowance_dhx_for_miner_for_date_remaining_distributed: Default::default(),
             rewards_multiplier_paused: false,
             rewards_multiplier_reset: false,
             rewards_multiplier_default_change: 10u32,
@@ -1086,6 +1089,7 @@ fn mainnet_genesis(
                 // Bob
                 vec![142, 175, 4, 21, 22, 135, 115, 99, 38, 201, 254, 161, 126, 37, 252, 82, 135, 97, 54, 147, 201, 18, 144, 156, 178, 38, 170, 71, 148, 242, 106, 72],
             ],
+            rewards_eligible_miners_for_date: Default::default(),
             rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),
             min_bonded_dhx_daily: TEN, // 10 DHX
