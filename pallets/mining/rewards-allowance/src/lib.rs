@@ -483,7 +483,7 @@ pub mod pallet {
         pub rewards_aggregated_dhx_for_all_miners_for_date: Vec<(Date, BalanceOf<T>)>,
         pub rewards_accumulated_dhx_for_miner_for_date: Vec<((Date, Vec<u8>), BalanceOf<T>)>,
         pub registered_dhx_miners: Vec<Vec<u8>>,
-        pub rewards_eligible_miners_for_date: Vec<Date, Vec<Vec<u8>>>,
+        pub rewards_eligible_miners_for_date: Vec<(Date, Vec<Vec<u8>>)>,
         pub min_bonded_dhx_daily: BalanceOf<T>,
         pub min_bonded_dhx_daily_default: BalanceOf<T>,
         pub min_mpower_daily: u128,
@@ -1591,8 +1591,11 @@ pub mod pallet {
                         return;
                     }
 
-                    let new_rewards_eligible_miners_for_date = rewards_eligible_miners_for_date.push(miner_public_key.clone());
-                    <RewardsEligibleMinersForDate<T>>::insert(start_of_requested_date_millis.clone(), new_rewards_eligible_miners_for_date.clone());
+                    rewards_eligible_miners_for_date.push(miner_public_key.clone());
+                    <RewardsEligibleMinersForDate<T>>::insert(
+                        start_of_requested_date_millis.clone(),
+                        rewards_eligible_miners_for_date.clone(),
+                    );
 
                     // println!("date: {:?}, miner_count: {:?}, reg_dhx_miners.len: {:?}", start_of_requested_date_millis.clone(), miner_count.clone(), reg_dhx_miners.len());
                     // if last miner being iterated then reset for next day
