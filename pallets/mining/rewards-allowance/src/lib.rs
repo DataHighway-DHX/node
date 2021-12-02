@@ -245,11 +245,25 @@ pub mod pallet {
         pub received_at_block_number: X,
     }
 
+    #[cfg_attr(feature = "std", derive(Debug))]
+    #[derive(Encode, Decode, Default, Clone, PartialEq, Eq)]
+    pub struct FetchedMPowerForAccountsForDatePayload<U, V, W> {
+        pub start_of_requested_date_millis: U,
+        pub all_miner_public_keys_fetched: V,
+        pub total_mpower_fetched: W,
+    }
+
     type MPowerPayloadData<T> = MPowerPayload<
         Vec<u8>, // <T as frame_system::Config>::AccountId,
         u128,
         Date,
         <T as frame_system::Config>::BlockNumber,
+    >;
+
+    type FetchedMPowerForAccountsForDatePayloadData = FetchedMPowerForAccountsForDatePayload<
+        Date,
+        Vec<Vec<u8>>,
+        u128,
     >;
 
     // type MPowerAccountDataType<T> = MPowerAccountData<
@@ -452,6 +466,17 @@ pub mod pallet {
             Vec<u8>, // T::AccountId,
         ),
         u128, // mPower
+    >;
+
+    /// Recently submitted finished fetching mPower data.
+    #[pallet::storage]
+    #[pallet::getter(fn finished_fetching_mpower_for_accounts_for_date)]
+    pub(super) type FinishedFetchingMPowerForAccountsForDate<T: Config> = StorageMap<_, Blake2_128Concat,
+        Date, // converted to start of date
+        (
+            Vec<Vec<u8>>,
+            u128, // mPower
+        ),
     >;
 
 	/// Defines the block when next unsigned transaction will be accepted.
@@ -679,6 +704,10 @@ pub mod pallet {
 		/// Event generated when new mPower data is accepted to contribute to the rewards allowance.
 		/// \[start_date_requested, registered_dhx_miner_account_id, mpower\]
         NewMPowerForAccountForDate(Date, Vec<u8>, u128),
+
+		/// Event generated when new finished fetching mPower data is stored.
+		/// \[start_date_requested, all_miner_public_keys_fetched, total_mpower_fetched\]
+        NewFinishedFetchingMPowerForAccountsForDate(Date, Vec<Vec<u8>>, u128),
     }
 
     // Errors inform users that something went wrong should be descriptive and have helpful documentation
@@ -705,6 +734,16 @@ pub mod pallet {
 		/// be cases where some blocks are skipped, or for some the worker runs twice (re-orgs),
 		/// so the code should be able to handle that.
 		/// You can use `Local Storage` API to coordinate runs of the worker.
+        ///
+        /// https://paritytech.github.io/substrate/master/frame_support/traits/trait.OffchainWorker.html
+        /// https://paritytech.github.io/substrate/master/frame_support/traits/trait.Hooks.html
+        ///
+        /// Implementing this trait on a module allows you to perform long-running tasks that make
+        /// (by default) validators generate transactions that feed results of those long-running
+        /// computations back on chain.
+        /// NOTE: This function runs off-chain, so it can access the block state, but cannot preform
+        /// any alterations. More specifically alterations are not forbidden, but they are not persisted
+        /// in any way after the worker has finished.
 		fn offchain_worker(block_number: T::BlockNumber) {
 			// Note that having logs compiled to WASM may cause the size of the blob to increase
 			// significantly. You can use `RuntimeDebug` custom derive to hide details of the types
@@ -727,6 +766,9 @@ pub mod pallet {
             if should_process_block == false {
                 return;
             }
+
+            // TODO - this timestamp section is duplicated in the on_initialize function,
+            // so move it into its owh private function
 
             // Anything that needs to be done at the start of the block.
             let timestamp: <T as pallet_timestamp::Config>::Moment = <pallet_timestamp::Pallet<T>>::get();
@@ -766,6 +808,121 @@ pub mod pallet {
             log::info!("start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
             // println!("start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
 
+            // TODO - fetch the mpower from off-chain and store it with `set_mpower_of_account_for_date`
+            // but only for the reg_dhx_miners
+            // so we can iterate through the miners and retrieve the mPower of each miner for the current date with
+            // `MPowerForAccountForDate`
+            // and check if mPower for current miner being iterated is greather than the min. mPower that is required.
+
+			// after fetching the mpower values store by sending an unsigned transactions
+			let should_send = Self::choose_transaction_type(block_number.clone());
+			let mut res;
+            let mut mpower_data_vec = vec![];
+            match should_send {
+				TransactionType::Raw => {
+                    let _mpower_res = Self::fetch_mpower_process(block_number.clone(), start_of_requested_date_millis.clone());
+                    match _mpower_res.clone() {
+                        Err(e) => {
+                            log::error!("offchain_workers error fetching mpower: {}", e);
+                            return;
+                        },
+                        Ok(x) => {
+                            mpower_data_vec = x;
+                        }
+                    }
+                },
+				TransactionType::None => {
+                    log::error!("offchain_workers error unknown transaction type");
+                    return;
+                },
+			};
+
+            // TODO - remove all the fetched accounts from vector that aren't in the list of
+            // reg_dhx_miners, since we add the list of registered dhx miners from a signed account to
+            // and use it incase the API endpoint is compromised by hackers and fake accounts and mpower data are provided
+
+            // TODO - change reg_dhx_miners functionality so it may be stored via an extrinsic function
+            // and voted on by governance, and so it just includes a list of account addresses that we check against.
+            // if the list needs to be changed then just call it and add all of them again once approved.
+
+            res = Self::store_mpower_raw_unsigned(block_number.clone(), start_of_requested_date_millis.clone(), mpower_data_vec.clone());
+			if let Err(e) = res {
+				log::error!("offchain_workers error storing mpower: {}", e);
+			}
+
+            let mut all_miner_public_keys_fetched = vec![];
+            let mut total_mpower_fetched = 0u128;
+            for (index, mpower_data_item) in mpower_data_vec.iter().enumerate() {
+                all_miner_public_keys_fetched.push(mpower_data_item.account_id_registered_dhx_miner.clone());
+                total_mpower_fetched.checked_add(mpower_data_item.mpower_registered_dhx_miner.clone());
+            }
+
+            let fetched_mpower_data: FetchedMPowerForAccountsForDatePayloadData = FetchedMPowerForAccountsForDatePayload {
+                start_of_requested_date_millis: start_of_requested_date_millis.clone(),
+                all_miner_public_keys_fetched: all_miner_public_keys_fetched.clone(),
+                total_mpower_fetched: total_mpower_fetched.clone(),
+            };
+
+            res = Self::store_finished_fetching_mpower_raw_unsigned(
+                block_number.clone(),
+                fetched_mpower_data.clone()
+            );
+			if let Err(e) = res {
+				log::error!("offchain_workers error storing finished fetching mpower: {}", e);
+			}
+
+            return;
+		}
+
+        // `on_initialize` is executed at the beginning of the block before any extrinsic are
+        // dispatched.
+        //
+        // This function must return the weight consumed by `on_initialize` and `on_finalize`.
+        // TODO - update with the weight consumed
+        fn on_initialize(block_number: T::BlockNumber) -> Weight {
+            let should_process_block = Self::should_process_block(block_number.clone());
+            if should_process_block == true {
+                return 0;
+            }
+
+            // Anything that needs to be done at the start of the block.
+            let timestamp: <T as pallet_timestamp::Config>::Moment = <pallet_timestamp::Pallet<T>>::get();
+            log::info!("block_number: {:?}", block_number.clone());
+            log::info!("timestamp: {:?}", timestamp.clone());
+            let requested_date_as_u64;
+            let _requested_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone());
+            match _requested_date_as_u64 {
+                Err(_e) => {
+                    log::error!("Unable to convert Moment to u64 in millis for timestamp");
+                    return 0;
+                },
+                Ok(ref x) => {
+                    requested_date_as_u64 = x;
+                }
+            }
+            log::info!("requested_date_as_u64: {:?}", requested_date_as_u64.clone());
+            // println!("requested_date_as_u64: {:?}", requested_date_as_u64.clone());
+
+            // do not run when block number is 1, which is when timestamp is 0 because this
+            // timestamp corresponds to 1970-01-01
+            if requested_date_as_u64.clone() == 0u64 {
+                return 0;
+            }
+
+            let start_of_requested_date_millis;
+            let _start_of_requested_date_millis = Self::convert_u64_in_milliseconds_to_start_of_date(requested_date_as_u64.clone());
+            match _start_of_requested_date_millis {
+                Err(_e) => {
+                    log::error!("Unable to convert u64 in milliseconds to start_of_requested_date_millis");
+                    return 0;
+                },
+                Ok(ref x) => {
+                    start_of_requested_date_millis = x;
+                }
+            }
+            log::info!("start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
+            // println!("start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
+
             // https://substrate.dev/rustdocs/latest/frame_support/storage/trait.StorageMap.html
             let contains_key = <RewardsAllowanceDHXForDateRemaining<T>>::contains_key(&start_of_requested_date_millis);
             log::info!("contains_key for date: {:?}, {:?}", start_of_requested_date_millis.clone(), contains_key.clone());
@@ -778,7 +935,7 @@ pub mod pallet {
                     rewards_allowance_dhx_daily = _rewards_allowance_dhx_daily;
                 } else {
                     log::error!("Unable to get rewards_allowance_dhx_daily");
-                    return;
+                    return 0;
                 }
 
                 // Update storage. Use RewardsAllowanceDHXDaily as fallback incase not previously set prior to block
@@ -843,7 +1000,7 @@ pub mod pallet {
             match _min_bonded_dhx_daily_default {
                 Err(_e) => {
                     log::error!("Unable to retrieve any min. bonded DHX daily default as BalanceOf and u128");
-                    return;
+                    return 0;
                 },
                 Ok(ref x) => {
                     min_bonded_dhx_daily_default = x.0;
@@ -940,7 +1097,7 @@ pub mod pallet {
                             match _new_rm_current_period_days_remaining {
                                 None => {
                                     log::error!("Unable to subtract one from rm_current_period_days_remaining due to StorageOverflow");
-                                    return;
+                                    return 0;
                                 },
                                 Some(x) => {
                                     new_rm_current_period_days_remaining = x;
@@ -970,7 +1127,7 @@ pub mod pallet {
                             match _min_bonded_dhx_daily {
                                 Err(_e) => {
                                     log::error!("Unable to retrieve any min. bonded DHX daily as BalanceOf and u128");
-                                    return;
+                                    return 0;
                                 },
                                 Ok(ref x) => {
                                     min_bonded_dhx_daily = x.0;
@@ -984,7 +1141,7 @@ pub mod pallet {
                                 rewards_multipler_operation = _rewards_multipler_operation;
                             } else {
                                 log::error!("Unable to retrieve rewards_multipler_operation");
-                                return;
+                                return 0;
                             }
 
                             let mut new_min_bonded_dhx_daily_u128 = 0u128; // initialize
@@ -998,7 +1155,7 @@ pub mod pallet {
                                 rm_next_change_u128_short = _rm_next_change_u128_short;
                             } else {
                                 log::error!("Unable to convert u32 to u128");
-                                return;
+                                return 0;
                             }
 
                             let ONE = 1000000000000000000u128;
@@ -1008,7 +1165,7 @@ pub mod pallet {
                             match _rm_next_change_as_fixedu128 {
                                 None => {
                                     log::error!("Unable to mult rm_next_change by ONE due to StorageOverflow");
-                                    return;
+                                    return 0;
                                 },
                                 Some(x) => {
                                     rm_next_change_as_fixedu128 = x;
@@ -1031,7 +1188,7 @@ pub mod pallet {
                                 match _new_min_bonded_dhx_daily_u128 {
                                     None => {
                                         log::error!("Unable to add min_bonded_dhx_daily_u128 with rm_next_change_u128 due to StorageOverflow");
-                                        return;
+                                        return 0;
                                     },
                                     Some(x) => {
                                         new_min_bonded_dhx_daily_u128 = x;
@@ -1039,7 +1196,7 @@ pub mod pallet {
                                 }
                             } else {
                                 log::error!("Unsupported rewards_multipler_operation value");
-                                return;
+                                return 0;
                             }
 
                             // println!("new_min_bonded_dhx_daily_u128 {:?}", new_min_bonded_dhx_daily_u128);
@@ -1049,7 +1206,7 @@ pub mod pallet {
                             match _new_min_bonded_dhx_daily {
                                 Err(_e) => {
                                     log::error!("Unable to convert u128 to balance for new_min_bonded_dhx_daily");
-                                    return;
+                                    return 0;
                                 },
                                 Ok(ref x) => {
                                     new_min_bonded_dhx_daily = x;
@@ -1101,7 +1258,7 @@ pub mod pallet {
                             match _new_min_bonded_dhx_daily {
                                 Err(_e) => {
                                     log::error!("Unable to convert u128 to balance for new_min_bonded_dhx_daily");
-                                    return;
+                                    return 0;
                                 },
                                 Ok(ref x) => {
                                     new_min_bonded_dhx_daily = x;
@@ -1120,54 +1277,30 @@ pub mod pallet {
                 reg_dhx_miners = _reg_dhx_miners;
             } else {
                 log::error!("Unable to retrieve any registered DHX Miners");
-                return;
+                return 0;
             }
             if reg_dhx_miners.len() == 0 {
                 log::error!("Registered DHX Miners has no elements");
-                return;
+                return 0;
             };
 
-            // TODO - fetch the mpower from off-chain and store it with `set_mpower_of_account_for_date`
-            // but only for the reg_dhx_miners
-            // so we can iterate through the miners and retrieve the mPower of each miner for the current date with
-            // `MPowerForAccountForDate`
-            // and check if mPower for current miner being iterated is greather than the min. mPower that is required.
+            // TODO - uncomment this
 
-			// after fetching the mpower values store by sending an unsigned transactions
-			let should_send = Self::choose_transaction_type(block_number.clone());
-			let mut res;
-            let mut mpower_data_vec = vec![];
-            match should_send {
-				TransactionType::Raw => {
-                    let _mpower_res = Self::fetch_mpower_process(block_number.clone(), start_of_requested_date_millis.clone());
-                    match _mpower_res.clone() {
-                        Err(e) => {
-                            log::error!("offchain_workers error fetching mpower: {}", e);
-                            return;
-                        },
-                        Ok(x) => {
-                            mpower_data_vec = x;
-                        }
-                    }
-                },
-				TransactionType::None => {
-                    log::error!("offchain_workers error unknown transaction type");
-                    return;
-                },
-			};
+            // // only continue with aggregating and accumulating rewards and using mPower data that
+            // // was fetched offchain when the unsigned tx
+            // // from offchain_workers that indicates we have finished fetching mpower data for the
+            // // day has been finished
+            // let data_finished_fetching_for_date =
+            //     <FinishedFetchingMPowerForAccountsForDate<T>>::get(start_of_requested_date_millis.clone());
 
-            // TODO - remove all the fetched accounts from vector that aren't in the list of
-            // reg_dhx_miners, since we add the list of registered dhx miners from a signed account to
-            // and use it incase the API endpoint is compromised by hackers and fake accounts and mpower data are provided
-
-            // TODO - change reg_dhx_miners functionality so it may be stored via an extrinsic function
-            // and voted on by governance, and so it just includes a list of account addresses that we check against.
-            // if the list needs to be changed then just call it and add all of them again once approved.
-
-            res = Self::store_mpower_raw_unsigned(block_number.clone(), start_of_requested_date_millis.clone(), mpower_data_vec.clone());
-			if let Err(e) = res {
-				log::error!("offchain_workers error storing mpower: {}", e);
-			}
+            // match data_finished_fetching_for_date {
+            //     None => {
+            //         log::warn!("Skipping this block as we have not yet finished fetching mpower data for today from offchain workers {:?}", start_of_requested_date_millis.clone());
+            //         return 0;
+            //     },
+            //     Some(x) => {
+            //     }
+            // }
 
             let mut miner_count = 0;
 
@@ -1207,7 +1340,7 @@ pub mod pallet {
                 match _miner_account_id.clone() {
                     Err(_e) => {
                         log::error!("Unable to decode miner_public_key");
-                        return;
+                        return 0;
                     },
                     Ok(x) => {
                         miner_account_id = x;
@@ -1224,7 +1357,7 @@ pub mod pallet {
                     match _locks_first_amount_as_u128.clone() {
                         Err(_e) => {
                             log::error!("Unable to convert balance to u128");
-                            return;
+                            return 0;
                         },
                         Ok(x) => {
                             locks_first_amount_as_u128 = x;
@@ -1263,7 +1396,7 @@ pub mod pallet {
                 match _bonded_dhx_current_u128 {
                     Err(_e) => {
                         log::error!("Unable to set_bonded_dhx_of_account_for_date");
-                        return;
+                        return 0;
                     },
                     Ok(ref x) => {
                         bonded_dhx_current_u128 = x;
@@ -1276,7 +1409,7 @@ pub mod pallet {
                 match _min_bonded_dhx_daily {
                     Err(_e) => {
                         log::error!("Unable to retrieve any min. bonded DHX daily as BalanceOf and u128");
-                        return;
+                        return 0;
                     },
                     Ok(ref x) => {
                         min_bonded_dhx_daily = x.0;
@@ -1305,6 +1438,15 @@ pub mod pallet {
                 // mPower that is required
                 let mut mpower_current_u128: u128 = 0u128;
                 let _mpower_current_u128 = <MPowerForAccountForDate<T>>::get((start_of_requested_date_millis.clone(), miner_public_key.clone()));
+                match _mpower_current_u128 {
+                    None => {
+                        log::error!("Unable to get_mpower_of_account_for_date {:?}", start_of_requested_date_millis.clone());
+                        // println!("Unable to get_mpower_of_account_for_date {:?}", start_of_requested_date_millis.clone());
+                    },
+                    Some(x) => {
+                        mpower_current_u128 = x;
+                    }
+                }
                 // // FIXME - this is temporary
                 // let _mpower_data = (
                 //     Some(0u128),
@@ -1342,7 +1484,7 @@ pub mod pallet {
                     cooling_off_period_days = _cooling_off_period_days;
                 } else {
                     log::error!("Unable to retrieve cooling off period days");
-                    return;
+                    return 0;
                 }
 
                 let mut cooling_off_period_days_remaining = (
@@ -1406,7 +1548,7 @@ pub mod pallet {
                     match _new_cooling_off_period_days_remaining {
                         None => {
                             log::error!("Unable to subtract one from cooling_off_period_days_remaining due to StorageOverflow");
-                            return;
+                            return 0;
                         },
                         Some(x) => {
                             new_cooling_off_period_days_remaining = x;
@@ -1480,7 +1622,7 @@ pub mod pallet {
                     match _daily_reward_for_miner_as_u128 {
                         None => {
                             log::error!("Unable to divide min_bonded_dhx_daily from locks_first_amount_as_u128 due to StorageOverflow");
-                            return;
+                            return 0;
                         },
                         Some(x) => {
                             daily_reward_for_miner_as_u128 = x;
@@ -1506,7 +1648,7 @@ pub mod pallet {
                     match _daily_reward_for_miner {
                         Err(_e) => {
                             log::error!("Unable to convert u128 to balance for daily_reward_for_miner");
-                            return;
+                            return 0;
                         },
                         Ok(ref x) => {
                             daily_reward_for_miner = x;
@@ -1526,7 +1668,7 @@ pub mod pallet {
                     match _rewards_aggregated_dhx_daily_as_u128.clone() {
                         Err(_e) => {
                             log::error!("Unable to convert balance to u128 for rewards_aggregated_dhx_daily_as_u128");
-                            return;
+                            return 0;
                         },
                         Ok(x) => {
                             rewards_aggregated_dhx_daily_as_u128 = x;
@@ -1540,7 +1682,7 @@ pub mod pallet {
                     match _new_rewards_aggregated_dhx_daily_as_u128 {
                         None => {
                             log::error!("Unable to add daily_reward_for_miner to rewards_aggregated_dhx_daily due to StorageOverflow");
-                            return;
+                            return 0;
                         },
                         Some(x) => {
                             new_rewards_aggregated_dhx_daily_as_u128 = x;
@@ -1555,7 +1697,7 @@ pub mod pallet {
                     match _new_rewards_aggregated_dhx_daily {
                         Err(_e) => {
                             log::error!("Unable to convert u128 to balance for new_rewards_aggregated_dhx_daily");
-                            return;
+                            return 0;
                         },
                         Ok(ref x) => {
                             new_rewards_aggregated_dhx_daily = x;
@@ -1588,7 +1730,7 @@ pub mod pallet {
                         rewards_eligible_miners_for_date = _rewards_eligible_miners_for_date;
                     } else {
                         log::error!("Unable to retrieve rewards_eligible_miners_for_date");
-                        return;
+                        return 0;
                     }
 
                     rewards_eligible_miners_for_date.push(miner_public_key.clone());
@@ -1656,7 +1798,7 @@ pub mod pallet {
                     match _new_cooling_off_period_days_remaining {
                         None => {
                             log::error!("Unable to subtract one from cooling_off_period_days_remaining due to StorageOverflow");
-                            return;
+                            return 0;
                         },
                         Some(x) => {
                             new_cooling_off_period_days_remaining = x;
@@ -1704,18 +1846,6 @@ pub mod pallet {
 
             log::info!("Finished initial loop of registered miners");
             // println!("Finished initial loop of registered miners");
-		}
-
-        // `on_initialize` is executed at the beginning of the block before any extrinsic are
-        // dispatched.
-        //
-        // This function must return the weight consumed by `on_initialize` and `on_finalize`.
-        // TODO - update with the weight consumed
-        fn on_initialize(block_number: T::BlockNumber) -> Weight {
-            let should_process_block = Self::should_process_block(block_number.clone());
-            if should_process_block == true {
-                return 0;
-            }
 
             return 0;
         }
@@ -1990,6 +2120,8 @@ pub mod pallet {
             // Return a successful DispatchResultWithPostInfo
             Ok(())
         }
+
+        // TODO - add change_finished_fetching_mpower_for_accounts_for_date
 
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
         pub fn claim_rewards_of_account_for_date(origin: OriginFor<T>, start_of_requested_date_millis: Date) -> DispatchResult {
@@ -2491,6 +2623,22 @@ pub mod pallet {
             <NextUnsignedAt<T>>::put(current_block + T::UnsignedInterval::get());
             Ok(().into())
         }
+
+        #[pallet::weight(0)]
+        pub fn submit_finished_fetching_mpower_unsigned(
+            origin: OriginFor<T>,
+            _block_number: T::BlockNumber,
+            fetched_mpower_data: FetchedMPowerForAccountsForDatePayloadData,
+        ) -> DispatchResultWithPostInfo {
+            // This ensures that the function can only be called via unsigned transaction.
+            ensure_none(origin)?;
+            // Add the data on-chain, but mark it as coming from an empty address.
+            Self::add_finished_fetching_mpower(Default::default(), fetched_mpower_data.clone());
+            // now increment the block number at which we expect next unsigned transaction.
+            let current_block = <system::Pallet<T>>::block_number();
+            <NextUnsignedAt<T>>::put(current_block + T::UnsignedInterval::get());
+            Ok(().into())
+        }
     }
 
 	#[pallet::validate_unsigned]
@@ -2792,6 +2940,47 @@ pub mod pallet {
             Ok(mpower_current_u128.clone())
         }
 
+        pub fn set_finished_fetching_mpower_for_accounts_for_date(all_miner_public_keys_fetched: Vec<Vec<u8>>, start_of_requested_date_millis: Date, total_mpower_fetched: u128) -> Result<u128, DispatchError> {
+
+            // check if the new total_mpower_fetched value differs from the value that is already in storage
+            // for the given key, and only insert if it is different
+            let data_finished_fetching_for_date = <FinishedFetchingMPowerForAccountsForDate<T>>::get(start_of_requested_date_millis.clone());
+
+            match data_finished_fetching_for_date {
+                None => {
+                },
+                Some(x) => {
+                    log::warn!("Existing storage value of finished fetching for date of data retrieved from API");
+                    return Err(DispatchError::Other("Existing storage value of finished fetching for date of data retrieved from API"));
+                }
+            }
+
+            // Update storage. Override the default that may have been set in on_initialize
+            <FinishedFetchingMPowerForAccountsForDate<T>>::insert(
+                start_of_requested_date_millis.clone(),
+                (
+                    all_miner_public_keys_fetched.clone(),
+                    total_mpower_fetched.clone(),
+                )
+            );
+
+            log::info!("Added FinishedFetchingMPowerForAccountsForDate {:?} {:?} {:?}",
+                start_of_requested_date_millis.clone(),
+                all_miner_public_keys_fetched.clone(),
+                total_mpower_fetched.clone(),
+            );
+
+            // Emit an event.
+            Self::deposit_event(Event::NewFinishedFetchingMPowerForAccountsForDate(
+                start_of_requested_date_millis.clone(),
+                all_miner_public_keys_fetched.clone(),
+                total_mpower_fetched.clone(),
+            ));
+
+            // Return a successful DispatchResultWithPostInfo
+            Ok(total_mpower_fetched.clone())
+        }
+
         fn get_min_bonded_dhx_daily() -> Result<(BalanceOf<T>, u128), DispatchError> {
             let mut min_bonded_dhx_daily: BalanceOf<T> = 10u32.into(); // initialize
             let mut min_bonded_dhx_daily_u128: u128 = TEN;
@@ -2967,6 +3156,27 @@ pub mod pallet {
             // pallet. This means that the transaction, when executed, will simply call that function
             // passing `mpower_data_vec` as an argument.
             let call = Call::submit_mpower_unsigned(block_number.clone(), start_of_requested_date_millis.clone(), mpower_data_vec.clone());
+
+            // Now let's create a transaction out of this call and submit it to the pool.
+            // Here we showcase two ways to send an unsigned transaction / unsigned payload (raw)
+            //
+            // TODO - By default unsigned transactions are disallowed, so we need to whitelist this case
+            // by writing `UnsignedValidator`. Note that it's EXTREMELY important to carefuly
+            // implement unsigned validation logic, as any mistakes can lead to opening DoS or spam
+            // attack vectors. See validation logic docs for more details.
+            //
+            SubmitTransaction::<T, Call<T>>::submit_unsigned_transaction(call.into())
+                .map_err(|()| "Unable to submit unsigned transaction.")?;
+
+            Ok(())
+        }
+
+        /// A helper function to send a raw unsigned transaction to store finished fetching mpower data for use in on_initialize
+        fn store_finished_fetching_mpower_raw_unsigned(block_number: T::BlockNumber, fetched_mpower_data: FetchedMPowerForAccountsForDatePayloadData) -> Result<(), &'static str> {
+            // Received mpower data is wrapped into a call to `submit_finished_fetching_mpower_unsigned` public function of this
+            // pallet. This means that the transaction, when executed, will simply call that function
+            // passing `fetched_mpower_data` as an argument.
+            let call = Call::submit_finished_fetching_mpower_unsigned(block_number.clone(), fetched_mpower_data.clone());
 
             // Now let's create a transaction out of this call and submit it to the pool.
             // Here we showcase two ways to send an unsigned transaction / unsigned payload (raw)
@@ -3193,6 +3403,20 @@ pub mod pallet {
             }
 
             Some(mpower_data_vec.clone())
+        }
+
+        /// Add new finished fetching mPower on-chain.
+        fn add_finished_fetching_mpower(account_id: T::AccountId, fetched_mpower_data: FetchedMPowerForAccountsForDatePayloadData) -> Option<FetchedMPowerForAccountsForDatePayloadData> {
+            // note: AccountId as Vec<u8> is [0, 0, ... 0] since its an unsigned transaction
+            log::info!("Processing finished fetching mPower for account for date into storage: {:?}", fetched_mpower_data.start_of_requested_date_millis.clone());
+
+            Self::set_finished_fetching_mpower_for_accounts_for_date(
+                fetched_mpower_data.all_miner_public_keys_fetched.clone(),
+                fetched_mpower_data.start_of_requested_date_millis.clone(),
+                fetched_mpower_data.total_mpower_fetched.clone(),
+            );
+
+            Some(fetched_mpower_data.clone())
         }
 
         /// Calculation based on mPower.

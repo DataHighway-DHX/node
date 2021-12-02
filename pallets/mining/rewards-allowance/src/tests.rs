@@ -4,7 +4,7 @@ pub use mock::{INIT_DAO_BALANCE_DHX, TOTAL_SUPPLY_DHX, TEN_DHX, FIVE_THOUSAND_DH
 use codec::Encode;
 use frame_support::{assert_noop, assert_ok,
     weights::{DispatchClass, DispatchInfo, GetDispatchInfo},
-    traits::{OnFinalize, OnInitialize},
+    traits::{OnFinalize, OnInitialize, OffchainWorker},
 };
 use frame_system::{self, AccountInfo, EventRecord, Phase, RawOrigin};
 use pallet_balances::{self, BalanceLock, Reasons};
@@ -41,6 +41,7 @@ fn it_sets_rewards_allowance_with_genesis_defaults_automatically_in_on_finalize_
         Timestamp::set_timestamp(1630049371000u64);
 
 		MiningRewardsAllowanceTestModule::on_initialize(1);
+		MiningRewardsAllowanceTestModule::offchain_worker(1);
 
         // FIXME - why doesn't this work and use the defaults that we have set in the genesis config?
         // i've had to add a function `set_rewards_allowance_dhx_daily` to set this instead
