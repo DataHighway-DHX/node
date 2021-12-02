@@ -551,6 +551,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
             min_bonded_dhx_daily_default: TEN_DHX, // 10 DHX
             min_mpower_daily: 5u128,
             min_mpower_daily_default: 5u128,
+            challenge_period_days: 7u64,
             cooling_off_period_days: 7u32,
             // Note: i'm not sure how to mock Alice, just set in implementation at genesis
             // cooling_off_period_days_remaining: vec![

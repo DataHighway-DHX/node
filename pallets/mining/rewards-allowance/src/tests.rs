@@ -302,6 +302,27 @@ fn it_converts_vec_u8_to_u128() {
     });
 }
 
+#[test]
+// note: we're using a challenge period of 7 days
+fn it_checks_if_is_more_than_challenge_period() {
+    new_test_ext().execute_with(|| {
+        // where milliseconds/day         86400000
+
+        // 1st Dec 2021 @ 12am is 1638316800000 (start of day)
+        let start_of_requested_date_millis: i64 = 1638316800000i64;
+
+        // 7th Dec 2021 @ 12am is 1638835200000 (start of day)
+        let current_timestamp_6_days_later = 1638835200000u64;
+        Timestamp::set_timestamp(current_timestamp_6_days_later);
+        assert_eq!(MiningRewardsAllowanceTestModule::is_more_than_challenge_period(start_of_requested_date_millis), Ok(false));
+
+        // 8th Dec 2021 @ 12am is 1638921600000 (start of day)
+        let current_timestamp_7_days_later = 1638921600000u64;
+        Timestamp::set_timestamp(current_timestamp_7_days_later);
+        assert_eq!(MiningRewardsAllowanceTestModule::is_more_than_challenge_period(start_of_requested_date_millis), Ok(true));
+    });
+}
+
 fn distribute_rewards(amount_bonded_each_miner: u128, amount_mpower_each_miner: u128, referendum_index: u32) {
     assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miners(
         Origin::root(),
