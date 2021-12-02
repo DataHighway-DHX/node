@@ -24,7 +24,7 @@ mod tests {
             Weight,
         },
     };
-
+    use frame_support::traits::Everything;
     pub use pallet_transaction_payment::CurrencyAdapter;
     use sp_core::H256;
     use sp_runtime::{
@@ -120,7 +120,7 @@ mod tests {
     impl frame_system::Config for Test {
         type AccountData = pallet_balances::AccountData<u64>;
         type AccountId = u64;
-        type BaseCallFilter = ();
+        type BaseCallFilter = Everything;
         type BlockHashCount = BlockHashCount;
         type BlockLength = ();
         type BlockNumber = u64;
@@ -158,7 +158,14 @@ mod tests {
         type WeightInfo = ();
     }
     impl pallet_randomness_collective_flip::Config for Test {}
+
+    parameter_types! {
+        pub const OperationalFeeMultiplier: u8 = 5;
+        pub const TransactionByteFee: u64 = 1;
+    }
+
     impl pallet_transaction_payment::Config for Test {
+        type OperationalFeeMultiplier = OperationalFeeMultiplier;
         type FeeMultiplierUpdate = ();
         type OnChargeTransaction = CurrencyAdapter<Balances, ()>;
         type TransactionByteFee = ();
