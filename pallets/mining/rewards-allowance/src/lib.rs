@@ -479,14 +479,19 @@ pub mod pallet {
         ),
     >;
 
-	/// Defines the block when next unsigned transaction will be accepted.
+	/// Defines the block when next unsigned transaction (specifically for fetching the mPower) will be accepted.
 	///
 	/// To prevent spam of unsigned (and unpayed!) transactions on the network,
 	/// we only allow one transaction every `T::UnsignedInterval` blocks.
 	/// This storage entry defines when new transaction is going to be accepted.
 	#[pallet::storage]
-	#[pallet::getter(fn next_unsigned_at)]
-	pub(super) type NextUnsignedAt<T: Config> = StorageValue<_, T::BlockNumber, ValueQuery>;
+	#[pallet::getter(fn next_unsigned_at_for_fetched_mpower)]
+	pub(super) type NextUnsignedAtForFetchedMPower<T: Config> = StorageValue<_, T::BlockNumber, ValueQuery>;
+
+	/// Defines the block when next unsigned transaction (specifically for finishing fetching the mPower) will be accepted.
+	#[pallet::storage]
+	#[pallet::getter(fn next_unsigned_at_for_finished_fetching_mpower)]
+	pub(super) type NextUnsignedAtForFinishedFetchingMPower<T: Config> = StorageValue<_, T::BlockNumber, ValueQuery>;
 
     // The genesis config type.
     #[pallet::genesis_config]
@@ -745,6 +750,8 @@ pub mod pallet {
         /// any alterations. More specifically alterations are not forbidden, but they are not persisted
         /// in any way after the worker has finished.
 		fn offchain_worker(block_number: T::BlockNumber) {
+            log::info!("offchain_worker: {:?}", block_number.clone());
+            // println!("offchain_worker: {:?}", block_number.clone());
 			// Note that having logs compiled to WASM may cause the size of the blob to increase
 			// significantly. You can use `RuntimeDebug` custom derive to hide details of the types
 			// in WASM. The `sp-api` crate also provides a feature `disable-logging` to disable
@@ -757,11 +764,6 @@ pub mod pallet {
 			// let parent_hash = <system::Pallet<T>>::block_hash(block_number - 1u32.into());
 			// log::debug!("offchain_workers current block: {:?} (parent hash: {:?})", block_number, parent_hash);
 
-			// Call a helper function that reads storage entries of the current state average_mpower
-            // and performs a calculation.
-			// let average_mpower: Option<u128> = Self::average_mpower();
-			// log::debug!("offchain_workers average_mpower: {:?}", average_mpower);
-
             let should_process_block = Self::should_process_block(block_number.clone());
             if should_process_block == false {
                 return;
@@ -772,21 +774,21 @@ pub mod pallet {
 
             // Anything that needs to be done at the start of the block.
             let timestamp: <T as pallet_timestamp::Config>::Moment = <pallet_timestamp::Pallet<T>>::get();
-            log::info!("block_number: {:?}", block_number.clone());
-            log::info!("timestamp: {:?}", timestamp.clone());
+            log::info!("offchain_worker - block_number: {:?}", block_number.clone());
+            log::info!("offchain_worker - timestamp: {:?}", timestamp.clone());
             let requested_date_as_u64;
             let _requested_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone());
             match _requested_date_as_u64 {
                 Err(_e) => {
-                    log::error!("Unable to convert Moment to u64 in millis for timestamp");
+                    log::error!("offchain_worker - Unable to convert Moment to u64 in millis for timestamp");
                     return;
                 },
                 Ok(ref x) => {
                     requested_date_as_u64 = x;
                 }
             }
-            log::info!("requested_date_as_u64: {:?}", requested_date_as_u64.clone());
-            // println!("requested_date_as_u64: {:?}", requested_date_as_u64.clone());
+            log::info!("offchain_worker - requested_date_as_u64: {:?}", requested_date_as_u64.clone());
+            // println!("offchain_worker - requested_date_as_u64: {:?}", requested_date_as_u64.clone());
 
             // do not run when block number is 1, which is when timestamp is 0 because this
             // timestamp corresponds to 1970-01-01
@@ -798,15 +800,15 @@ pub mod pallet {
             let _start_of_requested_date_millis = Self::convert_u64_in_milliseconds_to_start_of_date(requested_date_as_u64.clone());
             match _start_of_requested_date_millis {
                 Err(_e) => {
-                    log::error!("Unable to convert u64 in milliseconds to start_of_requested_date_millis");
+                    log::error!("offchain_worker - Unable to convert u64 in milliseconds to start_of_requested_date_millis");
                     return;
                 },
                 Ok(ref x) => {
                     start_of_requested_date_millis = x;
                 }
             }
-            log::info!("start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
-            // println!("start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
+            log::info!("offchain_worker - start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
+            // println!("offchain_worker - start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
 
             // TODO - fetch the mpower from off-chain and store it with `set_mpower_of_account_for_date`
             // but only for the reg_dhx_miners
@@ -816,14 +818,13 @@ pub mod pallet {
 
 			// after fetching the mpower values store by sending an unsigned transactions
 			let should_send = Self::choose_transaction_type(block_number.clone());
-			let mut res;
             let mut mpower_data_vec = vec![];
             match should_send {
 				TransactionType::Raw => {
                     let _mpower_res = Self::fetch_mpower_process(block_number.clone(), start_of_requested_date_millis.clone());
                     match _mpower_res.clone() {
                         Err(e) => {
-                            log::error!("offchain_workers error fetching mpower: {}", e);
+                            log::error!("offchain_worker - offchain_workers error fetching mpower: {}", e);
                             return;
                         },
                         Ok(x) => {
@@ -832,7 +833,7 @@ pub mod pallet {
                     }
                 },
 				TransactionType::None => {
-                    log::error!("offchain_workers error unknown transaction type");
+                    log::error!("offchain_worker - offchain_workers error unknown transaction type");
                     return;
                 },
 			};
@@ -845,17 +846,29 @@ pub mod pallet {
             // and voted on by governance, and so it just includes a list of account addresses that we check against.
             // if the list needs to be changed then just call it and add all of them again once approved.
 
-            res = Self::store_mpower_raw_unsigned(block_number.clone(), start_of_requested_date_millis.clone(), mpower_data_vec.clone());
-			if let Err(e) = res {
-				log::error!("offchain_workers error storing mpower: {}", e);
-			}
-
+            // TODO - verify these fetched public keys correspond to registered dhx miners,
+            // and if not we should only store mpower data corresponding to those that are
             let mut all_miner_public_keys_fetched = vec![];
             let mut total_mpower_fetched = 0u128;
             for (index, mpower_data_item) in mpower_data_vec.iter().enumerate() {
+                log::info!("offchain_worker - mpower_data_vec {:?}, {:?}", index.clone(), mpower_data_item.account_id_registered_dhx_miner.clone());
+                log::info!("offchain_worker - mpower_data_vec {:?}, {:?}", index.clone(), mpower_data_item.mpower_registered_dhx_miner.clone());
                 all_miner_public_keys_fetched.push(mpower_data_item.account_id_registered_dhx_miner.clone());
-                total_mpower_fetched.checked_add(mpower_data_item.mpower_registered_dhx_miner.clone());
+
+                let new_total_mpower_fetched = total_mpower_fetched.clone();
+                let _total_mpower_fetched =
+                    new_total_mpower_fetched.checked_add(mpower_data_item.mpower_registered_dhx_miner.clone());
+                match _total_mpower_fetched {
+                    None => {
+                        log::error!("Unable to add mpower_data_item.mpower_registered_dhx_miner with total_mpower_fetched due to StorageOverflow");
+                        return;
+                    },
+                    Some(x) => {
+                        total_mpower_fetched = x;
+                    }
+                }
             }
+            log::info!("offchain_worker - total_mpower_fetched {:?}, {:?}", total_mpower_fetched.clone(), block_number.clone());
 
             let fetched_mpower_data: FetchedMPowerForAccountsForDatePayloadData = FetchedMPowerForAccountsForDatePayload {
                 start_of_requested_date_millis: start_of_requested_date_millis.clone(),
@@ -863,12 +876,23 @@ pub mod pallet {
                 total_mpower_fetched: total_mpower_fetched.clone(),
             };
 
-            res = Self::store_finished_fetching_mpower_raw_unsigned(
+            let res_store_mpower = Self::store_mpower_raw_unsigned(
+                block_number.clone(),
+                start_of_requested_date_millis.clone(),
+                mpower_data_vec.clone()
+            );
+			log::info!("offchain_worker - finished store_mpower_raw_unsigned at block: {:?}", block_number.clone());
+            if let Err(e) = res_store_mpower {
+				log::error!("offchain_worker - offchain_workers error storing mpower: {}", e);
+			}
+
+            let res_store_finished = Self::store_finished_fetching_mpower_raw_unsigned(
                 block_number.clone(),
                 fetched_mpower_data.clone()
             );
-			if let Err(e) = res {
-				log::error!("offchain_workers error storing finished fetching mpower: {}", e);
+            log::info!("offchain_worker - finished store_finished_fetching_mpower_raw_unsigned at block: {:?}", block_number.clone());
+			if let Err(e) = res_store_finished {
+				log::error!("offchain_worker - offchain_workers error storing finished fetching mpower: {}", e);
 			}
 
             return;
@@ -881,14 +905,16 @@ pub mod pallet {
         // TODO - update with the weight consumed
         fn on_initialize(block_number: T::BlockNumber) -> Weight {
             let should_process_block = Self::should_process_block(block_number.clone());
-            if should_process_block == true {
+            if should_process_block == false {
                 return 0;
             }
 
             // Anything that needs to be done at the start of the block.
             let timestamp: <T as pallet_timestamp::Config>::Moment = <pallet_timestamp::Pallet<T>>::get();
             log::info!("block_number: {:?}", block_number.clone());
+            // println!("block_number: {:?}", block_number.clone());
             log::info!("timestamp: {:?}", timestamp.clone());
+            // println!("timestamp: {:?}", timestamp.clone());
             let requested_date_as_u64;
             let _requested_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone());
             match _requested_date_as_u64 {
@@ -1270,17 +1296,18 @@ pub mod pallet {
                     }
                 }
             }
-
             // we only check accounts that have registered that they want to participate in DHX Mining
             let reg_dhx_miners;
             if let Some(_reg_dhx_miners) = <RegisteredDHXMiners<T>>::get() {
                 reg_dhx_miners = _reg_dhx_miners;
             } else {
                 log::error!("Unable to retrieve any registered DHX Miners");
+                // println!("Unable to retrieve any registered DHX Miners");
                 return 0;
             }
             if reg_dhx_miners.len() == 0 {
                 log::error!("Registered DHX Miners has no elements");
+                // println!("Unable to retrieve any registered DHX Miners");
                 return 0;
             };
 
@@ -1307,7 +1334,9 @@ pub mod pallet {
             for (index, miner_public_key) in reg_dhx_miners.iter().enumerate() {
                 miner_count += 1;
                 log::info!("miner_count {:#?}", miner_count);
+                // println!("miner_count {:#?}", miner_count);
                 log::info!("miner_public_key {:?}", miner_public_key);
+                // println!("miner_public_key {:?}", miner_public_key);
                 // let locks_until_block_for_account = <pallet_balances::Pallet<T>>::locks(miner_public_key.clone());
                 // // NOTE - I fixed the following error by using `.into_inner()` after asking the community here and getting a
                 // // response in Substrate Builders weekly meeting https://matrix.to/#/!HzySYSaIhtyWrwiwEV:matrix.org/$163243681163543vyfkW:matrix.org?via=matrix.parity.io&via=matrix.org&via=corepaper.org
@@ -1340,6 +1369,7 @@ pub mod pallet {
                 match _miner_account_id.clone() {
                     Err(_e) => {
                         log::error!("Unable to decode miner_public_key");
+                        // println!("Unable to decode miner_public_key");
                         return 0;
                     },
                     Ok(x) => {
@@ -1387,6 +1417,7 @@ pub mod pallet {
 
                 // let miner_public_key = miner.clone().encode();
                 log::info!("Public key {:?}", miner_public_key);
+                // println!("Public key {:?}", miner_public_key);
 
                 let bonded_dhx_current_u128;
                 let _bonded_dhx_current_u128 = Self::set_bonded_dhx_of_account_for_date(
@@ -2111,11 +2142,20 @@ pub mod pallet {
                 mpower_current_u128.clone(),
             );
 
-            Self::set_mpower_of_account_for_date(
+            let _set_mpower = Self::set_mpower_of_account_for_date(
                 account_id.clone(),
                 start_of_requested_date_millis.clone(),
                 mpower_current_u128.clone(),
             );
+            match _set_mpower.clone() {
+                Err(_e) => {
+                    log::warn!("Unable to change mpower using set_mpower_of_account_for_date");
+                    return Err(DispatchError::Other("Unable to change mpower using set_mpower_of_account_for_date"));
+                },
+                Ok(x) => {
+                    log::info!("changed mpower using set_mpower_of_account_for_date to: {:?} {:?}", account_id.clone(), x);
+                }
+            }
 
             // Return a successful DispatchResultWithPostInfo
             Ok(())
@@ -2608,19 +2648,22 @@ pub mod pallet {
         /// they don't charge fees, we still don't want a single block to contain unlimited
         /// number of such transactions.
         #[pallet::weight(0)]
-        pub fn submit_mpower_unsigned(
+        pub fn submit_fetched_mpower_unsigned(
             origin: OriginFor<T>,
             _block_number: T::BlockNumber,
             start_of_requested_date_millis: Date,
             mpower_payload_vec: Vec<MPowerPayloadData<T>>,
         ) -> DispatchResultWithPostInfo {
+            log::info!("submit_fetched_mpower_unsigned");
             // This ensures that the function can only be called via unsigned transaction.
             ensure_none(origin)?;
             // Add the mpower vec on-chain, but mark it as coming from an empty address.
             Self::add_mpower(Default::default(), start_of_requested_date_millis.clone(), mpower_payload_vec.clone());
-            // now increment the block number at which we expect next unsigned transaction.
+            log::info!("finished submit_fetched_mpower_unsigned");
+            // now increment the block number at which we expect next unsigned transaction
+            // that is specifically for fetching mpower.
             let current_block = <system::Pallet<T>>::block_number();
-            <NextUnsignedAt<T>>::put(current_block + T::UnsignedInterval::get());
+            <NextUnsignedAtForFetchedMPower<T>>::put(current_block + T::UnsignedInterval::get());
             Ok(().into())
         }
 
@@ -2630,13 +2673,15 @@ pub mod pallet {
             _block_number: T::BlockNumber,
             fetched_mpower_data: FetchedMPowerForAccountsForDatePayloadData,
         ) -> DispatchResultWithPostInfo {
+            log::info!("submit_finished_fetching_mpower_unsigned");
             // This ensures that the function can only be called via unsigned transaction.
             ensure_none(origin)?;
             // Add the data on-chain, but mark it as coming from an empty address.
             Self::add_finished_fetching_mpower(Default::default(), fetched_mpower_data.clone());
-            // now increment the block number at which we expect next unsigned transaction.
+            // now increment the block number at which we expect next unsigned transaction
+            // that is specifically for having "finished" fetching mpower.
             let current_block = <system::Pallet<T>>::block_number();
-            <NextUnsignedAt<T>>::put(current_block + T::UnsignedInterval::get());
+            <NextUnsignedAtForFinishedFetchingMPower<T>>::put(current_block + T::UnsignedInterval::get());
             Ok(().into())
         }
     }
@@ -2651,10 +2696,15 @@ pub mod pallet {
 		/// here we make sure that some particular calls (the ones produced by offchain worker)
 		/// are being whitelisted and marked as valid.
 		fn validate_unsigned(_source: TransactionSource, call: &Self::Call) -> TransactionValidity {
-            if let Call::submit_mpower_unsigned(block_number, start_of_requested_date_millis, new_mpower_data_vec) = call {
-				Self::validate_transaction_parameters(block_number, start_of_requested_date_millis, new_mpower_data_vec)
-			} else {
-				InvalidTransaction::Call.into()
+            if let Call::submit_fetched_mpower_unsigned(block_number, start_of_requested_date_millis, new_mpower_data_vec) = call {
+				log::info!("validate_unsigned submit_fetched_mpower_unsigned");
+                return Self::validate_transaction_parameters_for_fetched_mpower(block_number, start_of_requested_date_millis, new_mpower_data_vec);
+            } else if let Call::submit_finished_fetching_mpower_unsigned(block_number, fetched_mpower_data) = call {
+                log::info!("validate_unsigned validate_transaction_parameters_for_fetched_mpower");
+                return Self::validate_transaction_parameters_for_finished_fetching_mpower(block_number, fetched_mpower_data);
+            } else {
+                log::info!("validate_unsigned invalid");
+				return InvalidTransaction::Call.into();
 			}
 		}
 	}
@@ -2895,6 +2945,7 @@ pub mod pallet {
         }
 
         pub fn set_mpower_of_account_for_date(account_public_key: Vec<u8>, start_of_requested_date_millis: Date, mpower: u128) -> Result<u128, DispatchError> {
+            log::info!("set_mpower_of_account_for_date: {:?} {:?} {:?}", account_public_key.clone(), start_of_requested_date_millis.clone(), mpower.clone());
             let mpower_current_u128 = mpower.clone();
 
             // check if the new mpower value differs from the value that is already in storage
@@ -2905,11 +2956,13 @@ pub mod pallet {
                     account_public_key.clone(),
                 )
             );
+            log::info!("existing mpower_for_account_for_date {:?}", mpower_for_account_for_date.clone());
             match mpower_for_account_for_date {
                 None => {
+                    log::info!("Adding new storage value of mPower for account for date of data retrieved from API {:?}", mpower_current_u128.clone());
                 },
                 Some(x) => {
-                    log::warn!("Existing storage value of mPower for account for date of data retrieved from API");
+                    log::warn!("Existing storage value of mPower for account for date of data retrieved from API {:?}", x);
                     return Err(DispatchError::Other("Existing storage value of mPower for account for date of data retrieved from API"));
                 }
             }
@@ -2941,7 +2994,7 @@ pub mod pallet {
         }
 
         pub fn set_finished_fetching_mpower_for_accounts_for_date(all_miner_public_keys_fetched: Vec<Vec<u8>>, start_of_requested_date_millis: Date, total_mpower_fetched: u128) -> Result<u128, DispatchError> {
-
+            log::info!("set_finished_fetching_mpower_for_accounts_for_date");
             // check if the new total_mpower_fetched value differs from the value that is already in storage
             // for the given key, and only insert if it is different
             let data_finished_fetching_for_date = <FinishedFetchingMPowerForAccountsForDate<T>>::get(start_of_requested_date_millis.clone());
@@ -3138,8 +3191,8 @@ pub mod pallet {
         fn fetch_mpower_process(block_number: T::BlockNumber, start_of_requested_date_millis: Date) -> Result<Vec<MPowerPayloadData<T>>, &'static str> {
             // Make sure we don't fetch the mpower if unsigned transaction is going to be rejected
             // anyway.
-            let next_unsigned_at = <NextUnsignedAt<T>>::get();
-            if next_unsigned_at > block_number {
+            let next_unsigned_at_for_fetched_mpower = <NextUnsignedAtForFetchedMPower<T>>::get();
+            if next_unsigned_at_for_fetched_mpower > block_number {
                 return Err("Too early to send unsigned transaction")
             }
 
@@ -3152,10 +3205,11 @@ pub mod pallet {
 
         /// A helper function to send a raw unsigned transaction to store the mpower data.
         fn store_mpower_raw_unsigned(block_number: T::BlockNumber, start_of_requested_date_millis: Date, mpower_data_vec: Vec<MPowerPayloadData<T>>) -> Result<(), &'static str> {
-            // Received mpower data is wrapped into a call to `submit_mpower_unsigned` public function of this
+            log::info!("offchain_worker - store_mpower_raw_unsigned");
+            // Received mpower data is wrapped into a call to `submit_fetched_mpower_unsigned` public function of this
             // pallet. This means that the transaction, when executed, will simply call that function
             // passing `mpower_data_vec` as an argument.
-            let call = Call::submit_mpower_unsigned(block_number.clone(), start_of_requested_date_millis.clone(), mpower_data_vec.clone());
+            let call = Call::submit_fetched_mpower_unsigned(block_number.clone(), start_of_requested_date_millis.clone(), mpower_data_vec.clone());
 
             // Now let's create a transaction out of this call and submit it to the pool.
             // Here we showcase two ways to send an unsigned transaction / unsigned payload (raw)
@@ -3166,13 +3220,14 @@ pub mod pallet {
             // attack vectors. See validation logic docs for more details.
             //
             SubmitTransaction::<T, Call<T>>::submit_unsigned_transaction(call.into())
-                .map_err(|()| "Unable to submit unsigned transaction.")?;
+                .map_err(|()| "Unable to submit unsigned transaction for submit_fetched_mpower.")?;
 
             Ok(())
         }
 
         /// A helper function to send a raw unsigned transaction to store finished fetching mpower data for use in on_initialize
         fn store_finished_fetching_mpower_raw_unsigned(block_number: T::BlockNumber, fetched_mpower_data: FetchedMPowerForAccountsForDatePayloadData) -> Result<(), &'static str> {
+            log::info!("offchain_worker - store_finished_fetching_mpower_raw_unsigned");
             // Received mpower data is wrapped into a call to `submit_finished_fetching_mpower_unsigned` public function of this
             // pallet. This means that the transaction, when executed, will simply call that function
             // passing `fetched_mpower_data` as an argument.
@@ -3187,85 +3242,96 @@ pub mod pallet {
             // attack vectors. See validation logic docs for more details.
             //
             SubmitTransaction::<T, Call<T>>::submit_unsigned_transaction(call.into())
-                .map_err(|()| "Unable to submit unsigned transaction.")?;
+                .map_err(|()| "Unable to submit unsigned transaction for submit_finished_fetching_mpower.")?;
 
             Ok(())
         }
 
         /// Fetch current mPower and return the result.
         fn fetch_mpower(block_number: T::BlockNumber, start_of_requested_date_millis: Date) -> Result<Vec<MPowerPayloadData<T>>, http::Error> {
-            // We want to keep the offchain worker execution time reasonable, so we set a hard-coded
-            // deadline to 2s to complete the external call.
-            // You can also wait idefinitely for the response, however you may still get a timeout
-            // coming from the host machine.
-            let deadline = sp_io::offchain::timestamp().add(Duration::from_millis(2_000));
-            // Initiate an external HTTP GET request.
-            // This is using high-level wrappers from `sp_runtime`, for the low-level calls that
-            // you can find in `sp_io`. The API is trying to be similar to `reqwest`, but
-            // since we are running in a custom WASM execution environment we can't simply
-            // import the library here.
+            log::info!("offchain_worker - fetch_mpower");
 
-            // Example from Substrate
-            let request =
-                http::Request::get("https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD");
+            // TODO - below is temporarily commented out whilst we are using mock API data
 
-            // Example of request we may use
-            // let start_of_requested_date_millis = 1630195200000i64;
-            // let url = format!("https://api.datahighway.com/data/mpower-for-date?start_of_requested_date_millis={}", start_of_requested_date_millis);
-            // log::info!("Request URL: {}", url.clone());
+            // // We want to keep the offchain worker execution time reasonable, so we set a hard-coded
+            // // deadline to 2s to complete the external call.
+            // // You can also wait idefinitely for the response, however you may still get a timeout
+            // // coming from the host machine.
+
+            // // Initiate an external HTTP GET request.
+            // // This is using high-level wrappers from `sp_runtime`, for the low-level calls that
+            // // you can find in `sp_io`. The API is trying to be similar to `reqwest`, but
+            // // since we are running in a custom WASM execution environment we can't simply
+            // // import the library here.
+
+            // // Example from Substrate
             // let request =
-            //     http::Request::get(&url);
+            //     http::Request::get("https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD");
 
-            // We set the deadline for sending of the request, note that awaiting response can
-            // have a separate deadline. Next we send the request, before that it's also possible
-            // to alter request headers or stream body content in case of non-GET requests.
-            let pending = request.deadline(deadline).send().map_err(|_| http::Error::IoError)?;
+            // // Example of request we may use
+            // // let start_of_requested_date_millis = 1630195200000i64;
+            // // let url = format!("https://api.datahighway.com/data/mpower-for-date?start_of_requested_date_millis={}", start_of_requested_date_millis);
+            // // log::info!("Request URL: {}", url.clone());
+            // // let request =
+            // //     http::Request::get(&url);
 
-            // The request is already being processed by the host, we are free to do anything
-            // else in the worker (we can send multiple concurrent requests too).
-            // At some point however we probably want to check the response though,
-            // so we can block current thread and wait for it to finish.
-            // Note that since the request is being driven by the host, we don't have to wait
-            // for the request to have it complete, we will just not read the response.
-            let response = pending.try_wait(deadline).map_err(|_| http::Error::DeadlineReached)??;
-            // Let's check the status code before we proceed to reading the response.
-            if response.code != 200 {
-                log::warn!("Unexpected status code: {}", response.code);
-                return Err(http::Error::Unknown)
-            }
+            // // We set the deadline for sending of the request, note that awaiting response can
+            // // have a separate deadline. Next we send the request, before that it's also possible
+            // // to alter request headers or stream body content in case of non-GET requests.
+            // let pending = request.deadline(deadline).send().map_err(|_| http::Error::IoError)?;
 
-            // Next we want to fully read the response body and collect it to a vector of bytes.
-            // Note that the return object allows you to read the body in chunks as well
-            // with a way to control the deadline.
-            let body = response.body().collect::<Vec<u8>>();
+            // // The request is already being processed by the host, we are free to do anything
+            // // else in the worker (we can send multiple concurrent requests too).
+            // // At some point however we probably want to check the response though,
+            // // so we can block current thread and wait for it to finish.
+            // // Note that since the request is being driven by the host, we don't have to wait
+            // // for the request to have it complete, we will just not read the response.
+            // let response = pending.try_wait(deadline).map_err(|_| http::Error::DeadlineReached)??;
 
-            // Create a str slice from the body.
-            let body_str = sp_std::str::from_utf8(&body).map_err(|_| {
-                log::warn!("No UTF8 body");
-                http::Error::Unknown
-            })?;
+            // // Let's check the status code before we proceed to reading the response.
+            // if response.code != 200 {
+            //     log::warn!("offchain_worker - Unexpected status code: {}", response.code);
+            //     return Err(http::Error::Unknown)
+            // }
 
-            log::info!("Received HTTP Body: {}", body_str.clone());
+            // // Next we want to fully read the response body and collect it to a vector of bytes.
+            // // Note that the return object allows you to read the body in chunks as well
+            // // with a way to control the deadline.
+            // let body = response.body().collect::<Vec<u8>>();
+
+            // // Create a str slice from the body.
+            // let body_str = sp_std::str::from_utf8(&body).map_err(|_| {
+            //     log::warn!("offchain_worker - No UTF8 body");
+            //     http::Error::Unknown
+            // })?;
+
+            // log::info!("offchain_worker - Received HTTP Body: {}", body_str.clone());
 
             // FIXME - replace the below hard-coded example in future with use of the response body
             // Alice public key 0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
             // Bob public key 0x8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48
+            // Charlie public key 0x90b5ab205c6974c9ea841be688864633dc9ca8a357843eeacf2314649965fe22
+            //
+            // Note: we're not currently using the `start_of_requested_date_millis` that is in the hard-coded data below,
+            // and instead we're using the current date temporarily using
+            // `received_at_date: received_date_as_millis.clone(),`
             let mpower_data = r#"{
                 "data": [
                     { "acct_id": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", "mpower": "11", "start_of_requested_date_millis": "1630195200000" },
-                    { "acct_id": "8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48", "mpower": "12", "start_of_requested_date_millis": "1630195200000" }
+                    { "acct_id": "8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48", "mpower": "12", "start_of_requested_date_millis": "1630195200000" },
+                    { "acct_id": "90b5ab205c6974c9ea841be688864633dc9ca8a357843eeacf2314649965fe22", "mpower": "13", "start_of_requested_date_millis": "1630195200000" }
                 ]
             }"#;
 
             let mpower_data_vec = match Self::parse_mpower_data(mpower_data, block_number.clone()) {
                 Some(data) => Ok(data),
                 None => {
-                    log::warn!("Unable to extract mpower data from the response: {:?}", body_str);
+                    log::warn!("offchain_worker - Unable to extract mpower data from the response");
                     Err(http::Error::Unknown)
                 },
             }?;
 
-            // log::info!("Parsed mpower_data_vec: {:?}", mpower_data_vec);
+            // log::info!("offchain_worker - Parsed mpower_data_vec: {:?}", mpower_data_vec);
 
             Ok(mpower_data_vec)
         }
@@ -3279,23 +3345,30 @@ pub mod pallet {
 
             let timestamp = <pallet_timestamp::Pallet<T>>::get();
             let received_date_as_u64 = Self::convert_moment_to_u64_in_milliseconds(timestamp.clone()).ok()?;
-            log::info!("received_date_as_u64: {:?}", received_date_as_u64.clone());
+            log::info!("offchain_worker - received_date_as_u64: {:?}", received_date_as_u64.clone());
             // TODO - parse for mPower data and replace hard-coded response with output
             let received_date_as_millis = Self::convert_u64_in_milliseconds_to_start_of_date(received_date_as_u64.clone()).ok()?;
 
-            let mpower_json_data = lite_json::parse_json(mpower_data_str);
+            let mpower_json_data = match lite_json::parse_json(mpower_data_str) {
+                Err(e) => {
+                    log::error!("Couldn't parse JSON {:?}", e);
+                    // println!("Couldn't parse JSON {:?}", e);
+                    return None;
+                },
+                Ok(data) => data,
+            };
 
             // let mpower_json_data: MPowerJSONResponseData<T::AccountId, u128> = match serde_json::from_str(mpower_data_str) {
             //     Err(e) => {
-            //         println!("Couldn't parse JSON :( {:?}", e);
+            //         // println!("Couldn't parse JSON :( {:?}", e);
             //         return None;
             //     },
             //     Ok(data) => data,
             // };
-            // log::info!("mpower_json_data{:?}", mpower_json_data);
+            // log::info!("offchain_worker - mpower_json_data{:#?}", mpower_json_data);
 
             let mut mpower_data_vec: Vec<MPowerPayloadData<T>> = vec![];
-            let mpower_array = match mpower_json_data.ok()? {
+            let mpower_array = match mpower_json_data {
                 JsonValue::Object(obj) => {
                     let (_, v) = obj.into_iter().find(|(k, _)| k.iter().copied().eq("data".chars()))?;
                     match v {
@@ -3329,29 +3402,29 @@ pub mod pallet {
                     _ => return None,
                 };
 
-                log::info!("obj_mpower char {:?} {:?}", i, obj_mpower.clone());
+                log::info!("offchain_worker - obj_mpower char {:?} {:?}", i, obj_mpower.clone());
 
                 // Convert from `Vec<char>` to `Vec<u8>` since we do not use String in the runtime
                 // e.g. converts from `['1', '2', '3']` to `123`
                 let obj_acct_id_str_hex: Vec<u8> = obj_acct_id.iter().map(|c| *c as u8).collect::<Vec<_>>();
                 let obj_mpower_str_hex: Vec<u8> = obj_mpower.iter().map(|c| *c as u8).collect::<Vec<_>>();
-                log::info!("obj_mpower_str_hex {:?} {:?}", i, obj_mpower_str_hex.clone());
+                log::info!("offchain_worker - obj_mpower_str_hex {:?} {:?}", i, obj_mpower_str_hex.clone());
 
                 // Decode from hex ascii format
                 let obj_acct_id_str = hex::decode(obj_acct_id_str_hex.clone()).ok()?;
-                log::info!("Decoded acct_id i public key hex as Vec<u8> {:?} {:?}", i, obj_acct_id_str.clone());
+                log::info!("offchain_worker - Decoded acct_id i public key hex as Vec<u8> {:?} {:?}", i, obj_acct_id_str.clone());
 
                 let mpower_u128 = Self::convert_vec_u8_to_u128(&obj_mpower_str_hex).ok()?;
-                log::info!("mpower_u128 {:?} {:?}", i, mpower_u128.clone());
+                log::info!("offchain_worker - mpower_u128 {:?} {:?}", i, mpower_u128.clone());
 
                 // let mut obj_mpower_as_u128 = 0u128; // initialize
                 // if let Some(_obj_mpower_as_u128) = TryInto::<u128>::try_into(obj_mpower_str.clone()).ok() {
                 //     obj_mpower_as_u128 = _obj_mpower_as_u128;
                 // } else {
-                //     log::error!("Unable to convert Vec<u8> into u128");
+                //     log::error!("offchain_worker - Unable to convert Vec<u8> into u128");
                 //     return None;
                 // }
-                // log::info!("obj_mpower_as_u128 {:?} {:?}", i, obj_mpower_as_u128.clone());
+                // log::info!("offchain_worker - obj_mpower_as_u128 {:?} {:?}", i, obj_mpower_as_u128.clone());
 
                 // Example only:
                 // Alice public key 0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d
@@ -3359,7 +3432,7 @@ pub mod pallet {
                 // Note: do not do `hex!["..."].encode(), since that will just encoding a vec,
                 // which will include a length prefix, but we don't want that.
                 // let example_acct_id_str: Vec<u8> = write_hex!["d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d"].into();
-                // log::info!("example_acct_id_str {:?}", example_acct_id_str);
+                // log::info!("offchain_worker - example_acct_id_str {:?}", example_acct_id_str);
 
                 // let mpower_as_u128: u128 = obj_mpower.clone().parse().unwrap(); // convert from string to number
 
@@ -3368,11 +3441,11 @@ pub mod pallet {
                 // if let Some(_reg_dhx_miners) = <RegisteredDHXMiners<T>>::get() {
                 //     reg_dhx_miners = _reg_dhx_miners;
                 // } else {
-                //     log::error!("Unable to retrieve any registered DHX Miners");
+                //     log::error!("offchain_worker - Unable to retrieve any registered DHX Miners");
                 //     return None;
                 // }
                 // let first_reg_dhx_miner = &reg_dhx_miners[0];
-                // log::info!("first_reg_dhx_miner {:?}", first_reg_dhx_miner.encode());
+                // log::info!("offchain_worker - first_reg_dhx_miner {:?}", first_reg_dhx_miner.encode());
 
                 let mpower_data_elem: MPowerPayloadData<T> = MPowerPayload {
                     account_id_registered_dhx_miner: obj_acct_id_str.clone(),
@@ -3384,7 +3457,7 @@ pub mod pallet {
                 mpower_data_vec.push(mpower_data_elem);
             }
 
-            // log::info!("mpower_data_vec {:?}", mpower_data_vec);
+            // log::info!("offchain_worker - mpower_data_vec {:?}", mpower_data_vec);
 
             Some(mpower_data_vec)
         }
@@ -3392,14 +3465,26 @@ pub mod pallet {
         /// Add new mPower on-chain.
         fn add_mpower(account_id: T::AccountId, start_of_requested_date_millis: Date, mpower_data_vec: Vec<MPowerPayloadData<T>>) -> Option<Vec<MPowerPayloadData<T>>> {
             // note: AccountId as Vec<u8> is [0, 0, ... 0] since its an unsigned transaction
-            log::info!("Processing mPower for account for date into storage: {:?}", start_of_requested_date_millis.clone());
+            log::info!("offchain_worker - Processing mPower for account for date into storage: {:?}", start_of_requested_date_millis.clone());
 
             for (index, mpower_data_item) in mpower_data_vec.iter().enumerate() {
-                Self::set_mpower_of_account_for_date(
+                log::info!("offchain_worker - Processing mPower for account for date into storage - loop: {:?} {:?} {:?} {:?}", index.clone(), mpower_data_item.account_id_registered_dhx_miner.clone(), start_of_requested_date_millis.clone(), mpower_data_item.mpower_registered_dhx_miner.clone());
+
+                let _set_mpower = Self::set_mpower_of_account_for_date(
                     mpower_data_item.account_id_registered_dhx_miner.clone(),
                     start_of_requested_date_millis.clone(),
                     mpower_data_item.mpower_registered_dhx_miner.clone(),
                 );
+                match _set_mpower.clone() {
+                    Err(_e) => {
+                        log::warn!("Unable to set_mpower_of_account_for_date");
+                        return None;
+                    },
+                    Ok(x) => {
+                        log::info!("set set_mpower_of_account_for_date to: {:?} {:?}", mpower_data_item.account_id_registered_dhx_miner.clone(), x);
+                        continue;
+                    }
+                }
             }
 
             Some(mpower_data_vec.clone())
@@ -3408,7 +3493,7 @@ pub mod pallet {
         /// Add new finished fetching mPower on-chain.
         fn add_finished_fetching_mpower(account_id: T::AccountId, fetched_mpower_data: FetchedMPowerForAccountsForDatePayloadData) -> Option<FetchedMPowerForAccountsForDatePayloadData> {
             // note: AccountId as Vec<u8> is [0, 0, ... 0] since its an unsigned transaction
-            log::info!("Processing finished fetching mPower for account for date into storage: {:?}", fetched_mpower_data.start_of_requested_date_millis.clone());
+            log::info!("offchain_worker - Processing finished fetching mPower for account for date into storage: {:?}", fetched_mpower_data.start_of_requested_date_millis.clone());
 
             Self::set_finished_fetching_mpower_for_accounts_for_date(
                 fetched_mpower_data.all_miner_public_keys_fetched.clone(),
@@ -3419,80 +3504,80 @@ pub mod pallet {
             Some(fetched_mpower_data.clone())
         }
 
-        /// Calculation based on mPower.
-        fn average_mpower() -> Option<u128> {
-            // let mpowers = <MPowerForAccountForDate<T>>::get();
+        fn validate_transaction_parameters_for_finished_fetching_mpower(
+            block_number: &T::BlockNumber,
+            fetched_mpower_data: &FetchedMPowerForAccountsForDatePayloadData,
+        ) -> TransactionValidity {
+            // Now let's check if the transaction has any chance to succeed.
+            let next_unsigned_at_for_finished_fetching_mpower = <NextUnsignedAtForFinishedFetchingMPower<T>>::get();
+            log::info!("offchain_worker - validate_transaction_parameters_for_finished_fetching_mpower - block_number {:?}", block_number.clone());
+            log::info!("offchain_worker - validate_transaction_parameters_for_finished_fetching_mpower - next_unsigned_at_for_finished_fetching_mpower {:?}", next_unsigned_at_for_finished_fetching_mpower.clone());
+            // TODO - do we need to use a modified version of this at all?
+            if &next_unsigned_at_for_finished_fetching_mpower > block_number {
+                return InvalidTransaction::Stale.into()
+            }
+            // Let's make sure to reject transactions from the future.
+            let current_block = <system::Pallet<T>>::block_number();
+            log::info!("offchain_worker - validate_transaction_parameters_for_finished_fetching_mpower - current_block {:?}", current_block.clone());
+            if &current_block < block_number {
+                return InvalidTransaction::Future.into()
+            }
 
-            // TODO - implement what we need and replace hard-coded response with output
-
-            // if mpowers.is_empty() {
-            //     None
-            // } else {
-            //     Some(mpowers.iter().fold(0_u128, |a, b| a.saturating_add(*b)) / mpowers.len() as u128)
-            // }
-            None
+            // See Substrate client/transaction-pool for configuration details
+            ValidTransaction::with_tag_prefix("OffchainWorkerFinishedFetchingMPower")
+                .priority(T::UnsignedPriority::get().saturating_add(2u128 as _))
+                .and_provides(next_unsigned_at_for_finished_fetching_mpower)
+                // TODO - do we need to use .and_requires() and provide the `previous_unsigned_at`
+                // to signify that we need the fetched_mpower unsigned tx to happen beforehand?
+                .longevity(5)
+                .propagate(true)
+                .build()
         }
 
-        fn validate_transaction_parameters(
+        fn validate_transaction_parameters_for_fetched_mpower(
             block_number: &T::BlockNumber,
             start_of_requested_date_millis: &Date,
             new_mpower_data: &Vec<MPowerPayloadData<T>>,
         ) -> TransactionValidity {
             // Now let's check if the transaction has any chance to succeed.
-            let next_unsigned_at = <NextUnsignedAt<T>>::get();
-            if &next_unsigned_at > block_number {
+            let next_unsigned_at_for_fetched_mpower = <NextUnsignedAtForFetchedMPower<T>>::get();
+            log::info!("offchain_worker - validate_transaction_parameters_for_fetched_mpower - block_number {:?}", block_number.clone());
+            log::info!("offchain_worker - validate_transaction_parameters_for_fetched_mpower - next_unsigned_at_for_fetched_mpower {:?}", next_unsigned_at_for_fetched_mpower.clone());
+            if &next_unsigned_at_for_fetched_mpower > block_number {
                 return InvalidTransaction::Stale.into()
             }
             // Let's make sure to reject transactions from the future.
             let current_block = <system::Pallet<T>>::block_number();
+            log::info!("offchain_worker - validate_transaction_parameters_for_fetched_mpower - current_block {:?}", current_block.clone());
             if &current_block < block_number {
                 return InvalidTransaction::Future.into()
             }
 
-            // // We prioritize transactions that are more far away from current average.
-            // //
-            // // Note this doesn't make much sense when building an actual oracle, but this example
-            // // is here mostly to show off offchain workers capabilities, not about building an
-            // // oracle.
-            // let avg_mpower = Self::average_mpower()
-            //     .map(|mpower| if &mpower > new_mpower { mpower - new_mpower } else { new_mpower - mpower })
-            //     .unwrap_or(0);
-
-            // FIXME
-
-            ValidTransaction::with_tag_prefix("MPowerOffchainWorker")
-                .priority(1)
-                .and_provides(next_unsigned_at)
+            // See Substrate client/transaction-pool for configuration details
+            ValidTransaction::with_tag_prefix("OffchainWorkerFetchedMPower")
+                // Set base priority and hope it's included before any other
+                // transactions in the pool
+                .priority(T::UnsignedPriority::get().saturating_add(1u128 as _))
+                // This transaction does not require anything else to go before into the pool.
+                // In theory we could require `previous_unsigned_at` transaction to go first,
+                // but it's not necessary in our case.
+                //.and_requires()
+                // We set the `provides` tag to be the same as `next_unsigned_at_for_fetched_mpower`. This makes
+                // sure only one transaction produced after `next_unsigned_at_for_fetched_mpower` will ever
+                // get to the transaction pool and will end up in the block.
+                // We can still have multiple transactions compete for the same "spot",
+                // and the one with higher priority will replace other one in the pool.
+                .and_provides(next_unsigned_at_for_fetched_mpower)
+                // The transaction is only valid for next 5 blocks. After that it's
+                // going to be revalidated by the pool.
                 .longevity(5)
+                // It's fine to propagate that transaction to other peers, which means it can be
+                // created even by nodes that don't produce blocks.
+                // Note that sometimes it's better to keep it for yourself (if you are the block
+                // producer), since for instance in some schemes others may copy your solution and
+                // claim a reward.
                 .propagate(true)
                 .build()
-
-            // ValidTransaction::with_tag_prefix("MPowerOffchainWorker")
-            //     // We set base priority to 2**20 and hope it's included before any other
-            //     // transactions in the pool. Next we tweak the priority depending on how much
-            //     // it differs from the current average. (the more it differs the more priority it
-            //     // has).
-            //     .priority(T::UnsignedPriority::get().saturating_add(avg_mpower as _))
-            //     // This transaction does not require anything else to go before into the pool.
-            //     // In theory we could require `previous_unsigned_at` transaction to go first,
-            //     // but it's not necessary in our case.
-            //     //.and_requires()
-            //     // We set the `provides` tag to be the same as `next_unsigned_at`. This makes
-            //     // sure only one transaction produced after `next_unsigned_at` will ever
-            //     // get to the transaction pool and will end up in the block.
-            //     // We can still have multiple transactions compete for the same "spot",
-            //     // and the one with higher priority will replace other one in the pool.
-            //     .and_provides(next_unsigned_at)
-            //     // The transaction is only valid for next 5 blocks. After that it's
-            //     // going to be revalidated by the pool.
-            //     .longevity(5)
-            //     // It's fine to propagate that transaction to other peers, which means it can be
-            //     // created even by nodes that don't produce blocks.
-            //     // Note that sometimes it's better to keep it for yourself (if you are the block
-            //     // producer), since for instance in some schemes others may copy your solution and
-            //     // claim a reward.
-            //     .propagate(true)
-            //     .build()
         }
 
         // check that the current date start_of_current_date_millis is at least 7 days after the provided
@@ -3543,7 +3628,7 @@ pub mod pallet {
                 }
 
                 // log::info!("period_millis_u64: {:?}", period_millis_u64.clone());
-                // println!("period_millis_u64: {:?}", period_millis_u64.clone());
+                // // println!("period_millis_u64: {:?}", period_millis_u64.clone());
                 if (period_millis_u64 >= challenge_period_millis.clone()) {
                     is_more_than_challenge_period = true;
                 }
