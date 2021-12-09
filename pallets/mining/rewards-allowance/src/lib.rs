@@ -881,22 +881,22 @@ pub mod pallet {
                 start_of_requested_date_millis.clone(),
                 mpower_data_vec.clone()
             );
-			log::info!("offchain_worker - finished store_mpower_raw_unsigned at block: {:?}", block_number.clone());
+            log::info!("offchain_worker - finished store_mpower_raw_unsigned at block: {:?}", block_number.clone());
             if let Err(e) = res_store_mpower {
-				log::error!("offchain_worker - offchain_workers error storing mpower: {}", e);
-			}
+                log::error!("offchain_worker - offchain_workers error storing mpower: {}", e);
+            }
 
             let res_store_finished = Self::store_finished_fetching_mpower_raw_unsigned(
                 block_number.clone(),
                 fetched_mpower_data.clone()
             );
             log::info!("offchain_worker - finished store_finished_fetching_mpower_raw_unsigned at block: {:?}", block_number.clone());
-			if let Err(e) = res_store_finished {
-				log::error!("offchain_worker - offchain_workers error storing finished fetching mpower: {}", e);
-			}
+            if let Err(e) = res_store_finished {
+                log::error!("offchain_worker - offchain_workers error storing finished fetching mpower: {}", e);
+            }
 
             return;
-		}
+        }
 
         // `on_initialize` is executed at the beginning of the block before any extrinsic are
         // dispatched.
@@ -2686,28 +2686,28 @@ pub mod pallet {
         }
     }
 
-	#[pallet::validate_unsigned]
-	impl<T: Config> ValidateUnsigned for Pallet<T> {
-		type Call = Call<T>;
+    #[pallet::validate_unsigned]
+    impl<T: Config> ValidateUnsigned for Pallet<T> {
+        type Call = Call<T>;
 
-		/// Validate unsigned call to this module.
-		///
-		/// By default unsigned transactions are disallowed, but implementing the validator
-		/// here we make sure that some particular calls (the ones produced by offchain worker)
-		/// are being whitelisted and marked as valid.
-		fn validate_unsigned(_source: TransactionSource, call: &Self::Call) -> TransactionValidity {
+        /// Validate unsigned call to this module.
+        ///
+        /// By default unsigned transactions are disallowed, but implementing the validator
+        /// here we make sure that some particular calls (the ones produced by offchain worker)
+        /// are being whitelisted and marked as valid.
+        fn validate_unsigned(_source: TransactionSource, call: &Self::Call) -> TransactionValidity {
             if let Call::submit_fetched_mpower_unsigned(block_number, start_of_requested_date_millis, new_mpower_data_vec) = call {
-				log::info!("validate_unsigned submit_fetched_mpower_unsigned");
+                log::info!("validate_unsigned submit_fetched_mpower_unsigned");
                 return Self::validate_transaction_parameters_for_fetched_mpower(block_number, start_of_requested_date_millis, new_mpower_data_vec);
             } else if let Call::submit_finished_fetching_mpower_unsigned(block_number, fetched_mpower_data) = call {
                 log::info!("validate_unsigned validate_transaction_parameters_for_fetched_mpower");
                 return Self::validate_transaction_parameters_for_finished_fetching_mpower(block_number, fetched_mpower_data);
             } else {
                 log::info!("validate_unsigned invalid");
-				return InvalidTransaction::Call.into();
-			}
-		}
-	}
+                return InvalidTransaction::Call.into();
+            }
+        }
+    }
 
     // Private functions
 
