@@ -601,8 +601,8 @@ fn check_eligible_for_rewards_after_cooling_off_period_if_suffient_bonded(amount
     // a day before we start the new multiplier period and change from 10:1 to 20:1 since no more days remaining
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1630022400000, 1630195200000, 2u32, 0u32)));
 
-    // assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, account_1_public_key.clone())), Some(amount_bonded_each_miner));
-    // assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, account_2_public_key.clone())), Some(amount_bonded_each_miner));
+    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, account_1_public_key.clone())), Some(amount_bonded_each_miner));
+    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, account_2_public_key.clone())), Some(amount_bonded_each_miner));
     // assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, account_3_public_key.clone())), Some(amount_bonded_each_miner));
 
     // // i.e. for example, if locked is 25_133_000_000_000_000_000_000u128 (NORMAL_AMOUNT), which is 25,133 DHX,

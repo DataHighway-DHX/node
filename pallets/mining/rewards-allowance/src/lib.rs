@@ -1741,6 +1741,7 @@ pub mod pallet {
                         new_rewards_aggregated_dhx_daily.clone(),
                     );
                     log::info!("Added RewardsAggregatedDHXForAllMinersForDate for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone(), new_rewards_aggregated_dhx_daily.clone());
+                    // println!("Added RewardsAggregatedDHXForAllMinersForDate for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone(), new_rewards_aggregated_dhx_daily.clone());
 
                     // add to storage item that maps the date to the registered miner and the calculated reward
                     // (prior to possibly reducing it so they get a proportion of the daily rewards that are available)
@@ -1752,6 +1753,7 @@ pub mod pallet {
                         daily_reward_for_miner.clone(),
                     );
                     log::info!("Added RewardsAccumulatedDHXForMinerForDate for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone(), daily_reward_for_miner.clone());
+                    // println!("Added RewardsAccumulatedDHXForMinerForDate for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone(), daily_reward_for_miner.clone());
 
                     // Store a list of all the the registered_dhx_miners that are eligible for rewards on a given date
                     // so we know they have been used as keys for other storage maps like `RewardsAccumulatedDHXForMinerForDate`
@@ -1760,9 +1762,14 @@ pub mod pallet {
                     if let Some(_rewards_eligible_miners_for_date) = <RewardsEligibleMinersForDate<T>>::get(start_of_requested_date_millis.clone()) {
                         rewards_eligible_miners_for_date = _rewards_eligible_miners_for_date;
                     } else {
-                        log::error!("Unable to retrieve rewards_eligible_miners_for_date");
-                        return 0;
+                        log::warn!("Unable to retrieve rewards_eligible_miners_for_date");
+                        // println!("Unable to retrieve rewards_eligible_miners_for_date");
                     }
+                    log::info!("Retrieved existing rewards_eligible_miners_for_date {:?} {:?}", start_of_requested_date_millis.clone(), rewards_eligible_miners_for_date.clone());
+                    // println!("Retrieved existing rewards_eligible_miners_for_date {:?} {:?}", start_of_requested_date_millis.clone(), rewards_eligible_miners_for_date.clone());
+
+                    log::warn!("Updating rewards_eligible_miners_for_date with miner {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone());
+                    // println!("Updating retrieve rewards_eligible_miners_for_date with miner {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone());
 
                     rewards_eligible_miners_for_date.push(miner_public_key.clone());
                     <RewardsEligibleMinersForDate<T>>::insert(
@@ -1770,9 +1777,11 @@ pub mod pallet {
                         rewards_eligible_miners_for_date.clone(),
                     );
 
+                    log::info!("date: {:?}, miner_count: {:?}, reg_dhx_miners.len: {:?}", start_of_requested_date_millis.clone(), miner_count.clone(), reg_dhx_miners.len());
                     // println!("date: {:?}, miner_count: {:?}, reg_dhx_miners.len: {:?}", start_of_requested_date_millis.clone(), miner_count.clone(), reg_dhx_miners.len());
                     // if last miner being iterated then reset for next day
                     if reg_dhx_miners.len() == miner_count {
+                        log::info!("date: {:?}, rewards_allowance_dhx_daily: {:?}", start_of_requested_date_millis.clone(), rewards_allowance_dhx_daily.clone());
                         // println!("date: {:?}, rewards_allowance_dhx_daily: {:?}", start_of_requested_date_millis.clone(), rewards_allowance_dhx_daily.clone());
 
                         // reset to latest set by governance
@@ -1800,6 +1809,7 @@ pub mod pallet {
                     );
 
                     log::info!("Unbonding detected for miner. Starting cooling down period {:?} {:?}", miner_public_key.clone(), cooling_off_period_days.clone());
+                    // println!("Unbonding detected for miner. Starting cooling down period {:?} {:?}", miner_public_key.clone(), cooling_off_period_days.clone());
 
                 // if cooling_off_period_days_remaining.0 is not the start of the current date
                 //   (since if they just started un-bonding or just had less than min. mPower
@@ -1829,6 +1839,8 @@ pub mod pallet {
                     match _new_cooling_off_period_days_remaining {
                         None => {
                             log::error!("Unable to subtract one from cooling_off_period_days_remaining due to StorageOverflow");
+                            // println!("Unable to subtract one from cooling_off_period_days_remaining due to StorageOverflow");
+
                             return 0;
                         },
                         Some(x) => {
@@ -1872,6 +1884,7 @@ pub mod pallet {
                     );
 
                     log::info!("Unbonded miner. Cooling down period finished so allow them to withdraw {:?}", miner_public_key.clone());
+                    // println!("Unbonded miner. Cooling down period finished so allow them to withdraw {:?}", miner_public_key.clone());
                 }
             }
 
