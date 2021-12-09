@@ -35,8 +35,6 @@ const BOB_PUBLIC_KEY: &[u8] = &[142, 175, 4, 21, 22, 135, 115, 99, 38, 201, 254,
 const CHARLIE_PUBLIC_KEY: &[u8] = &[144, 181, 171, 32, 92, 105, 116, 201, 234, 132, 27, 230, 136, 134, 70, 51, 220, 156, 168, 163, 87, 132, 62, 234, 207, 35, 20, 100, 153, 101, 254, 34];
 
 #[test]
-// ignore this test until the FIXME is resolved
-#[ignore]
 fn it_sets_rewards_allowance_with_genesis_defaults_automatically_in_on_finalize_if_not_already_set_for_today() {
     new_test_ext().execute_with(|| {
         assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miners(
@@ -53,8 +51,7 @@ fn it_sets_rewards_allowance_with_genesis_defaults_automatically_in_on_finalize_
         MiningRewardsAllowanceTestModule::on_initialize(2);
         // MiningRewardsAllowanceTestModule::offchain_worker(2);
 
-        // FIXME - why doesn't this work and use the defaults that we have set in the genesis config?
-        // i've had to add a function `set_rewards_allowance_dhx_daily` to set this instead
+        // This wasn't using the defaults set in genesis config previously because we weren't starting at block 2
         assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(FIVE_THOUSAND_DHX));
     })
 }
@@ -294,11 +291,8 @@ fn it_sets_min_mpower_daily() {
 }
 
 #[test]
-#[ignore]
 fn it_allows_us_to_retrieve_genesis_value_for_min_mpower_daily() {
     new_test_ext().execute_with(|| {
-        // FIXME - why doesn't it set the values we added in the chain_spec.rs at genesis
-        // https://matrix.to/#/!HzySYSaIhtyWrwiwEV:matrix.org/$163424903366086IiiUH:matrix.org?via=matrix.parity.io&via=corepaper.org&via=matrix.org
         // Note: we start at block 2 since we early exit from block 1 because the timestamp is yet
         MiningRewardsAllowanceTestModule::on_initialize(2);
         assert_eq!(MiningRewardsAllowanceTestModule::min_mpower_daily(), Some(5u128));
@@ -603,25 +597,25 @@ fn check_eligible_for_rewards_after_cooling_off_period_if_suffient_bonded(amount
 
     assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, account_1_public_key.clone())), Some(amount_bonded_each_miner));
     assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, account_2_public_key.clone())), Some(amount_bonded_each_miner));
-    // assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, account_3_public_key.clone())), Some(amount_bonded_each_miner));
+    assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630195200000, account_3_public_key.clone())), Some(amount_bonded_each_miner));
 
-    // // i.e. for example, if locked is 25_133_000_000_000_000_000_000u128 (NORMAL_AMOUNT), which is 25,133 DHX,
-    // // then with 10:1 each of the 3x accounts get 2513.3 DHX, which is ~7538.9 DHX combined
-    // // or 33_333_333_333_000_000_000_000_000u128 (LARGE_AMOUNT_DHX),
-    // // but the results are rounded to the nearest integer so it would be 2513 DHX, not 2513.3 DHX
-    // if amount_bonded_each_miner.clone() == NORMAL_AMOUNT {
-    //     assert_eq!(MiningRewardsAllowanceTestModule::rewards_aggregated_dhx_for_all_miners_for_date(1630195200000), Some(7_539_000_000_000_000_000_000u128));
+    // i.e. for example, if locked is 25_133_000_000_000_000_000_000u128 (NORMAL_AMOUNT), which is 25,133 DHX,
+    // then with 10:1 each of the 3x accounts get 2513.3 DHX, which is ~7538.9 DHX combined
+    // or 33_333_333_333_000_000_000_000_000u128 (LARGE_AMOUNT_DHX),
+    // but the results are rounded to the nearest integer so it would be 2513 DHX, not 2513.3 DHX
+    if amount_bonded_each_miner.clone() == NORMAL_AMOUNT {
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_aggregated_dhx_for_all_miners_for_date(1630195200000), Some(7_539_000_000_000_000_000_000u128));
 
-    //     assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, account_1_public_key.clone())), Some(2_513_000_000_000_000_000_000u128));
-    //     assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, account_2_public_key.clone())), Some(2_513_000_000_000_000_000_000u128));
-    //     assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, account_3_public_key.clone())), Some(2_513_000_000_000_000_000_000u128));
-    // } else if amount_bonded_each_miner.clone() == LARGE_AMOUNT_DHX {
-    //     assert_eq!(MiningRewardsAllowanceTestModule::rewards_aggregated_dhx_for_all_miners_for_date(1630195200000), Some(9_999_999_000_000_000_000_000_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, account_1_public_key.clone())), Some(2_513_000_000_000_000_000_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, account_2_public_key.clone())), Some(2_513_000_000_000_000_000_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, account_3_public_key.clone())), Some(2_513_000_000_000_000_000_000u128));
+    } else if amount_bonded_each_miner.clone() == LARGE_AMOUNT_DHX {
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_aggregated_dhx_for_all_miners_for_date(1630195200000), Some(9_999_999_000_000_000_000_000_000u128));
 
-    //     assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, account_1_public_key.clone())), Some(3_333_333_000_000_000_000_000_000u128));
-    //     assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, account_2_public_key.clone())), Some(3_333_333_000_000_000_000_000_000u128));
-    //     assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, account_3_public_key.clone())), Some(3_333_333_000_000_000_000_000_000u128));
-    // }
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, account_1_public_key.clone())), Some(3_333_333_000_000_000_000_000_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, account_2_public_key.clone())), Some(3_333_333_000_000_000_000_000_000u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::rewards_accumulated_dhx_for_miner_for_date((1630195200000, account_3_public_key.clone())), Some(3_333_333_000_000_000_000_000_000u128));
+    }
 
     // assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630195200000), Some(TWO_DHX));
     // assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining_distributed(1630195200000), Some(true));
