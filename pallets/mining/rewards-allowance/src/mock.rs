@@ -551,8 +551,8 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),
             min_bonded_dhx_daily: TEN_DHX, // 10 DHX
             min_bonded_dhx_daily_default: TEN_DHX, // 10 DHX
-            min_mpower_daily: 5u128,
-            min_mpower_daily_default: 5u128,
+            min_mpower_daily: 1u128,
+            min_mpower_daily_default: 1u128,
             challenge_period_days: 7u64,
             cooling_off_period_days: 7u32,
             // Note: i'm not sure how to mock Alice, just set in implementation at genesis

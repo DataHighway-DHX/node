@@ -810,12 +810,6 @@ pub mod pallet {
             log::info!("offchain_worker - start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
             // println!("offchain_worker - start_of_requested_date_millis: {:?}", start_of_requested_date_millis.clone());
 
-            // TODO - fetch the mpower from off-chain and store it with `set_mpower_of_account_for_date`
-            // but only for the reg_dhx_miners
-            // so we can iterate through the miners and retrieve the mPower of each miner for the current date with
-            // `MPowerForAccountForDate`
-            // and check if mPower for current miner being iterated is greather than the min. mPower that is required.
-
 			// after fetching the mpower values store by sending an unsigned transactions
 			let should_send = Self::choose_transaction_type(block_number.clone());
             let mut mpower_data_vec = vec![];
@@ -1456,8 +1450,11 @@ pub mod pallet {
                 // println!("is_bonding_min_dhx {:#?}", is_bonding_min_dhx);
                 // println!("min_bonded_dhx_daily_u128 {:#?}", min_bonded_dhx_daily_u128);
 
-                // TODO - move this into off-chain workers function
-                let mut min_mpower_daily_u128: u128 = 5u128;
+                // the cooling-off period of 7 days and DHX Mining starts when they start bonding at least 10 DHX,
+                // but they don't necessarily have to have the min. 1 mPower yet, however you will only start earning
+                // dailing mining rewards when you have at least the min. 1 mPower (i.e. by locking at least 1 MXC or similar task)
+                // (so they could be DHX Mining and not getting any rewards until they do so)
+                let mut min_mpower_daily_u128: u128 = 1u128;
                 if let Some(_min_mpower_daily_u128) = <MinMPowerDaily<T>>::get() {
                     min_mpower_daily_u128 = _min_mpower_daily_u128;
                 } else {
@@ -1465,8 +1462,7 @@ pub mod pallet {
                 }
                 // println!("min_mpower_daily_u128 {:#?}", min_mpower_daily_u128);
 
-                // TODO - fetch the mPower of the miner currently being iterated to check if it's greater than the min.
-                // mPower that is required
+                // fetch the mPower of the miner currently being iterated to check if it's greater than the min. mPower that is required
                 let mut mpower_current_u128: u128 = 0u128;
                 let _mpower_current_u128 = <MPowerForAccountForDate<T>>::get((start_of_requested_date_millis.clone(), miner_public_key.clone()));
                 match _mpower_current_u128 {
@@ -1478,7 +1474,10 @@ pub mod pallet {
                         mpower_current_u128 = x;
                     }
                 }
-                // // FIXME - this is temporary
+                // Note: this was the hard-code mPower data that may be used incase we just want to mock
+                // the storage value of mpower for the current miner being iterated if we retrieved it from offchain workers
+                // and stored their mpower on-chain using an unsigned transaction
+
                 // let _mpower_data = (
                 //     Some(0u128),
                 //     start_of_requested_date_millis.clone(),
@@ -1497,7 +1496,8 @@ pub mod pallet {
                 // println!("mpower_current_u128 {:#?}, {:?}", mpower_current_u128, start_of_requested_date_millis.clone());
 
                 let mut has_min_mpower_daily = false;
-                if mpower_current_u128 >= min_mpower_daily_u128 {
+                // min. mpower daily must be greater than or equal to 1 otherwise they don't get any rewards
+                if mpower_current_u128 >= min_mpower_daily_u128 && min_mpower_daily_u128 >= 1u128 {
                     has_min_mpower_daily = true;
                 }
                 log::info!("has_min_mpower_daily: {:?} {:?}", has_min_mpower_daily.clone(), miner_public_key.clone());

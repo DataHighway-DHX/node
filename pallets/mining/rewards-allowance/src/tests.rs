@@ -63,7 +63,7 @@ fn it_sets_rewards_allowance_with_genesis_defaults_automatically_in_on_finalize_
 fn it_distributes_rewards_automatically_in_on_finalize_for_default_amount() {
     new_test_ext().execute_with(|| {
         let amount_mpower_each_miner = 5u128;
-        let min_mpower_daily = 5u128;
+        let min_mpower_daily = 1u128;
 
         setup_min_mpower_daily(min_mpower_daily);
 
@@ -81,7 +81,7 @@ fn it_distributes_rewards_automatically_in_on_finalize_for_default_amount() {
 fn it_distributes_rewards_automatically_in_on_finalize_for_large_amount() {
     new_test_ext().execute_with(|| {
         let amount_mpower_each_miner = 5u128;
-        let min_mpower_daily = 5u128;
+        let min_mpower_daily = 1u128;
 
         setup_min_mpower_daily(min_mpower_daily);
 
@@ -286,7 +286,7 @@ fn it_sets_min_mpower_daily() {
     new_test_ext().execute_with(|| {
         assert_ok!(MiningRewardsAllowanceTestModule::set_min_mpower_daily(
             Origin::root(),
-            5u128,
+            1u128,
         ));
     });
 }
@@ -296,7 +296,7 @@ fn it_allows_us_to_retrieve_genesis_value_for_min_mpower_daily() {
     new_test_ext().execute_with(|| {
         // Note: we start at block 2 since we early exit from block 1 because the timestamp is yet
         MiningRewardsAllowanceTestModule::on_initialize(2);
-        assert_eq!(MiningRewardsAllowanceTestModule::min_mpower_daily(), Some(5u128));
+        assert_eq!(MiningRewardsAllowanceTestModule::min_mpower_daily(), Some(1u128));
     });
 }
 
