@@ -8,7 +8,7 @@ services:
     # may reflects the latest version on Github, during development we want to build
     # a Docker container using the Dockerfile, which contains the latest local changes of our current branch.
     # Run docker-compose -f docker-compose-dev.yml build --no-cache to build and create a new image.
-    image: dhxdocker/datahighway:latest
+    image: dhxdocker/datahighway:3.0.6_9b
     env_file:
       - .env
     ports:
