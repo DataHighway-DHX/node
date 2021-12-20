@@ -430,28 +430,19 @@ pub mod pallet {
     pub(super) type ChallengePeriodDays<T: Config> = StorageValue<_, u64>;
 
     #[pallet::storage]
-    #[pallet::getter(fn cooling_off_period_days)]
-    pub(super) type CoolingOffPeriodDays<T: Config> = StorageValue<_, u32>;
+    #[pallet::getter(fn cooling_down_period_days)]
+    pub(super) type CoolingDownPeriodDays<T: Config> = StorageValue<_, u32>;
 
     #[pallet::storage]
-    #[pallet::getter(fn cooling_off_period_days_remaining)]
-    pub(super) type CoolingOffPeriodDaysRemaining<T: Config> = StorageMap<_, Blake2_128Concat,
+    #[pallet::getter(fn cooling_down_period_days_remaining)]
+    pub(super) type CoolingDownPeriodDaysRemaining<T: Config> = StorageMap<_, Blake2_128Concat,
         Vec<u8>, // public key of AccountId
         (
-            // date when cooling off period started for a given miner, or the date when we last reduced their cooling off period.
-            // we do not reduce their cooling off period days remaining if we've already set this to a date that is the
+            // date when cooling down period started for a given miner, or the date when we last reduced their cooling down period.
+            // we do not reduce their cooling down period days remaining if we've already set this to a date that is the
             // current date for a miner (i.e. only reduce the days remaining once per day per miner)
             Date,
             u32, // days remaining
-            // 0:
-            //   unbonded (i.e. never bonded, insufficient bonded, or finished cool-down period and no longer bonding) and
-            //   insufficient mPower (i.e. less than min. mPower)
-            // 1: bonded/bonding/mPower (i.e. waiting in the cool-down period before start getting rewards or eligible for rewards)
-            // 2: unbonding (i.e. if they are bonding less than the threshold whilst getting rewards,
-            //   or no longer have the min. mPower, then
-            //   this unbonding starts and they must wait until it finishes, which is when this value
-            //   would be set to 0u32, before bonding and then waiting for the cool-down period all over again)
-            u32,
         ),
     >;
 
@@ -519,8 +510,8 @@ pub mod pallet {
         pub min_mpower_daily: u128,
         pub min_mpower_daily_default: u128,
         pub challenge_period_days: u64,
-        pub cooling_off_period_days: u32,
-        pub cooling_off_period_days_remaining: Vec<(Vec<u8>, (Date, u32, u32))>,
+        pub cooling_down_period_days: u32,
+        pub cooling_down_period_days_remaining: Vec<(Vec<u8>, (Date, u32))>,
     }
 
     // The default value for the genesis config type.
@@ -558,14 +549,13 @@ pub mod pallet {
                 min_mpower_daily: 5u128,
                 min_mpower_daily_default: 5u128,
                 challenge_period_days: Default::default(),
-                cooling_off_period_days: Default::default(),
+                cooling_down_period_days: Default::default(),
                 // Note: this doesn't seem to work, even if it's just `vec![Default::default()]` it doesn't use
-                // the defaults in chain_spec.rs, so we set defaults later with `let mut cooling_off_period_days_remaining`
-                cooling_off_period_days_remaining: vec![
+                // the defaults in chain_spec.rs, so we set defaults later with `let mut cooling_down_period_days_remaining`
+                cooling_down_period_days_remaining: vec![
                     (
                         Default::default(),
                         (
-                            Default::default(),
                             Default::default(),
                             Default::default(),
                         ),
@@ -616,9 +606,9 @@ pub mod pallet {
             <MinMPowerDaily<T>>::put(&self.min_mpower_daily);
             <MinMPowerDailyDefault<T>>::put(&self.min_mpower_daily_default);
             <ChallengePeriodDays<T>>::put(&self.challenge_period_days);
-            <CoolingOffPeriodDays<T>>::put(&self.cooling_off_period_days);
-            for (a, (b, c, d)) in &self.cooling_off_period_days_remaining {
-                <CoolingOffPeriodDaysRemaining<T>>::insert(a, (b, c, d));
+            <CoolingDownPeriodDays<T>>::put(&self.cooling_down_period_days);
+            for (a, (b, c)) in &self.cooling_down_period_days_remaining {
+                <CoolingDownPeriodDaysRemaining<T>>::insert(a, (b, c));
             }
         }
     }
@@ -653,9 +643,9 @@ pub mod pallet {
         /// \[challenge_period_days\]
         SetChallengePeriodDaysStored(u64),
 
-        /// Storage of the default cooling off period in days
-        /// \[cooling_off_period_days\]
-        SetCoolingOffPeriodDaysStored(u32),
+        /// Storage of the default cooling down period in days
+        /// \[cooling_down_period_days\]
+        SetCoolingDownPeriodDaysStored(u32),
 
         /// Storage of the bonded DHX of an account on a specific date.
         /// \[date, amount_dhx_bonded, account_dhx_bonded\]
@@ -1510,127 +1500,107 @@ pub mod pallet {
                 // See Dhx-pop-mining-automatic.md in https://mxc.atlassian.net/browse/MMD-717 that explains off-chain worker
                 // aspects
 
-                let cooling_off_period_days;
-                if let Some(_cooling_off_period_days) = <CoolingOffPeriodDays<T>>::get() {
-                    cooling_off_period_days = _cooling_off_period_days;
+                let cooling_down_period_days;
+                if let Some(_cooling_down_period_days) = <CoolingDownPeriodDays<T>>::get() {
+                    cooling_down_period_days = _cooling_down_period_days;
                 } else {
-                    log::error!("Unable to retrieve cooling off period days");
+                    log::error!("Unable to retrieve cooling down period days");
+                    println!("Unable to retrieve cooling down period days");
                     return 0;
                 }
 
-                let mut cooling_off_period_days_remaining = (
+                // fallback incase not already set
+                let mut cooling_down_period_days_remaining = (
                     start_of_requested_date_millis.clone(),
-                    7u32,
                     0u32,
                 );
-                if let Some(_cooling_off_period_days_remaining) = <CoolingOffPeriodDaysRemaining<T>>::get(miner_public_key.clone()) {
-                    // we do not change cooling_off_period_days_remaining.0 to the default value in the chain_spec.rs of 0,
+                if let Some(_cooling_down_period_days_remaining) = <CoolingDownPeriodDaysRemaining<T>>::get(miner_public_key.clone()) {
+                    // we do not change cooling_down_period_days_remaining.0 to the default value in the chain_spec.rs of 0,
                     // instead we want to use today's date `start_of_requested_date_millis.clone()` by default, as we did above.
-                    if _cooling_off_period_days_remaining.0 != 0 {
-                        cooling_off_period_days_remaining.0 = _cooling_off_period_days_remaining.0;
+                    if _cooling_down_period_days_remaining.0 != 0 {
+                        cooling_down_period_days_remaining.0 = _cooling_down_period_days_remaining.0;
                     }
-                    cooling_off_period_days_remaining.1 = _cooling_off_period_days_remaining.1;
-                    cooling_off_period_days_remaining.2 = _cooling_off_period_days_remaining.2;
+                    cooling_down_period_days_remaining.1 = _cooling_down_period_days_remaining.1;
                 } else {
-                    log::info!("Unable to retrieve cooling off period days remaining for given miner, using default {:?}", miner_public_key.clone());
+                    log::info!("Unable to retrieve cooling down period days remaining for given miner, using default {:?}", miner_public_key.clone());
+                    println!("Unable to retrieve cooling down period days remaining for given miner, using default {:?}", miner_public_key.clone());
                 }
-                log::info!("cooling_off_period_days_remaining {:?} {:?} {:?}", start_of_requested_date_millis.clone(), cooling_off_period_days_remaining, miner_public_key.clone());
-                // if cooling_off_period_days_remaining.2 is 0u32, it means we haven't recognised they that have the min. bonded yet (or unbonded),
-                // they aren't currently bonding, they haven't started cooling off to start bonding,
-                // or have already finished cooling down after bonding.
-                // so if we detect they are now bonding above the min. then we should start at max. remaining days
-                // before starting to decrement on subsequent blocks
-                //
-                // note: they don't have have the min. mpower yet to progress through the cooling period, but they won't be
-                // eligible for rewards on the days that they don't
+
+                log::info!("cooling_down_period_days_remaining {:?} {:?} {:?}", start_of_requested_date_millis.clone(), cooling_down_period_days_remaining, miner_public_key.clone());
+                println!("cooling_down_period_days_remaining {:?} {:?} {:?}", start_of_requested_date_millis.clone(), cooling_down_period_days_remaining, miner_public_key.clone());
+
+                // if they stop bonding the min dhx, and
+                // if cooling_down_period_days_remaining.1 is Some(0)
+                // so since we detected they are no longer bonding above the min.
+                // then we should start at max. remaining days before starting to decrement on subsequent blocks
                 if
-                    cooling_off_period_days_remaining.2 == 0u32 &&
-                    is_bonding_min_dhx == true
-                    // && has_min_mpower_daily == true
+                    cooling_down_period_days_remaining.1 == 0u32 &&
+                    is_bonding_min_dhx == false
                 {
-                    <CoolingOffPeriodDaysRemaining<T>>::insert(
+                    // Write the new value to storage
+                    <CoolingDownPeriodDaysRemaining<T>>::insert(
                         miner_public_key.clone(),
                         (
                             start_of_requested_date_millis.clone(),
-                            cooling_off_period_days.clone(),
-                            1u32, // they are bonded again, waiting to start getting rewards
+                            cooling_down_period_days.clone(),
                         ),
                     );
-                    log::info!("Added CoolingOffPeriodDaysRemaining for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone(), cooling_off_period_days.clone());
-                // if cooling_off_period_days_remaining.0 is not the start of the current date
-                //   (since if they just started with min. bonded dhx and we just set days remaining to 7, or we already decremented
+
+                    log::info!("Unbonding detected for miner. Starting cooling down period {:?} {:?}", miner_public_key.clone(), cooling_down_period_days.clone());
+                    println!("Unbonding detected for miner. Starting cooling down period {:?} {:?}", miner_public_key.clone(), cooling_down_period_days.clone());
+
+                // if cooling_down_period_days_remaining.0 is not the start of the current date
+                //   (since if they just started un-bonding
+                //   and we just set days remaining to 7, or we already decremented
                 //   a miner's days remaining for the current date, then we want to wait until the next day until we
                 //   decrement another day).
-                // if cooling_off_period_days_remaining.1 is Some(above 0), then decrement, but not eligible yet for rewards.
-                //
-                // note: they don't have have the min. mpower yet to progress through the cooling period, but they won't be
-                // eligible for rewards on the days that they don't
+                // if cooling_down_period_days_remaining.1 is Some(above 0), then decrement,
+                // but not yet completely unbonded so cannot claim rewards yet
                 } else if
-                    cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
-                    cooling_off_period_days_remaining.1 > 0u32 &&
-                    is_bonding_min_dhx == true
-                    // && has_min_mpower_daily == true
+                    cooling_down_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
+                    cooling_down_period_days_remaining.1 > 0u32 &&
+                    is_bonding_min_dhx == false
                 {
-                    println!("[reducing_days] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", block_number, miner_count, start_of_requested_date_millis, cooling_off_period_days_remaining);
-                    let old_cooling_off_period_days_remaining = cooling_off_period_days_remaining.1.clone();
-
-                    // we cannot do this because of error: cannot use the `?` operator in a method that returns `()`
-                    // let new_cooling_off_period_days_remaining =
-                    //     old_cooling_off_period_days_remaining.checked_sub(One::one()).ok_or(Error::<T>::StorageOverflow)?;
+                    let old_cooling_down_period_days_remaining = cooling_down_period_days_remaining.1.clone();
 
                     // Subtract, handling overflow
-                    let new_cooling_off_period_days_remaining;
-                    let _new_cooling_off_period_days_remaining =
-                        old_cooling_off_period_days_remaining.checked_sub(One::one());
-                    match _new_cooling_off_period_days_remaining {
+                    let new_cooling_down_period_days_remaining;
+                    let _new_cooling_down_period_days_remaining =
+                        old_cooling_down_period_days_remaining.checked_sub(One::one());
+                    match _new_cooling_down_period_days_remaining {
                         None => {
-                            log::error!("Unable to subtract one from cooling_off_period_days_remaining due to StorageOverflow");
+                            log::error!("Unable to subtract one from cooling_down_period_days_remaining due to StorageOverflow");
+                            println!("Unable to subtract one from cooling_down_period_days_remaining due to StorageOverflow");
+
                             return 0;
                         },
                         Some(x) => {
-                            new_cooling_off_period_days_remaining = x;
+                            new_cooling_down_period_days_remaining = x;
                         }
                     }
 
                     // Write the new value to storage
-                    <CoolingOffPeriodDaysRemaining<T>>::insert(
+                    <CoolingDownPeriodDaysRemaining<T>>::insert(
                         miner_public_key.clone(),
                         (
                             start_of_requested_date_millis.clone(),
-                            new_cooling_off_period_days_remaining.clone(),
-                            1u32, // they are bonded again, waiting to start getting rewards
+                            new_cooling_down_period_days_remaining.clone(),
                         ),
                     );
-                    log::info!("Reduced CoolingOffPeriodDaysRemaining for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone(), new_cooling_off_period_days_remaining.clone());
-                // if cooling_off_period_days_remaining.0 is not the start of the current date
-                //   (since if we decremented days remaining from 1 to 0 days left for a miner
-                //   then we want to wait until the next day before we distribute the rewards to them)
-                // if cooling_off_period_days_remaining.1 is Some(0),
-                // and if cooling_off_period_days_remaining.2 is 1
-                // and then no more cooling off days, but don't decrement,
-                // and say they are eligible for reward payments (for days when they have sufficient mPower)
-                //
-                // note: they don't have have the min. mpower yet to progress through the cooling period, but they won't be
-                // eligible for rewards on the days that they don't
-                } else if
-                    cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
-                    cooling_off_period_days_remaining.1 == 0u32 &&
-                    cooling_off_period_days_remaining.2 == 1u32 &&
-                    is_bonding_min_dhx == true
-                    // && has_min_mpower_daily == true
-                {
-                    log::info!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", block_number, miner_count, start_of_requested_date_millis, cooling_off_period_days_remaining);
-                    println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", block_number, miner_count, start_of_requested_date_millis, cooling_off_period_days_remaining);
 
-                    // we need to add that they are eligible for rewards on the current date too
-                    <CoolingOffPeriodDaysRemaining<T>>::insert(
-                        miner_public_key.clone(),
-                        (
-                            start_of_requested_date_millis.clone(),
-                            0u32,
-                            1u32,
-                        ),
-                    );
+                    println!("[reduce] block: {:#?}, miner: {:#?}, date_start: {:#?} new_cooling_down_period_days_remaining: {:#?}", block_number, miner_count, start_of_requested_date_millis, new_cooling_down_period_days_remaining);
+                    log::info!("Unbonded miner. Reducing cooling down period dates remaining {:?} {:?}", miner_public_key.clone(), new_cooling_down_period_days_remaining.clone());
+                }
+
+                // to calculate eligible rewards allowance each day then just need to be:
+                // - bonding the min. dhx
+                // - not unbonded at any block on the day being processed (since otherwise they have to wait the unbonding period)
+                if
+                    cooling_down_period_days_remaining.1 == 0u32 &&
+                    is_bonding_min_dhx == true
+                {
+                    log::info!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", block_number, miner_count, start_of_requested_date_millis, cooling_down_period_days_remaining);
+                    println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", block_number, miner_count, start_of_requested_date_millis, cooling_down_period_days_remaining);
 
                     // only accumulate the DHX reward for each registered miner once per day
                     // https://substrate.dev/rustdocs/latest/frame_support/storage/trait.StorageMap.html
@@ -1643,280 +1613,32 @@ pub mod pallet {
                         continue;
                     }
 
-                    // TODO - calculate the daily reward for the miner in DHX based on their mPower
-                    // and add that to the new_rewards_aggregated_dhx_daily_as_u128 (which currently only
-                    // includes the proportion of their reward based on their bonded DHX tokens) of all
-                    // miner's for that day, and also add that to the accumulated rewards for that specific
-                    // miner on that day.
-
-                    // calculate the daily reward for the miner in DHX based on their bonded DHX.
-                    // it should be a proportion taking other eligible miner's who are eligible for
-                    // daily rewards into account since we want to split them fairly.
-                    //
-                    // assuming min_bonded_dhx_daily is 10u128, and they have that minimum of 10 DHX bonded (10u128) for
-                    // the locks_first_amount_as_u128 value, then they are eligible for 1 DHX reward if they have 1 mPower
-                    //
-
-                    // Divide, handling overflow
-                    let mut div_bonded_as_u128 = 0u128;
-                    // note: this rounds down to the nearest integer
-                    let _div_bonded_as_u128 = locks_first_amount_as_u128.clone().checked_div(min_bonded_dhx_daily_u128.clone());
-                    match _div_bonded_as_u128 {
-                        None => {
-                            log::error!("Unable to divide min_bonded_dhx_daily from locks_first_amount_as_u128 due to StorageOverflow");
-                            return 0;
-                        },
-                        Some(x) => {
-                            div_bonded_as_u128 = x;
-                        }
-                    }
-                    log::info!("div_bonded_as_u128: {:?}", div_bonded_as_u128.clone());
-
-                    // Multiply, handling overflow
-                    let mut daily_reward_for_miner_as_u128 = 0u128;
-                    // note: this rounds down to the nearest integer
-                    let _daily_reward_for_miner_as_u128 = mpower_current_u128.clone().checked_mul(div_bonded_as_u128.clone());
-                    match _daily_reward_for_miner_as_u128 {
-                        None => {
-                            log::error!("Unable to divide min_bonded_dhx_daily from locks_first_amount_as_u128 due to StorageOverflow");
-                            return 0;
-                        },
-                        Some(x) => {
-                            daily_reward_for_miner_as_u128 = x;
-                        }
-                    }
-                    log::info!("daily_reward_for_miner_as_u128: {:?}", daily_reward_for_miner_as_u128.clone());
-                    println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} daily_reward_for_miner_as_u128: {:#?}", block_number, miner_count, start_of_requested_date_millis, daily_reward_for_miner_as_u128);
-
-                    // if we have a rewards_aggregated_dhx_daily of 25.133 k DHX, then after the above manipulation
-                    // since we're dealing with a mixture of u128 and BalanceOf<T> so the values are more readable in the UI.
-                    // the reward will be represented as 2.5130 f DHX (where f is femto 10^-18, i.e. 0.000_000_000_000_002_513)
-                    // so we need to multiply it by 1_000_000_000_000_000_000 to be represented in DHX instead of femto DHX
-                    // before storing the value. we need to do the same for the rewards accumulated value before it is stored.
-                    // daily_reward_for_miner_as_u128 = daily_reward_for_miner_as_u128;
-                    if let Some(_daily_reward_for_miner_as_u128) = daily_reward_for_miner_as_u128.clone().checked_mul(1_000_000_000_000_000_000u128) {
-                        daily_reward_for_miner_as_u128 = _daily_reward_for_miner_as_u128;
-                    } else {
-                        log::error!("Unable to multiply daily_reward_for_miner_as_u128");
-                    }
-
-                    let mut daily_reward_for_miner;
-                    let _daily_reward_for_miner = Self::convert_u128_to_balance(daily_reward_for_miner_as_u128.clone());
-                    match _daily_reward_for_miner {
+                    let _result_calculate_rewards_eligibility = Self::calculate_rewards_eligibility_of_miner_for_day(
+                        miner_public_key.clone(),
+                        start_of_requested_date_millis.clone(),
+                        locks_first_amount_as_u128.clone(),
+                        rewards_allowance_dhx_daily.clone(),
+                        min_bonded_dhx_daily_u128.clone(),
+                        mpower_current_u128.clone(),
+                        block_number.clone(),
+                        miner_count.clone(),
+                        reg_dhx_miners.clone(),
+                    );
+                    match _result_calculate_rewards_eligibility {
                         Err(_e) => {
-                            log::error!("Unable to convert u128 to balance for daily_reward_for_miner");
                             return 0;
                         },
                         Ok(ref x) => {
-                            daily_reward_for_miner = x;
-                        }
-                    }
-                    log::info!("daily_reward_for_miner: {:?}", daily_reward_for_miner.clone());
-
-                    let mut rewards_aggregated_dhx_daily: BalanceOf<T> = 0u32.into(); // initialize
-                    if let Some(_rewards_aggregated_dhx_daily) = <RewardsAggregatedDHXForAllMinersForDate<T>>::get(&start_of_requested_date_millis) {
-                        rewards_aggregated_dhx_daily = _rewards_aggregated_dhx_daily;
-                    } else {
-                        log::error!("Unable to retrieve balance for rewards_aggregated_dhx_daily");
-                    }
-
-                    let rewards_aggregated_dhx_daily_as_u128;
-                    let _rewards_aggregated_dhx_daily_as_u128 = Self::convert_balance_to_u128(rewards_aggregated_dhx_daily.clone());
-                    match _rewards_aggregated_dhx_daily_as_u128.clone() {
-                        Err(_e) => {
-                            log::error!("Unable to convert balance to u128 for rewards_aggregated_dhx_daily_as_u128");
-                            return 0;
-                        },
-                        Ok(x) => {
-                            rewards_aggregated_dhx_daily_as_u128 = x;
                         }
                     }
 
-                    // Add, handling overflow
-                    let mut new_rewards_aggregated_dhx_daily_as_u128;
-                    let _new_rewards_aggregated_dhx_daily_as_u128 =
-                        rewards_aggregated_dhx_daily_as_u128.clone().checked_add(daily_reward_for_miner_as_u128.clone());
-                    match _new_rewards_aggregated_dhx_daily_as_u128 {
-                        None => {
-                            log::error!("Unable to add daily_reward_for_miner to rewards_aggregated_dhx_daily due to StorageOverflow");
-                            return 0;
-                        },
-                        Some(x) => {
-                            new_rewards_aggregated_dhx_daily_as_u128 = x;
-                        }
-                    }
-
-                    log::info!("new_rewards_aggregated_dhx_daily_as_u128: {:?}", new_rewards_aggregated_dhx_daily_as_u128.clone());
-                    println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} new_rewards_aggregated_dhx_daily_as_u128: {:#?}", block_number, miner_count, start_of_requested_date_millis, new_rewards_aggregated_dhx_daily_as_u128);
-
-                    let new_rewards_aggregated_dhx_daily;
-                    let _new_rewards_aggregated_dhx_daily = Self::convert_u128_to_balance(new_rewards_aggregated_dhx_daily_as_u128.clone());
-                    match _new_rewards_aggregated_dhx_daily {
-                        Err(_e) => {
-                            log::error!("Unable to convert u128 to balance for new_rewards_aggregated_dhx_daily");
-                            return 0;
-                        },
-                        Ok(ref x) => {
-                            new_rewards_aggregated_dhx_daily = x;
-                        }
-                    }
-
-                    // add to storage item that accumulates total rewards for all registered miners for the day
-                    <RewardsAggregatedDHXForAllMinersForDate<T>>::insert(
-                        start_of_requested_date_millis.clone(),
-                        new_rewards_aggregated_dhx_daily.clone(),
-                    );
-                    log::info!("Added RewardsAggregatedDHXForAllMinersForDate for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone(), new_rewards_aggregated_dhx_daily.clone());
-                    println!("Added RewardsAggregatedDHXForAllMinersForDate for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone(), new_rewards_aggregated_dhx_daily.clone());
-
-                    // add to storage item that maps the date to the registered miner and the calculated reward
-                    // (prior to possibly reducing it so they get a proportion of the daily rewards that are available)
-                    <RewardsAccumulatedDHXForMinerForDate<T>>::insert(
-                        (
-                            start_of_requested_date_millis.clone(),
-                            miner_public_key.clone(),
-                        ),
-                        daily_reward_for_miner.clone(),
-                    );
-                    log::info!("Added RewardsAccumulatedDHXForMinerForDate for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone(), daily_reward_for_miner.clone());
-                    println!("Added RewardsAccumulatedDHXForMinerForDate for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone(), daily_reward_for_miner.clone());
-
-                    // Store a list of all the the registered_dhx_miners that are eligible for rewards on a given date
-                    // so we know they have been used as keys for other storage maps like `RewardsAccumulatedDHXForMinerForDate`
-                    // for future querying
-                    let mut rewards_eligible_miners_for_date: Vec<Vec<u8>> = vec![]; // initialize
-                    if let Some(_rewards_eligible_miners_for_date) = <RewardsEligibleMinersForDate<T>>::get(start_of_requested_date_millis.clone()) {
-                        rewards_eligible_miners_for_date = _rewards_eligible_miners_for_date;
-                    } else {
-                        log::warn!("Unable to retrieve rewards_eligible_miners_for_date");
-                        println!("Unable to retrieve rewards_eligible_miners_for_date");
-                    }
-                    log::info!("Retrieved existing rewards_eligible_miners_for_date {:?} {:?}", start_of_requested_date_millis.clone(), rewards_eligible_miners_for_date.clone());
-                    println!("Retrieved existing rewards_eligible_miners_for_date {:?} {:?}", start_of_requested_date_millis.clone(), rewards_eligible_miners_for_date.clone());
-
-                    log::warn!("Updating rewards_eligible_miners_for_date with miner {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone());
-                    println!("Updating retrieve rewards_eligible_miners_for_date with miner {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone());
-
-                    rewards_eligible_miners_for_date.push(miner_public_key.clone());
-                    <RewardsEligibleMinersForDate<T>>::insert(
-                        start_of_requested_date_millis.clone(),
-                        rewards_eligible_miners_for_date.clone(),
-                    );
-
-                    log::info!("date: {:?}, miner_count: {:?}, reg_dhx_miners.len: {:?}", start_of_requested_date_millis.clone(), miner_count.clone(), reg_dhx_miners.len());
-                    println!("date: {:?}, miner_count: {:?}, reg_dhx_miners.len: {:?}", start_of_requested_date_millis.clone(), miner_count.clone(), reg_dhx_miners.len());
-                    // if last miner being iterated then reset for next day
-                    if reg_dhx_miners.len() == miner_count {
-                        log::info!("date: {:?}, rewards_allowance_dhx_daily: {:?}", start_of_requested_date_millis.clone(), rewards_allowance_dhx_daily.clone());
-                        println!("date: {:?}, rewards_allowance_dhx_daily: {:?}", start_of_requested_date_millis.clone(), rewards_allowance_dhx_daily.clone());
-
-                        // reset to latest set by governance
-                        <RewardsAllowanceDHXForDateRemaining<T>>::insert(start_of_requested_date_millis.clone(), rewards_allowance_dhx_daily.clone());
-                    };
-
-                // if they stop bonding the min dhx, and
-                // if cooling_off_period_days_remaining.1 is Some(0),
-                // and if cooling_off_period_days_remaining.2 is 1 (where they had just been bonding and getting rewards)
-                // so since we detected they are no longer bonding above the min.
-                // then we should start at max. remaining days before starting to decrement on subsequent blocks
-                } else if
-                    cooling_off_period_days_remaining.1 == 0u32 &&
-                    cooling_off_period_days_remaining.2 == 1u32 &&
-                    is_bonding_min_dhx == false
-                    // (is_bonding_min_dhx == false || has_min_mpower_daily == false)
-                {
-                    // Write the new value to storage
-                    <CoolingOffPeriodDaysRemaining<T>>::insert(
-                        miner_public_key.clone(),
-                        (
-                            start_of_requested_date_millis.clone(),
-                            cooling_off_period_days.clone(),
-                            2u32, // they have unbonded again, waiting to finish cooling down period
-                        ),
-                    );
-
-                    log::info!("Unbonding detected for miner. Starting cooling down period {:?} {:?}", miner_public_key.clone(), cooling_off_period_days.clone());
-                    println!("Unbonding detected for miner. Starting cooling down period {:?} {:?}", miner_public_key.clone(), cooling_off_period_days.clone());
-
-                // if cooling_off_period_days_remaining.0 is not the start of the current date
-                //   (since if they just started un-bonding
-                //   and we just set days remaining to 7, or we already decremented
-                //   a miner's days remaining for the current date, then we want to wait until the next day until we
-                //   decrement another day).
-                // if cooling_off_period_days_remaining.1 is Some(above 0), then decrement,
-                // but not yet completely unbonded so cannot withdraw yet
-                // note: we don't care if they stop bonding below the min. dhx or have less than min. mPower
-                // during the cooling off period,
-                // as the user needs to learn that they should always been bonding the min., otherwise they
-                // have to wait for entire cooling down period and then the cooling off period again.
-                // and they need to have the min. mPower to earn rewards
-                //
-                } else if
-                    cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
-                    cooling_off_period_days_remaining.1 > 0u32 &&
-                    cooling_off_period_days_remaining.2 == 2u32
-                    // && is_bonding_min_dhx == false
-                {
-                    let old_cooling_off_period_days_remaining = cooling_off_period_days_remaining.1.clone();
-
-                    // Subtract, handling overflow
-                    let new_cooling_off_period_days_remaining;
-                    let _new_cooling_off_period_days_remaining =
-                        old_cooling_off_period_days_remaining.checked_sub(One::one());
-                    match _new_cooling_off_period_days_remaining {
-                        None => {
-                            log::error!("Unable to subtract one from cooling_off_period_days_remaining due to StorageOverflow");
-                            println!("Unable to subtract one from cooling_off_period_days_remaining due to StorageOverflow");
-
-                            return 0;
-                        },
-                        Some(x) => {
-                            new_cooling_off_period_days_remaining = x;
-                        }
-                    }
-
-                    // Write the new value to storage
-                    <CoolingOffPeriodDaysRemaining<T>>::insert(
-                        miner_public_key.clone(),
-                        (
-                            start_of_requested_date_millis.clone(),
-                            new_cooling_off_period_days_remaining.clone(),
-                            2u32, // they have unbonded or have less than min. mPower again, waiting to finish cooling down period
-                        ),
-                    );
-
-                    println!("[reduce] block: {:#?}, miner: {:#?}, date_start: {:#?} new_cooling_off_period_days_remaining: {:#?}", block_number, miner_count, start_of_requested_date_millis, new_cooling_off_period_days_remaining);
-                    log::info!("Unbonded miner. Reducing cooling down period dates remaining {:?} {:?}", miner_public_key.clone(), new_cooling_off_period_days_remaining.clone());
-
-                // if cooling_off_period_days_remaining.0 is not the start of the current date
-                //   (since if we decremented days remaining to from 1 to 0 days left for a miner
-                //   then we want to wait until the next day before we set cooling_off_period_days_remaining.2 to 0u32
-                //   to allow them to be completely unbonded and withdraw).
-                // if cooling_off_period_days_remaining.1 is Some(0), do not subtract anymore, they are
-                // completely unbonded so can withdraw
-                } else if
-                    cooling_off_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
-                    cooling_off_period_days_remaining.1 == 0u32 &&
-                    cooling_off_period_days_remaining.2 == 2u32
-                    // && is_bonding_min_dhx == false
-                {
-                    // Write the new value to storage
-                    <CoolingOffPeriodDaysRemaining<T>>::insert(
-                        miner_public_key.clone(),
-                        (
-                            start_of_requested_date_millis.clone(),
-                            0u32,
-                            0u32, // they are completely unbonded again
-                        ),
-                    );
-
-                    log::info!("Unbonded miner. Cooling down period finished so allow them to withdraw {:?}", miner_public_key.clone());
-                    println!("Unbonded miner. Cooling down period finished so allow them to withdraw {:?}", miner_public_key.clone());
+                    log::info!("Finished calculating eligible rewards date_start: {:#?}", start_of_requested_date_millis);
+                    println!("Finished calculating eligible rewards date_start: {:#?}", start_of_requested_date_millis);
                 }
             }
 
-            log::info!("Finished initial loop of registered miners");
-            println!("Finished initial loop of registered miners");
+            log::info!("Finished loop of registered miners for block");
+            println!("Finished loop of registered miners for block");
 
             return 0;
         }
@@ -1997,14 +1719,14 @@ pub mod pallet {
 
         // only modifiable by governance as root rather than just any user
         #[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
-        pub fn set_cooling_off_period_days(origin: OriginFor<T>, cooling_off_period_days: u32) -> DispatchResult {
+        pub fn set_cooling_down_period_days(origin: OriginFor<T>, cooling_down_period_days: u32) -> DispatchResult {
             let _sender = ensure_root(origin)?;
 
-            <CoolingOffPeriodDays<T>>::put(&cooling_off_period_days.clone());
-            log::info!("cooling_off_period_days: {:?}", &cooling_off_period_days);
+            <CoolingDownPeriodDays<T>>::put(&cooling_down_period_days.clone());
+            log::info!("cooling_down_period_days: {:?}", &cooling_down_period_days);
 
-            Self::deposit_event(Event::SetCoolingOffPeriodDaysStored(
-                cooling_off_period_days.clone(),
+            Self::deposit_event(Event::SetCoolingDownPeriodDaysStored(
+                cooling_down_period_days.clone(),
             ));
 
             Ok(())
@@ -2224,8 +1946,8 @@ pub mod pallet {
 
             // check that the current date start_of_current_date_millis is at least 7 days after the provided start_of_requested_date_millis
             // so there is sufficient time for the community to audit the reward eligibility.
-            // we could use `CoolingOffPeriodDays` for this, but probably better to call it a `ChallengePeriodDays`
-            // since it serves a different purpose (`CoolingOffPeriodDays` gives rewards for first 7 days after they
+            // we could use `CoolingDownPeriodDays` for this, but probably better to call it a `ChallengePeriodDays`
+            // since it serves a different purpose (`CoolingDownPeriodDays` gives rewards for first 7 days after they
             // start bonding in bulk on the 8th day, and then the next day after each day after that, whereas
             // `ChallengePeriodDays` you can only claim each daily rewards manually 7 days after it, even for the first
             // 7 days after they start bonding)
@@ -2266,11 +1988,11 @@ pub mod pallet {
             if let Some(_rewards_aggregated_dhx_daily) = <RewardsAggregatedDHXForAllMinersForDate<T>>::get(&start_of_requested_date_millis) {
                 rewards_aggregated_dhx_daily = _rewards_aggregated_dhx_daily;
             } else {
-                log::error!("Unable to retrieve balance for rewards_aggregated_dhx_daily. Cooling off period or challenge period may not be finished yet");
-                println!("Unable to retrieve balance for rewards_aggregated_dhx_daily. Cooling off period or challenge period may not be finished yet");
+                log::error!("Unable to retrieve balance for rewards_aggregated_dhx_daily. cooling down period or challenge period may not be finished yet");
+                println!("Unable to retrieve balance for rewards_aggregated_dhx_daily. cooling down period or challenge period may not be finished yet");
                 // Note: it would be an issue if we got past the first loop of looping through the registered miners
                 // and still hadn't added to the aggregated rewards for the day
-                return Err(DispatchError::Other("Unable to retrieve balance for rewards_aggregated_dhx_daily. Cooling off period or challenge period may not be finished yet"));
+                return Err(DispatchError::Other("Unable to retrieve balance for rewards_aggregated_dhx_daily. cooling down period or challenge period may not be finished yet"));
             }
             println!("[multiplier] block: {:#?}, date_start: {:#?} rewards_aggregated_dhx_daily: {:#?}", block_number, start_of_requested_date_millis, rewards_aggregated_dhx_daily);
 
@@ -3261,6 +2983,199 @@ pub mod pallet {
             Ok(new_status.clone())
         }
 
+        pub fn calculate_rewards_eligibility_of_miner_for_day(
+            miner_public_key: Vec<u8>,
+            start_of_requested_date_millis: i64,
+            locks_first_amount_as_u128: u128,
+            rewards_allowance_dhx_daily: BalanceOf<T>,
+            min_bonded_dhx_daily_u128: u128,
+            mpower_current_u128: u128,
+            block_number: T::BlockNumber,
+            miner_count: usize,
+            reg_dhx_miners: Vec<Vec<u8>>,
+        ) -> Result<(), &'static str> {
+            log::info!("calculate_rewards_eligibility_of_miner_for_day");
+            println!("calculate_rewards_eligibility_of_miner_for_day");
+
+            // TODO - calculate the daily reward for the miner in DHX based on their mPower
+            // and add that to the new_rewards_aggregated_dhx_daily_as_u128 (which currently only
+            // includes the proportion of their reward based on their bonded DHX tokens) of all
+            // miner's for that day, and also add that to the accumulated rewards for that specific
+            // miner on that day.
+
+            // calculate the daily reward for the miner in DHX based on their bonded DHX.
+            // it should be a proportion taking other eligible miner's who are eligible for
+            // daily rewards into account since we want to split them fairly.
+            //
+            // assuming min_bonded_dhx_daily is 10u128, and they have that minimum of 10 DHX bonded (10u128) for
+            // the locks_first_amount_as_u128 value, then they are eligible for 1 DHX reward if they have 1 mPower
+            //
+
+            // Divide, handling overflow
+            let mut div_bonded_as_u128 = 0u128;
+            // note: this rounds down to the nearest integer
+            let _div_bonded_as_u128 = locks_first_amount_as_u128.clone().checked_div(min_bonded_dhx_daily_u128.clone());
+            match _div_bonded_as_u128 {
+                None => {
+                    log::error!("Unable to divide min_bonded_dhx_daily from locks_first_amount_as_u128 due to StorageOverflow");
+                    println!("Unable to divide min_bonded_dhx_daily from locks_first_amount_as_u128 due to StorageOverflow");
+                    return Err("Unable to divide min_bonded_dhx_daily from locks_first_amount_as_u128 due to StorageOverflow");
+                },
+                Some(x) => {
+                    div_bonded_as_u128 = x;
+                }
+            }
+            log::info!("div_bonded_as_u128: {:?}", div_bonded_as_u128.clone());
+
+            // Multiply, handling overflow
+            let mut daily_reward_for_miner_as_u128 = 0u128;
+            // note: this rounds down to the nearest integer
+            let _daily_reward_for_miner_as_u128 = mpower_current_u128.clone().checked_mul(div_bonded_as_u128.clone());
+            match _daily_reward_for_miner_as_u128 {
+                None => {
+                    log::error!("Unable to divide min_bonded_dhx_daily from locks_first_amount_as_u128 due to StorageOverflow");
+                    println!("Unable to divide min_bonded_dhx_daily from locks_first_amount_as_u128 due to StorageOverflow");
+                    return Err("Unable to divide min_bonded_dhx_daily from locks_first_amount_as_u128 due to StorageOverflow");
+                },
+                Some(x) => {
+                    daily_reward_for_miner_as_u128 = x;
+                }
+            }
+            log::info!("daily_reward_for_miner_as_u128: {:?}", daily_reward_for_miner_as_u128.clone());
+            println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} daily_reward_for_miner_as_u128: {:#?}", block_number, miner_count, start_of_requested_date_millis, daily_reward_for_miner_as_u128);
+
+            // if we have a rewards_aggregated_dhx_daily of 25.133 k DHX, then after the above manipulation
+            // since we're dealing with a mixture of u128 and BalanceOf<T> so the values are more readable in the UI.
+            // the reward will be represented as 2.5130 f DHX (where f is femto 10^-18, i.e. 0.000_000_000_000_002_513)
+            // so we need to multiply it by 1_000_000_000_000_000_000 to be represented in DHX instead of femto DHX
+            // before storing the value. we need to do the same for the rewards accumulated value before it is stored.
+            // daily_reward_for_miner_as_u128 = daily_reward_for_miner_as_u128;
+            if let Some(_daily_reward_for_miner_as_u128) = daily_reward_for_miner_as_u128.clone().checked_mul(1_000_000_000_000_000_000u128) {
+                daily_reward_for_miner_as_u128 = _daily_reward_for_miner_as_u128;
+            } else {
+                log::error!("Unable to multiply daily_reward_for_miner_as_u128");
+            }
+
+            let mut daily_reward_for_miner;
+            let _daily_reward_for_miner = Self::convert_u128_to_balance(daily_reward_for_miner_as_u128.clone());
+            match _daily_reward_for_miner {
+                Err(_e) => {
+                    log::error!("Unable to convert u128 to balance for daily_reward_for_miner");
+                    println!("Unable to convert u128 to balance for daily_reward_for_miner");
+                    return Err("Unable to convert u128 to balance for daily_reward_for_miner");
+                },
+                Ok(ref x) => {
+                    daily_reward_for_miner = x;
+                }
+            }
+            log::info!("daily_reward_for_miner: {:?}", daily_reward_for_miner.clone());
+
+            let mut rewards_aggregated_dhx_daily: BalanceOf<T> = 0u32.into(); // initialize
+            if let Some(_rewards_aggregated_dhx_daily) = <RewardsAggregatedDHXForAllMinersForDate<T>>::get(&start_of_requested_date_millis) {
+                rewards_aggregated_dhx_daily = _rewards_aggregated_dhx_daily;
+            } else {
+                log::error!("Unable to retrieve balance for rewards_aggregated_dhx_daily");
+            }
+
+            let rewards_aggregated_dhx_daily_as_u128;
+            let _rewards_aggregated_dhx_daily_as_u128 = Self::convert_balance_to_u128(rewards_aggregated_dhx_daily.clone());
+            match _rewards_aggregated_dhx_daily_as_u128.clone() {
+                Err(_e) => {
+                    log::error!("Unable to convert balance to u128 for rewards_aggregated_dhx_daily_as_u128");
+                    println!("Unable to convert balance to u128 for rewards_aggregated_dhx_daily_as_u128");
+                    return Err("Unable to convert balance to u128 for rewards_aggregated_dhx_daily_as_u128");
+                },
+                Ok(x) => {
+                    rewards_aggregated_dhx_daily_as_u128 = x;
+                }
+            }
+
+            // Add, handling overflow
+            let mut new_rewards_aggregated_dhx_daily_as_u128;
+            let _new_rewards_aggregated_dhx_daily_as_u128 =
+                rewards_aggregated_dhx_daily_as_u128.clone().checked_add(daily_reward_for_miner_as_u128.clone());
+            match _new_rewards_aggregated_dhx_daily_as_u128 {
+                None => {
+                    log::error!("Unable to add daily_reward_for_miner to rewards_aggregated_dhx_daily due to StorageOverflow");
+                    println!("Unable to add daily_reward_for_miner to rewards_aggregated_dhx_daily due to StorageOverflow");
+                    return Err("Unable to add daily_reward_for_miner to rewards_aggregated_dhx_daily due to StorageOverflow");
+                },
+                Some(x) => {
+                    new_rewards_aggregated_dhx_daily_as_u128 = x;
+                }
+            }
+
+            log::info!("new_rewards_aggregated_dhx_daily_as_u128: {:?}", new_rewards_aggregated_dhx_daily_as_u128.clone());
+            println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} new_rewards_aggregated_dhx_daily_as_u128: {:#?}", block_number, miner_count, start_of_requested_date_millis, new_rewards_aggregated_dhx_daily_as_u128);
+
+            let new_rewards_aggregated_dhx_daily;
+            let _new_rewards_aggregated_dhx_daily = Self::convert_u128_to_balance(new_rewards_aggregated_dhx_daily_as_u128.clone());
+            match _new_rewards_aggregated_dhx_daily {
+                Err(_e) => {
+                    log::error!("Unable to convert u128 to balance for new_rewards_aggregated_dhx_daily");
+                    println!("Unable to convert u128 to balance for new_rewards_aggregated_dhx_daily");
+                    return Err("Unable to convert u128 to balance for new_rewards_aggregated_dhx_daily");
+                },
+                Ok(ref x) => {
+                    new_rewards_aggregated_dhx_daily = x;
+                }
+            }
+
+            // add to storage item that accumulates total rewards for all registered miners for the day
+            <RewardsAggregatedDHXForAllMinersForDate<T>>::insert(
+                start_of_requested_date_millis.clone(),
+                new_rewards_aggregated_dhx_daily.clone(),
+            );
+            log::info!("Added RewardsAggregatedDHXForAllMinersForDate for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone(), new_rewards_aggregated_dhx_daily.clone());
+            println!("Added RewardsAggregatedDHXForAllMinersForDate for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone(), new_rewards_aggregated_dhx_daily.clone());
+
+            // add to storage item that maps the date to the registered miner and the calculated reward
+            // (prior to possibly reducing it so they get a proportion of the daily rewards that are available)
+            <RewardsAccumulatedDHXForMinerForDate<T>>::insert(
+                (
+                    start_of_requested_date_millis.clone(),
+                    miner_public_key.clone(),
+                ),
+                daily_reward_for_miner.clone(),
+            );
+            log::info!("Added RewardsAccumulatedDHXForMinerForDate for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone(), daily_reward_for_miner.clone());
+            println!("Added RewardsAccumulatedDHXForMinerForDate for miner {:?} {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone(), daily_reward_for_miner.clone());
+
+            // Store a list of all the the registered_dhx_miners that are eligible for rewards on a given date
+            // so we know they have been used as keys for other storage maps like `RewardsAccumulatedDHXForMinerForDate`
+            // for future querying
+            let mut rewards_eligible_miners_for_date: Vec<Vec<u8>> = vec![]; // initialize
+            if let Some(_rewards_eligible_miners_for_date) = <RewardsEligibleMinersForDate<T>>::get(start_of_requested_date_millis.clone()) {
+                rewards_eligible_miners_for_date = _rewards_eligible_miners_for_date;
+            } else {
+                log::warn!("Unable to retrieve rewards_eligible_miners_for_date");
+                println!("Unable to retrieve rewards_eligible_miners_for_date");
+            }
+            log::info!("Retrieved existing rewards_eligible_miners_for_date {:?} {:?}", start_of_requested_date_millis.clone(), rewards_eligible_miners_for_date.clone());
+            println!("Retrieved existing rewards_eligible_miners_for_date {:?} {:?}", start_of_requested_date_millis.clone(), rewards_eligible_miners_for_date.clone());
+
+            log::warn!("Updating rewards_eligible_miners_for_date with miner {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone());
+            println!("Updating retrieve rewards_eligible_miners_for_date with miner {:?} {:?}", start_of_requested_date_millis.clone(), miner_public_key.clone());
+
+            rewards_eligible_miners_for_date.push(miner_public_key.clone());
+            <RewardsEligibleMinersForDate<T>>::insert(
+                start_of_requested_date_millis.clone(),
+                rewards_eligible_miners_for_date.clone(),
+            );
+            log::info!("date: {:?}, miner_count: {:?}, reg_dhx_miners.len: {:?}", start_of_requested_date_millis.clone(), miner_count.clone(), reg_dhx_miners.len());
+            println!("date: {:?}, miner_count: {:?}, reg_dhx_miners.len: {:?}", start_of_requested_date_millis.clone(), miner_count.clone(), reg_dhx_miners.len());
+            // if last miner being iterated then reset for next day
+            if reg_dhx_miners.len() == miner_count {
+                log::info!("date: {:?}, rewards_allowance_dhx_daily: {:?}", start_of_requested_date_millis.clone(), rewards_allowance_dhx_daily.clone());
+                println!("date: {:?}, rewards_allowance_dhx_daily: {:?}", start_of_requested_date_millis.clone(), rewards_allowance_dhx_daily.clone());
+
+                // reset to latest set by governance
+                <RewardsAllowanceDHXForDateRemaining<T>>::insert(start_of_requested_date_millis.clone(), rewards_allowance_dhx_daily.clone());
+            };
+
+            Ok(())
+        }
+
         // Offchain workers
 
         /// Chooses which transaction type to send.
@@ -3717,7 +3632,7 @@ pub mod pallet {
         // start_of_requested_date_millis so there is sufficient time for the community to audit the reward eligibility,
         // where the start_of_requested_date_millis refers to a past date the claimant believes they became eligible for rewards on.
         //
-        // `CoolingOffPeriodDays` notifies when to give rewards in bulk (previously automatically, now by claiming) on the 8th day in bulk to cover the
+        // `CoolingDownPeriodDays` notifies when to give rewards in bulk (previously automatically, now by claiming) on the 8th day in bulk to cover the
         // first say x (i.e. 7) days after they start bonding, and then on the next day after each day after that, and
         // it is also used to track the unbonding period where if they stop bonding obviously they cannot be eligible
         // for rewards and they have wait x (i.e. 7) days after unbonding before they can access the locked DHX tokens

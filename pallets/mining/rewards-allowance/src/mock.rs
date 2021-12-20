@@ -554,9 +554,9 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
             min_mpower_daily: 1u128,
             min_mpower_daily_default: 1u128,
             challenge_period_days: 7u64,
-            cooling_off_period_days: 7u32,
+            cooling_down_period_days: 7u32,
             // Note: i'm not sure how to mock Alice, just set in implementation at genesis
-            // cooling_off_period_days_remaining: vec![
+            // cooling_down_period_days_remaining: vec![
             //     (
             //         get_account_id_from_seed::<sr25519::Public>("Alice"),
             //         (
@@ -566,7 +566,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
             //         ),
             //     ),
             // ],
-            cooling_off_period_days_remaining: Default::default(),
+            cooling_down_period_days_remaining: Default::default(),
         },
 		&mut t
 	)
