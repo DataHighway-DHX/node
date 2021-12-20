@@ -71,10 +71,12 @@ fn it_calcs_rewards_allowance_using_on_initialize_with_claim_using_extrinsic_for
         let r = setup_bonding(NORMAL_AMOUNT, TEN_DHX);
 
         setup_treasury_balance();
-
-        setup_multiplier();
-
-        distribute_rewards(NORMAL_AMOUNT, amount_mpower_each_miner, r);
+        setup_multiplier(90u32);
+        setup_registered_dhx_miners(vec![CHARLIE_PUBLIC_KEY.clone().into(), BOB_PUBLIC_KEY.clone().into(), ALICE_PUBLIC_KEY.clone().into()]);
+        // TODO - don't need this unless testing unbonding period
+        setup_cooling_down_period_days(7_u32);
+        setup_rewards_allowance_dhx_daily(FIVE_THOUSAND_DHX);
+        claim_eligible_rewards_after_challenge_period_if_suffient_bonded(NORMAL_AMOUNT, amount_mpower_each_miner.clone());
     })
 }
 
@@ -90,10 +92,12 @@ fn it_calcs_rewards_allowance_using_on_initialize_with_claim_using_extrinsic_for
         let r = setup_bonding(LARGE_AMOUNT_DHX, TEN_DHX);
 
         setup_treasury_balance();
-
-        setup_multiplier();
-
-        distribute_rewards(LARGE_AMOUNT_DHX, amount_mpower_each_miner, r);
+        setup_multiplier(90u32);
+        setup_registered_dhx_miners(vec![CHARLIE_PUBLIC_KEY.clone().into(), BOB_PUBLIC_KEY.clone().into(), ALICE_PUBLIC_KEY.clone().into()]);
+        // TODO - don't need this unless testing unbonding period
+        setup_cooling_down_period_days(7_u32);
+        setup_rewards_allowance_dhx_daily(FIVE_THOUSAND_DHX);
+        claim_eligible_rewards_after_challenge_period_if_suffient_bonded(LARGE_AMOUNT_DHX, amount_mpower_each_miner.clone());
     })
 }
 
@@ -333,25 +337,6 @@ fn it_checks_if_is_more_than_challenge_period() {
 }
 
 fn distribute_rewards(amount_bonded_each_miner: u128, amount_mpower_each_miner: u128, referendum_index: u32) {
-    assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miners(
-        Origin::root(),
-        vec![CHARLIE_PUBLIC_KEY.clone().into(), BOB_PUBLIC_KEY.clone().into(), ALICE_PUBLIC_KEY.clone().into()],
-    ));
-
-    assert_ok!(MiningRewardsAllowanceTestModule::set_cooling_down_period_days(
-        Origin::root(),
-        7_u32, // debug quickly for testing
-    ));
-    assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_allowance_dhx_daily(
-        Origin::root(),
-        FIVE_THOUSAND_DHX,
-    ));
-
-    assert_eq!(MiningRewardsAllowanceTestModule::registered_dhx_miners(), Some(vec![ALICE_PUBLIC_KEY.clone().into(), BOB_PUBLIC_KEY.clone().into(), CHARLIE_PUBLIC_KEY.clone().into()]));
-    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days(), Some(7));
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(FIVE_THOUSAND_DHX));
-
-    claim_eligible_rewards_after_challenge_period_if_suffient_bonded(amount_bonded_each_miner.clone(), amount_mpower_each_miner.clone());
 
     // // check that rewards multiplier increases by multiplier every period days and that days total and remaining are reset
     // check_rewards_double_each_multiplier_period(amount_mpower_each_miner.clone());
@@ -436,7 +421,7 @@ fn setup_bonding(amount_bonded_each_miner: u128, min_bonding_dhx_daily: u128) ->
     return r;
 }
 
-fn setup_multiplier() {
+fn setup_multiplier(days: u32) {
     assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_multiplier_operation(
         Origin::root(),
         1u8,
@@ -446,13 +431,45 @@ fn setup_multiplier() {
     // since we don't want to wait so long to check that it changes each cycle in the tests
     assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_multiplier_default_period_days(
         Origin::root(),
-        90u32,
+        days.clone(),
     ));
 
     assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_multiplier_next_period_days(
         Origin::root(),
-        90u32,
+        days.clone(),
     ));
+}
+
+fn setup_registered_dhx_miners(registered_dhx_miners: Vec<Vec<u8>>) {
+    assert_ok!(MiningRewardsAllowanceTestModule::set_registered_dhx_miners(
+        Origin::root(),
+        registered_dhx_miners.clone(),
+    ));
+
+    assert_eq!(
+        MiningRewardsAllowanceTestModule::registered_dhx_miners(),
+        Some(
+            vec![ALICE_PUBLIC_KEY.clone().into(), BOB_PUBLIC_KEY.clone().into(), CHARLIE_PUBLIC_KEY.clone().into()]
+        ),
+    );
+}
+
+fn setup_cooling_down_period_days(cooling_down_period_days: u32) {
+    assert_ok!(MiningRewardsAllowanceTestModule::set_cooling_down_period_days(
+        Origin::root(),
+        cooling_down_period_days.clone(),
+    ));
+
+    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days(), Some(cooling_down_period_days.clone()));
+}
+
+fn setup_rewards_allowance_dhx_daily(rewards_allowance_dhx_daily: u128) {
+    assert_ok!(MiningRewardsAllowanceTestModule::set_rewards_allowance_dhx_daily(
+        Origin::root(),
+        rewards_allowance_dhx_daily.clone(),
+    ));
+
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_daily(), Some(rewards_allowance_dhx_daily.clone()));
 }
 
 fn setup_treasury_balance() {
