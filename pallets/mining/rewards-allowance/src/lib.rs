@@ -1619,6 +1619,7 @@ pub mod pallet {
                     is_bonding_min_dhx == true
                     // && has_min_mpower_daily == true
                 {
+                    log::info!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", block_number, miner_count, start_of_requested_date_millis, cooling_off_period_days_remaining);
                     println!("[eligible] block: {:#?}, miner: {:#?}, date_start: {:#?} remain_days: {:#?}", block_number, miner_count, start_of_requested_date_millis, cooling_off_period_days_remaining);
 
                     // we need to add that they are eligible for rewards on the current date too
@@ -1912,8 +1913,6 @@ pub mod pallet {
                     log::info!("Unbonded miner. Cooling down period finished so allow them to withdraw {:?}", miner_public_key.clone());
                     println!("Unbonded miner. Cooling down period finished so allow them to withdraw {:?}", miner_public_key.clone());
                 }
-
-
             }
 
             log::info!("Finished initial loop of registered miners");
@@ -3715,9 +3714,10 @@ pub mod pallet {
         }
 
         // check that the current date start_of_current_date_millis is at least 7 days after the provided
-        // start_of_requested_date_millis so there is sufficient time for the community to audit the reward eligibility.
+        // start_of_requested_date_millis so there is sufficient time for the community to audit the reward eligibility,
+        // where the start_of_requested_date_millis refers to a past date the claimant believes they became eligible for rewards on.
         //
-        // `CoolingOffPeriodDays` gives rewards in bulk on the 8th day in bulk to cover the
+        // `CoolingOffPeriodDays` notifies when to give rewards in bulk (previously automatically, now by claiming) on the 8th day in bulk to cover the
         // first say x (i.e. 7) days after they start bonding, and then on the next day after each day after that, and
         // it is also used to track the unbonding period where if they stop bonding obviously they cannot be eligible
         // for rewards and they have wait x (i.e. 7) days after unbonding before they can access the locked DHX tokens
