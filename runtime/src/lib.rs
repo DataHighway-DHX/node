@@ -464,9 +464,6 @@ impl pallet_treasury::Config for Runtime {
     type MaxApprovals = MaxApprovals;
 }
 
-parameter_types! {
-    pub const DisabledValidatorsThreshold: Perbill = Perbill::from_percent(17);
-}
 
 // pallet_staking_reward_curve::build! {
 //     const REWARD_CURVE: PiecewiseLinear<'static> = curve!(
@@ -939,7 +936,6 @@ impl pallet_session::Config for Runtime {
     // Essentially just Aura, but lets be pedantic.
     type SessionHandler = <SessionKeys as sp_runtime::traits::OpaqueKeys>::KeyTypeIdProviders;
     type Keys = SessionKeys;
-    type DisabledValidatorsThreshold = DisabledValidatorsThreshold;
     type WeightInfo = ();
 }
 
