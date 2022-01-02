@@ -93,7 +93,7 @@ pub fn datahighway_session_keys(keys: AuraId) -> datahighway_parachain_runtime::
     datahighway_parachain_runtime::SessionKeys { aura: keys }
 }
 
-pub fn datahighway_rococo_development_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_rococo_development_config() -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -132,7 +132,7 @@ pub fn datahighway_rococo_development_config(id: ParaId) -> ChainSpec {
                     get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
                     get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                 ],
-                id,
+                2000.into(),
             )
         },
         vec![],
@@ -141,12 +141,12 @@ pub fn datahighway_rococo_development_config(id: ParaId) -> ChainSpec {
         Some(properties),
         Extensions {
             relay_chain: "rococo-dev".into(),
-            para_id: id.into(),
+            para_id: 2000,
         },
     )
 }
 
-pub fn datahighway_rococo_local_testnet_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_rococo_local_testnet_config() -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -185,7 +185,7 @@ pub fn datahighway_rococo_local_testnet_config(id: ParaId) -> ChainSpec {
                     get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
                     get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                 ],
-                id,
+                2000.into(),
             )
         },
         // Bootnodes
@@ -196,12 +196,12 @@ pub fn datahighway_rococo_local_testnet_config(id: ParaId) -> ChainSpec {
         Some(properties),
         Extensions {
             relay_chain: "rococo-local".into(),
-            para_id: id.into(),
+            para_id: 2000,
         },
     )
 }
 
-pub fn datahighway_chachacha_development_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_chachacha_development_config() -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -240,7 +240,7 @@ pub fn datahighway_chachacha_development_config(id: ParaId) -> ChainSpec {
                     get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
                     get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                 ],
-                id,
+                2000.into(),
             )
         },
         vec![],
@@ -249,12 +249,12 @@ pub fn datahighway_chachacha_development_config(id: ParaId) -> ChainSpec {
         Some(properties),
         Extensions {
             relay_chain: "chachacha-dev".into(),
-            para_id: id.into(),
+            para_id: 2000,
         },
     )
 }
 
-pub fn datahighway_chachacha_local_testnet_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_chachacha_local_testnet_config() -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -292,7 +292,7 @@ pub fn datahighway_chachacha_local_testnet_config(id: ParaId) -> ChainSpec {
                     get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
                     get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                 ],
-                id,
+                2000.into(),
             )
         },
         Vec::new(),
@@ -301,12 +301,12 @@ pub fn datahighway_chachacha_local_testnet_config(id: ParaId) -> ChainSpec {
         Some(properties),
         Extensions {
             relay_chain: "chachacha-local".into(),
-            para_id: id.into(),
+            para_id: 2000,
         },
     )
 }
 
-pub fn datahighway_rococo_parachain_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_rococo_parachain_config() -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -381,7 +381,7 @@ pub fn datahighway_rococo_parachain_config(id: ParaId) -> ChainSpec {
                     // authority #4 aura
                     hex!["ea239700d67f53d30e39bee0c056f1165a6fb59ad4d5dd495c06d001af366c02"].into(),
                 ],
-                id,
+                2005.into(),
             )
         },
         boot_nodes,
@@ -390,12 +390,12 @@ pub fn datahighway_rococo_parachain_config(id: ParaId) -> ChainSpec {
         Some(properties),
         Extensions {
             relay_chain: "rococo".into(),
-            para_id: id.into(),
+            para_id: 2005,
         },
     )
 }
 
-pub fn datahighway_chachacha_parachain_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_chachacha_parachain_config() -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -470,7 +470,7 @@ pub fn datahighway_chachacha_parachain_config(id: ParaId) -> ChainSpec {
                     // authority #4 aura
                     hex!["ea239700d67f53d30e39bee0c056f1165a6fb59ad4d5dd495c06d001af366c02"].into(),
                 ],
-                id,
+                2002.into(),
             )
         },
         boot_nodes,
@@ -479,12 +479,12 @@ pub fn datahighway_chachacha_parachain_config(id: ParaId) -> ChainSpec {
         Some(properties),
         Extensions {
             relay_chain: "chachacha".into(),
-            para_id: id.into(),
+            para_id: 2002,
         },
     )
 }
 
-pub fn datahighway_westend_development_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_westend_development_config() -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -522,7 +522,7 @@ pub fn datahighway_westend_development_config(id: ParaId) -> ChainSpec {
                     get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
                     get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                 ],
-                id,
+                2000.into(),
             )
         },
         vec![],
@@ -531,12 +531,12 @@ pub fn datahighway_westend_development_config(id: ParaId) -> ChainSpec {
         Some(properties),
         Extensions {
             relay_chain: "westend-dev".into(),
-            para_id: id.into(),
+            para_id: 2000,
         },
     )
 }
 
-pub fn datahighway_westend_local_testnet_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_westend_local_testnet_config() -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -574,7 +574,7 @@ pub fn datahighway_westend_local_testnet_config(id: ParaId) -> ChainSpec {
                     get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
                     get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                 ],
-                id,
+                2000.into(),
             )
         },
         Vec::new(),
@@ -583,12 +583,12 @@ pub fn datahighway_westend_local_testnet_config(id: ParaId) -> ChainSpec {
         Some(properties),
         Extensions {
             relay_chain: "westend-local".into(),
-            para_id: id.into(),
+            para_id: 2000,
         },
     )
 }
 
-pub fn datahighway_polkadot_development_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_polkadot_development_config() -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -626,7 +626,7 @@ pub fn datahighway_polkadot_development_config(id: ParaId) -> ChainSpec {
                     get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
                     get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                 ],
-                id,
+                2000.into(),
             )
         },
         vec![],
@@ -635,12 +635,12 @@ pub fn datahighway_polkadot_development_config(id: ParaId) -> ChainSpec {
         Some(properties),
         Extensions {
             relay_chain: "polkadot-dev".into(),
-            para_id: id.into(),
+            para_id: 2000,
         },
     )
 }
 
-pub fn datahighway_polkadot_local_testnet_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_polkadot_local_testnet_config() -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -678,7 +678,7 @@ pub fn datahighway_polkadot_local_testnet_config(id: ParaId) -> ChainSpec {
                     get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
                     get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
                 ],
-                id,
+                2000.into(),
             )
         },
         Vec::new(),
@@ -687,12 +687,12 @@ pub fn datahighway_polkadot_local_testnet_config(id: ParaId) -> ChainSpec {
         Some(properties),
         Extensions {
             relay_chain: "polkadot-local".into(),
-            para_id: id.into(),
+            para_id: 2000,
         },
     )
 }
 
-pub fn datahighway_westend_parachain_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_westend_parachain_config() -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "BKL".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -767,7 +767,7 @@ pub fn datahighway_westend_parachain_config(id: ParaId) -> ChainSpec {
                     // authority #4 aura
                     hex!["c27631914b41a8f58e24277158817d064a4144df430dd2cf7baeaa17414deb3e"].into(),
                 ],
-                id,
+                2000.into(),
             )
         },
         boot_nodes,
@@ -776,12 +776,12 @@ pub fn datahighway_westend_parachain_config(id: ParaId) -> ChainSpec {
         Some(properties),
         Extensions {
             relay_chain: "westend".into(),
-            para_id: id.into(),
+            para_id: 2000,
         },
     )
 }
 
-pub fn datahighway_polkadot_parachain_config(id: ParaId) -> ChainSpec {
+pub fn datahighway_polkadot_parachain_config() -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
     properties.insert("tokenDecimals".into(), 18.into());
@@ -856,7 +856,7 @@ pub fn datahighway_polkadot_parachain_config(id: ParaId) -> ChainSpec {
                     // authority #4 aura
                     hex!["10a3d6854dc35e4b3fd77af4beda98f79dbe9edf5c29c14c8d57bec4bd733c0f"].into(),
                 ],
-                id,
+                2000.into(),
             )
         },
         boot_nodes,
@@ -865,7 +865,7 @@ pub fn datahighway_polkadot_parachain_config(id: ParaId) -> ChainSpec {
         Some(properties),
         Extensions {
             relay_chain: "polkadot".into(),
-            para_id: id.into(),
+            para_id: 2000,
         },
     )
 }
@@ -885,7 +885,6 @@ fn spreehafen_testnet_genesis(
     GenesisConfig {
         system: datahighway_parachain_runtime::SystemConfig {
             code: datahighway_parachain_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
-            changes_trie_config: Default::default(),
         },
         balances: BalancesConfig {
             balances: endowed_accounts
@@ -954,7 +953,6 @@ fn testnet_genesis(
     GenesisConfig {
         system: datahighway_parachain_runtime::SystemConfig {
             code: datahighway_parachain_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
-            changes_trie_config: Default::default(),
         },
         balances: BalancesConfig {
             balances: endowed_accounts
@@ -1023,7 +1021,6 @@ fn dev_genesis(
     datahighway_parachain_runtime::GenesisConfig {
         system: datahighway_parachain_runtime::SystemConfig {
             code: datahighway_parachain_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
-            changes_trie_config: Default::default(),
         },
         balances: BalancesConfig {
             balances: endowed_accounts
@@ -1092,7 +1089,6 @@ fn baikal_testnet_genesis(
     GenesisConfig {
         system: datahighway_parachain_runtime::SystemConfig {
             code: datahighway_parachain_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
-            changes_trie_config: Default::default(),
         },
         balances: BalancesConfig {
             balances: endowed_accounts
@@ -1161,7 +1157,6 @@ fn tanganika_testnet_genesis(
     GenesisConfig {
         system: datahighway_parachain_runtime::SystemConfig {
             code: datahighway_parachain_runtime::WASM_BINARY.expect("WASM binary was not build, please build it!").to_vec(),
-            changes_trie_config: Default::default(),
         },
         balances: BalancesConfig {
             balances: endowed_accounts

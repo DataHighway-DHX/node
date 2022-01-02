@@ -29,7 +29,6 @@ use sp_runtime::{
         AccountIdLookup,
         BlakeTwo256,
         Block as BlockT,
-        IdentityLookup,
     },
     transaction_validity::{
         TransactionSource,
