@@ -36,26 +36,20 @@ use std::{
     net::SocketAddr,
 };
 
-// Default parachain-id CLI option value where:
-// 2000 is for cumulus workshop testing on local
-// 2005 is for rococo
-// 2002 is for chachacha
-const PARA_ID: u32 = 2000;
-
-fn load_spec(id: &str, para_id: ParaId) -> std::result::Result<Box<dyn sc_service::ChainSpec>, String> {
+fn load_spec(id: &str) -> std::result::Result<Box<dyn sc_service::ChainSpec>, String> {
     Ok(match id {
-        "dev" | "rococo-dev"=> Box::new(chain_spec::datahighway_rococo_development_config(para_id)),
-        "" | "local" | "rococo-local"=> Box::new(chain_spec::datahighway_rococo_local_testnet_config(para_id)),
-        "chachacha-dev"=> Box::new(chain_spec::datahighway_chachacha_development_config(para_id)),
-        "chachacha-local"=> Box::new(chain_spec::datahighway_chachacha_local_testnet_config(para_id)),
-        "rococo" => Box::new(chain_spec::datahighway_rococo_parachain_config(para_id)),
-        "chachacha" => Box::new(chain_spec::datahighway_chachacha_parachain_config(para_id)),
-        "westend-dev"=> Box::new(chain_spec::datahighway_westend_development_config(para_id)),
-        "westend-local"=> Box::new(chain_spec::datahighway_westend_local_testnet_config(para_id)),
-        "westend" => Box::new(chain_spec::datahighway_westend_parachain_config(para_id)),
-        "polkadot-dev"=> Box::new(chain_spec::datahighway_polkadot_development_config(para_id)),
-        "polkadot-local"=> Box::new(chain_spec::datahighway_polkadot_local_testnet_config(para_id)),
-        "polkadot" => Box::new(chain_spec::datahighway_polkadot_parachain_config(para_id)),
+        "dev" | "rococo-dev"=> Box::new(chain_spec::datahighway_rococo_development_config()),
+        "" | "local" | "rococo-local"=> Box::new(chain_spec::datahighway_rococo_local_testnet_config()),
+        "chachacha-dev"=> Box::new(chain_spec::datahighway_chachacha_development_config()),
+        "chachacha-local"=> Box::new(chain_spec::datahighway_chachacha_local_testnet_config()),
+        "rococo" => Box::new(chain_spec::datahighway_rococo_parachain_config()),
+        "chachacha" => Box::new(chain_spec::datahighway_chachacha_parachain_config()),
+        "westend-dev"=> Box::new(chain_spec::datahighway_westend_development_config()),
+        "westend-local"=> Box::new(chain_spec::datahighway_westend_local_testnet_config()),
+        "westend" => Box::new(chain_spec::datahighway_westend_parachain_config()),
+        "polkadot-dev"=> Box::new(chain_spec::datahighway_polkadot_development_config()),
+        "polkadot-local"=> Box::new(chain_spec::datahighway_polkadot_local_testnet_config()),
+        "polkadot" => Box::new(chain_spec::datahighway_polkadot_parachain_config()),
         path => Box::new(chain_spec::ChainSpec::from_json_file(std::path::PathBuf::from(path))?),
     })
 }
@@ -70,12 +64,11 @@ impl SubstrateCli for Cli {
     }
 
     fn description() -> String {
-        format!(
-            "DataHighway Collator\n\nThe command-line arguments provided first will be passed to the parachain node, \
-             while the arguments provided after -- will be passed to the relay chain node.\n\n{} [parachain-args] -- \
-             [relaychain-args]",
-            Self::executable_name()
-        )
+        "DataHighway Collator Template\n\nThe command-line arguments provided first will be \
+		passed to the parachain node, while the arguments provided after -- will be passed \
+		to the relay chain node.\n\n\
+		dataHighway-collator <parachain-args> -- <relay-chain-args>"
+            .into()
     }
 
     fn author() -> String {
@@ -91,7 +84,7 @@ impl SubstrateCli for Cli {
     }
 
     fn load_spec(&self, id: &str) -> std::result::Result<Box<dyn sc_service::ChainSpec>, String> {
-        load_spec(id, self.run.parachain_id.unwrap_or(PARA_ID).into())
+        load_spec(id)
     }
 
     fn native_runtime_version(_: &Box<dyn ChainSpec>) -> &'static RuntimeVersion {
@@ -109,9 +102,10 @@ impl SubstrateCli for RelayChainCli {
     }
 
     fn description() -> String {
-        "DataHighway Collator\n\nThe command-line arguments provided first will be passed to the parachain node, while \
-         the arguments provided after -- will be passed to the relay chain node.\n\nrococo-collator [parachain-args] -- \
-         [relay_chain-args]"
+        "DataHighway Collator Template\n\nThe command-line arguments provided first will be \
+		passed to the parachain node, while the arguments provided after -- will be passed \
+		to the relay chain node.\n\n\
+		dataHighway-collator <parachain-args> -- <relay-chain-args>"
             .into()
     }
 
@@ -199,7 +193,7 @@ pub fn run() -> Result<()> {
             runner.sync_run(|config| {
                 let polkadot_cli = RelayChainCli::new(
                     &config,
-                    [RelayChainCli::executable_name()].iter().chain(cli.relaychain_args.iter()),
+                    [RelayChainCli::executable_name()].iter().chain(cli.relay_chain_args.iter()),
                 );
 
                 let polkadot_config = SubstrateCli::create_configuration(
@@ -222,10 +216,8 @@ pub fn run() -> Result<()> {
             builder.with_profiling(sc_tracing::TracingReceiver::Log, "");
             let _ = builder.init();
 
-            let block: Block = generate_genesis_block(&load_spec(
-                &params.chain.clone().unwrap_or_default(),
-                params.parachain_id.unwrap_or(PARA_ID).into(),
-            )?)?;
+            let block: Block =
+                generate_genesis_block(&load_spec(&params.chain.clone().unwrap_or_default())?)?;
             let raw_header = block.header().encode();
             let output_buf = if params.raw {
                 raw_header
@@ -265,15 +257,16 @@ pub fn run() -> Result<()> {
             let runner = cli.create_runner(&cli.run.normalize())?;
 
             runner.run_node_until_exit(|config| async move {
-                let para_id =
-                    chain_spec::Extensions::try_get(&*config.chain_spec).map(|e| e.para_id);
+                let para_id = chain_spec::Extensions::try_get(&*config.chain_spec)
+                    .map(|e| e.para_id)
+                    .ok_or_else(|| "Could not find parachain ID in chain-spec.")?;
 
                 let polkadot_cli = RelayChainCli::new(
                     &config,
-                    [RelayChainCli::executable_name()].iter().chain(cli.relaychain_args.iter()),
+                    [RelayChainCli::executable_name()].iter().chain(cli.relay_chain_args.iter()),
                 );
 
-                let id = ParaId::from(cli.run.parachain_id.or(para_id).unwrap_or(PARA_ID));
+                let id = ParaId::from(para_id);
 
                 let parachain_account =
                     AccountIdConversion::<polkadot_primitives::v0::AccountId>::into_account(&id);
