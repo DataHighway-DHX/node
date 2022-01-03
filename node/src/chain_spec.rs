@@ -922,6 +922,7 @@ fn testnet_genesis(
             rewards_allowance_dhx_daily: FIVE_THOUSAND, // 5000 DHX
             rewards_allowance_dhx_for_date_remaining: Default::default(),
             rewards_allowance_dhx_for_date_remaining_distributed: Default::default(),
+            rewards_allowance_dhx_for_miner_for_date_remaining_distributed: Default::default(),
             rewards_multiplier_paused: false,
             rewards_multiplier_reset: false,
             rewards_multiplier_default_change: 10u32,
@@ -933,20 +934,37 @@ fn testnet_genesis(
             rewards_multiplier_current_period_days_remaining: Default::default(),
             rewards_multiplier_operation: 1u8,
             registered_dhx_miners: vec![
-                get_account_id_from_seed::<sr25519::Public>("Alice"),
-                get_account_id_from_seed::<sr25519::Public>("Bob"),
-                get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                // get_account_id_from_seed::<sr25519::Public>("Alice"),
+                // get_account_id_from_seed::<sr25519::Public>("Bob"),
+                // get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                // Alice
+                vec![212, 53, 147, 199, 21, 253, 211, 28, 97, 20, 26, 189, 4, 169, 159, 214, 130, 44, 133, 88, 133, 76, 205, 227, 154, 86, 132, 231, 165, 109, 162, 125],
+                // Bob
+                vec![142, 175, 4, 21, 22, 135, 115, 99, 38, 201, 254, 161, 126, 37, 252, 82, 135, 97, 54, 147, 201, 18, 144, 156, 178, 38, 170, 71, 148, 242, 106, 72],
             ],
+            rewards_eligible_miners_for_date: Default::default(),
             rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),
             min_bonded_dhx_daily: TEN, // 10 DHX
             min_bonded_dhx_daily_default: TEN, // 10 DHX
-            min_mpower_daily: 5u128,
-            min_mpower_daily_default: 5u128,
-            cooling_off_period_days: 7u32,
-            cooling_off_period_days_remaining: vec![
+            min_mpower_daily: 1u128,
+            min_mpower_daily_default: 1u128,
+            challenge_period_days: 7u64,
+            cooling_down_period_days: 7u32,
+            cooling_down_period_days_remaining: vec![
                 (
-                    get_account_id_from_seed::<sr25519::Public>("Alice"),
+                    // get_account_id_from_seed::<sr25519::Public>("Alice").encode(),
+                    // Alice
+                    vec![212, 53, 147, 199, 21, 253, 211, 28, 97, 20, 26, 189, 4, 169, 159, 214, 130, 44, 133, 88, 133, 76, 205, 227, 154, 86, 132, 231, 165, 109, 162, 125],
+                    (
+                        0,
+                        7u32,
+                        0u32,
+                    ),
+                ),
+                (
+                    // Bob
+                    vec![142, 175, 4, 21, 22, 135, 115, 99, 38, 201, 254, 161, 126, 37, 252, 82, 135, 97, 54, 147, 201, 18, 144, 156, 178, 38, 170, 71, 148, 242, 106, 72],
                     (
                         0,
                         7u32,
@@ -1051,6 +1069,7 @@ fn mainnet_genesis(
             rewards_allowance_dhx_daily: FIVE_THOUSAND, // 5000 DHX
             rewards_allowance_dhx_for_date_remaining: Default::default(),
             rewards_allowance_dhx_for_date_remaining_distributed: Default::default(),
+            rewards_allowance_dhx_for_miner_for_date_remaining_distributed: Default::default(),
             rewards_multiplier_paused: false,
             rewards_multiplier_reset: false,
             rewards_multiplier_default_change: 10u32,
@@ -1062,20 +1081,37 @@ fn mainnet_genesis(
             rewards_multiplier_current_period_days_remaining: Default::default(),
             rewards_multiplier_operation: 1u8,
             registered_dhx_miners: vec![
-                get_account_id_from_seed::<sr25519::Public>("Alice"),
-                get_account_id_from_seed::<sr25519::Public>("Bob"),
-                get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                // get_account_id_from_seed::<sr25519::Public>("Alice"),
+                // get_account_id_from_seed::<sr25519::Public>("Bob"),
+                // get_account_id_from_seed::<sr25519::Public>("Charlie"),
+                // Alice
+                vec![212, 53, 147, 199, 21, 253, 211, 28, 97, 20, 26, 189, 4, 169, 159, 214, 130, 44, 133, 88, 133, 76, 205, 227, 154, 86, 132, 231, 165, 109, 162, 125],
+                // Bob
+                vec![142, 175, 4, 21, 22, 135, 115, 99, 38, 201, 254, 161, 126, 37, 252, 82, 135, 97, 54, 147, 201, 18, 144, 156, 178, 38, 170, 71, 148, 242, 106, 72],
             ],
+            rewards_eligible_miners_for_date: Default::default(),
             rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),
             min_bonded_dhx_daily: TEN, // 10 DHX
             min_bonded_dhx_daily_default: TEN, // 10 DHX
-            min_mpower_daily: 5u128,
-            min_mpower_daily_default: 5u128,
-            cooling_off_period_days: 7u32,
-            cooling_off_period_days_remaining: vec![
+            min_mpower_daily: 1u128,
+            min_mpower_daily_default: 1u128,
+            challenge_period_days: 7u64,
+            cooling_down_period_days: 7u32,
+            cooling_down_period_days_remaining: vec![
                 (
-                    get_account_id_from_seed::<sr25519::Public>("Alice"),
+                    // get_account_id_from_seed::<sr25519::Public>("Alice").encode(),
+                    // Alice
+                    vec![212, 53, 147, 199, 21, 253, 211, 28, 97, 20, 26, 189, 4, 169, 159, 214, 130, 44, 133, 88, 133, 76, 205, 227, 154, 86, 132, 231, 165, 109, 162, 125],
+                    (
+                        0,
+                        7u32,
+                        0u32,
+                    ),
+                ),
+                (
+                    // Bob
+                    vec![142, 175, 4, 21, 22, 135, 115, 99, 38, 201, 254, 161, 126, 37, 252, 82, 135, 97, 54, 147, 201, 18, 144, 156, 178, 38, 170, 71, 148, 242, 106, 72],
                     (
                         0,
                         7u32,

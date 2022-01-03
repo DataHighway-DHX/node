@@ -7,6 +7,11 @@ use codec::{
     Decode,
     Encode,
 };
+use mining_rewards_allowance::{
+    crypto::{
+        TestAuthId,
+    },
+};
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use pallet_grandpa::{
     fg_primitives,
@@ -183,6 +188,7 @@ pub use module_primitives::{
         MILLISECS_PER_BLOCK,
         MINUTES,
         PRIMARY_PROBABILITY,
+        SECONDS,
         SLOT_DURATION,
     },
 	types::*,
@@ -1146,9 +1152,35 @@ impl mining_execution_token::Config for Runtime {
     type MiningExecutionTokenIndex = u64;
 }
 
+// pub const TEST_KEY_TYPE_ID: KeyTypeId = KeyTypeId(*b"test");
+
+// pub mod sr25519 {
+// 	mod app_sr25519 {
+// 		use super::super::TEST_KEY_TYPE_ID;
+// 		use app_crypto::{app_crypto, sr25519};
+// 		app_crypto!(sr25519, TEST_KEY_TYPE_ID);
+// 	}
+
+// 	pub type AuthorityId = app_sr25519::Public;
+// }
+
+parameter_types! {
+    // Note: if this is set to a longer period of 1 * MINUTE
+    // then it will cause an error in the logs:
+    // `offchain_workers error fetching mpower: Too early to send unsigned transaction ` or
+    // `offchain_workers error unknown transaction type`
+    pub const GracePeriod: BlockNumber = 10 * SECONDS; // 1 * MINUTES;
+    pub const UnsignedInterval: BlockNumber = 10 * SECONDS; // 1 * MINUTES;
+    pub const UnsignedPriority: BlockNumber = 10 * SECONDS; // 1 * MINUTES;
+}
+
 impl mining_rewards_allowance::Config for Runtime {
-    type Event = Event;
+    type Call = Call;
     type Currency = Balances;
+    type Event = Event;
+    type GracePeriod = GracePeriod;
+    type UnsignedInterval = UnsignedInterval;
+    type UnsignedPriority = UnsignedPriority;
 }
 
 impl exchange_rate::Config for Runtime {
@@ -1222,7 +1254,7 @@ construct_runtime!(
         MiningSettingHardware: mining_setting_hardware::{Pallet, Call, Storage, Event<T>},
         MiningRatesToken: mining_rates_token::{Pallet, Call, Storage, Event<T>},
         MiningRatesHardware: mining_rates_hardware::{Pallet, Call, Storage, Event<T>},
-        MiningRewardsAllowance: mining_rewards_allowance::{Pallet, Call, Storage, Config<T>, Event<T>},
+        MiningRewardsAllowance: mining_rewards_allowance::{Pallet, Call, Storage, Config<T>, Event<T>, ValidateUnsigned},
         MiningSamplingToken: mining_sampling_token::{Pallet, Call, Storage, Event<T>},
         MiningSamplingHardware: mining_sampling_hardware::{Pallet, Call, Storage, Event<T>},
         MiningEligibilityToken: mining_eligibility_token::{Pallet, Call, Storage, Event<T>},

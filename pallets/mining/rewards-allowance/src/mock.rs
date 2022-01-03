@@ -10,6 +10,7 @@ use frame_support::{
         GenesisBuild,
         LockIdentifier,
         SortedMembers,
+        StorageMapShim,
     },
     weights::{
         IdentityFee,
@@ -24,6 +25,7 @@ use frame_system::{
 use pallet_democracy::{self, Conviction, Vote};
 use sp_core::{
     H256,
+    sr25519::Signature,
     u32_trait::{
         _1,
         _2,
@@ -37,10 +39,13 @@ use codec::{
 };
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_runtime::{
-    testing::Header,
+    testing::{Header, TestSignature, TestXt, UintAuthorityId},
     traits::{
         BlakeTwo256,
+        Extrinsic as ExtrinsicT,
+        IdentifyAccount,
         IdentityLookup,
+        Verify,
     },
     Perbill,
     Percent,
@@ -99,7 +104,7 @@ frame_support::construct_runtime!(
 );
 
 // Override primitives
-pub type AccountId = u128;
+pub type AccountId = u64;
 // pub type SysEvent = frame_system::Event<Test>;
 
 pub const MILLISECS_PER_BLOCK: Moment = 4320;
@@ -108,6 +113,7 @@ pub const CENTS: Balance = 1_000 * MILLICENTS; // assume this is worth about a c
 pub const DOLLARS: Balance = 100 * CENTS;
 pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
 pub const HOURS: BlockNumber = MINUTES * 60;
+pub const SECONDS: BlockNumber = MINUTES / 60;
 pub const DAYS: BlockNumber = HOURS * 24;
 
 // from Substrate pallet_democracy tests
@@ -137,7 +143,7 @@ impl frame_system::Config for Test {
     type BlockHashCount = ();
     type Version = ();
     type PalletInfo = PalletInfo;
-    type AccountData = pallet_balances::AccountData<u128>;
+    type AccountData = pallet_balances::AccountData<u64>;
     type OnNewAccount = ();
     type OnKilledAccount = ();
     type SystemWeightInfo = ();
@@ -157,7 +163,7 @@ impl pallet_scheduler::Config for Test {
     type PalletsOrigin = OriginCaller;
     type Call = Call;
     type MaximumWeight = MaximumSchedulerWeight;
-    type ScheduleOrigin = EnsureRoot<u128>;
+    type ScheduleOrigin = EnsureRoot<u64>;
     type MaxScheduledPerBlock = MaxScheduledPerBlock;
     type WeightInfo = ();
 }
@@ -188,7 +194,8 @@ impl pallet_balances::Config for Test {
     type DustRemoval = ();
     type Event = ();
     type ExistentialDeposit = ExistentialDeposit;
-    type AccountStore = frame_system::Pallet<Test>;
+    type AccountStore = StorageMapShim<pallet_balances::Account<Test>, frame_system::Provider<Test>, u64, pallet_balances::AccountData<u128>>;
+    // type AccountStore = frame_system::Pallet<Test>;
     type WeightInfo = ();
 }
 parameter_types! {
@@ -293,16 +300,16 @@ impl pallet_membership::Config<pallet_membership::Instance1> for Test {
 }
 
 thread_local! {
-    static TEN_TO_FOURTEEN: RefCell<Vec<u128>> = RefCell::new(vec![10,11,12,13,14]);
+    static TEN_TO_FOURTEEN: RefCell<Vec<u64>> = RefCell::new(vec![10,11,12,13,14]);
 }
 pub struct TenToFourteen;
-impl SortedMembers<u128> for TenToFourteen {
-    fn sorted_members() -> Vec<u128> {
+impl SortedMembers<u64> for TenToFourteen {
+    fn sorted_members() -> Vec<u64> {
         TEN_TO_FOURTEEN.with(|v| v.borrow().clone())
     }
 
     #[cfg(feature = "runtime-benchmarks")]
-    fn add(new: &u128) {
+    fn add(new: &u64) {
         TEN_TO_FOURTEEN.with(|v| {
             let mut members = v.borrow_mut();
             members.push(*new);
@@ -342,8 +349,8 @@ parameter_types! {
 impl pallet_treasury::Config for Test {
     type PalletId = TreasuryPalletId;
     type Currency = Balances;
-    type ApproveOrigin = EnsureRoot<u128>;
-    type RejectOrigin = EnsureRoot<u128>;
+    type ApproveOrigin = EnsureRoot<u64>;
+    type RejectOrigin = EnsureRoot<u64>;
     type Event = ();
     type OnSlash = ();
     type ProposalBond = ProposalBond;
@@ -438,9 +445,52 @@ impl pallet_democracy::Config for Test {
     type MaxProposals = MaxProposals;
 }
 
+type Extrinsic = TestXt<Call, ()>;
+// type AccountId = <<Signature as Verify>::Signer as IdentifyAccount>::AccountId;
+
+impl frame_system::offchain::SigningTypes for Test {
+	type Public = UintAuthorityId; // <Signature as Verify>::Signer;
+    // type Public = u64;
+	type Signature = TestSignature; // Signature;
+}
+
+impl<LocalCall> frame_system::offchain::SendTransactionTypes<LocalCall> for Test
+where
+	Call: From<LocalCall>,
+{
+	type OverarchingCall = Call;
+	type Extrinsic = Extrinsic;
+}
+
+impl<LocalCall> frame_system::offchain::CreateSignedTransaction<LocalCall> for Test
+where
+	Call: From<LocalCall>,
+{
+	fn create_transaction<C: frame_system::offchain::AppCrypto<Self::Public, Self::Signature>>(
+		call: Call,
+		_public: UintAuthorityId,
+        // _public: <Signature as Verify>::Signer,
+        // _public: u64,
+		_account: AccountId,
+		nonce: Index,
+	) -> Option<(Call, <Extrinsic as ExtrinsicT>::SignaturePayload)> {
+		Some((call, (nonce.into(), ())))
+	}
+}
+
+parameter_types! {
+    pub const GracePeriod: BlockNumber = 10 * SECONDS; // 1 * MINUTES;
+    pub const UnsignedInterval: BlockNumber = 10 * SECONDS; // 1 * MINUTES;
+    pub const UnsignedPriority: BlockNumber = 10 * SECONDS; // 1 * MINUTES;
+}
+
 impl MiningRewardsAllowanceConfig for Test {
-    type Event = ();
+    type Call = Call;
     type Currency = Balances;
+    type Event = ();
+    type GracePeriod = GracePeriod;
+    type UnsignedInterval = UnsignedInterval;
+    type UnsignedPriority = UnsignedPriority;
 }
 
 pub type SysEvent = frame_system::Event<Test>;
@@ -478,6 +528,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
             rewards_allowance_dhx_daily: FIVE_THOUSAND_DHX, // 5000 DHX
             rewards_allowance_dhx_for_date_remaining: Default::default(),
             rewards_allowance_dhx_for_date_remaining_distributed: Default::default(),
+            rewards_allowance_dhx_for_miner_for_date_remaining_distributed: Default::default(),
             rewards_multiplier_paused: false,
             rewards_multiplier_reset: false,
             rewards_multiplier_default_change: 10u32,
@@ -495,15 +546,17 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
             //     get_account_id_from_seed::<sr25519::Public>("Charlie"),
             // ],
             registered_dhx_miners: Default::default(),
+            rewards_eligible_miners_for_date: Default::default(),
             rewards_aggregated_dhx_for_all_miners_for_date: Default::default(),
             rewards_accumulated_dhx_for_miner_for_date: Default::default(),
             min_bonded_dhx_daily: TEN_DHX, // 10 DHX
             min_bonded_dhx_daily_default: TEN_DHX, // 10 DHX
-            min_mpower_daily: 5u128,
-            min_mpower_daily_default: 5u128,
-            cooling_off_period_days: 7u32,
+            min_mpower_daily: 1u128,
+            min_mpower_daily_default: 1u128,
+            challenge_period_days: 7u64,
+            cooling_down_period_days: 7u32,
             // Note: i'm not sure how to mock Alice, just set in implementation at genesis
-            // cooling_off_period_days_remaining: vec![
+            // cooling_down_period_days_remaining: vec![
             //     (
             //         get_account_id_from_seed::<sr25519::Public>("Alice"),
             //         (
@@ -513,7 +566,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
             //         ),
             //     ),
             // ],
-            cooling_off_period_days_remaining: Default::default(),
+            cooling_down_period_days_remaining: Default::default(),
         },
 		&mut t
 	)

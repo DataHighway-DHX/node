@@ -11,8 +11,11 @@ targets = ['x86_64-unknown-linux-gnu']
 default = ['std']
 std = [
     'chrono/std',
+    'hex/std',
+    # 'hex-literal/std',
+    'lite-json/std',
     'log/std',
-    'serde/std',
+    # 'serde/std',
     'rand/std',
     'substrate-fixed/std',
     'codec/std',
@@ -34,6 +37,7 @@ std = [
     'sp-consensus-aura/std',
     'sp-core/std',
     'sp-io/std',
+    'sp-keystore/std',
     'sp-runtime/std',
     'sp-std/std',
     'module-primitives/std',
@@ -42,8 +46,11 @@ std = [
 [dependencies]
 static_assertions = '1.1.0'
 chrono = { version = '0.4.19', default_features = false }
+hex = { version = '0.4.3', default_features = false, features = ['alloc'] }
+hex-literal = { version = '0.3.1', default_features = false }
+lite-json = { version = "0.1", default-features = false }
 log = { version = '0.4.14', default-features = false }
-serde = { version = '1.0.126', features = ['derive'] }
+# serde = { version = '1.0.126', default-features = false, features = ['derive'] }
 rand = { version = '0.8.4', default-features = false }
 substrate-fixed = { git = "https://github.com/encointer/substrate-fixed", version = '0.5.6' }
 codec = { version = '2.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive', 'max-encoded-len'] }
@@ -65,6 +72,7 @@ pallet-treasury = { git = 'https://github.com/DataHighway-DHX/substrate', rev = 
 sp-consensus-aura = { git = 'https://github.com/DataHighway-DHX/substrate', rev = 'f5dc02a8a491c149fba05a2a5a51c80ce1b3cead', default-features = false }
 sp-core = { git = 'https://github.com/DataHighway-DHX/substrate', rev = 'f5dc02a8a491c149fba05a2a5a51c80ce1b3cead', default-features = false }
 sp-io = { git = 'https://github.com/DataHighway-DHX/substrate', rev = 'f5dc02a8a491c149fba05a2a5a51c80ce1b3cead', default-features = false }
+sp-keystore = { git = 'https://github.com/DataHighway-DHX/substrate', rev = 'f5dc02a8a491c149fba05a2a5a51c80ce1b3cead', default-features = false, optional = true }
 sp-runtime = { git = 'https://github.com/DataHighway-DHX/substrate', rev = 'f5dc02a8a491c149fba05a2a5a51c80ce1b3cead', default-features = false }
 sp-std = { git = 'https://github.com/DataHighway-DHX/substrate', rev = 'f5dc02a8a491c149fba05a2a5a51c80ce1b3cead', default-features = false }
 module-primitives = { version = '3.0.6', default-features = false, path = '../../primitives' }
