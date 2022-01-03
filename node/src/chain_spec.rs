@@ -959,6 +959,7 @@ fn testnet_genesis(
                     (
                         0,
                         7u32,
+                        0u32,
                     ),
                 ),
                 (
@@ -967,6 +968,7 @@ fn testnet_genesis(
                     (
                         0,
                         7u32,
+                        0u32,
                     ),
                 ),
             ],
@@ -1104,6 +1106,7 @@ fn mainnet_genesis(
                     (
                         0,
                         7u32,
+                        0u32,
                     ),
                 ),
                 (
@@ -1112,6 +1115,7 @@ fn mainnet_genesis(
                     (
                         0,
                         7u32,
+                        0u32,
                     ),
                 ),
             ],

@@ -68,20 +68,19 @@ fn it_calcs_rewards_allowance_using_on_initialize_with_claim_using_extrinsic_for
 
         setup_min_mpower_daily(min_mpower_daily);
 
-        let r = setup_bonding(NORMAL_AMOUNT, TEN_DHX);
+        let referendum_index = setup_bonding(NORMAL_AMOUNT, TEN_DHX);
 
         setup_treasury_balance();
         setup_multiplier(90u32);
         setup_registered_dhx_miners(vec![CHARLIE_PUBLIC_KEY.clone().into(), BOB_PUBLIC_KEY.clone().into(), ALICE_PUBLIC_KEY.clone().into()]);
         // TODO - don't need this unless testing unbonding period
-        setup_cooling_down_period_days(7_u32);
+        // setup_cooling_down_period_days(7_u32);
         setup_rewards_allowance_dhx_daily(FIVE_THOUSAND_DHX);
         claim_eligible_rewards_after_challenge_period_if_suffient_bonded(NORMAL_AMOUNT, amount_mpower_each_miner.clone());
     })
 }
 
 #[test]
-// #[ignore]
 fn it_calcs_rewards_allowance_using_on_initialize_with_claim_using_extrinsic_for_large_amount() {
     new_test_ext().execute_with(|| {
         let amount_mpower_each_miner = 5u128;
@@ -89,15 +88,46 @@ fn it_calcs_rewards_allowance_using_on_initialize_with_claim_using_extrinsic_for
 
         setup_min_mpower_daily(min_mpower_daily);
 
-        let r = setup_bonding(LARGE_AMOUNT_DHX, TEN_DHX);
+        let referendum_index = setup_bonding(LARGE_AMOUNT_DHX, TEN_DHX);
 
         setup_treasury_balance();
         setup_multiplier(90u32);
         setup_registered_dhx_miners(vec![CHARLIE_PUBLIC_KEY.clone().into(), BOB_PUBLIC_KEY.clone().into(), ALICE_PUBLIC_KEY.clone().into()]);
         // TODO - don't need this unless testing unbonding period
-        setup_cooling_down_period_days(7_u32);
+        // setup_cooling_down_period_days(7_u32);
         setup_rewards_allowance_dhx_daily(FIVE_THOUSAND_DHX);
         claim_eligible_rewards_after_challenge_period_if_suffient_bonded(LARGE_AMOUNT_DHX, amount_mpower_each_miner.clone());
+    })
+}
+
+#[test]
+fn it_changes_rewards_multiplier_every_period_day_and_resets_remaining_days() {
+    new_test_ext().execute_with(|| {
+        // TODO - do we need all these setup to run this test?
+        let amount_mpower_each_miner = 5u128;
+        let min_mpower_daily = 1u128;
+
+        setup_min_mpower_daily(min_mpower_daily);
+
+        let referendum_index = setup_bonding(LARGE_AMOUNT_DHX, TEN_DHX);
+
+        setup_treasury_balance();
+        setup_multiplier(2u32);
+        // TODO - this function doesn't exist, do we need this function?
+        // setup_multiplier_period_days_remaining(2u32);
+        setup_registered_dhx_miners(vec![CHARLIE_PUBLIC_KEY.clone().into(), BOB_PUBLIC_KEY.clone().into(), ALICE_PUBLIC_KEY.clone().into()]);
+        // TODO - this function doesn't exist, do we need this function?
+        // setup_cooling_down_period_days_remaining(0_u32);
+        setup_rewards_allowance_dhx_daily(FIVE_THOUSAND_DHX);
+
+        // check that rewards multiplier increases by multiplier every period days and that days total and remaining are reset
+        check_rewards_double_each_multiplier_period(amount_mpower_each_miner.clone());
+
+        setup_cooling_down_period_days(2_u32);
+        // check that after the multiplier doubles, they are no longer eligible to receive the rewards
+        // if they have the same amount bonded (since they’d then need twice the amount bonded as ratio changes from 10:1 to 20:1),
+        // even if they have sufficient mpower
+        check_ineligible_for_rewards_and_cooling_down_period_starts_if_insufficient_bonded(LARGE_AMOUNT_DHX, amount_mpower_each_miner.clone(), referendum_index.clone());
     })
 }
 
@@ -316,10 +346,15 @@ fn it_converts_vec_u8_to_u128() {
 }
 
 #[test]
-// note: we're using a challenge period of 7 days
+// note: we're using a challenge period of 7 days in this test
 fn it_checks_if_is_more_than_challenge_period() {
     new_test_ext().execute_with(|| {
         // where milliseconds/day         86400000
+
+        assert_ok!(MiningRewardsAllowanceTestModule::set_challenge_period_days(
+            Origin::root(),
+            7u64,
+        ));
 
         // 1st Dec 2021 @ 12am is 1638316800000 (start of day)
         let start_of_requested_date_millis: i64 = 1638316800000i64;
@@ -327,24 +362,13 @@ fn it_checks_if_is_more_than_challenge_period() {
         // 7th Dec 2021 @ 12am is 1638835200000 (start of day)
         let current_timestamp_6_days_later = 1638835200000u64;
         Timestamp::set_timestamp(current_timestamp_6_days_later);
-        assert_eq!(MiningRewardsAllowanceTestModule::is_more_than_challenge_period(start_of_requested_date_millis), Ok(false));
+        assert_eq!(MiningRewardsAllowanceTestModule::is_more_than_challenge_period(start_of_requested_date_millis), Err(DispatchError::Other("Not more than challenge period")));
 
-        // 8th Dec 2021 @ 12am is 1638921600000 (start of day)
-        let current_timestamp_7_days_later = 1638921600000u64;
-        Timestamp::set_timestamp(current_timestamp_7_days_later);
-        assert_eq!(MiningRewardsAllowanceTestModule::is_more_than_challenge_period(start_of_requested_date_millis), Ok(true));
+        // // 8th Dec 2021 @ 12am is 1638921600000 (start of day)
+        // let current_timestamp_7_days_later = 1638921600000u64;
+        // Timestamp::set_timestamp(current_timestamp_7_days_later);
+        // assert_eq!(MiningRewardsAllowanceTestModule::is_more_than_challenge_period(start_of_requested_date_millis), Ok(()));
     });
-}
-
-fn distribute_rewards(amount_bonded_each_miner: u128, amount_mpower_each_miner: u128, referendum_index: u32) {
-
-    // // check that rewards multiplier increases by multiplier every period days and that days total and remaining are reset
-    // check_rewards_double_each_multiplier_period(amount_mpower_each_miner.clone());
-
-    // // check that after the multiplier doubles, they are no longer eligible to receive the rewards
-    // // if they have the same amount bonded (since they’d then need twice the amount bonded as ratio changes from 10:1 to 20:1),
-    // // even if they have sufficient mpower
-    // check_ineligible_for_rewards_and_cooling_down_period_starts_if_insufficient_bonded(amount_bonded_each_miner.clone(), amount_mpower_each_miner.clone(), referendum_index.clone());
 }
 
 fn setup_min_mpower_daily(min_mpower_daily: u128) {
@@ -534,7 +558,7 @@ fn unbond_each_miner_by_removing_their_referendum_vote(referendum_index: u32) {
     let account_2_account_id: u64 = Decode::decode(&mut account_2_public_key.as_slice().clone()).ok().unwrap();
     let account_3_account_id: u64 = Decode::decode(&mut account_3_public_key.as_slice().clone()).ok().unwrap();
 
-        // remove the votes and then unlock for each account
+    // remove the votes and then unlock for each account
     // note: `remove_vote` must be done before `unlock`
     assert_ok!(Democracy::remove_vote(Origin::signed(account_1_account_id.clone()), referendum_index));
     assert_ok!(Democracy::remove_vote(Origin::signed(account_2_account_id.clone()), referendum_index));
@@ -542,8 +566,8 @@ fn unbond_each_miner_by_removing_their_referendum_vote(referendum_index: u32) {
     // we removed their votes
     assert_eq!(Democracy::referendum_status(referendum_index).unwrap().tally, Tally { ayes: 0, nays: 0, turnout: 0 });
     assert_ok!(Democracy::unlock(Origin::signed(account_1_account_id.clone()), account_1_account_id.clone()));
-    assert_ok!(Democracy::unlock(Origin::signed(account_2_account_id.clone()), account_1_account_id.clone()));
-    assert_ok!(Democracy::unlock(Origin::signed(account_3_account_id.clone()), account_1_account_id.clone()));
+    assert_ok!(Democracy::unlock(Origin::signed(account_2_account_id.clone()), account_2_account_id.clone()));
+    assert_ok!(Democracy::unlock(Origin::signed(account_3_account_id.clone()), account_3_account_id.clone()));
 
     // check that all accounts are unlocked
     assert_eq!(Balances::locks(account_1_account_id.clone()), vec![]);
@@ -680,68 +704,78 @@ fn claim_eligible_rewards_after_challenge_period_if_suffient_bonded(amount_bonde
 
     change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1630281600000i64);
 
+    // 30th Aug 2021 @ 12am is 1630281600000 (start of day)
+    Timestamp::set_timestamp(1630281600000u64);
+    MiningRewardsAllowanceTestModule::on_initialize(5);
+
+    change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1630368000000i64);
+
+    // 31th Aug 2021 @ 12am is 1630368000000 (start of day)
+    Timestamp::set_timestamp(1630368000000u64);
+    MiningRewardsAllowanceTestModule::on_initialize(6);
+
     // we can only claim the rewards for a date that was at least the challenge period (i.e. 7 days) prior to the current date
     // when a user submits a request to claim rewards that were calculated that they were eligible for on that prior date
 
     assert_ok!(MiningRewardsAllowanceTestModule::set_challenge_period_days(
         Origin::root(),
-        7u64,
+        2u64,
     ));
 
-    change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1630713600000i64);
-    // 4th September 2021 @ 12am is 1630713600000 (start of day)
-    Timestamp::set_timestamp(1630713600000u64);
-
-    // try to claim rewards they were NOT eligible for yet on the 29th Aug because it is less than the challenge period ago
+    // try to claim rewards they were NOT eligible for yet on the 31th Aug because it is less than the challenge period ago
     // i'll just try claiming the reward for one of the miners
     assert_eq!(
         MiningRewardsAllowanceTestModule::claim_rewards_of_account_for_date(
             Origin::signed(account_1_account_id.clone()),
             account_1_public_key.clone(),
-            1630713600000
+            1630368000000
         ),
-        Err(DispatchError::Other("Unable to retrieve balance for rewards_aggregated_dhx_daily. cooling down period or challenge period may not be finished yet"))
+        Err(DispatchError::Other("Not more than challenge period"))
     );
 
-    change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1630886400000i64);
-    // 6th September 2021 @ 12am is 1630886400000 (start of day)
-    Timestamp::set_timestamp(1630886400000u64);
+    // try to claim rewards they were deemed eligible for back on the 29th Aug (more than challenge period prior)
 
-    // try to claim rewards they were deemed eligible for back on the 29th Aug
-
-    // we'll get all three of the registered dhx miners to claim their rewards
     assert_ok!(MiningRewardsAllowanceTestModule::claim_rewards_of_account_for_date(
         Origin::signed(account_1_account_id.clone()),
         account_1_public_key.clone(),
         1630195200000
     ));
 
-    // // added this so logs appear so i can debug
-    // // assert_eq!(1, 0);
+    // change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1630713600000i64);
+    // // 4th September 2021 @ 12am is 1630713600000 (start of day)
+    // Timestamp::set_timestamp(1630713600000u64);
 
-    assert_ok!(MiningRewardsAllowanceTestModule::claim_rewards_of_account_for_date(
-        Origin::signed(account_2_account_id.clone()),
-        account_2_public_key.clone(),
-        1630195200000
-    ));
-
-    assert_ok!(MiningRewardsAllowanceTestModule::claim_rewards_of_account_for_date(
-        Origin::signed(account_3_account_id.clone()),
-        account_3_public_key.clone(),
-        1630195200000
-    ));
-
-    // after all the registered dhx miners have claimed their rewards this is the amount that should be remaining from the allocated dhx for the date
-    assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630195200000), Some(TWO_DHX));
-    // // TODO - each registered dhx miner is claiming rewards now instead of the rewards being automatically distributed,
-    // // see notes in the implementation lib.rs
-    // // assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining_distributed(1630195200000), Some(true));
+    // change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1630886400000i64);
+    // // 6th September 2021 @ 12am is 1630886400000 (start of day)
+    // Timestamp::set_timestamp(1630886400000u64);
 
 
+    // // // added this so logs appear so i can debug
+    // // // assert_eq!(1, 0);
 
-    // TODO - test the multiplier changing works. move the below into a separate test
+    // assert_ok!(MiningRewardsAllowanceTestModule::claim_rewards_of_account_for_date(
+    //     Origin::signed(account_2_account_id.clone()),
+    //     account_2_public_key.clone(),
+    //     1630195200000
+    // ));
 
-    // assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630195200000, 0)));
+    // assert_ok!(MiningRewardsAllowanceTestModule::claim_rewards_of_account_for_date(
+    //     Origin::signed(account_3_account_id.clone()),
+    //     account_3_public_key.clone(),
+    //     1630195200000
+    // ));
+
+    // // after all the registered dhx miners have claimed their rewards this is the amount that should be remaining from the allocated dhx for the date
+    // assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630195200000), Some(TWO_DHX));
+    // // // TODO - each registered dhx miner is claiming rewards now instead of the rewards being automatically distributed,
+    // // // see notes in the implementation lib.rs
+    // // // assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining_distributed(1630195200000), Some(true));
+
+
+
+    // TODO - move the below into a separate test
+
+    // assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630195200000, 0, 0)));
 
     // change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1630281600000i64);
 
@@ -752,7 +786,7 @@ fn claim_eligible_rewards_after_challenge_period_if_suffient_bonded(amount_bonde
 
     // // we have finished the cooling down period and should now be distributing rewards each day unless they reduce their bonded
     // // amount below the min. bonded DHX daily amount
-    // assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630281600000, 0)));
+    // assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630281600000, 0, 0)));
     // // check that the min_bonded_dhx_daily doubled after 3 months from 10 DHX to 20 DHX
     // assert_eq!(MiningRewardsAllowanceTestModule::min_bonded_dhx_daily(), Some(TWENTY_DHX));
     // // the change between each multiplier period is 10 unless a user sets it to a different value
@@ -779,14 +813,26 @@ fn check_rewards_double_each_multiplier_period(amount_mpower_each_miner: u128) {
     let account_2_public_key: Vec<u8> = BOB_PUBLIC_KEY.clone().into();
     let account_3_public_key: Vec<u8> = CHARLIE_PUBLIC_KEY.clone().into();
 
+    // 30th August 2021 @ ~7am is 1630306800000
+    // 30th August 2021 @ 12am is 1630281600000 (start of day)
+    Timestamp::set_timestamp(1630306800000u64);
+    MiningRewardsAllowanceTestModule::on_initialize(5);
+
+    assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1630281600000, 1630281600000, 2u32, 2u32)));
+
     change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1630368000000i64);
 
     // 31th August 2021 @ ~7am is 1630393200000
     // 31th August 2021 @ 12am is 1630368000000 (start of day)
     Timestamp::set_timestamp(1630393200000u64);
     MiningRewardsAllowanceTestModule::on_initialize(6);
-    // cooling down period doesn't change again unless they unbond
-    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630368000000, 0)));
+    // TODO - we don't need to use `cooling_down_period_days_remaining` to test the multiplier period works,
+    // but it should be set to the value below, so we might need an extrinsic like
+    // `set_cooling_down_period_days_remaining` to set it so we can test it is the
+    // value below
+    //
+    // // cooling down period must be 0 otherwise they are unbonding
+    // assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630368000000, 0, 0)));
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1630281600000, 1630368000000, 2u32, 1u32)));
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_change(), Some(10u32));
 
@@ -796,7 +842,7 @@ fn check_rewards_double_each_multiplier_period(amount_mpower_each_miner: u128) {
     // 1st Sept 2021 @ 12am is 1630454400000 (start of day)
     Timestamp::set_timestamp(1630479600000u64);
     MiningRewardsAllowanceTestModule::on_initialize(7);
-    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630454400000, 0)));
+    // assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630454400000, 0, 0)));
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1630281600000, 1630454400000, 2u32, 0u32)));
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_change(), Some(10u32));
 
@@ -805,9 +851,10 @@ fn check_rewards_double_each_multiplier_period(amount_mpower_each_miner: u128) {
     // 2nd Sept 2021 @ ~7am is 1630566000000
     // 2nd Sept 2021 @ 12am is 1630540800000 (start of day)
     Timestamp::set_timestamp(1630566000000u64);
-    MiningRewardsAllowanceTestModule::on_initialize(7);
-    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630540800000, 0)));
-    // start of new multiplier period
+    MiningRewardsAllowanceTestModule::on_initialize(8);
+    // assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630540800000, 0, 0)));
+
+    // check that it resets for a start of new multiplier period
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1630540800000, 1630540800000, 2u32, 2u32)));
     // check that the min_bonded_dhx_daily doubled after 3 months (we're only doing it after 2 days in the tests though) from 20 DHX to 30 DHX
     assert_eq!(MiningRewardsAllowanceTestModule::min_bonded_dhx_daily(), Some(THIRTY_DHX));
@@ -823,7 +870,7 @@ fn check_ineligible_for_rewards_and_cooling_down_period_starts_if_insufficient_b
     // 3rd Sept 2021 @ ~7am is 1630652400000
     // 3rd Sept 2021 @ 12am is 1630627200000 (start of day)
     Timestamp::set_timestamp(1630652400000u64);
-    MiningRewardsAllowanceTestModule::on_initialize(8);
+    MiningRewardsAllowanceTestModule::on_initialize(9);
 
     // the below works to unbond each of the accounts
 
@@ -838,25 +885,24 @@ fn check_ineligible_for_rewards_and_cooling_down_period_starts_if_insufficient_b
     // 4th Sept 2021 @ ~7am is 1630738800000
     // 4th Sept 2021 @ 12am is 1630713600000 (start of day)
     Timestamp::set_timestamp(1630738800000u64);
-    MiningRewardsAllowanceTestModule::on_initialize(9);
+    MiningRewardsAllowanceTestModule::on_initialize(10);
 
     // IMPORTANT NOTE: The min. DHX bonded has increased from 10 (10:1) to 20 (20:1) in order to be eligible
     // for rewards, however none of the miner's increased their bonded DHX amount proportionally to still remain
     // eligible for rewards, so since having insufficient bonded DHX is the same as unbonding, we expect the
     // cooling down period days remaining to change so they are now going through the unbonding cool down period,
     // (which we also count using `cooling_down_period_days_remaining`)
-    // where they aren't eligble for rewards until they bond the new min. DHX so cooling down period starts and
-    // then they'd be eligible for rewards after waiting that period, but also note that if they don't bond the new min.
-    // DHX and wait until the end of the cool down period then they'll be able to withdraw the amount they had bonded.
+    // where they aren't eligble for rewards during the unbonding whole unbonding period,
+    // then when they bond the new min. DHX then after the unbonding period the cooling down period starts and
+    // then they'd be eligible for rewards after waiting the challenge period.
     //
     // but in the tests the initial bonded amounts were much more than the min. DHX bonded, so even after it increases
     // from 10 (10:1) to 20 (20:1) they are still eligible for rewards.
     // so in the tests we've just decided to remove their vote and `unlock` their bonded DHX so they don't have a lock
     // and so don't satisfy the min. DHX bonded
 
-    // params: start of date, days remaining, bonding status
-    // note: since they don't have the min. DHX bonded their bonding status changes to `2`, which is unbonding
-    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630713600000, 1)));
+    // params: start of date, days remaining
+    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630713600000, 2, 1)));
 
     assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630713600000, account_1_public_key.clone())), Some(0u128));
     assert_eq!(MiningRewardsAllowanceTestModule::bonded_dhx_of_account_for_date((1630713600000, account_2_public_key.clone())), Some(0u128));
@@ -872,13 +918,12 @@ fn check_ineligible_for_rewards_and_cooling_down_period_starts_if_insufficient_b
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining(1630713600000), Some(FIVE_THOUSAND_DHX));
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_allowance_dhx_for_date_remaining_distributed(1630713600000), Some(false));
 
-    check_cooling_down_period_starts_again_if_sufficient_bonded_again(amount_bonded_each_miner.clone(), amount_mpower_each_miner.clone(), referendum_index.clone());
+    check_cooling_down_period_resets_and_eligible_for_rewards_if_sufficient_bonded_again(amount_bonded_each_miner.clone(), amount_mpower_each_miner.clone(), referendum_index.clone());
 }
 
-fn check_cooling_down_period_starts_again_if_sufficient_bonded_again(amount_bonded_each_miner: u128, amount_mpower_each_miner: u128, referendum_index: u32) {
+fn check_cooling_down_period_resets_and_eligible_for_rewards_if_sufficient_bonded_again(amount_bonded_each_miner: u128, amount_mpower_each_miner: u128, referendum_index: u32) {
     let account_1_public_key: Vec<u8> = ALICE_PUBLIC_KEY.clone().into();
-
-    bond_each_miner_by_voting_for_referendum(amount_bonded_each_miner, referendum_index);
+    let account_1_account_id: u64 = Decode::decode(&mut account_1_public_key.as_slice().clone()).ok().unwrap();
 
     change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1630800000000i64);
 
@@ -886,13 +931,92 @@ fn check_cooling_down_period_starts_again_if_sufficient_bonded_again(amount_bond
     // 5th Sept 2021 @ ~7am is 1630825200000
     // 5th Sept 2021 @ 12am is 1630800000000 (start of day)
     Timestamp::set_timestamp(1630825200000u64);
-    MiningRewardsAllowanceTestModule::on_initialize(10);
+    MiningRewardsAllowanceTestModule::on_initialize(11);
 
     // params: start of date, days remaining, bonding status
     // note: since they have the min. DHX bonded again their bonding status changes to `1`, which is bonding
-    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630800000000, 0)));
+    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630800000000, 1, 1)));
 
-    check_ineligible_for_rewards_and_cooling_down_period_starts_if_insufficient_mpower(amount_bonded_each_miner.clone(), amount_mpower_each_miner.clone(), referendum_index.clone());
+    change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1630886400000i64);
+
+    // 6th Sept 2021 @ ~7am is 1630911600000
+    // 6th Sept 2021 @ 12am is 1630886400000 (start of day)
+    Timestamp::set_timestamp(1630911600000u64);
+    MiningRewardsAllowanceTestModule::on_initialize(12);
+
+    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630886400000, 0, 1)));
+
+    // // temporarily set the challenge period really short so we can test that they weren't eligible for any rewards during the cooling down period
+    // assert_ok!(MiningRewardsAllowanceTestModule::set_challenge_period_days(
+    //     Origin::root(),
+    //     1u64,
+    // ));
+
+    // // try to claim rewards they were NOT eligible for yet on the 5th Sept since they were in the unbonding period
+    // assert_eq!(
+    //     MiningRewardsAllowanceTestModule::claim_rewards_of_account_for_date(
+    //         Origin::signed(account_1_account_id.clone()),
+    //         account_1_public_key.clone(),
+    //         1630800000000
+    //     ),
+    //     Err(DispatchError::Other("Unable to retrieve balance for rewards_aggregated_dhx_daily. cooling down period or challenge period may not be finished yet"))
+    // );
+
+    change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1630972800000i64);
+
+    // 7th Sept 2021 @ ~7am is 1630998000000
+    // 7th Sept 2021 @ 12am is 1630972800000 (start of day)
+    Timestamp::set_timestamp(1630998000000u64);
+    MiningRewardsAllowanceTestModule::on_initialize(13);
+
+    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630972800000, 0, 0)));
+
+    change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1631059200000i64);
+
+    // 8th Sept 2021 @ ~7am is 1631084400000
+    // 8th Sept 2021 @ 12am is 1631059200000 (start of day)
+    Timestamp::set_timestamp(1631084400000u64);
+    MiningRewardsAllowanceTestModule::on_initialize(14);
+
+    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630972800000, 0, 0)));
+
+    // try to claim rewards they were NOT eligible for yet on the 7th Sept since they were in the unbonding period
+    assert_eq!(
+        MiningRewardsAllowanceTestModule::claim_rewards_of_account_for_date(
+            Origin::signed(account_1_account_id.clone()),
+            account_1_public_key.clone(),
+            1630972800000
+        ),
+        Err(DispatchError::Other("Unable to retrieve balance for rewards_aggregated_dhx_daily. cooling down period or challenge period may not be finished yet"))
+    );
+
+
+
+
+    // restore again
+    assert_ok!(MiningRewardsAllowanceTestModule::set_challenge_period_days(
+        Origin::root(),
+        1u64,
+    ));
+
+
+
+
+    // // try to claim rewards they were deemed eligible for back on the 29th Aug
+
+    // // we'll get all three of the registered dhx miners to claim their rewards
+    // assert_ok!(MiningRewardsAllowanceTestModule::claim_rewards_of_account_for_date(
+    //     Origin::signed(account_1_account_id.clone()),
+    //     account_1_public_key.clone(),
+    //     1630195200000
+    // ));
+
+
+
+
+    // bond_each_miner_by_voting_for_referendum(amount_bonded_each_miner, referendum_index);
+
+    // check_ineligible_for_rewards_and_cooling_down_period_starts_if_insufficient_mpower(amount_bonded_each_miner.clone(), amount_mpower_each_miner.clone(), referendum_index.clone());
 }
 
 fn check_ineligible_for_rewards_and_cooling_down_period_starts_if_insufficient_mpower(amount_bonded_each_miner: u128, amount_mpower_each_miner: u128, referendum_index: u32) {
@@ -904,7 +1028,7 @@ fn check_ineligible_for_rewards_and_cooling_down_period_starts_if_insufficient_m
     // 6th Sept 2021 @ ~7am is 1630911600000
     // 6th Sept 2021 @ 12am is 1630886400000 (start of day)
     Timestamp::set_timestamp(1630911600000u64);
-    MiningRewardsAllowanceTestModule::on_initialize(11);
+    MiningRewardsAllowanceTestModule::on_initialize(12);
 
     // no mpower to check they'll be ineligible for rewards
     change_mpower_for_each_miner(0u128, 1630972800000i64);
@@ -912,11 +1036,11 @@ fn check_ineligible_for_rewards_and_cooling_down_period_starts_if_insufficient_m
     // 7th Sept 2021 @ ~7am is 1630998000000
     // 7th Sept 2021 @ 12am is 1630972800000 (start of day)
     Timestamp::set_timestamp(1630998000000u64);
-    MiningRewardsAllowanceTestModule::on_initialize(12);
+    MiningRewardsAllowanceTestModule::on_initialize(13);
 
     // params: start of date, days remaining, bonding status
     // note: since they don't have min. mPower their bonding status changes to `2`, which is unbonding
-    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630972800000, 0)));
+    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1630972800000, 0, 0)));
 
     check_cooling_down_period_starts_again_if_sufficient_mpower_again(amount_bonded_each_miner.clone(), amount_mpower_each_miner.clone(), referendum_index.clone());
 }
@@ -930,11 +1054,11 @@ fn check_cooling_down_period_starts_again_if_sufficient_mpower_again(amount_bond
     // 8th Sept 2021 @ ~7am is 1631084400000
     // 8th Sept 2021 @ 12am is 1631059200000 (start of day)
     Timestamp::set_timestamp(1631084400000u64);
-    MiningRewardsAllowanceTestModule::on_initialize(13);
+    MiningRewardsAllowanceTestModule::on_initialize(14);
 
     // params: start of date, days remaining, bonding status
     // note: they have min. mPower again so their bonding status changes to `0`, which is unbonded
-    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1631059200000, 0)));
+    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1631059200000, 0, 0)));
 
     // use original mpower
     change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1631145600000i64);
@@ -942,11 +1066,11 @@ fn check_cooling_down_period_starts_again_if_sufficient_mpower_again(amount_bond
     // 9th Sept 2021 @ ~7am is 1631170800000
     // 9th Sept 2021 @ 12am is 1631145600000 (start of day)
     Timestamp::set_timestamp(1631170800000u64);
-    MiningRewardsAllowanceTestModule::on_initialize(14);
+    MiningRewardsAllowanceTestModule::on_initialize(15);
 
     // params: start of date, days remaining, bonding status
     // note: they have min. mPower again so their bonding status changes to `1`, which means they are bonded again
-    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1631145600000, 1)));
+    assert_eq!(MiningRewardsAllowanceTestModule::cooling_down_period_days_remaining(account_1_public_key.clone()), Some((1631145600000, 1, 0)));
 
     // params: total days, days remaining
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1631059200000, 1631145600000, 2u32, 1u32)));
@@ -968,7 +1092,7 @@ fn check_pause_and_reset_rewards_multiplier_works(amount_bonded_each_miner: u128
     // 10th Sept 2021 @ ~7am is 1631257200000
     // 10th Sept 2021 @ 12am is 1631232000000 (start of day)
     Timestamp::set_timestamp(1631257200000u64);
-    MiningRewardsAllowanceTestModule::on_initialize(15);
+    MiningRewardsAllowanceTestModule::on_initialize(16);
 
     // use original mpower
     change_mpower_for_each_miner(amount_mpower_each_miner.clone(), 1631318400000i64);
@@ -976,7 +1100,7 @@ fn check_pause_and_reset_rewards_multiplier_works(amount_bonded_each_miner: u128
     // 11th Sept 2021 @ ~7am is 1631343600000
     // 11th Sept 2021 @ 12am is 1631318400000 (start of day)
     Timestamp::set_timestamp(1631343600000u64);
-    MiningRewardsAllowanceTestModule::on_initialize(16);
+    MiningRewardsAllowanceTestModule::on_initialize(17);
 
     // params: total days, days remaining
     // assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1631318400000, 1631318400000, 2u32, 2u32)));
@@ -997,7 +1121,7 @@ fn check_pause_and_reset_rewards_multiplier_works(amount_bonded_each_miner: u128
     // 12th Sept 2021 @ ~7am is 1631430000000
     // 12th Sept 2021 @ 12am is 1631404800000 (start of day)
     Timestamp::set_timestamp(1631430000000u64);
-    MiningRewardsAllowanceTestModule::on_initialize(17);
+    MiningRewardsAllowanceTestModule::on_initialize(18);
 
     // this starts reducing again since we unpaused it
     assert_eq!(MiningRewardsAllowanceTestModule::rewards_multiplier_current_period_days_remaining(), Some((1631059200000, 1631404800000, 2u32, 0u32)));

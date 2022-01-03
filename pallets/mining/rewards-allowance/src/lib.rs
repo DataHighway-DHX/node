@@ -443,6 +443,7 @@ pub mod pallet {
             // current date for a miner (i.e. only reduce the days remaining once per day per miner)
             Date,
             u32, // days remaining
+            u32, // 0: during cooldown period, 1: cooldown period finished (don't reset cooldown days remaining unless bond min. then unbond again)
         ),
     >;
 
@@ -511,7 +512,7 @@ pub mod pallet {
         pub min_mpower_daily_default: u128,
         pub challenge_period_days: u64,
         pub cooling_down_period_days: u32,
-        pub cooling_down_period_days_remaining: Vec<(Vec<u8>, (Date, u32))>,
+        pub cooling_down_period_days_remaining: Vec<(Vec<u8>, (Date, u32, u32))>,
     }
 
     // The default value for the genesis config type.
@@ -556,6 +557,7 @@ pub mod pallet {
                     (
                         Default::default(),
                         (
+                            Default::default(),
                             Default::default(),
                             Default::default(),
                         ),
@@ -607,8 +609,8 @@ pub mod pallet {
             <MinMPowerDailyDefault<T>>::put(&self.min_mpower_daily_default);
             <ChallengePeriodDays<T>>::put(&self.challenge_period_days);
             <CoolingDownPeriodDays<T>>::put(&self.cooling_down_period_days);
-            for (a, (b, c)) in &self.cooling_down_period_days_remaining {
-                <CoolingDownPeriodDaysRemaining<T>>::insert(a, (b, c));
+            for (a, (b, c, d)) in &self.cooling_down_period_days_remaining {
+                <CoolingDownPeriodDaysRemaining<T>>::insert(a, (b, c, d));
             }
         }
     }
@@ -1513,6 +1515,7 @@ pub mod pallet {
                 let mut cooling_down_period_days_remaining = (
                     start_of_requested_date_millis.clone(),
                     0u32,
+                    0u32,
                 );
                 if let Some(_cooling_down_period_days_remaining) = <CoolingDownPeriodDaysRemaining<T>>::get(miner_public_key.clone()) {
                     // we do not change cooling_down_period_days_remaining.0 to the default value in the chain_spec.rs of 0,
@@ -1521,6 +1524,7 @@ pub mod pallet {
                         cooling_down_period_days_remaining.0 = _cooling_down_period_days_remaining.0;
                     }
                     cooling_down_period_days_remaining.1 = _cooling_down_period_days_remaining.1;
+                    cooling_down_period_days_remaining.2 = _cooling_down_period_days_remaining.2;
                 } else {
                     log::info!("Unable to retrieve cooling down period days remaining for given miner, using default {:?}", miner_public_key.clone());
                     println!("Unable to retrieve cooling down period days remaining for given miner, using default {:?}", miner_public_key.clone());
@@ -1536,18 +1540,65 @@ pub mod pallet {
                 if
                     cooling_down_period_days_remaining.1 == 0u32 &&
                     is_bonding_min_dhx == false
-                {
-                    // Write the new value to storage
-                    <CoolingDownPeriodDaysRemaining<T>>::insert(
-                        miner_public_key.clone(),
-                        (
-                            start_of_requested_date_millis.clone(),
-                            cooling_down_period_days.clone(),
-                        ),
-                    );
 
-                    log::info!("Unbonding detected for miner. Starting cooling down period {:?} {:?}", miner_public_key.clone(), cooling_down_period_days.clone());
-                    println!("Unbonding detected for miner. Starting cooling down period {:?} {:?}", miner_public_key.clone(), cooling_down_period_days.clone());
+                {
+                    // case 1: just finished unbonding period
+                    if cooling_down_period_days_remaining.2 == 1u32 {
+                        <CoolingDownPeriodDaysRemaining<T>>::insert(
+                            miner_public_key.clone(),
+                            (
+                                start_of_requested_date_millis.clone(),
+                                0u32,
+                                0u32,
+                            ),
+                        );
+                    }
+
+                    // // case 2: after finished unbonding period, and where .2 set to 2u32 already
+                    // if cooling_down_period_days_remaining.2 == 2u32 {
+                    //     <CoolingDownPeriodDaysRemaining<T>>::insert(
+                    //         miner_public_key.clone(),
+                    //         (
+                    //             start_of_requested_date_millis.clone(),
+                    //             cooling_down_period_days_remaining.1,
+                    //             0u32,
+                    //         ),
+                    //     );
+                    // }
+                    // // case 1: just started unbonding after being
+                    // if cooling_down_period_days_remaining.2 == 0u32 {
+                    //     <CoolingDownPeriodDaysRemaining<T>>::insert(
+                    //         miner_public_key.clone(),
+                    //         (
+                    //             start_of_requested_date_millis.clone(),
+                    //             cooling_down_period_days.clone(),
+                    //             1u32,
+                    //         ),
+                    //     );
+                    // }
+                    // // case 2: midway through unbonding
+                    // if cooling_down_period_days_remaining.2 == 1u32 {
+                    //     <CoolingDownPeriodDaysRemaining<T>>::insert(
+                    //         miner_public_key.clone(),
+                    //         (
+                    //             start_of_requested_date_millis.clone(),
+                    //             cooling_down_period_days_remaining.1,
+                    //             1u32,
+                    //         ),
+                    //     );
+                    // // case 3: just finished unbonding
+                    // } else if cooling_down_period_days_remaining.2 == 0u32 {
+                    //     <CoolingDownPeriodDaysRemaining<T>>::insert(
+                    //         miner_public_key.clone(),
+                    //         (
+                    //             start_of_requested_date_millis.clone(),
+                    //             cooling_down_period_days_remaining.1,
+                    //             0u32,
+                    //         ),
+                    //     );
+                    // }
+                    // // case 4: finished unbonding period
+
 
                 // if cooling_down_period_days_remaining.0 is not the start of the current date
                 //   (since if they just started un-bonding
@@ -1558,8 +1609,9 @@ pub mod pallet {
                 // but not yet completely unbonded so cannot claim rewards yet
                 } else if
                     cooling_down_period_days_remaining.0 != start_of_requested_date_millis.clone() &&
-                    cooling_down_period_days_remaining.1 > 0u32 &&
-                    is_bonding_min_dhx == false
+                    cooling_down_period_days_remaining.1 > 0u32
+                    //  &&
+                    // is_bonding_min_dhx == false
                 {
                     let old_cooling_down_period_days_remaining = cooling_down_period_days_remaining.1.clone();
 
@@ -1585,6 +1637,7 @@ pub mod pallet {
                         (
                             start_of_requested_date_millis.clone(),
                             new_cooling_down_period_days_remaining.clone(),
+                            1u32,
                         ),
                     );
 
@@ -1955,9 +2008,27 @@ pub mod pallet {
             let current_timestamp = <pallet_timestamp::Pallet<T>>::get();
             let current_timestamp_as_u64 = Self::convert_moment_to_u64_in_milliseconds(current_timestamp.clone())?;
             log::info!("current_timestamp_as_u64: {:?}", current_timestamp_as_u64.clone());
+            println!("current_timestamp_as_u64: {:?}", current_timestamp_as_u64.clone());
             // convert the current timestamp to the start of that day date/time
             // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
             let start_of_current_date_millis = Self::convert_u64_in_milliseconds_to_start_of_date(current_timestamp_as_u64.clone())?;
+
+            // // Prevent them from claiming during their unbonding period
+            // let mut is_still_unbonding = false;
+            // if let Some(_cooling_down_period_days_remaining) = <CoolingDownPeriodDaysRemaining<T>>::get(miner_public_key.clone()) {
+            //     if _cooling_down_period_days_remaining.2 == 1 {
+            //         is_still_unbonding = true;
+            //     }
+            // } else {
+            //     log::info!("Unable to retrieve cooling down period days remaining for given miner {:?}", miner_public_key.clone());
+            //     println!("Unable to retrieve cooling down period days remaining for given miner {:?}", miner_public_key.clone());
+            //     return Err(DispatchError::Other("Unable to retrieve cooling down period days remaining for given miner"));
+            // }
+            // if is_still_unbonding == true {
+            //     log::info!("Unbonding still in progress for given miner {:?}", miner_public_key.clone());
+            //     println!("Unbonding still in progress for given miner {:?}", miner_public_key.clone());
+            //     return Err(DispatchError::Other("Unbonding still in progress for given miner"));
+            // }
 
             // where there are 86400000 milliseconds in a day
             // there are 7 * 86400000 = 604800000 milliseconds in 7 days
@@ -1975,7 +2046,7 @@ pub mod pallet {
                 Ok(x) => {
                     log::info!("Proceeding since waited at least the challenge period");
                     println!("Proceeding since waited at least the challenge period");
-                    is_more_than_challenge_period = x;
+                    is_more_than_challenge_period = true;
                 }
             }
 
@@ -3640,7 +3711,7 @@ pub mod pallet {
         //
         // `ChallengePeriodDays` is used only to ensure you can only claim each daily rewards manually 7 days after being found eligible,
         // even for the first 7 days after they start bonding)
-        pub fn is_more_than_challenge_period(start_of_requested_date_millis: i64) -> Result<bool, DispatchError> {
+        pub fn is_more_than_challenge_period(start_of_requested_date_millis: i64) -> Result<(), DispatchError> {
             let current_timestamp = <pallet_timestamp::Pallet<T>>::get();
             let current_timestamp_as_u64 = Self::convert_moment_to_u64_in_milliseconds(current_timestamp.clone())?;
             log::info!("current_timestamp_as_u64: {:?}", current_timestamp_as_u64.clone());
@@ -3658,6 +3729,8 @@ pub mod pallet {
                 let mut challenge_period_days = 0u64;
                 if let Some(_challenge_period_days) = <ChallengePeriodDays<T>>::get() {
                     challenge_period_days = _challenge_period_days;
+                    log::info!("existing challenge_period_days: {:?}", challenge_period_days.clone());
+                    println!("existing challenge_period_days: {:?}", challenge_period_days.clone());
                 } else {
                     log::error!("Unable to get challenge_period_days");
                     return Err(DispatchError::Other("Unable to get challenge_period_days"));;
@@ -3684,13 +3757,15 @@ pub mod pallet {
                 // println!("period_millis_u64: {:?}", period_millis_u64.clone());
                 if (period_millis_u64 >= challenge_period_millis.clone()) {
                     is_more_than_challenge_period = true;
+                    println!("is_more_than_challenge_period: {:?}", is_more_than_challenge_period.clone());
+                    return Ok(());
+                } else {
+                    return Err(DispatchError::Other("Not more than challenge period"));
                 }
             } else {
                 log::error!("Unable to subtract to determine if challenge period is satisfied");
                 return Err(DispatchError::Other("Unable to subtract to determine if challenge period is satisfied"));
             }
-
-            return Ok(is_more_than_challenge_period.clone());
         }
     }
 }
