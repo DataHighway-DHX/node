@@ -186,8 +186,6 @@ pub const DAYS: BlockNumber = HOURS * 24;
 
 pub const EPOCH_DURATION_IN_BLOCKS: BlockNumber = 1 * HOURS;
 
-// Unit = the base number of indivisible units for balances
-pub const UNIT: Balance = 1_000_000_000_000;
 pub const MILLIUNIT: Balance = 1_000_000_000;
 pub const MICROUNIT: Balance = 1_000_000;
 
