@@ -164,6 +164,14 @@ impl_opaque_keys! {
 }
 
 pub use types::*;
+pub use module_primitives::{
+    constants::currency::{
+        CENTS,
+        deposit,
+        DOLLARS,
+        MILLICENTS,
+    }
+};
 
 pub const VERSION: RuntimeVersion = RuntimeVersion {
     spec_name: create_runtime_str!("datahighway-parachain"),
@@ -187,10 +195,8 @@ pub const DAYS: BlockNumber = HOURS * 24;
 pub const EPOCH_DURATION_IN_BLOCKS: BlockNumber = 1 * HOURS;
 
 pub const MILLIUNIT: Balance = 1_000_000_000;
-pub const MICROUNIT: Balance = 1_000_000;
-
 /// The existential deposit. Set to 1/10 of the Connected Relay Chain.
-pub const EXISTENTIAL_DEPOSIT: Balance = MILLIUNIT;
+pub const EXISTENTIAL_DEPOSIT: Balance = 1 * DOLLARS;
 
 /// We assume that ~5% of the block weight is consumed by `on_initialize` handlers. This is
 /// used to limit the maximal weight of a single extrinsic.
@@ -352,7 +358,7 @@ impl pallet_balances::Config for Runtime {
 
 parameter_types! {
     /// Relay Chain `TransactionByteFee` / 10
-    pub const TransactionByteFee: Balance = 10 * MICROUNIT;
+    pub const TransactionByteFee: Balance = 10 * MILLICENTS;
     pub const OperationalFeeMultiplier: u8 = 5;
 }
 
