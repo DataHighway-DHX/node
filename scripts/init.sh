@@ -4,6 +4,7 @@ set -e
 
 echo "*** Initializing WASM build environment"
 
+rustup default stable
 rustup update stable
 rustup update nightly
 rustup toolchain install nightly-2021-03-10
