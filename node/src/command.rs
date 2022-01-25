@@ -47,9 +47,9 @@ fn load_spec(id: &str) -> std::result::Result<Box<dyn sc_service::ChainSpec>, St
         "westend-dev"=> Box::new(chain_spec::datahighway_westend_development_config()),
         "westend-local"=> Box::new(chain_spec::datahighway_westend_local_testnet_config()),
         "westend" => Box::new(chain_spec::datahighway_westend_parachain_config()),
-        "polkadot-dev"=> Box::new(chain_spec::datahighway_polkadot_development_config()),
-        "polkadot-local"=> Box::new(chain_spec::datahighway_polkadot_local_testnet_config()),
-        "polkadot" => Box::new(chain_spec::datahighway_polkadot_parachain_config()),
+        "kusama-dev"=> Box::new(chain_spec::datahighway_kusama_development_config()),
+        "kusama-local"=> Box::new(chain_spec::datahighway_kusama_local_testnet_config()),
+        "kusama" => Box::new(chain_spec::datahighway_kusama_parachain_config()),
         path => Box::new(chain_spec::ChainSpec::from_json_file(std::path::PathBuf::from(path))?),
     })
 }

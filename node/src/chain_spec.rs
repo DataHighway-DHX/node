@@ -588,15 +588,15 @@ pub fn datahighway_westend_local_testnet_config() -> ChainSpec {
     )
 }
 
-pub fn datahighway_polkadot_development_config() -> ChainSpec {
+pub fn datahighway_kusama_development_config() -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
     ChainSpec::from_genesis(
         // Name
-        "DataHighway Polkadot Development Testnet",
+        "DataHighway Kusama Development Testnet",
         // ID
-        "datahighway-polkadot-dev",
+        "datahighway-kusama-dev",
         ChainType::Development,
         move || {
             dev_genesis(
@@ -634,21 +634,21 @@ pub fn datahighway_polkadot_development_config() -> ChainSpec {
         None,
         Some(properties),
         Extensions {
-            relay_chain: "polkadot-dev".into(),
+            relay_chain: "kusama-dev".into(),
             para_id: 2000,
         },
     )
 }
 
-pub fn datahighway_polkadot_local_testnet_config() -> ChainSpec {
+pub fn datahighway_kusama_local_testnet_config() -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "UNIT".into());
     properties.insert("tokenDecimals".into(), 18.into());
     ChainSpec::from_genesis(
         // Name
-        "DataHighway Polkadot Local Testnet",
+        "DataHighway Kusama Local Testnet",
         // ID
-        "datahighway-polkadot-local",
+        "datahighway-kusama-local",
         ChainType::Local,
         move || {
             testnet_genesis(
@@ -686,7 +686,7 @@ pub fn datahighway_polkadot_local_testnet_config() -> ChainSpec {
         None,
         Some(properties),
         Extensions {
-            relay_chain: "polkadot-local".into(),
+            relay_chain: "kusama-local".into(),
             para_id: 2000,
         },
     )
@@ -781,14 +781,14 @@ pub fn datahighway_westend_parachain_config() -> ChainSpec {
     )
 }
 
-pub fn datahighway_polkadot_parachain_config() -> ChainSpec {
+pub fn datahighway_kusama_parachain_config() -> ChainSpec {
     let mut properties = sc_chain_spec::Properties::new();
     properties.insert("tokenSymbol".into(), "DHX".into());
     properties.insert("tokenDecimals".into(), 18.into());
     let boot_nodes = vec![];
     ChainSpec::from_genesis(
-        "DataHighway Tanganika Polkadot Parachain",
-        "datahighway-tanganika-polkadot-parachain",
+        "DataHighway Tanganika Kusama Parachain",
+        "datahighway-kusama-polkadot-parachain",
         ChainType::Live,
         move || {
             tanganika_testnet_genesis(
@@ -864,7 +864,7 @@ pub fn datahighway_polkadot_parachain_config() -> ChainSpec {
         Some("dhx"),
         Some(properties),
         Extensions {
-            relay_chain: "polkadot".into(),
+            relay_chain: "kusama".into(),
             para_id: 2000,
         },
     )
