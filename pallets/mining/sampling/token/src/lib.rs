@@ -32,6 +32,7 @@ use sp_std::prelude::*; // Imports Vec
 // FIXME - remove roaming_operators here, only use this approach since do not know how to use BalanceOf using only
 // mining runtime module
 use mining_setting_token;
+use scale_info::TypeInfo;
 
 #[cfg(test)]
 mod mock;
@@ -49,12 +50,12 @@ pub trait Config: frame_system::Config + roaming_operators::Config + mining_sett
 // type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
 // frame_system::Config>::AccountId>>::Balance;
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct MiningSamplingToken(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo)]
 pub struct MiningSamplingTokenSetting<U, V> {
     pub token_sample_block: U,
     pub token_sample_locked_amount: V,

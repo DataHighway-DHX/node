@@ -7,6 +7,7 @@ use crate::{
 
 use frame_support::{
     parameter_types,
+    traits::Everything,
     weights::{
         IdentityFee,
         Weight,
@@ -45,7 +46,7 @@ parameter_types! {
 impl frame_system::Config for Test {
     type AccountData = pallet_balances::AccountData<u64>;
     type AccountId = u64;
-    type BaseCallFilter = ();
+    type BaseCallFilter = Everything;
     type BlockHashCount = BlockHashCount;
     type BlockNumber = u64;
     type BlockLength = ();
@@ -82,9 +83,11 @@ impl pallet_balances::Config for Test {
     type WeightInfo = ();
 }
 parameter_types! {
+    pub const OperationalFeeMultiplier: u8 = 5;
     pub const TransactionByteFee: u64 = 1;
 }
 impl pallet_transaction_payment::Config for Test {
+    type OperationalFeeMultiplier = OperationalFeeMultiplier;
     type FeeMultiplierUpdate = ();
     type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
     type TransactionByteFee = TransactionByteFee;

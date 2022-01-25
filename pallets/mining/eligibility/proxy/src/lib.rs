@@ -53,6 +53,7 @@ use sp_std::{
     },
     prelude::*,
 };
+use scale_info::TypeInfo;
 
 /// The module's configuration trait.
 pub trait Config:
@@ -73,11 +74,11 @@ pub trait Config:
 type BalanceOf<T> = <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 type Date = i64;
 
-#[derive(Encode, Decode, Debug, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Debug, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive())]
 pub struct MiningEligibilityProxy(pub [u8; 16]);
 
-#[derive(Encode, Decode, Debug, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Debug, Default, Clone, PartialEq, TypeInfo)]
 #[cfg_attr(feature = "std", derive())]
 pub struct MiningEligibilityProxyRewardRequest<U, V, W> {
     pub proxy_claim_requestor_account_id: U, /* Supernode (proxy) account id requesting DHX rewards as proxy to
@@ -86,7 +87,7 @@ pub struct MiningEligibilityProxyRewardRequest<U, V, W> {
     pub proxy_claim_timestamp_redeemed: W,
 }
 
-#[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq, TypeInfo)]
 #[cfg_attr(feature = "std", derive())]
 pub struct MiningEligibilityProxyClaimRewardeeData<U, V, W, X> {
     pub proxy_claim_rewardee_account_id: U, // Rewardee miner associated with supernode (proxy) account id
@@ -95,7 +96,7 @@ pub struct MiningEligibilityProxyClaimRewardeeData<U, V, W, X> {
     pub proxy_claim_end_date: X,            // End date covered by claim requesting mining rewards
 }
 
-#[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq, TypeInfo)]
 #[cfg_attr(feature = "std", derive())]
 pub struct RewardRequestorData<U, V, W, X, Y> {
     pub mining_eligibility_proxy_id: U,
@@ -105,7 +106,7 @@ pub struct RewardRequestorData<U, V, W, X, Y> {
     pub requested_date: Y,
 }
 
-#[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq, TypeInfo)]
 #[cfg_attr(feature = "std", derive())]
 pub struct RewardTransferData<U, V, W, X, Y> {
     pub mining_eligibility_proxy_id: U,
@@ -115,7 +116,7 @@ pub struct RewardTransferData<U, V, W, X, Y> {
     pub requested_date: Y,
 }
 
-#[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq, TypeInfo)]
 #[cfg_attr(feature = "std", derive())]
 pub struct RewardDailyData<U, V, W, X, Y> {
     pub mining_eligibility_proxy_id: U,

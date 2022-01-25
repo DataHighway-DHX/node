@@ -28,6 +28,7 @@ use sp_runtime::{
     DispatchError,
 };
 use sp_std::prelude::*; // Imports Vec
+use scale_info::TypeInfo;
 
 #[cfg(test)]
 mod mock;
@@ -43,7 +44,7 @@ pub trait Config: frame_system::Config + roaming_operators::Config + roaming_net
     type RoamingServiceProfileDownlinkRate: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct RoamingServiceProfile(pub [u8; 16]);
 

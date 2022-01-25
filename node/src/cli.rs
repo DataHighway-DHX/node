@@ -1,6 +1,4 @@
 use crate::chain_spec;
-use cumulus_client_cli;
-use sc_cli;
 use std::path::PathBuf;
 use structopt::StructOpt;
 
@@ -44,10 +42,6 @@ pub struct ExportGenesisStateCommand {
     #[structopt(parse(from_os_str))]
     pub output: Option<PathBuf>,
 
-    /// Id of the parachain this state is for.
-    #[structopt(long, conflicts_with = "chain")]
-    pub parachain_id: Option<u32>,
-
     /// Write output in binary. Default is to write in hex.
     #[structopt(short, long)]
     pub raw: bool,
@@ -86,9 +80,9 @@ pub struct Cli {
     #[structopt(flatten)]
     pub run: cumulus_client_cli::RunCmd,
 
-    /// Relaychain arguments
+    /// Relay chain arguments
     #[structopt(raw = true)]
-    pub relaychain_args: Vec<String>,
+    pub relay_chain_args: Vec<String>,
 }
 
 #[derive(Debug)]

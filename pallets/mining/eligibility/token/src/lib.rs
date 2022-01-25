@@ -34,6 +34,7 @@ use sp_std::prelude::*; // Imports Vec
 use mining_setting_token;
 use mining_rates_token;
 use mining_sampling_token;
+use scale_info::TypeInfo;
 
 #[cfg(test)]
 mod mock;
@@ -60,12 +61,12 @@ pub trait Config:
 // type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
 // frame_system::Config>::AccountId>>::Balance;
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct MiningEligibilityToken(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo)]
 pub struct MiningEligibilityTokenResult<U, V> {
     pub token_calculated_eligibility: U,
     pub token_locked_percentage: V,

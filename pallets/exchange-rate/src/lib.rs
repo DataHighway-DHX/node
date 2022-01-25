@@ -28,19 +28,19 @@ use sp_runtime::{
     DispatchError,
 };
 use sp_std::prelude::*;
-
+use scale_info::TypeInfo;
 #[cfg(test)]
 mod mock;
 
 #[cfg(test)]
 mod tests;
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct ExchangeRate(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo)]
 pub struct ExchangeRateSetting<H, D, I, F, P> {
     pub hbtc: H,
     pub dot: D,

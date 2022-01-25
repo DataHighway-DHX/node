@@ -28,7 +28,7 @@ use sp_runtime::{
     DispatchError,
 };
 use sp_std::prelude::*; // Imports Vec
-
+use scale_info::TypeInfo;
 // FIXME - remove roaming_operators here, only use this approach since do not know how to use BalanceOf using only
 // mining runtime module
 
@@ -55,12 +55,12 @@ pub trait Config: frame_system::Config + roaming_operators::Config {
 // type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
 // frame_system::Config>::AccountId>>::Balance;
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct MiningSettingHardware(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo)]
 pub struct MiningSettingHardwareSetting<U, V, W, X, Y, Z> {
     pub hardware_secure: U,
     pub hardware_type: V,

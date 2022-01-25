@@ -22,9 +22,11 @@ std = [
     'roaming-networks/std',
     'roaming-operators/std',
     'serde',
+    'scale-info/std',
 ]
 
 [dependencies]
+scale-info = { version = "1.0.0", default-features = false, features = ["derive"] }
 codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
 safe-mix = { version = '1.0.0', default-features = false }
 roaming-networks = { default-features = false, package = 'roaming-networks', path = '../roaming-networks' }
@@ -35,46 +37,46 @@ serde = { version = '1.0.101', optional = true, features = ['derive'] }
 [dependencies.pallet-balances]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.13"
 
 [dependencies.pallet-randomness-collective-flip]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.13"
 
 [dependencies.pallet-transaction-payment]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.13"
 
 [dependencies.frame-support]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.13"
 
 [dependencies.frame-system]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.13"
 
 [dependencies.sp-core]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.13"
 
 [dependencies.sp-io]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.13"
 
 [dependencies.sp-runtime]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.13"
 
 [dependencies.sp-std]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.13"
 
 [dev-dependencies]

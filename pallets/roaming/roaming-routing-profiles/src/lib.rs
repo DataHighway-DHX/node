@@ -28,6 +28,8 @@ use sp_runtime::{
     DispatchError,
 };
 use sp_std::prelude::*; // Imports Vec
+use scale_info::TypeInfo;
+
 #[macro_use]
 extern crate alloc; // Required to use Vec
 
@@ -44,7 +46,7 @@ pub trait Config: frame_system::Config + roaming_operators::Config + roaming_dev
     type RoamingRoutingProfileAppServer: Parameter + Member + Default;
 }
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct RoamingRoutingProfile(pub [u8; 16]);
 

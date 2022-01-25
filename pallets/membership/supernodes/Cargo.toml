@@ -17,6 +17,7 @@ compatibility_version = "2.0.0"
 
 [dependencies]
 codec = { version = '2.0.0', package = 'parity-scale-codec', default-features = false, features = ['derive'] }
+scale-info = { version = "1.0.0", default-features = false, features = ["derive"] }
 
 # local packages
 account-set = { path = '../../../traits/account-set', default-features = false }
@@ -25,39 +26,39 @@ account-set = { path = '../../../traits/account-set', default-features = false }
 [dependencies.frame-support]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.13"
 
 
 [dependencies.frame-system]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.13"
 
 [dependencies.pallet-balances]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.13"
 
 [dependencies.sp-runtime]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.13"
 
 [dependencies.sp-std]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.13"
 
 [dev-dependencies]
 [dependencies.sp-io]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.13"
 
 [dependencies.sp-core]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-branch = "polkadot-v0.9.10"
+branch = "polkadot-v0.9.13"
 
 [features]
 default = ['std']
@@ -68,4 +69,5 @@ std = [
     'frame-system/std',
     'pallet-balances/std',
     'sp-runtime/std',
+    'scale-info/std',
 ]
