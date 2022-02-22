@@ -1171,7 +1171,7 @@ dependencies = [
 
 [[package]]
 name = "datahighway"
-version = "3.0.4"
+version = "3.0.6"
 dependencies = [
  "datahighway-runtime",
  "frame-benchmarking",
@@ -1229,7 +1229,7 @@ dependencies = [
 
 [[package]]
 name = "datahighway-runtime"
-version = "3.0.4"
+version = "3.0.6"
 dependencies = [
  "chrono",
  "exchange-rate",
@@ -1266,6 +1266,7 @@ dependencies = [
  "pallet-membership",
  "pallet-multisig",
  "pallet-offences",
+ "pallet-proxy",
  "pallet-randomness-collective-flip",
  "pallet-scheduler",
  "pallet-session",
@@ -3579,7 +3580,7 @@ dependencies = [
 
 [[package]]
 name = "mining-eligibility-proxy"
-version = "3.0.4"
+version = "3.0.6"
 dependencies = [
  "account-set",
  "chrono",
@@ -3848,7 +3849,7 @@ dependencies = [
 
 [[package]]
 name = "module-primitives"
-version = "3.0.4"
+version = "3.0.6"
 dependencies = [
  "bitmask",
  "parity-scale-codec",
@@ -4366,6 +4367,22 @@ dependencies = [
  "serde",
  "sp-runtime",
  "sp-staking",
+ "sp-std",
+]
+
+[[package]]
+name = "pallet-proxy"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "82b3aeaa4977795fce9a1b19d0bd0f0819602b18eb262fdaea1be620f0efe55c"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
  "sp-std",
 ]
 
