@@ -19,10 +19,9 @@ vergen = '3.0.4'
 futures = { version = '0.3.9', features = ['compat'] }
 jsonrpc-core = '15.0.0'
 structopt = '0.3.8'
-log = '0.4.14'
 codec = { package = 'parity-scale-codec', version = '2.0.0' }
-serde = { version = '1.0.132', features = ['derive'] }
-serde_json = '1.0.74'
+serde = { version = '1.0.102', features = ['derive'] }
+serde_json = '1.0.41'
 hex = { version = '0.4.3', default_features = false, features = ['alloc'] }
 hex-literal = '0.3.1'
 

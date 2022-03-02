@@ -1,4 +1,4 @@
-use datahighway_parachain_runtime::{
+use datahighway_runtime::{
     AccountId,
     Balance,
 };

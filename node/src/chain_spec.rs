@@ -1,6 +1,5 @@
 use crate::fixtures::get_allocation;
 use sp_finality_grandpa::AuthorityId as GrandpaId;
-use hex_literal::hex;
 use datahighway_runtime::{
     // opaque::{
     //     Block,
@@ -29,7 +28,6 @@ use datahighway_runtime::{
 };
 // required for AccountId::from_str
 use std::str::FromStr;
-use log::{error, info, debug, trace};
 use hex as hex_runtime; // for runtime string parsing use hex_runtime::encode("...");
 use hex_literal::{
     hex, // for parsing string literal at compile time use hex!("...");
@@ -40,7 +38,7 @@ use module_primitives::{
     },
 	types::{
         AccountId,
-        Balance,
+        // Balance,
         Signature,
     },
 };
