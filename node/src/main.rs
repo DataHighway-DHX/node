@@ -1,11 +1,11 @@
 #![warn(unused_extern_crates)]
 
 mod chain_spec;
+mod fixtures;
 #[macro_use]
 mod service;
 mod cli;
 mod command;
-mod fixtures;
 mod rpc;
 
 fn main() -> sc_cli::Result<()> {
