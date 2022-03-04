@@ -1,5 +1,5 @@
+use crate::fixtures::get_allocation;
 use sp_finality_grandpa::AuthorityId as GrandpaId;
-use hex_literal::hex;
 use datahighway_runtime::{
     // opaque::{
     //     Block,
@@ -37,6 +37,12 @@ use module_primitives::{
         Signature,
     },
 };
+// required for AccountId::from_str
+use std::str::FromStr;
+use hex as hex_runtime; // for runtime string parsing use hex_runtime::encode("...");
+use hex_literal::{
+    hex, // for parsing string literal at compile time use hex!("...");
+};
 use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
 use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 use sc_chain_spec::ChainSpecExtension;
@@ -54,6 +60,7 @@ use sp_core::{
     crypto::{
         UncheckedFrom,
         UncheckedInto,
+        Wraps,
     },
     sr25519,
     Pair,
@@ -64,12 +71,18 @@ use sp_runtime::traits::{
     Verify,
 };
 pub use sp_runtime::{
+    AccountId32,
     Perbill,
     Permill,
 };
 
 // Note this is the URL for the telemetry server
 const POLKADOT_STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
+
+const DATAHIGHWAY_LOCAL_PROTOCOL_ID: &str = "dhx-test-local";
+const DATAHIGHWAY_BRICKABLE_PROTOCOL_ID: &str = "dhx-test-brickable";
+const DATAHIGHWAY_HARBOUR_PROTOCOL_ID: &str = "dhx-test-harbour";
+const DATAHIGHWAY_MAINNET_PROTOCOL_ID: &str = "dhx-mainnet";
 
 /// Node `ChainSpec` extensions.
 ///
@@ -116,6 +129,63 @@ pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, Grandp
     )
 }
 
+// DHX DAO Unlocked Reserves Balance
+// Given a Treasury ModuleId in runtime parameter_types of
+// `py/trsry`, we convert that to its associated address
+// using Module ID" to Address" at https://www.shawntabrizi.com/substrate-js-utilities/,
+// which generates 5EYCAe5ijiYfyeZ2JJCGq56LmPyNRAKzpG4QkoQkkQNB5e6Z,
+// and find its corresponding hex value by pasting the address into
+// "AccountId to Hex" at that same link to return
+// 6d6f646c70792f74727372790000000000000000000000000000000000000000.
+// But since DataHighway is using an SS58 address prefix of 33 instead of
+// Substrate's default of 42, the address corresponds to
+// 4LTFqiD6H6g8a7ur9WH4RxhWx2givWfK7o5EDed3ai1nYTvk.
+// This is pallet_treasury's account_id.
+//
+// The older version of Substrate 2 did not have instantiable support for treasury
+// but was later supported in Substrate 3 and was fixed here
+// https://github.com/paritytech/substrate/pull/7058
+//
+// Since we updated to Substrate 3, we may transfer funds
+// directly to the Treasury, which will hold the
+// DHX DAO Unlocked Reserves Balance.
+//
+// Note: The original DataHighway Testnet Genesis has used:
+//   5FmxcuFwGK7kPmQCB3zhk3HtxxJUyb3WjxosF8jvnkrVRLUG
+//   4Mh2HyPJohFCzEm22G5VLvu59b1qUwNq3VpghyxDd4W6tJW9
+//   hex: a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21
+//
+// However, the DataHighway Westlake Mainnet and DataHighway Parachain will transfer the funds to:
+//   4LTFqiD6H6g8a7ur9WH4RxhWx2givWfK7o5EDed3ai1nYTvk
+//   hex: 6d6f646c70792f74727372790000000000000000000000000000000000000000
+//
+// To transfer funds from the Treasury, either the Sudo user needs to
+// call the `forceTransfer` extrinsic to transfer funds from the Treasury,
+// or a proposal is required.
+
+// note: we cannot use constants so a constant function has been used instead
+// https://datahighway.subscan.io/tools/format_transform
+
+// 6d6f646c70792f74727372790000000000000000000000000000000000000000
+pub fn dhx_unlocked_reserves_account() -> AccountId {
+    return AccountId32::from_str(&"4LTFqiD6H6g8a7ur9WH4RxhWx2givWfK7o5EDed3ai1nYTvk".to_string()).unwrap();
+}
+
+// 9068e3ce9b1055605a3bc4120e697b576c2ac6a13ee6f6ab751ad82e79eb4957
+pub fn sudo_account_brickable() -> AccountId {
+    return AccountId32::from_str(&"4MF7atBumtP8vGUGG1888e798TCYfXrHMNt52BxW8P3CQNpm".to_string()).unwrap();
+}
+
+// 3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d
+pub fn sudo_account_harbour() -> AccountId {
+    return AccountId32::from_str(&"4KMBdF9PAhGoeEvmzcdzKsnYwgwBk8CkMwyA6b152txYJfSL".to_string()).unwrap();
+}
+
+// c201d4551d04a99772d8efe196490a96b4ee5e608ac8e495be9505a99e723069
+pub fn sudo_account_westlake() -> AccountId {
+    return AccountId32::from_str(&"4NN9N4NCLWQWNsb2RRYE7CSPTN1tLa7Ez5eViJ4N1Q5wx9z3".to_string()).unwrap();
+}
+
 pub fn development_config() -> Result<ChainSpec, String> {
 	let wasm_binary = WASM_BINARY.ok_or_else(|| "Wasm not available".to_string())?;
 
@@ -141,39 +211,7 @@ pub fn development_config() -> Result<ChainSpec, String> {
                 get_account_id_from_seed::<sr25519::Public>("Alice"),
                 // Pre-funded accounts
                 vec![
-                    // DHX DAO Unlocked Reserves Balance
-                    // Given a Treasury PalletId in runtime parameter_types of
-                    // `py/trsry`, we convert that to its associated address
-                    // using Pallet ID" to Address" at https://www.shawntabrizi.com/substrate-js-utilities/,
-                    // which generates 5EYCAe5ijiYfyeZ2JJCGq56LmPyNRAKzpG4QkoQkkQNB5e6Z,
-                    // and find its corresponding hex value by pasting the address into
-                    // "AccountId to Hex" at that same link to return
-                    // 6d6f646c70792f74727372790000000000000000000000000000000000000000.
-                    // But since DataHighway is using an SS58 address prefix of 33 instead of
-                    // Substrate's default of 42, the address corresponds to
-                    // 4LTFqiD6H6g8a7ur9WH4RxhWx2givWfK7o5EDed3ai1nYTvk.
-                    // This is pallet_treasury's account_id.
-                    //
-                    // Substrate 2 does not have instantiable support for treasury
-                    // is only supported in Substrate 3 and was fixed here
-                    // https://github.com/paritytech/substrate/pull/7058
-                    //
-                    // Since we have now updated to Substrate 3, we may transfer funds
-                    // directly to the Treasury, which will hold the
-                    // DHX DAO Unlocked Reserves Balance.
-                    //
-                    // Note: The original DataHighway Testnet Genesis has used:
-                    //   5FmxcuFwGK7kPmQCB3zhk3HtxxJUyb3WjxosF8jvnkrVRLUG
-                    //   hex: a42b7518d62a942344fec55d414f1654bf3fd325dbfa32a3c30534d5976acb21
-                    //
-                    // However, the DataHighway Westlake Mainnet will transfer the funds to:
-                    //   4LTFqiD6H6g8a7ur9WH4RxhWx2givWfK7o5EDed3ai1nYTvk
-                    //   6d6f646c70792f74727372790000000000000000000000000000000000000000
-                    //
-                    // To transfer funds from the Treasury, either the Sudo user needs to
-                    // call the `forceTransfer` extrinsic to transfer funds from the Treasury,
-                    // or a proposal is required.
-                    hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
+                    dhx_unlocked_reserves_account(),
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
                     get_account_id_from_seed::<sr25519::Public>("Charlie"),
@@ -227,7 +265,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
                 vec![
                     // Endow this account with the DHX DAO Unlocked Reserves Balance
                     // 4LTFqiD6H6g8a7ur9WH4RxhWx2givWfK7o5EDed3ai1nYTvk
-                    hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
+                    dhx_unlocked_reserves_account(),
                     // Endow these accounts with a balance so they may bond as authorities
                     get_account_id_from_seed::<sr25519::Public>("Alice"),
                     get_account_id_from_seed::<sr25519::Public>("Bob"),
@@ -268,7 +306,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
                 .expect("Polkadot telemetry url is valid; qed"),
         ),
         // Protocol ID
-        Some("dhx-test"),
+        Some(DATAHIGHWAY_LOCAL_PROTOCOL_ID),
         // Properties
         Some(properties),
         // Extensions
@@ -320,14 +358,14 @@ pub fn datahighway_testnet_brickable_config() -> Result<ChainSpec, String> {
                 ],
                 // Sudo account
                 // 4MF7atBumtP8vGUGG1888e798TCYfXrHMNt52BxW8P3CQNpm
-                hex!["9068e3ce9b1055605a3bc4120e697b576c2ac6a13ee6f6ab751ad82e79eb4957"].into(),
+                sudo_account_brickable(),
                 // Pre-funded accounts
                 vec![
                     // Endow the Sudo account to cover transaction fees
-                    hex!["9068e3ce9b1055605a3bc4120e697b576c2ac6a13ee6f6ab751ad82e79eb4957"].into(),
+                    sudo_account_brickable(),
                     // Endow the Treasury account with the DHX DAO Unlocked Reserves Balance
                     // 4LTFqiD6H6g8a7ur9WH4RxhWx2givWfK7o5EDed3ai1nYTvk
-                    hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
+                    dhx_unlocked_reserves_account(),
                     // Endow these accounts with a balance so they may bond as authorities.
                     // IMPORTANT: All authorities must be included in the list below so they have
                     // an account balance to avoid session error
@@ -387,7 +425,7 @@ pub fn datahighway_testnet_brickable_config() -> Result<ChainSpec, String> {
                 .expect("Polkadot telemetry url is valid; qed"),
         ),
         // Protocol ID
-        Some("dhx-test-brickable"),
+        Some(DATAHIGHWAY_BRICKABLE_PROTOCOL_ID),
         // Properties
         Some(properties),
         // Extensions
@@ -440,14 +478,14 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                     ),
                 ],
                 // Sudo account
-                hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
+                sudo_account_harbour(),
                 // Pre-funded accounts
                 vec![
                     // Endow the Sudo account to cover transaction fees
-                    hex!["3c917f65753cd375582a6d7a1612c8f01df8805f5c8940a66e9bda3040f88f5d"].into(),
+                    sudo_account_harbour(),
                     // Endow the Treasury account with the DHX DAO Unlocked Reserves Balance
                     // 4LTFqiD6H6g8a7ur9WH4RxhWx2givWfK7o5EDed3ai1nYTvk
-                    hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
+                    dhx_unlocked_reserves_account(),
                     // Endow these accounts with a balance so they may bond as authorities.
                     // IMPORTANT: All authorities must be included in the list below so they have
                     // an account balance to avoid session error
@@ -543,7 +581,7 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
                 .expect("Polkadot telemetry url is valid; qed"),
         ),
         // Protocol ID
-        Some("dhx-test"),
+        Some(DATAHIGHWAY_HARBOUR_PROTOCOL_ID),
         // Properties
         Some(properties),
         // Extensions
@@ -590,13 +628,13 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                     ),
                 ],
                 // Sudo account
-                hex!["c201d4551d04a99772d8efe196490a96b4ee5e608ac8e495be9505a99e723069"].into(),
+                sudo_account_westlake(),
                 // Pre-funded accounts
                 vec![
                     // Endow the Sudo account to cover transaction fees
-                    hex!["c201d4551d04a99772d8efe196490a96b4ee5e608ac8e495be9505a99e723069"].into(),
+                    sudo_account_westlake(),
                     // Endow the Treasury account with the DHX DAO Unlocked Reserves Balance
-                    hex!["6d6f646c70792f74727372790000000000000000000000000000000000000000"].into(),
+                    dhx_unlocked_reserves_account(),
                     // Endow these accounts with a balance so they may bond as authorities.
                     // IMPORTANT: All authorities must be included in the list below so they have
                     // an account balance to avoid session error
@@ -793,7 +831,7 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
                 .expect("Polkadot telemetry url is valid; qed"),
         ),
         // Protocol ID
-        Some("dhx-mainnet"),
+        Some(DATAHIGHWAY_MAINNET_PROTOCOL_ID),
         // Properties
         Some(properties),
         // Extensions
@@ -815,18 +853,22 @@ fn session_keys(
     }
 }
 
-// Testnet
+const INITIAL_ENDOWMENT: u128 = 10_000_000_000_000_000_000_u128; // 10 DHX
+const INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_000_000_000_000_000_u128; // 30M DHX
+const INITIAL_STASH: u128 = INITIAL_ENDOWMENT / 10; // 1 DHX
 
-// in testnet total supply should be 100m, with 30m (30%) going to DHX DAO unlocked reserves, and the remaining
-// 70m split between the initial accounts other than the reserves
-const TESTNET_INITIAL_ENDOWMENT: u128 = 10_000_000_000_000_000_000_u128; // 10 DHX
-const TESTNET_INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_000_000_000_000_000_u128; // 30M DHX
-const TESTNET_INITIAL_STASH: u128 = MAINNET_INITIAL_ENDOWMENT / 10; // 1 DHX
-
-// Mainnet
-const MAINNET_INITIAL_ENDOWMENT: u128 = 10_000_000_000_000_000_000_u128; // 10 DHX
-const MAINNET_INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE: u128 = 30_000_000_000_000_000_000_000_000_u128; // 30M DHX
-const MAINNET_INITIAL_STASH: u128 = MAINNET_INITIAL_ENDOWMENT / 10; // 1 DHX
+fn get_balances(endowed_accounts: Vec<AccountId>) -> Vec<(AccountId32, Balance)> {
+    let mut endowed_accounts_with_balances: Vec<(AccountId, Balance)> = vec![];
+    for x in endowed_accounts {
+        if x == dhx_unlocked_reserves_account() {
+            endowed_accounts_with_balances.push((x, INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE));
+        } else {
+            endowed_accounts_with_balances.push((x, INITIAL_ENDOWMENT));
+        }
+    }
+    let allocation = get_allocation(endowed_accounts_with_balances.clone()).unwrap();
+    return allocation;
+}
 
 /// Configure initial storage state for FRAME modules.
 fn testnet_genesis(
@@ -837,6 +879,7 @@ fn testnet_genesis(
     _enable_println: bool, // No println
 ) -> GenesisConfig {
     let num_endowed_accounts = endowed_accounts.len();
+    let hardspoon_balances = get_balances(endowed_accounts.clone());
 
 	GenesisConfig {
         system: SystemConfig {
@@ -844,25 +887,11 @@ fn testnet_genesis(
             changes_trie_config: Default::default(),
         },
         balances: BalancesConfig {
-            balances: endowed_accounts
+            balances: hardspoon_balances
                 .iter()
                 .cloned()
-                .map(|x| {
-                    // Insert Public key (hex) of the account without the 0x prefix below
-                    if x == UncheckedFrom::unchecked_from(
-                        hex!("6d6f646c70792f74727372790000000000000000000000000000000000000000").into(),
-                    ) {
-                        // If we use println, then the top of the chain specification file that gets
-                        // generated contains the println, and then we have to remove the println from
-                        // the top of that file to generate the "raw" chain definition
-                        // println!("endowed_account treasury {:?}", x.clone());
-                        return (x, TESTNET_INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
-                    } else {
-                        // println!("endowed_account {:?}", x.clone());
-                        return (x, TESTNET_INITIAL_ENDOWMENT);
-                    }
-                })
-            .collect(),
+                .map(|x| (x.0.clone(), x.1.clone()))
+                .collect(),
         },
         indices: IndicesConfig {
             indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
@@ -878,7 +907,7 @@ fn testnet_genesis(
             minimum_validator_count: initial_authorities.len() as u32,
             stakers: initial_authorities
                 .iter()
-                .map(|x| (x.0.clone(), x.1.clone(), TESTNET_INITIAL_STASH, StakerStatus::Validator))
+                .map(|x| (x.0.clone(), x.1.clone(), INITIAL_STASH, StakerStatus::Validator))
                 .collect(),
             invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
             slash_reward_fraction: Perbill::from_percent(10),
@@ -890,7 +919,7 @@ fn testnet_genesis(
                 .iter()
                 .take((num_endowed_accounts + 1) / 2)
                 .cloned()
-                .map(|member| (member, TESTNET_INITIAL_STASH))
+                .map(|member| (member, INITIAL_STASH))
                 .collect(),
         },
         // https://github.com/paritytech/substrate/commit/d6ac9f551b71d9c7b69afcebfc68ace310ef74ee
@@ -932,6 +961,7 @@ fn mainnet_genesis(
     _enable_println: bool, // No println
 ) -> GenesisConfig {
     let num_endowed_accounts = endowed_accounts.len();
+    let hardspoon_balances = get_balances(endowed_accounts.clone());
 
 	GenesisConfig {
         system: SystemConfig {
@@ -939,22 +969,11 @@ fn mainnet_genesis(
             changes_trie_config: Default::default(),
         },
         balances: BalancesConfig {
-            balances: endowed_accounts
+            balances: hardspoon_balances
                 .iter()
                 .cloned()
-                .map(|x| {
-                    // Insert Public key (hex) of the account without the 0x prefix below
-                    if x == UncheckedFrom::unchecked_from(
-                        hex!("6d6f646c70792f74727372790000000000000000000000000000000000000000").into(),
-                    ) {
-                        // println!("endowed_account treasury {:?}", x.clone());
-                        return (x, MAINNET_INITIAL_DHX_DAO_TREASURY_UNLOCKED_RESERVES_BALANCE);
-                    } else {
-                        // println!("endowed_account {:?}", x.clone());
-                        return (x, MAINNET_INITIAL_ENDOWMENT);
-                    }
-                })
-            .collect(),
+                .map(|x| (x.0.clone(), x.1.clone()))
+                .collect(),
         },
         indices: IndicesConfig {
             indices: endowed_accounts.iter().enumerate().map(|(index, x)| (index as u32, (*x).clone())).collect(),
@@ -970,7 +989,7 @@ fn mainnet_genesis(
             minimum_validator_count: initial_authorities.len() as u32,
             stakers: initial_authorities
                 .iter()
-                .map(|x| (x.0.clone(), x.1.clone(), MAINNET_INITIAL_STASH, StakerStatus::Validator))
+                .map(|x| (x.0.clone(), x.1.clone(), INITIAL_STASH, StakerStatus::Validator))
                 .collect(),
             invulnerables: initial_authorities.iter().map(|x| x.0.clone()).collect(),
             slash_reward_fraction: Perbill::from_percent(10),
@@ -982,7 +1001,7 @@ fn mainnet_genesis(
                 .iter()
                 .take((num_endowed_accounts + 1) / 2)
                 .cloned()
-                .map(|member| (member, MAINNET_INITIAL_STASH))
+                .map(|member| (member, INITIAL_STASH))
                 .collect(),
         },
         // https://github.com/paritytech/substrate/commit/d6ac9f551b71d9c7b69afcebfc68ace310ef74ee
