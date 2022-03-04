@@ -365,7 +365,7 @@ First node
 ./target/release/datahighway --validator \
   ...
   --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee
-  --chain ./node/src/chain-built/chain_def_local.json \
+  --chain ./res/chain_def_local.json \
   --name "Local Validator Node 1" \
   --port 30333 \
   --ws-port 9944 \
@@ -379,7 +379,7 @@ Second node
 ./target/release/datahighway --validator \
   ...
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo \
-  --chain ./node/src/chain-built/chain_def_local.json \
+  --chain ./res/chain_def_local.json \
   --name "Local Validator Node 2" \
   --port 30334 \
   --ws-port 9945 \
@@ -393,7 +393,7 @@ ERROR tokio-runtime-worker sync: Bootnode with peer id `12D3KooWKS7jU8ti7S5PDqCN
 ```
     * Ans: Check that you have added all necessary flags in your command, and if you've used multiple lines make sure there are no missing newline characters `\` so that it recognises the `--chain ...` that you've provided
 
-* Question: When I run a local network using chain "local" by connecting the peer nodes using `--chain local`, why doesn't it generate blocks like it does when using `--chain ./node/src/chain-built/chain_def_local.json` and finalise blocks after running at least five nodes, where the chain_def_local.json file that is used was built on the same machine we are running the command from?
+* Question: When I run a local network using chain "local" by connecting the peer nodes using `--chain local`, why doesn't it generate blocks like it does when using `--chain ./res/chain_def_local.json` and finalise blocks after running at least five nodes, where the chain_def_local.json file that is used was built on the same machine we are running the command from?
     * Ans: Check that you have added all necessary flags in your command, and if you've used multiple lines make sure there are no missing newline characters `\` so that it recognises the `--chain ...` that you've provided
 
 ## Technical Support <a id="chapter-c00ab7"></a>

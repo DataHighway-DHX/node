@@ -112,7 +112,7 @@ In each terminal we will connect using the "local" chain specification
 
 Run Alice's bootnode using the raw chain definition file that was generated
 
-Note that it should work whether you use `--chain local \` or `--chain ./node/src/chain-built/chain_def_local.json \` below. See section "Create custom blockchain configuration" and https://substrate.dev/docs/en/tutorials/start-a-private-network/customspec for when we would generate the chain spec and definition .json file when we have a custom chain (e.g. brickable, harbour and westlake)
+Note that it should work whether you use `--chain local \` or `--chain ./res/chain_def_local.json \` below. See section "Create custom blockchain configuration" and https://substrate.dev/docs/en/tutorials/start-a-private-network/customspec for when we would generate the chain spec and definition .json file when we have a custom chain (e.g. brickable, harbour and westlake)
 
 ```bash
 ./target/release/datahighway --validator \
@@ -311,25 +311,25 @@ curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"a
 * Generate the chain specification JSON file from src/chain_spec.rs
 
 ```bash
-rm ./node/src/chain-built/chain_spec_local.json
-touch ./node/src/chain-built/chain_spec_local.json
+rm ./res/chain_spec_local.json
+touch ./res/chain_spec_local.json
 mkdir -p ./node/src/chain-built
 ./target/release/datahighway build-spec \
-  --chain=local > ./node/src/chain-built/chain_spec_local.json
+  --chain=local > ./res/chain_spec_local.json
 ```
 
 * Build "raw" chain definition for the new chain from it
 
 ```bash
-rm ./node/src/chain-built/chain_def_local.json
-touch ./node/src/chain-built/chain_def_local.json
+rm ./res/chain_def_local.json
+touch ./res/chain_def_local.json
 mkdir -p ./node/src/chain-built
 ./target/release/datahighway build-spec \
-  --chain ./node/src/chain-built/chain_spec_local.json \
-  --raw > ./node/src/chain-built/chain_def_local.json
+  --chain ./res/chain_spec_local.json \
+  --raw > ./res/chain_def_local.json
 ```
 
-* Repeat the same steps that were done before in Terminals 1 to 5, including first purging your chain, and replacing `--chain ./node/src/chain-built/chain_def_local.json \` with `--chain local \` in each command.
+* Repeat the same steps that were done before in Terminals 1 to 5, including first purging your chain, and replacing `--chain ./res/chain_def_local.json \` with `--chain local \` in each command.
 
 #### Run (with Docker containers)
 
@@ -478,13 +478,13 @@ to avoid potentially bricking the DataHighway Harbour Testnet and impacting user
 cargo build --release
 ```
 
-* Obtain the "raw" chain definition from [here](./node/src/chain-built/chain_def_westlake.json). Note that it should have already been generated for you with:
+* Obtain the "raw" chain definition from [here](./res/chain_def_westlake.json). Note that it should have already been generated for you with:
 ```
 ./target/release/datahighway build-spec \
-  --chain=westlake > ./node/src/chain-built/chain_spec_westlake.json &&
+  --chain=westlake > ./res/chain_spec_westlake.json &&
 ./target/release/datahighway build-spec \
-  --chain ./node/src/chain-built/chain_spec_westlake.json \
-  --raw > ./node/src/chain-built/chain_def_westlake.json
+  --chain ./res/chain_spec_westlake.json \
+  --raw > ./res/chain_def_westlake.json
 ```
 
 * Either use `--chain westlake` to run additional validator nodes, as shown below:
@@ -512,7 +512,7 @@ cargo build --release
   --validator \
   --base-path ~/chain-base/node-X \
   --bootnodes /ip4/172.31.1.230/tcp/30333/p2p/<BOOTNODE_PEER_ID> \
-  --chain ./node/src/chain-built/chain_def_westlake.json \
+  --chain ./res/chain_def_westlake.json \
   --name "DataHighway Westlake Mainnet - Validator X" \
   --port 30333 \
   --rpc-port 9933 \

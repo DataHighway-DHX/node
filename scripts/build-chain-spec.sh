@@ -7,8 +7,8 @@ echo "Build Chain Spec for ${CHAIN_VERSION}"
 # Note that this requires the native binary built first
 # Pass network name as parameter 1 eg. ./build-chain-spec.sh dev
 ../target/release/datahighway build-spec \
-  --chain=${CHAIN_VERSION} > ../node/src/chain-built/chain_spec_${CHAIN_VERSION}.json
+  --chain=${CHAIN_VERSION} > ../res/chain_spec_${CHAIN_VERSION}.json
 # Build "raw" chain definition for the new chain from it
 ../target/release/datahighway build-spec \
-  --chain ../node/src/chain-built/chain_spec_${CHAIN_VERSION}.json \
-  --raw > ../node/src/chain-built/chain_def_${CHAIN_VERSION}.json
+  --chain ../res/chain_spec_${CHAIN_VERSION}.json \
+  --raw > ../res/chain_def_${CHAIN_VERSION}.json
