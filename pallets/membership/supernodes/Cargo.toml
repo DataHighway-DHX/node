@@ -1,7 +1,7 @@
 [package]
 name = "membership-supernodes"
 version = "2.0.0"
-edition = "2018"
+edition = "2021"
 repository = 'https://github.com/substrate-developer-hub/recipes'
 authors = ['Substrate DevHub <https://github.com/substrate-developer-hub>']
 description = "Fork of Substrate Recipe pallet vec-set. A pallet that implements a storage Set on top of a Vec"
@@ -20,18 +20,18 @@ codec = { version = '2.3.1', package = 'parity-scale-codec', default-features = 
 scale-info = { version = '1.0', default-features = false, features = ['derive'] }
 
 # Substrate packages
-frame-support = { git = 'https://github.com/paritytech/substrate', rev = '26d69bcbe26f6b463e9374e1b1c54c3067fb6131', default-features = false }
-frame-system = { git = 'https://github.com/paritytech/substrate', rev = '26d69bcbe26f6b463e9374e1b1c54c3067fb6131', default-features = false }
-pallet-balances = { git = 'https://github.com/paritytech/substrate', rev = '26d69bcbe26f6b463e9374e1b1c54c3067fb6131', default-features = false }
-sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '26d69bcbe26f6b463e9374e1b1c54c3067fb6131', default-features = false }
-sp-std = { git = 'https://github.com/paritytech/substrate', rev = '26d69bcbe26f6b463e9374e1b1c54c3067fb6131', default-features = false }
+frame-support = { git = 'https://github.com/paritytech/substrate', rev = 'abca10f32a1844d4d05884c92ea2e08b17c6b8c3', default-features = false }
+frame-system = { git = 'https://github.com/paritytech/substrate', rev = 'abca10f32a1844d4d05884c92ea2e08b17c6b8c3', default-features = false }
+pallet-balances = { git = 'https://github.com/paritytech/substrate', rev = 'abca10f32a1844d4d05884c92ea2e08b17c6b8c3', default-features = false }
+sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = 'abca10f32a1844d4d05884c92ea2e08b17c6b8c3', default-features = false }
+sp-std = { git = 'https://github.com/paritytech/substrate', rev = 'abca10f32a1844d4d05884c92ea2e08b17c6b8c3', default-features = false }
 
 # local packages
 account-set = { path = '../../../traits/account-set', default-features = false }
 
 [dev-dependencies]
-sp-core = { git = 'https://github.com/paritytech/substrate', rev = '26d69bcbe26f6b463e9374e1b1c54c3067fb6131', default-features = false }
-sp-io = { git = 'https://github.com/paritytech/substrate', rev = '26d69bcbe26f6b463e9374e1b1c54c3067fb6131', default-features = false }
+sp-core = { git = 'https://github.com/paritytech/substrate', rev = 'abca10f32a1844d4d05884c92ea2e08b17c6b8c3', default-features = false }
+sp-io = { git = 'https://github.com/paritytech/substrate', rev = 'abca10f32a1844d4d05884c92ea2e08b17c6b8c3', default-features = false }
 
 [features]
 default = ['std']

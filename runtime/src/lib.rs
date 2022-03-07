@@ -312,6 +312,7 @@ impl pallet_randomness_collective_flip::Config for Runtime {}
 impl pallet_utility::Config for Runtime {
 	type Event = Event;
 	type Call = Call;
+    type PalletsOrigin = OriginCaller;
 	type WeightInfo = pallet_utility::weights::SubstrateWeight<Runtime>;
 }
 
@@ -1232,36 +1233,39 @@ construct_runtime!(
         UncheckedExtrinsic = UncheckedExtrinsic
     {
         // IMPORTANT: Order is important. Ensure the order matches Substrate's repository
-        System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
-        Utility: pallet_utility::{Pallet, Call, Event},
-        Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent},
-        Aura: pallet_aura::{Pallet, Config<T>},
-        Authorship: pallet_authorship::{Pallet, Call, Storage, Inherent},
-        Indices: pallet_indices::{Pallet, Call, Storage, Config<T>, Event<T>},
-        Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
-        TransactionPayment: pallet_transaction_payment::{Pallet, Storage, Config},
-        ElectionProviderMultiPhase: pallet_election_provider_multi_phase::{Pallet, Call, Storage, Event<T>, ValidateUnsigned},
-        Staking: pallet_staking::{Pallet, Call, Config<T>, Storage, Event<T>},
-        Session: pallet_session::{Pallet, Call, Storage, Event, Config<T>},
-        Democracy: pallet_democracy::{Pallet, Call, Storage, Config<T>, Event<T>},
-        Council: pallet_collective::<Instance1>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>},
-        TechnicalCommittee: pallet_collective::<Instance2>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>},
-        Elections: pallet_elections_phragmen::{Pallet, Call, Storage, Event<T>, Config<T>},
-        TechnicalMembership: pallet_membership::<Instance1>::{Pallet, Call, Storage, Event<T>, Config<T>},
-        Grandpa: pallet_grandpa::{Pallet, Call, Storage, Config, Event, ValidateUnsigned},
-        Treasury: pallet_treasury::{Pallet, Call, Storage, Config, Event<T>},
-        Sudo: pallet_sudo::{Pallet, Call, Config<T>, Storage, Event<T>},
-        ImOnline: pallet_im_online::{Pallet, Call, Storage, Event<T>, ValidateUnsigned, Config<T>},
-        AuthorityDiscovery: pallet_authority_discovery::{Pallet, Config},
-        Offences: pallet_offences::{Pallet, Storage, Event},
+        System: frame_system,
+        Utility: pallet_utility,
+        Timestamp: pallet_timestamp,
+        Aura: pallet_aura,
+        Authorship: pallet_authorship,
+        Indices: pallet_indices,
+        Balances: pallet_balances,
+        TransactionPayment: pallet_transaction_payment,
+        ElectionProviderMultiPhase: pallet_election_provider_multi_phase,
+        Staking: pallet_staking,
+        Session: pallet_session,
+        Democracy: pallet_democracy,
+        Council: pallet_collective::<Instance1>,
+        TechnicalCommittee: pallet_collective::<Instance2>,
+        Elections: pallet_elections_phragmen,
+        TechnicalMembership: pallet_membership::<Instance1>,
+        Grandpa: pallet_grandpa,
+        Treasury: pallet_treasury,
+        Sudo: pallet_sudo,
+        ImOnline: pallet_im_online,
+        AuthorityDiscovery: pallet_authority_discovery,
+        Offences: pallet_offences,
+        // TODO - why can't i remove `::{Pallet}` like in this commit https://github.com/paritytech/substrate/commit/6af19fdc47f16bee2901908e34b70d6d7ba80c59
         Historical: pallet_session_historical::{Pallet},
-        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
-        Identity: pallet_identity::{Pallet, Call, Storage, Event<T>},
-        Scheduler: pallet_scheduler::{Pallet, Call, Storage, Config, Event<T>},
-        Multisig: pallet_multisig::{Pallet, Call, Storage, Event<T>},
-        Bounties: pallet_bounties::{Pallet, Call, Storage, Event<T>},
-        Tips: pallet_tips::{Pallet, Call, Storage, Event<T>},
-        BagsList: pallet_bags_list::{Pallet, Call, Storage, Event<T>},
+        RandomnessCollectiveFlip: pallet_randomness_collective_flip,
+        Identity: pallet_identity,
+        Scheduler: pallet_scheduler,
+        Multisig: pallet_multisig,
+        Bounties: pallet_bounties,
+        Tips: pallet_tips,
+        BagsList: pallet_bags_list,
+        // TODO - why can't i remove `::{Pallet, Call, Storage, Event<T>}` from the following
+        // like in this commit https://github.com/paritytech/substrate/commit/6af19fdc47f16bee2901908e34b70d6d7ba80c59
         MembershipSupernodes: membership_supernodes::{Pallet, Call, Storage, Event<T>},
         RoamingOperators: roaming_operators::{Pallet, Call, Storage, Event<T>},
         RoamingNetworks: roaming_networks::{Pallet, Call, Storage, Event<T>},

@@ -2,10 +2,10 @@
 name = "lockdrop-runtime-api"
 version = "0.1.0"
 authors = ['Ilya Beregovskiy']
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-sp-api = { git = 'https://github.com/paritytech/substrate', rev = '26d69bcbe26f6b463e9374e1b1c54c3067fb6131', default-features = false}
+sp-api = { git = 'https://github.com/paritytech/substrate', rev = 'abca10f32a1844d4d05884c92ea2e08b17c6b8c3', default-features = false}
 
 [features]
 default = ["std"]
