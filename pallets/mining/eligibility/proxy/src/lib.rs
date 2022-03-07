@@ -89,6 +89,7 @@ pub struct MiningEligibilityProxyRewardRequest<U, V, W> {
 
 #[derive(Encode, Decode, Debug, Default, Clone, Eq, PartialEq, TypeInfo)]
 #[cfg_attr(feature = "std", derive())]
+// #[scale_info(skip_type_params(U))]
 pub struct MiningEligibilityProxyClaimRewardeeData<U, V, W, X> {
     pub proxy_claim_rewardee_account_id: U, // Rewardee miner associated with supernode (proxy) account id
     pub proxy_claim_reward_amount: V,       // Reward in DHX tokens for specific rewardee miner

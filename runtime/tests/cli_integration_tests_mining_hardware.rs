@@ -126,6 +126,7 @@ mod tests {
         type FeeMultiplierUpdate = ();
         type OnChargeTransaction = CurrencyAdapter<Balances, ()>;
         type TransactionByteFee = ();
+        type OperationalFeeMultiplier = ();
         type WeightToFee = IdentityFee<u64>;
     }
     // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself

@@ -164,6 +164,7 @@ mod tests {
         type FeeMultiplierUpdate = ();
         type OnChargeTransaction = CurrencyAdapter<Balances, ()>;
         type TransactionByteFee = ();
+        type OperationalFeeMultiplier = ();
         type WeightToFee = IdentityFee<u64>;
     }
     impl RoamingOperatorConfig for Test {

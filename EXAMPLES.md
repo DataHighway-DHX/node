@@ -83,7 +83,7 @@ Run a multiple node PoS testnet on your local machine with built-in keys (Alice,
 
 ### Run on Local Machine (without Docker) (Alice, Bob, Charlie, Dave, Eve)
 
-This approach is similar to that described in the official Substrate docs [here](https://substrate.dev/docs/en/tutorials/start-a-private-network/alicebob).
+This approach is similar to that described in the official Substrate docs [here](https://substrate.io/docs/en/tutorials/start-a-private-network/alicebob).
 #### Fetch repository and dependencies
 
 * Fork and clone the repository
@@ -112,7 +112,7 @@ In each terminal we will connect using the "local" chain specification
 
 Run Alice's bootnode using the raw chain definition file that was generated
 
-Note that it should work whether you use `--chain local \` or `--chain ./res/chain_def_local.json \` below. See section "Create custom blockchain configuration" and https://substrate.dev/docs/en/tutorials/start-a-private-network/customspec for when we would generate the chain spec and definition .json file when we have a custom chain (e.g. brickable, harbour and westlake)
+Note that it should work whether you use `--chain local \` or `--chain ./res/chain_def_local.json \` below. See section "Create custom blockchain configuration" and https://substrate.io/docs/en/tutorials/start-a-private-network/customspec for when we would generate the chain spec and definition .json file when we have a custom chain (e.g. brickable, harbour and westlake)
 
 ```bash
 ./target/release/datahighway --validator \
@@ -292,7 +292,7 @@ curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"a
 
 * Check that the output from each cURL request is `{"jsonrpc":"2.0","result":null,"id":1}`, since with a successful output `null` is returned https://github.com/paritytech/substrate/blob/db1ab7d18fbe7876cdea43bbf30f147ddd263f94/client/rpc-api/src/author/mod.rs#L47. Also check that the following folder is not empty /tmp/polkadot-chains/alice/keys (it should now contain four keys).
 
-* Reference: https://substrate.dev/docs/en/next/tutorials/start-a-private-network/alicebob
+* Reference: https://substrate.io/docs/en/next/tutorials/start-a-private-network/alicebob
 
 #### Additional Steps (Optional)
 
@@ -303,8 +303,8 @@ curl -vH 'Content-Type: application/json' --data '{ "jsonrpc":"2.0", "method":"a
 #### Create custom blockchain configuration
 
 * Create and distribute a custom chain definition (i.e. chain_def_local.json) to allow others to synchronise and validate as an authority. This is also described in the official Substrate documentation:
-  * https://substrate.dev/docs/en/tutorials/start-a-private-network/customspec
-  * https://substrate.dev/docs/en/knowledgebase/integrate/chain-spec
+  * https://substrate.io/docs/en/tutorials/start-a-private-network/customspec
+  * https://substrate.io/docs/en/knowledgebase/integrate/chain-spec
 
 * Create latest chain specification based on code changes of one of your chains (i.e. <CHAIN_ID> "local")
 

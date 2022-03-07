@@ -247,7 +247,7 @@ substrate-module-new <module-name> <author>
 * Question: How do I upgrade the runtime without stopping the blockchain
 	* Answer: https://www.youtube.com/watch?v=0aTnxHrV_j4&list=PLOyWqupZ-WGt3mA_d9wu74vVe0bM37-39&index=9&t=0s
     * Additionally read both of these as comments are scattered:
-        * Knowledgebase https://substrate.dev/docs/en/knowledgebase/runtime/upgrades#runtime-versioning * Substrate API Docs code comments https://substrate.dev/rustdocs/v3.0.0/substrate_test_runtime_client/sc_executor/struct.RuntimeVersion.html#structfield.spec_version
+        * Knowledgebase https://substrate.io/docs/en/knowledgebase/runtime/upgrades#runtime-versioning * Substrate API Docs code comments https://substrate.io/rustdocs/v3.0.0/substrate_test_runtime_client/sc_executor/struct.RuntimeVersion.html#structfield.spec_version
         * Other comments in Substrate codebase say:
             * bug fixes
                 * should result in an increment of spec_version and possibly authoring_version,
@@ -355,7 +355,7 @@ cargo +nightly-2021-12-01-aarch64-apple-darwin fmt --all -- --check
     * Ans: Try use these flags when running your node `--telemetry-url 'wss://telemetry.polkadot.io/submit/ 0' --unsafe-ws-external --unsafe-rpc-external --rpc-cors=all --rpc-methods=Unsafe`
 
 * Question: What is the Peer ID and the `--node-key`?
-    * Ans: See the documentation here https://substrate.dev/docs/en/knowledgebase/integrate/subkey#generating-node-keys. Run the command `subkey generate-node-key --file node-key` to generate and output to the screen a Peer ID for that you may share publicly to the list of bootnodes that validators may connect to. It also generates a file 'node-key' that contains the node's libp2p key that you provide as the value of `--node-key` when starting that validator bootnode, but you should keep the `--node-key` private because if someone else starts their node with the same `--node-key` that you're using then you might get slashed.
+    * Ans: See the documentation here https://substrate.io/docs/en/knowledgebase/integrate/subkey#generating-node-keys. Run the command `subkey generate-node-key --file node-key` to generate and output to the screen a Peer ID for that you may share publicly to the list of bootnodes that validators may connect to. It also generates a file 'node-key' that contains the node's libp2p key that you provide as the value of `--node-key` when starting that validator bootnode, but you should keep the `--node-key` private because if someone else starts their node with the same `--node-key` that you're using then you might get slashed.
 
 * Question: Why do I get this error when trying to run a node on chain "local" `Error: Service(Network(The same bootnode (`/ip4/127.0.0.1/tcp/30333`) is registered with two different peer ids: 12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo and 12D3KooWC92KaQrzxLa3xk7yVJwCCs9vMGndt23dZAtMoR1aQc3V))`?
     * Ans: It is likely that you have run the first node with the following Node Key, where chain_def_local.json was build on your local machine, and the 2nd node was run as shown below and tries to connect to `QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ`, which is actually the Peer ID for DataHighway Harbour Testnet, when you should instead be using the Peer ID of `12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo` for DataHighway Local Testnet that has already been included in chain_spec.rs genesis configuration such that the `--bootnodes` flag does not need to be specified.
