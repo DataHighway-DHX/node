@@ -75,6 +75,7 @@ pub use frame_support::{
     parameter_types,
     traits::{
         Currency,
+        EqualPrivilegeOnly,
         Imbalance,
         Contains,
         ContainsLengthBound,
@@ -347,6 +348,7 @@ impl pallet_scheduler::Config for Runtime {
     type ScheduleOrigin = EnsureRoot<AccountId>;
     type MaxScheduledPerBlock = MaxScheduledPerBlock;
     type WeightInfo = pallet_scheduler::weights::SubstrateWeight<Runtime>;
+    type OriginPrivilegeCmp = EqualPrivilegeOnly;
 }
 
 parameter_types! {
@@ -1237,7 +1239,7 @@ construct_runtime!(
         Authorship: pallet_authorship::{Pallet, Call, Storage, Inherent},
         Indices: pallet_indices::{Pallet, Call, Storage, Config<T>, Event<T>},
         Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
-        TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
+        TransactionPayment: pallet_transaction_payment::{Pallet, Storage, Config},
         ElectionProviderMultiPhase: pallet_election_provider_multi_phase::{Pallet, Call, Storage, Event<T>, ValidateUnsigned},
         Staking: pallet_staking::{Pallet, Call, Config<T>, Storage, Event<T>},
         Session: pallet_session::{Pallet, Call, Storage, Event, Config<T>},
@@ -1255,7 +1257,7 @@ construct_runtime!(
         Historical: pallet_session_historical::{Pallet},
         RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
         Identity: pallet_identity::{Pallet, Call, Storage, Event<T>},
-        Scheduler: pallet_scheduler::{Pallet, Call, Storage, Event<T>},
+        Scheduler: pallet_scheduler::{Pallet, Call, Storage, Config, Event<T>},
         Multisig: pallet_multisig::{Pallet, Call, Storage, Event<T>},
         Bounties: pallet_bounties::{Pallet, Call, Storage, Event<T>},
         Tips: pallet_tips::{Pallet, Call, Storage, Event<T>},

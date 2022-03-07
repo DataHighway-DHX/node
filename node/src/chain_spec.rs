@@ -16,6 +16,7 @@ use datahighway_runtime::{
     GrandpaConfig,
     ImOnlineConfig,
     IndicesConfig,
+    SchedulerConfig,
     SessionConfig,
     SessionKeys,
     StakerStatus,
@@ -24,6 +25,7 @@ use datahighway_runtime::{
     SystemConfig,
     TechnicalCommitteeConfig,
     TechnicalMembershipConfig,
+    TransactionPaymentConfig,
     TreasuryConfig,
     WASM_BINARY,
 };
@@ -949,6 +951,8 @@ fn testnet_genesis(
             phantom: Default::default(),
         },
         treasury: TreasuryConfig::default(),
+		scheduler: SchedulerConfig::default(),
+		transaction_payment: TransactionPaymentConfig::default(),
 	}
 }
 
@@ -1031,5 +1035,7 @@ fn mainnet_genesis(
             phantom: Default::default(),
         },
         treasury: TreasuryConfig::default(),
+		scheduler: SchedulerConfig::default(),
+		transaction_payment: TransactionPaymentConfig::default(),
 	}
 }

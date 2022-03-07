@@ -14,7 +14,6 @@ use datahighway_runtime::{
 };
 use sc_cli::{
     ChainSpec,
-    Role,
     RuntimeVersion,
     SubstrateCli,
 };
@@ -151,11 +150,7 @@ pub fn run() -> sc_cli::Result<()> {
             let runner = cli.create_runner(&cli.run)?;
             runner.run_node_until_exit(|config| {
                 async move {
-                    match config.role {
-                        Role::Light => service::new_light(config),
-                        _ => service::new_full(config),
-                    }
-                    .map_err(sc_cli::Error::Service)
+                    service::new_full(config).map_err(sc_cli::Error::Service)
                 }
             })
         }
