@@ -17,6 +17,7 @@ use frame_support::{
     Parameter,
 };
 use frame_system::ensure_signed;
+use scale_info::TypeInfo;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -45,12 +46,12 @@ pub trait Config:
     type RoamingSessionIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct RoamingSession(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo)]
 // Generic type parameters - Balance
 pub struct RoamingSessionJoinRequest<U, V> {
     session_network_server_id: U,
@@ -58,7 +59,7 @@ pub struct RoamingSessionJoinRequest<U, V> {
 }
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo)]
 // Generic type parameters - Balance
 pub struct RoamingSessionJoinAccept<U, V> {
     session_join_request_accept_expiry: U,

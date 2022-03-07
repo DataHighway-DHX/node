@@ -18,6 +18,7 @@ use frame_support::{
     Parameter,
 };
 use frame_system::ensure_signed;
+use scale_info::TypeInfo;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -51,12 +52,12 @@ pub trait Config: frame_system::Config + roaming_operators::Config {
 type BalanceOf<T> =
     <<T as roaming_operators::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct MiningSettingToken(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo)]
 pub struct MiningSettingTokenSetting<U, V, W, X> {
     pub token_type: U,
     pub token_lock_amount: V,
@@ -65,7 +66,7 @@ pub struct MiningSettingTokenSetting<U, V, W, X> {
 }
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo)]
 pub struct MiningSettingTokenRequirementsSetting<U, V, W> {
     pub token_type: U,
     pub token_lock_min_amount: V, /* Balance used instead of

@@ -17,26 +17,28 @@ compatibility_version = "2.0.0"
 
 [dependencies]
 codec = { version = '2.2.0', package = 'parity-scale-codec', default-features = false, features = ['derive', 'max-encoded-len'] }
+scale-info = { version = '1.0', default-features = false, features = ['derive'] }
 
 # Substrate packages
-frame-support = { git = 'https://github.com/paritytech/substrate', rev = 'e232df15bd4ccb834ebc16eaaab494938eb080c2', default-features = false }
-frame-system = { git = 'https://github.com/paritytech/substrate', rev = 'e232df15bd4ccb834ebc16eaaab494938eb080c2', default-features = false }
-pallet-balances = { git = 'https://github.com/paritytech/substrate', rev = 'e232df15bd4ccb834ebc16eaaab494938eb080c2', default-features = false }
-sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = 'e232df15bd4ccb834ebc16eaaab494938eb080c2', default-features = false }
-sp-std = { git = 'https://github.com/paritytech/substrate', rev = 'e232df15bd4ccb834ebc16eaaab494938eb080c2', default-features = false }
+frame-support = { git = 'https://github.com/paritytech/substrate', rev = '0bc873d571cacd96959f652b27e6f5735720e305', default-features = false }
+frame-system = { git = 'https://github.com/paritytech/substrate', rev = '0bc873d571cacd96959f652b27e6f5735720e305', default-features = false }
+pallet-balances = { git = 'https://github.com/paritytech/substrate', rev = '0bc873d571cacd96959f652b27e6f5735720e305', default-features = false }
+sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '0bc873d571cacd96959f652b27e6f5735720e305', default-features = false }
+sp-std = { git = 'https://github.com/paritytech/substrate', rev = '0bc873d571cacd96959f652b27e6f5735720e305', default-features = false }
 
 # local packages
 account-set = { path = '../../../traits/account-set', default-features = false }
 
 [dev-dependencies]
-sp-core = { git = 'https://github.com/paritytech/substrate', rev = 'e232df15bd4ccb834ebc16eaaab494938eb080c2', default-features = false }
-sp-io = { git = 'https://github.com/paritytech/substrate', rev = 'e232df15bd4ccb834ebc16eaaab494938eb080c2', default-features = false }
+sp-core = { git = 'https://github.com/paritytech/substrate', rev = '0bc873d571cacd96959f652b27e6f5735720e305', default-features = false }
+sp-io = { git = 'https://github.com/paritytech/substrate', rev = '0bc873d571cacd96959f652b27e6f5735720e305', default-features = false }
 
 [features]
 default = ['std']
 std = [
     'account-set/std',
     'codec/std',
+    'scale-info/std',
     'frame-support/std',
     'frame-system/std',
     'pallet-balances/std',
