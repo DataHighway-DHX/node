@@ -84,11 +84,13 @@ impl pallet_balances::Config for Test {
 }
 parameter_types! {
     pub const TransactionByteFee: u64 = 1;
+    pub OperationalFeeMultiplier: u8 = 5;
 }
 impl pallet_transaction_payment::Config for Test {
     type FeeMultiplierUpdate = ();
     type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
     type TransactionByteFee = TransactionByteFee;
+    type OperationalFeeMultiplier = OperationalFeeMultiplier;
     type WeightToFee = IdentityFee<u64>;
 }
 
