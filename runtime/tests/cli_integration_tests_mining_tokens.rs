@@ -131,6 +131,7 @@ mod tests {
             Treasury: pallet_treasury::{Pallet, Call, Storage, Config, Event<T>},
             Bounties: pallet_bounties::{Pallet, Call, Storage, Event<T>},
             Tips: pallet_tips::{Pallet, Call, Storage, Event<T>},
+            ChildBounties: pallet_child_bounties::{Pallet, Call, Storage, Event<T>},
         }
     );
 
@@ -243,7 +244,7 @@ mod tests {
         pub const BountyValueMinimum: u64 = 1;
         pub const MaxApprovals: u32 = 100;
         pub const MaxActiveChildBountyCount: u32 = 5;
-        pub const ChildBountyValueMinimum: Balance = 1_000_000_000_000_000_000;
+        pub const ChildBountyValueMinimum: u64 = 1_000_000_000_000_000_000;
         pub const ChildBountyCuratorDepositBase: Permill = Permill::from_percent(10);
     }
 
@@ -274,6 +275,15 @@ mod tests {
         type DataDepositPerByte = DataDepositPerByte;
         type MaximumReasonLength = MaximumReasonLength;
         type WeightInfo = pallet_bounties::weights::SubstrateWeight<Test>;
+        type ChildBountyManager = ChildBounties;
+    }
+
+    impl pallet_child_bounties::Config for Test {
+        type Event = ();
+        type MaxActiveChildBountyCount = MaxActiveChildBountyCount;
+        type ChildBountyValueMinimum = ChildBountyValueMinimum;
+        type ChildBountyCuratorDepositBase = ChildBountyCuratorDepositBase;
+        type WeightInfo = pallet_child_bounties::weights::SubstrateWeight<Test>;
     }
 
     impl pallet_tips::Config for Test {
