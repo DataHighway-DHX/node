@@ -886,7 +886,6 @@ fn testnet_genesis(
 	GenesisConfig {
         system: SystemConfig {
             code: wasm_binary.to_vec(),
-            changes_trie_config: Default::default(),
         },
         balances: BalancesConfig {
             balances: hardspoon_balances
@@ -970,7 +969,6 @@ fn mainnet_genesis(
 	GenesisConfig {
         system: SystemConfig {
             code: wasm_binary.to_vec(),
-            changes_trie_config: Default::default(),
         },
         balances: BalancesConfig {
             balances: hardspoon_balances
