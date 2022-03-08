@@ -12,10 +12,10 @@ RUN apt-get update && apt-get install -y build-essential wget cmake pkg-config l
     && PATH=$PATH:/root/.cargo/bin \
     && rustup update stable \
     && rustup update nightly \
-    && rustup toolchain install nightly-2021-12-01 \
-    && rustup target add wasm32-unknown-unknown --toolchain nightly-2021-12-01 \
-    && rustup default nightly-2021-12-01 \
-    && rustup override set nightly-2021-12-01 \
+    && rustup toolchain install nightly-2022-03-07 \
+    && rustup target add wasm32-unknown-unknown --toolchain nightly-2022-03-07 \
+    && rustup default nightly-2022-03-07 \
+    && rustup override set nightly-2022-03-07 \
     && cargo version \
     && rustc --version \
     && cargo build --release

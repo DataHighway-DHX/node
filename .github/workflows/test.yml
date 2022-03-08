@@ -26,12 +26,12 @@ jobs:
       - name: Initialize WASM build environment
         run: |
           rustup update stable
-          rustup toolchain install nightly-2021-12-01
-          rustup default nightly-2021-12-01
-          rustup target add wasm32-unknown-unknown --toolchain nightly-2021-12-01
+          rustup toolchain install nightly-2022-03-07
+          rustup default nightly-2022-03-07
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2022-03-07
 
       - name: Run cargo check
-        run: cargo +nightly-2021-12-01 check
+        run: cargo +nightly-2022-03-07 check
 
   test:
     name: Test Suite
@@ -56,46 +56,46 @@ jobs:
       - name: Initialize WASM build environment
         run: |
           rustup update stable
-          rustup toolchain install nightly-2021-12-01
-          rustup default nightly-2021-12-01
-          rustup target add wasm32-unknown-unknown --toolchain nightly-2021-12-01
+          rustup toolchain install nightly-2022-03-07
+          rustup default nightly-2022-03-07
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2022-03-07
 
       # Runs integration tests in the runtime/tests folder
       - name: Run Integration Tests across all runtime modules
         run: |
-          cargo +nightly-2021-12-01 test -p datahighway-runtime
+          cargo +nightly-2022-03-07 test -p datahighway-runtime
 
       # Runs unit tests in each runtime module of the pallet folder
       - name: Run Unit Tests in each runtime module
         run: |
-          cargo +nightly-2021-12-01 test -p roaming-operators &&
-          cargo +nightly-2021-12-01 test -p roaming-networks &&
-          cargo +nightly-2021-12-01 test -p roaming-organizations &&
-          cargo +nightly-2021-12-01 test -p roaming-network-servers &&
-          cargo +nightly-2021-12-01 test -p roaming-devices &&
-          cargo +nightly-2021-12-01 test -p roaming-routing-profiles &&
-          cargo +nightly-2021-12-01 test -p roaming-service-profiles &&
-          cargo +nightly-2021-12-01 test -p roaming-accounting-policies &&
-          cargo +nightly-2021-12-01 test -p roaming-agreement-policies &&
-          cargo +nightly-2021-12-01 test -p roaming-network-profiles &&
-          cargo +nightly-2021-12-01 test -p roaming-device-profiles &&
-          cargo +nightly-2021-12-01 test -p roaming-sessions &&
-          cargo +nightly-2021-12-01 test -p roaming-billing-policies &&
-          cargo +nightly-2021-12-01 test -p roaming-charging-policies &&
-          cargo +nightly-2021-12-01 test -p roaming-packet-bundles &&
-          cargo +nightly-2021-12-01 test -p mining-setting-token &&
-          cargo +nightly-2021-12-01 test -p mining-setting-hardware &&
-          cargo +nightly-2021-12-01 test -p mining-rates-token &&
-          cargo +nightly-2021-12-01 test -p mining-rates-hardware &&
-          cargo +nightly-2021-12-01 test -p mining-sampling-token &&
-          cargo +nightly-2021-12-01 test -p mining-sampling-hardware &&
-          cargo +nightly-2021-12-01 test -p mining-eligibility-token &&
-          cargo +nightly-2021-12-01 test -p mining-eligibility-hardware &&
-          cargo +nightly-2021-12-01 test -p mining-eligibility-proxy &&
-          cargo +nightly-2021-12-01 test -p mining-claims-token &&
-          cargo +nightly-2021-12-01 test -p mining-claims-hardware &&
-          cargo +nightly-2021-12-01 test -p mining-execution-token &&
-          cargo +nightly-2021-12-01 test -p exchange-rate
+          cargo +nightly-2022-03-07 test -p roaming-operators &&
+          cargo +nightly-2022-03-07 test -p roaming-networks &&
+          cargo +nightly-2022-03-07 test -p roaming-organizations &&
+          cargo +nightly-2022-03-07 test -p roaming-network-servers &&
+          cargo +nightly-2022-03-07 test -p roaming-devices &&
+          cargo +nightly-2022-03-07 test -p roaming-routing-profiles &&
+          cargo +nightly-2022-03-07 test -p roaming-service-profiles &&
+          cargo +nightly-2022-03-07 test -p roaming-accounting-policies &&
+          cargo +nightly-2022-03-07 test -p roaming-agreement-policies &&
+          cargo +nightly-2022-03-07 test -p roaming-network-profiles &&
+          cargo +nightly-2022-03-07 test -p roaming-device-profiles &&
+          cargo +nightly-2022-03-07 test -p roaming-sessions &&
+          cargo +nightly-2022-03-07 test -p roaming-billing-policies &&
+          cargo +nightly-2022-03-07 test -p roaming-charging-policies &&
+          cargo +nightly-2022-03-07 test -p roaming-packet-bundles &&
+          cargo +nightly-2022-03-07 test -p mining-setting-token &&
+          cargo +nightly-2022-03-07 test -p mining-setting-hardware &&
+          cargo +nightly-2022-03-07 test -p mining-rates-token &&
+          cargo +nightly-2022-03-07 test -p mining-rates-hardware &&
+          cargo +nightly-2022-03-07 test -p mining-sampling-token &&
+          cargo +nightly-2022-03-07 test -p mining-sampling-hardware &&
+          cargo +nightly-2022-03-07 test -p mining-eligibility-token &&
+          cargo +nightly-2022-03-07 test -p mining-eligibility-hardware &&
+          cargo +nightly-2022-03-07 test -p mining-eligibility-proxy &&
+          cargo +nightly-2022-03-07 test -p mining-claims-token &&
+          cargo +nightly-2022-03-07 test -p mining-claims-hardware &&
+          cargo +nightly-2022-03-07 test -p mining-execution-token &&
+          cargo +nightly-2022-03-07 test -p exchange-rate
 
   lints:
     name: Lints
@@ -120,19 +120,19 @@ jobs:
           override: true
           components: rustfmt, clippy
 
-      # nightly-2021-12-01-x86_64-unknown-linux-gnu
+      # nightly-2022-03-07-x86_64-unknown-linux-gnu
       - name: Initialize WASM build environment
         run: |
           rustup update stable
-          rustup toolchain install nightly-2021-12-01
-          rustup default nightly-2021-12-01
-          rustup target add wasm32-unknown-unknown --toolchain nightly-2021-12-01
+          rustup toolchain install nightly-2022-03-07
+          rustup default nightly-2022-03-07
+          rustup target add wasm32-unknown-unknown --toolchain nightly-2022-03-07
 
       # Ignore use of Rust Linting since rearranging makes it challenging to update to latest Substrate
       # - name: Run cargo fmt
       #   run: |
-      #     rustup component add rustfmt --toolchain nightly-2021-12-01-x86_64-unknown-linux-gnu
-      #     cargo +nightly-2021-12-01 fmt --all -- --check
+      #     rustup component add rustfmt --toolchain nightly-2022-03-07-x86_64-unknown-linux-gnu
+      #     cargo +nightly-2022-03-07 fmt --all -- --check
 
       # Ignore use of Clippy until a clippy.toml file may be used. See README.md
       # - name: Run cargo clippy
@@ -142,6 +142,6 @@ jobs:
       #   #   args:  --release -- -D warnings
       #   # FIXME - temporary fix below. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
       #   run: |
-      #     rustup component add clippy --toolchain nightly-2021-12-01-x86_64-unknown-linux-gnu
-      #     rustup component add clippy-preview --toolchain nightly-2021-12-01-x86_64-unknown-linux-gnu
-      #     cargo +nightly-2021-12-01 clippy-preview -Zunstable-options
+      #     rustup component add clippy --toolchain nightly-2022-03-07-x86_64-unknown-linux-gnu
+      #     rustup component add clippy-preview --toolchain nightly-2022-03-07-x86_64-unknown-linux-gnu
+      #     cargo +nightly-2022-03-07 clippy-preview -Zunstable-options
