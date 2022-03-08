@@ -74,7 +74,9 @@ pub use frame_support::{
     construct_runtime,
     parameter_types,
     traits::{
+        ConstU32,
         Currency,
+        EnsureOneOf,
         EqualPrivilegeOnly,
         Imbalance,
         Contains,
@@ -105,7 +107,6 @@ use frame_system::{
         BlockLength,
         BlockWeights,
     },
-    EnsureOneOf,
     EnsureRoot,
 };
 use pallet_session::historical as pallet_session_historical;
@@ -660,7 +661,6 @@ impl pallet_collective::Config<TechnicalCollective> for Runtime {
 }
 
 type EnsureRootOrHalfCouncil = EnsureOneOf<
-    AccountId,
     EnsureRoot<AccountId>,
     pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>,
 >;
@@ -700,12 +700,10 @@ impl pallet_treasury::Config for Runtime {
     type PalletId = TreasuryPalletId;
     type Currency = Balances;
     type ApproveOrigin = EnsureOneOf<
-        AccountId,
         EnsureRoot<AccountId>,
         pallet_collective::EnsureProportionAtLeast<_3, _5, AccountId, CouncilCollective>
     >;
     type RejectOrigin = EnsureOneOf<
-        AccountId,
         EnsureRoot<AccountId>,
         pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>
     >;
@@ -792,6 +790,12 @@ impl onchain::Config for Runtime {
 	type DataProvider = Staking;
 }
 
+pub struct StakingBenchmarkingConfig;
+impl pallet_staking::BenchmarkingConfig for StakingBenchmarkingConfig {
+	type MaxNominators = ConstU32<1000>;
+	type MaxValidators = ConstU32<1000>;
+}
+
 impl pallet_staking::Config for Runtime {
     const MAX_NOMINATIONS: u32 = MAX_NOMINATIONS;
     type Currency = Balances;
@@ -806,7 +810,6 @@ impl pallet_staking::Config for Runtime {
     type SlashDeferDuration = SlashDeferDuration;
     /// A super-majority of the council can cancel the slash.
     type SlashCancelOrigin = EnsureOneOf<
-        AccountId,
         EnsureRoot<AccountId>,
         pallet_collective::EnsureProportionAtLeast<_3, _4, AccountId, CouncilCollective>
     >;
@@ -821,6 +824,7 @@ impl pallet_staking::Config for Runtime {
 	// Note that the aforementioned does not scale to a very large number of nominators.
 	type SortedListProvider = BagsList;
     type WeightInfo = pallet_staking::weights::SubstrateWeight<Runtime>;
+    type BenchmarkingConfig = StakingBenchmarkingConfig;
 }
 
 parameter_types! {
@@ -869,8 +873,8 @@ pub const MAX_NOMINATIONS: u32 =
 /// The numbers configured here could always be more than the the maximum limits of staking pallet
 /// to ensure election snapshot will not run out of memory. For now, we set them to smaller values
 /// since the staking is bounded and the weight pipeline takes hours for this single pallet.
-pub struct BenchmarkConfig;
-impl pallet_election_provider_multi_phase::BenchmarkingConfig for BenchmarkConfig {
+pub struct ElectionProviderBenchmarkConfig;
+impl pallet_election_provider_multi_phase::BenchmarkingConfig for ElectionProviderBenchmarkConfig {
 	const VOTERS: [u32; 2] = [1000, 2000];
 	const TARGETS: [u32; 2] = [500, 1000];
 	const ACTIVE_VOTERS: [u32; 2] = [500, 800];
@@ -935,7 +939,7 @@ impl pallet_election_provider_multi_phase::Config for Runtime {
 	>;
 	type WeightInfo = pallet_election_provider_multi_phase::weights::SubstrateWeight<Self>;
 	type ForceOrigin = EnsureRootOrHalfCouncil;
-    type BenchmarkingConfig = BenchmarkConfig;
+    type BenchmarkingConfig = ElectionProviderBenchmarkConfig;
     type VoterSnapshotPerBlock = VoterSnapshotPerBlock;
 }
 
@@ -991,7 +995,6 @@ impl pallet_democracy::Config for Runtime {
     // To cancel a proposal before it has been passed, the technical committee must be unanimous or
     // Root must agree.
     type CancelProposalOrigin = EnsureOneOf<
-        AccountId,
         EnsureRoot<AccountId>,
         pallet_collective::EnsureProportionAtLeast<_1, _1, AccountId, TechnicalCollective>,
     >;
@@ -1325,7 +1328,7 @@ pub type SignedPayload = generic::SignedPayload<Call, SignedExtra>;
 /// Extrinsic type that has already been checked.
 pub type CheckedExtrinsic = generic::CheckedExtrinsic<AccountId, Call, SignedExtra>;
 /// Executive: handles dispatch to the various modules.
-pub type Executive = frame_executive::Executive<Runtime, Block, frame_system::ChainContext<Runtime>, Runtime, AllModules, pallet_bags_list::migrations::CheckCounterPrefix<Runtime>>;
+pub type Executive = frame_executive::Executive<Runtime, Block, frame_system::ChainContext<Runtime>, Runtime, AllPalletsWithSystem, pallet_bags_list::migrations::CheckCounterPrefix<Runtime>>;
 
 impl_runtime_apis! {
     impl sp_api::Core<Block> for Runtime {
