@@ -930,7 +930,7 @@ fn testnet_genesis(
         technical_committee: TechnicalCommitteeConfig::default(),
 		sudo: SudoConfig {
 			// Assign network admin rights.
-			key: root_key.clone(),
+			key: Some(root_key.clone()),
         },
         im_online: ImOnlineConfig {
             keys: vec![],
@@ -1013,7 +1013,7 @@ fn mainnet_genesis(
         technical_committee: TechnicalCommitteeConfig::default(),
 		sudo: SudoConfig {
 			// Assign network admin rights.
-			key: root_key.clone(),
+			key: Some(root_key.clone()),
         },
         im_online: ImOnlineConfig {
             keys: vec![],
