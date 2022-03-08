@@ -237,10 +237,13 @@ mod tests {
         pub const BountyDepositPayoutDelay: u32 = 3;
         pub const TreasuryPalletId: PalletId = PalletId(*b"py/trsry");
         pub const BountyUpdatePeriod: u32 = 20;
-        pub const MaximumReasonLength: u32 = 16384;
+        pub const MaximumReasonLength: u32 = 300;
         pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
         pub const BountyValueMinimum: u64 = 1;
         pub const MaxApprovals: u32 = 100;
+        pub const MaxActiveChildBountyCount: u32 = 5;
+        pub const ChildBountyValueMinimum: Balance = 1_000_000_000_000_000_000;
+        pub const ChildBountyCuratorDepositBase: Permill = Permill::from_percent(10);
     }
 
     impl pallet_treasury::Config for Test {
