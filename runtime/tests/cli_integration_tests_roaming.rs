@@ -19,6 +19,13 @@ mod tests {
     use frame_support::{
         assert_ok,
         parameter_types,
+        traits::{
+            ConstU8,
+            ConstU16,
+            ConstU32,
+            ConstU64,
+            ConstU128,
+        },
         weights::{
             IdentityFee,
             Weight,
@@ -117,7 +124,7 @@ mod tests {
     );
 
     parameter_types! {
-        pub const BlockHashCount: u64 = 250;
+        pub const BlockHashCount: u32 = 250;
         pub const SS58Prefix: u16 = 33;
     }
     impl frame_system::Config for Test {
@@ -142,13 +149,14 @@ mod tests {
         type OnNewAccount = ();
         type OnKilledAccount = ();
         type SystemWeightInfo = ();
-        type SS58Prefix = SS58Prefix;
+        type SS58Prefix = ();
     	type OnSetCode = ();
 	    type MaxConsumers = frame_support::traits::ConstU32<16>;
     }
     impl pallet_randomness_collective_flip::Config for Test {}
+    pub const ExistentialDepositAsConst: u64 = 1;
     parameter_types! {
-        pub const ExistentialDeposit: u64 = 1;
+        pub const ExistentialDeposit: u64 = ExistentialDepositAsConst;
     }
     impl pallet_balances::Config for Test {
         type MaxLocks = ();
@@ -157,7 +165,7 @@ mod tests {
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();
-        type ExistentialDeposit = ExistentialDeposit;
+        type ExistentialDeposit = ConstU64<ExistentialDepositAsConst>;
         type AccountStore = System;
         type WeightInfo = ();
     }

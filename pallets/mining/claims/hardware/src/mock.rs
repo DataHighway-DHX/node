@@ -7,6 +7,13 @@ use crate::{
 
 use frame_support::{
     parameter_types,
+    traits::{
+        ConstU8,
+        ConstU16,
+        ConstU32,
+        ConstU64,
+        ConstU128,
+    },
     weights::{
         IdentityFee,
         Weight,
@@ -40,7 +47,7 @@ frame_support::construct_runtime!(
 );
 
 parameter_types! {
-    pub const BlockHashCount: u64 = 250;
+    pub const BlockHashCount: u32 = 250;
 }
 impl frame_system::Config for Test {
     type BaseCallFilter = frame_support::traits::Everything;
@@ -69,8 +76,9 @@ impl frame_system::Config for Test {
     type MaxConsumers = frame_support::traits::ConstU32<16>;
 }
 impl pallet_randomness_collective_flip::Config for Test {}
+pub const ExistentialDepositAsConst: u64 = 1;
 parameter_types! {
-    pub const ExistentialDeposit: u64 = 1;
+    pub const ExistentialDeposit: u64 = ExistentialDepositAsConst;
 }
 impl pallet_balances::Config for Test {
     type MaxLocks = ();
@@ -79,19 +87,20 @@ impl pallet_balances::Config for Test {
     type Balance = u64;
     type DustRemoval = ();
     type Event = ();
-    type ExistentialDeposit = ExistentialDeposit;
+    type ExistentialDeposit = ConstU64<ExistentialDepositAsConst>;
     type AccountStore = System;
     type WeightInfo = ();
 }
+pub OperationalFeeMultiplierAsConst: u8 = 5;
 parameter_types! {
     pub const TransactionByteFee: u64 = 1;
-    pub OperationalFeeMultiplier: u8 = 5;
+    pub OperationalFeeMultiplier: u8 = OperationalFeeMultiplierAsConst;
 }
 impl pallet_transaction_payment::Config for Test {
     type FeeMultiplierUpdate = ();
     type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
     type TransactionByteFee = TransactionByteFee;
-    type OperationalFeeMultiplier = OperationalFeeMultiplier;
+    type OperationalFeeMultiplier = ConstU8<OperationalFeeMultiplierAsConst>;
     type WeightToFee = IdentityFee<u64>;
 }
 // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself

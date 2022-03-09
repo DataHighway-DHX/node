@@ -5,6 +5,13 @@
 //     impl_outer_event,
 //     impl_outer_origin,
 //     parameter_types,
+//     traits::{
+//          ConstU8,
+//          ConstU16,
+//          ConstU32,
+//          ConstU64,
+//          ConstU128,
+//     },
 // };
 // use frame_system as system;
 // use sp_core::H256;
@@ -26,14 +33,14 @@
 // #[derive(Clone, PartialEq, Eq, Debug)]
 // pub struct TestRuntime;
 // parameter_types! {
-//     pub const BlockHashCount: u64 = 250;
+//     pub const BlockHashCount: u32 = 250;
 //     pub const SS58Prefix: u16 = 33;
 // }
 // impl frame_system::Config for TestRuntime {
 //     type AccountData = pallet_balances::AccountData<u64>;
 //     type AccountId = u128; // u64 is not enough to hold bytes used to generate bounty account
 //     type BaseCallFilter = frame_support::traits::Everything;
-//     type BlockHashCount = BlockHashCount;
+//     type BlockHashCount = ConstU32<BlockHashCount>;;
 //     type BlockLength = ();
 //     type BlockNumber = u64;
 //     type BlockWeights = ();
@@ -50,7 +57,6 @@
 //     type OnNewAccount = ();
 //     type Origin = Origin;
 //     type PalletInfo = PalletInfo;
-//     type SS58Prefix = SS58Prefix;
 //     type SystemWeightInfo = ();
 //     type Version = ();
 // }
