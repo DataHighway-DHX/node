@@ -16,7 +16,6 @@ use datahighway_runtime::{
     GrandpaConfig,
     ImOnlineConfig,
     IndicesConfig,
-    SchedulerConfig,
     SessionConfig,
     SessionKeys,
     StakerStatus,
@@ -960,7 +959,6 @@ fn testnet_genesis(
             phantom: Default::default(),
         },
         treasury: TreasuryConfig::default(),
-		scheduler: SchedulerConfig::default(),
 		transaction_payment: TransactionPaymentConfig::default(),
 	}
 }
@@ -1043,7 +1041,6 @@ fn mainnet_genesis(
             phantom: Default::default(),
         },
         treasury: TreasuryConfig::default(),
-		scheduler: SchedulerConfig::default(),
 		transaction_payment: TransactionPaymentConfig::default(),
 	}
 }
