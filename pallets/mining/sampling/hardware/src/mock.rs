@@ -91,7 +91,7 @@ impl pallet_balances::Config for Test {
     type AccountStore = System;
     type WeightInfo = ();
 }
-pub OperationalFeeMultiplierAsConst: u8 = 5;
+pub const OperationalFeeMultiplierAsConst: u8 = 5;
 parameter_types! {
     pub const TransactionByteFee: u64 = 1;
     pub OperationalFeeMultiplier: u8 = OperationalFeeMultiplierAsConst;
