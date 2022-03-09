@@ -234,6 +234,8 @@ pub fn development_config() -> Result<ChainSpec, String> {
         None,
         // Protocol ID
         None,
+        // Fork ID
+        None,
         // Properties
         Some(properties),
         // Extensions
@@ -309,6 +311,8 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
         ),
         // Protocol ID
         Some(DATAHIGHWAY_LOCAL_PROTOCOL_ID),
+        // Fork ID
+        None,
         // Properties
         Some(properties),
         // Extensions
@@ -428,6 +432,8 @@ pub fn datahighway_testnet_brickable_config() -> Result<ChainSpec, String> {
         ),
         // Protocol ID
         Some(DATAHIGHWAY_BRICKABLE_PROTOCOL_ID),
+        // Fork ID
+        None,
         // Properties
         Some(properties),
         // Extensions
@@ -584,6 +590,8 @@ pub fn datahighway_testnet_harbour_config() -> Result<ChainSpec, String> {
         ),
         // Protocol ID
         Some(DATAHIGHWAY_HARBOUR_PROTOCOL_ID),
+        // Fork ID
+        None,
         // Properties
         Some(properties),
         // Extensions
@@ -834,6 +842,8 @@ pub fn datahighway_mainnet_westlake_config() -> Result<ChainSpec, String> {
         ),
         // Protocol ID
         Some(DATAHIGHWAY_MAINNET_PROTOCOL_ID),
+        // Fork ID
+        None,
         // Properties
         Some(properties),
         // Extensions

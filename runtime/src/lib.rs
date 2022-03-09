@@ -220,6 +220,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
     impl_version: 1,
     apis: RUNTIME_API_VERSIONS,
     transaction_version: 2,
+    state_version: 1,
 };
 
 /// Native version.

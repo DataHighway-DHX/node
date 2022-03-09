@@ -398,19 +398,19 @@ ERROR tokio-runtime-worker sync: Bootnode with peer id `12D3KooWKS7jU8ti7S5PDqCN
 
 * Question: How to overcome this error when updating my Substrate-based chain to a more recent commit of Substrate?
 
-After updating the DataHighway-DHX/node repository from [Substrate commit 027368fe34e9a57ead752d4f900db6b5f85352e6](https://github.com/paritytech/substrate/commits/master?before=9b5e654074655737ac041d059d88bfd68593b069+245&branch=master) to Substrate commit 50156013c9316cd8849cb3db34670d046b8d66ea in this DataHighway commit https://github.com/DataHighway-DHX/node/pull/215/commits/0a56ac0b6bb73b6faac8dcb0a533768dfb644f39 by doing a search and replace for `027368fe34e9a57ead752d4f900db6b5f85352e6` and replacing it with contents like the following, as well as applying any other changes as necessary:
+After updating the DataHighway-DHX/node repository from [Substrate commit 027368fe34e9a57ead752d4f900db6b5f85352e6](https://github.com/paritytech/substrate/commits/master?before=9b5e654074655737ac041d059d88bfd68593b069+245&branch=master) to Substrate commit 0f070c8020fad552247fd4b43c1a6a4506e456b5 in this DataHighway commit https://github.com/DataHighway-DHX/node/pull/215/commits/0a56ac0b6bb73b6faac8dcb0a533768dfb644f39 by doing a search and replace for `027368fe34e9a57ead752d4f900db6b5f85352e6` and replacing it with contents like the following, as well as applying any other changes as necessary:
 ```
 sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '027368fe34e9a57ead752d4f900db6b5f85352e6', default-features = false }
 ```
 and replacing it with
 ```
-sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '50156013c9316cd8849cb3db34670d046b8d66ea', default-features = false }
+sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '0f070c8020fad552247fd4b43c1a6a4506e456b5', default-features = false }
 ```
 when trying to compile it with `cargo build --release` it gave error:
 ```
 error: failed to select a version for the requirement `sp-keystore = "*"`
 candidate versions found which didn't match: 0.10.0
-location searched: Git repository https://github.com/paritytech/substrate?rev=50156013c9316cd8849cb3db34670d046b8d66ea#50ab759f
+location searched: Git repository https://github.com/paritytech/substrate?rev=0f070c8020fad552247fd4b43c1a6a4506e456b5#50ab759f
 required by package `datahighway v3.0.6 (/Users/ls2/code/DataHighway-DHX/node/node)`
 ```
 each error like this was caused because the Substrate repository was using a version like `0.10.0-dev`, whereas only `0.10.0` was available at https://docs.rs/sp-runtime.
