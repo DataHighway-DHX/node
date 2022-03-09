@@ -5,13 +5,13 @@ authors = ['Laminar Developers <hello@laminar.one>', 'MXC Foundation GmbH <https
 edition = '2018'
 
 [dependencies]
-serde = { version = '1.0.126', optional = true, features = ['derive'] }
+serde = { version = '1.0.132', optional = true, features = ['derive'] }
 codec = { version = '2.3.1', package = 'parity-scale-codec', default-features = false, features = ['derive', 'max-encoded-len'] }
 scale-info = { version = '1.0', default-features = false, features = ['derive'] }
-sp-core = { git = 'https://github.com/paritytech/substrate', rev = '4db2f22446edc340374a0e16243136b7222b0d0e', default-features = false }
-sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '4db2f22446edc340374a0e16243136b7222b0d0e', default-features = false }
+sp-core = { git = 'https://github.com/paritytech/substrate', rev = '50156013c9316cd8849cb3db34670d046b8d66ea', default-features = false }
+sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '50156013c9316cd8849cb3db34670d046b8d66ea', default-features = false }
 bitmask = { version = '0.5.0', default-features = false }
-sp-std = { git = 'https://github.com/paritytech/substrate', rev = '4db2f22446edc340374a0e16243136b7222b0d0e', default-features = false }
+sp-std = { git = 'https://github.com/paritytech/substrate', rev = '50156013c9316cd8849cb3db34670d046b8d66ea', default-features = false }
 
 [features]
 default = ['std']
