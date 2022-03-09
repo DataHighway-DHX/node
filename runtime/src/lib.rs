@@ -827,9 +827,9 @@ parameter_types! {
     // 1 hour session, 6 hour era
     pub const SessionsPerEra: sp_staking::SessionIndex = 6;
     // 28 eras * 6 hours/era = 7 day bonding duration
-    pub const BondingDuration: pallet_staking::EraIndex = 28;
+    pub const BondingDuration: sp_staking::EraIndex = 28;
     // 27 eras * 6 hours/era = 6.75 day slash duration in which slashes can be cancelled
-    pub const SlashDeferDuration: pallet_staking::EraIndex = 27;
+    pub const SlashDeferDuration: sp_staking::EraIndex = 27;
     pub const RewardCurve: &'static PiecewiseLinear<'static> = &REWARD_CURVE;
     pub const MaxNominatorRewardedPerValidator: u32 = 256;
     pub const OffendingValidatorsThreshold: Perbill = Perbill::from_percent(17);
