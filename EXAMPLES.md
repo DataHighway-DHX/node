@@ -95,7 +95,7 @@ This approach is similar to that described in the official Substrate docs [here]
 * Build the WebAssembly binary from all code.
 
 ```bash
-cargo build --release
+WASM_BUILD_TOOLCHAIN=nightly-2021-12-15 cargo build --release
 ```
 
 > Remember to purge the chain state if you change anything (database and keys)
@@ -475,7 +475,7 @@ to avoid potentially bricking the DataHighway Harbour Testnet and impacting user
 * Build the WebAssembly binary from all code.
 
 ```bash
-cargo build --release
+WASM_BUILD_TOOLCHAIN=nightly-2021-12-15 cargo build --release
 ```
 
 * Obtain the "raw" chain definition from [here](./res/chain_def_westlake.json). Note that it should have already been generated for you with:

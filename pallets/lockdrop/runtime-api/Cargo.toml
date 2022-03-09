@@ -5,7 +5,7 @@ authors = ['Ilya Beregovskiy']
 edition = "2021"
 
 [dependencies]
-sp-api = { git = 'https://github.com/paritytech/substrate', rev = 'e2d1f1823796cb767b40d9003ac2ee145e0837a4', default-features = false}
+sp-api = { git = 'https://github.com/paritytech/substrate', rev = 'fb4f3ecb89ce4c3f144636a9ce9766325946dd58', default-features = false}
 
 [features]
 default = ["std"]
