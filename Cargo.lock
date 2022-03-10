@@ -1171,7 +1171,7 @@ dependencies = [
 
 [[package]]
 name = "datahighway"
-version = "3.0.4"
+version = "3.0.6"
 dependencies = [
  "datahighway-runtime",
  "frame-benchmarking",
@@ -1229,7 +1229,7 @@ dependencies = [
 
 [[package]]
 name = "datahighway-runtime"
-version = "3.0.4"
+version = "3.0.6"
 dependencies = [
  "chrono",
  "exchange-rate",
@@ -3579,7 +3579,7 @@ dependencies = [
 
 [[package]]
 name = "mining-eligibility-proxy"
-version = "3.0.4"
+version = "3.0.6"
 dependencies = [
  "account-set",
  "chrono",
@@ -3848,7 +3848,7 @@ dependencies = [
 
 [[package]]
 name = "module-primitives"
-version = "3.0.4"
+version = "3.0.6"
 dependencies = [
  "bitmask",
  "parity-scale-codec",
