@@ -1143,6 +1143,15 @@ impl pallet_democracy::Config for Runtime {
     type MaxProposals = MaxProposals;
 }
 
+impl pallet_whitelist::Config for Runtime {
+    type Event = Event;
+    type Call = Call;
+    type WhitelistOrigin = EnsureRoot<AccountId>;
+    type DispatchWhitelistedOrigin = EnsureRoot<AccountId>;
+    type PreimageProvider = Preimage;
+    type WeightInfo = pallet_whitelist::weights::SubstrateWeight<Runtime>;
+}
+
 impl roaming_operators::Config for Runtime {
     type Currency = Balances;
     type Event = Event;
@@ -1401,6 +1410,7 @@ construct_runtime!(
         ChildBounties: pallet_child_bounties,
         Referenda: pallet_referenda,
         ConvictionVoting: pallet_conviction_voting,
+        Whitelist: pallet_whitelist,
         // TODO - why can't i remove `::{Pallet, Call, Storage, Event<T>}` from the following
         // like in this commit https://github.com/paritytech/substrate/commit/6af19fdc47f16bee2901908e34b70d6d7ba80c59
         MembershipSupernodes: membership_supernodes::{Pallet, Call, Storage, Event<T>},
