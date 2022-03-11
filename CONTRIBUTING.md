@@ -404,7 +404,7 @@ sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '027368fe3
 ```
 and replacing it with
 ```
-sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '27b8806ed82844bb5283a4dadf853ee518fd042f', default-features = false }
+sp-runtime = { git = 'https://github.com/paritytech/substrate', branch = 'polkadot-v0.9.17', default-features = false }
 ```
 when trying to compile it with `cargo build --release` it gave error:
 ```
