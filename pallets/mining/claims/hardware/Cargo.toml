@@ -1,8 +1,8 @@
 [package]
-name = "mining-claims-hardware"
-version = "0.1.0"
-authors = ["Luke Schoen"]
-edition = "2021"
+name = 'mining-claims-hardware'
+version = '0.1.0'
+authors = ['Luke Schoen']
+edition = '2021'
 
 [features]
 default = ['std']

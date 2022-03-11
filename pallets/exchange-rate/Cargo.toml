@@ -1,8 +1,8 @@
 [package]
-name = "exchange-rate"
-version = "0.1.0"
-authors = ["Ilya Beregovskiy"]
-edition = "2021"
+name = 'exchange-rate'
+version = '0.1.0'
+authors = ['Ilya Beregovskiy']
+edition = '2021'
 
 [features]
 default = ['std']

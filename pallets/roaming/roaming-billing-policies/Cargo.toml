@@ -2,7 +2,7 @@
 name = 'roaming-billing-policies'
 version = '1.0.0'
 authors = ['Luke Schoen']
-edition = '2018'
+edition = '2021'
 
 [features]
 default = ['std']

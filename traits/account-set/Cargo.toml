@@ -1,19 +1,19 @@
 [package]
-name = "account-set"
-version = "2.0.0"
-edition = "2021"
+name = 'account-set'
+version = '2.0.0'
+edition = '2021'
 authors = ['Substrate DevHub <https://github.com/substrate-developer-hub>']
 repository = 'https://github.com/substrate-developer-hub/recipes'
-description = "A trait that supplies a set of accounts for use in a Substrate runtime"
-license = "GPL-3.0-or-later"
+description = 'A trait that supplies a set of accounts for use in a Substrate runtime'
+license = 'GPL-3.0-or-later'
 
 [package.metadata.substrate]
 categories = [
-	"trait",
-	"accounts",
-	"recipe",
+	'trait',
+	'accounts',
+	'recipe',
 ]
-compatibility_version = "2.0.0"
+compatibility_version = '2.0.0'
 
 [features]
 default = ['std']

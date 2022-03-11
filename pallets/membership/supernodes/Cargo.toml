@@ -1,19 +1,19 @@
 [package]
-name = "membership-supernodes"
-version = "2.0.0"
-edition = "2021"
+name = 'membership-supernodes'
+version = '2.0.0'
+edition = '2021'
 repository = 'https://github.com/substrate-developer-hub/recipes'
 authors = ['Substrate DevHub <https://github.com/substrate-developer-hub>']
-description = "Fork of Substrate Recipe pallet vec-set. A pallet that implements a storage Set on top of a Vec"
-license = "GPL-3.0-or-later"
+description = 'Fork of Substrate Recipe pallet vec-set. A pallet that implements a storage Set on top of a Vec'
+license = 'GPL-3.0-or-later'
 
 [package.metadata.substrate]
 categories = [
-	"pallet",
-	"tutorial",
-	"recipe",
+	'pallet',
+	'tutorial',
+	'recipe',
 ]
-compatibility_version = "2.0.0"
+compatibility_version = '2.0.0'
 
 [dependencies]
 codec = { version = '2.3.1', package = 'parity-scale-codec', default-features = false, features = ['derive', 'max-encoded-len'] }

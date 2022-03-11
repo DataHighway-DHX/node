@@ -1,9 +1,9 @@
 [package]
-name = "env"
-version = "0.1.0"
-authors = ["Luke Schoen"]
-description = "Config for the environment (e.g. for testing or development)."
+name = 'env'
+version = '0.1.0'
+authors = ['Luke Schoen']
+description = 'Config for the environment (e.g. for testing or development).'
 
 [dependencies]
-log = { version = "0.4.1", features = ["max_level_debug", "release_max_level_warn"] }
-error-chain = "0.11.0"
+log = { version = '0.4.1', features = ['max_level_debug', 'release_max_level_warn'] }
+error-chain = '0.11.0'

@@ -1,11 +1,11 @@
 [package]
-name = "lockdrop-rpc"
-version = "0.1.0"
-authors = ["Ilya Beregovskiy"]
-edition = "2021"
+name = 'lockdrop-rpc'
+version = '0.1.0'
+authors = ['Ilya Beregovskiy']
+edition = '2021'
 
 [dependencies]
-web3 = "0.13.0"
+web3 = '0.13.0'
 codec = { version = '2.3.1', package = 'parity-scale-codec', default-features = false, features = ['derive', 'max-encoded-len'] }
 scale-info = { version = '1.0', default-features = false, features = ['derive'] }
 safe-mix = { version = '1.0.0', default-features = false }
