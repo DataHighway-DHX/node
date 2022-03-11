@@ -166,7 +166,7 @@ decl_module! {
             };
             let policy_frequency_in_blocks = match _policy_frequency_in_blocks {
                 Some(value) => value,
-                None => Default::default() // <timestamp::Module<T>>::get() // Default
+                None => Default::default() // <timestamp::Pallet<T>>::get() // Default
             };
 
             // Check if a roaming billing policy config already exists with the given roaming billing policy id
@@ -227,13 +227,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given network id already exists
-            let is_roaming_network = <roaming_networks::Module<T>>
+            let is_roaming_network = <roaming_networks::Pallet<T>>
                 ::exists_roaming_network(roaming_network_id).is_ok();
             ensure!(is_roaming_network, "RoamingNetwork does not exist");
 
             // Ensure that caller of the function is the owner of the network id to assign the billing_policy to
             ensure!(
-                <roaming_networks::Module<T>>::is_roaming_network_owner(roaming_network_id, sender.clone()).is_ok(),
+                <roaming_networks::Pallet<T>>::is_roaming_network_owner(roaming_network_id, sender.clone()).is_ok(),
                 "Only the roaming network owner can assign itself a roaming billing policy"
             );
 
@@ -263,13 +263,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given network id already exists
-            let is_roaming_operator = <roaming_operators::Module<T>>
+            let is_roaming_operator = <roaming_operators::Pallet<T>>
                 ::exists_roaming_operator(roaming_operator_id).is_ok();
             ensure!(is_roaming_operator, "RoamingOperator does not exist");
 
             // Ensure that caller of the function is the owner of the operator id to assign the billing_policy to
             ensure!(
-                <roaming_operators::Module<T>>::is_roaming_operator_owner(roaming_operator_id, sender.clone()).is_ok(),
+                <roaming_operators::Pallet<T>>::is_roaming_operator_owner(roaming_operator_id, sender.clone()).is_ok(),
                 "Only the roaming operator owner can assign itself a roaming billing policy"
             );
 
@@ -313,7 +313,7 @@ impl<T: Config> Module<T> {
 
     //     if let Some(_billing_policy_operator_id) = billing_policy_operator_id {
     //         // Ensure that the caller is owner of the operator id associated with the billing policy
-    //         ensure!((<roaming_operators::Module<T>>::is_roaming_operator_owner(
+    //         ensure!((<roaming_operators::Pallet<T>>::is_roaming_operator_owner(
     //                 _billing_policy_operator_id.clone(),
     //                 sender.clone()
     //             )).is_ok(), "Only owner of the operator id associated with the given billing policy can set an

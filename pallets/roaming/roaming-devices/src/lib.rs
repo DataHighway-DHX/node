@@ -189,13 +189,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given network server id already exists
-            let is_roaming_network_server = <roaming_network_servers::Module<T>>
+            let is_roaming_network_server = <roaming_network_servers::Pallet<T>>
                 ::exists_roaming_network_server(roaming_network_server_id).is_ok();
             ensure!(is_roaming_network_server, "RoamingNetworkServer does not exist");
 
             // Ensure that caller of the function is the owner of the network server id to assign the device to
             ensure!(
-                <roaming_network_servers::Module<T>>::is_roaming_network_server_owner(roaming_network_server_id, sender.clone()).is_ok(),
+                <roaming_network_servers::Pallet<T>>::is_roaming_network_server_owner(roaming_network_server_id, sender.clone()).is_ok(),
                 "Only the roaming network_server owner can assign itself a roaming device"
             );
 
@@ -225,13 +225,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given organization id already exists
-            let is_roaming_organization = <roaming_organizations::Module<T>>
+            let is_roaming_organization = <roaming_organizations::Pallet<T>>
                 ::exists_roaming_organization(roaming_organization_id).is_ok();
             ensure!(is_roaming_organization, "RoamingOrganization does not exist");
 
             // Ensure that caller of the function is the owner of the organization id to assign the device to
             ensure!(
-                <roaming_organizations::Module<T>>::is_roaming_organization_owner(roaming_organization_id, sender.clone()).is_ok(),
+                <roaming_organizations::Pallet<T>>::is_roaming_organization_owner(roaming_organization_id, sender.clone()).is_ok(),
                 "Only the roaming organization owner can assign itself a roaming device"
             );
 

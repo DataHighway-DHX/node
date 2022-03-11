@@ -193,7 +193,7 @@ decl_module! {
         //     let mut current_token_type;
         //     let mut current_hardware_uptime_amount;
         //     // Get the config associated with the given configuration_hardware
-        //     if let Some(configuration_hardware_config) = <mining_setting_hardware::Module<T>>::mining_setting_hardware_token_settings(mining_setting_hardware_id) {
+        //     if let Some(configuration_hardware_config) = <mining_setting_hardware::Pallet<T>>::mining_setting_hardware_token_settings(mining_setting_hardware_id) {
         //       if let token_type = configuration_hardware_config.token_type {
         //         if token_type != "".to_string() {
         //           current_token_type = token_type.clone();
@@ -204,7 +204,7 @@ decl_module! {
 
         //               // Get list of all sampling_hardware_ids that correspond to the given mining_setting_hardware_id
         //               // of type MiningSamplingHardwareIndex
-        //               let sampling_hardware_ids = <mining_sampling_hardware::Module<T>>
+        //               let sampling_hardware_ids = <mining_sampling_hardware::Pallet<T>>
         //                 ::hardware_config_samplings(mining_setting_hardware_id);
 
         //               let mut sample_count = 0;
@@ -216,7 +216,7 @@ decl_module! {
         //               for (index, sampling_hardware_id) in sampling_hardware_ids.iter().enumerate() {
         //                 // Retrieve the current corresponding sampling_hardware_config
         //                 // of type MiningSamplingHardwareSetting
-        //                 if let Some(current_sampling_hardware_config) = <mining_sampling_hardware::Module<T>>::mining_samplings_hardware_samplings_configs(
+        //                 if let Some(current_sampling_hardware_config) = <mining_sampling_hardware::Pallet<T>>::mining_samplings_hardware_samplings_configs(
         //                   (mining_setting_hardware_id, sampling_hardware_id)
         //                 ) {
         //                   if let tokens_locked = current_sampling_hardware_config.token_sample_locked_amount {
@@ -228,7 +228,7 @@ decl_module! {
         //                     }
         //                     current_sample_tokens_locked = tokens_locked;
 
-        //                     if let Some(hardware_rates_config) = <mining_rates_hardware::Module<T>>::mining_rates_hardware_rates_configs(DEFAULT_RATE_CONFIG) {
+        //                     if let Some(hardware_rates_config) = <mining_rates_hardware::Pallet<T>>::mining_rates_hardware_rates_configs(DEFAULT_RATE_CONFIG) {
 
         //                       if current_token_type == "MXC".to_string() {
         //                         current_hardware_rate = hardware_rates_config.token_token_mxc;
@@ -425,13 +425,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given configuration id already exists
-            let is_configuration_hardware = <mining_setting_hardware::Module<T>>
+            let is_configuration_hardware = <mining_setting_hardware::Pallet<T>>
                 ::exists_mining_setting_hardware(mining_setting_hardware_id).is_ok();
             ensure!(is_configuration_hardware, "configuration_hardware does not exist");
 
             // Ensure that caller of the function is the owner of the configuration id to assign the eligibility to
             ensure!(
-                <mining_setting_hardware::Module<T>>::is_mining_setting_hardware_owner(mining_setting_hardware_id, sender.clone()).is_ok(),
+                <mining_setting_hardware::Pallet<T>>::is_mining_setting_hardware_owner(mining_setting_hardware_id, sender.clone()).is_ok(),
                 "Only the configuration_hardware owner can assign itself a eligibility"
             );
 

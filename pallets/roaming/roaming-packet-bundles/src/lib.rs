@@ -377,13 +377,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given session id already exists
-            let is_roaming_session = <roaming_sessions::Module<T>>
+            let is_roaming_session = <roaming_sessions::Pallet<T>>
                 ::exists_roaming_session(roaming_session_id).is_ok();
             ensure!(is_roaming_session, "RoamingSession does not exist");
 
             // Ensure that caller of the function is the owner of the session id to assign the packet_bundle to
             ensure!(
-                <roaming_sessions::Module<T>>::is_roaming_session_owner(roaming_session_id, sender.clone()).is_ok(),
+                <roaming_sessions::Pallet<T>>::is_roaming_session_owner(roaming_session_id, sender.clone()).is_ok(),
                 "Only the roaming session owner can assign itself a roaming packet bundle"
             );
 
@@ -412,13 +412,13 @@ decl_module! {
         //     let sender = ensure_signed(origin)?;
 
         //     // Ensure that the given session id already exists
-        //     let is_roaming_operator = <roaming_operators::Module<T>>
+        //     let is_roaming_operator = <roaming_operators::Pallet<T>>
         //         ::exists_roaming_operator(roaming_operator_id).is_ok();
         //     ensure!(is_roaming_operator, "RoamingOperator does not exist");
 
         //     // Ensure that caller of the function is the owner of the operator id to assign the packet_bundle to
         //     ensure!(
-        //         <roaming_operators::Module<T>>::is_roaming_operator_owner(roaming_operator_id, sender.clone()).is_ok(),
+        //         <roaming_operators::Pallet<T>>::is_roaming_operator_owner(roaming_operator_id, sender.clone()).is_ok(),
         //         "Only the roaming operator owner can assign itself a roaming packet bundle"
         //     );
 
@@ -463,7 +463,7 @@ impl<T: Config> Module<T> {
         if let Some(_packet_bundle_session_id) = packet_bundle_session_id {
             // Ensure that the caller is owner of the session id associated with the packet bundle
             ensure!(
-                (<roaming_sessions::Module<T>>::is_roaming_session_owner(
+                (<roaming_sessions::Pallet<T>>::is_roaming_session_owner(
                     _packet_bundle_session_id.clone(),
                     sender.clone()
                 ))
@@ -501,7 +501,7 @@ impl<T: Config> Module<T> {
         roaming_network_server_id: T::RoamingNetworkServerIndex,
     ) -> Result<(), DispatchError> {
         info!("Ensuring that the caller has provided a network server id that actually exists");
-        match <roaming_network_servers::Module<T>>::exists_roaming_network_server(roaming_network_server_id) {
+        match <roaming_network_servers::Pallet<T>>::exists_roaming_network_server(roaming_network_server_id) {
             Ok(_) => Ok(()),
             Err(_e) => Err(DispatchError::Other("RoamingNetworkServer does not exist")),
         }
@@ -515,7 +515,7 @@ impl<T: Config> Module<T> {
             "Ensuring that the caller is owner of the given network server id associated with the given packet bundle \
              id"
         );
-        match <roaming_network_servers::Module<T>>::is_roaming_network_server_owner(roaming_network_server_id, sender) {
+        match <roaming_network_servers::Pallet<T>>::is_roaming_network_server_owner(roaming_network_server_id, sender) {
             Ok(_) => Ok(()),
             Err(_e) => {
                 Err(DispatchError::Other(

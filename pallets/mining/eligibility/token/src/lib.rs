@@ -193,7 +193,7 @@ decl_module! {
         //     let mut current_token_type;
         //     let mut current_token_lock_amount;
         //     // Get the config associated with the given configuration_token
-        //     if let Some(configuration_token_setting) = <mining_setting_token::Module<T>>::mining_setting_token_token_settings(mining_setting_token_id) {
+        //     if let Some(configuration_token_setting) = <mining_setting_token::Pallet<T>>::mining_setting_token_token_settings(mining_setting_token_id) {
         //       if let token_type = configuration_token_setting.token_type {
         //         if token_type != "".to_string() {
         //           current_token_type = token_type.clone();
@@ -204,7 +204,7 @@ decl_module! {
 
         //               // Get list of all sampling_token_ids that correspond to the given mining_setting_token_id
         //               // of type MiningSamplingTokenIndex
-        //               let sampling_token_ids = <mining_sampling_token::Module<T>>
+        //               let sampling_token_ids = <mining_sampling_token::Pallet<T>>
         //                 ::token_setting_samplings(mining_setting_token_id);
 
         //               let mut sample_count = 0;
@@ -216,7 +216,7 @@ decl_module! {
         //               for (index, sampling_token_id) in sampling_token_ids.iter().enumerate() {
         //                 // Retrieve the current corresponding sampling_token_setting
         //                 // of type MiningSamplingTokenSetting
-        //                 if let Some(current_sampling_token_setting) = <mining_sampling_token::Module<T>>::mining_samplings_token_samplings_configs(
+        //                 if let Some(current_sampling_token_setting) = <mining_sampling_token::Pallet<T>>::mining_samplings_token_samplings_configs(
         //                   (mining_setting_token_id, sampling_token_id)
         //                 ) {
         //                   if let tokens_locked = current_sampling_token_setting.token_sample_locked_amount {
@@ -228,7 +228,7 @@ decl_module! {
         //                     }
         //                     current_sample_tokens_locked = tokens_locked;
 
-        //                     if let Some(token_rates_config) = <mining_rates_token::Module<T>>::mining_rates_token_rates_configs(DEFAULT_RATE_CONFIG) {
+        //                     if let Some(token_rates_config) = <mining_rates_token::Pallet<T>>::mining_rates_token_rates_configs(DEFAULT_RATE_CONFIG) {
 
         //                       if current_token_type == "MXC".to_string() {
         //                         current_token_rate = token_rates_config.token_token_mxc;
@@ -425,13 +425,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given configuration id already exists
-            let is_configuration_token = <mining_setting_token::Module<T>>
+            let is_configuration_token = <mining_setting_token::Pallet<T>>
                 ::exists_mining_setting_token(mining_setting_token_id).is_ok();
             ensure!(is_configuration_token, "configuration_token does not exist");
 
             // Ensure that caller of the function is the owner of the configuration id to assign the eligibility to
             ensure!(
-                <mining_setting_token::Module<T>>::is_mining_setting_token_owner(mining_setting_token_id, sender.clone()).is_ok(),
+                <mining_setting_token::Pallet<T>>::is_mining_setting_token_owner(mining_setting_token_id, sender.clone()).is_ok(),
                 "Only the configuration_token owner can assign itself a eligibility"
             );
 

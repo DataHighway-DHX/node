@@ -176,7 +176,7 @@ decl_module! {
 
             info!("Checking that only the owner of the given network server id that the device is trying to connect to can set an associated roaming session join request");
             // Ensure that the caller is owner of the network server id that the device is trying to connect to for the session join request
-            ensure!((<roaming_network_servers::Module<T>>::is_roaming_network_server_owner(
+            ensure!((<roaming_network_servers::Pallet<T>>::is_roaming_network_server_owner(
                         session_network_server_id.clone(),
                         sender.clone()
                     )).is_ok(), "Only owner of the given network server id that the device is trying to connect to can set an associated roaming session join request"
@@ -255,7 +255,7 @@ decl_module! {
 
             if let Some(_session_join_request) = session_join_request {
                 // Ensure that the caller is owner of the network server id that the device is trying to connect to for the session join request
-                ensure!((<roaming_network_servers::Module<T>>::is_roaming_network_server_owner(
+                ensure!((<roaming_network_servers::Pallet<T>>::is_roaming_network_server_owner(
                         _session_join_request.session_network_server_id.clone(),
                         sender.clone()
                     )).is_ok(), "Only owner of the given network server id that the device is trying to connect to can set an associated roaming session join accept"
@@ -334,13 +334,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given device id already exists
-            let is_roaming_device = <roaming_devices::Module<T>>
+            let is_roaming_device = <roaming_devices::Pallet<T>>
                 ::exists_roaming_device(roaming_device_id).is_ok();
             ensure!(is_roaming_device, "RoamingDevice does not exist");
 
             // Ensure that caller of the function is the owner of the device id to assign the session to
             ensure!(
-                <roaming_devices::Module<T>>::is_roaming_device_owner(roaming_device_id, sender.clone()).is_ok(),
+                <roaming_devices::Pallet<T>>::is_roaming_device_owner(roaming_device_id, sender.clone()).is_ok(),
                 "Only the roaming device owner can assign itself a roaming session"
             );
 

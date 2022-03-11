@@ -239,13 +239,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given configuration id already exists
-            let is_configuration_token = <mining_setting_token::Module<T>>
+            let is_configuration_token = <mining_setting_token::Pallet<T>>
                 ::exists_mining_setting_token(mining_setting_token_id).is_ok();
             ensure!(is_configuration_token, "configuration_token does not exist");
 
             // Ensure that caller of the function is the owner of the configuration id to assign the sampling to
             ensure!(
-                <mining_setting_token::Module<T>>::is_mining_setting_token_owner(mining_setting_token_id, sender.clone()).is_ok(),
+                <mining_setting_token::Pallet<T>>::is_mining_setting_token_owner(mining_setting_token_id, sender.clone()).is_ok(),
                 "Only the configuration_token owner can assign itself a sampling"
             );
 

@@ -374,7 +374,7 @@ mod tests {
     pub type MiningExecutionTokenTestModule = MiningExecutionTokenModule<Test>;
     pub type MembershipSupernodesTestModule = MembershipSupernodesModule<Test>;
     type Randomness = pallet_randomness_collective_flip::Pallet<Test>;
-    type MembershipSupernodes = membership_supernodes::Module<Test>;
+    type MembershipSupernodes = membership_supernodes::Pallet<Test>;
 
     // fn last_event() -> MiningEligibilityProxyEvent {
     //     System::events().pop().expect("Event expected").event

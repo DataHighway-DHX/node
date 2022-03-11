@@ -76,7 +76,7 @@
 //     type Event = TestEvent;
 // }
 
-// pub type System = system::Module<TestRuntime>;
+// pub type System = system::Pallet<TestRuntime>;
 // pub type VecSet = Module<TestRuntime>;
 
 // struct ExternalityBuilder;

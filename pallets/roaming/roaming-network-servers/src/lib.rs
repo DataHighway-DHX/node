@@ -187,13 +187,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given network id already exists
-            let is_roaming_network = <roaming_networks::Module<T>>
+            let is_roaming_network = <roaming_networks::Pallet<T>>
                 ::exists_roaming_network(roaming_network_id).is_ok();
             ensure!(is_roaming_network, "RoamingNetwork does not exist");
 
             // Ensure that caller of the function is the owner of the network id to assign the network_server to
             ensure!(
-                <roaming_networks::Module<T>>::is_roaming_network_owner(roaming_network_id, sender.clone()).is_ok(),
+                <roaming_networks::Pallet<T>>::is_roaming_network_owner(roaming_network_id, sender.clone()).is_ok(),
                 "Only the roaming network owner can assign itself a roaming network server"
             );
 
@@ -223,13 +223,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given operator id already exists
-            let is_roaming_operator = <roaming_operators::Module<T>>
+            let is_roaming_operator = <roaming_operators::Pallet<T>>
                 ::exists_roaming_operator(roaming_operator_id).is_ok();
             ensure!(is_roaming_operator, "RoamingOperator does not exist");
 
             // Ensure that caller of the function is the owner of the operator id to assign the network to
             ensure!(
-                <roaming_operators::Module<T>>::is_roaming_operator_owner(roaming_operator_id, sender.clone()).is_ok(),
+                <roaming_operators::Pallet<T>>::is_roaming_operator_owner(roaming_operator_id, sender.clone()).is_ok(),
                 "Only the roaming operator owner can assign itself a roaming network server"
             );
 

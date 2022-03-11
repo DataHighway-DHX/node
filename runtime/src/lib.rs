@@ -592,7 +592,7 @@ impl pallet_balances::Config for Runtime {
     type DustRemoval = ();
     type Event = Event;
     type ExistentialDeposit = ConstU128<ExistentialDepositAsConst>;
-    type AccountStore = frame_system::Module<Runtime>;
+    type AccountStore = frame_system::Pallet<Runtime>;
     type WeightInfo = pallet_balances::weights::SubstrateWeight<Runtime>;
 }
 pub const OperationalFeeMultiplierAsConst: u8 = 5;
@@ -1202,7 +1202,7 @@ impl roaming_accounting_policies::Config for Runtime {
 impl roaming_agreement_policies::Config for Runtime {
     type Event = Event;
     type RoamingAgreementPolicyActivationType = Vec<u8>;
-    type RoamingAgreementPolicyIndex = u64; // <pallet_timestamp::Module<Runtime> as Config>::Moment` timestamp::Module<Runtime>::Moment;
+    type RoamingAgreementPolicyIndex = u64; // <pallet_timestamp::Pallet<Runtime> as Config>::Moment` timestamp::Pallet<Runtime>::Moment;
 }
 
 impl roaming_network_profiles::Config for Runtime {

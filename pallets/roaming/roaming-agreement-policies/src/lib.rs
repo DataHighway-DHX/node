@@ -171,7 +171,7 @@ decl_module! {
             };
             let policy_expiry_block = match _policy_expiry_block {
                 Some(value) => value,
-                None => Default::default() // <timestamp::Module<T>>::get() // Default
+                None => Default::default() // <timestamp::Pallet<T>>::get() // Default
             };
 
             // Check if a roaming agreement policy config already exists with the given roaming agreement policy id
@@ -235,13 +235,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given network id already exists
-            let is_roaming_network = <roaming_networks::Module<T>>
+            let is_roaming_network = <roaming_networks::Pallet<T>>
                 ::exists_roaming_network(roaming_network_id).is_ok();
             ensure!(is_roaming_network, "RoamingNetwork does not exist");
 
             // Ensure that caller of the function is the owner of the network id to assign the agreement_policy to
             ensure!(
-                <roaming_networks::Module<T>>::is_roaming_network_owner(roaming_network_id, sender.clone()).is_ok(),
+                <roaming_networks::Pallet<T>>::is_roaming_network_owner(roaming_network_id, sender.clone()).is_ok(),
                 "Only the roaming network owner can assign itself a roaming agreement policy"
             );
 
@@ -271,13 +271,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given network id already exists
-            let is_roaming_accounting_policy = <roaming_accounting_policies::Module<T>>
+            let is_roaming_accounting_policy = <roaming_accounting_policies::Pallet<T>>
                 ::exists_roaming_accounting_policy(roaming_accounting_policy_id).is_ok();
             ensure!(is_roaming_accounting_policy, "RoamingAccountingPolicy does not exist");
 
             // Ensure that caller of the function is the owner of the accounting_policy id to assign the agreement_policy to
             ensure!(
-                <roaming_accounting_policies::Module<T>>::is_roaming_accounting_policy_owner(roaming_accounting_policy_id, sender.clone()).is_ok(),
+                <roaming_accounting_policies::Pallet<T>>::is_roaming_accounting_policy_owner(roaming_accounting_policy_id, sender.clone()).is_ok(),
                 "Only the roaming accounting_policy owner can assign itself a roaming agreement policy"
             );
 
@@ -322,7 +322,7 @@ impl<T: Config> Module<T> {
 
     //     if let Some(_agreement_policy_network_id) = agreement_policy_network_id {
     //         // Ensure that the caller is owner of the network id associated with the agreement policy
-    //         ensure!((<roaming_networks::Module<T>>::is_roaming_network_owner(
+    //         ensure!((<roaming_networks::Pallet<T>>::is_roaming_network_owner(
     //                 _agreement_policy_network_id.clone(),
     //                 sender.clone()
     //             )).is_ok(), "Only owner of the network id associated with the given agreement policy can set an

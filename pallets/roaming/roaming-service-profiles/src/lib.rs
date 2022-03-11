@@ -178,13 +178,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given network_server id already exists
-            let is_roaming_network_server = <roaming_network_servers::Module<T>>
+            let is_roaming_network_server = <roaming_network_servers::Pallet<T>>
                 ::exists_roaming_network_server(roaming_network_server_id).is_ok();
             ensure!(is_roaming_network_server, "RoamingNetworkServer does not exist");
 
             // Ensure that caller of the function is the owner of the network_server id to assign the service_profile to
             ensure!(
-                <roaming_network_servers::Module<T>>::is_roaming_network_server_owner(roaming_network_server_id, sender.clone()).is_ok(),
+                <roaming_network_servers::Pallet<T>>::is_roaming_network_server_owner(roaming_network_server_id, sender.clone()).is_ok(),
                 "Only the roaming network_server owner can assign itself a roaming service_profile"
             );
 
@@ -224,7 +224,7 @@ impl<T: Config> Module<T> {
 
     //     if let Some(_service_profile_network_server_id) = service_profile_network_server_id {
     //         // Ensure that the caller is owner of the network_server id associated with the service profile
-    //         ensure!((<roaming_network_servers::Module<T>>::is_roaming_network_server_owner(
+    //         ensure!((<roaming_network_servers::Pallet<T>>::is_roaming_network_server_owner(
     //                 _service_profile_network_server_id.clone(),
     //                 sender.clone()
     //             )).is_ok(), "Only owner of the network_server id associated with the given service profile can set an

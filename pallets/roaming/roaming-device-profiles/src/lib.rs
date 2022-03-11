@@ -245,13 +245,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given device id already exists
-            let is_roaming_device = <roaming_devices::Module<T>>
+            let is_roaming_device = <roaming_devices::Pallet<T>>
                 ::exists_roaming_device(roaming_device_id).is_ok();
             ensure!(is_roaming_device, "RoamingDevice does not exist");
 
             // Ensure that caller of the function is the owner of the device id to assign the device_profile to
             ensure!(
-                <roaming_devices::Module<T>>::is_roaming_device_owner(roaming_device_id, sender.clone()).is_ok(),
+                <roaming_devices::Pallet<T>>::is_roaming_device_owner(roaming_device_id, sender.clone()).is_ok(),
                 "Only the roaming device owner can assign itself a roaming device_profile"
             );
 
@@ -294,7 +294,7 @@ impl<T: Config> Module<T> {
         if let Some(_device_profile_device_id) = device_profile_device_id {
             // Ensure that the caller is owner of the device id associated with the device profile
             ensure!(
-                (<roaming_devices::Module<T>>::is_roaming_device_owner(
+                (<roaming_devices::Pallet<T>>::is_roaming_device_owner(
                     _device_profile_device_id.clone(),
                     sender.clone()
                 ))

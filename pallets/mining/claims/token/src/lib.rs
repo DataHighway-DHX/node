@@ -174,7 +174,7 @@ decl_module! {
             // Check that only allow the owner of the configuration that the claim belongs to call this extrinsic
             // and claim their eligibility
             ensure!(
-              <mining_setting_token::Module<T>>::is_mining_setting_token_owner(
+              <mining_setting_token::Pallet<T>>::is_mining_setting_token_owner(
                 mining_setting_token_id, sender.clone()
               ).is_ok(),
               "Only the configuration_token owner can claim their associated eligibility"
@@ -185,7 +185,7 @@ decl_module! {
             // FIXME
             // let current_block = <frame_system::Pallet<T>>::block_number();
             // // Get the config associated with the given configuration_token
-            // if let Some(configuration_token_setting) = <mining_setting_token::Module<T>>::mining_setting_token_token_settings(mining_setting_token_id) {
+            // if let Some(configuration_token_setting) = <mining_setting_token::Pallet<T>>::mining_setting_token_token_settings(mining_setting_token_id) {
             //   if let _token_lock_interval_blocks = configuration_token_setting.token_lock_interval_blocks {
             //     ensure!(current_block > _token_lock_interval_blocks, "Claim may not be made until after the end of the lock interval");
             // } else {
@@ -206,7 +206,7 @@ decl_module! {
             // Record the claim associated with their configuration/eligibility
             let token_claim_amount: T::MiningClaimsTokenClaimAmount = 0u32.into();
             let token_claim_block_redeemed: T::BlockNumber = <frame_system::Pallet<T>>::block_number();
-            if let Some(eligibility_token) = <mining_eligibility_token::Module<T>>::mining_eligibility_token_eligibility_results((mining_setting_token_id, mining_eligibility_token_id)) {
+            if let Some(eligibility_token) = <mining_eligibility_token::Pallet<T>>::mining_eligibility_token_eligibility_results((mining_setting_token_id, mining_eligibility_token_id)) {
               if let token_calculated_eligibility = eligibility_token.token_calculated_eligibility {
                 ensure!(token_calculated_eligibility > 0u32.into(), "Calculated eligibility is zero. Nothing to claim.");
                 // FIXME - unable to figure out how to cast here!
@@ -360,13 +360,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given configuration id already exists
-            let is_configuration_token = <mining_setting_token::Module<T>>
+            let is_configuration_token = <mining_setting_token::Pallet<T>>
                 ::exists_mining_setting_token(mining_setting_token_id).is_ok();
             ensure!(is_configuration_token, "configuration_token does not exist");
 
             // Ensure that caller of the function is the owner of the configuration id to assign the claim to
             ensure!(
-                <mining_setting_token::Module<T>>::is_mining_setting_token_owner(mining_setting_token_id, sender.clone()).is_ok(),
+                <mining_setting_token::Pallet<T>>::is_mining_setting_token_owner(mining_setting_token_id, sender.clone()).is_ok(),
                 "Only the configuration_token owner can assign itself a claim"
             );
 

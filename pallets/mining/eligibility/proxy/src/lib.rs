@@ -322,7 +322,7 @@ decl_module! {
 
             // get the current block & current date/time
             let current_block = <frame_system::Pallet<T>>::block_number();
-            let requested_date = <pallet_timestamp::Module<T>>::get();
+            let requested_date = <pallet_timestamp::Pallet<T>>::get();
 
             // convert the current date/time to the start of the current day date/time.
             // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
@@ -374,7 +374,7 @@ decl_module! {
             }
 
             // The rewards shall be distributed to the account that has locked the funds
-            let treasury_account_id: T::AccountId = <pallet_treasury::Module<T>>::account_id();
+            let treasury_account_id: T::AccountId = <pallet_treasury::Pallet<T>>::account_id();
             // Only available in Substrate 3 is pot()
             // let max_payout = pallet_treasury::Module::<T>::pot();
             let max_payout = pallet_balances::Module::<T>::usable_balance(treasury_account_id.clone());
@@ -666,7 +666,7 @@ impl<T: Config> Module<T> {
     pub fn is_valid_reward_data(_proxy_claim_total_reward_amount: BalanceOf<T>, _proxy_claim_rewardees_data: Vec<RewardeeData<T>>) -> Result<(), DispatchError> {
         ensure!(_proxy_claim_rewardees_data.len() > 0, "Rewardees data is invalid as no elements");
 
-        let current_timestamp = <pallet_timestamp::Module<T>>::get();
+        let current_timestamp = <pallet_timestamp::Pallet<T>>::get();
         // convert the current date/time to the start of the current day date/time.
         // i.e. 21 Apr @ 1420 -> 21 Apr @ 0000
         let current_timestamp_as_u64;
@@ -878,7 +878,7 @@ impl<T: Config> Module<T> {
         let proxy_claim_rewardees_data = _proxy_claim_rewardees_data.clone();
         let current_block = <frame_system::Pallet<T>>::block_number();
         let proxy_claim_block_redeemed = current_block;
-        let proxy_claim_timestamp_redeemed = <pallet_timestamp::Module<T>>::get();
+        let proxy_claim_timestamp_redeemed = <pallet_timestamp::Pallet<T>>::get();
 
         info!("Inserting reward requests");
 

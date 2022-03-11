@@ -184,7 +184,7 @@ decl_module! {
 
             // Check that only allow the owner of the configuration that the execution belongs to call this extrinsic to set and execute
             ensure!(
-                <mining_setting_token::Module<T>>::is_mining_setting_token_owner(
+                <mining_setting_token::Pallet<T>>::is_mining_setting_token_owner(
                     mining_setting_token_id, sender.clone()
                 ).is_ok(),
                 "Only the configuration_token owner can execute their associated execution"
@@ -294,13 +294,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given configuration id already exists
-            let is_configuration_token = <mining_setting_token::Module<T>>
+            let is_configuration_token = <mining_setting_token::Pallet<T>>
                 ::exists_mining_setting_token(mining_setting_token_id).is_ok();
             ensure!(is_configuration_token, "configuration_token does not exist");
 
             // Ensure that caller of the function is the owner of the configuration id to assign the execution to
             ensure!(
-                <mining_setting_token::Module<T>>::is_mining_setting_token_owner(mining_setting_token_id, sender.clone()).is_ok(),
+                <mining_setting_token::Pallet<T>>::is_mining_setting_token_owner(mining_setting_token_id, sender.clone()).is_ok(),
                 "Only the configuration_token owner can assign itself a execution"
             );
 
@@ -366,7 +366,7 @@ impl<T: Config> Module<T> {
         let current_block = <frame_system::Pallet<T>>::block_number();
         // Get the config associated with the given configuration_token
         if let Some(configuration_token_setting) =
-            <mining_setting_token::Module<T>>::mining_setting_token_token_settings(mining_setting_token_id)
+            <mining_setting_token::Pallet<T>>::mining_setting_token_token_settings(mining_setting_token_id)
         {
             if let _token_lock_start_block = configuration_token_setting.token_lock_start_block {
                 ensure!(
@@ -388,10 +388,10 @@ impl<T: Config> Module<T> {
         mining_setting_token_id: T::MiningSettingTokenIndex,
     ) -> Result<(), DispatchError> {
         if let Some(configuration_token) =
-            <mining_setting_token::Module<T>>::mining_setting_token_token_settings((mining_setting_token_id))
+            <mining_setting_token::Pallet<T>>::mining_setting_token_token_settings((mining_setting_token_id))
         {
             if let Some(cooldown_configuration_token) =
-                <mining_setting_token::Module<T>>::mining_setting_token_token_cooldown_configs((mining_setting_token_id))
+                <mining_setting_token::Pallet<T>>::mining_setting_token_token_cooldown_configs((mining_setting_token_id))
             {
                 if let token_lock_interval_blocks = configuration_token.token_lock_interval_blocks {
                     if let token_lock_min_blocks = cooldown_configuration_token.token_lock_min_blocks {
@@ -425,10 +425,10 @@ impl<T: Config> Module<T> {
         mining_setting_token_id: T::MiningSettingTokenIndex,
     ) -> Result<(), DispatchError> {
         if let Some(configuration_token) =
-            <mining_setting_token::Module<T>>::mining_setting_token_token_settings((mining_setting_token_id))
+            <mining_setting_token::Pallet<T>>::mining_setting_token_token_settings((mining_setting_token_id))
         {
             if let Some(cooldown_configuration_token) =
-                <mining_setting_token::Module<T>>::mining_setting_token_token_cooldown_configs((mining_setting_token_id))
+                <mining_setting_token::Pallet<T>>::mining_setting_token_token_cooldown_configs((mining_setting_token_id))
             {
                 if let locked_amount = configuration_token.token_lock_amount {
                     if let lock_min_amount = cooldown_configuration_token.token_lock_min_amount {

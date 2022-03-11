@@ -248,13 +248,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given network id already exists
-            let is_roaming_network = <roaming_networks::Module<T>>
+            let is_roaming_network = <roaming_networks::Pallet<T>>
                 ::exists_roaming_network(roaming_network_id).is_ok();
             ensure!(is_roaming_network, "RoamingNetwork does not exist");
 
             // Ensure that caller of the function is the owner of the network id to assign the accounting_policy to
             ensure!(
-                <roaming_networks::Module<T>>::is_roaming_network_owner(roaming_network_id, sender.clone()).is_ok(),
+                <roaming_networks::Pallet<T>>::is_roaming_network_owner(roaming_network_id, sender.clone()).is_ok(),
                 "Only the roaming network owner can assign itself a roaming accounting policy"
             );
 
@@ -299,7 +299,7 @@ impl<T: Config> Module<T> {
 
     //     if let Some(_accounting_policy_network_id) = accounting_policy_network_id {
     //         // Ensure that the caller is owner of the network id associated with the accounting policy
-    //         ensure!((<roaming_networks::Module<T>>::is_roaming_network_owner(
+    //         ensure!((<roaming_networks::Pallet<T>>::is_roaming_network_owner(
     //                 _accounting_policy_network_id.clone(),
     //                 sender.clone()
     //             )).is_ok(), "Only owner of the network id associated with the given accounting policy can set an
