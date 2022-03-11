@@ -19,6 +19,13 @@ use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
 use sp_api::impl_runtime_apis;
 use sp_core::{
     crypto::KeyTypeId,
+    u32_trait::{
+        _1,
+        _2,
+        _3,
+        _4,
+        _5,
+    },
     OpaqueMetadata,
 };
 use sp_inherents::{
@@ -698,7 +705,7 @@ impl pallet_collective::Config<TechnicalCollective> for Runtime {
 
 type EnsureRootOrHalfCouncil = EnsureOneOf<
     EnsureRoot<AccountId>,
-    pallet_collective::EnsureProportionMoreThan<AccountId, CouncilCollective, 1, 2>,
+    pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>,
 >;
 impl pallet_membership::Config<pallet_membership::Instance1> for Runtime {
     type Event = Event;
@@ -740,11 +747,11 @@ impl pallet_treasury::Config for Runtime {
     type Currency = Balances;
     type ApproveOrigin = EnsureOneOf<
         EnsureRoot<AccountId>,
-        pallet_collective::EnsureProportionAtLeast<AccountId, CouncilCollective, 3, 5>,
+        pallet_collective::EnsureProportionAtLeast<_3, _5, AccountId, CouncilCollective>
     >;
     type RejectOrigin = EnsureOneOf<
         EnsureRoot<AccountId>,
-        pallet_collective::EnsureProportionMoreThan<AccountId, CouncilCollective, 1, 2>,
+        pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>
     >;
     type Event = Event;
     type OnSlash = ();
@@ -853,7 +860,7 @@ impl pallet_staking::Config for Runtime {
     /// A super-majority of the council can cancel the slash.
     type SlashCancelOrigin = EnsureOneOf<
         EnsureRoot<AccountId>,
-        pallet_collective::EnsureProportionAtLeast<AccountId, CouncilCollective, 3, 4>,
+        pallet_collective::EnsureProportionAtLeast<_3, _4, AccountId, CouncilCollective>
     >;
     type SessionInterface = Self;
     type EraPayout = pallet_staking::ConvertCurve<RewardCurve>;
@@ -1108,25 +1115,25 @@ impl pallet_democracy::Config for Runtime {
     type VoteLockingPeriod = EnactmentPeriod; // Same as EnactmentPeriod
     type MinimumDeposit = MinimumDeposit;
     /// A straight majority of the council can decide what their next motion is.
-    type ExternalOrigin = pallet_collective::EnsureProportionAtLeast<AccountId, CouncilCollective, 1, 2>;
+    type ExternalOrigin = pallet_collective::EnsureProportionAtLeast<_1, _2, AccountId, CouncilCollective>;
     /// A super-majority can have the next scheduled referendum be a straight majority-carries vote.
-    type ExternalMajorityOrigin = pallet_collective::EnsureProportionAtLeast<AccountId, CouncilCollective, 3, 4>;
+    type ExternalMajorityOrigin = pallet_collective::EnsureProportionAtLeast<_3, _4, AccountId, CouncilCollective>;
     /// A unanimous council can have the next scheduled referendum be a straight default-carries
     /// (NTB) vote.
-    type ExternalDefaultOrigin = pallet_collective::EnsureProportionAtLeast<AccountId, CouncilCollective, 1, 1>;
+    type ExternalDefaultOrigin = pallet_collective::EnsureProportionAtLeast<_1, _1, AccountId, CouncilCollective>;
     /// Two thirds of the technical committee can have an ExternalMajority/ExternalDefault vote
     /// be tabled immediately and with a shorter voting/enactment period.
-    type FastTrackOrigin = pallet_collective::EnsureProportionAtLeast<AccountId, TechnicalCollective, 2, 3>;
-    type InstantOrigin = pallet_collective::EnsureProportionAtLeast<AccountId, TechnicalCollective, 1, 1>;
+    type FastTrackOrigin = pallet_collective::EnsureProportionAtLeast<_2, _3, AccountId, TechnicalCollective>;
+    type InstantOrigin = pallet_collective::EnsureProportionAtLeast<_1, _1, AccountId, TechnicalCollective>;
     type InstantAllowed = frame_support::traits::ConstBool<true>;
     type FastTrackVotingPeriod = FastTrackVotingPeriod;
     // To cancel a proposal which has been passed, 2/3 of the council must agree to it.
-    type CancellationOrigin = pallet_collective::EnsureProportionAtLeast<AccountId, CouncilCollective, 2, 3>;
+    type CancellationOrigin = pallet_collective::EnsureProportionAtLeast<_2, _3, AccountId, CouncilCollective>;
     // To cancel a proposal before it has been passed, the technical committee must be unanimous or
     // Root must agree.
     type CancelProposalOrigin = EnsureOneOf<
         EnsureRoot<AccountId>,
-        pallet_collective::EnsureProportionAtLeast<AccountId, TechnicalCollective, 1, 1>,
+        pallet_collective::EnsureProportionAtLeast<_1, _1, AccountId, TechnicalCollective>,
     >;
     type BlacklistOrigin = EnsureRoot<AccountId>;
     // Any single technical committee member may veto a coming council proposal, however they can
