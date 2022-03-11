@@ -76,9 +76,9 @@ impl frame_system::Config for Test {
     type MaxConsumers = frame_support::traits::ConstU32<16>;
 }
 impl pallet_randomness_collective_flip::Config for Test {}
-pub const ExistentialDepositAsConst: u64 = 1;
+pub const EXISTENTIAL_DEPOSIT_AS_CONST: u64 = 1;
 parameter_types! {
-    pub const ExistentialDeposit: u64 = ExistentialDepositAsConst;
+    pub const ExistentialDeposit: u64 = EXISTENTIAL_DEPOSIT_AS_CONST;
 }
 impl pallet_balances::Config for Test {
     type MaxLocks = ();
@@ -87,20 +87,20 @@ impl pallet_balances::Config for Test {
     type Balance = u64;
     type DustRemoval = ();
     type Event = ();
-    type ExistentialDeposit = ConstU64<ExistentialDepositAsConst>;
+    type ExistentialDeposit = ConstU64<EXISTENTIAL_DEPOSIT_AS_CONST>;
     type AccountStore = System;
     type WeightInfo = ();
 }
-pub const OperationalFeeMultiplierAsConst: u8 = 5;
+pub const OPERATIONAL_FEE_MULTIPLIER_AS_CONST: u8 = 5;
 parameter_types! {
     pub const TransactionByteFee: u64 = 1;
-    pub OperationalFeeMultiplier: u8 = OperationalFeeMultiplierAsConst;
+    pub OperationalFeeMultiplier: u8 = OPERATIONAL_FEE_MULTIPLIER_AS_CONST;
 }
 impl pallet_transaction_payment::Config for Test {
     type FeeMultiplierUpdate = ();
     type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
     type TransactionByteFee = TransactionByteFee;
-    type OperationalFeeMultiplier = ConstU8<OperationalFeeMultiplierAsConst>;
+    type OperationalFeeMultiplier = ConstU8<OPERATIONAL_FEE_MULTIPLIER_AS_CONST>;
     type WeightToFee = IdentityFee<u64>;
 }
 // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself

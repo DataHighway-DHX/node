@@ -181,9 +181,9 @@ mod tests {
         type OnTimestampSet = Aura;
         type WeightInfo = ();
     }
-    pub const ExistentialDepositAsConst: u64 = 1;
+    pub const EXISTENTIAL_DEPOSIT_AS_CONST: u64 = 1;
     parameter_types! {
-        pub const ExistentialDeposit: u64 = ExistentialDepositAsConst;
+        pub const ExistentialDeposit: u64 = EXISTENTIAL_DEPOSIT_AS_CONST;
     }
     impl pallet_balances::Config for Test {
         type MaxLocks = ();
@@ -192,7 +192,7 @@ mod tests {
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();
-        type ExistentialDeposit = ConstU64<ExistentialDepositAsConst>;
+        type ExistentialDeposit = ConstU64<EXISTENTIAL_DEPOSIT_AS_CONST>;
         type AccountStore = System;
         type WeightInfo = ();
     }
