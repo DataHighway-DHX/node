@@ -20,18 +20,31 @@ codec = { version = '3.0.0', package = 'parity-scale-codec', default-features = 
 scale-info = { version = '2.0.0', default-features = false, features = ['derive'] }
 
 # Substrate packages
+<<<<<<< HEAD
 frame-support = { git = 'https://github.com/paritytech/substrate', rev = 'dfe52f7de12a7e308c0bc3a25e211b9cc4d61871', default-features = false }
 frame-system = { git = 'https://github.com/paritytech/substrate', rev = 'dfe52f7de12a7e308c0bc3a25e211b9cc4d61871', default-features = false }
 pallet-balances = { git = 'https://github.com/paritytech/substrate', rev = 'dfe52f7de12a7e308c0bc3a25e211b9cc4d61871', default-features = false }
 sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = 'dfe52f7de12a7e308c0bc3a25e211b9cc4d61871', default-features = false }
 sp-std = { git = 'https://github.com/paritytech/substrate', rev = 'dfe52f7de12a7e308c0bc3a25e211b9cc4d61871', default-features = false }
+=======
+frame-support = { git = 'https://github.com/paritytech/substrate', rev = '7e643ceabf11858cd3c059579ab45794793f2a78', default-features = false }
+frame-system = { git = 'https://github.com/paritytech/substrate', rev = '7e643ceabf11858cd3c059579ab45794793f2a78', default-features = false }
+pallet-balances = { git = 'https://github.com/paritytech/substrate', rev = '7e643ceabf11858cd3c059579ab45794793f2a78', default-features = false }
+sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '7e643ceabf11858cd3c059579ab45794793f2a78', default-features = false }
+sp-std = { git = 'https://github.com/paritytech/substrate', rev = '7e643ceabf11858cd3c059579ab45794793f2a78', default-features = false }
+>>>>>>> parent of a8ac31a5 (update to substrate commit 0ac1a00c54a65416ed44e4c779f1483e32355130)
 
 # local packages
 account-set = { path = '../../../traits/account-set', default-features = false }
 
 [dev-dependencies]
+<<<<<<< HEAD
 sp-core = { git = 'https://github.com/paritytech/substrate', rev = 'dfe52f7de12a7e308c0bc3a25e211b9cc4d61871', default-features = false }
 sp-io = { git = 'https://github.com/paritytech/substrate', rev = 'dfe52f7de12a7e308c0bc3a25e211b9cc4d61871', default-features = false }
+=======
+sp-core = { git = 'https://github.com/paritytech/substrate', rev = '7e643ceabf11858cd3c059579ab45794793f2a78', default-features = false }
+sp-io = { git = 'https://github.com/paritytech/substrate', rev = '7e643ceabf11858cd3c059579ab45794793f2a78', default-features = false }
+>>>>>>> parent of a8ac31a5 (update to substrate commit 0ac1a00c54a65416ed44e4c779f1483e32355130)
 
 [features]
 default = ['std']
