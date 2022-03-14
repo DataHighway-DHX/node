@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use log::{warn, info};
 use codec::{
     Decode,
     Encode,
 };
 use frame_support::{
-    debug,
     decl_event,
     decl_module,
     decl_storage,
@@ -17,6 +17,7 @@ use frame_support::{
     Parameter,
 };
 use frame_system::ensure_signed;
+use scale_info::TypeInfo;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -45,12 +46,12 @@ pub trait Config: frame_system::Config + roaming_operators::Config + roaming_dev
     type RoamingDeviceProfileVendorID: Parameter + Member + Default;
 }
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct RoamingDeviceProfile(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo)]
 // Generic type parameters - Balance
 pub struct RoamingDeviceProfileSetting<U, V, W, X> {
     pub device_profile_devaddr: U,
@@ -179,7 +180,7 @@ decl_module! {
             // Check if a roaming device profile config already exists with the given roaming device profile id
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_device_profile_setting_index(roaming_device_profile_id).is_ok() {
-                debug::info!("Mutating values");
+                info!("Mutating values");
                 <RoamingDeviceProfileSettings<T>>::mutate(roaming_device_profile_id, |profile_setting| {
                     if let Some(_profile_setting) = profile_setting {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
@@ -189,16 +190,16 @@ decl_module! {
                         _profile_setting.device_profile_vendorid = device_profile_vendorid.clone();
                     }
                 });
-                debug::info!("Checking mutated values");
+                info!("Checking mutated values");
                 let fetched_profile_setting = <RoamingDeviceProfileSettings<T>>::get(roaming_device_profile_id);
                 if let Some(_profile_setting) = fetched_profile_setting {
-                    debug::info!("Latest field device_profile_devaddr {:#?}", _profile_setting.device_profile_devaddr);
-                    debug::info!("Latest field device_profile_deveui {:#?}", _profile_setting.device_profile_deveui);
-                    debug::info!("Latest field device_profile_joineui {:#?}", _profile_setting.device_profile_joineui);
-                    debug::info!("Latest field device_profile_vendorid {:#?}", _profile_setting.device_profile_vendorid);
+                    info!("Latest field device_profile_devaddr {:#?}", _profile_setting.device_profile_devaddr);
+                    info!("Latest field device_profile_deveui {:#?}", _profile_setting.device_profile_deveui);
+                    info!("Latest field device_profile_joineui {:#?}", _profile_setting.device_profile_joineui);
+                    info!("Latest field device_profile_vendorid {:#?}", _profile_setting.device_profile_vendorid);
                 }
             } else {
-                debug::info!("Inserting values");
+                info!("Inserting values");
 
                 // Create a new roaming device_profile config instance with the input params
                 let roaming_device_profile_setting_instance = RoamingDeviceProfileSetting {
@@ -215,13 +216,13 @@ decl_module! {
                     &roaming_device_profile_setting_instance
                 );
 
-                debug::info!("Checking inserted values");
+                info!("Checking inserted values");
                 let fetched_profile_setting = <RoamingDeviceProfileSettings<T>>::get(roaming_device_profile_id);
                 if let Some(_profile_setting) = fetched_profile_setting {
-                    debug::info!("Inserted field device_profile_devaddr {:#?}", _profile_setting.device_profile_devaddr);
-                    debug::info!("Inserted field device_profile_deveui {:#?}", _profile_setting.device_profile_deveui);
-                    debug::info!("Inserted field device_profile_joineui {:#?}", _profile_setting.device_profile_joineui);
-                    debug::info!("Inserted field device_profile_vendorid {:#?}", _profile_setting.device_profile_vendorid);
+                    info!("Inserted field device_profile_devaddr {:#?}", _profile_setting.device_profile_devaddr);
+                    info!("Inserted field device_profile_deveui {:#?}", _profile_setting.device_profile_deveui);
+                    info!("Inserted field device_profile_joineui {:#?}", _profile_setting.device_profile_joineui);
+                    info!("Inserted field device_profile_vendorid {:#?}", _profile_setting.device_profile_vendorid);
                 }
             }
 
@@ -244,13 +245,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given device id already exists
-            let is_roaming_device = <roaming_devices::Module<T>>
+            let is_roaming_device = <roaming_devices::Pallet<T>>
                 ::exists_roaming_device(roaming_device_id).is_ok();
             ensure!(is_roaming_device, "RoamingDevice does not exist");
 
             // Ensure that caller of the function is the owner of the device id to assign the device_profile to
             ensure!(
-                <roaming_devices::Module<T>>::is_roaming_device_owner(roaming_device_id, sender.clone()).is_ok(),
+                <roaming_devices::Pallet<T>>::is_roaming_device_owner(roaming_device_id, sender.clone()).is_ok(),
                 "Only the roaming device owner can assign itself a roaming device_profile"
             );
 
@@ -287,13 +288,13 @@ impl<T: Config> Module<T> {
         roaming_device_profile_id: T::RoamingDeviceProfileIndex,
         sender: T::AccountId,
     ) -> Result<(), DispatchError> {
-        debug::info!("Get the device id associated with the device of the given device profile id");
+        info!("Get the device id associated with the device of the given device profile id");
         let device_profile_device_id = Self::roaming_device_profile_device(roaming_device_profile_id);
 
         if let Some(_device_profile_device_id) = device_profile_device_id {
             // Ensure that the caller is owner of the device id associated with the device profile
             ensure!(
-                (<roaming_devices::Module<T>>::is_roaming_device_owner(
+                (<roaming_devices::Pallet<T>>::is_roaming_device_owner(
                     _device_profile_device_id.clone(),
                     sender.clone()
                 ))
@@ -320,13 +321,13 @@ impl<T: Config> Module<T> {
     pub fn has_value_for_device_profile_setting_index(
         roaming_device_profile_id: T::RoamingDeviceProfileIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if device profile config has a value that is defined");
+        info!("Checking if device profile config has a value that is defined");
         let fetched_profile_setting = <RoamingDeviceProfileSettings<T>>::get(roaming_device_profile_id);
         if let Some(_value) = fetched_profile_setting {
-            debug::info!("Found value for device profile config");
+            info!("Found value for device profile config");
             return Ok(());
         }
-        debug::info!("No value for device profile config");
+        warn!("No value for device profile config");
         Err(DispatchError::Other("No value for device profile config"))
     }
 
@@ -338,23 +339,23 @@ impl<T: Config> Module<T> {
         // Early exit with error since do not want to append if the given device id already exists as a key,
         // and where its corresponding value is a vector that already contains the given device_profile id
         if let Some(device_device_profiles) = Self::roaming_device_device_profiles(roaming_device_id) {
-            debug::info!("Device id key {:?} exists with value {:?}", roaming_device_id, device_device_profiles);
+            info!("Device id key {:?} exists with value {:?}", roaming_device_id, device_device_profiles);
             let not_device_contains_device_profile = !device_device_profiles.contains(&roaming_device_profile_id);
             ensure!(not_device_contains_device_profile, "Device already contains the given device_profile id");
-            debug::info!("Device id key exists but its vector value does not contain the given device_profile id");
+            info!("Device id key exists but its vector value does not contain the given device_profile id");
             <RoamingDeviceDeviceProfiles<T>>::mutate(roaming_device_id, |v| {
                 if let Some(value) = v {
                     value.push(roaming_device_profile_id);
                 }
             });
-            debug::info!(
+            info!(
                 "Associated device_profile {:?} with device {:?}",
                 roaming_device_profile_id,
                 roaming_device_id
             );
             Ok(())
         } else {
-            debug::info!(
+            info!(
                 "Device id key does not yet exist. Creating the device key {:?} and appending the device_profile id \
                  {:?} to its vector value",
                 roaming_device_id,
@@ -369,8 +370,8 @@ impl<T: Config> Module<T> {
         let payload = (
             T::Randomness::random(&[0]),
             sender,
-            <frame_system::Module<T>>::extrinsic_index(),
-            <frame_system::Module<T>>::block_number(),
+            <frame_system::Pallet<T>>::extrinsic_index(),
+            <frame_system::Pallet<T>>::block_number(),
         );
         payload.using_encoded(blake2_128)
     }

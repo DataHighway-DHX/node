@@ -22,7 +22,7 @@ To skip running the CI unnecessarily for simple changes such as updating the doc
 
 ### Linting
 
-Check with Rust Format. Note: If you need a specific version of it replace `+nightly` with say `+nightly-2021-03-10`
+Check with Rust Format. Note: If you need a specific version of it replace `+nightly` with say `+nightly-2021-12-15`
 ```
 cargo +nightly fmt --all -- --check
 ```
@@ -61,12 +61,13 @@ version = "0.4.8"
 
 * Add to my-module/src/lib.rs
 ```rust
-use log::{error, info, debug, trace};
+use log::{error, warn, info, debug, trace};
 ...
 log::debug!("hello {:?}", world); // Only shows in terminal in debug mode
 log::info!("hello {:?}", world); // Shows in terminal in release mode
-debug::native::info!("hello {:?}", world);
 ```
+
+Note: The use of `debug::native::info!("hello {:?}", world);` does not appear to work anymore since Substrate updates in Feb 2021.
 
 ### Detailed Debugging
 
@@ -147,9 +148,9 @@ cargo clippy --release -- -D warnings
 The following is a temporary fix. See https://github.com/rust-lang/rust-clippy/issues/5094#issuecomment-579116431
 
 ```
-rustup component add clippy --toolchain nightly-2021-03-10-x86_64-unknown-linux-gnu
-rustup component add clippy-preview --toolchain nightly-2021-03-10-x86_64-unknown-linux-gnu
-cargo +nightly-2021-03-10 clippy-preview -Zunstable-options
+rustup component add clippy --toolchain nightly-2021-12-15-x86_64-unknown-linux-gnu
+rustup component add clippy-preview --toolchain nightly-2021-12-15-x86_64-unknown-linux-gnu
+cargo +nightly-2021-12-15 clippy-preview -Zunstable-options
 ```
 
 #### Clippy and Continuous Integration (CI)
@@ -175,7 +176,7 @@ The styles are defined in the rustfmt.toml configuration file, which was generat
 #### Install RustFmt
 
 ```bash
-rustup component add rustfmt --toolchain nightly-2021-03-10-x86_64-unknown-linux-gnu
+rustup component add rustfmt --toolchain nightly-2021-12-15-x86_64-unknown-linux-gnu
 ```
 
 #### Check Formating Changes that RustFmt before applying them
@@ -220,7 +221,7 @@ substrate-module-new <module-name> <author>
 	so we must manually change this to the latest Rust Nightly version only
 	when it is known to work.
 		```bash
-		rustup toolchain install nightly-2021-03-10
+		rustup toolchain install nightly-2021-12-15
 		rustup update stable
 		rustup target add wasm32-unknown-unknown --toolchain nightly
 		```
@@ -230,7 +231,7 @@ substrate-module-new <module-name> <author>
 	and because developers may forget to update to the latest version of Rust
 	Nightly locally. So the solution is to install a specific version of
 	Rust Nightly in .github/workflows/rust.yml (i.e.
-	`rustup toolchain install nightly-2021-03-10`), since for example
+	`rustup toolchain install nightly-2021-12-15`), since for example
 	the latest Rust Nightly version nightly-2020-02-20 may cause our CI tests
 	to fail (i.e. https://github.com/DataHighway-DHX/node/issues/32)
 
@@ -246,7 +247,7 @@ substrate-module-new <module-name> <author>
 * Question: How do I upgrade the runtime without stopping the blockchain
 	* Answer: https://www.youtube.com/watch?v=0aTnxHrV_j4&list=PLOyWqupZ-WGt3mA_d9wu74vVe0bM37-39&index=9&t=0s
     * Additionally read both of these as comments are scattered:
-        * Knowledgebase https://substrate.dev/docs/en/knowledgebase/runtime/upgrades#runtime-versioning * Substrate API Docs code comments https://substrate.dev/rustdocs/v3.0.0/substrate_test_runtime_client/sc_executor/struct.RuntimeVersion.html#structfield.spec_version
+        * Knowledgebase https://substrate.io/docs/en/knowledgebase/runtime/upgrades#runtime-versioning * Substrate API Docs code comments https://substrate.io/rustdocs/v3.0.0/substrate_test_runtime_client/sc_executor/struct.RuntimeVersion.html#structfield.spec_version
         * Other comments in Substrate codebase say:
             * bug fixes
                 * should result in an increment of spec_version and possibly authoring_version,
@@ -329,7 +330,7 @@ pub trait Config: frame_system::Config {
 * Question: When using Docker you get error: `FileNotFoundError: [Errno 2] No such file or directory: '/Users/ls/code/src/DataHighway-com/node/target/rls/debug/deps/save-analysis/libsc_executor_common-f236f3ddcd6862b3.json'`
     * Answer: Try run `rm -rf ./target/rls/debug` a few times until it no longer says `Directory not empty`
 
-* Quesion: If I am using an Apple ARM (M1) processor instead of an Apple Intel processor, it gives warnings like `warning: toolchain 'nightly-2021-03-10-x86_64-unknown-linux-gnu' may not be able to run on this system.` and you are unable to install it with `x86_64-unknown-linux-gnu`, what may I need to do?
+* Quesion: If I am using an Apple ARM (M1) processor instead of an Apple Intel processor, it gives warnings like `warning: toolchain 'nightly-2021-12-15-x86_64-unknown-linux-gnu' may not be able to run on this system.` and you are unable to install it with `x86_64-unknown-linux-gnu`, what may I need to do?
     * Answer: Try using `aarch64-apple-darwin` instead, e.g.
 ```
 softwareupdate --install-rosetta
@@ -339,22 +340,22 @@ echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/ls2/.profile
 eval "$(/opt/homebrew/bin/brew shellenv)"
 brew update
 
-rustup toolchain install nightly-2021-03-10-aarch64-apple-darwin
-rustup component add rustfmt --toolchain nightly-2021-03-10-aarch64-apple-darwin
-cargo +nightly-2021-03-10-aarch64-apple-darwin fmt --all -- --check
+rustup toolchain install nightly-2021-12-15-aarch64-apple-darwin
+rustup component add rustfmt --toolchain nightly-2021-12-15-aarch64-apple-darwin
+cargo +nightly-2021-12-15-aarch64-apple-darwin fmt --all -- --check
 ```
 
 * Question: Why do I get an error `1002: Verification Error: Execution: Could not convert parameter 'tx' between node and runtime: Error decoding field Call:: MiningEligibilityProxy.0 RuntimeApi` when in polkadot.js.apps when I try to 'Add Item' with data to a Vec?
     * Ans: Because there is a type mismatch, perhaps the first variable requires a `Balance` instead of `u32` in custom_types.json or similar.
 
 * Question: How to debug when running tests?
-    * Ans: Run tests with this `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug` in front, i.e. `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug cargo +nightly-2021-03-10 test -p datahighway-runtime`, and use `println!` where you want to log the output (i.e. `println!("claim duration {:#?}", claim_duration);`), as `debug::info` not work in tests
+    * Ans: Run tests with this `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug` in front, i.e. `SKIP_WASM_BUILD=1 RUST_LOG=runtime=debug cargo +nightly-2021-12-15 test -p datahighway-runtime`, and use `println!` where you want to log the output (i.e. `println!("claim duration {:#?}", claim_duration);`), as `debug::info!` not work in tests. Try using `info!` (have not tried yet)
 
 * Question: Why can't I connect my node to telemetry?
     * Ans: Try use these flags when running your node `--telemetry-url 'wss://telemetry.polkadot.io/submit/ 0' --unsafe-ws-external --unsafe-rpc-external --rpc-cors=all --rpc-methods=Unsafe`
 
 * Question: What is the Peer ID and the `--node-key`?
-    * Ans: See the documentation here https://substrate.dev/docs/en/knowledgebase/integrate/subkey#generating-node-keys. Run the command `subkey generate-node-key --file node-key` to generate and output to the screen a Peer ID for that you may share publicly to the list of bootnodes that validators may connect to. It also generates a file 'node-key' that contains the node's libp2p key that you provide as the value of `--node-key` when starting that validator bootnode, but you should keep the `--node-key` private because if someone else starts their node with the same `--node-key` that you're using then you might get slashed.
+    * Ans: See the documentation here https://substrate.io/docs/en/knowledgebase/integrate/subkey#generating-node-keys. Run the command `subkey generate-node-key --file node-key` to generate and output to the screen a Peer ID for that you may share publicly to the list of bootnodes that validators may connect to. It also generates a file 'node-key' that contains the node's libp2p key that you provide as the value of `--node-key` when starting that validator bootnode, but you should keep the `--node-key` private because if someone else starts their node with the same `--node-key` that you're using then you might get slashed.
 
 * Question: Why do I get this error when trying to run a node on chain "local" `Error: Service(Network(The same bootnode (`/ip4/127.0.0.1/tcp/30333`) is registered with two different peer ids: 12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo and 12D3KooWC92KaQrzxLa3xk7yVJwCCs9vMGndt23dZAtMoR1aQc3V))`?
     * Ans: It is likely that you have run the first node with the following Node Key, where chain_def_local.json was build on your local machine, and the 2nd node was run as shown below and tries to connect to `QmWYmZrHFPkgX8PgMgUpHJsK6Q6vWbeVXrKhciunJdRvKZ`, which is actually the Peer ID for DataHighway Harbour Testnet, when you should instead be using the Peer ID of `12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo` for DataHighway Local Testnet that has already been included in chain_spec.rs genesis configuration such that the `--bootnodes` flag does not need to be specified.
@@ -364,7 +365,7 @@ First node
 ./target/release/datahighway --validator \
   ...
   --node-key 88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee
-  --chain ./node/src/chain-built/chain_def_local.json \
+  --chain ./res/chain_def_local.json \
   --name "Local Validator Node 1" \
   --port 30333 \
   --ws-port 9944 \
@@ -378,7 +379,7 @@ Second node
 ./target/release/datahighway --validator \
   ...
   --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWKS7jU8ti7S5PDqCNWEj692eUSK3DLssHNwTQsto9ynVo \
-  --chain ./node/src/chain-built/chain_def_local.json \
+  --chain ./res/chain_def_local.json \
   --name "Local Validator Node 2" \
   --port 30334 \
   --ws-port 9945 \
@@ -392,8 +393,46 @@ ERROR tokio-runtime-worker sync: Bootnode with peer id `12D3KooWKS7jU8ti7S5PDqCN
 ```
     * Ans: Check that you have added all necessary flags in your command, and if you've used multiple lines make sure there are no missing newline characters `\` so that it recognises the `--chain ...` that you've provided
 
-* Question: When I run a local network using chain "local" by connecting the peer nodes using `--chain local`, why doesn't it generate blocks like it does when using `--chain ./node/src/chain-built/chain_def_local.json` and finalise blocks after running at least five nodes, where the chain_def_local.json file that is used was built on the same machine we are running the command from?
+* Question: When I run a local network using chain "local" by connecting the peer nodes using `--chain local`, why doesn't it generate blocks like it does when using `--chain ./res/chain_def_local.json` and finalise blocks after running at least five nodes, where the chain_def_local.json file that is used was built on the same machine we are running the command from?
     * Ans: Check that you have added all necessary flags in your command, and if you've used multiple lines make sure there are no missing newline characters `\` so that it recognises the `--chain ...` that you've provided
+
+* Question: How to overcome this error when updating my Substrate-based chain to a more recent commit of Substrate?
+
+After updating the DataHighway-DHX/node repository from [Substrate commit 027368fe34e9a57ead752d4f900db6b5f85352e6](https://github.com/paritytech/substrate/commits/master?before=9b5e654074655737ac041d059d88bfd68593b069+245&branch=master) to Substrate commit 27b8806ed82844bb5283a4dadf853ee518fd042f in this DataHighway commit https://github.com/DataHighway-DHX/node/pull/215/commits/0a56ac0b6bb73b6faac8dcb0a533768dfb644f39 by doing a search and replace for `027368fe34e9a57ead752d4f900db6b5f85352e6` and replacing it with contents like the following, as well as applying any other changes as necessary:
+```
+sp-runtime = { git = 'https://github.com/paritytech/substrate', rev = '027368fe34e9a57ead752d4f900db6b5f85352e6', default-features = false }
+```
+and replacing it with
+```
+sp-runtime = { git = 'https://github.com/paritytech/substrate', branch = 'polkadot-v0.9.17', default-features = false }
+```
+when trying to compile it with `cargo build --release` it gave error:
+```
+error: failed to select a version for the requirement `sp-keystore = "*"`
+candidate versions found which didn't match: 0.10.0
+location searched: Git repository https://github.com/paritytech/substrate?rev=27b8806ed82844bb5283a4dadf853ee518fd042f#50ab759f
+required by package `datahighway v3.0.6 (/Users/ls2/code/DataHighway-DHX/node/node)`
+```
+each error like this was caused because the Substrate repository was using a version like `0.10.0-dev`, whereas only `0.10.0` was available at https://docs.rs/sp-runtime.
+so to fix each error it was necessary to modify the Cargo.lock file, by searching for
+```
+[[package]]
+name = "sp-keystore"
+version = "0.10.0-dev"
+...
+```
+and removing the `-dev` so it became:
+```
+[[package]]
+name = "sp-keystore"
+version = "0.10.0"
+...
+```
+and then running `cargo build --release` again to check the next error if any.
+
+* Question: Why do I get the following error `error: duplicate lang item in crate std: panic_impl` and `error: duplicate lang item in crate std: oom`?
+
+It could be because you're trying to implement a pallet without importing it in the Cargo.toml file
 
 ## Technical Support <a id="chapter-c00ab7"></a>
 

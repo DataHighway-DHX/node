@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use log::{warn, info};
 use codec::{
     Decode,
     Encode,
 };
 use frame_support::{
-    debug,
     decl_event,
     decl_module,
     decl_storage,
@@ -17,6 +17,7 @@ use frame_support::{
     Parameter,
 };
 use frame_system::ensure_signed;
+use scale_info::TypeInfo;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -43,12 +44,12 @@ pub trait Config: frame_system::Config + roaming_operators::Config + roaming_net
     type RoamingBillingPolicyIndex: Parameter + Member + AtLeast32Bit + Bounded + Default + Copy;
 }
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct RoamingBillingPolicy(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo)]
 // Generic type parameters - Balance
 pub struct RoamingBillingPolicySetting<U, V> {
     pub policy_next_billing_at_block: U,
@@ -165,13 +166,13 @@ decl_module! {
             };
             let policy_frequency_in_blocks = match _policy_frequency_in_blocks {
                 Some(value) => value,
-                None => Default::default() // <timestamp::Module<T>>::get() // Default
+                None => Default::default() // <timestamp::Pallet<T>>::get() // Default
             };
 
             // Check if a roaming billing policy config already exists with the given roaming billing policy id
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_billing_policy_setting_index(roaming_billing_policy_id).is_ok() {
-                debug::info!("Mutating values");
+                info!("Mutating values");
                 <RoamingBillingPolicySettings<T>>::mutate(roaming_billing_policy_id, |policy_setting| {
                     if let Some(_policy_setting) = policy_setting {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
@@ -179,14 +180,14 @@ decl_module! {
                         _policy_setting.policy_frequency_in_blocks = policy_frequency_in_blocks.clone();
                     }
                 });
-                debug::info!("Checking mutated values");
+                info!("Checking mutated values");
                 let fetched_policy_setting = <RoamingBillingPolicySettings<T>>::get(roaming_billing_policy_id);
                 if let Some(_policy_setting) = fetched_policy_setting {
-                    debug::info!("Latest field policy_next_billing_at_block {:#?}", _policy_setting.policy_next_billing_at_block);
-                    debug::info!("Latest field policy_frequency_in_blocks {:#?}", _policy_setting.policy_frequency_in_blocks);
+                    info!("Latest field policy_next_billing_at_block {:#?}", _policy_setting.policy_next_billing_at_block);
+                    info!("Latest field policy_frequency_in_blocks {:#?}", _policy_setting.policy_frequency_in_blocks);
                 }
             } else {
-                debug::info!("Inserting values");
+                info!("Inserting values");
 
                 // Create a new roaming billing_policy config instance with the input params
                 let roaming_billing_policy_setting_instance = RoamingBillingPolicySetting {
@@ -201,11 +202,11 @@ decl_module! {
                     &roaming_billing_policy_setting_instance
                 );
 
-                debug::info!("Checking inserted values");
+                info!("Checking inserted values");
                 let fetched_policy_setting = <RoamingBillingPolicySettings<T>>::get(roaming_billing_policy_id);
                 if let Some(_policy_setting) = fetched_policy_setting {
-                    debug::info!("Inserted field policy_next_billing_at_block {:#?}", _policy_setting.policy_next_billing_at_block);
-                    debug::info!("Inserted field policy_frequency_in_blocks {:#?}", _policy_setting.policy_frequency_in_blocks);
+                    info!("Inserted field policy_next_billing_at_block {:#?}", _policy_setting.policy_next_billing_at_block);
+                    info!("Inserted field policy_frequency_in_blocks {:#?}", _policy_setting.policy_frequency_in_blocks);
                 }
             }
 
@@ -226,13 +227,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given network id already exists
-            let is_roaming_network = <roaming_networks::Module<T>>
+            let is_roaming_network = <roaming_networks::Pallet<T>>
                 ::exists_roaming_network(roaming_network_id).is_ok();
             ensure!(is_roaming_network, "RoamingNetwork does not exist");
 
             // Ensure that caller of the function is the owner of the network id to assign the billing_policy to
             ensure!(
-                <roaming_networks::Module<T>>::is_roaming_network_owner(roaming_network_id, sender.clone()).is_ok(),
+                <roaming_networks::Pallet<T>>::is_roaming_network_owner(roaming_network_id, sender.clone()).is_ok(),
                 "Only the roaming network owner can assign itself a roaming billing policy"
             );
 
@@ -262,13 +263,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given network id already exists
-            let is_roaming_operator = <roaming_operators::Module<T>>
+            let is_roaming_operator = <roaming_operators::Pallet<T>>
                 ::exists_roaming_operator(roaming_operator_id).is_ok();
             ensure!(is_roaming_operator, "RoamingOperator does not exist");
 
             // Ensure that caller of the function is the owner of the operator id to assign the billing_policy to
             ensure!(
-                <roaming_operators::Module<T>>::is_roaming_operator_owner(roaming_operator_id, sender.clone()).is_ok(),
+                <roaming_operators::Pallet<T>>::is_roaming_operator_owner(roaming_operator_id, sender.clone()).is_ok(),
                 "Only the roaming operator owner can assign itself a roaming billing policy"
             );
 
@@ -306,13 +307,13 @@ impl<T: Config> Module<T> {
     }
 
     // pub fn is_owned_by_required_parent_relationship(roaming_billing_policy_id: T::RoamingBillingPolicyIndex, sender:
-    // T::AccountId) -> Result<(), DispatchError> {     debug::info!("Get the billing policy operator id associated
+    // T::AccountId) -> Result<(), DispatchError> {     info!("Get the billing policy operator id associated
     // with the operator of the given billing policy id");     let billing_policy_operator_id =
     // Self::roaming_billing_policy_operator(roaming_billing_policy_id);
 
     //     if let Some(_billing_policy_operator_id) = billing_policy_operator_id {
     //         // Ensure that the caller is owner of the operator id associated with the billing policy
-    //         ensure!((<roaming_operators::Module<T>>::is_roaming_operator_owner(
+    //         ensure!((<roaming_operators::Pallet<T>>::is_roaming_operator_owner(
     //                 _billing_policy_operator_id.clone(),
     //                 sender.clone()
     //             )).is_ok(), "Only owner of the operator id associated with the given billing policy can set an
@@ -345,13 +346,13 @@ impl<T: Config> Module<T> {
     pub fn has_value_for_billing_policy_setting_index(
         roaming_billing_policy_id: T::RoamingBillingPolicyIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if billing policy config has a value that is defined");
+        info!("Checking if billing policy config has a value that is defined");
         let fetched_policy_setting = <RoamingBillingPolicySettings<T>>::get(roaming_billing_policy_id);
         if let Some(_) = fetched_policy_setting {
-            debug::info!("Found value for billing policy config");
+            info!("Found value for billing policy config");
             return Ok(());
         }
-        debug::info!("No value for billing policy config");
+        warn!("No value for billing policy config");
         Err(DispatchError::Other("No value for billing policy config"))
     }
 
@@ -363,23 +364,23 @@ impl<T: Config> Module<T> {
         // Early exit with error since do not want to append if the given network id already exists as a key,
         // and where its corresponding value is a vector that already contains the given billing policy id
         if let Some(network_billing_policies) = Self::roaming_network_billing_policies(roaming_network_id) {
-            debug::info!("Network id key {:?} exists with value {:?}", roaming_network_id, network_billing_policies);
+            info!("Network id key {:?} exists with value {:?}", roaming_network_id, network_billing_policies);
             let not_network_contains_billing_policy = !network_billing_policies.contains(&roaming_billing_policy_id);
             ensure!(not_network_contains_billing_policy, "Network already contains the given billing policy id");
-            debug::info!("Network id key exists but its vector value does not contain the given billing policy id");
+            info!("Network id key exists but its vector value does not contain the given billing policy id");
             <RoamingNetworkBillingPolicies<T>>::mutate(roaming_network_id, |v| {
                 if let Some(value) = v {
                     value.push(roaming_billing_policy_id);
                 }
             });
-            debug::info!(
+            info!(
                 "Associated billing policy {:?} with network {:?}",
                 roaming_billing_policy_id,
                 roaming_network_id
             );
             Ok(())
         } else {
-            debug::info!(
+            info!(
                 "Network id key does not yet exist. Creating the network key {:?} and appending the billing policy id \
                  {:?} to its vector value",
                 roaming_network_id,
@@ -398,23 +399,23 @@ impl<T: Config> Module<T> {
         // Early exit with error since do not want to append if the given operator id already exists as a key,
         // and where its corresponding value is a vector that already contains the given billing policy id
         if let Some(operator_billing_policies) = Self::roaming_operator_billing_policies(roaming_operator_id) {
-            debug::info!("Operator id key {:?} exists with value {:?}", roaming_operator_id, operator_billing_policies);
+            info!("Operator id key {:?} exists with value {:?}", roaming_operator_id, operator_billing_policies);
             let not_operator_contains_billing_policy = !operator_billing_policies.contains(&roaming_billing_policy_id);
             ensure!(not_operator_contains_billing_policy, "Operator already contains the given billing policy id");
-            debug::info!("Operator id key exists but its vector value does not contain the given billing policy id");
+            info!("Operator id key exists but its vector value does not contain the given billing policy id");
             <RoamingOperatorBillingPolicies<T>>::mutate(roaming_operator_id, |v| {
                 if let Some(value) = v {
                     value.push(roaming_billing_policy_id);
                 }
             });
-            debug::info!(
+            info!(
                 "Associated billing policy {:?} with operator {:?}",
                 roaming_billing_policy_id,
                 roaming_operator_id
             );
             Ok(())
         } else {
-            debug::info!(
+            info!(
                 "Operator id key does not yet exist. Creating the operator key {:?} and appending the billing policy \
                  id {:?} to its vector value",
                 roaming_operator_id,
@@ -429,8 +430,8 @@ impl<T: Config> Module<T> {
         let payload = (
             T::Randomness::random(&[0]),
             sender,
-            <frame_system::Module<T>>::extrinsic_index(),
-            <frame_system::Module<T>>::block_number(),
+            <frame_system::Pallet<T>>::extrinsic_index(),
+            <frame_system::Pallet<T>>::block_number(),
         );
         payload.using_encoded(blake2_128)
     }

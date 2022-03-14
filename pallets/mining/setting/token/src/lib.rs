@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use log::{warn, info};
 use codec::{
     Decode,
     Encode,
 };
 use frame_support::{
-    debug,
     decl_event,
     decl_module,
     decl_storage,
@@ -18,6 +18,7 @@ use frame_support::{
     Parameter,
 };
 use frame_system::ensure_signed;
+use scale_info::TypeInfo;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -51,12 +52,12 @@ pub trait Config: frame_system::Config + roaming_operators::Config {
 type BalanceOf<T> =
     <<T as roaming_operators::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct MiningSettingToken(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo)]
 pub struct MiningSettingTokenSetting<U, V, W, X> {
     pub token_type: U,
     pub token_lock_amount: V,
@@ -65,7 +66,7 @@ pub struct MiningSettingTokenSetting<U, V, W, X> {
 }
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo)]
 pub struct MiningSettingTokenRequirementsSetting<U, V, W> {
     pub token_type: U,
     pub token_lock_min_amount: V, /* Balance used instead of
@@ -190,7 +191,7 @@ decl_module! {
             };
             let token_lock_start_block = match _token_lock_start_block {
                 Some(value) => value,
-                None => <frame_system::Module<T>>::block_number()
+                None => <frame_system::Pallet<T>>::block_number()
             };
             let token_lock_interval_blocks = match _token_lock_interval_blocks {
                 Some(value) => value,
@@ -200,7 +201,7 @@ decl_module! {
             // Check if a mining_setting_token_token_setting already exists with the given mining_setting_token_id
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_mining_setting_token_token_setting_index(mining_setting_token_id).is_ok() {
-                debug::info!("Mutating values");
+                info!("Mutating values");
                 <MiningSettingTokenSettings<T>>::mutate(mining_setting_token_id, |mining_setting_token_token_setting| {
                     if let Some(_mining_setting_token_token_setting) = mining_setting_token_token_setting {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
@@ -210,16 +211,16 @@ decl_module! {
                         _mining_setting_token_token_setting.token_lock_interval_blocks = token_lock_interval_blocks.clone();
                     }
                 });
-                debug::info!("Checking mutated values");
+                info!("Checking mutated values");
                 let fetched_mining_setting_token_token_setting = <MiningSettingTokenSettings<T>>::get(mining_setting_token_id);
                 if let Some(_mining_setting_token_token_setting) = fetched_mining_setting_token_token_setting {
-                    debug::info!("Latest field token_type {:#?}", _mining_setting_token_token_setting.token_type);
-                    debug::info!("Latest field token_lock_amount {:#?}", _mining_setting_token_token_setting.token_lock_amount);
-                    debug::info!("Latest field token_lock_start_block {:#?}", _mining_setting_token_token_setting.token_lock_start_block);
-                    debug::info!("Latest field token_lock_interval_blocks {:#?}", _mining_setting_token_token_setting.token_lock_interval_blocks);
+                    info!("Latest field token_type {:#?}", _mining_setting_token_token_setting.token_type);
+                    info!("Latest field token_lock_amount {:#?}", _mining_setting_token_token_setting.token_lock_amount);
+                    info!("Latest field token_lock_start_block {:#?}", _mining_setting_token_token_setting.token_lock_start_block);
+                    info!("Latest field token_lock_interval_blocks {:#?}", _mining_setting_token_token_setting.token_lock_interval_blocks);
                 }
             } else {
-                debug::info!("Inserting values");
+                info!("Inserting values");
 
                 // Create a new mining mining_setting_token_token_setting instance with the input params
                 let mining_setting_token_token_setting_instance = MiningSettingTokenSetting {
@@ -236,13 +237,13 @@ decl_module! {
                     &mining_setting_token_token_setting_instance
                 );
 
-                debug::info!("Checking inserted values");
+                info!("Checking inserted values");
                 let fetched_mining_setting_token_token_setting = <MiningSettingTokenSettings<T>>::get(mining_setting_token_id);
                 if let Some(_mining_setting_token_token_setting) = fetched_mining_setting_token_token_setting {
-                    debug::info!("Inserted field token_type {:#?}", _mining_setting_token_token_setting.token_type);
-                    debug::info!("Inserted field token_lock_amount {:#?}", _mining_setting_token_token_setting.token_lock_amount);
-                    debug::info!("Inserted field token_lock_start_block {:#?}", _mining_setting_token_token_setting.token_lock_start_block);
-                    debug::info!("Inserted field token_lock_interval_blocks {:#?}", _mining_setting_token_token_setting.token_lock_interval_blocks);
+                    info!("Inserted field token_type {:#?}", _mining_setting_token_token_setting.token_type);
+                    info!("Inserted field token_lock_amount {:#?}", _mining_setting_token_token_setting.token_lock_amount);
+                    info!("Inserted field token_lock_start_block {:#?}", _mining_setting_token_token_setting.token_lock_start_block);
+                    info!("Inserted field token_lock_interval_blocks {:#?}", _mining_setting_token_token_setting.token_lock_interval_blocks);
                 }
             }
 
@@ -291,7 +292,7 @@ decl_module! {
             // Check if a mining_setting_token_token_cooldown_config already exists with the given mining_setting_token_id
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_mining_setting_token_token_cooldown_config_index(mining_setting_token_id).is_ok() {
-                debug::info!("Mutating values");
+                info!("Mutating values");
                 <MiningSettingTokenRequirementsSettings<T>>::mutate(mining_setting_token_id, |mining_setting_token_token_cooldown_config| {
                     if let Some(_mining_setting_token_token_cooldown_config) = mining_setting_token_token_cooldown_config {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
@@ -300,15 +301,15 @@ decl_module! {
                         _mining_setting_token_token_cooldown_config.token_lock_min_blocks = token_lock_min_blocks.clone();
                     }
                 });
-                debug::info!("Checking mutated values");
+                info!("Checking mutated values");
                 let fetched_mining_setting_token_token_cooldown_config = <MiningSettingTokenRequirementsSettings<T>>::get(mining_setting_token_id);
                 if let Some(_mining_setting_token_token_cooldown_config) = fetched_mining_setting_token_token_cooldown_config {
-                    debug::info!("Latest field token_type {:#?}", _mining_setting_token_token_cooldown_config.token_type);
-                    debug::info!("Latest field token_lock_min_amount {:#?}", _mining_setting_token_token_cooldown_config.token_lock_min_amount);
-                    debug::info!("Latest field token_lock_min_blocks {:#?}", _mining_setting_token_token_cooldown_config.token_lock_min_blocks);
+                    info!("Latest field token_type {:#?}", _mining_setting_token_token_cooldown_config.token_type);
+                    info!("Latest field token_lock_min_amount {:#?}", _mining_setting_token_token_cooldown_config.token_lock_min_amount);
+                    info!("Latest field token_lock_min_blocks {:#?}", _mining_setting_token_token_cooldown_config.token_lock_min_blocks);
                 }
             } else {
-                debug::info!("Inserting values");
+                info!("Inserting values");
 
                 // Create a new mining mining_setting_token_token_cooldown_config instance with the input params
                 let mining_setting_token_token_cooldown_config_instance = MiningSettingTokenRequirementsSetting {
@@ -324,12 +325,12 @@ decl_module! {
                     &mining_setting_token_token_cooldown_config_instance
                 );
 
-                debug::info!("Checking inserted values");
+                info!("Checking inserted values");
                 let fetched_mining_setting_token_token_cooldown_config = <MiningSettingTokenRequirementsSettings<T>>::get(mining_setting_token_id);
                 if let Some(_mining_setting_token_token_cooldown_config) = fetched_mining_setting_token_token_cooldown_config {
-                    debug::info!("Inserted field token_type {:#?}", _mining_setting_token_token_cooldown_config.token_type);
-                    debug::info!("Inserted field token_lock_min_amount {:#?}", _mining_setting_token_token_cooldown_config.token_lock_min_amount);
-                    debug::info!("Inserted field token_lock_min_blocks {:#?}", _mining_setting_token_token_cooldown_config.token_lock_min_blocks);
+                    info!("Inserted field token_type {:#?}", _mining_setting_token_token_cooldown_config.token_type);
+                    info!("Inserted field token_lock_min_amount {:#?}", _mining_setting_token_token_cooldown_config.token_lock_min_amount);
+                    info!("Inserted field token_lock_min_blocks {:#?}", _mining_setting_token_token_cooldown_config.token_lock_min_blocks);
                 }
             }
 
@@ -377,27 +378,27 @@ impl<T: Config> Module<T> {
     pub fn has_value_for_mining_setting_token_token_setting_index(
         mining_setting_token_id: T::MiningSettingTokenIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if mining_setting_token_token_setting has a value that is defined");
+        info!("Checking if mining_setting_token_token_setting has a value that is defined");
         let fetched_mining_setting_token_token_setting = <MiningSettingTokenSettings<T>>::get(mining_setting_token_id);
         if let Some(_value) = fetched_mining_setting_token_token_setting {
-            debug::info!("Found value for mining_setting_token_token_setting");
+            info!("Found value for mining_setting_token_token_setting");
             return Ok(());
         }
-        debug::info!("No value for mining_setting_token_token_setting");
+        warn!("No value for mining_setting_token_token_setting");
         Err(DispatchError::Other("No value for mining_setting_token_token_setting"))
     }
 
     pub fn has_value_for_mining_setting_token_token_cooldown_config_index(
         mining_setting_token_id: T::MiningSettingTokenIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if mining_setting_token_token_cooldown_config has a value that is defined");
+        info!("Checking if mining_setting_token_token_cooldown_config has a value that is defined");
         let fetched_mining_setting_token_token_cooldown_config =
             <MiningSettingTokenRequirementsSettings<T>>::get(mining_setting_token_id);
         if let Some(_value) = fetched_mining_setting_token_token_cooldown_config {
-            debug::info!("Found value for mining_setting_token_token_cooldown_config");
+            info!("Found value for mining_setting_token_token_cooldown_config");
             return Ok(());
         }
-        debug::info!("No value for mining_setting_token_token_cooldown_config");
+        warn!("No value for mining_setting_token_token_cooldown_config");
         Err(DispatchError::Other("No value for mining_setting_token_token_cooldown_config"))
     }
 
@@ -405,8 +406,8 @@ impl<T: Config> Module<T> {
         let payload = (
             T::Randomness::random(&[0]),
             sender,
-            <frame_system::Module<T>>::extrinsic_index(),
-            <frame_system::Module<T>>::block_number(),
+            <frame_system::Pallet<T>>::extrinsic_index(),
+            <frame_system::Pallet<T>>::block_number(),
         );
         payload.using_encoded(blake2_128)
     }

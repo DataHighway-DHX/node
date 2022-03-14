@@ -26,7 +26,7 @@ pub type Index = u32;
 /// A hash of some data used by the chain.
 pub type Hash = sp_core::H256;
 /// Digest item type.
-pub type DigestItem = generic::DigestItem<Hash>;
+pub type DigestItem = generic::DigestItem;
 pub type Moment = u64;
 /// Balance of an account.
 pub type Balance = u128;

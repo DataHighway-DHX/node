@@ -1,12 +1,19 @@
 // Creating mock runtime here
 
 use crate::{
-    Module,
+    Pallet,
     Config,
 };
 
 use frame_support::{
     parameter_types,
+    traits::{
+        ConstU8,
+        ConstU16,
+        ConstU32,
+        ConstU64,
+        ConstU128,
+    },
     weights::{
         IdentityFee,
         Weight,
@@ -32,59 +39,68 @@ frame_support::construct_runtime!(
         NodeBlock = Block,
         UncheckedExtrinsic = UncheckedExtrinsic,
     {
-        System: frame_system::{Module, Call, Config, Storage, Event<T>},
-        Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
-        TransactionPayment: pallet_transaction_payment::{Module, Storage},
-        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
+        System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+        Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
+        TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
+        RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
     }
 );
 
 parameter_types! {
-    pub const BlockHashCount: u64 = 250;
+    pub const BlockHashCount: u32 = 250;
 }
 impl frame_system::Config for Test {
-    type AccountData = pallet_balances::AccountData<u64>;
-    type AccountId = u64;
-    type BaseCallFilter = ();
-    type BlockHashCount = BlockHashCount;
-    type BlockNumber = u64;
-    type BlockLength = ();
+    type BaseCallFilter = frame_support::traits::Everything;
     type BlockWeights = ();
-    type Call = Call;
+    type BlockLength = ();
     type DbWeight = ();
-    type Event = ();
+    type Origin = Origin;
+    type Call = Call;
+    type Index = u64;
+    type BlockNumber = u64;
     type Hash = H256;
     type Hashing = BlakeTwo256;
-    type Header = Header;
-    type Index = u64;
+    type AccountId = u128; // u64 is not enough to hold bytes used to generate bounty account
     type Lookup = IdentityLookup<Self::AccountId>;
-    type OnKilledAccount = ();
-    type OnNewAccount = ();
-    type Origin = Origin;
-    type PalletInfo = PalletInfo;
-    type SS58Prefix = ();
-    type SystemWeightInfo = ();
+    type Header = Header;
+    type Event = ();
+    type BlockHashCount = ();
     type Version = ();
+    type PalletInfo = PalletInfo;
+    type AccountData = pallet_balances::AccountData<u64>;
+    type OnNewAccount = ();
+    type OnKilledAccount = ();
+    type SystemWeightInfo = ();
+    type SS58Prefix = ();
+    type OnSetCode = ();
+    type MaxConsumers = frame_support::traits::ConstU32<16>;
 }
+impl pallet_randomness_collective_flip::Config for Test {}
+pub const EXISTENTIAL_DEPOSIT_AS_CONST: u64 = 1;
 parameter_types! {
-    pub const ExistentialDeposit: u64 = 1;
+    pub const ExistentialDeposit: u64 = EXISTENTIAL_DEPOSIT_AS_CONST;
 }
 impl pallet_balances::Config for Test {
-    type AccountStore = System;
+    type MaxLocks = ();
+	type MaxReserves = ();
+	type ReserveIdentifier = [u8; 8];
     type Balance = u64;
     type DustRemoval = ();
     type Event = ();
-    type ExistentialDeposit = ExistentialDeposit;
-    type MaxLocks = ();
+    type ExistentialDeposit = ConstU64<EXISTENTIAL_DEPOSIT_AS_CONST>;
+    type AccountStore = System;
     type WeightInfo = ();
 }
+pub const OPERATIONAL_FEE_MULTIPLIER_AS_CONST: u8 = 5;
 parameter_types! {
     pub const TransactionByteFee: u64 = 1;
+    pub OperationalFeeMultiplier: u8 = OPERATIONAL_FEE_MULTIPLIER_AS_CONST;
 }
 impl pallet_transaction_payment::Config for Test {
     type FeeMultiplierUpdate = ();
     type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
     type TransactionByteFee = TransactionByteFee;
+    type OperationalFeeMultiplier = ConstU8<OPERATIONAL_FEE_MULTIPLIER_AS_CONST>;
     type WeightToFee = IdentityFee<u64>;
 }
 // FIXME - remove this when figure out how to use these types within mining-speed-boost runtime module itself
@@ -115,7 +131,7 @@ impl Config for Test {
     type MiningSamplingHardwareSampleHardwareOnline = u64;
 }
 
-pub type MiningSamplingHardwareTestModule = Module<Test>;
+pub type MiningSamplingHardwareTestModule = Pallet<Test>;
 
 // This function basically just builds a genesis storage key/value store according to
 // our desired mockup.

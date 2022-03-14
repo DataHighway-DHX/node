@@ -19,6 +19,13 @@ mod tests {
     use frame_support::{
         assert_ok,
         parameter_types,
+        traits::{
+            ConstU8,
+            ConstU16,
+            ConstU32,
+            ConstU64,
+            ConstU128,
+        },
         weights::{
             IdentityFee,
             Weight,
@@ -109,58 +116,64 @@ mod tests {
             NodeBlock = Block,
             UncheckedExtrinsic = UncheckedExtrinsic,
         {
-            System: frame_system::{Module, Call, Config, Storage, Event<T>},
-            Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
-            RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Module, Call, Storage},
-            TransactionPayment: pallet_transaction_payment::{Module, Storage},
+            System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+            Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
+            RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage},
+            TransactionPayment: pallet_transaction_payment::{Pallet, Storage},
         }
     );
 
     parameter_types! {
-        pub const BlockHashCount: u64 = 250;
-        pub const SS58Prefix: u8 = 33;
+        pub const BlockHashCount: u32 = 250;
+        pub const SS58Prefix: u16 = 33;
     }
     impl frame_system::Config for Test {
-        type AccountData = pallet_balances::AccountData<u64>;
-        type AccountId = u64;
-        type BaseCallFilter = ();
-        type BlockHashCount = BlockHashCount;
-        type BlockLength = ();
-        type BlockNumber = u64;
+        type BaseCallFilter = frame_support::traits::Everything;
         type BlockWeights = ();
-        type Call = Call;
+        type BlockLength = ();
         type DbWeight = ();
-        // type WeightMultiplierUpdate = ();
-        type Event = ();
+        type Origin = Origin;
+        type Call = Call;
+        type Index = u64;
+        type BlockNumber = u64;
         type Hash = H256;
         type Hashing = BlakeTwo256;
-        type Header = Header;
-        type Index = u64;
+        type AccountId = u128; // u64 is not enough to hold bytes used to generate bounty account
         type Lookup = IdentityLookup<Self::AccountId>;
-        type OnKilledAccount = ();
-        type OnNewAccount = ();
-        type Origin = Origin;
-        type PalletInfo = PalletInfo;
-        type SS58Prefix = SS58Prefix;
-        type SystemWeightInfo = ();
+        type Header = Header;
+        type Event = ();
+        type BlockHashCount = ();
         type Version = ();
+        type PalletInfo = PalletInfo;
+        type AccountData = pallet_balances::AccountData<u64>;
+        type OnNewAccount = ();
+        type OnKilledAccount = ();
+        type SystemWeightInfo = ();
+        type SS58Prefix = ();
+    	type OnSetCode = ();
+	    type MaxConsumers = frame_support::traits::ConstU32<16>;
     }
+    impl pallet_randomness_collective_flip::Config for Test {}
+    pub const EXISTENTIAL_DEPOSIT_AS_CONST: u64 = 1;
     parameter_types! {
-        pub const ExistentialDeposit: u64 = 1;
+        pub const ExistentialDeposit: u64 = EXISTENTIAL_DEPOSIT_AS_CONST;
     }
     impl pallet_balances::Config for Test {
-        type AccountStore = System;
+        type MaxLocks = ();
+        type MaxReserves = ();
+        type ReserveIdentifier = [u8; 8];
         type Balance = u64;
         type DustRemoval = ();
         type Event = ();
-        type ExistentialDeposit = ExistentialDeposit;
-        type MaxLocks = ();
+        type ExistentialDeposit = ConstU64<EXISTENTIAL_DEPOSIT_AS_CONST>;
+        type AccountStore = System;
         type WeightInfo = ();
     }
     impl pallet_transaction_payment::Config for Test {
         type FeeMultiplierUpdate = ();
         type OnChargeTransaction = CurrencyAdapter<Balances, ()>;
         type TransactionByteFee = ();
+        type OperationalFeeMultiplier = ();
         type WeightToFee = IdentityFee<u64>;
     }
     impl RoamingOperatorConfig for Test {

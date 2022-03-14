@@ -2,8 +2,8 @@
 
 //! A pallet that funds the pallet_treasury's account_id in the genesis block
 
+use log::{warn, info};
 use frame_support::{
-    debug,
     decl_error,
     decl_event,
     decl_module,
@@ -20,6 +20,7 @@ use frame_system::{
     ensure_signed,
 };
 use hex_literal::hex;
+use sp_runtime::{AccountId32};
 use sp_core::crypto::UncheckedFrom;
 use sp_std::prelude::*;
 
@@ -48,15 +49,14 @@ decl_module! {
         fn deposit_event() = default;
 
         fn on_finalize(current_block_number: T::BlockNumber) {
-            debug::info!("treasury-dao - on_finalize");
-            debug::info!("treasury-dao - current block number {:#?}", current_block_number);
+            info!("treasury-dao - on_finalize");
+            info!("treasury-dao - current block number {:#?}", current_block_number);
 
-            if <frame_system::Module<T>>::block_number() == 0u32.into() {
-                debug::info!("treasury-dao - on_finalize: Genesis block");
-                let treasury_account_id: T::AccountId = <pallet_treasury::Module<T>>::account_id();
-                // FIXME - why does this give error:
-                // `the trait Wraps is not implemented for <T as frame_system::Config>::AccountId`
-                // let endowed_account_id = UncheckedFrom::unchecked_from(hex!("6d6f646c70792f74727372790000000000000000000000000000000000000000").into());
+            if <frame_system::Pallet<T>>::block_number() == 0u32.into() {
+                info!("treasury-dao - on_finalize: Genesis block");
+                let treasury_account_id: T::AccountId = <pallet_treasury::Pallet<T>>::account_id();
+                // let treasury_account_id: T::AccountId = <pallet_treasury::Pallet<T>>::account_id();
+                // let endowed_account_id = AccountId32::from_str(&"4LTFqiD6H6g8a7ur9WH4RxhWx2givWfK7o5EDed3ai1nYTvk".to_string()).unwrap()
                 // let balance_to_deposit = <T as Config>::Currency::free_balance(&endowed_account_id);
 
                 // if balance_to_deposit > 0u32.into() {
@@ -75,7 +75,7 @@ decl_module! {
                 //     balance_to_deposit
                 // ));
             } else {
-                debug::info!("treasury-dao - on_finalize: Not genesis block");
+                info!("treasury-dao - on_finalize: Not genesis block");
             }
         }
     }

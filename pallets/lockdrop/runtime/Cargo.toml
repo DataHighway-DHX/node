@@ -1,11 +1,11 @@
 [package]
-name = "lockdrop"
-version = "0.1.0"
-authors = ["Ilya Beregovskiy"]
-edition = "2018"
+name = 'lockdrop'
+version = '0.1.0'
+authors = ['Ilya Beregovskiy']
+edition = '2021'
 
 [dependencies]
-sp-std = { version = '3.0.0', default-features = false }
+sp-std = { git = 'https://github.com/paritytech/substrate', branch = 'polkadot-v0.9.17', default-features = false }
 
 [features]
 default = ['std']

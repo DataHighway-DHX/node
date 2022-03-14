@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use log::{warn, info};
 use codec::{
     Decode,
     Encode,
 };
 use frame_support::{
-    debug,
     decl_event,
     decl_module,
     decl_storage,
@@ -17,6 +17,7 @@ use frame_support::{
     Parameter,
 };
 use frame_system::ensure_signed;
+use scale_info::TypeInfo;
 use sp_io::hashing::blake2_128;
 use sp_runtime::{
     traits::{
@@ -49,12 +50,12 @@ pub trait Config: frame_system::Config + roaming_operators::Config + mining_sett
 // type BalanceOf<T> = <<T as roaming_operators::Config>::Currency as Currency<<T as
 // frame_system::Config>::AccountId>>::Balance;
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Debug))]
 pub struct MiningSamplingHardware(pub [u8; 16]);
 
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Encode, Decode, Default, Clone, PartialEq)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, TypeInfo)]
 pub struct MiningSamplingHardwareSetting<U, V> {
     pub hardware_sample_block: U,
     pub hardware_sample_hardware_online: V,
@@ -175,7 +176,7 @@ decl_module! {
             // Check if a mining_samplings_hardware_samplings_config already exists with the given mining_samplings_hardware_id
             // to determine whether to insert new or mutate existing.
             if Self::has_value_for_mining_samplings_hardware_samplings_config_index(mining_setting_hardware_id, mining_samplings_hardware_id).is_ok() {
-                debug::info!("Mutating values");
+                info!("Mutating values");
                 <MiningSamplingHardwareSettings<T>>::mutate((mining_setting_hardware_id, mining_samplings_hardware_id), |mining_samplings_hardware_samplings_config| {
                     if let Some(_mining_samplings_hardware_samplings_config) = mining_samplings_hardware_samplings_config {
                         // Only update the value of a key in a KV pair if the corresponding parameter value has been provided
@@ -183,14 +184,14 @@ decl_module! {
                         _mining_samplings_hardware_samplings_config.hardware_sample_hardware_online = hardware_sample_hardware_online.clone();
                     }
                 });
-                debug::info!("Checking mutated values");
+                info!("Checking mutated values");
                 let fetched_mining_samplings_hardware_samplings_config = <MiningSamplingHardwareSettings<T>>::get((mining_setting_hardware_id, mining_samplings_hardware_id));
                 if let Some(_mining_samplings_hardware_samplings_config) = fetched_mining_samplings_hardware_samplings_config {
-                    debug::info!("Latest field hardware_sample_block {:#?}", _mining_samplings_hardware_samplings_config.hardware_sample_block);
-                    debug::info!("Latest field hardware_sample_hardware_online {:#?}", _mining_samplings_hardware_samplings_config.hardware_sample_hardware_online);
+                    info!("Latest field hardware_sample_block {:#?}", _mining_samplings_hardware_samplings_config.hardware_sample_block);
+                    info!("Latest field hardware_sample_hardware_online {:#?}", _mining_samplings_hardware_samplings_config.hardware_sample_hardware_online);
                 }
             } else {
-                debug::info!("Inserting values");
+                info!("Inserting values");
 
                 // Create a new mining mining_samplings_hardware_samplings_config instance with the input params
                 let mining_samplings_hardware_samplings_config_instance = MiningSamplingHardwareSetting {
@@ -205,11 +206,11 @@ decl_module! {
                     &mining_samplings_hardware_samplings_config_instance
                 );
 
-                debug::info!("Checking inserted values");
+                info!("Checking inserted values");
                 let fetched_mining_samplings_hardware_samplings_config = <MiningSamplingHardwareSettings<T>>::get((mining_setting_hardware_id, mining_samplings_hardware_id));
                 if let Some(_mining_samplings_hardware_samplings_config) = fetched_mining_samplings_hardware_samplings_config {
-                    debug::info!("Inserted field hardware_sample_block {:#?}", _mining_samplings_hardware_samplings_config.hardware_sample_block);
-                    debug::info!("Inserted field hardware_sample_hardware_online {:#?}", _mining_samplings_hardware_samplings_config.hardware_sample_hardware_online);
+                    info!("Inserted field hardware_sample_block {:#?}", _mining_samplings_hardware_samplings_config.hardware_sample_block);
+                    info!("Inserted field hardware_sample_hardware_online {:#?}", _mining_samplings_hardware_samplings_config.hardware_sample_hardware_online);
                 }
             }
 
@@ -231,13 +232,13 @@ decl_module! {
             let sender = ensure_signed(origin)?;
 
             // Ensure that the given configuration id already exists
-            let is_configuration_hardware = <mining_setting_hardware::Module<T>>
+            let is_configuration_hardware = <mining_setting_hardware::Pallet<T>>
                 ::exists_mining_setting_hardware(mining_setting_hardware_id).is_ok();
             ensure!(is_configuration_hardware, "configuration_hardware does not exist");
 
             // Ensure that caller of the function is the owner of the configuration id to assign the sampling to
             ensure!(
-                <mining_setting_hardware::Module<T>>::is_mining_setting_hardware_owner(mining_setting_hardware_id, sender.clone()).is_ok(),
+                <mining_setting_hardware::Pallet<T>>::is_mining_setting_hardware_owner(mining_setting_hardware_id, sender.clone()).is_ok(),
                 "Only the configuration_hardware owner can assign itself a sampling"
             );
 
@@ -300,14 +301,14 @@ impl<T: Config> Module<T> {
         mining_setting_hardware_id: T::MiningSettingHardwareIndex,
         mining_samplings_hardware_id: T::MiningSamplingHardwareIndex,
     ) -> Result<(), DispatchError> {
-        debug::info!("Checking if mining_samplings_hardware_samplings_config has a value that is defined");
+        info!("Checking if mining_samplings_hardware_samplings_config has a value that is defined");
         let fetched_mining_samplings_hardware_samplings_config =
             <MiningSamplingHardwareSettings<T>>::get((mining_setting_hardware_id, mining_samplings_hardware_id));
         if let Some(_value) = fetched_mining_samplings_hardware_samplings_config {
-            debug::info!("Found value for mining_samplings_hardware_samplings_config");
+            info!("Found value for mining_samplings_hardware_samplings_config");
             return Ok(());
         }
-        debug::info!("No value for mining_samplings_hardware_samplings_config");
+        warn!("No value for mining_samplings_hardware_samplings_config");
         Err(DispatchError::Other("No value for mining_samplings_hardware_samplings_config"))
     }
 
@@ -319,27 +320,27 @@ impl<T: Config> Module<T> {
         // Early exit with error since do not want to append if the given configuration id already exists as a key,
         // and where its corresponding value is a vector that already contains the given sampling id
         if let Some(configuration_samplings) = Self::hardware_config_samplings(mining_setting_hardware_id) {
-            debug::info!(
+            info!(
                 "Configuration id key {:?} exists with value {:?}",
                 mining_setting_hardware_id,
                 configuration_samplings
             );
             let not_configuration_contains_sampling = !configuration_samplings.contains(&mining_samplings_hardware_id);
             ensure!(not_configuration_contains_sampling, "Configuration already contains the given sampling id");
-            debug::info!("Configuration id key exists but its vector value does not contain the given sampling id");
+            info!("Configuration id key exists but its vector value does not contain the given sampling id");
             <HardwareSettingSamplings<T>>::mutate(mining_setting_hardware_id, |v| {
                 if let Some(value) = v {
                     value.push(mining_samplings_hardware_id);
                 }
             });
-            debug::info!(
+            info!(
                 "Associated sampling {:?} with configuration {:?}",
                 mining_samplings_hardware_id,
                 mining_setting_hardware_id
             );
             Ok(())
         } else {
-            debug::info!(
+            info!(
                 "Configuration id key does not yet exist. Creating the configuration key {:?} and appending the \
                  sampling id {:?} to its vector value",
                 mining_setting_hardware_id,
@@ -354,8 +355,8 @@ impl<T: Config> Module<T> {
         let payload = (
             T::Randomness::random(&[0]),
             sender,
-            <frame_system::Module<T>>::extrinsic_index(),
-            <frame_system::Module<T>>::block_number(),
+            <frame_system::Pallet<T>>::extrinsic_index(),
+            <frame_system::Pallet<T>>::block_number(),
         );
         payload.using_encoded(blake2_128)
     }

@@ -1,4 +1,5 @@
 mod chain_spec;
+mod fixtures;
 #[macro_use]
 mod service;
 mod cli;
