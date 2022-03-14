@@ -430,6 +430,10 @@ version = "0.10.0"
 ```
 and then running `cargo build --release` again to check the next error if any.
 
+* Question: Why do I get the following error `error: duplicate lang item in crate std: panic_impl` and `error: duplicate lang item in crate std: oom`?
+
+It could be because you're trying to implement a pallet without importing it in the Cargo.toml file
+
 ## Technical Support <a id="chapter-c00ab7"></a>
 
 * [Discord Chat](https://discord.gg/UuZN2tE)

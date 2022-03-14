@@ -20,6 +20,7 @@ use frame_system::{
     ensure_signed,
 };
 use hex_literal::hex;
+use sp_runtime::{AccountId32};
 use sp_core::crypto::UncheckedFrom;
 use sp_std::prelude::*;
 
@@ -54,9 +55,8 @@ decl_module! {
             if <frame_system::Pallet<T>>::block_number() == 0u32.into() {
                 info!("treasury-dao - on_finalize: Genesis block");
                 let treasury_account_id: T::AccountId = <pallet_treasury::Pallet<T>>::account_id();
-                // FIXME - why does this give error:
-                // `the trait Wraps is not implemented for <T as frame_system::Config>::AccountId`
-                // let endowed_account_id = UncheckedFrom::unchecked_from(hex!("6d6f646c70792f74727372790000000000000000000000000000000000000000").into());
+                // let treasury_account_id: T::AccountId = <pallet_treasury::Pallet<T>>::account_id();
+                // let endowed_account_id = AccountId32::from_str(&"4LTFqiD6H6g8a7ur9WH4RxhWx2givWfK7o5EDed3ai1nYTvk".to_string()).unwrap()
                 // let balance_to_deposit = <T as Config>::Currency::free_balance(&endowed_account_id);
 
                 // if balance_to_deposit > 0u32.into() {
