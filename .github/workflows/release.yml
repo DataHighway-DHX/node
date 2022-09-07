@@ -30,8 +30,14 @@ jobs:
           rustup target add wasm32-unknown-unknown --toolchain nightly-2021-12-15
           cargo build --release
 
-      - name: Upload artifact
+      - name: Upload binary
         uses: actions/upload-artifact@v1
         with:
-          name: ubuntu-18.04-datahighway
+          name: datahighway
           path: target/release/datahighway
+          
+      - name: Upload runtime wasm
+        uses: actions/upload-artifact@v1
+        with:
+          name: datahighway_runtime.compact.wasm
+          path: target/release/wbuild/datahighway-runtime/datahighway_runtime.compact.wasm
